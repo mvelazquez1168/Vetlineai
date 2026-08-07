@@ -1,0 +1,208 @@
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { ApiError, apiFetch } from "../lib/api";
+import { keycloakAuth, KeycloakTokenResponse } from "../lib/keycloakAuth";
+import {
+  decodeJwtPayload,
+  guardarTokens,
+  guardarUsuario,
+  leerAccessToken,
+  leerRefreshToken,
+  leerUsuarioGuardado,
+  limpiarSesion,
+} from "../lib/session";
+
+/**
+ * Este hook es la ÚNICA puerta de entrada a la sesión en todo el frontend.
+ * Ningún otro archivo debe saber CÓMO se obtiene o se guarda la sesión —
+ * ahora es un access_token de Keycloak (antes era un JWT propio); el resto
+ * de la app sigue consumiendo `useAuth()` exactamente igual que antes.
+ */
+
+export type Rol = "medico" | "admin_clinica" | "super_admin" | "soporte_senior" | "soporte";
+
+export interface AuthUser {
+  userId: string;
+  tenantId: string | null;
+  rol: Rol;
+  esAdminClinica: boolean;
+  /** Independiente de `rol`: una persona puede ser admin_clinica Y médico a
+   *  la vez (clínica chica, caso normal). `rol` solo decide a dónde
+   *  aterriza (admin_clinica tiene prioridad ahí) — cualquier gating de
+   *  rutas debe usar `misRoles()` de este mismo archivo, no `rol` solo. */
+  esMedico: boolean;
+  /** Zona horaria IANA del tenant activo. null para staff_plataforma. */
+  zonaHoraria: string | null;
+}
+
+/**
+ * Todos los roles que efectivamente tiene la sesión — a diferencia de
+ * `user.rol` (que es un único valor, la pantalla de aterrizaje), esto
+ * puede traer más de uno para una persona admin_clinica + médico. Staff de
+ * plataforma (tenantId null) sigue siendo mutuamente excluyente por
+ * diseño, así que ahí devuelve un solo elemento.
+ */
+export function misRoles(user: Pick<AuthUser, "tenantId" | "rol" | "esAdminClinica" | "esMedico">): Rol[] {
+  if (user.tenantId === null) return [user.rol];
+  const roles: Rol[] = [];
+  if (user.esMedico) roles.push("medico");
+  if (user.esAdminClinica) roles.push("admin_clinica");
+  return roles;
+}
+
+interface AuthContextValue {
+  user: AuthUser | null;
+  tenantId: string | null;
+  rol: Rol | null;
+  esAdminClinica: boolean;
+  esMedico: boolean;
+  zonaHoraria: string | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<AuthUser>;
+  /**
+   * Para flujos que ya obtuvieron un access_token/refresh_token reales de
+   * Keycloak sin pasar por `login()` (ej. /registro-publico, que hace el
+   * intercambio password grant del lado del backend inmediatamente
+   * después de crear la clínica y devuelve esos tokens ya listos — acá
+   * solo falta guardarlos y resolver la sesión, no volver a pedirle la
+   * contraseña al usuario).
+   */
+  iniciarSesionConTokensKeycloak: (tokens: KeycloakTokenResponse) => Promise<AuthUser>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+// Roles de negocio que trae realm_access.roles del token de Keycloak — el
+// resto (offline_access, uma_authorization, default-roles-*, etc.) son
+// roles internos de Keycloak sin significado para esta app.
+//
+// Un ADMIN de clínica que además es médico (VETERINARIO) sigue aterrizando
+// en /admin, mismo criterio que ya usaba el backend con es_admin_clinica —
+// VETERINARIO solo decide el `rol` cuando no hay ADMIN ni SUPER_ADMIN.
+// esAdminClinica en cambio es independiente del `rol` final: es true cada
+// vez que el token trae ADMIN, ambos pueden convivir.
+function mapearRol(roles: string[]): { rol: Rol; esAdminClinica: boolean } | null {
+  const esAdminClinica = roles.includes("ADMIN");
+  if (roles.includes("SUPER_ADMIN")) return { rol: "super_admin", esAdminClinica };
+  if (esAdminClinica) return { rol: "admin_clinica", esAdminClinica: true };
+  if (roles.includes("VETERINARIO")) return { rol: "medico", esAdminClinica };
+  return null;
+}
+
+function isExpired(claims: { exp?: number } | null): boolean {
+  if (!claims?.exp) return false;
+  return Date.now() >= claims.exp * 1000;
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Al montar, restauramos el snapshot ya resuelto (evita esperar un
+  // viaje de red solo para pintar la UI) mientras el access_token siga
+  // vigente. Si venció, no lo refrescamos acá — el interceptor central en
+  // apiFetch (ver session.ts) se encarga apenas haya un request real, y si
+  // el refresh falla ahí, limpia la sesión y redirige a /login.
+  useEffect(() => {
+    const accessToken = leerAccessToken();
+    const claims = accessToken ? decodeJwtPayload(accessToken) : null;
+    const snapshot = leerUsuarioGuardado<AuthUser>();
+
+    if (accessToken && snapshot && claims && !isExpired(claims)) {
+      setUser(snapshot);
+    } else {
+      limpiarSesion();
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Único lugar que efectivamente guarda tokens de Keycloak y resuelve la
+  // sesión — tanto login() (que primero PIDE los tokens con email+password)
+  // como iniciarSesionConTokensKeycloak() (que ya los recibe listos, ver
+  // /registro-publico) terminan acá.
+  const establecerSesionKeycloak = async (tokens: KeycloakTokenResponse): Promise<AuthUser> => {
+    const claims = decodeJwtPayload(tokens.access_token);
+    const roles = (claims?.realm_access?.roles as string[] | undefined) ?? [];
+    const mapeo = claims ? mapearRol(roles) : null;
+    if (!claims || !mapeo) {
+      throw new ApiError(
+        "Tu usuario no tiene un rol reconocido en Vetline Ai. Contactá a soporte.",
+        403
+      );
+    }
+
+    // Guardamos los tokens ANTES de llamar a /auth/me: apiFetch resuelve el
+    // token vigente leyéndolo de acá (ver session.ts obtenerTokenValido),
+    // no del valor que se le pasa literalmente.
+    guardarTokens(tokens.access_token, tokens.refresh_token);
+
+    // zonaHoraria no viaja en el token de Keycloak — se completa con lo que
+    // el backend ya resuelve en GET /auth/me a partir de la persona y su
+    // tenant reales. De paso, esta llamada confirma que el backend
+    // efectivamente reconoce a este usuario de Keycloak (keycloak_user_id
+    // vinculado) antes de dar la sesión por establecida: mejor fallar acá
+    // con un mensaje claro que dejar entrar a alguien cuyo primer request
+    // real le va a devolver 401 en todos lados.
+    let me: { auth: AuthUser };
+    try {
+      me = await apiFetch<{ auth: AuthUser }>("/auth/me", { token: tokens.access_token });
+    } catch (err) {
+      limpiarSesion();
+      throw err;
+    }
+
+    guardarUsuario(me.auth);
+    setUser(me.auth);
+    return me.auth;
+  };
+
+  const login = async (email: string, password: string): Promise<AuthUser> => {
+    const tokens: KeycloakTokenResponse = await keycloakAuth.login(email, password);
+    return establecerSesionKeycloak(tokens);
+  };
+
+  const iniciarSesionConTokensKeycloak = (tokens: KeycloakTokenResponse): Promise<AuthUser> =>
+    establecerSesionKeycloak(tokens);
+
+  const logout = () => {
+    const refreshToken = leerRefreshToken();
+    limpiarSesion();
+    setUser(null);
+    if (refreshToken) {
+      // Best-effort: invalida la sesión del lado de Keycloak, sin bloquear
+      // el logout local si falla (ver keycloakAuth.ts).
+      keycloakAuth.logout(refreshToken).catch(() => {});
+    }
+  };
+
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      tenantId: user?.tenantId ?? null,
+      rol: user?.rol ?? null,
+      esAdminClinica: user?.esAdminClinica ?? false,
+      esMedico: user?.esMedico ?? false,
+      zonaHoraria: user?.zonaHoraria ?? null,
+      isLoading,
+      login,
+      iniciarSesionConTokensKeycloak,
+      logout,
+    }),
+    [user, isLoading]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth debe usarse dentro de <AuthProvider>.");
+  }
+  return ctx;
+}
+
+/** Devuelve el token crudo guardado, para pasarlo a apiFetch en llamadas autenticadas. */
+export function getStoredToken(): string | null {
+  return leerAccessToken();
+}

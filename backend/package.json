@@ -1,0 +1,50 @@
+{
+  "name": "vetplatform-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "migrate": "node -e \"require('dotenv').config(); const fs=require('fs'); const path=require('path'); const {Pool}=require('pg'); const pool=new Pool({connectionString:process.env.DATABASE_URL}); const dir='src/migrations'; const archivos=fs.readdirSync(dir).filter(f=>f.endsWith('.sql')).sort(); (async()=>{ try { for (const f of archivos) { console.log('Aplicando '+f+'...'); await pool.query(fs.readFileSync(path.join(dir,f),'utf8')); } console.log('Migraciones aplicadas.'); process.exit(0); } catch (e) { console.error(e); process.exit(1); } })();\"",
+    "seed": "ts-node --transpile-only src/seed/seed.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
+    "@napi-rs/canvas-linux-x64-musl": "^0.1.80",
+    "@types/archiver": "^8.0.0",
+    "@types/pdfkit": "^0.17.6",
+    "archiver": "^8.0.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "docx": "^9.7.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.2.2",
+    "mammoth": "^1.12.0",
+    "moment-timezone": "^0.5.45",
+    "multer": "^2.2.0",
+    "node-cron": "^4.6.0",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.19.1",
+    "pg": "^8.12.0",
+    "resend": "^4.0.1",
+    "stripe": "^16.12.0",
+    "svix": "^1.99.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.14.10",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.11.6",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.3"
+  }
+}

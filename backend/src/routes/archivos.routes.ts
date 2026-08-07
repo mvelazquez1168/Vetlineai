@@ -1,0 +1,187 @@
+import { toFile } from "@anthropic-ai/sdk";
+import crypto from "crypto";
+import { Router } from "express";
+import fs from "fs";
+import multer from "multer";
+import path from "path";
+import { requerirAnthropic } from "../anthropic";
+import { authenticate, withTenantClient } from "../middleware/auth";
+
+export const archivosRouter = Router();
+
+// Mismo mecanismo ya usado en platform-admin.routes.ts para documentos_
+// conocimiento: filesystem local del contenedor, carpeta compartida
+// /uploads — pero organizada en subcarpetas por tabla dueña (acá, casos/).
+// En una fase posterior esto se reemplaza por la Files API de Anthropic
+// (ver comentario en el handler de abajo).
+const uploadsDir = path.join(__dirname, "../../uploads");
+const casosUploadsDir = path.join(uploadsDir, "casos");
+fs.mkdirSync(casosUploadsDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, casosUploadsDir),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${crypto.randomUUID()}${ext}`);
+  },
+});
+const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
+
+function inferirTipo(nombreOriginal: string): string {
+  const ext = path.extname(nombreOriginal).toLowerCase().replace(".", "");
+  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "imagen";
+  if (ext === "pdf") return "pdf";
+  if (["doc", "docx", "txt", "rtf"].includes(ext)) return "documento";
+  if (["xls", "xlsx", "csv"].includes(ext)) return "hoja_calculo";
+  return "otro";
+}
+
+const CONTENT_TYPE_POR_EXTENSION: Record<string, string> = {
+  ".pdf": "application/pdf",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".txt": "text/plain",
+  ".csv": "text/csv",
+  ".doc": "application/msword",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ".xls": "application/vnd.ms-excel",
+  ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+};
+
+// Solo estos formatos tienen vista inline razonable en el navegador; el
+// resto siempre fuerza descarga (mismo criterio que documentos_conocimiento).
+const EXTENSIONES_INLINE = [".pdf", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".txt"];
+
+archivosRouter.use(authenticate, withTenantClient);
+
+// ---------------------------------------------------------------------
+// POST /api/archivos
+// Sube un archivo suelto (multipart/form-data, campo "archivo") y lo
+// asocia a un caso (campo "casoId"). El archivo queda con mensaje_id NULL
+// hasta que se lo referencia en un POST de mensaje (ver
+// workspace.routes.ts) — así el chip puede subirse apenas se adjunta,
+// antes de que el médico termine de escribir y enviar el mensaje.
+//
+// Además de guardarlo en el filesystem local (sigue siendo la fuente para
+// que el médico lo vea/descargue desde la interfaz), se sube también a la
+// Files API de Anthropic — el file_id devuelto queda en
+// archivos.file_id_anthropic para que GCIS pueda referenciarlo dentro del
+// content de un mensaje real (ver workspace.routes.ts). La subida a
+// Anthropic se intenta para todos los archivos, no solo los de casos de
+// GCIS: es barata (el storage de la Files API no se cobra, solo el uso
+// dentro de un mensaje) y evita tener que resolver acá el agente del caso.
+// Si falla (Anthropic no configurado, formato no soportado, etc.), el
+// archivo local NO se pierde — solo queda file_id_anthropic en null.
+// ---------------------------------------------------------------------
+archivosRouter.post("/", upload.single("archivo"), async (req, res) => {
+  if (!req.auth!.esMedico) {
+    return res.status(403).json({ error: "Esta sección es solo para médicos." });
+  }
+
+  const { casoId } = req.body as { casoId?: string };
+
+  if (!req.file) {
+    return res.status(400).json({ error: "Falta el archivo." });
+  }
+  if (!casoId) {
+    return res.status(400).json({ error: "Falta casoId." });
+  }
+
+  try {
+    const casoResult = await req.db!.query(
+      `SELECT id FROM casos WHERE id = $1 AND medico_id = $2`,
+      [casoId, req.auth!.userId]
+    );
+    if (casoResult.rows.length === 0) {
+      return res.status(404).json({ error: "Caso no encontrado." });
+    }
+
+    const tipo = inferirTipo(req.file.originalname);
+
+    let fileIdAnthropic: string | null = null;
+    try {
+      const anthropic = requerirAnthropic();
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const contentType = CONTENT_TYPE_POR_EXTENSION[ext] ?? "application/octet-stream";
+      const subida = await anthropic.beta.files.upload({
+        file: await toFile(fs.createReadStream(req.file.path), req.file.originalname, {
+          type: contentType,
+        }),
+        betas: ["files-api-2025-04-14"],
+      });
+      fileIdAnthropic = subida.id;
+    } catch (err) {
+      console.error(
+        `No se pudo subir "${req.file.originalname}" a la Files API de Anthropic — sigue disponible localmente`,
+        err
+      );
+    }
+
+    const result = await req.db!.query(
+      `INSERT INTO archivos (caso_id, nombre_archivo, tipo, url, file_id_anthropic)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, nombre_archivo, tipo, url, creado_en, file_id_anthropic`,
+      [casoId, req.file.originalname, tipo, `/uploads/casos/${req.file.filename}`, fileIdAnthropic]
+    );
+
+    res.status(201).json({ archivo: result.rows[0] });
+  } catch (err) {
+    console.error("POST /archivos", err);
+    res.status(500).json({ error: "Error al subir el archivo." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// GET /api/archivos/:id
+// Sirve el archivo físico, pero SOLO si el caso al que pertenece es del
+// tenant de la sesión actual — join explícito archivos → casos.tenant_id
+// (archivos no tiene tenant_id propio; ver 001_init.sql). Esto es defensa
+// en profundidad además de la RLS `archivos_isolation` que ya filtra por
+// el mismo camino vía withTenantClient: si algún día un handler corre con
+// una conexión sin RLS activa, este WHERE explícito sigue protegiendo.
+//
+// Nunca 403 acá: un archivo de otro tenant no debe ni siquiera confirmar
+// que existe, así que ese caso devuelve el mismo 404 que "no existe".
+// ---------------------------------------------------------------------
+archivosRouter.get("/:id", async (req, res) => {
+  try {
+    const result = await req.db!.query(
+      `SELECT a.nombre_archivo, a.url
+       FROM archivos a
+       JOIN casos c ON c.id = a.caso_id
+       WHERE a.id = $1 AND c.tenant_id = $2`,
+      [req.params.id, req.auth!.tenantId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Archivo no encontrado." });
+    }
+
+    const { nombre_archivo: nombreArchivo, url } = result.rows[0];
+    // `url` es una ruta relativa a la raíz del servidor (ej. "/uploads/casos/x.pdf"),
+    // no al directorio de uploads — se le saca el prefijo antes de unirla.
+    const rutaRelativa = url.replace(/^\/uploads\//, "");
+    const rutaArchivo = path.join(uploadsDir, rutaRelativa);
+    if (!fs.existsSync(rutaArchivo)) {
+      return res.status(404).json({ error: "El archivo ya no está disponible." });
+    }
+
+    const ext = path.extname(rutaArchivo).toLowerCase();
+    const contentType = CONTENT_TYPE_POR_EXTENSION[ext] ?? "application/octet-stream";
+    const forzarDescarga = req.query.descargar === "1" || !EXTENSIONES_INLINE.includes(ext);
+    const disposicion = forzarDescarga ? "attachment" : "inline";
+    const nombreSanitizado = nombreArchivo.replace(/[\\/:*?"<>|]/g, "").trim() || "archivo";
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader(
+      "Content-Disposition",
+      `${disposicion}; filename="${nombreSanitizado}"; filename*=UTF-8''${encodeURIComponent(nombreSanitizado)}`
+    );
+    res.sendFile(rutaArchivo);
+  } catch (err) {
+    console.error("GET /archivos/:id", err);
+    res.status(500).json({ error: "Error al obtener el archivo." });
+  }
+});

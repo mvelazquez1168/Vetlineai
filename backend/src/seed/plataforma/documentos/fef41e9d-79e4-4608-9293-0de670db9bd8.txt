@@ -1,0 +1,68 @@
+# Enfermedad de Disco Intervertebral Canina (IVDD) — Diagnóstico, Gradación y Manejo
+
+**Fuentes principales (síntesis de literatura convergente):**
+- Olby NJ, Moore SA, Brisson B, et al. ACVIM consensus statement on diagnosis and management of acute canine thoracolumbar intervertebral disc extrusion. *J Vet Intern Med.* 2022;36(5):1570-1596.
+- Olby NJ, da Costa RC, Levine JM, Stein VM; Canine Spinal Cord Injury Consortium (CANSORT-SCI). Prognostic Factors in Canine Acute Intervertebral Disc Disease. *Front Vet Sci.* 2020;7:596059. Acceso abierto.
+- Literatura complementaria sobre sistemas de gradación clínica y desenlaces quirúrgicos.
+
+**Alcance de este resumen:** tercer documento del sistema neurológico para el agente de medicina interna/triage (ICIS), cerrando la brecha notable identificada. La IVDE (extrusión de disco intervertebral) toracolumbar es la causa más común de paraparesia/paraplejia aguda en perros — de las presentaciones neurológicas más frecuentes en la práctica general y de alta relevancia para triage.
+
+---
+
+## 1. Por qué importa — magnitud del problema
+
+- La extrusión de disco intervertebral toracolumbar (TL-IVDE) es **la causa más común de paraparesia y paraplejia aguda en perros**.
+- Las lesiones agudas y severas de médula espinal toracolumbar representan aproximadamente **4% de los casos presentados a salas de emergencia** en Norteamérica, y de estos, aproximadamente **74% corresponden a alguna forma de IVDD**.
+- Se estiman **~20,000 cirugías anuales** por esta condición solo en el contexto norteamericano — refleja tanto su frecuencia como la necesidad frecuente de intervención quirúrgica.
+- Es una condición **extremadamente estresante para los propietarios**, quienes deben procesar información compleja sobre la enfermedad, los riesgos y costos de los procedimientos diagnósticos/terapéuticos, y la posibilidad de déficits permanentes o muerte — la comunicación clara y realista del pronóstico desde el primer contacto es tan importante como el manejo clínico en sí.
+
+## 2. Clasificación — dos tipos con mecanismo y presentación distintos
+
+- **Tipo I (Hansen tipo I)**: extrusión aguda del núcleo pulposo — inicio súbito, típico de razas condrodistróficas con degeneración discal temprana (ej. Dachshund, Beagle, French Bulldog).
+- **Tipo II**: protrusión/degeneración gradual del disco — presentación crónica, progresiva, más frecuente en razas no condrodistróficas de mayor tamaño.
+- La distinción tipo I vs. tipo II tiene implicaciones directas en el enfoque terapéutico y el pronóstico esperado — no deben manejarse con el mismo protocolo.
+
+## 3. Sistema de gradación clínica — el marco pronóstico más práctico
+
+| Grado | Presentación clínica | Pronóstico general |
+|---|---|---|
+| **1** | Dolor, pero camina normalmente | Más tratable; alta probabilidad de recuperación con la mayoría de los enfoques |
+| **2** | Marcha débil o tambaleante, pero aún ambulatorio | Buen pronóstico |
+| **3** | Puede mover las extremidades pero no camina sin asistencia | Pronóstico intermedio, depende del enfoque terapéutico |
+| **4** | Parálisis (no ambulatorio, sin capacidad de caminar) | Requiere decisión terapéutica activa; pronóstico variable |
+| **5** | Parálisis completa **sin percepción de dolor profundo**, con incontinencia frecuente | El desenlace más severo — pronóstico marcadamente peor |
+
+- **La pérdida de percepción de dolor profundo es, de manera consistente, el factor pronóstico más determinante de mal desenlace** — un perro grado 5 (sin dolor profundo) tiene un pronóstico sustancialmente peor que uno en grado 4 (con dolor profundo conservado), independientemente del resto de hallazgos clínicos.
+- Regla práctica generalmente citada: **cuanto antes se detecta y trata la IVDD, mejor el pronóstico** — en grados avanzados (4-5), la cirugía realizada dentro de las primeras 24 horas ofrece la mejor probabilidad de mejoría; el tiempo transcurrido hasta la intervención es un factor pronóstico modificable, no solo descriptivo.
+
+## 4. Factores pronósticos adicionales — más allá del grado clínico
+
+- **Recuperación de la ambulación, retorno de continencia urinaria/fecal, resolución del dolor**, y en el extremo negativo, **desarrollo de mielomalacia progresiva** son las consideraciones pronósticas centrales tras la lesión aguda.
+- El **tipo de extrusión** (tipo I vs. otras formas) influye particularmente en la probabilidad de recuperación de la continencia.
+- En casos Hansen tipo I, **el pronóstico se modifica según la elección entre terapia quirúrgica vs. médica** — no son intercambiables en cuanto a expectativas de desenlace.
+- Marcadores complementarios en investigación (no aún de uso rutinario generalizado): concentración de proteínas estructurales en plasma, mediadores inflamatorios, creatina cinasa, y proteína básica de mielina en líquido cefalorraquídeo — pueden aportar información pronóstica adicional en casos complejos.
+- **Mielomalacia progresiva** es la complicación más temida — implica ascenso progresivo del daño medular, generalmente de pronóstico fatal, y su desarrollo no se previene de forma confiable con ninguna intervención actualmente disponible.
+
+## 5. Áreas de incertidumbre reconocidas explícitamente por el consenso ACVIM 2022
+
+El panel de 8 expertos identificó que la mayoría de las recomendaciones actuales se apoyan en evidencia de nivel **bajo a moderado**, con brechas de conocimiento explícitamente señaladas en:
+- El **momento ideal** para la descompresión quirúrgica.
+- Los desenlaces esperados comparando manejo quirúrgico vs. médico en perros **más levemente afectados** (grados 1-3).
+- El impacto de la **durotomía** (apertura de la duramadre durante la cirugía) sobre el desenlace locomotor y el desarrollo de mielomalacia progresiva.
+- El refinamiento del cuidado postoperatorio.
+- Estudios genéticos y de cuidado preventivo.
+
+**Implicación práctica**: la ausencia de un protocolo único, universalmente validado, es reconocida por el propio consenso — el manejo debe individualizarse según el grado clínico, el tipo de extrusión, y los recursos/preferencias del propietario, más que seguir una receta rígida.
+
+## 6. Manejo — panorama general por severidad
+
+- **Casos leves (grados 1-2)**: reposo estricto y manejo médico (analgesia, antiinflamatorios) puede ser suficiente en muchos casos, aunque la evidencia comparativa robusta frente a cirugía en este subgrupo específico es limitada según el propio consenso.
+- **Casos severos (grados 4-5)**: la cirugía descompresiva es generalmente el enfoque de elección, con la advertencia de que el tiempo hasta la intervención afecta directamente el pronóstico, especialmente en ausencia de dolor profundo.
+- **Casos crónicos** (signos ≥3 semanas, con adherencias del material extruido a la duramadre, ligamento longitudinal dorsal, o senos venosos): pueden requerir técnicas quirúrgicas específicas (ej. corpectomía lateral parcial) distintas de las usadas en presentaciones agudas — series retrospectivas de esta técnica muestran que la mayoría de los pacientes recupera la capacidad de caminar al alta, con un tiempo medio hasta alcanzar el grado neurológico de mediano plazo de aproximadamente 2 meses.
+
+## 7. Conclusión operativa para ICIS
+
+- El hallazgo más accionable de todo el marco es simple: **evaluar y documentar la percepción de dolor profundo en todo perro con déficit neurológico toracolumbar agudo** — es el único factor pronóstico individual que consistentemente separa un pronóstico razonable de uno reservado, y determina la urgencia de la decisión terapéutica.
+- Ante un perro grado 4-5 (no ambulatorio), el tiempo hasta la intervención quirúrgica importa clínicamente — la referencia oportuna no debe demorarse innecesariamente mientras se completan estudios no esenciales, dado que la ventana de mejor pronóstico quirúrgico se mide en horas, no días.
+- Para casos más leves (grados 1-3), no existe evidencia robusta que indique un único camino correcto entre manejo médico y quirúrgico — la decisión debe conversarse con el propietario considerando recursos, preferencias, y grado clínico específico, sin presentar la cirugía como la única opción válida.
+- Este documento completa el sistema neurológico de ICIS junto con los ya cargados de Status Epilepticus/Crisis en Racimo y Epilepsia crónica — cubriendo ahora tanto las emergencias convulsivas como la causa más común de déficit neurológico agudo no convulsivo (paraparesia/paraplejia por IVDD).

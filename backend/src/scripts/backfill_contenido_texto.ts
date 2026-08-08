@@ -51,7 +51,8 @@ async function procesar(): Promise<Resultado[]> {
 
     let texto: string | null;
     try {
-      texto = await extraerTexto(rutaAbsoluta);
+      const buffer = await fs.promises.readFile(rutaAbsoluta);
+      texto = await extraerTexto(buffer, path.extname(rutaAbsoluta));
     } catch (err) {
       const mensaje = (err as Error).message;
       console.log(`[error] ${row.nombre} — ${mensaje}`);

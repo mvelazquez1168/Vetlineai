@@ -9,7 +9,11 @@ import { enviarEmail, resendConfigurado } from "./email";
 
 type EjecutorSql = Pool | PoolClient;
 
-export type MotivoRechazoCambio = "no_cabe_en_destino" | "cambio_no_encontrado" | "ya_no_programado";
+export type MotivoRechazoCambio =
+  | "no_cabe_en_destino"
+  | "cambio_no_encontrado"
+  | "ya_no_programado"
+  | "pago_pendiente";
 
 export interface ResultadoCambio {
   permitido: boolean;
@@ -76,6 +80,19 @@ export async function solicitarDowngrade(
   const suscripcion = await resolverSuscripcionVigente(db, tenantId);
   if (!suscripcion) return { permitido: false, motivo: "cambio_no_encontrado" };
 
+  // Rechazar, no cancelar. Un upgrade/conversión en 'espera_pago' tiene un
+  // cobro ya enviado a la pasarela — cancelarlo acá dejaría un cargo
+  // cobrado (o por confirmar) sin cambio de plan asociado. La ventana dura
+  // segundos en el caso normal; pedirle al admin que reintente es más
+  // simple que reversar un cobro ya hecho.
+  const pagoPendienteResult = await db.query(
+    `SELECT id FROM cambios_suscripcion WHERE suscripcion_id = $1 AND estado = 'espera_pago'`,
+    [suscripcion.id]
+  );
+  if (pagoPendienteResult.rows.length > 0) {
+    return { permitido: false, motivo: "pago_pendiente" };
+  }
+
   const planResult = await db.query(
     `SELECT agentes_incluidos, medicos_incluidos FROM planes WHERE id = $1`,
     [params.planDestinoId]
@@ -96,7 +113,11 @@ export async function solicitarDowngrade(
   await db.query("BEGIN");
   try {
     // Reemplaza cualquier cambio programado existente para esta
-    // suscripción (de cualquier tipo).
+    // suscripción (de cualquier tipo) — pero SOLO 'programado' (downgrade
+    // o cancelación agendados a fin de período, nunca cobran). Un upgrade
+    // o conversión con el cobro en tránsito vive en 'espera_pago' (ver
+    // migración 056) y ya se rechazó más arriba antes de llegar acá — este
+    // UPDATE nunca puede tocarlo, ni por casualidad de nombre de estado.
     await db.query(
       `UPDATE cambios_suscripcion SET estado = 'cancelado' WHERE suscripcion_id = $1 AND estado = 'programado'`,
       [suscripcion.id]
@@ -423,6 +444,8 @@ export function mensajeRechazoCambio(resultado: ResultadoCambio): string {
       return "No se encontró el cambio o la suscripción.";
     case "ya_no_programado":
       return "Este cambio ya no está programado (fue ejecutado, cancelado o ya venció).";
+    case "pago_pendiente":
+      return "Hay un cambio de plan con el cobro en proceso — esperá a que se confirme (unos segundos) antes de solicitar otro.";
     default:
       return "No se pudo completar la operación.";
   }

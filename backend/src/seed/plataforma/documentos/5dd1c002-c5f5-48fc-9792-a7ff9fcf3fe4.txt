@@ -1,0 +1,121 @@
+# Guías IRIS — Estadificación y Tratamiento de la Enfermedad Renal Crónica (ERC) en Perros
+
+**Fuente:** International Renal Interest Society (IRIS). IRIS Staging of CKD (modificado 2023) y Treatment Recommendation for CKD in Dogs (modificado 2026). Documentos oficiales de acceso libre, iris-kidney.com.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — sistema renal, enfoque en perros. Es el estándar internacional de estadificación y manejo de ERC en veterinaria de pequeños animales.
+
+**Nota de vigencia**: la estadificación (creatinina/SDMA) corresponde a la revisión 2023, vigente según la propia IRIS ("la mayoría del marco diagnóstico no cambió en la revisión 2026"). El tratamiento corresponde a la revisión 2026, la más reciente disponible, que formalizó umbrales de anemia y agregó inhibidores de HIF-PH (ej. molidustat) como opción terapéutica.
+
+---
+
+## 1. Principio general de estadificación
+
+- La estadificación se aplica **solo después de diagnosticar ERC** — un valor aislado de creatinina o SDMA elevado no es diagnóstico por sí solo.
+- Se basa en **creatinina sérica en ayunas y/o SDMA**, evaluadas en al menos 2 ocasiones, en un paciente **hidratado y estable**.
+- Después de la estadificación por creatinina/SDMA, el paciente se **subestadifica** por proteinuria y presión arterial.
+
+## 2. Estadios (perros) — creatinina y SDMA
+
+| Estadio | Creatinina (mg/dl) | SDMA (µg/dl) | Comentario clínico |
+|---|---|---|---|
+| **1** | <1.4 | <18 | Creatinina normal o SDMA normal/levemente elevada. Puede haber otra anormalidad renal (capacidad de concentración inadecuada, hallazgos anormales de palpación/imagen, proteinuria de origen renal, biopsia anormal, o creatinina/SDMA en aumento en muestras seriadas). SDMA >14 µg/dl persistente puede usarse para diagnosticar ERC temprana. |
+| **2** | 1.4 – 2.8 | 18 – 35 | Azotemia renal leve (el extremo inferior puede caer dentro del rango de referencia de muchos laboratorios). Signos clínicos usualmente leves o ausentes. |
+| **3** | 2.9 – 5.0 | 36 – 54 | Azotemia renal moderada. Pueden presentarse muchos signos extrarrenales, de extensión y severidad variable. |
+| **4** | >5.0 | >54 | Riesgo creciente de signos clínicos sistémicos y crisis urémica. |
+
+**Discrepancia creatinina vs. SDMA (perros)** — la SDMA puede ser más sensible y menos afectada por pérdida de masa magra:
+- SDMA persistentemente >18 µg/dl con creatinina <1.4 (Estadio 1 por creatinina) → reclasificar como **Estadio 2**.
+- SDMA persistentemente >35 µg/dl con creatinina 1.4-2.8 (Estadio 2 por creatinina) → reclasificar como **Estadio 3**.
+- SDMA >54 µg/dl con creatinina 2.9-5.0 (Estadio 3 por creatinina) → reclasificar como **Estadio 4**.
+
+**Advertencia sobre razas**: Greyhounds (y gatos Birman) sanos tienen valores de creatinina y SDMA basales más altos que otras razas — hasta un 20% puede caer fuera del rango de referencia estándar sin tener ERC real.
+
+## 3. Subestadificación por proteinuria (UP/C)
+
+| UP/C (perros) | Subestadio |
+|---|---|
+| <0.2 | No proteinúrico |
+| 0.2 – 0.5 | Proteinúrico limítrofe |
+| >0.5 | Proteinúrico |
+
+- Medir en todos los perros con ERC, siempre que no haya inflamación/hemorragia del tracto urinario ni disproteinemia.
+- Idealmente basado en ≥2 muestras separadas por al menos 2 semanas.
+- Los proteinúricos limítrofes persistentes deben reevaluarse dentro de 2 meses.
+- La proteinuria puede disminuir a medida que empeora la función renal — puede ser menos frecuente en Estadios 3-4 pese a enfermedad avanzada.
+
+## 4. Subestadificación por presión arterial sistólica
+
+| PA sistólica (mmHg) | Subestadio | Riesgo de daño a órgano blanco |
+|---|---|---|
+| <140 | Normotenso | Mínimo |
+| 140-159 | Prehipertenso | Bajo |
+| 160-179 | Hipertenso | Moderado |
+| ≥180 | Severamente hipertenso | Alto |
+
+- Requiere múltiples determinaciones, idealmente en visitas separadas; aceptable en la misma visita si están separadas por ≥2 horas.
+- Razas de mayor presión basal (ej. galgos): ajustar usando desviación respecto al rango de referencia específico de raza, no el valor absoluto.
+- "Persistencia" de la hipertensión: hipertenso debe confirmarse en 2-4 semanas; severamente hipertenso en 1-2 semanas — salvo que ya haya evidencia de daño a órgano blanco, en cuyo caso se trata sin esperar esa confirmación.
+
+## 5. Principios generales de tratamiento por objetivo
+
+El tratamiento se divide en dos categorías: **(i) los que enlentecen la progresión** (dominan en Estadios 1-2) y **(ii) los que mejoran la calidad de vida** (ganan importancia progresivamente desde el Estadio 3, y son centrales en el Estadio 4).
+
+### Todos los estadios
+- Suspender fármacos potencialmente nefrotóxicos si es posible.
+- Identificar y tratar causas prerrenales/posrenales.
+- Descartar pielonefritis y obstrucción ureteral (radiografía/ecografía) — en Estadio 4, cualquier infección urinaria debe tratarse como pielonefritis potencial.
+- Medir presión arterial y UP/C.
+- Alimentación con dieta renal clínica (más fácil de instaurar tempranamente, antes de que aparezca anorexia).
+
+### Manejo de hipertensión — enfoque escalonado
+1. Reducción de sodio dietario (sin evidencia sólida por sí sola; combinar con fármacos si se intenta).
+2. IECA (ej. benazepril) a dosis estándar.
+3. Duplicar dosis de IECA.
+4. Combinar IECA + bloqueador de canales de calcio (ej. amlodipino), especialmente si severamente hipertenso.
+5. Agregar antagonista del receptor de angiotensina (ARB, ej. telmisartán) y/o hidralazina si se requiere tratamiento adicional.
+
+**Precaución crítica**: nunca introducir IECA/BCC/ARB en un paciente deshidratado o hipovolémico inestable — la tasa de filtración glomerular puede caer precipitadamente. El riesgo de combinar IECA+ARB es mayor en Estadios 3 y 4; requiere monitoreo cuidadoso.
+
+**Meta de PA**: reducir a <160 mmHg sistólica, evitando descensos súbitos o severos que lleven a hipotensión (PA <120 mmHg y/o debilidad/taquicardia = hipotensión, a evitar).
+
+### Manejo de proteinuria
+1. Buscar y corregir proceso subyacente concurrente.
+2. Considerar biopsia renal (Estadios 1-3, no en Estadio 4) — indicaciones: renomegalia, ERC en paciente joven, proteinuria persistente severa (UP/C>2.0) sin azotemia, proteinuria en empeoramiento, o lesión renal aguda (valor pronóstico).
+3. ARB + dieta renal clínica.
+4. Combinar IECA + ARB solo con cautela, idealmente con consulta a nefrólogo veterinario.
+5. Antiplaquetario/antitrombótico: clopidogrel (1.1-3 mg/kg VO c/24h) preferido sobre ácido acetilsalicílico en dosis baja (2-5 mg/kg VO c/24h) como alternativa.
+6. Meta: reducir UP/C al mínimo posible sin causar daño — en enfermedad glomerular primaria, UP/C<0.5 no siempre es alcanzable; la meta razonable es 50% de reducción desde el basal.
+
+### Reducción de fosfato (progresivo por estadio)
+- Meta general: fosfato plasmático <1.5 mmol/l (4.6 mg/dl), sin bajar de 0.9 mmol/l (2.7 mg/dl).
+- Meta más realista post-tratamiento: Estadio 3 <1.6 mmol/l (5.0 mg/dl); Estadio 4 <1.9 mmol/l (6.0 mg/dl).
+- Pasos: (1) restricción dietaria (dieta renal clínica); (2) si persiste elevado, quelantes entéricos de fosfato (hidróxido/carbonato de aluminio, carbonato/acetato de calcio, carbonato de lantano, citrato férrico) 30-60 mg/kg/día divididos, mezclados con la comida, ajustado a efecto.
+- Monitoreo: calcio y fosfato cada 4-6 semanas hasta estabilizar, luego cada 12 semanas.
+- Microcitosis o debilidad muscular generalizada con quelante de aluminio → sospechar toxicidad por aluminio, cambiar de quelante.
+
+### Manejo de anemia (guía 2026 — umbrales ya formalizados)
+- **Tratar si hematocrito <30%.**
+- **Tratar si anemia persistente con hematocrito 30-35%.**
+- Opciones de tratamiento: darbepoetina, **inhibidores de HIF-PH (ej. molidustat)** — clase terapéutica más reciente incorporada en 2026 — y transfusión.
+- Descartar y tratar causas concurrentes (infecciones, muestreo sanguíneo excesivo) antes de atribuir toda la anemia a la ERC.
+
+### Manejo de acidosis metabólica (Estadios 3-4)
+- Si bicarbonato/CO2 total <18 mmol/l una vez estabilizado con dieta renal: suplementar con bicarbonato de sodio oral (o citrato de potasio si hay hipokalemia) para mantener 18-24 mmol/l.
+
+### Signos gastrointestinales
+- Vómito/náusea sospechada: antieméticos (maropitant, ondansetrón).
+- Anorexia/pérdida de peso/masa muscular: estimulantes del apetito (capromorelina, mirtazapina).
+- Sospecha de sangrado gástrico (melena, deficiencia de hierro) o esofagitis por vómito: omeprazol intermitente.
+- Estadio 4: considerar sonda de alimentación (esofagostomía/gastrostomía percutánea) si el manejo farmacológico del apetito es inefectivo y/o se requiere hidratación suplementaria prolongada.
+
+### Estadio 4 — consideraciones adicionales
+- Intensificar prevención de malnutrición proteico-calórica e hipohidratación.
+- Considerar diálisis y/o trasplante renal.
+- Fármacos de eliminación predominantemente renal: usar con cautela, puede requerir ajuste de dosis.
+
+## 6. Nota sobre discrepancia entre creatinina y SDMA en Estadio 3 (revisión 2026)
+Si la SDMA es >54 µg/dl en un perro con creatinina entre 2.8 y 5 mg/dl (Estadio 3 por creatinina), reclasificar y tratar como **Estadio 4**.
+
+## 7. Implicación práctica para el razonamiento de ICIS
+
+Este marco de estadificación debe aplicarse consistentemente cada vez que se evalúe función renal en un caso — no basta con reportar "creatinina elevada"; el razonamiento clínico debe ubicar al paciente en un estadio IRIS específico (considerando también SDMA si está disponible), subestadificar por proteinuria y presión arterial, y las recomendaciones terapéuticas deben alinearse con el estadio asignado, no ser genéricas para "enfermedad renal".

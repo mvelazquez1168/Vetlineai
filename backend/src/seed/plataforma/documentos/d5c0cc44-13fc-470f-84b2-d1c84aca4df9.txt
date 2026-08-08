@@ -1,0 +1,51 @@
+# Parvovirosis Canina — Diagnóstico y Manejo
+
+**Fuentes principales (síntesis de literatura convergente):**
+- Material de congreso WSAVA sobre manejo de infecciones por parvovirus en perros y gatos (2018-2019).
+- Sykes J. Canine Parvovirus Infections and Other Viral Enteritides (capítulo de referencia, citado en múltiples revisiones).
+- Literatura complementaria sobre diagnóstico y tratamiento de parvovirosis canina.
+
+**Alcance de este resumen:** cuarto documento del sistema infeccioso para el agente de medicina interna/triage (ICIS) — cierra la brecha más notable identificada en la Base de Conocimiento, dada la altísima frecuencia y letalidad potencial de esta enfermedad en cachorros, particularmente relevante en contextos con cobertura de vacunación incompleta.
+
+---
+
+## 1. Por qué es la emergencia infecciosa más urgente en cachorros
+
+- Enfermedad gastrointestinal viral aguda, típicamente con **diarrea hemorrágica**, que afecta predominantemente a perros **menores de 2 años**, especialmente con esquema de vacunación incompleto o desconocido.
+- El virus ataca preferentemente **células de división rápida**: epitelio del tracto gastrointestinal, miocardio, sistema nervioso central, piel, riñón, y otros órganos — explica la amplia variedad de complicaciones posibles más allá del cuadro entérico clásico.
+- **Con soporte adecuado iniciado poco después del inicio de signos clínicos, más del 90% de los perros sobreviven** — dato central para la conversación pronóstica inicial con el propietario, especialmente relevante porque la percepción popular suele ser de mortalidad mucho más alta.
+- La panleucopenia felina (parvovirus felino) suele tener una tasa de mortalidad más alta que la parvovirosis canina — relevante si se maneja también medicina felina en la misma práctica.
+
+## 2. Sospecha clínica — el criterio de triage más simple
+
+- **Cualquier perro menor de 2 años con diarrea hemorrágica aguda debe considerarse de alto riesgo para parvovirus**, particularmente si el historial de vacunación es incompleto o desconocido.
+- **Diferencial obligatorio**: salmonelosis — debe considerarse especialmente en perros que lucen clínicamente como parvovirosis pero que están **bien vacunados**, donde la probabilidad pretest de parvovirus verdadero es menor.
+
+## 3. Diagnóstico — ventajas y limitaciones de cada método
+
+- **ELISA fecal para antígeno de parvovirus** (ej. SNAP Parvo): puede realizarse en la clínica, con resultado rápido. Algunos kits tienen un punto de corte que excluye la mayoría de los perros vacunados con cepas de virus vivo modificado — dato relevante para no generar falsos positivos por vacunación reciente.
+- **PCR fecal**: extremadamente sensible — tanto que puede amplificar ADN de CPV-2 en perros **recientemente vacunados** con virus vivo modificado, generando resultados positivos que no representan infección natural. Por esta razón, **el ELISA puede ser superior al PCR específicamente para cribado**, ya que discrimina mejor entre infección real y respuesta post-vacunal.
+- **Limitación compartida de ambos métodos**: algunos perros ya completaron el período de eliminación viral (shedding) para el momento en que se realiza la prueba, generando **falsos negativos** — un resultado negativo no descarta parvovirosis si la sospecha clínica es alta y el momento de la prueba pudo ser tardío.
+- Métodos adicionales disponibles pero menos usados en la práctica rutinaria: microscopía electrónica, aislamiento viral, seroconversión.
+
+## 4. Tratamiento — soporte intensivo dirigido a cada complicación
+
+El tratamiento es fundamentalmente **sintomático y de soporte**, dirigido a mantener al paciente con vida mientras el sistema inmune controla la infección viral. Los pilares son:
+
+- **Reposición de fluidos y balance electrolítico** — con atención particular al **potasio**, que frecuentemente se altera por las pérdidas gastrointestinales.
+- **Control de hipoglucemia** — especialmente relevante en cachorros pequeños con reservas energéticas limitadas.
+- **Control de la presión oncótica** — la hipoalbuminemia puede desarrollarse por la pérdida proteica entérica, y requiere monitoreo activo.
+- **Tratamiento de bacteremia/sepsis** — con antibióticos, dado que la lesión de la barrera intestinal facilita la translocación bacteriana.
+- **Control de náusea y vómito** — antieméticos como parte estándar del soporte, para permitir tolerancia a fluidos y eventualmente alimentación.
+- **Alimentación temprana del intestino** ("feeding the gut") tan pronto como sea clínicamente posible — el concepto de nutrición enteral temprana, incluso en cantidades pequeñas, favorece la recuperación de la mucosa intestinal en lugar del ayuno prolongado tradicional.
+- En casos con deshidratación leve a moderada, existe evidencia de que una **solución electrolítica oral** puede ser una alternativa válida a la fluidoterapia IV exclusiva — relevante para escenarios con recursos limitados o cuando el acceso IV es difícil de mantener.
+- **Vías de acceso vascular alternativas**: en cachorros pequeños con colapso vascular, la **infusión intraósea** es una opción documentada y efectiva cuando el acceso IV periférico no es viable.
+- Terapias adicionales exploradas en la literatura: plasma inmune (evidencia de beneficio limitado en un ensayo clínico), oseltamivir (uso descrito pero sin evidencia sólida de beneficio establecido) — ninguna reemplaza al soporte intensivo estándar como pilar del tratamiento.
+
+## 5. Conclusión operativa para ICIS
+
+- El criterio de sospecha más simple y accionable es: **cachorro <2 años + diarrea hemorrágica aguda + vacunación incompleta/desconocida** — este perfil debe activar manejo de aislamiento y protocolo diagnóstico inmediato, incluso antes de tener resultado de laboratorio.
+- Un ELISA negativo en un paciente con alta sospecha clínica **no descarta la enfermedad** — debe considerarse repetir la prueba o mantener el manejo de soporte mientras se reevalúa, dado el riesgo de falso negativo por timing tardío de la prueba.
+- El pronóstico real (>90% de sobrevida con soporte oportuno) es un dato crítico para comunicar a propietarios que llegan con expectativas de mortalidad mucho más alta — puede influir directamente en la decisión de proceder con tratamiento vs. eutanasia por percepción de mal pronóstico.
+- La hipoglucemia y la hipokalemia deben monitorearse activamente y de forma proactiva en todo cachorro con parvovirosis confirmada o fuertemente sospechada, no solo reactivamente cuando aparecen signos clínicos de estas alteraciones.
+- Este documento cierra la brecha más notable que existía en el sistema infeccioso de la Base de Conocimiento de ICIS, complementando Leptospirosis y Ehrlichiosis/Anaplasmosis con la enfermedad infecciosa aguda de mayor frecuencia y relevancia en cachorros.

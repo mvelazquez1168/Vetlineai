@@ -1,0 +1,67 @@
+# Extensión Gastroenterológica — Familia CC-3xx Farmacoterapia (GCIS)
+
+**Relación con el documento base:** este documento **no reemplaza** la especificación genérica de CC-301 a CC-304 (documento "Familia CC-3xx — Farmacoterapia", construido para ICIS) — la extiende. GCIS hereda el núcleo completo (Medication Registry, Drug Interaction Engine, Therapeutic Class Reasoning, Response Tracking) tal cual, y este documento agrega **profundidad específica de gastroenterología** dentro de cada uno de esos cuatro componentes, sin duplicar su arquitectura.
+
+Misma regla que en ICIS, sin excepción: **ningún componente de esta familia calcula ni sugiere dosis.**
+
+---
+
+## Extensión de CC-301 (Medication Registry) — Clases terapéuticas gastroenterológicas
+
+Para estandarizar el registro dentro de gastroenterología, CC-301 en GCIS reconocerá específicamente las siguientes clases (en vez de tratarlas como texto libre):
+
+- **Antieméticos** (ej. antagonistas NK1, antagonistas D2, procinéticos con efecto antiemético)
+- **Protectores de mucosa gástrica** (ej. sucralfato)
+- **Antiácidos / inhibidores de bomba de protones**
+- **Procinéticos** (ej. metoclopramida, mosaprida — moduladores de motilidad gastrointestinal)
+- **Antidiarreicos y moduladores de motilidad intestinal**
+- **Antimicrobianos con indicación gastroenterológica** (ej. uso dirigido ante sobrecrecimiento bacteriano o *Helicobacter*)
+- **Inmunosupresores/inmunomoduladores para enteropatías crónicas** (ej. corticoides, ciclosporina, otros)
+- **Hepatoprotectores** (ej. ácido ursodesoxicólico, SAMe)
+- **Enzimas pancreáticas** (para insuficiencia pancreática exocrina)
+- **Laxantes y agentes formadores de bolo** (para manejo de estreñimiento/megacolon)
+- **Probióticos y moduladores de microbiota**
+
+Esta clasificación es la misma que ya usamos, de forma informal, al limpiar las transcripciones de las series de posgrado — formalizarla acá simplemente le da a CC-301 el mismo vocabulario controlado que ya emerge naturalmente en la literatura y en las notas clínicas de gastroenterología.
+
+## Extensión de CC-302 (Drug Interaction Engine) — Patrones específicos de gastroenterología
+
+Además de los tres patrones genéricos ya definidos en ICIS (sensibilidad racial, función orgánica, interacción fármaco-fármaco), GCIS reconocerá estos patrones adicionales, ya documentados como heurística práctica en la Base de Conocimiento del proyecto:
+
+**Patrón GI-1 — Secuencia de administración sucralfato/antiácido.** El sucralfato requiere pH ácido para adherirse a la mucosa, por lo que administrarlo simultáneamente o después de un antiácido reduce su eficacia; además, el sucralfato puede interferir con la absorción de otros fármacos administrados de forma concurrente. Interpretación: alerta de "orden y separación de administración relevante" — sin especificar el intervalo exacto en minutos, que queda a criterio del veterinario tratante (ver la corrección ya documentada en las notas de la serie "Aproximación diagnóstica: sistema gastrointestinal", donde este mismo patrón se identificó y corrigió durante la limpieza de transcripciones).
+
+**Patrón GI-2 — Metronidazol y cronicidad.** El metronidazol puede mejorar una crisis aguda de diarrea, pero su uso prolongado o repetido se asocia, según la heurística documentada en la Base de Conocimiento, a alteración de la microbiota que favorecería la cronicidad. Interpretación: alerta informativa cuando se considere metronidazol para un cuadro ya clasificado como crónico o recurrente (ver criterios de cronicidad en las Banderas Rojas Gastrointestinales), sugiriendo valorar alternativas.
+
+**Patrón GI-3 — AINEs en paciente con antecedente de enfermedad gastrointestinal.** Antecedente de úlcera, gastritis o enteropatía documentado en CC-101, más indicación reciente o considerada de un AINE. Interpretación: alerta de precaución de alta relevancia — este es, de hecho, el mecanismo etiológico más citado en las Banderas Rojas Gastrointestinales para úlceras antrales/duodenales en pacientes geriátricos.
+
+**Patrón GI-4 — Corticoides e inmunosupresores concurrentes con sospecha de proceso infeccioso no descartado.** Antes de iniciar o mientras esté activo un inmunosupresor para enteropatía crónica, si hay sospecha no descartada de causa infecciosa/parasitaria (ver Sección "Diagnóstico" del CC-240), el componente debe generar una alerta explícita — consistente con el principio, ya documentado en varias de las transcripciones limpiadas, de descartar causas infecciosas antes de inmunosuprimir.
+
+## Extensión de CC-303 (Therapeutic Class Reasoning) — Racionales gastroenterológicos
+
+Ejemplos de cómo CC-303 debe razonar dentro de gastroenterología (siempre a nivel de clase, nunca de fármaco ni dosis):
+
+| Diagnóstico/síndrome presuntivo | Clases habitualmente consideradas | Nota de racional |
+|---|---|---|
+| Gastritis aguda / crónica | Antiemético, protector de mucosa gástrica, antiácido | Antimicrobiano solo si hay evidencia de *Helicobacter* u otro componente bacteriano — no de rutina |
+| Enteropatía crónica con sospecha de intolerancia/alergia alimentaria | Manejo dietético como primera línea | Corticoides/inmunosupresores solo si no hay respuesta a manejo dietético adecuado y hay confirmación histopatológica |
+| Insuficiencia pancreática exocrina | Enzimas pancreáticas, manejo nutricional | Suplementación de cobalamina si hay déficit documentado |
+| Colestasis / hepatopatía | Hepatoprotectores | Investigar causa subyacente antes de asumir manejo sintomático prolongado |
+| Estenosis esofágica (posdilatación) | Protector de mucosa, antiácido, antiemético | Ver también consideraciones de manejo nutricional (dieta líquida/semisólida progresiva) — no es solo farmacológico |
+| Constipación / megacolon | Laxantes, agentes formadores de bolo | Consenso reciente desaconseja el uso rutinario de enemas — ver notas de la serie "Radiografía en la enfermedad digestiva felina" |
+
+## Extensión de CC-304 (Response Tracking) — Ventanas de reevaluación específicas de GI
+
+Basado en los criterios de cronicidad ya definidos en las Banderas Rojas Gastrointestinales, CC-304 en GCIS usará estas ventanas de reevaluación por defecto (ajustables por el veterinario caso a caso):
+
+- **Manejo dietético de eliminación:** reevaluar a las 3 semanas para intolerancia/alergia; el ciclo completo de recuperación de la mucosa se estima en ~12 semanas antes de la prueba de tolerancia.
+- **Antiemético/protector de mucosa en cuadro agudo:** reevaluar a las 24-48 horas.
+- **Inmunosupresores para enteropatía crónica confirmada:** reevaluar a las 2-4 semanas, con seguimiento de albúmina/proteínas si hubo hipoalbuminemia inicial.
+- **Manejo de constipación/megacolon:** reevaluar en días, no semanas — la falta de respuesta rápida es señal de reconsiderar el abordaje.
+
+Estas ventanas no son reglas rígidas — son puntos de referencia para que el componente sepa **cuándo** preguntar por la evolución, no un protocolo de tratamiento.
+
+---
+
+## Nota final sobre la relación entre ambos documentos
+
+Si en algún momento se actualiza la especificación base (CC-301 a CC-304) en ICIS, esta extensión debe revisarse en paralelo para verificar que sigue siendo compatible — no debería requerir cambios salvo que la arquitectura del núcleo cambie de forma estructural.

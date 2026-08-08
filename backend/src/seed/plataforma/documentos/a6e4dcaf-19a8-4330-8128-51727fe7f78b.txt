@@ -1,0 +1,115 @@
+LINFOMA FELINO — CLASIFICACIÓN POR TAMAÑO CELULAR Y LOCALIZACIÓN, TRATAMIENTO Y PRONÓSTICO
+
+Resumen clínico de referencia para OCIS. Componentes que lo consumen: CC-231 (Histopathology Intelligence), CC-232 (Staging & Grading Engine), CC-305 (Oncology Pharmacotherapy), CC-220 (Imaging Intelligence).
+
+Este documento cierra el vacío de especie de OCIS: sus documentos clínicos previos —mastocitoma, linfoma canino, hemangiosarcoma, tumores mamarios, osteosarcoma y melanoma oral— son de contenido predominantemente canino.
+
+---
+
+1. RELEVANCIA
+
+El linfoma es una de las formas neoplásicas más prevalentes del gato y representa cerca del **30% de todos los cánceres felinos**. La tasa de incidencia reportada varía entre 30 y 200 casos por cada 100.000 gatos.
+
+Distribución por localización: la forma alimentaria es la presentación más frecuente, seguida de la mediastínica y la multicéntrica.
+
+2. LOS DOS EJES DE CLASIFICACIÓN
+
+El linfoma felino se clasifica por **localización** —tracto gastrointestinal, cavidad nasal, mediastino, multicéntrico— y por **tamaño de los linfocitos** —célula grande frente a célula pequeña—.
+
+Los dos ejes juntos, y no cada uno por separado, determinan comportamiento, tratamiento y pronóstico.
+
+El criterio de tamaño celular. La presencia de linfocitos grandes e inmaduros —mayores que un neutrófilo en evaluación citológica, o con núcleos de más del doble del tamaño de un eritrocito en histopatología— es consistente con linfoma de grado intermedio a alto.
+
+**El tamaño de la célula neoplásica ha demostrado impacto significativo sobre el desenlace en la mayoría de las formas anatómicas.** La forma alimentaria puede manifestarse con células pequeñas o grandes, consideradas generalmente indolente y agresiva respectivamente.
+
+Regla dura para CC-231 y CC-232: un informe de linfoma felino que no especifica tamaño celular está incompleto. El componente debe declararlo como dato faltante crítico, porque separa dos enfermedades con pronósticos que difieren en un orden de magnitud.
+
+3. PRESENTACIÓN CLÍNICA Y LA PISTA DEL TIEMPO
+
+Los gatos con linfoma gastrointestinal presentan pérdida de peso, apetito disminuido, vómito o diarrea. Histopatológicamente la infiltración linfocitaria ocurre de forma irregular a través de las vellosidades intestinales, pudiendo progresar a submucosa y resultar en compromiso transmural. En algunos casos se observa epiteliotropismo.
+
+El dato semiológico que orienta antes de la biopsia: **los gatos con linfoma gastrointestinal de célula grande tienden a tener inicio rápido de los signos —días o semanas—, mientras que los de célula pequeña presentan habitualmente signos crónicos de meses.**
+
+Regla para OCIS: la cronología de los signos es una pista sobre el tamaño celular esperado, y por lo tanto sobre la urgencia del caso. No reemplaza a la histopatología, pero orienta la conversación inicial.
+
+Frontera con GCIS: el linfoma alimentario de bajo grado se superpone clínicamente con la enteropatía inflamatoria crónica, y la diferenciación entre ambos es uno de los problemas diagnósticos centrales de la gastroenterología felina. El consenso de enteropatía inflamatoria crónica de la Base de Conocimiento de GCIS aborda el uso de inmunofenotipificación, Ki-67 y PARR para esa distinción en el perro.
+
+4. DIAGNÓSTICO
+
+Se diagnostica por citología de punción con aguja fina o por biopsia, según localización y extensión. En algunos casos se requiere muestreo de médula ósea u otros órganos, o pruebas moleculares sobre sangre u otros tejidos: citometría de flujo y PARR.
+
+Sobre la citología. Las lesiones linfomatosas tienden a exfoliar bien; **muestras citológicas repetidamente no diagnósticas deben hacer sospechar que está ocurriendo otro proceso patológico**. Es un criterio útil para no insistir en la aguja cuando el problema es el diagnóstico.
+
+En linfoma alimentario de alto grado, la punción de un linfonodo aumentado o de una masa puede confirmarlo: consiste en una población largamente monomórfica de linfoblastos. Predomina la forma de células B, y PARR no suele ser necesario salvo que el diagnóstico no esté claro.
+
+Advertencia sobre inmunofenotipificación. **Es menos útil en el gato que en el perro** en linfoma de alto grado, ya que no se sabe si los ajustes de tratamiento basados en el tipo afectarían el pronóstico. OCIS no debe trasladar el peso que el inmunofenotipo tiene en el perro.
+
+Herramientas emergentes. La citometría de flujo con análisis de clonalidad por PARR se ha propuesto como método confiable de caracterización, con un sistema de dimensionamiento celular por citometría que mostró 82 a 90% de concordancia con el estándar de referencia citológico.
+
+5. TRATAMIENTO Y PRONÓSTICO
+
+Modalidades: quimioterapia, cirugía, radioterapia, o combinaciones. El pronóstico está influido por el subtipo y la localización anatómica.
+
+Linfoma gastrointestinal de célula grande
+
+Protocolos de multiagentes, comúnmente variaciones de CHOP —doxorrubicina, vincristina, ciclofosfamida y glucocorticoides—.
+
+Cifras reportadas: entre 50 y 75% de los gatos que reciben CHOP responden, con pronóstico de 6 a 9 meses. Otras series reportan tasas de remisión de 30 a 80% con supervivencias medianas de 97 a 213 días, o mayores en los que alcanzan remisión completa.
+
+**Los gatos que alcanzan remisión completa viven más que los que logran remisión parcial**, y un pequeño porcentaje puede vivir más de dos años. El tratamiento típico comprende unos 6 meses con combinación de fármacos inyectables y orales.
+
+Alternativa oral: CCNU (lomustina), con supervivencia mediana de aproximadamente 8 meses en gatos respondedores.
+
+Linfoma gastrointestinal de célula pequeña
+
+Se trata habitualmente con clorambucilo y prednisolona por vía oral, régimen bien tolerado y de manejo domiciliario, con supervivencias sustancialmente más largas que la forma de célula grande.
+
+Progresión entre formas. Se han reportado malignidades secundarias en pacientes con linfoma gastrointestinal de célula pequeña, con instancias raras de linfoma de célula grande. Un gato tratado por la forma indolente que se deteriora de forma aguda debe reevaluarse con esa posibilidad en mente, no asumirse como recaída de la misma enfermedad.
+
+Linfoma nasal. En una serie de gatos con linfoma difuso de células B grandes localizado a la cavidad sinonasal tratados con radioterapia de intensidad modulada sin quimioterapia, el 61% estaba libre de progresión al año. El fallo local o sistémico temprano ocurre en 17 a 45% de los gatos tratados con radioterapia con o sin quimioterapia.
+
+6. FACTORES PRONÓSTICOS
+
+Los descritos son: localización anatómica, estadio de la enfermedad al diagnóstico, **presencia o ausencia de infección por FeLV y FIV**, y respuesta inicial al tratamiento.
+
+Ese tercer factor no tiene equivalente en el perro y merece énfasis: el estatus retroviral forma parte de la evaluación pronóstica del linfoma felino, no es un dato accesorio.
+
+El linfoma de linfocitos granulares grandes, aunque poco común, se asocia a peor pronóstico.
+
+7. ERRORES FRECUENTES
+
+Reportar linfoma felino sin especificar tamaño celular.
+
+Trasladar al gato el peso pronóstico que el inmunofenotipo tiene en el perro.
+
+No evaluar estatus de FeLV y FIV como parte del pronóstico.
+
+Insistir con citología tras muestras repetidamente no diagnósticas, en vez de sospechar otro proceso.
+
+Tratar el linfoma alimentario de célula pequeña con protocolos de célula grande, o viceversa.
+
+Asumir recaída ante deterioro agudo en un gato con forma indolente, sin considerar transformación a célula grande.
+
+Ignorar la superposición clínica con enteropatía inflamatoria crónica en la forma de bajo grado.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Protocolos completos de dosificación de CHOP, clorambucilo, lomustina y prednisolona. Estadificación detallada y protocolo de estudios de extensión. Linfoma mediastínico y multicéntrico en profundidad. Linfoma renal y del sistema nervioso central. Leucemia linfoide. Manejo de la toxicidad en el gato, cuya tolerancia difiere de la del perro; ver el documento de farmacoterapia oncológica. Diagnóstico diferencial detallado entre linfoma alimentario de bajo grado y enteropatía inflamatoria crónica felina. Rol de FeLV y FIV en la patogenia. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+FUENTES
+
+Prognostic utility of the flow cytometry and clonality analysis results for feline lymphomas. PMC11360694. Fuente de las secciones 1, 2 y 4.
+
+Medical Oncology: Feline Lymphoma. NC State Veterinary Hospital. Fuente de las secciones 2, 3 y 5.
+
+Feline large-cell lymphoma following previous treatment for small-cell gastrointestinal lymphoma. PMC10814630. Fuente de las secciones 2 y 5.
+
+Feline lymphoma: diagnosis and treatment. dvm360. Fuente de la sección 4.
+
+Prognostic significance of Ki-67, BAX, Caspase-3, and VEGF expression in feline intestinal lymphoma. Fuente de las secciones 3 y 6.
+
+Do pre-treatment biopsy characteristics predict early tumour progression in feline diffuse large B cell nasal lymphoma treated with radiotherapy? PMC11830455. Fuente de la sección 5.
+
+Paulin MV, Couronné L, Beguin J y col. Feline low-grade alimentary lymphoma: an emerging entity and a potential animal model for human disease.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

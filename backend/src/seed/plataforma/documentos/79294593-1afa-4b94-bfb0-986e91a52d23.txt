@@ -1,0 +1,97 @@
+RCIS-KB-001
+
+Knowledge Base Standard v1.1 (adaptado de ICIS-KB-001)
+
+NOTA DE ALCANCE DE ESTA ADAPTACIÓN (RCIS-KB-001)
+
+Define las reglas para transformar los casos clínicos resueltos de RCIS en unidades de conocimiento estructuradas y reutilizables, y el estándar que debe cumplir todo documento que ingrese a la Base de Conocimiento de RCIS.
+
+RCIS tiene una particularidad que ninguna otra especialidad de la plataforma comparte: sus casos generan una comparación natural entre lo estimado y lo ocurrido. Una fecha probable de parto se cumple o no se cumple, y por cuántos días. Una ventana de servicio produce gestación o no la produce. Ese contraste es la fuente de conocimiento más valiosa del agente y esta especificación lo trata como material de primera clase.
+
+---
+
+1. Qué califica como unidad de conocimiento
+
+Un caso de RCIS genera unidad de conocimiento cuando cumple las tres condiciones: tiene desenlace conocido, tiene registro suficiente de las entradas que produjeron la decisión, y su desenlace es atribuible con razonabilidad a esa decisión.
+
+Un caso perdido de seguimiento no califica. Un caso con desenlace conocido pero sin registro de las entradas tampoco: sin saber sobre qué se decidió, el desenlace no enseña nada.
+
+2. Tipos de unidad propios de RCIS
+
+UNIDAD DE CALIBRACIÓN TEMPORAL. La más específica de este agente. Registra una estimación emitida, su método, su margen, y el evento real con su fecha. Ejemplo de estructura: fecha probable de parto estimada por progesterona seriada con margen declarado, contra fecha real de parto. Acumuladas, estas unidades permiten saber si el margen que el agente declara es honesto o está subestimado.
+
+UNIDAD DE RESULTADO REPRODUCTIVO. Ventana de servicio recomendada, tipo de servicio, y resultado —gestación confirmada o no—. Con tamaño de camada cuando corresponda.
+
+UNIDAD DE DECISIÓN OBSTÉTRICA. Estado del trabajo de parto al momento de la decisión, conducta tomada, y desenlace materno y fetal. Es la unidad de mayor valor y menor volumen, porque los casos de distocia son menos frecuentes que los de planificación.
+
+UNIDAD DE PATRÓN RACIAL. Hallazgo reproductivo asociado a raza —duración del ciclo, tasa de distocia, tamaño de camada típico—. Se aporta a la arquitectura general de Breed Intelligence, no a una base racial propia de RCIS.
+
+UNIDAD DIAGNÓSTICA. Presentación clínica, hallazgos, diagnóstico confirmado y su método de confirmación. Es la unidad genérica, compartida con el resto de agentes.
+
+3. Estructura de una unidad
+
+Toda unidad contiene: contexto del paciente sin datos identificatorios; entradas disponibles al momento de la decisión, con la marca de cuáles faltaban; la decisión o estimación emitida con su método; el desenlace real; y la diferencia entre lo esperado y lo ocurrido cuando aplique.
+
+Ese último campo es obligatorio en unidades de calibración temporal y es lo que distingue una base de conocimiento útil de un archivo de casos.
+
+4. Anonimización
+
+Ninguna unidad conserva datos identificatorios del propietario ni del establecimiento. El paciente se conserva por especie, raza, edad y antecedentes reproductivos, que son los atributos con valor clínico.
+
+Los casos con tamaño de muestra bajo requieren cuidado adicional: un cruce de raza poco frecuente más una fecha puede identificar un criadero. Ante duda, se generaliza la raza antes que descartar la unidad.
+
+5. Reglas de ingreso de documentos externos
+
+Todo documento que ingrese a la Base de Conocimiento de RCIS debe: declarar su fuente y su año; cubrir un tema dentro del alcance de RCIS; e ingresar con su contenido completo en el campo de texto, no solo con su ficha.
+
+Esta última regla no es formal. Un documento cargado sin su contenido no es leído por el agente y produce el peor resultado posible: la interfaz muestra que la base cubre un tema que en realidad no cubre.
+
+6. Estado actual de la Base de Conocimiento
+
+RCIS cuenta con nueve documentos clínicos, que cubren los siete dominios del alcance declarado:
+
+Piometra. Distocia. Ciclo estral y monitoreo de progesterona, con respaldo para CC-232. Diagnóstico y monitoreo gestacional, con respaldo para CC-233 y la extensión gestacional de CC-220. Cesárea: indicación, momento y factores del resultado neonatal. Neonatología: viabilidad, tríada neonatal y seguimiento de camada, con respaldo para CC-235. Andrología y espermiograma, con respaldo para CC-236. Patología prostática, con respaldo para CC-237. Farmacoterapia reproductiva, con respaldo para CC-305.
+
+Los siete vacíos declarados en la versión 1.0 de este documento quedaron cubiertos. Cada documento clínico declara internamente lo que no cubre, y esos límites siguen vigentes.
+
+Vacíos que persisten, agrupados
+
+Reproducción asistida. Técnicas de inseminación artificial y depósito seminal. Manejo y criopreservación de semen congelado.
+
+Fertilidad de la hembra. Infertilidad y sus causas. Celo silente. Inducción y supresión del celo. Anticoncepción y control reproductivo.
+
+Gestación. Pérdida gestacional y aborto. Gestación de término prolongado. Interrupción de la gestación: protocolos detallados. Pseudogestación.
+
+Periparto quirúrgico. Técnica quirúrgica de la cesárea y protocolos anestésicos con dosis. Manejo del dolor posoperatorio. Manejo anestésico de la hembra comprometida por distocia prolongada.
+
+Neonatología avanzada. Reanimación neonatal paso a paso. Sepsis neonatal: diagnóstico y protocolos. Malformaciones congénitas. Lactancia artificial y agalactia materna. Síndrome del cachorro desvanecido.
+
+Macho. Rangos de referencia numéricos del espermiograma, dada la falta de estandarización descrita en el propio documento de andrología. Criptorquidia: abordaje quirúrgico. Neoplasia testicular. Brucelosis canina: manejo del caso positivo.
+
+Farmacología. Antimicrobianos: selección, dosis y duración. Uterotónicos en el manejo de la distocia. Inducción del parto.
+
+Próstata. Abscesos prostáticos y su manejo quirúrgico.
+
+Vacío transversal a registrar
+
+Los nueve documentos clínicos son de contenido canino. La especie felina no está cubierta en ningún dominio del alcance, pese a que los casos derivados pueden incluirla. Este es el vacío más amplio de la base actual y no se resuelve con documentos complementarios puntuales: requiere una línea propia.
+
+Regla operativa mientras persistan estos vacíos: ante un caso no cubierto, el agente lo declara explícitamente antes de razonar, según el estándar general de la plataforma. Esto aplica con particular fuerza a los casos felinos.
+
+7. Ciclo de incorporación
+
+Un caso cerrado se propone como unidad, se revisa, y se incorpora. La revisión verifica que el desenlace sea atribuible y que la anonimización sea suficiente.
+
+Las unidades de calibración temporal se acumulan sin revisión caso a caso, porque su valor es agregado y no individual: una sola comparación entre fecha estimada y real no dice nada, cincuenta sí.
+
+---
+
+Knowledge Decisions
+
+KD-RCIS-01 — La calibración temporal es material de primera clase. RCIS es el único agente cuyas estimaciones se verifican solas contra la realidad. Descartar ese contraste sería perder la fuente de conocimiento más barata y más honesta del sistema.
+
+KD-RCIS-02 — Sin contenido, no hay documento. Un documento cuya ficha existe y cuyo cuerpo no, es peor que su ausencia: genera confianza infundada en la cobertura de la base.
+
+KD-RCIS-03 — Los vacíos se declaran, no se estiman. La lista de la sección 6 se mantiene actualizada y visible. Un componente que opera sobre un tema no cubierto debe decirlo.
+
+KD-RCIS-04 — Breed Intelligence es compartido. RCIS aporta patrones raciales reproductivos a la arquitectura general, sin construir una base racial paralela.

@@ -1,0 +1,145 @@
+GESTACIÓN, PARTO Y DISTOCIA EN LA GATA — DIAGNÓSTICO, ETAPAS Y CUÁNDO INTERVENIR
+
+Resumen clínico de referencia para RCIS. Componentes que lo consumen: CC-233 (Gestational Monitoring Intelligence), CC-234 (Dystocia & Delivery Decision Engine), CC-235 (Neonatal Viability Assessment), CC-220 (Imaging Intelligence), CC-004 (Clinical Timeline).
+
+Continuación de la línea felina iniciada por el documento de ciclo estral y ovulación inducida de la gata.
+
+---
+
+1. LA ADVERTENCIA QUE ATRAVIESA TODO EL DOCUMENTO
+
+**La gestación y el parto felinos varían en duración, y esa es una de las razones por las que resulta desafiante diagnosticar distocia.**
+
+Ese enunciado es el opuesto exacto del marco canino, donde el documento de monitoreo gestacional de RCIS se apoya en que la gestación desde ovulación se acota a 63 ± 1 día. En la gata esa precisión no existe.
+
+Sobre la base de evidencia, corresponde declarar algo más: **la evidencia es pobre para muchas condiciones de la gata reproductora, y la información se extrapola del perro o se basa en reportes y series de casos.**
+
+Regla para RCIS: al razonar sobre reproducción felina, el componente debe declarar cuando está extrapolando del perro. Es la situación por defecto, no la excepción.
+
+2. DURACIÓN DE LA GESTACIÓN — LAS CIFRAS Y SU DISPERSIÓN
+
+Las fuentes difieren, y esa dispersión es en sí misma el dato:
+
+Promedio de **66,9 días**, con rango de 62 a 71 días.
+
+Media de **63 días** desde la primera monta al parto.
+
+Aproximadamente **52 a 74 días**, con duración media de 64 a 66 días.
+
+El punto que el propio material subraya: **pese a la inducción de la ovulación y a un número comúnmente restringido de días de monta, la duración de la gestación es realmente así de variable y no puede estimarse a partir de otros factores como el tamaño de camada.**
+
+El único anclaje disponible: **la única forma de determinar con exactitud los días de gestación es contar desde el momento de la monta.**
+
+Regla para CC-233 y CC-004: en la gata, la fecha probable de parto se emite como rango amplio y se declara que la variabilidad es intrínseca, no producto de datación deficiente. Presentar una fecha puntual con el margen canino sería un error de método.
+
+3. DIAGNÓSTICO DE GESTACIÓN
+
+Modalidades disponibles: palpación abdominal, radiografía, ecografía y ensayo hormonal de relaxina.
+
+**La ecografía transabdominal provee la información más temprana** para diagnóstico positivo, y además informa sobre la viabilidad de los gatitos.
+
+Relaxina: detectable después de los 25 días de gestación, proveniente de la unidad fetoplacentaria, y **desciende abruptamente al parto**.
+
+Prolactina: aumenta hacia el día 35, alcanza su pico alrededor del día 50 y se mantiene hasta el término. Es importante para el desarrollo mamario, evidente unas 24 a 48 horas antes del parto.
+
+Desarrollo prenatal: se divide habitualmente en tres períodos — el del óvulo, el del embrión y el del feto.
+
+4. LAS ETAPAS DEL PARTO
+
+**Etapa 1**: contracciones uterinas tempranas y relajación cervical. Termina con la ruptura del primer saco corioalantoideo. Los signos de parto inminente incluyen generalmente nerviosismo y jadeo.
+
+**Etapa 2**: expulsión fetal.
+
+**Etapa 3**: expulsión de las membranas fetales. Las etapas 2 y 3 ocurren de forma simultánea.
+
+Formulación alternativa usada en la práctica: fase I desde la primera contracción observada hasta el nacimiento del primer gatito; fase II el tiempo entre el nacimiento del primero y el último.
+
+Duración. El parto ocurre frecuentemente en dos a tres horas, pero puede extenderse durante uno a dos días. **Algunas gatas producen gatitos vivos con interrupciones de más de 24 a 48 horas.**
+
+5. EL PARTO INTERRUMPIDO — Y POR QUÉ NO DEBE NORMALIZARSE
+
+Se ha reportado parto interrumpido con tiempos de hasta 48 horas en gatas con parto normal. Pero la lectura que corresponde es la contraria a la tranquilizadora:
+
+**Debe considerarse una excepción rara**, porque un estudio mostró que **el 63% de los gatitos nacidos con intervalos entre nacimientos mayores a 6 horas fueron mortinatos.**
+
+Regla dura para CC-234: en la gata, un intervalo entre nacimientos mayor a 6 horas se asocia a mortalidad fetal en casi dos tercios de los casos. El fenómeno de parto interrumpido existe y está documentado, pero invocarlo para justificar la espera es estadísticamente adverso. El componente debe presentar ambos hechos juntos y nunca el primero solo.
+
+6. DISTOCIA
+
+Definición operativa: hay distocia si la gestación es prolongada, el trabajo de parto no progresa, la gata parece sistémicamente enferma, o los fetos están en distrés.
+
+Causas: factores maternos, fetales, o una combinación de ambos. **Parece más frecuente en gatas de pedigrí que en mestizas**, y las razas braquicéfalas y dolicocéfalas están en riesgo aumentado.
+
+Contexto de la práctica: en una encuesta a profesionales de Estados Unidos sobre qué procedimientos de teriogenología realizaban con mayor frecuencia por especie, **el manejo de la distocia y el tratamiento de enfermedad del tracto reproductivo fueron los más citados para el gato**. Al mismo tiempo, muchos veterinarios se gradúan sin educación formal en reproducción felina.
+
+Hallazgos de una serie de 35 casos de distocia felina. Ninguna gata del estudio estaba hipocalcémica ni hipoglucémica, y la importancia del calcio ionizado y la glucemia sobre la fuerza de contracción miometrial y la etiología de la distocia e inercia uterina **permanece poco clara**, igual que en la perra. Aproximadamente el 58% tenía calcio ionizado por encima del intervalo de referencia. El hematocrito, cuando se documentó, estuvo en el extremo bajo del rango o por debajo en el 70% de las gatas con distocia, consistente con la anemia asociada a la gestación.
+
+Regla para RCIS: la suplementación de calcio en la distocia felina no está respaldada por los hallazgos de esa serie, donde ninguna gata era hipocalcémica. Si se administra, debe declararse como conducta empírica.
+
+7. EL PERIPARTO
+
+Complicaciones potenciales durante la gestación: infección, aborto y **torsión uterina**.
+
+Eclampsia. Ocurre en madres con camadas grandes, durante el pico de la lactancia, aunque puede ocurrir durante el parto.
+
+Agalactia o mastitis. Si la madre no produce leche o su leche se infecta, los gatitos requerirán alimentación suplementaria.
+
+Lactancia: las gatas amamantan generalmente durante 7 a 8 semanas antes del destete.
+
+8. LA PISTA QUE SE PIERDE POR LA CONDUCTA DE LA ESPECIE
+
+**En gatas con piometra, la descarga vaginal puede no ser evidente debido a sus meticulosos hábitos de limpieza.**
+
+Ese detalle explica por qué la piometra felina llega más tarde que la canina. La piometra tiende a ser enfermedad de gatas mayores, mientras que las urgencias reproductivas ocurren más a menudo en gatas jóvenes o de mediana edad.
+
+Regla para RCIS: la ausencia de descarga vulvar visible no descarta piometra en la gata. Es un hallazgo negativo sin valor en esta especie.
+
+9. PREVENCIÓN DE INFECCIONES EN EL CRIADERO
+
+Mantener a la gata gestante separada de los otros gatos durante la gestación, al menos las últimas 2 a 3 semanas —cubriendo el período de incubación de la mayoría de las infecciones—, reduce el riesgo de que se infecte y desarrolle enfermedad clínica, y con ello el riesgo de infectar a la camada.
+
+Tras el parto, mantener a la gata con los gatitos separada del resto protege adicionalmente a los gatitos. Aunque los demás gatos del grupo no muestren signos, pueden portar y excretar agentes infecciosos —herpesvirus felino tipo 1, *Chlamydia*, *Mycoplasma*, calicivirus— y representar un riesgo para gatitos no vacunados. Se ha demostrado que las gatas infectadas con herpesvirus excretan virus de 2 a 10 semanas tras el parto.
+
+Además, en el alojamiento grupal debe cuidarse que los grupos no sean demasiado grandes, por el riesgo de estrés y de enfermedades infecciosas.
+
+10. ERRORES FRECUENTES
+
+Aplicar el margen de datación canino a la gata.
+
+Estimar la fecha de parto a partir del tamaño de camada.
+
+Invocar el parto interrumpido para justificar la espera sin mencionar la mortalidad asociada a intervalos mayores a 6 horas.
+
+Descartar piometra por ausencia de descarga vulvar.
+
+Suplementar calcio en distocia felina como conducta estándar.
+
+No declarar cuándo se está extrapolando del perro.
+
+Alojar a la gata gestante en grupo durante las últimas semanas.
+
+11. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Cesárea en la gata: indicación, técnica y anestesia. Manejo médico de la distocia: uterotónicos y dosis. Neonatología felina: viabilidad, curva ponderal y mortalidad neonatal. Piometra felina como entidad propia, incluido su tratamiento. Eclampsia: diagnóstico y manejo. Aborto e infertilidad felina. Torsión uterina. Mastitis y agalactia. Alimentación suplementaria de gatitos. Vacunación de la gata reproductora. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS y constituyen la continuación de esta línea.
+
+FUENTES
+
+Feline breeding and pregnancy management: what is normal and when to intervene. J Feline Med Surg 2022. PubMed 35209770. PMC9099157. Fuente de las secciones 1, 8 y 9.
+
+Root Kustritz MV. Feline reproduction FAQs. Clinical Theriogenology 2010;2:230–232, reproducido en dvm360. Fuente de las secciones 2 y 6.
+
+Reproductive physiology of feline pregnancy and parturition and conditions of the periparturient period. En: Management of Pregnant and Neonatal Dogs, Cats, and Exotic Pets. Wiley. Fuente de las secciones 3 y 4.
+
+Pregnancy, parturition, and lactation. En: The Feline Patient. Wiley. Fuente de las secciones 2, 3 y 4.
+
+Gestation, parturition, and neonatal care. En: Nursing the Feline Patient. Wiley. Fuente de las secciones 4 y 7.
+
+Bailin HG, Thomas L, Levy NA. Retrospective evaluation of feline dystocia: clinicopathologic findings and neonatal outcomes in 35 cases (2009–2020). J Feline Med Surg 2022. Fuente de las secciones 5 y 6.
+
+Musters J, de Gier J, Kooistra HS y col. Questionnaire-based survey of parturition in the queen. Theriogenology 2011;75:1596–1601. Fuente del dato de la sección 5.
+
+Sparkes AH, Rogers K, Henley WE y col. A questionnaire-based study of gestation, parturition and neonatal mortality in pedigree breeding cats in the UK. J Feline Med Surg 2006;8:145–157.
+
+Feline Parturition and Dystocia. Louisiana State University Theriogenology. Fuente de la sección 3.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

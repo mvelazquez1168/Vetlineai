@@ -1,0 +1,107 @@
+OSTEOSARCOMA APENDICULAR — ESTADIFICACIÓN, TRATAMIENTO Y PRONÓSTICO
+
+Resumen clínico de referencia para OCIS. Componentes que lo consumen: CC-232 (Staging & Grading Engine), CC-231 (Histopathology Intelligence), CC-220 (Imaging Intelligence), CC-305 (Oncology Pharmacotherapy), CC-202 (bioquímica sérica).
+
+---
+
+1. PERFIL DEL PACIENTE
+
+El osteosarcoma es la neoplasia ósea primaria más común del perro y representa más del 80% de los tumores óseos malignos. La localización apendicular concentra la mayoría de los casos —hasta el 80% de los reportados en algunas series, y 64% frente a 28,5% axial y 7,5% extraesquelético en otras—.
+
+Razas. Predomina en razas grandes y gigantes: Rottweiler, Pastor Alemán, Bóxer, Doberman Pinscher, Setter Irlandés.
+
+Edad. Típicamente perros de mediana edad, entre 6 y 10 años, aunque hay casos reportados en perros de 1 a 2 años. La distribución no es estrictamente bimodal pero el caso joven existe y no debe descartarse por edad.
+
+Diagnóstico. La confirmación definitiva requiere análisis histopatológico. La imagen radiográfica es sugestiva, no diagnóstica.
+
+2. LA DIFERENCIA DE ESPECIE QUE MÁS SORPRENDE
+
+**El osteosarcoma apendicular felino exhibe típicamente buen pronóstico tratado solo con cirugía.**
+
+Esto invierte por completo el marco canino, donde la enfermedad es altamente metastásica y la quimioterapia adyuvante es parte del estándar. Un estudio multicéntrico retrospectivo sobre 56 gatos lo documenta.
+
+Regla dura para OCIS: al razonar sobre osteosarcoma, el componente debe declarar la especie antes que cualquier otra cosa. Aplicar el pronóstico y el protocolo canino a un gato produce una recomendación excesiva y una conversación pronóstica innecesariamente sombría.
+
+3. ESTADIFICACIÓN
+
+El objetivo es evaluar metástasis pulmonar, que es la vía dominante.
+
+Radiografía torácica: sensibilidad reportada de 71 a 95%.
+
+Tomografía computarizada: más sensible que la radiografía, particularmente en razas grandes y gigantes.
+
+Hallazgo específico sobre metástasis ósea. En un estudio prospectivo transversal, **la gammagrafía ósea fue la única modalidad que identificó lesiones óseas metastásicas**; ninguna se identificó en radiografías de rastreo ni en tomografía durante la evaluación ciega. La tomografía de cuerpo entero no resultó útil como alternativa a la gammagrafía, aunque puede tener utilidad como modalidad diagnóstica adyuvante, y la tomografía torácica identificó lesiones pulmonares no visibles de otro modo.
+
+Regla para CC-220 y CC-232: la ausencia de metástasis ósea en radiografía o tomografía no descarta metástasis ósea. Si el estadio se asigna sin gammagrafía, corresponde declarar esa limitación en vez de reportar el estadio como completo.
+
+El problema de fondo: la micrometástasis ocurre temprano en el curso de la enfermedad, y esa es la razón del desarrollo tardío de lesiones macroscópicas. Un paciente sin metástasis detectable al diagnóstico no es un paciente sin metástasis.
+
+4. FACTORES PRONÓSTICOS
+
+Un metaanálisis sistemático validó tres factores con asociación demostrada a tiempo de supervivencia e intervalo libre de enfermedad: **fosfatasa alcalina sérica**, **localización tumoral** y **edad al diagnóstico**.
+
+Metástasis en linfonodo regional. Los perros con metástasis ganglionar vivieron 48 días frente a 318 días en los que no la presentaban. Es una de las diferencias pronósticas más marcadas del documento y justifica la evaluación ganglionar como parte de la estadificación.
+
+Estadio III: pronóstico pobre.
+
+Subtipo histológico. Los subtipos de alto grado más reportados son osteoblástico, condroblástico, fibroblástico y telangiectásico. **El efecto del subtipo sobre el tiempo hasta metástasis macroscópica es controvertido** y se ha mostrado de forma inconsistente como factor pronóstico significativo. OCIS debe reportar el subtipo sin atribuirle valor pronóstico establecido.
+
+Índices hematológicos e inflamatorios preoperatorios han sido evaluados como pronósticos, con puntos de corte establecidos por el método de p mínimo en un estudio multicéntrico retrospectivo.
+
+5. TRATAMIENTO
+
+Estándar de cuidado: cirugía seguida de quimioterapia adyuvante. La amputación del miembro afectado se considera el estándar; la cirugía es la primera línea para remover el tumor primario y proveer alivio analgésico.
+
+Quimioterapia adyuvante: cisplatino o carboplatino. Dada la alta tasa de metástasis a distancia, la quimioterapia sistémica es esencial para mejorar la supervivencia global y debe iniciarse lo antes posible tras la cirugía.
+
+**El dato de mayor consecuencia operativa de todo el documento**: el momento de inicio de la quimioterapia es en sí mismo un factor pronóstico. Los perros que recibieron tratamiento adyuvante dentro de los 5 días posteriores a la amputación alcanzaron una supervivencia mediana de 375 días, frente a 202 días en los que empezaron más tarde, con diferencia estadísticamente significativa.
+
+Regla para OCIS: ante una amputación por osteosarcoma, la planificación de la quimioterapia adyuvante no es un paso posterior sino concurrente. Un componente que no señale la ventana de 5 días está omitiendo una variable modificable que casi duplica la supervivencia mediana.
+
+Perros de raza pequeña. Un estudio retrospectivo multicéntrico sobre perros de menos de 15 kg encontró que la quimioterapia adyuvante se asocia a tiempo de supervivencia prolongado también en esta población. El beneficio no se limita a las razas grandes.
+
+Alternativa de preservación del miembro: radioterapia estereotáctica corporal (SBRT). En una serie de 123 pacientes y 130 sitios: 84% mostró máxima mejoría de la cojera a una mediana de 3 semanas, con duración mediana de 6 meses; la evaluación histopatológica mostró más del 80% de necrosis tumoral en la mitad de los miembros, consistente con control local. Contrapartida: 41% fracturó y 21% terminó en amputación. Supervivencia mediana 233 días; tiempo al primer evento 143 días.
+
+Dato útil sobre el muestreo: la punción con aguja fina y la biopsia con aguja gruesa **no aumentaron el riesgo de fractura** comparadas con los casos sin muestreo tumoral. Ese temor no debe frenar el diagnóstico histopatológico.
+
+6. ERRORES FRECUENTES
+
+Aplicar el marco pronóstico canino a un gato con osteosarcoma apendicular.
+
+Reportar estadificación como completa sin declarar que no se realizó gammagrafía ósea.
+
+Interpretar la ausencia de metástasis detectable al diagnóstico como ausencia de enfermedad diseminada.
+
+No evaluar linfonodo regional, cuya afectación separa 48 de 318 días de supervivencia.
+
+Atribuir valor pronóstico establecido al subtipo histológico.
+
+No señalar la ventana de 5 días para iniciar la quimioterapia adyuvante.
+
+Descartar quimioterapia adyuvante en un perro de raza pequeña.
+
+Evitar el muestreo tumoral por temor a la fractura.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Protocolos de dosificación de cisplatino y carboplatino. Técnicas de amputación y de preservación de miembro. Planificación y dosimetría de radioterapia. Manejo del dolor óseo y bifosfonatos. Osteosarcoma axial y extraesquelético. Osteosarcoma mamario, cubierto en el documento de tumores mamarios. Otros tumores óseos primarios: condrosarcoma, fibrosarcoma, hemangiosarcoma óseo. Metástasis ósea de otros primarios. Inmunoterapia y terapias en investigación. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+FUENTES
+
+Surgical approaches to canine appendicular osteosarcoma part 1 — anatomic landmarks and amputation techniques. Front Vet Sci 2025;12:1655764. PMC12671202. Fuente de las secciones 3 y 5.
+
+What do we know about canine osteosarcoma treatment? A review. PMC4330401. Fuente de las secciones 1 y 4.
+
+Prognostic factors in canine appendicular osteosarcoma — a meta-analysis. BMC Vet Res 2012;8:56. Fuente de la sección 4.
+
+Canine Appendicular Osteosarcoma: Staging and Palliative Radiation Therapy. University of Guelph. Fuente de los datos de gammagrafía y subtipos.
+
+Outcome and prognosis for canine appendicular osteosarcoma treated with stereotactic body radiation therapy in 123 dogs. PMC8356246. Fuente de la sección 5.
+
+Adjuvant chemotherapy is associated with prolonged survival time in small-breed dogs undergoing amputation for appendicular osteosarcoma. SIONCOV. PMC12082752.
+
+A retrospective Italian Society of Veterinary Oncology (SIONCOV) study of 56 cats with appendicular osteosarcoma. PubMed 38327132. Fuente de la sección 2.
+
+Rigas K y col. The prognostic role of preoperative hematological and inflammatory indices in canine appendicular osteosarcoma. Vet Sci 2023;10(8):495.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

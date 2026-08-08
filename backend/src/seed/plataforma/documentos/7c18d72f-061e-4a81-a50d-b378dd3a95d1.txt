@@ -1,0 +1,85 @@
+OCIS-ARCH-001
+
+Clinical Components Catalog v1.0 (adaptado de ICIS-ARCH-001)
+
+NOTA DE ALCANCE DE ESTA ADAPTACIÓN (OCIS-ARCH-001)
+
+Este catálogo es una adaptación del catálogo v2.0 de ICIS, especializada para OCIS (oncología). Se excluye deliberadamente la capa completa de Derivación (CC-260 a CC-263) — OCIS es una especialidad receptora de casos ya derivados, no un sistema que decide si derivar hacia afuera; esa responsabilidad pertenece exclusivamente a ICIS.
+
+Componentes heredados de ICIS sin modificación estructural: CC-001 a CC-005, CC-101, CC-102, CC-104, CC-201 a CC-204, CC-240.
+
+Componentes heredados con extensión propia de OCIS: CC-220 (Imaging Intelligence — extendido para estadificación).
+
+Componente reconstruido específicamente para OCIS (no heredado de la exclusión GI de ICIS): CC-231 (Histopathology Intelligence).
+
+Componentes nuevos, sin equivalente en ICIS: CC-232 (Staging & Grading Engine), CC-305 (Oncology Pharmacotherapy).
+
+Componentes mencionados como integraciones pero aún no definidos en ninguna versión verificada: CC-103 (Signalment Analysis), CC-250 (Clinical Evidence Graph) — mismas dependencias declaradas como pendientes que ya existen en ICIS-ARCH-001; cualquier motor de OCIS que dependa de estos debe declarar esa dependencia explícitamente, nunca asumir su comportamiento.
+
+---
+
+CC-001 a CC-005 — Núcleo de Caso (heredado de ICIS sin cambios)
+
+Executive Case Summary, Patient Profile, Case Metadata, Clinical Timeline, Active Problems Registry. Se heredan íntegramente de ICIS-ARCH-001 — son componentes de plataforma que no requieren especialización oncológica. La única diferencia funcional es que el Executive Case Summary de OCIS debe priorizar en su síntesis el estadio/grado tumoral como dato de mayor jerarquía, consistente con el principio de Prognostic Clarity ya establecido en OCIS-DESIGN-001.
+
+CC-101, CC-102, CC-104 — Historia Clínica (heredado sin cambios)
+
+Clinical History, Presenting Complaint, Physical Examination. Heredados íntegramente — la anamnesis y examen físico no requieren estructura distinta para un caso oncológico.
+
+CC-201 a CC-204 — Laboratorio (heredado sin cambios)
+
+Complete Blood Count Intelligence, Serum Biochemistry Intelligence, Electrolyte & Acid-Base Intelligence, Urinalysis Intelligence. Heredados íntegramente. Nota de uso: en pacientes bajo quimioterapia, CC-201 debe vincularse activamente con CC-305 (ver más abajo) para contextualizar hallazgos hematológicos como posible mielosupresión inducida por tratamiento, en vez de tratarlos como hallazgo aislado.
+
+CC-220 — Imaging Intelligence (extendido)
+
+Hereda la estructura base de ICIS-ARCH-001 (interpretación de hallazgos de imagenología). Extensión propia de OCIS: seguimiento seriado de tamaño tumoral y búsqueda activa de metástasis en sitios de patrón conocido según el tipo de neoplasia (ej. metástasis pulmonar en hemangiosarcoma, afectación hepática/esplénica en linfoma) — el componente debe poder comparar mediciones entre estudios sucesivos y señalar cambios clínicamente relevantes (progresión vs. estable vs. respuesta), no solo describir el hallazgo del estudio actual de forma aislada.
+
+CC-231 — Histopathology Intelligence (reconstruido para OCIS)
+
+Componente reconstruido específicamente para OCIS, distinto del CC-231 excluido en ICIS por ser de alcance gastroenterológico. Propósito clínico: interpretar hallazgos de citología e histopatología y vincularlos explícitamente con los sistemas de gradación documentados en la Base de Conocimiento (Patnaik/Kiupel para tumores de mastocitos, subtipificación de linfoma, confirmación histológica de hemangiosarcoma).
+
+Alcance — incluye: tipo celular, grado histológico cuando aplique, márgenes quirúrgicos (limpio/incompleto), índice mitótico, invasión vascular/linfática cuando se reporte.
+
+Alcance — no incluye: reinterpretación de láminas (el componente trabaja sobre el reporte de patología ya emitido, no reemplaza el juicio del patólogo).
+
+Regla: si el reporte de histopatología no incluye un dato necesario para aplicar el sistema de gradación correspondiente (ej. índice mitótico faltante para gradación de Kiupel), el componente debe declarar explícitamente qué dato falta, nunca asumir un grado por defecto.
+
+CC-232 — Staging & Grading Engine (nuevo, propio de OCIS)
+
+Propósito: aplicar de forma explícita y trazable el sistema de estadificación/gradación correspondiente a la neoplasia identificada, usando como fuente los datos producidos por CC-231 (histopatología), CC-220 (imagenología, para estadificación) y CC-201/202 (laboratorio, cuando forma parte del protocolo de estadificación).
+
+Entradas: CC-231, CC-220, CC-201, CC-202, tipo de neoplasia confirmado.
+
+Salidas: grado/estadio asignado con la nomenclatura exacta del sistema correspondiente (ej. "Kiupel: bajo grado", "WHO: estadio III-a"), más el listado de criterios que se evaluaron y cuáles quedaron pendientes de confirmar.
+
+Regla: nunca asigna un grado/estadio con información incompleta sin señalarlo explícitamente como provisional — un estadio asignado a partir de datos parciales debe marcarse como tal en el Dashboard y en el Reporte, no presentarse con la misma confianza que uno completo.
+
+Este componente alimenta directamente la Staging Card definida en OCIS-DESIGN-001, sección 7.
+
+CC-240 — Diagnostic Correlation Engine (heredado sin cambios)
+
+Se hereda la estructura completa del motor de correlación diagnóstica de ICIS-ARCH-001: integración de evidencia, ranking de hipótesis, detección de contradicciones, identificación de evidencia faltante, y representación en Dashboard (Diagnostic Overview, Differential Diagnosis Ranking, Evidence Correlation Matrix, Evidence Timeline, Confidence Gauge, Missing Evidence Dashboard, Contradiction Dashboard, Clinical Reasoning Map, Diagnostic Decision Tree). No requiere modificación para el dominio oncológico — el mecanismo de correlación de evidencia es agnóstico de especialidad.
+
+CC-305 — Oncology Pharmacotherapy (nuevo, propio de OCIS)
+
+Propósito: gestionar protocolos de quimioterapia, inhibidores de tirosina cinasa (TKIs), y demás fármacos oncológicos activos del caso — dosis, ciclo actual dentro del protocolo, próxima dosis programada, y toxicidades esperadas a vigilar según el fármaco.
+
+Alcance — incluye: nombre del protocolo (ej. CHOP para linfoma), fármaco y dosis por ciclo, fecha de próxima dosis, efectos adversos esperados según el fármaco (mielosupresión, cardiotoxicidad de antraciclinas, hepatotoxicidad).
+
+Regla: ante mielosupresión detectada por CC-201 en un paciente con protocolo activo en CC-305, el componente debe vincular explícitamente el hallazgo con el ciclo de tratamiento actual, no reportarlo como hallazgo hematológico aislado sin ese contexto.
+
+Este componente alimenta directamente la Treatment Protocol Card definida en OCIS-DESIGN-001, sección 7, y el evento "Ciclo de tratamiento" en la Clinical Timeline (sección 13 del mismo documento).
+
+---
+
+Contrato de Consumo
+
+Todo motor o especificación que consuma un Clinical Component de OCIS deberá:
+- Referenciarlo por su código (CC-xxx), nunca reimplementar su lógica localmente.
+- Registrar en el Clinical Evidence Graph (CC-250, cuando esté definido) cualquier inferencia derivada de CC-232 (Staging & Grading), con el mismo estándar de explicabilidad que cualquier otra inferencia.
+
+Architecture Decisions
+
+AD-OCIS-01 — No Referral Layer. A diferencia de ICIS, OCIS no incluye ni incluirá una capa CC-26x. Cualquier necesidad de derivar un caso oncológico hacia otra especialidad (ej. hallazgo cardíaco incidental en un paciente en tratamiento oncológico) debe resolverse escalando el caso de vuelta a ICIS, no construyendo un motor de derivación paralelo dentro de OCIS.
+
+AD-OCIS-02 — Staging as a First-Class Component. CC-232 no es una extensión opcional del catálogo — es el componente que define la razón de ser diferenciadora de OCIS frente a un manejo oncológico genérico, de la misma forma que CC-260/261/262 lo son para ICIS. Ningún otro componente de OCIS puede asignar grado/estadio por su cuenta; esa responsabilidad pertenece exclusivamente a CC-232.

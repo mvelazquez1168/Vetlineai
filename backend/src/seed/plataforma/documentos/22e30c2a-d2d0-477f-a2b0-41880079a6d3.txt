@@ -1,0 +1,107 @@
+DERMATITIS Y OTITIS POR MALASSEZIA EN PERROS Y GATOS — DIAGNÓSTICO CITOLÓGICO Y TRATAMIENTO
+
+Resumen clínico de referencia para DCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico), y los componentes de citología de DCIS.
+
+Documento complementario de los de dermatitis atópica y otitis externa: la dermatitis por Malassezia es casi siempre secundaria, y la causa subyacente más frecuente es la alérgica.
+
+---
+
+1. EL PRINCIPIO QUE ORDENA TODO: ES UN COMENSAL
+
+Malassezia forma parte del micobioma normal de perros y gatos. *Malassezia pachydermatis* coloniza la piel poco después del nacimiento y es la especie de levadura principalmente asociada a enfermedad cutánea y ótica. Los sitios de portación principales son las áreas mucocutáneas, los oídos y las regiones interdigitales.
+
+**En presencia de una enfermedad subyacente**, estas levaduras proliferan y se adhieren a piel o mucosa, induciendo dermatitis, otitis externa o paroniquia **secundarias**.
+
+Consecuencia inmediata: dado que la dermatitis alérgica es una de las causas subyacentes más comunes, **la investigación diagnóstica de alergia está indicada con frecuencia**.
+
+Regla para DCIS: un diagnóstico de dermatitis por Malassezia no cierra el caso. Es el hallazgo que abre la búsqueda de la causa primaria, exactamente como las bacterias y levaduras son factores secundarios en el sistema PSPP del documento de otitis.
+
+En el gato. La dermatitis por Malassezia se encuentra solo ocasionalmente, y cuando es **generalizada suele asociarse a condiciones subyacentes más serias**: trastorno de hipersensibilidad, neoplasia visceral, o síndrome paraneoplásico. Razas felinas de riesgo aumentado: Devon Rex y Sphynx.
+
+Regla dura para DCIS: una dermatitis por Malassezia generalizada en un gato obliga a buscar enfermedad sistémica o neoplásica. No es el mismo hallazgo que en el perro.
+
+2. PRESENTACIÓN CLÍNICA
+
+Es crónica, recidivante y pruriginosa.
+
+Signos típicos: prurito, eritema, descamación, exudación cérea y liquenificación. Predominan eritema, lesiones escamosas con exudado céreo y prurito, con frecuencia favoreciendo las zonas intertriginosas.
+
+Los signos clínicos se deben a la liberación de factores de virulencia por los organismos y a la cascada inflamatoria resultante en la piel.
+
+3. DIAGNÓSTICO — CITOLOGÍA, Y POR QUÉ CONTAR NO ALCANZA
+
+**La citología directa es el método más beneficioso y conveniente**, y permite un diagnóstico rápido y confiable.
+
+Lo que se busca: células ovaladas y alargadas de 3 a 5 µm de diámetro, con gemación polar única característica que les da el aspecto de **huella o de maní**.
+
+Métodos de recolección: tira adhesiva (tape stripping), raspados superficiales suaves en piel seca, e improntas directas con portaobjetos en piel grasa. **Para exudado ótico, el método preferido es obtenerlo con hisopo de algodón y rodarlo sobre el portaobjetos.** Tinción tipo Diff-Quik y examen microscópico óptico.
+
+El matiz que da título a la discusión especializada — no es solo cuestión de contar:
+
+**Recuentos altos pueden no ser clínicamente relevantes en todos los casos** donde se detectan.
+
+A la inversa, **poblaciones normales o incluso menores pueden bastar para exacerbar la inflamación cutánea** en pacientes con respuestas de hipersensibilidad inmediata o retardada.
+
+Las poblaciones varían entre sitios anatómicos y entre razas, de modo que las guías de consenso establecen que **se requiere terapia de prueba para establecer el papel de Malassezia en el caso**.
+
+Regla para DCIS: el diagnóstico se establece cuando un perro con población anormalmente alta en piel lesional **responde a la terapia antifúngica**. Y algunos perros pueden tener muy pocas levaduras citológicamente y aun así responder bien al antifúngico. El recuento orienta; la respuesta confirma.
+
+Sobre el cultivo. Como la levadura es componente normal de la flora cutánea, **un cultivo positivo por sí solo tiene poco o ningún valor**. El número de colonias puede orientar, igual que el número de levaduras en citología.
+
+Sobre las pruebas intradérmicas. La reactividad a *M. pachydermatis* se evalúa comúnmente en pruebas alérgicas intradérmicas: en un estudio, perros sanos y atópicos sin dermatitis por Malassezia no mostraron reacción, mientras que hubo reactividad positiva en todos los atópicos con dermatitis por Malassezia concurrente y en el 30% de 46 perros con dermatitis seborreica. Los resultados pueden considerarse para formular inmunoterapia específica, **pero no deben utilizarse para diagnosticar dermatitis por Malassezia**.
+
+4. TRATAMIENTO
+
+**El tratamiento debe enfocarse en resolver la causa subyacente.** La terapia tópica es el pilar tanto del tratamiento como del manejo.
+
+Tópicos. Productos antisépticos y antifúngicos de base azólica. Según el panel de consenso de la World Association of Veterinary Dermatology, **los productos que contienen clorhexidina, miconazol o climbazol deberían ser beneficiosos**.
+
+Sistémicos. Los antifúngicos orales están indicados **solo en enfermedad severa o refractaria**. No son la primera línea.
+
+Otitis por Malassezia. Debe tratarse vigorosamente para limitar el reservorio fúngico. Se emplean típicamente dos semanas de gotas óticas medicadas, **idealmente con recitología para evaluar la respuesta al tratamiento**. Entre las preparaciones óticas antifúngicas disponibles se citan miconazol, nistatina, tiabendazol y clotrimazol, además de agentes de limpieza antisépticos.
+
+Infección concurrente. En casos de piodermia superficial o sobrecrecimiento bacteriano concurrente, debe usarse antibioterapia simultáneamente.
+
+Prevención de recaídas. Cuando la dermatitis por Malassezia es "idiopática" o el control de la causa subyacente es imposible, las recaídas pueden prevenirse con tratamientos tópicos semanales o con administración oral de ketoconazol uno o dos días por semana.
+
+Opciones adicionales o profilácticas descritas: productos de base vegetal y péptidos antifúngicos —defensinas, catelicidinas, lactoferrina, lisozima— que interfieren con la permeabilidad de la membrana fúngica. Diversos componentes vegetales muestran actividad in vitro, y dos estudios in vivo mostraron buena mejoría de la dermatitis y la otitis caninas con formulaciones tópicas de origen vegetal.
+
+5. ERRORES FRECUENTES
+
+Tratar la dermatitis por Malassezia sin buscar la causa subyacente.
+
+Usar el recuento citológico como criterio único, en cualquiera de las dos direcciones.
+
+Solicitar cultivo esperando valor diagnóstico.
+
+Usar la prueba intradérmica para diagnosticar la dermatitis.
+
+Iniciar antifúngico sistémico como primera línea en un caso no severo ni refractario.
+
+No realizar recitología al finalizar el tratamiento ótico.
+
+No tratar simultáneamente el sobrecrecimiento bacteriano concurrente.
+
+Tratar una dermatitis generalizada por Malassezia en un gato sin investigar neoplasia visceral o enfermedad sistémica.
+
+6. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis y duración de ketoconazol, itraconazol y demás antifúngicos sistémicos. Concentraciones y frecuencias de los tópicos. Sistemas de graduación citológica y sus puntos de corte. Paroniquia por Malassezia. Especies de Malassezia distintas de *M. pachydermatis* y su relevancia clínica. Resistencia antifúngica. Dermatitis seborreica primaria. Inmunoterapia específica con alérgenos de Malassezia. Estos temas quedan como vacíos declarados de la Base de Conocimiento de DCIS.
+
+FUENTES
+
+Bond R, Morris DO, Guillot J, Bensignor EJ, Robson D, Mason KV, Kano R, Hill PB. Biology, diagnosis and treatment of Malassezia dermatitis in dogs and cats: clinical consensus guidelines of the World Association for Veterinary Dermatology. Vet Dermatol 2020. Fuente principal de las secciones 1, 3 y 4.
+
+Malassezia dermatitis in dogs and cats. J Vet Cardiol / Elsevier 2024. Fuente de las secciones 1, 2 y 4.
+
+Diagnosis of Malassezia dermatitis and otitis in dogs and cats, is it just a matter of counting? Rev Iberoam Micol 2020. Fuente de la sección 3.
+
+Diagnosis and treatment of Malassezia dermatitis in dogs. Royal Canin Academy. Fuente de las secciones 2, 3 y 4.
+
+Update on treatment of Malassezia dermatitis. dvm360. Fuente de las secciones 1, 3 y 4.
+
+Malassezia Dermatitis in the Dog. WSAVA 2005, VIN. Fuente de la sección 4.
+
+Malassezia yeasts in veterinary dermatology: an updated overview. Front Cell Infect Microbiol 2020;10:79.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

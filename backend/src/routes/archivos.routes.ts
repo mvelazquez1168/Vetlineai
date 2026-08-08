@@ -1,31 +1,29 @@
 import { toFile } from "@anthropic-ai/sdk";
 import crypto from "crypto";
-import { Router } from "express";
-import fs from "fs";
+import { Request, Response, Router } from "express";
 import multer from "multer";
 import path from "path";
 import { requerirAnthropic } from "../anthropic";
+import { almacenamientoPrivado } from "../almacenamiento";
 import { authenticate, withTenantClient } from "../middleware/auth";
 
 export const archivosRouter = Router();
 
-// Mismo mecanismo ya usado en platform-admin.routes.ts para documentos_
-// conocimiento: filesystem local del contenedor, carpeta compartida
-// /uploads — pero organizada en subcarpetas por tabla dueña (acá, casos/).
-// En una fase posterior esto se reemplaza por la Files API de Anthropic
-// (ver comentario en el handler de abajo).
-const uploadsDir = path.join(__dirname, "../../uploads");
-const casosUploadsDir = path.join(uploadsDir, "casos");
-fs.mkdirSync(casosUploadsDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, casosUploadsDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${crypto.randomUUID()}${ext}`);
-  },
-});
-const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
+// El archivo queda en memoria (req.file.buffer), no en disco — ver la
+// misma nota en platform-admin.routes.ts. Va al ámbito privado del
+// almacenamiento de objetos, organizado en su propia "carpeta" lógica
+// (casos/) dentro de ese ámbito.
+//
+// 25MB: cubre una radiografía o ecografía exportada como JPEG/PNG/PDF (lo
+// único que este endpoint tipa — ver CONTENT_TYPE_POR_EXTENSION) con
+// margen; un estudio DICOM crudo no entra en este flujo, es un formato
+// distinto que este endpoint no interpreta. El límite se aplica DURANTE
+// la subida (multer corta el stream al llegar al límite, no bufferiza el
+// archivo completo antes de rechazarlo) — el tope real de memoria por
+// archivo es este valor, nunca el tamaño real del archivo que alguien
+// intente mandar.
+const LIMITE_TAMANO_ARCHIVO = 25 * 1024 * 1024;
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: LIMITE_TAMANO_ARCHIVO } });
 
 function inferirTipo(nombreOriginal: string): string {
   const ext = path.extname(nombreOriginal).toLowerCase().replace(".", "");
@@ -76,7 +74,22 @@ archivosRouter.use(authenticate, withTenantClient);
 // Si falla (Anthropic no configurado, formato no soportado, etc.), el
 // archivo local NO se pierde — solo queda file_id_anthropic en null.
 // ---------------------------------------------------------------------
-archivosRouter.post("/", upload.single("archivo"), async (req, res) => {
+archivosRouter.post("/", (req, res) => {
+  upload.single("archivo")(req, res, async (err: any) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({
+          error: `El archivo supera el máximo de ${LIMITE_TAMANO_ARCHIVO / (1024 * 1024)}MB.`,
+        });
+      }
+      console.error("POST /archivos (upload)", err);
+      return res.status(500).json({ error: "Error al subir el archivo." });
+    }
+    await manejarSubidaArchivo(req, res);
+  });
+});
+
+async function manejarSubidaArchivo(req: Request, res: Response) {
   if (!req.auth!.esMedico) {
     return res.status(403).json({ error: "Esta sección es solo para médicos." });
   }
@@ -100,14 +113,16 @@ archivosRouter.post("/", upload.single("archivo"), async (req, res) => {
     }
 
     const tipo = inferirTipo(req.file.originalname);
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    const contentType = CONTENT_TYPE_POR_EXTENSION[ext] ?? "application/octet-stream";
+    const clave = `casos/${crypto.randomUUID()}${ext}`;
+    await almacenamientoPrivado.guardar(clave, req.file.buffer, contentType);
 
     let fileIdAnthropic: string | null = null;
     try {
       const anthropic = requerirAnthropic();
-      const ext = path.extname(req.file.originalname).toLowerCase();
-      const contentType = CONTENT_TYPE_POR_EXTENSION[ext] ?? "application/octet-stream";
       const subida = await anthropic.beta.files.upload({
-        file: await toFile(fs.createReadStream(req.file.path), req.file.originalname, {
+        file: await toFile(req.file.buffer, req.file.originalname, {
           type: contentType,
         }),
         betas: ["files-api-2025-04-14"],
@@ -124,7 +139,7 @@ archivosRouter.post("/", upload.single("archivo"), async (req, res) => {
       `INSERT INTO archivos (caso_id, nombre_archivo, tipo, url, file_id_anthropic)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id, nombre_archivo, tipo, url, creado_en, file_id_anthropic`,
-      [casoId, req.file.originalname, tipo, `/uploads/casos/${req.file.filename}`, fileIdAnthropic]
+      [casoId, req.file.originalname, tipo, `/uploads/${clave}`, fileIdAnthropic]
     );
 
     res.status(201).json({ archivo: result.rows[0] });
@@ -132,7 +147,7 @@ archivosRouter.post("/", upload.single("archivo"), async (req, res) => {
     console.error("POST /archivos", err);
     res.status(500).json({ error: "Error al subir el archivo." });
   }
-});
+}
 
 // ---------------------------------------------------------------------
 // GET /api/archivos/:id
@@ -160,15 +175,17 @@ archivosRouter.get("/:id", async (req, res) => {
     }
 
     const { nombre_archivo: nombreArchivo, url } = result.rows[0];
-    // `url` es una ruta relativa a la raíz del servidor (ej. "/uploads/casos/x.pdf"),
-    // no al directorio de uploads — se le saca el prefijo antes de unirla.
-    const rutaRelativa = url.replace(/^\/uploads\//, "");
-    const rutaArchivo = path.join(uploadsDir, rutaRelativa);
-    if (!fs.existsSync(rutaArchivo)) {
+    // `url` es una ruta relativa a la raíz del servidor (ej. "/uploads/casos/x.pdf")
+    // — se le saca el prefijo para obtener la clave dentro del ámbito privado.
+    const clave = url.replace(/^\/uploads\//, "");
+    let datos: Buffer;
+    try {
+      datos = await almacenamientoPrivado.leer(clave);
+    } catch {
       return res.status(404).json({ error: "El archivo ya no está disponible." });
     }
 
-    const ext = path.extname(rutaArchivo).toLowerCase();
+    const ext = path.extname(clave).toLowerCase();
     const contentType = CONTENT_TYPE_POR_EXTENSION[ext] ?? "application/octet-stream";
     const forzarDescarga = req.query.descargar === "1" || !EXTENSIONES_INLINE.includes(ext);
     const disposicion = forzarDescarga ? "attachment" : "inline";
@@ -179,7 +196,7 @@ archivosRouter.get("/:id", async (req, res) => {
       "Content-Disposition",
       `${disposicion}; filename="${nombreSanitizado}"; filename*=UTF-8''${encodeURIComponent(nombreSanitizado)}`
     );
-    res.sendFile(rutaArchivo);
+    res.send(datos);
   } catch (err) {
     console.error("GET /archivos/:id", err);
     res.status(500).json({ error: "Error al obtener el archivo." });

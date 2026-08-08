@@ -98,6 +98,10 @@ export interface CrearCitaInput {
   duracionMinutos: number;
   prioridad?: "baja" | "normal" | "alta" | "emergencia";
   motivoConsulta?: string;
+  // Reporte de atenciones — vincula la cita a un caso ya creado desde el
+  // wizard de "Nuevo Caso" (rama "crear cita ahora"). Opcional: la
+  // mayoría de las citas se agendan sin caso todavía.
+  casoId?: string | null;
 }
 
 // Núcleo de creación de citas (conflictos + insert) — exportada para que
@@ -117,8 +121,8 @@ export async function crearCita(db: PoolClient, tenantId: string, body: CrearCit
   const result = await db.query(
     `INSERT INTO citas
        (tenant_id, paciente_id, medico_id, sala_id, fecha, hora_inicio, hora_fin,
-        duracion_minutos, prioridad, motivo_consulta)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        duracion_minutos, prioridad, motivo_consulta, caso_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING *`,
     [
       tenantId,
@@ -131,6 +135,7 @@ export async function crearCita(db: PoolClient, tenantId: string, body: CrearCit
       body.duracionMinutos,
       body.prioridad ?? "normal",
       body.motivoConsulta ?? null,
+      body.casoId ?? null,
     ]
   );
   const cita = result.rows[0];
@@ -141,13 +146,15 @@ export async function crearCita(db: PoolClient, tenantId: string, body: CrearCit
   // creación de citas, ver comentario de arriba).
   if (await avisoActivo(db, tenantId, "confirmacion_cita_activo")) {
     const datosNotificacion = await db.query(
-      `SELECT p.nombre AS paciente_nombre, p.propietario_id, m.nombre AS medico_nombre
+      `SELECT p.nombre AS paciente_nombre, p.propietario_id, p.estado AS paciente_estado, m.nombre AS medico_nombre
        FROM pacientes p, personas m
        WHERE p.id = $1 AND m.id = $2`,
       [cita.paciente_id, cita.medico_id]
     );
     const info = datosNotificacion.rows[0];
-    if (info) {
+    // prompt_code_paciente_nacimiento_estado.md, Parte B2 — un paciente
+    // fallecido no recibe ningún aviso.
+    if (info && info.paciente_estado === "activo") {
       const fecha = formatoFechaCorta(cita.fecha);
       const hora = String(cita.hora_inicio).slice(0, 5);
       await emitirNotificacion(db, {
@@ -182,11 +189,14 @@ async function notificarCitaCanceladaOReprogramada(
 ): Promise<void> {
   if (!(await avisoActivo(db, tenantId, "cancelacion_cita_activo"))) return;
 
-  const info = await db.query(`SELECT nombre AS paciente_nombre, propietario_id FROM pacientes WHERE id = $1`, [
-    cita.paciente_id,
-  ]);
+  const info = await db.query(
+    `SELECT nombre AS paciente_nombre, propietario_id, estado FROM pacientes WHERE id = $1`,
+    [cita.paciente_id]
+  );
   const row = info.rows[0];
-  if (!row) return;
+  // prompt_code_paciente_nacimiento_estado.md, Parte B2 — un paciente
+  // fallecido no recibe ningún aviso.
+  if (!row || row.estado !== "activo") return;
 
   const fechaOriginal = formatoFechaCorta(cita.fecha);
   const horaOriginal = String(cita.hora_inicio).slice(0, 5);
@@ -215,11 +225,11 @@ async function notificarCitaCanceladaOReprogramada(
 }
 
 // ---------------------------------------------------------------------
-// GET /api/citas?desde=&hasta=&medico_id=&estado=
+// GET /api/citas?desde=&hasta=&medico_id=&estado=&paciente_id=
 // ---------------------------------------------------------------------
 citasRouter.get("/", async (req, res) => {
   try {
-    const { desde, hasta, medico_id, estado } = req.query as Record<string, string | undefined>;
+    const { desde, hasta, medico_id, estado, paciente_id } = req.query as Record<string, string | undefined>;
     const condiciones: string[] = [];
     const valores: any[] = [];
 
@@ -238,6 +248,12 @@ citasRouter.get("/", async (req, res) => {
     if (estado) {
       valores.push(estado);
       condiciones.push(`c.estado = $${valores.length}`);
+    }
+    // Reporte de atenciones / wizard "Nuevo Caso" — filtro para "citas de
+    // hoy de este paciente" al elegir una cita existente para vincular.
+    if (paciente_id) {
+      valores.push(paciente_id);
+      condiciones.push(`c.paciente_id = $${valores.length}`);
     }
 
     const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
@@ -414,6 +430,42 @@ citasRouter.patch("/:id/estado", async (req, res) => {
   } catch (err) {
     console.error("PATCH /citas/:id/estado", err);
     res.status(500).json({ error: "Error al cambiar el estado de la cita." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// PATCH /api/citas/:id/caso — vincula una cita ya agendada a un caso.
+//
+// Punto de entrada de la rama "elegir cita de hoy" del wizard de "Nuevo
+// Caso" (PATCH /:id/estado también puede escribir caso_id vía COALESCE,
+// pero exige además una transición de estado válida — acá el único
+// propósito es el vínculo). Nunca pisa un vínculo existente: si la cita
+// ya tiene caso_id, se rechaza en vez de reemplazarlo en silencio.
+// ---------------------------------------------------------------------
+citasRouter.patch("/:id/caso", async (req, res) => {
+  const { casoId } = req.body as { casoId?: string };
+  if (!casoId) {
+    return res.status(400).json({ error: "Falta casoId." });
+  }
+
+  try {
+    const result = await req.db!.query(
+      `UPDATE citas SET caso_id = $1, actualizado_en = now()
+       WHERE id = $2 AND caso_id IS NULL
+       RETURNING id, caso_id`,
+      [casoId, req.params.id]
+    );
+    if (result.rows.length === 0) {
+      const existe = await req.db!.query(`SELECT caso_id FROM citas WHERE id = $1`, [req.params.id]);
+      if (existe.rows.length === 0) {
+        return res.status(404).json({ error: "Cita no encontrada." });
+      }
+      return res.status(409).json({ error: "Esta cita ya está vinculada a otro caso." });
+    }
+    res.json({ cita: result.rows[0] });
+  } catch (err) {
+    console.error("PATCH /citas/:id/caso", err);
+    res.status(500).json({ error: "Error al vincular la cita al caso." });
   }
 });
 

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { invalidarCacheTarifa } from "../tarifas";
+import { obtenerEstadoProveedorIa } from "../proveedorIaEstado";
 
 // ---------------------------------------------------------------------
 // Platform Admin — administración de tarifas por token. Hasta ahora las
@@ -104,7 +105,10 @@ platformTarifasRouter.get("/tarifas/alertas", async (req, res) => {
        ORDER BY m.modelo`
     );
 
-    const alertas = result.rows
+    const alertas: Array<
+      | { modelo: string; motivo: "sin_tarifa_vigente" | "tarifa_en_cero" }
+      | { modelo: null; motivo: "credito_agotado"; detectadoEn: string | null }
+    > = result.rows
       .map((fila) => {
         const filasVigentes = Number(fila.filas_vigentes);
         if (filasVigentes < TIPOS_TOKEN.length) {
@@ -116,6 +120,19 @@ platformTarifasRouter.get("/tarifas/alertas", async (req, res) => {
         return null;
       })
       .filter((a): a is { modelo: string; motivo: "sin_tarifa_vigente" | "tarifa_en_cero" } => a !== null);
+
+    // Detección reactiva (ver proveedorIaEstado.ts) — Anthropic no expone
+    // un endpoint para consultar saldo de antemano, así que esto refleja
+    // el resultado de la última llamada real que tocó ese estado, no un
+    // chequeo en vivo contra Anthropic.
+    const estadoProveedor = await obtenerEstadoProveedorIa();
+    if (estadoProveedor?.bloqueado) {
+      alertas.unshift({
+        modelo: null,
+        motivo: "credito_agotado",
+        detectadoEn: estadoProveedor.detectadoEn ? estadoProveedor.detectadoEn.toISOString() : null,
+      });
+    }
 
     res.json({ alertas });
   } catch (err) {

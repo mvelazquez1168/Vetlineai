@@ -1,0 +1,89 @@
+MIELOPATÍA DEGENERATIVA CANINA — DIAGNÓSTICO DE EXCLUSIÓN, GENÉTICA Y MANEJO
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-220 (Imaging Intelligence), CC-104 (examen físico), y los componentes de neurolocalización de NCIS.
+
+Documento complementario del de espondilomielopatía cervical y del de enfermedad discal: los tres compiten por el mismo paciente —el perro grande con paraparesia progresiva— y la distinción entre ellos es el problema clínico central.
+
+---
+
+1. QUÉ ES
+
+La mielopatía degenerativa, también llamada radiculomielopatía degenerativa crónica, es una **degeneración lentamente progresiva y no inflamatoria de los axones y la mielina**, que afecta principalmente la sustancia blanca de la médula espinal.
+
+Las dos palabras que definen la conducta son *progresiva* y *no inflamatoria*: no responde a antiinflamatorios, no remite, y su curso es de meses.
+
+2. RAZAS Y GENÉTICA
+
+Es más común en Pastor Alemán, Corgi Galés de Pembroke, Bóxer, Rhodesian Ridgeback y Retriever de la Bahía de Chesapeake, aunque se reconoce ocasionalmente en muchas otras razas.
+
+La causa es una **mutación en el gen de la superóxido dismutasa 1 (SOD1)**, heredada con patrón autosómico recesivo y **penetrancia incompleta**.
+
+Esa penetrancia incompleta es la clave interpretativa de la prueba genética, y merece regla propia. Un perro homocigoto para la mutación **está en riesgo, pero no necesariamente desarrollará la enfermedad**. En consecuencia:
+
+Un resultado genético positivo **no diagnostica** mielopatía degenerativa en un perro con signos: solo indica susceptibilidad, y no descarta que los signos provengan de otra causa tratable.
+
+Un resultado negativo sí tiene más valor de exclusión que el positivo de confirmación.
+
+Regla para NCIS: la prueba de SOD1 nunca debe presentarse como diagnóstica. Presentarla así en un perro con paraparesia puede llevar a no operar una compresión medular tratable.
+
+Correlato humano: la enfermedad es similar a la esclerosis lateral amiotrófica familiar. En la ELA humana aproximadamente el 20% de los casos tiene la mutación de SOD1 y se transmite como enfermedad autosómica dominante, mientras que la mielopatía degenerativa canina es recesiva. Esa diferencia de patrón de herencia importa al trasladar información entre especies.
+
+3. EL DIAGNÓSTICO ES POR EXCLUSIÓN
+
+No existe prueba en vida que confirme la enfermedad. El diagnóstico definitivo es histopatológico post mortem.
+
+En la práctica, el diagnóstico presuntivo se construye sobre tres pilares: signalmento y raza compatibles, curso clínico característico —progresivo, no doloroso, sin remisiones—, y **exclusión por imagen avanzada de las causas compresivas**.
+
+Ese tercer pilar es el que más consecuencia tiene. Las entidades que deben excluirse son precisamente las tratables: enfermedad discal, espondilomielopatía cervical, neoplasia medular, discoespondilitis y las meningoencefalomielitis del documento de MUO.
+
+Regla para NCIS: la ausencia de dolor es un rasgo orientador —la mielopatía degenerativa no es dolorosa—, pero no sustituye la imagen. Un perro con paraparesia progresiva indolora y sin resonancia o tomografía no tiene diagnóstico de mielopatía degenerativa: tiene una sospecha sin exclusión.
+
+4. TRATAMIENTO — LO QUE HAY Y LO QUE NO
+
+**No existe tratamiento específico.**
+
+El abordaje farmacológico descrito se basa en antiinflamatorios no esteroideos o esteroides como la prednisolona, por su efecto sobre el manejo de los signos neurológicos, **pero con baja evidencia respecto de la progresión de la enfermedad**. Es decir: puede modificar el confort, no el curso.
+
+Otros abordajes terapéuticos descritos incluyen un protocolo inicial basado en ejercicio físico activo y suplementación con vitamina B, vitamina E, ácido aminocaproico y N-acetilcisteína. El ácido aminocaproico bloquea vías inflamatorias y reduce la degradación de fibrina.
+
+**El ejercicio físico activo y la neurorrehabilitación intensiva son el componente con mayor respaldo relativo** dentro de un panorama de evidencia escasa, y son además lo que más impacta la calidad de vida y el tiempo de autonomía del paciente.
+
+Regla para NCIS: al comunicar el manejo, el componente debe separar con claridad lo que modifica el confort de lo que modificaría el curso, porque no hay nada demostrado en la segunda categoría. Presentar suplementos como tratamiento de la enfermedad genera una expectativa que la evidencia no sostiene.
+
+5. LA CONVERSACIÓN QUE ESTE DIAGNÓSTICO EXIGE
+
+Por su carácter progresivo, no doloroso y sin tratamiento curativo, el manejo de la mielopatía degenerativa es tanto una conversación como una intervención: planificación de la progresión, adaptación del entorno, soportes de movilidad, y en su momento la discusión sobre calidad de vida.
+
+Esa conversación se sostiene mejor cuando el diagnóstico se construyó con exclusión adecuada. Un diagnóstico presuntivo sin imagen deja al propietario sin saber si se resignó a algo que podía tratarse.
+
+6. ERRORES FRECUENTES
+
+Presentar un resultado positivo de SOD1 como diagnóstico.
+
+Diagnosticar mielopatía degenerativa sin imagen avanzada que excluya causas compresivas.
+
+Interpretar la ausencia de dolor como suficiente para descartar compresión.
+
+Presentar suplementos o corticoides como tratamiento que modifica la progresión.
+
+Omitir la neurorrehabilitación, que es lo que más impacta autonomía y calidad de vida.
+
+Trasladar el patrón de herencia de la ELA humana —dominante— a la enfermedad canina, que es recesiva.
+
+No considerar la penetrancia incompleta al asesorar sobre cría en razas afectadas.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Protocolos detallados de neurorrehabilitación y fisioterapia. Estadificación clínica y escalas de progresión. Dosis de los suplementos citados. Terapias en investigación, incluido el trasplante de células madre alogénicas. Asesoramiento genético y estrategias de cría en razas afectadas. Manejo de la incontinencia y del decúbito. Criterios y momento de la eutanasia. Hallazgos histopatológicos. Diagnóstico diferencial detallado con enfermedad discal toracolumbar. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+FUENTES
+
+Merck Veterinary Manual — Degenerative Diseases of the Spinal Column and Cord in Animals. Fuente de las secciones 1 y 2.
+
+Intensive neurorehabilitation and allogeneic stem cell transplantation in canine degenerative myelopathy. PMC10374290. Fuente de las secciones 2 y 4.
+
+Coates JR y col., sobre mielopatía degenerativa canina y su relación con la mutación de SOD1.
+
+Awano T y col., sobre la identificación de la mutación de SOD1 asociada a mielopatía degenerativa canina.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -1,0 +1,97 @@
+DERRAME PERICÁRDICO Y TAPONAMIENTO CARDÍACO EN EL PERRO — DIAGNÓSTICO, PERICARDIOCENTESIS Y PRONÓSTICO POR CAUSA
+
+Resumen clínico de referencia para CCIS. Componentes que lo consumen: CC-220 (Imaging Intelligence, ecocardiografía), CC-240 (Diagnostic Correlation Engine), CC-201/202 (laboratorio).
+
+Comparte paciente con el documento de hemangiosarcoma de OCIS: la causa más común de este cuadro es una neoplasia, y el manejo cardiológico de urgencia precede al oncológico.
+
+---
+
+1. FRECUENCIA Y MECANISMO
+
+El derrame pericárdico es la acumulación anormal de fluido en el espacio pericárdico. Es una cardiopatía adquirida relativamente común en el perro: prevalencia reportada del 0,43% —un perro cada 233— entre los que se presentan a un hospital de referencia, y aproximadamente el 7% de los perros con signos clínicos de enfermedad cardíaca.
+
+Mecanismo. Conforme aumentan el volumen del fluido y la presión intrapericárdica, puede desarrollarse **taponamiento cardíaco**: la presión sobre el corazón reduce el llenado diastólico, lo que disminuye el gasto cardíaco y termina en signos de choque.
+
+El grado de presión ejercida depende de tres variables, y la segunda es la que más se olvida: el volumen del derrame, **la velocidad de acumulación del fluido**, y la distensibilidad del pericardio fibroso.
+
+Regla para CCIS: un derrame pequeño de instalación rápida puede producir taponamiento mientras uno grande y crónico no. El volumen aislado no predice el compromiso hemodinámico.
+
+2. LAS TRES CAUSAS PRINCIPALES
+
+Las causas más comunes son **hemangiosarcoma cardíaco**, **derrame pericárdico idiopático** y **quemodectoma**. Es un trastorno multietiológico que incluye además causas infecciosas e inflamatorias, con un espectro de pronósticos que va de bueno a grave.
+
+**Comprender la causa subyacente es lo que determina las recomendaciones de tratamiento y un pronóstico preciso.** El pronóstico de las enfermedades neoplásicas fue uniformemente pobre, mientras que los derrames idiopáticos benignos respondieron bien a la pericardiectomía.
+
+En una serie, se documentó neoplasia en el 73,3% de los casos.
+
+Regla para CCIS: estabilizar el taponamiento no cierra el caso. La pregunta que sigue —¿neoplásico o idiopático?— separa dos pronósticos opuestos, y la respuesta condiciona si corresponde escalar a ICIS para derivación oncológica.
+
+3. RECONOCIMIENTO CLÍNICO
+
+**La mayoría de los casos puede diagnosticarse con un examen físico minucioso.**
+
+Hallazgos descritos: **sonidos cardíacos apagados**, **pulso paradójico** —el pulso es más fuerte durante la espiración y más débil durante la inspiración— y **distensión venosa yugular**. Los pulsos femorales son débiles. Los sonidos pulmonares también pueden estar apagados si hay derrame pleural concurrente.
+
+Con taponamiento, el animal puede mostrar signos de choque cardiogénico: mucosas pálidas, extremidades frías, hipotensión, taquicardia y colapso. Estos casos requieren triage inmediato.
+
+4. ESTUDIOS
+
+Radiografía. Silueta cardíaca globoide agrandada de márgenes nítidos, y vena cava caudal dilatada si hay taponamiento. Con menor frecuencia, un abultamiento en la base del corazón —especialmente con tumor de base cardíaca— o derrame pleural. No debe omitirse la búsqueda de metástasis torácicas.
+
+Electrocardiograma. Puede revelar ritmo sinusal, taquicardia supraventricular, taquicardia sinusal, complejos ventriculares prematuros, o **alternancia eléctrica** —cambio cíclico en la altura del complejo QRS, debido al balanceo del corazón dentro del saco pericárdico lleno de fluido—. Los complejos QRS suelen ser de menor amplitud que lo normal.
+
+Ecocardiografía. Es confiable para diagnosticar el derrame y es el estudio de elección para detectarlo y evaluar su severidad, además de permitir realizar una pericardiocentesis diagnóstica.
+
+**El criterio ecocardiográfico de taponamiento**: colapso diastólico de la aurícula derecha, del ventrículo derecho, o de ambos. Ese hallazgo indica que el derrame compromete la hemodinamia y **requiere pericardiocentesis oportuna**.
+
+Es necesaria además una evaluación ecocardiográfica cuidadosa en busca de masas cardíacas, y **la localización de la masa a regiones anatómicas específicas —base cardíaca o aurícula derecha— es muy crítica para el valor pronóstico**.
+
+Triage inicial del perro con colapso cardiovascular: ecocardiograma breve de triage para determinar si hay derrame pericárdico significativo como causa del colapso, más rastreo abdominal buscando líquido libre en casos de hemoabdomen.
+
+5. TRATAMIENTO
+
+Pericardiocentesis. Está indicada para el tratamiento de urgencia del taponamiento pericárdico. Se coloca catéter intravenoso y se administran dosis de choque de fluidos, con pericardiocentesis inmediata.
+
+Un dato sobre seguridad y aprendizaje que vale conservar: en un estudio, **la ocurrencia de eventos adversos no se asoció con el nivel de experiencia del operador** —interno, residente o médico de planta— ni con el número de pericardiocentesis realizadas previamente, aunque hubo supervisión en todos los casos realizados por operadores sin experiencia previa. No hubo muertes espontáneas dentro de las 48 horas. Sin embargo, **los eventos adversos fueron más comunes de lo previamente reportado en la literatura veterinaria**.
+
+Los eventos adversos no se asociaron con la concentración plasmática de lactato a la presentación ni con la presencia de neoplasia.
+
+Regla para CCIS: la pericardiocentesis con supervisión es realizable sin experiencia previa acumulada, pero su tasa de complicaciones es mayor de lo que la literatura previa sugería. Ambos enunciados deben presentarse juntos.
+
+Pericardiectomía. Puede mejorar la supervivencia en algunos perros, y es donde los derrames idiopáticos benignos muestran buena respuesta.
+
+6. ERRORES FRECUENTES
+
+Estimar el compromiso hemodinámico por el volumen del derrame sin considerar la velocidad de acumulación.
+
+Estabilizar el taponamiento y cerrar el caso sin determinar la causa.
+
+Omitir la búsqueda ecocardiográfica de masas, y su localización anatómica, que es lo que define el pronóstico.
+
+No buscar metástasis torácicas en la radiografía.
+
+Interpretar complejos QRS de baja amplitud como artefacto en vez de como signo compatible.
+
+Omitir el rastreo abdominal en un perro con colapso, perdiendo un hemoabdomen concurrente.
+
+Presentar la pericardiocentesis como procedimiento de bajo riesgo.
+
+Dar el mismo pronóstico a un derrame idiopático y a uno neoplásico.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnica de la pericardiocentesis: abordaje, materiales y posicionamiento. Análisis del líquido pericárdico y su valor diagnóstico limitado. Técnicas de pericardiectomía, incluida la toracoscópica. Hemangiosarcoma cardíaco y quemodectoma como entidades propias; ver el documento de hemangiosarcoma de OCIS. Pericarditis constrictiva. Derrame pericárdico felino, que difiere en causas y frecuencia. Manejo de las arritmias asociadas; ver el documento de arritmias de CCIS. Mesotelioma pericárdico. Estos temas quedan como vacíos declarados de la Base de Conocimiento de CCIS.
+
+FUENTES
+
+Shaw SP, Rush JE. Canine pericardial effusion: pathophysiology and cause. Compend Contin Educ Vet 2007;29(7):400–403. PubMed 17727046. Fuente de las secciones 1 y 2.
+
+Shaw SP, Rush JE. Canine pericardial effusion: diagnosis, treatment, and prognosis. Compend Contin Educ Vet 2007;29(7):405–411. PubMed 17727047. Fuente de las secciones 3, 4 y 5.
+
+Pericardial effusion: causes and clinical outcomes in dogs. dvm360. Fuente de las secciones 1, 3 y 4.
+
+Pericardial Effusion in Dogs: Diagnosis & Treatment. VETgirl. Fuente de la sección 4.
+
+Estudio retrospectivo sobre eventos adversos asociados a pericardiocentesis y su relación con el nivel de experiencia del operador. Fuente de la sección 5.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

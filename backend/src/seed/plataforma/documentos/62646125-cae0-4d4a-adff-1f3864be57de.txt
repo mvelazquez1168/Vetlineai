@@ -1,0 +1,119 @@
+TROMBOEMBOLISMO ARTERIAL FELINO (FATE) — RECONOCIMIENTO, TRATAMIENTO Y PREVENCIÓN
+
+Resumen clínico de referencia para CCIS. Componentes que lo consumen: CC-240 (correlación diagnóstica), CC-220 (Imaging Intelligence, ecocardiografía), CC-201/202 (laboratorio), y los componentes de estadificación cardíaca de CCIS.
+
+Es la complicación que el documento de miocardiopatías felinas nombra como una de las tres que definen el pronóstico, sin desarrollarla. Este documento la desarrolla.
+
+---
+
+1. QUÉ ES Y CUÁNTO PESA
+
+El tromboembolismo arterial felino ocurre cuando un trombo intracardíaco se desprende y entra en la circulación arterial sistémica, produciendo obstrucción arterial e isquemia aguda de los tejidos distales.
+
+Es una complicación de la miocardiopatía felina y aparece en **11,6 a 21% de los gatos con miocardiopatía hipertrófica**; otras fuentes citan alrededor del 11%. También ocurre con miocardiopatía hipertrófica obstructiva, dilatada y restrictiva. Otros factores contribuyentes descritos: hipertiroidismo y neoplasia — lo que conecta con el documento de enfermedad tiroidea de ECIS.
+
+Mecanismo. El trombo se forma en la aurícula izquierda por estasis o hipercoagulabilidad, sumadas a daño de células endoteliales y agregación plaquetaria. El coágulo puede ser arrastrado por el flujo a través del tracto de salida del ventrículo izquierdo y alojarse en la trifurcación aórtica —el llamado trombo en silla de montar— o, con menor frecuencia, en arterias renales, cerebrales, mesentéricas o braquiales.
+
+Lo que sigue: isquemia tisular, dolor, necrosis, hipoperfusión, lesión por isquemia-reperfusión e inflamación sistémica.
+
+2. LA CIFRA QUE DEFINE LA CONVERSACIÓN CON EL PROPIETARIO
+
+La mortalidad reportada alcanza el 54%. Cerca de un tercio de los gatos son eutanasiados poco después del diagnóstico, y alrededor del 50% muere dentro de las 48 horas de la hospitalización inicial.
+
+El pronóstico a largo plazo en los que sobreviven al alta es variable, con recurrencia del tromboembolismo reportada entre **16,7% y 75%** — un rango amplio que está fuertemente influido por la estrategia antitrombótica adoptada tras el evento.
+
+Otros factores asociados a mal desenlace: insuficiencia cardíaca congestiva concurrente, fibrilación auricular y muerte súbita.
+
+Regla para CCIS: la variabilidad de la recurrencia no es azar, es consecuencia del tratamiento preventivo elegido. El componente debe señalar que la decisión antitrombótica posterior al alta es la variable modificable de mayor peso.
+
+3. RECONOCIMIENTO — LAS CINCO P
+
+El diagnóstico inicial se basa en las llamadas cinco P: **dolor (pain), ausencia de pulso (pulselessness), parálisis, frialdad (polar) y palidez (pallor)**.
+
+Presentación clásica del trombo en silla de montar: parálisis aguda, extremidades frías, dolor severo en los miembros posteriores y pérdida de los pulsos femorales.
+
+Los signos se desarrollan de forma aguda y a menudo progresan rápidamente, lo que exige diagnóstico e intervención prontos.
+
+Regla para CCIS: ante un gato con paraparesia aguda dolorosa, el diferencial encabeza con FATE y no con enfermedad neurológica. La palpación de pulsos femorales y la temperatura de las extremidades son la exploración que separa ambas cosas, y ninguna requiere equipamiento.
+
+4. TRATAMIENTO DEL EVENTO AGUDO
+
+Las estrategias de manejo comprenden: terapia antitrombótica, terapia trombolítica, control del dolor, tratamiento de la enfermedad cardíaca subyacente y cuidado de soporte.
+
+Antitrombóticos. Anticoagulantes —heparina, heparinas de bajo peso molecular como enoxaparina o dalteparina, rivaroxabán— y antiplaquetarios —aspirina, clopidogrel—, empleados con frecuencia en combinación como terapia dual.
+
+Las guías CURATIVE —Consensus on the Rational Use of Antithrombotics in Veterinary Critical Care— recomiendan la combinación de **clopidogrel más heparina de bajo peso molecular** para el tratamiento inicial.
+
+Trombolíticos. La investigación sigue siendo limitada. El estudio prospectivo controlado más completo hasta la fecha reportó que el activador tisular del plasminógeno **mejoró la función del miembro pero no confirió beneficio de supervivencia**. Estudios recientes en hospitales de referencia muestran resultados prometedores, pero la evidencia no alcanza para recomendarlos de rutina.
+
+Cuidado de enfermería. Es descrito como vital: fisioterapia y calentamiento de los miembros afectados. **Puede tomar varias semanas ver mejoría.** Ese horizonte temporal debe comunicarse al propietario desde el inicio, porque la ausencia de mejoría en días no significa fracaso.
+
+Monitoreo durante el tratamiento: análisis sanguíneos e imagen repetida para evaluar respuesta y detectar complicaciones.
+
+Nota sobre la cirugía: dado que los gatos con FATE se presentan con frecuencia con insuficiencia cardíaca congestiva y miocardiopatía avanzada, el riesgo de complicaciones anestésicas es considerable, y el manejo médico conservador sigue siendo el abordaje predominante en la práctica.
+
+5. PREVENCIÓN — DONDE ESTÁ EL MARGEN REAL
+
+Dado el mal pronóstico del evento, **la prevención primaria en pacientes de alto riesgo es crucial** para reducir el riesgo de trombosis intracardíaca. Las guías actuales recomiendan clopidogrel en gatos en riesgo.
+
+Prevención secundaria, tras un evento: la evidencia actual recomienda la combinación de un antiplaquetario —clopidogrel— con un anticoagulante —rivaroxabán—.
+
+Evidencia de la terapia dual. En estudios recientes, gatos con FATE y trombos cardíacos o "humo" ecocardiográfico en la aurícula izquierda mostraron excelente respuesta a la terapia dual clopidogrel/rivaroxabán, con **efecto sinérgico documentado entre ambos fármacos** sobre la función plaquetaria y la generación de trombina dependiente de plaquetas.
+
+El límite que conviene declarar: en el estudio correspondiente, un criterio de inclusión fue que el FATE cardiogénico estuviera estable entre 1 y 3 meses. Los resultados no se trasladan sin más al evento agudo.
+
+Resistencia al clopidogrel. **No todos los gatos responden igual al clopidogrel**, y se ha identificado una mutación genética que afecta la respuesta al fármaco, volviéndolo menos efectivo. Un abordaje único para todos probablemente no ofrece protección óptima a todos los gatos en riesgo.
+
+Regla para CCIS: al recomendar profilaxis con clopidogrel, corresponde declarar que la respuesta es variable y que existe resistencia documentada de base genética. No es un fármaco de eficacia uniforme.
+
+Detalle práctico de administración: se recomienda administrar el clopidogrel en cápsulas de gelatina. Es generalmente bien tolerado; a dosis altas pueden observarse signos de sangrado excesivo como equimosis.
+
+6. CONEXIÓN CON EL RESTO DE LA BASE DE CCIS
+
+El paciente de FATE es, casi por definición, un paciente del documento de miocardiopatías felinas. La identificación del gato en riesgo —estadio B2 en la clasificación del consenso ACVIM 2020, con agrandamiento auricular izquierdo— es lo que habilita la prevención primaria.
+
+Y con frecuencia es también un paciente del documento de insuficiencia cardíaca congestiva aguda, porque ambas complicaciones coexisten.
+
+7. ERRORES FRECUENTES
+
+Interpretar la paraparesia aguda felina como problema neurológico sin palpar pulsos femorales.
+
+No plantear prevención primaria en un gato con miocardiopatía y agrandamiento auricular izquierdo.
+
+Presentar el clopidogrel como profilaxis de eficacia uniforme.
+
+Interpretar la ausencia de mejoría en pocos días como fracaso terapéutico.
+
+Trasladar la evidencia de terapia dual del paciente estable al evento agudo.
+
+Presentar los trombolíticos como opción establecida.
+
+Omitir el control del dolor, que es parte del manejo y no accesorio.
+
+No revisar hipertiroidismo y neoplasia como factores contribuyentes.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis de clopidogrel, rivaroxabán, enoxaparina, dalteparina, heparina y activador tisular del plasminógeno. Protocolos de analgesia. Manejo de la lesión por isquemia-reperfusión y de la hiperkalemia asociada. Monitoreo de laboratorio de la terapia antitrombótica. Criterios de eutanasia y conversación de pronóstico. Tromboembolismo no cardiogénico. Trombosis en el perro. Opciones quirúrgicas de embolectomía. Estos temas quedan como vacíos declarados de la Base de Conocimiento de CCIS.
+
+FUENTES
+
+Guillaumin J. Feline aortic thromboembolism: recent advances and future prospects. J Feline Med Surg 2024. Fuente de las secciones 4 y 5.
+
+Yeh NS, Shaverdian M, Li RHL. Evolving FATE: a new lens on the pathogenesis and management of feline cardiogenic arterial thromboembolism. Animals 2025;15(11):1630. PMC12153538. Fuente de las secciones 1 y 2.
+
+Feline Arterial/Aortic Thromboembolism (FATE). The Feline Patient. Wiley. Fuente de la sección 1.
+
+Feline Arterial Thromboembolism. Today's Veterinary Practice. Fuente de la sección 5.
+
+Blais MC, Bianco D, Goggs R y col. Consensus on the Rational Use of Antithrombotics in Veterinary Critical Care (CURATIVE): domain 3 — defining antithrombotic protocols. J Vet Emerg Crit Care 2019;29(1):60–74.
+
+Lo ST, Li RHL, Georges CJ y col. Synergistic inhibitory effects of clopidogrel and rivaroxaban on platelet function and platelet-dependent thrombin generation in cats. J Vet Intern Med 2023;37:1390–1400.
+
+Borgeat K, Wright J, Garrod O, Payne J, Luis Fuentes V. Arterial thromboembolism in 250 cats in general practice: 2004–2012. J Vet Intern Med 2014;28(1):102–108.
+
+Surgical treatment and outcomes in feline aortic thromboembolism: a retrospective study of 13 cats. PMC12568360. Fuente de las secciones 1 y 3.
+
+Luis Fuentes V y col. ACVIM consensus statement guidelines for the classification, diagnosis, and management of cardiomyopathies in cats. J Vet Intern Med 2020;34(3):1062–1077.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

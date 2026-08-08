@@ -1,0 +1,55 @@
+DCIS-ARCH-001
+
+Clinical Components Catalog v1.0 (adaptado de ICIS-ARCH-001)
+
+NOTA DE ALCANCE
+
+Adaptación especializada para DCIS (dermatología). Se excluye la capa de Derivación (CC-260 a CC-263).
+
+Componentes heredados sin cambios: CC-001 a CC-005, CC-101, CC-102, CC-104, CC-201 a CC-204, CC-240.
+
+Componentes nuevos, sin equivalente en ICIS: CC-236 (Dermatologic Rule-Out Engine), CC-237 (Pyoderma Depth & Treatment Duration Engine), CC-308 (Dermatologic Pharmacotherapy).
+
+---
+
+CC-001 a CC-005, CC-101/102/104, CC-201 a CC-204, CC-240 — Heredados sin cambios
+
+El Executive Case Summary de DCIS debe priorizar el estado de descarte diagnóstico (completo/parcial/piodermia profunda activa) como dato de mayor jerarquía, consistente con Diagnostic Rule-Out Clarity.
+
+CC-236 — Dermatologic Rule-Out Engine (nuevo, propio de DCIS)
+
+Propósito: rastrear el estado de cada diferencial en la secuencia obligatoria antes de aplicar criterios de Favrot para dermatitis atópica: pulgas → otros ectoparásitos → infección secundaria (Staph/Malassezia) → reacción adversa a alimentos.
+
+Entradas: historia clínica, examen físico, resultados de citología/raspado cutáneo, resultado de dieta de restricción-provocación cuando aplique.
+
+Salidas: estado de cada diferencial (descartado/pendiente/no aplica), y si la secuencia está completa para aplicar criterios de Favrot.
+
+Regla: nunca presenta un diagnóstico de dermatitis atópica como aplicable si algún diferencial de la secuencia obligatoria sigue pendiente — debe declararlo explícitamente como diagnóstico presuntivo hasta completar el descarte.
+
+Este componente alimenta directamente la Rule-Out Checklist Card de DCIS-DESIGN-001.
+
+CC-237 — Pyoderma Depth & Treatment Duration Engine (nuevo, propio de DCIS)
+
+Propósito: clasificar la piodermia por profundidad (superficie/superficial/profunda) según tipo de lesión, y gestionar el ciclo de tratamiento (duración del curso actual, fecha de reevaluación esperada según profundidad: 7-14 días en superficie/superficial, 3 semanas en profunda).
+
+Entradas: citología cutánea, tipo y distribución de lesiones.
+
+Regla: nunca recomienda terapia sistémica como primera opción para piodermia de superficie o superficial — la terapia tópica sola es la opción de primera línea documentada en la Base de Conocimiento, y la sistémica solo se justifica ante falla de la tópica o imposibilidad práctica de aplicarla.
+
+Este componente alimenta directamente la Pyoderma Depth Card y la Treatment Duration Card.
+
+CC-308 — Dermatologic Pharmacotherapy (nuevo, propio de DCIS)
+
+Propósito: gestionar clases de antimicrobianos tópicos/sistémicos y antiinflamatorios activos — objetivo de cada uno, duración del curso, y necesidad de cultivo/antibiograma cuando aplique (riesgo de resistencia, tratamiento sistémico repetido).
+
+Regla: nunca indica dosis específicas — solo clases, objetivos, y duración de curso recomendada según la Base de Conocimiento.
+
+---
+
+Contrato de Consumo y Architecture Decisions
+
+Idénticos en estructura a los de OCIS/CCIS/ECIS: todo motor debe referenciar componentes por código, nunca reimplementar lógica localmente.
+
+AD-DCIS-01 — No Referral Layer.
+
+AD-DCIS-02 — Rule-Out as a First-Class Component. CC-236 no es una extensión opcional — ningún otro componente puede presentar un diagnóstico de dermatitis atópica como confirmado sin que este componente haya validado el descarte completo de la secuencia obligatoria.

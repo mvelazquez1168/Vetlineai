@@ -1,0 +1,111 @@
+INSUFICIENCIA CARDÍACA CONGESTIVA AGUDA EN PERROS Y GATOS — MANEJO DE URGENCIA
+
+Resumen clínico de referencia para CCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-203 (electrolitos y equilibrio ácido-base), CC-220 (Imaging Intelligence), CC-104 (examen físico).
+
+Documento complementario de los de MMVD, miocardiopatías felinas, hipertensión pulmonar y dirofilariasis: todos convergen en este cuadro cuando descompensan.
+
+---
+
+1. POR QUÉ ESTE DOCUMENTO ES DISTINTO A LOS DEMÁS DE CCIS
+
+Los otros documentos de la base describen enfermedades. Este describe una situación con reloj corriendo, donde el orden de las acciones importa más que la precisión del diagnóstico etiológico.
+
+La regla que gobierna la conducta de CCIS aquí: en un paciente disneico con sospecha de ICC, la estabilización precede a la caracterización. Determinar si la causa es MMVD, miocardiopatía o dirofilariasis puede esperar; el edema pulmonar no.
+
+2. LOS PILARES DEL TRATAMIENTO INICIAL
+
+Oxígeno suplementario, diuréticos potentes y donadores de óxido nítrico constituyen el pilar de la terapia inicial de la ICC, tanto en perros como en gatos.
+
+Furosemida — la pieza central
+
+Idealmente se coloca un catéter intravenoso y se administra furosemida por vía IV. Si el paciente está demasiado inestable para tolerar la manipulación, la furosemida puede administrarse por vía IM y el paciente devuelto a la cámara de oxígeno a la espera de mejoría.
+
+Sobre las dosis, las fuentes consultadas divergen y esa divergencia debe declararse: una fuente indica 2 a 4 mg/kg IV o IM como dosis inicial; otra describe bolos de 4 a 8 mg/kg IV o IM, o infusión a razón constante de 0.66 a 1 mg/kg/hora; una tercera menciona bolos de 1 a 4 mg/kg cada una a seis horas, o infusión continua de 1 mg/kg/hora para casos refractarios, según la severidad de los signos. La dosis exacta depende de la severidad del cuadro de presentación.
+
+Regla para CCIS: al citar una dosis de furosemida en urgencia debe indicarse la fuente, porque el rango publicado es amplio y la elección corresponde al clínico frente al paciente.
+
+Objetivo y cronología
+
+Se describe repetir la terapia cada 30 a 60 minutos hasta lograr una reducción del peso corporal del 5 al 7%.
+
+La respuesta debe monitorizarse estrechamente durante las siguientes una a dos horas. Idealmente, tras la primera hora la frecuencia y el esfuerzo respiratorios deberían comenzar a descender; sin embargo, algunos perros gravemente afectados requieren varias dosis antes de que se observe mejoría.
+
+Una vez que la frecuencia y el esfuerzo respiratorios se han normalizado, puede iniciarse la furosemida oral.
+
+3. LA CONTRAINDICACIÓN QUE MÁS DAÑO EVITA
+
+**Los fluidos intravenosos suplementarios están contraindicados en el paciente con ICC aguda fulminante**, salvo que otros fármacos deban administrarse por infusión a razón constante.
+
+Si los fluidos IV resultan necesarios para la administración de fármacos, debe considerarse un fluido bajo en sodio —solución de Ringer lactato, dextrosa al 5% en agua, o solución salina a media concentración (0.45%)— a la menor velocidad posible.
+
+Este punto merece énfasis porque contradice el reflejo habitual ante un paciente crítico. Un animal disneico con edema pulmonar cardiogénico que recibe fluidoterapia de rutina empeora.
+
+4. CONSECUENCIAS METABÓLICAS
+
+Las dosis repetidas de furosemida pueden causar hipokalemia marcada y alcalosis metabólica, **particularmente en gatos**, de modo que algunos pacientes requieren suplementación de potasio.
+
+Regla para CC-203: en un paciente que recibió múltiples dosis de furosemida, el ionograma no es un estudio opcional, y el gato es la especie donde el hallazgo es más probable.
+
+5. CUANDO NO RESPONDE
+
+Los pacientes que no responden a las terapias estándar pueden requerir protocolos adicionales, incluidos fármacos inotrópicos positivos y vasodilatadores intravenosos.
+
+El consenso de ACVIM sobre manejo de ICC aguda y crónica en perros señala que la mayoría de los perros con ICC secundaria a enfermedad valvular auriculoventricular o a cardiomiopatía dilatada puede manejarse adecuadamente con un conjunto relativamente pequeño de fármacos. En situaciones agudas: furosemida, pimobendán y terapias de urgencia —oxígeno suplementario, nitroprusiato de sodio, y sedantes para manejar la ansiedad secundaria a la disnea—.
+
+La sedación merece mención propia: la ansiedad por disnea aumenta la demanda de oxígeno y empeora el cuadro. Tratarla es parte del manejo, no una comodidad.
+
+6. TRANSICIÓN AL MANEJO CRÓNICO
+
+En el escenario crónico, el panel de ACVIM recomienda furosemida, un inhibidor de la enzima convertidora de angiotensina, y pimobendán.
+
+La llamada terapia cuádruple para ICC en perros comprende: furosemida o torasemida, pimobendán, espironolactona e inhibidor de la ECA.
+
+Los diuréticos de asa están recomendados tanto para el tratamiento crónico domiciliario como para el agudo hospitalario en perros con MMVD en estadios C y D de ACVIM, según las guías de consenso correspondientes.
+
+Alternativas a considerar
+
+Torasemida. Diurético de asa oral con duración de acción más prolongada y efecto diurético más potente que la furosemida. Aprobado para uso en perros en Europa en 2015.
+
+Furosemida subcutánea. La resistencia a los diuréticos orales puede ser secundaria a absorción intestinal reducida. La administración subcutánea extraetiqueta se ha empleado como estrategia ante respuesta insatisfactoria a diuréticos orales pese a múltiples ajustes de dosis, en situaciones donde el propietario estaba considerando la eutanasia. Un estudio retrospectivo describió control satisfactorio de la frecuencia y el esfuerzo respiratorios en todos los casos evaluados.
+
+Pimobendán en el gato. No está aprobado para uso felino, pero parece bien tolerado y puede ser beneficioso en gatos con insuficiencia cardíaca que no presenten evidencia de obstrucción sustancial del tracto de salida del ventrículo izquierdo. Esa salvedad conecta con el documento de miocardiopatías felinas: el fenotipo importa antes de decidir.
+
+7. ERRORES FRECUENTES
+
+Administrar fluidoterapia intravenosa de rutina a un paciente disneico con ICC aguda.
+
+Postergar la furosemida para completar el diagnóstico etiológico.
+
+Manipular en exceso a un paciente inestable para colocar una vía, en vez de administrar por vía IM y devolverlo al oxígeno.
+
+Declarar falta de respuesta antes de una a dos horas de observación.
+
+No controlar potasio tras dosis repetidas, especialmente en el gato.
+
+Omitir la sedación en un paciente con ansiedad por disnea.
+
+Usar pimobendán en un gato sin haber evaluado obstrucción del tracto de salida.
+
+Citar una dosis de furosemida como si fuera la dosis, cuando el rango publicado es amplio.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis completas de pimobendán, nitroprusiato, inotrópicos y vasodilatadores IV. Protocolos de sedación. Toracocentesis y manejo del derrame pleural. Diferenciación de edema pulmonar cardiogénico frente a no cardiogénico. Ventilación mecánica. Manejo de la ICC derecha y la ascitis. Síndrome cardiorrenal y manejo del paciente con enfermedad renal concurrente. Estos temas quedan como vacíos declarados de la Base de Conocimiento de CCIS.
+
+FUENTES
+
+Emergency Management of Congestive Heart Failure. WSAVA Congress 2015. Fuente de las secciones 2 y 5.
+
+Emergency management of congestive heart failure. dvm360. Fuente de las secciones 3 y 4.
+
+Congestive Heart Failure in Dogs: Treatment and Management. Today's Veterinary Practice 2024. Fuente de la sección 2.
+
+Tool Kit Essentials for Canine Congestive Heart Failure. dvm360, sobre el consenso ACVIM de manejo de ICC aguda y crónica en perros.
+
+Merck Veterinary Manual — Principles of Therapy of Cardiovascular Disease in Animals. Fuente de la terapia cuádruple y del pimobendán en el gato.
+
+Subcutaneous Furosemide Therapy for Chronic Management of Refractory Congestive Heart Failure in Dogs and Cats. PMC11815753.
+
+Tolerance of torasemide in cats with congestive heart failure: a retrospective study on 21 cases (2016–2019). PMC7493838.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

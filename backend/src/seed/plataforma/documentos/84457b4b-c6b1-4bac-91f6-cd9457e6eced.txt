@@ -1,0 +1,64 @@
+# Osteoartritis Canina — Estadificación COAST/COASTeR y Manejo por Estadio
+
+**Fuente:** Cachon T, Frykman O, Innes JF, et al. COAST Development Group's international consensus guidelines for the treatment of canine osteoarthritis. *Front Vet Sci.* 2023;10:1137888. Acceso abierto.
+
+**Alcance de este resumen:** primer documento de la **línea ortopédica** de NCIS — cierra la brecha que existía al no tener ningún contenido genuinamente ortopédico en un agente cuya especialidad declarada es "Neurología y Ortopedia Veterinaria". La osteoartritis es la condición ortopédica crónica más prevalente y, al igual que MMVD en cardiología, ya cuenta con un sistema de estadificación validado (COAST/COASTeR) que encaja naturalmente en el mismo patrón arquitectónico que ya usamos para las otras dos líneas de NCIS.
+
+---
+
+## 1. Por qué la osteoartritis necesita su propia línea, distinta de IVDD y epilepsia
+
+- La OA es una enfermedad **progresiva y degenerativa de las articulaciones sinoviales**, incurable, cuyo manejo se centra en minimizar dolor, deterioro de movilidad, y pérdida de calidad de vida — no en revertir la enfermedad.
+- En perros, suele iniciarse tempranamente por **enfermedad articular del desarrollo** (ej. displasia de cadera) o por trauma articular.
+- A diferencia de IVDD (evento agudo con decisión de urgencia) o epilepsia (control episódico), la OA es una condición **crónica de manejo continuo y creciente en el tiempo** — el marco de estadificación existe precisamente para estandarizar cómo escalar el tratamiento a medida que la enfermedad progresa.
+
+## 2. El sistema de estadificación COAST/COASTeR
+
+| Estadio | Descripción |
+|---|---|
+| **0** | Preclínico — clínicamente normal, sin factores de riesgo de OA |
+| **1** | Clínicamente normal, pero con uno o más factores de riesgo identificados |
+| **2** | Signos clínicos de OA leve |
+| **3** | Signos clínicos de OA moderada |
+| **4** | Signos clínicos de OA severa |
+
+- **COAST** (estadio completo) incluye radiografía; **COASTeR** (COAST excluyendo radiografía) es el que guía las recomendaciones de tratamiento — porque los cambios radiográficos de OA no se correlacionan bien con la función clínica y el dolor real del paciente.
+- La radiografía sigue siendo importante para **confirmar el diagnóstico**, reevaluar casos complejos/en deterioro, y para la estadificación COAST completa — pero el tratamiento se basa en signos clínicos, no solo en imagen.
+
+## 3. El enfoque "base y build" — la lógica operativa central
+
+1. **Base**: elementos fundacionales aplicables a todos los estadios (0-4) — educación del propietario, evaluación de peso, nutrición, ejercicio apropiado, fisioterapia/rehabilitación.
+2. **Estadio**: determinar el estadio COAST (con radiografía) y COASTeR (sin radiografía, para guiar tratamiento).
+3. **Build**: expandir los elementos base según el estadio específico.
+4. **Build específico de estadio**: introducir opciones de tratamiento/manejo propias del estadio.
+5. **Evaluar**: respuesta al tratamiento a intervalos regulares.
+6. **Build/ajustar**: agregar o ajustar el plan según respuesta o progresión — la progresión a un estadio superior requiere una re-evaluación más extensa del plan de manejo.
+
+## 4. Manejo por estadio — puntos clave con mayor consenso (recomendación unánime)
+
+- **Estadios 0-1**: foco en educación, monitoreo de peso, ejercicio apropiado para la etapa de vida. Sin tratamiento farmacológico. En Estadio 1, evaluaciones más frecuentes según factores de riesgo (razas predispuestas, antecedente de trauma articular, entrando a etapa senior).
+- **Estadio 2 (OA leve)**: aquí se introduce el manejo farmacológico — **AINEs** o **anticuerpo monoclonal anti-NGF** (bedinvetmab, donde esté disponible) como opciones de primera línea, con consenso unánime para al menos una de las dos clases. Duración mínima típica de uso: ~4 semanas para evaluar respuesta funcional.
+- **Estadio 3 (OA moderada)**: continúa AINE o anti-NGF como base, con adición de **analgésicos adyuvantes** (amantadina, gabapentina, acetaminofén) cuando la respuesta a la terapia primaria es insuficiente — recomendación mayoritaria, no unánime. Duración mínima típica: ~8 semanas.
+- **Estadio 4 (OA severa)**: manejo más agresivo y de introducción más rápida de adyuvantes. Duración mínima típica de AINE/anti-NGF: ~12 semanas. El manejo farmacológico en este estadio suele ser de por vida — la reducción completa de dosis rara vez es realista.
+- **Cirugía**: siempre una opción a considerar en cualquier estadio cuando el manejo médico no es suficiente o cuando existe una causa iniciadora tratable quirúrgicamente (ej. ruptura de ligamento cruzado craneal, luxación patelar) — decisión restringida a cirujanos ortopédicos dentro del panel de consenso.
+
+## 5. Reevaluación — no opcional en ningún estadio
+
+- La reevaluación periódica es un **componente obligatorio** de un plan de manejo exitoso, no un extra — como mínimo: a intervalos apropiados según el estadio, tras introducir un tratamiento nuevo, y ante cualquier deterioro reportado.
+- Frecuencia de seguimiento recomendada aumenta con el estadio: aproximadamente 2 veces/año en Estadio 1, 2-4 veces/año en Estadio 2, 4-6 veces/año en Estadio 3, seguimiento semanal inicial en Estadio 4.
+- La telesalud (incluyendo video del paciente en su ambiente habitual) es válida como complemento, pero el consenso recomienda evaluación presencial práctica al menos 2-3 veces al año.
+
+## 6. Cuándo derivar (relevante para la interfaz con ICIS)
+
+El consenso identifica explícitamente los siguientes perfiles como candidatos prioritarios de derivación a especialista en dolor/cirujano ortopédico:
+- Perros jóvenes o severamente afectados, especialmente si la cirugía es una consideración o enfrentan manejo médico complejo a largo plazo.
+- Perros jóvenes con alteraciones del crecimiento.
+- Casos en deterioro o de manejo difícil, con dolor potencialmente refractario y compromiso significativo de calidad de vida.
+- Antes de una decisión de fin de vida.
+
+## 7. Conclusión operativa para NCIS
+
+- El primer paso accionable ante cualquier caso ortopédico crónico es asignar el **estadio COASTeR** — determina directamente qué nivel de manejo (solo elementos base, vs. farmacológico, vs. multimodal agresivo) es apropiado, de la misma forma que el estadio ACVIM lo hace en CCIS.
+- La radiografía confirma diagnóstico pero **no debe usarse como criterio único para decidir tratamiento** — el estadio clínico (COASTeR) es el que guía el manejo.
+- La reevaluación programada, con frecuencia creciente según el estadio, es tan parte del "tratamiento" como el fármaco elegido — un plan sin reevaluación documentada está incompleto independientemente del estadio.
+- Con este documento, NCIS cuenta con su primera pieza de contenido genuinamente ortopédico, complementando las dos líneas neurológicas (IVDD y epilepsia) ya existentes y alineando el agente con su especialidad declarada completa.

@@ -1,0 +1,91 @@
+# Guías ICADA 2015 — Diagnóstico e Identificación de Alérgenos en la Dermatitis Atópica Canina
+
+**Fuente:** Hensel P, Santoro D, Favrot C, Hill P, Griffin C. Canine atopic dermatitis: detailed guidelines for diagnosis and allergen identification. *BMC Vet Res.* 2015;11:196. Acceso abierto.
+
+**Alcance de este resumen:** segundo documento del sistema dermatológico para ICIS — complementa el resumen ya cargado sobre tratamiento de dermatitis atópica (DA). Cubre el algoritmo diagnóstico completo: (1) descarte de diferenciales, (2) interpretación clínica con criterios de Favrot, (3) pruebas alergénicas (intradérmica vs. serológica).
+
+---
+
+## 1. Principio fundamental — la DA no tiene signo patognomónico
+
+- **Ninguno de los 3 enfoques diagnósticos usado de forma aislada es suficiente** — combinar los tres (descarte de diferenciales + criterios clínicos + pruebas alergénicas cuando corresponda) es obligatorio para evitar el mal diagnóstico.
+- La presentación clínica varía por: factores genéticos (fenotipos asociados a raza), extensión de lesiones (localizada vs. generalizada), etapa (aguda vs. crónica), y presencia de infecciones secundarias u otros factores desencadenantes.
+
+## 2. Descarte sistemático de diferenciales — "el work-up", paso a paso
+
+### Paso 1 — Considerar pulgas
+- Distribución típica de dermatitis alérgica por pulgas (DAP): región lumbosacra, base de la cola, cara caudomedial de los muslos.
+- **Un perro atópico puede tener DAP concurrente** — esto complica el diagnóstico clínico.
+- Ningún preventivo actual de pulgas tiene efecto repelente real; las pulgas en fase de pupa sobreviven hasta 174 días — mantener control consistente en zonas endémicas.
+- Para descartar DAP con confianza: revisar pulgas/heces de pulga directamente, e iniciar control efectivo si no se encuentran — **adulticidas sistémicos de acción rápida son preferibles** para reducir prurito más rápido que los productos tópicos.
+- Para estudios formales de DA, se recomienda mínimo 3 meses de control de pulgas previo a la inclusión.
+
+### Paso 2 — Considerar otros ectoparásitos
+- *Sarcoptes scabiei*: raspados cutáneos superficiales múltiples + serología ELISA cuando disponible — **reflejo pinna-pedal positivo apoya sospecha** y justifica tratamiento de prueba.
+- *Demodex* spp.: raspados profundos múltiples + impresiones con cinta de acetato de piel "exprimida" + arrancado de pelo — más difícil en patas y razas de piel gruesa (ej. shar pei), puede requerir biopsia.
+- *Cheyletiella*, *Trombicula* (chinches), piojos: cepillado de pelaje + impresiones de cinta + raspados superficiales.
+- *Otodectes cynotis*: examen microscópico de secreción ótica (aspecto oscuro, "granos de café").
+- **Sarcoptes y Cheyletiella son particularmente difíciles de encontrar** — el tratamiento de prueba (selamectina, moxidectina, ivermectina, amitraz, azufre de cal) suele ser necesario para descartarlos, especialmente porque *Sarcoptes* puede tener reactividad cruzada con ácaros del polvo en pruebas alergénicas — el tratamiento de prueba está fuertemente recomendado en pacientes muy pruriginosos.
+
+### Paso 3 — Considerar infección por Staphylococcus y Malassezia
+- **Piodermia superficial**: lesiones típicas (erupción papulopustular, collaretes epidérmicos) suelen ser reconocibles a simple vista, pero **confirmar siempre con citología** (Diff-Quik, impresión o cinta de acetato). Cultivo bacteriano con antibiograma no es necesario en todos los casos — indicado si hay historia de tratamiento antibiótico previo, falla de tratamiento inicial apropiado, o alta prevalencia regional de *S. pseudintermedius* resistente a meticilina.
+- Es frecuente que la piodermia sea **secundaria** a DA (u otras alergias/endocrinopatías) — eliminarla primero es necesario para caracterizar correctamente el prurito de la enfermedad primaria.
+- **Malassezia**: citología de zonas afectadas (pliegues, zonas lichenificadas, seborrea oleosa) es la prueba más efectiva. **Cualquier cantidad de organismos en un perro con DA amerita tratamiento de prueba** — el cultivo fúngico tiene falsos negativos frecuentes y no se recomienda de rutina.
+
+### Paso 4 — Considerar reacción adversa cutánea a alimentos (CAFR)
+- Puede ser indistinguible clínicamente de DA — **la presencia de signos GI (diarrea, vómito, tenesmo, heces blandas, flatulencia) sugiere más CAFR** que DA ambiental pura.
+- **Único método diagnóstico confiable: prueba de restricción-provocación dietaria estricta** — no existen pruebas comerciales precisas disponibles.
+- Dietas comerciales de venta libre y algunas de prescripción frecuentemente contienen trazas de ingredientes no declarados — considerar dieta casera si falla la comercial.
+- Dietas hidrolizadas suelen basarse en pollo o soya — perros alérgicos a estas proteínas pueden no responder pese a la hidrólisis.
+- Alérgenos alimentarios más comunes en perros: **res, lácteos, pollo y trigo**; en menor grado soya, cordero, cerdo, pescado, maíz.
+- **Duración mínima: 8 semanas** de dieta exclusiva estricta para lograr remisión completa en la mayoría de los casos.
+- Confirmación: recaída al reintroducir la dieta original.
+- Errores comunes que invalidan la prueba: comida de mesa, golosinas, medicación "escondida" en comida saborizada (AINEs, antibióticos, preventivos masticables de gusano del corazón/pulgas), heces de otras mascotas.
+
+## 3. Interpretación clínica — criterios de Favrot
+
+- El prurito es el signo inicial — puede ser estacional (polen) o no estacional (ácaros, alimento).
+- Zonas más comúnmente afectadas: cara, cara cóncava del pabellón auricular, ventral, axilas, ingle, zona perineal, extremidades distales — existen variaciones asociadas a raza específica.
+- Lesiones secundarias en etapas crónicas (por autotraumatismo, inflamación crónica, infección secundaria): excoriaciones, alopecia, lichenificación, hiperpigmentación, costras, seborrea.
+- **Los "criterios de Favrot"** son un conjunto de criterios clínicos derivados estadísticamente de una gran serie de casos confirmados de DA — existen dos combinaciones posibles según se priorice sensibilidad o especificidad. **No deben usarse de forma aislada como "prueba diagnóstica"** — su precisión mejora sustancialmente cuando se aplican después de haber completado el descarte sistemático de diferenciales (pasos 1-4 arriba).
+
+## 4. Pruebas alergénicas — cuándo, y qué método
+
+### Cuándo justifican realizarse
+- Solo **después** de establecer el diagnóstico clínico de DA (nunca como prueba de screening).
+- Justificantes: signos severos, duración >3 meses/año, manejo sintomático insuficiente (por efectos adversos y/o mal cumplimiento del propietario).
+- Su propósito es **identificar el/los alérgeno(s) causante(s)** para diseñar inmunoterapia alérgeno-específica (ASIT) — no para confirmar el diagnóstico de DA en sí.
+
+### Intradérmica (IDT) vs. serología IgE (ASIS)
+| | IDT | ASIS |
+|---|---|---|
+| Riesgo/invasividad | Requiere sedación, inyecciones repetidas | Sin riesgo, sin sedación |
+| Interferencia por fármacos | Mayor (antihistamínicos, glucocorticoides, etc.) | Menor |
+| Falsos negativos | 10-30% de perros con DA clínicamente confirmada tienen IDT negativa | Frecuentes falsos positivos en perros no alérgicos |
+| Confiabilidad para alergia alimentaria | **No confiable** (sensibilidad 10-33%) | **No confiable** |
+| Estandarización | Varía significativamente entre dermatólogos de la misma región | Alta variabilidad entre laboratorios comerciales |
+
+- **Ninguna de las dos pruebas debe usarse para diagnosticar reacción adversa a alimentos** — solo la prueba de restricción-provocación dietaria es válida para eso.
+- La tasa de éxito de la ASIT basada en ASIS vs. IDT no difiere significativamente — pese a la baja correlación entre ambos métodos.
+- **"Dermatitis atópica-like"**: clínicamente idéntica a la DA pero sin poder documentar respuesta IgE a alérgenos — puede vincularse a reacción mediada por linfocitos a componentes alimentarios, un mecanismo distinto.
+
+### Tiempos de retiro de fármacos antes de pruebas alergénicas
+| Fármaco | Antes de IDT | Antes de ASIS |
+|---|---|---|
+| Antihistamínicos | 7 días | Probablemente no necesario |
+| Glucocorticoides orales de acción corta | 14 días | No necesario |
+| Glucocorticoides inyectables de acción prolongada | Al menos 28 días | <28 días |
+| Glucocorticoides tópicos | 14 días | No necesario |
+| Ciclosporina | Probablemente no necesario | No necesario |
+
+- Sedantes seguros para realizar IDT: xilazina, medetomidina/dexmedetomidina, tiletamina/zolazepam, tiamilal, halotano, isoflurano, metoxiflurano.
+- Sedantes a **evitar** antes de IDT: oximorfona, ketamina/diazepam, acepromazina, morfina.
+- Propofol: evidencia contradictoria (reduce la reacción a histamina en un estudio, la potencia en otro) — uso controvertido.
+- Ketoconazol, ácidos grasos esenciales, ciclosporina y oclacitinib interfieren poco con IDT.
+
+## 5. Conclusión operativa para ICIS
+
+- El diagnóstico de DA es **de exclusión sistemática**, no de reconocimiento de patrón aislado — el orden correcto es: descartar pulgas → otros ectoparásitos → infección secundaria (Staph/Malassezia) → reacción adversa a alimentos (si hay signos GI o prurito perenne) → recién ahí aplicar criterios de Favrot para reforzar la impresión clínica.
+- Las pruebas alergénicas (IDT/ASIS) **nunca deben solicitarse como primer paso** — solo tienen sentido tras confirmar clínicamente la DA, y únicamente con el propósito de diseñar inmunoterapia, no de "confirmar" el diagnóstico.
+- Ante prurito perenne y/o signos GI concurrentes, la conclusión correcta no es pedir una prueba de alergia alimentaria (no existen confiables) sino **iniciar una prueba de restricción-provocación dietaria de 8 semanas** — es el único método válido.
+- Este documento se conecta directamente con el ya cargado de tratamiento: el algoritmo diagnóstico aquí descrito es el paso previo obligatorio antes de decidir entre glucocorticoides, ciclosporina, oclacitinib o inmunoterapia alérgeno-específica.

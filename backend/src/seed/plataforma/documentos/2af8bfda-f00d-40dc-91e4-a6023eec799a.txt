@@ -1,0 +1,186 @@
+
+
+GCIS Clinical Design System
+
+Documento: GCIS-DESIGN-001Versión: 1.0Estado: DraftOwner: GastroCare Vet
+
+Este documento no define únicamente el Dashboard. Define todo el lenguaje visual del producto.
+
+Relación entre documentos
+
+Manual de Identidad Visual GastroCare Vet↓GCIS-DESIGN-001 — Clinical Design System↓Dashboard → Artifacts → Reportes PDF → Reportes Word → Presentaciones
+
+Todo el ecosistema comparte exactamente la misma identidad visual.
+
+1. Introducción
+
+Objetivo: garantizar que cada componente visual de GCIS —tarjetas, gráficos, badges, iconografía— sea instantáneamente reconocible como parte de GastroCare Vet, sin importar si el usuario lo ve en el Dashboard, en un PDF exportado, o en un caso docente.
+
+Alcance: todo Artifact, reporte y componente visual generado por GCIS.
+
+Relación con el Manual de Marca: este documento no redefine la marca — la aplica al contexto específico de software clínico. Ante cualquier ambigüedad, el Manual de Identidad Visual GastroCare Vet tiene la última palabra.
+
+Principios de diseño: ver Sección 3.
+
+2. Brand Identity Integration
+
+Todos los elementos visuales definidos en este documento deberán utilizar exclusivamente la identidad visual establecida en el Manual de Identidad Visual GastroCare Vet: el imagotipo (silueta de perro y gato con el sistema gastrointestinal ilustrado en su interior), la tipografía Playwrite CC Deutschland Grundschrift para el logotipo y Montserrat como tipografía principal de texto, y la paleta cromática oficial (turquesa #23B3B1, coral #F47676, violeta #8012FF, azul oscuro #102F59, marfil #FCF9F6, con sus versiones pastel #B8E8E4, #F7CCDC, #DCD4FF, #B3D2FF).
+
+El imagotipo se referencia siempre por su asset oficial: Logo_GastroCareVet_horizontal_con_texto.png (variante horizontal, extraída del Manual de Identidad Visual, sección "Versiones del imagotipo").
+
+El Manual de Marca manda.
+
+3. Clinical Design Principles
+
+Clinical First — cada decisión visual sirve a la interpretación clínica, nunca a la estética por sí sola.
+
+Evidence First — ningún elemento visual sugiere certeza mayor a la que la evidencia disponible sustenta.
+
+Minimal Cognitive Load — un componente sin información suficiente no se muestra; no se rellena por completitud visual.
+
+Progressive Disclosure — resumen primero, detalle a un clic de distancia.
+
+Consistency — una card se ve igual en el Dashboard, en Word, en PDF y en un caso docente.
+
+Explainable AI — toda inferencia de Claude tiene tratamiento visual distinto al de un dato objetivo del expediente (ver Sección 14).
+
+Visual Hierarchy — lo crítico se ve antes que lo complementario, sin necesidad de leer texto para saberlo.
+
+Accessibility — ver Sección 18.
+
+Longitudinal Thinking — el diseño privilegia mostrar tendencia y evolución por encima del dato aislado.
+
+4. Color System
+
+Los colores corporativos (turquesa, coral, violeta, azul oscuro, marfil) se usan tal como los define el Manual de Marca — este documento no los reinterpreta. Sí se definen los colores funcionales, que comunican estado clínico, no identidad de marca:
+
+Estado funcional
+
+Color base sugerido
+
+Estado Normal
+
+Turquesa #23B3B1
+
+Estado Advertencia
+
+Coral #F47676
+
+Estado Crítico
+
+Rojo de alto contraste (fuera de paleta de marca, reservado exclusivamente para esta función)
+
+Estado Pendiente
+
+Marfil con borde violeta
+
+Estado IA
+
+Violeta #8012FF (reservado exclusivamente para contenido generado por Claude — ver Sección 14)
+
+Estado Diagnóstico
+
+Azul oscuro #102F59
+
+Estado Tratamiento
+
+Turquesa pastel #B8E8E4
+
+Estado Seguimiento
+
+Violeta pastel #DCD4FF
+
+Regla: el color "Estado Crítico" es el único color funcional que se reserva fuera de la paleta corporativa, porque ningún tono de la paleta de marca (pensada para transmitir calidez y cercanía) comunica urgencia clínica con suficiente contraste — esta es una excepción documentada, no un error de aplicación de marca.
+
+5. Typography
+
+Tipografías tomadas directamente del Manual de Marca (Playwrite CC Deutschland Grundschrift para el logotipo, Montserrat para todo lo demás). Jerarquía definida para uso clínico:
+
+H1 (títulos de sección), H2 (subtítulos de card), H3 (encabezados de tabla), Card Title, Clinical Text (cuerpo de hallazgos), Table Text, Small Text (metadatos, fechas), Footnote (referencias y citas).
+
+6. Grid System
+
+12 columnas, con margen y espaciado consistentes con el sistema de tarjetas de la Sección 7. Breakpoints estándar para escritorio, tablet (ver Sección 20) y exportación a documento (Word/PDF usan una grilla de una sola columna con las mismas proporciones internas de card).
+
+7. Clinical Cards
+
+Executive Summary Card — resumen del caso en una vista.
+
+Patient Card — identidad, especie, raza (con línea de contexto racial cuando exista Breed Knowledge Object, GCIS-KD-001).
+
+Timeline Card — hito individual dentro del Clinical Timeline.
+
+Medication Card — tratamiento activo o histórico, con estado (activo/suspendido/completado).
+
+Hemogram Card — resultado de hemograma con indicadores visuales de valores fuera de rango.
+
+Confidence Card — representación visual del Clinical Confidence Meter.
+
+Knowledge Card — caso similar recuperado de la Base de Conocimiento.
+
+8. Dashboard Components
+
+Cada componente definido en la Sección 7 especifica: propósito, tamaño (compacto/expandido), estados (normal/advertencia/crítico/pendiente), icono asociado (Sección 11), acciones disponibles (expandir, exportar, ver fuente), animaciones (Sección 19), comportamiento en loading, comportamiento en hover, y manejo de errores (dato faltante o inconsistente).
+
+9. Charts
+
+Comparación de Hemogramas, Comparación de Bioquímica, Tendencia de Peso, Tendencia de BCS, Timeline clínico, Respuesta Clínica (evolución del estado a lo largo del tiempo), Confidence Meter (representación gráfica de la escala de confianza).
+
+10. Tables
+
+Una sola especificación tipográfica y de espaciado para todas las tablas del sistema — hemogramas, bioquímica, diferenciales, matriz de evidencia. Todas lucen iguales, sin excepción, para que el usuario no tenga que reaprender a leer una tabla distinta en cada sección del informe.
+
+11. Icons
+
+Biblioteca cerrada, sin iconos ad hoc: Paciente, Consulta, Laboratorio, Ecografía, Endoscopia, Histopatología, Tratamiento, Diagnóstico, IA, Reporte, PDF, Word, Conocimiento, Seguimiento.
+
+12. Clinical Badges
+
+🟢 Remisión · 🔵 Estable · 🟡 Mejorando · 🟠 Respuesta Parcial · 🔴 Empeorando · ⚫ Crítico · ⚪ Información Insuficiente
+
+Deben coincidir exactamente con los estados del Clinical State Engine (Project Instructions, Sección 6) — ningún badge se agrega ni se quita sin actualizar ambos documentos a la vez. Todo el Dashboard utiliza exactamente los mismos badges, sin variantes locales.
+
+13. Clinical Timeline
+
+Eventos representados: Consulta, Cambio de laboratorio relevante, Nuevo estudio de imagen/endoscopia, Cambio terapéutico, Cambio de estado clínico. Cada tipo de evento tiene color e ícono propio (Sección 11). Incluye filtros por tipo de evento y zoom temporal (día/semana/mes/todo el caso).
+
+14. AI Components
+
+Toda inferencia, cálculo o recomendación generada por el sistema —nunca un dato objetivo copiado del expediente— se presenta en una tarjeta con fondo violeta (#DCD4FF), borde superior sólido violeta (#8012FF) y el símbolo ◆, seguido de la etiqueta "Insight" (no "Claude Insight") y una descripción breve de qué tipo de inferencia contiene — por ejemplo: "◆ Insight — Breed Knowledge Object", "◆ Insight — Diet-Outcome Correlation".
+
+Esta etiqueta es fija en todos los Dashboards, informes y demás superficies del sistema, sin variación por caso, especialidad o audiencia.
+
+────────────────────Texto. Texto. Texto.
+
+Insight────────────────────Con base en la evolución clínica...
+
+Esto es fundamental desde el punto de vista médico y legal: el usuario debe poder distinguir, de un vistazo, qué es un dato objetivo y qué es una inferencia del sistema.
+
+15. Clinical Confidence Meter™
+
+Escala visual (no solo numérica) que representa la calidad de la evidencia disponible — nunca la probabilidad de enfermedad (AI Reasoning Standard, Sección 3.3). Colores: bajo contraste/neutro para confianza baja, intensidad creciente hacia el turquesa de marca para confianza alta. Iconografía y animación de actualización cuando el score cambia tras nueva información.
+
+16. Dashboard States
+
+Loading, No Data, Incomplete, Review Needed, Archived, Critical, Teaching Mode, Presentation Mode. Cada estado tiene su propio tratamiento visual (no solo un mensaje de texto) para que sea reconocible sin leer.
+
+17. Report Components
+
+Cada componente definido en la Sección 7 tiene una variante específica para Word, para PDF, y para caso docente — mismo ADN visual, con ajustes de resolución/paginación propios de cada formato. Ningún componente se ve "genérico" al exportarse; conserva su identidad visual completa.
+
+18. Accessibility
+
+Contraste mínimo AA sobre fondo marfil de marca, verificación de paleta para daltonismo (los colores funcionales de la Sección 4 se probaron contra las variantes de daltonismo más comunes), tamaño mínimo de texto legible, navegación completa por teclado, modo oscuro (adaptación de la paleta de marca manteniendo reconocibilidad).
+
+19. Motion System
+
+Animaciones y transiciones sutiles (nunca decorativas): hover con leve elevación de card, expand/collapse con transición suave, actualización de timeline con indicador de "nuevo evento", actualización del Confidence Meter animada cuando cambia el score.
+
+20. Future Design
+
+Responsive completo, versión tablet, Teaching Mode (oculta diagnóstico/tratamiento para uso docente), Research Mode, Presentation Mode (para compartir el caso en una junta clínica), AI Workspace (vista de trabajo extendida para el razonamiento de Claude, más allá del Dashboard estándar).
+
+
+
+
+

@@ -1,0 +1,113 @@
+ENFERMEDAD TIROIDEA EN PERROS Y GATOS — HIPOTIROIDISMO CANINO E HIPERTIROIDISMO FELINO
+
+Resumen clínico de referencia para ECIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-202 (bioquímica sérica), CC-204 (urianálisis), CC-101 (historia clínica).
+
+---
+
+1. POR QUÉ VAN JUNTOS
+
+Son las dos endocrinopatías tiroideas de la clínica de pequeños animales y se comportan como imágenes especulares: una por defecto en el perro, otra por exceso en el gato. Compartir documento facilita que el agente no confunda los marcos interpretativos, que son distintos.
+
+Marco de referencia. Las guías de AAHA sobre endocrinopatías seleccionadas de perros y gatos proveen recomendaciones de consenso para cuatro endocrinopatías frecuentes —hipotiroidismo canino, hipercortisolismo canino, hipoadrenocorticismo canino e hipertiroidismo felino— con un algoritmo escalonado de diagnóstico y tratamiento para cada una, y describen con menor detalle tres endocrinopatías menos comunes del gato: hiperaldosteronismo, hipotiroidismo e hiperadrenocorticismo felinos.
+
+Este documento cubre las dos tiroideas; hipercortisolismo e hipoadrenocorticismo ya tienen documento propio en la base de ECIS.
+
+2. HIPERTIROIDISMO FELINO — FRECUENCIA
+
+Afecta entre 1.5 y 11.4% de los gatos a nivel mundial y es la enfermedad endocrina más común en gatos mayores de 10 años en Estados Unidos.
+
+La inclusión de la medición de tiroxina total en los paneles de bienestar del paciente senior, así como en los estudios diagnósticos de gatos enfermos, permite hoy diagnosticar la condición mucho antes de que el gato se convierta en el paciente clásico —flaco, desaliñado, agitado y con una masa en el cuello—.
+
+Esa detección más temprana generó preguntas nuevas: cómo reconocer la significancia clínica de las presentaciones tempranas, qué tan temprano tratar, si tratar cuando hay comorbilidades presentes, y cómo manejar comorbilidades como enfermedad renal crónica y enfermedad cardíaca junto con el tratamiento.
+
+3. LAS SEIS CATEGORÍAS DIAGNÓSTICAS
+
+Las guías de AAFP separan el diagnóstico en seis categorías clínicas con estrategias de manejo asociadas, en lugar de un diagnóstico binario. Es el aporte estructural más útil de esas guías y la razón por la que el agente no debe razonar con "T4 alta / T4 normal".
+
+Entre las categorías descritas:
+
+Hipertiroidismo clínico no complicado con T4 elevada. Gatos con uno o más signos clínicos consistentes, T4 por encima del intervalo de referencia del laboratorio, y sin enfermedad concurrente identificable. Su manejo consiste en el tratamiento de la enfermedad tiroidea.
+
+Hipertiroidismo clínico con T4 normal. Gatos con signos sugestivos y T4 dentro del intervalo de referencia. El estudio adicional debe consistir en determinaciones de T4 y T4 libre medidas 2 a 4 semanas después del tamizaje inicial. Si una T4 repetida resulta normal, corresponde reevaluar al paciente en 6 meses con examen físico completo.
+
+Hipertiroidismo clínico con enfermedad no tiroidea confirmada. Signos clínicos y T4 elevada, con una o más enfermedades concurrentes.
+
+Gato clínicamente normal con T4 elevada. Sin signos clínicos ni glándulas tiroideas agrandadas, pero con tiroxina total sérica elevada.
+
+Regla para ECIS: la categoría define la conducta. Reportar solo el valor de T4 sin ubicar al paciente en una categoría omite la información que determina si se trata, si se repite el estudio, o si se reevalúa en meses.
+
+Sobre el laboratorio. Las guías recomiendan utilizar laboratorio de referencia para el diagnóstico y el monitoreo, de forma que puedan seguirse niveles hormonales precisos a lo largo del tratamiento y evitarse discrepancias de control de calidad. Idealmente, por consistencia, el monitoreo debe realizarse en el mismo laboratorio de referencia.
+
+4. HALLAZGOS DE LABORATORIO CONCURRENTES
+
+Enzimas hepáticas. Si no se normalizan tras el tratamiento exitoso del hipertiroidismo, corresponde un estudio diagnóstico adicional.
+
+Azotemia. Puede sugerir deshidratación o insuficiencia renal subyacente.
+
+Urianálisis. Los resultados son variables, aunque la densidad urinaria puede ser menor a 1.030, ya sea por polidipsia primaria o por incapacidad de concentrar la orina debida al hipertiroidismo.
+
+5. TRATAMIENTO Y MONITOREO
+
+Modalidades disponibles: yodo radiactivo, terapia médica con medicación oral o transdérmica, tiroidectomía quirúrgica, y terapia dietaria. Las guías discuten ventajas y desventajas de cada una.
+
+Principio de las guías: **deben tratarse todos los gatos hipertiroideos, con independencia de las comorbilidades**, manejando estas últimas en paralelo.
+
+El monitoreo regular es importante no solo para evaluar la eficacia terapéutica, sino para detectar hipotiroidismo iatrogénico y para confirmar comorbilidades que se hacen evidentes con la resolución del estado hipertiroideo.
+
+El riesgo que define el monitoreo. El hipotiroidismo iatrogénico se ha asociado con azotemia y con tiempo de supervivencia reducido en gatos tratados por hipertiroidismo. Sobreтratar no es un error menor.
+
+Recomendación adicional de AAHA: para las categorías 4 y 6 de AAFP, considerar la determinación de TSH previa al tratamiento con yodo radiactivo y postergarlo si resulta medible, para contribuir a evitar la creación de hipotiroidismo iatrogénico.
+
+Un dato que reordena prioridades: la morbilidad y la mortalidad del gato hipertiroideo bien manejado están influidas con mayor fuerza por la presencia y severidad de la enfermedad comórbida que por el hipertiroidismo en sí.
+
+6. CONEXIÓN CON CARDIOLOGÍA
+
+Un gato con hipertrofia del ventrículo izquierdo e hipertiroidismo no tiene miocardiopatía hipertrófica: tiene un fenotipo HCM en conjunción con hipertiroidismo. Esta distinción, que proviene del consenso ACVIM sobre miocardiopatías felinas, significa que un caso derivado a CCIS por hallazgo ecocardiográfico puede ser en realidad un caso endocrino.
+
+Cuando ECIS reciba un caso con este perfil, el escalamiento se realiza a ICIS, no lateralmente a CCIS.
+
+7. HIPOTIROIDISMO CANINO
+
+Es una de las cuatro endocrinopatías principales cubiertas por las guías de AAHA, que proveen un algoritmo escalonado de diagnóstico y tratamiento junto con la información de contexto necesaria para su manejo.
+
+Nota de alcance honesta: este documento no reproduce los umbrales diagnósticos ni el algoritmo detallado, que deben tomarse de las guías completas. Lo que sí corresponde registrar aquí son las conexiones que el agente debe hacer:
+
+El hipotiroidismo figura entre las causas descritas de cardiomiopatía dilatada secundaria en el perro. Ver el documento de DCM de CCIS.
+
+El hipotiroidismo figura entre los factores primarios de otitis externa, dentro de los trastornos de la queratinización. Ver el documento de otitis de DCIS.
+
+Es decir: un caso de hipotiroidismo canino puede llegar a la plataforma por vía cardiológica o dermatológica antes que por vía endocrina, y ECIS debe reconocerse como destino cuando esas otras especialidades identifiquen la causa primaria.
+
+8. ERRORES FRECUENTES
+
+Descartar hipertiroidismo felino por una T4 dentro del intervalo de referencia sin repetir T4 y T4 libre a las 2–4 semanas.
+
+Reportar el valor de T4 sin ubicar al gato en una categoría diagnóstica.
+
+Diferir el tratamiento por la presencia de comorbilidades.
+
+Cambiar de laboratorio entre controles.
+
+No monitorizar en busca de hipotiroidismo iatrogénico.
+
+Atribuir a la tiroides una hipertrofia ventricular izquierda o dejar de considerarla, según el caso, sin evaluar ambas posibilidades.
+
+Interpretar la normalización clínica como resolución sin reevaluar las comorbilidades que el estado hipertiroideo enmascaraba.
+
+9. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Umbrales numéricos de T4, T4 libre y TSH. Algoritmo diagnóstico detallado del hipotiroidismo canino. Dosis de metimazol, levotiroxina y protocolos de yodo radiactivo. Tiroidectomía: técnica y complicaciones. Hipotiroidismo felino e hipotiroidismo congénito. Síndrome del enfermo eutiroideo. Carcinoma tiroideo. Interacción entre tratamiento tiroideo y enfermedad renal crónica en profundidad. Estos temas quedan como vacíos declarados de la Base de Conocimiento de ECIS.
+
+FUENTES
+
+Carney HC, Ward CR, Bailey SJ, Bruyette D, Dennis S, Ferguson D, Hinc A, Rucinsky AR. 2016 AAFP Guidelines for the Management of Feline Hyperthyroidism. J Feline Med Surg 2016;18(5):400–416. Fuente principal de las secciones 2, 3 y 5.
+
+2023 AAHA Selected Endocrinopathies of Dogs and Cats Guidelines. J Am Anim Hosp Assoc 2023;59. DOI 10.5326/JAAHA-MS-7368. Fuente del marco general y de las secciones 4 y 7.
+
+Williams T, Elliott J, Syme H. Association of iatrogenic hypothyroidism with azotemia and reduced survival time in cats treated for hyperthyroidism.
+
+Daminet S, Kooistra H, Fracassi F y col. Best practice for pharmacological management of hyperthyroid cats with antithyroid drugs. J Small Anim Pract 2014;55:4–13.
+
+Luis Fuentes V y col. ACVIM consensus statement guidelines for the classification, diagnosis, and management of cardiomyopathies in cats. J Vet Intern Med 2020;34(3):1062–1077. Fuente de la sección 6.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

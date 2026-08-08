@@ -1,0 +1,50 @@
+# Hemangiosarcoma Canino — Diagnóstico, Estadificación, Tratamiento y Pronóstico
+
+**Fuentes principales (síntesis de literatura convergente):**
+- De Nardi AB, et al. Diagnosis, Prognosis, and Treatment of Canine Hemangiosarcoma: A Review Based on a Consensus Organized by the Brazilian Association of Veterinary Oncology, ABROVET. *Cancers.* 2023;15(7):2025. Acceso abierto (CC BY).
+- Literatura complementaria sobre quimioterapia adyuvante y desenlaces (Wendelburg et al. 2015, Gardner et al. 2015, entre otros).
+
+**Alcance de este resumen:** tercer documento del sistema oncológico para el agente de medicina interna/triage (ICIS), cerrando una brecha notable identificada — el hemangiosarcoma es el cáncer con mayor probabilidad de presentarse como una verdadera **emergencia de triage** (hemoabdomen por ruptura esplénica), a diferencia de los tumores de mastocitos y el linfoma ya cargados, que suelen presentarse de forma más insidiosa.
+
+---
+
+## 1. Por qué es distinto — la emergencia oncológica más frecuente
+
+- Neoplasia mesenquimal originada en las células endoteliales de los vasos sanguíneos.
+- Se clasifica en **no visceral** (piel, tejido subcutáneo, músculo) y **visceral** (bazo, hígado, corazón, pulmones, riñones, cavidad oral, hueso, vejiga, útero, lengua, retroperitoneo).
+- El hemangiosarcoma cutáneo representa aproximadamente **14% de todos los HSA diagnosticados** — los perros son la especie doméstica más afectada por esta forma cutánea.
+- Representa aproximadamente **20% de los sarcomas de tejidos blandos** y **5% de todos los tumores no cutáneos** en la especie canina.
+- **En casi todos los casos hay enfermedad metastásica presente al momento del diagnóstico**, sea micro o macroscópica — esto contrasta marcadamente con el pronóstico de MCT de bajo grado o linfoma en estadio temprano (ver resúmenes ya cargados).
+
+## 2. La presentación clínica que define su relevancia para triage
+
+- El hemangiosarcoma esplénico/visceral es la causa oncológica más frecuente de **hemoabdomen agudo** — el paciente puede llegar en shock hipovolémico por ruptura tumoral espontánea, sin historia previa conocida de enfermedad neoplásica.
+- Esta presentación aguda (colapso, mucosas pálidas, abdomen distendido/doloroso, taquicardia) exige estabilización hemodinámica inmediata **antes** de completar cualquier trabajo diagnóstico oncológico extenso — el manejo de la emergencia hipovolémica tiene prioridad sobre la caracterización tumoral completa.
+- No todas las masas esplénicas que causan hemoabdomen son hemangiosarcoma (existen hematomas esplénicos benignos y otras neoplasias), pero dada la alta prevalencia relativa del HSA en este escenario, debe asumirse como el diagnóstico más probable hasta confirmación histopatológica.
+
+## 3. Estadificación y diagnóstico
+
+- El diagnóstico definitivo requiere histopatología (generalmente post-esplenectomía o de la masa resecada) — el diagnóstico presuntivo intraoperatorio o por imagen no reemplaza la confirmación histológica.
+- Dado que la enfermedad metastásica está presente en la gran mayoría de los casos al diagnóstico, la estadificación (radiografía torácica, ecografía abdominal completa, evaluación cardíaca) es un componente estándar del trabajo diagnóstico — a diferencia del MCT de bajo grado (ver resumen ya cargado), donde la estadificación completa puede omitirse razonablemente en casos seleccionados.
+
+## 4. Tratamiento
+
+### Cirugía — la base del manejo, pero rara vez curativa por sí sola
+- **Esplenectomía** es el tratamiento estándar para hemangiosarcoma esplénico, tanto en el contexto de emergencia (control de la hemorragia activa) como en el manejo oncológico definitivo.
+- Dada la altísima tasa de enfermedad micrometastásica ya presente al momento del diagnóstico, la cirugía sola rara vez es curativa — la mayoría de los protocolos de manejo consideran la quimioterapia adyuvante como complemento estándar, no opcional.
+
+### Quimioterapia adyuvante
+- **Doxorrubicina** es el agente antineoplásico más frecuentemente utilizado como quimioterapia adyuvante, tanto para las formas viscerales como para las formas subcutáneas y musculares — existe mayor consenso en la literatura sobre su indicación en estas últimas dos formas no viscerales.
+- Pese al uso amplio de protocolos basados en doxorrubicina, las ganancias reportadas en tiempo de sobrevida mediana son **modestas** — es importante calibrar las expectativas del propietario: la quimioterapia adyuvante mejora el pronóstico, pero no lo transforma dramáticamente en la mayoría de los casos.
+- La mayoría de los perros con diagnóstico de hemangiosarcoma **mueren dentro del primer año** tras el diagnóstico, y una proporción importante no sobrevive más allá de 6-8 meses, incluso con tratamiento estándar (cirugía + quimioterapia) — este es el pronóstico realista que debe comunicarse desde el inicio, distinto del pronóstico más favorable de MCT de bajo grado o linfoma en fase temprana.
+
+### Enfoques en investigación (sin beneficio establecido aún)
+- Terapia de mantenimiento con inhibidores de tirosina cinasa (ej. toceranib) tras quimioterapia con doxorrubicina: en un ensayo clínico, **no mejoró** el intervalo libre de enfermedad ni la sobrevida global en perros con HSA esplénico en estadio I-II — no debe asumirse beneficio automático de este enfoque combinado.
+- Inmunoterapia no específica combinada con doxorrubicina, vacunas de células dendríticas, vacunas de cáncer autólogas: enfoques evaluados en estudios piloto con perfil de seguridad aceptable, pero **sin evidencia sólida aún de mejora significativa en sobrevida** — información importante para no generar expectativas desproporcionadas si un propietario pregunta por estas opciones "de vanguardia".
+
+## 5. Conclusión operativa para ICIS
+
+- Ante un perro (especialmente de mediana edad a mayor) que llega en shock hipovolémico con distensión/dolor abdominal y sin trauma evidente, el hemoabdomen por probable ruptura de masa esplénica (hemangiosarcoma como diagnóstico más probable) debe estar en el diferencial inmediato — la prioridad es estabilización hemodinámica, no la caracterización oncológica completa en el momento agudo.
+- A diferencia de los tumores de mastocitos de bajo grado (donde omitir la estadificación completa es defendible), el hemangiosarcoma **siempre** amerita estadificación completa una vez estabilizado el paciente, dada la altísima prevalencia de enfermedad metastásica ya presente al diagnóstico.
+- La conversación pronóstica inicial con el propietario debe ser realista: la mayoría de los pacientes no sobrevive más de un año pese al tratamiento estándar (cirugía + doxorrubicina) — esto contrasta notablemente con el pronóstico más favorable de los otros dos cánceres ya cargados en la Base de Conocimiento (MCT de bajo grado y linfoma con buena respuesta a quimioterapia).
+- Con este documento, el sistema oncológico de ICIS cubre los tres escenarios más relevantes para la práctica general: la neoplasia cutánea más común (MCT), la neoplasia sistémica/hematopoyética más común (linfoma), y la verdadera emergencia oncológica de triage (hemangiosarcoma/hemoabdomen).

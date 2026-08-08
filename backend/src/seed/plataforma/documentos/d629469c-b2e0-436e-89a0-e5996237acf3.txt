@@ -1,0 +1,56 @@
+# ICIS Operational Manual — Índice General (ICIS-MANUAL-000)
+
+**Propósito de este documento:** mapa de navegación entre las especificaciones que gobiernan a ICIS. No contiene contenido clínico ni de arquitectura por sí mismo — indica qué documento consultar según la tarea en curso, y documenta explícitamente qué piezas todavía no existen para este agente.
+
+**Versión 2.0** — unifica el formato con el del resto de los agentes de la plataforma y actualiza el estado real de las especificaciones y de la Base de Conocimiento.
+
+---
+
+## 1. Cómo usar este manual
+
+Cuando trabajes en ICIS, identificá primero la tarea que estás resolviendo y consultá la especificación correspondiente en la tabla de la sección 2. No dupliques contenido entre documentos — cada especificación es la fuente única de verdad para su dominio.
+
+## 2. Mapa de especificaciones — estado actual
+
+| Código | Documento | Estado | Qué define |
+|---|---|---|---|
+| ICIS-MANUAL-000 | Operational Manual — Índice General | Este documento | Navegación entre el resto de especificaciones |
+| ICIS-ARCH-001 | Clinical Components Catalog | Construido | Catálogo de componentes clínicos de medicina general. 161.686 caracteres: candidato a partición por familia |
+| ICIS-DESIGN-001 | Clinical Design System | Construido | Lenguaje visual de tarjetas, badges, gráficos e íconos |
+| ICIS-REP-001 | Clinical Report Specification | Construido | Estructura, contenido y reglas de generación de los informes clínicos |
+| ICIS-DASH-001 | Dashboard Functional Specification | Construido | Estructura funcional y comportamiento del dashboard clínico, incluido el Referral Recommendation Card |
+| ICIS-KB-001 | Knowledge Base Standard | Construido | Reglas para estructurar casos como unidades de conocimiento reutilizables |
+| ICIS-KD-001 | Breed Intelligence Knowledge Base Specification | Construido | Predisposiciones raciales. 81.011 caracteres: candidato a partición |
+| — | Referral Engine Specification | Construido | Motor de derivación hacia los agentes especializados. Exclusivo de ICIS |
+| — | Report Composer Engine Specification | Construido | Pipeline de ensamblado de informes. Único agente que lo tiene, y de ahí la decisión pendiente sobre si debe ser compartido |
+| — | Project Instructions | Construido | System prompt de ICIS, de 18.291 caracteres. Vive en la columna `system_prompt` de la tabla `agentes` |
+| ICIS-AI-001 | AI Reasoning Standard | Pendiente | Estándar de razonamiento clínico del agente. GCIS es hoy el único que lo tiene |
+| — | Manual de Identidad Visual | Fuera de alcance del agente | Pasó a ser documento de plataforma |
+## 3. Base de Conocimiento — estado actual
+
+**8 guías de banderas rojas**, una por cada agente especializado: cardiovasculares, dermatológicas, endocrinológicas, gastrointestinales, neurológicas y ortopédicas, oncológicas, renales y urinarias, y reproductivas. Son la función de triage de la plataforma y viven exclusivamente en ICIS.
+
+**8 documentos clínicos**: anemia hemolítica inmunomediada, trombocitopenia inmunomediada (diagnóstico y tratamiento), leptospirosis, ehrlichiosis y anaplasmosis, parvovirosis, toxicidad por insecticidas y toxicología de emergencia.
+
+Los ocho son caninos. ICIS no tiene ningún documento clínico felino.
+
+## 4. Diferencias intencionales respecto al patrón general
+
+- **Es el único agente con motor de derivación**: ICIS deriva casos *hacia* las especialidades, mientras el resto los recibe. El Referral Recommendation Card de su Dashboard no tiene equivalente en los demás.
+- **Las banderas rojas son exclusivas de ICIS**: ningún agente especializado tiene ni debe tener sus propias guías de derivación, porque el triage ocurre antes de la especialidad.
+- **Es el único con Report Composer Engine Specification**, lo que abre la pregunta de si debería ser un motor compartido de plataforma.
+
+## 5. Pendientes explícitos
+
+### Arquitectura
+
+1. **ICIS-AI-001** — el estándar de razonamiento clínico. GCIS es hoy el único agente que lo tiene, y siendo ICIS el que atiende todos los casos, es donde más falta hace.
+2. **Partición del Clinical Components Catalog y de Breed Intelligence**: entre ambos suman 242.697 caracteres que entran en el contexto de cada caso del agente que recibe todo el volumen de la plataforma. Es la mayor carga de contexto del sistema.
+3. **Decisión sobre el Report Composer Engine**: la especificación existe cargada en ICIS con 14.729 caracteres. Falta decidir si es un motor compartido de plataforma o si cada agente especializado necesita su propia versión. La decisión afecta a todos los agentes y puede resolverse leyendo ese documento.
+4. **Manual de Identidad Visual**: deja de ser una especificación por agente y pasa a ser documento de plataforma. El logo de cada clínica se obtiene de su propia configuración en base de datos.
+
+### Base de Conocimiento
+
+1. **Cobertura felina inexistente**: los ocho documentos clínicos son caninos. Es el hueco más serio de la Base de Conocimiento de la plataforma, porque ICIS es el agente que recibe todos los casos y decide todas las derivaciones.
+2. **Estabilización del paciente crítico, fluidoterapia y manejo del dolor agudo**: temas transversales de medicina general sin cobertura.
+3. **Ajuste de derivación urinaria**: las banderas rojas renales y urinarias deben derivar a RCIS cuando el paciente es un macho entero con sospecha de patología prostática.

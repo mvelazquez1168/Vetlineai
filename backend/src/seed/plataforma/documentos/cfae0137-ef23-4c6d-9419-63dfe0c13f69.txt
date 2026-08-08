@@ -1,0 +1,58 @@
+# Enfermedad Glomerular Canina — Diagnóstico, Tratamiento Estándar e Inmunosupresión
+
+**Fuentes principales:** Serie de consensos del IRIS Canine GN (Glomerulonephritis) Study Group, publicados en *J Vet Intern Med* 2013 (volumen 27, suplemento S1):
+- Littman MP, et al. Consensus Recommendations for the Diagnostic Investigation of Dogs with Suspected Glomerular Disease.
+- Brown S, et al. Consensus Recommendations for Standard Therapy of Glomerular Disease in Dogs.
+- Pressler B, Vaden S, et al. Consensus Guidelines for Immunosuppressive Treatment of Dogs with Glomerular Disease Absent a Pathologic Diagnosis.
+
+**Alcance de este resumen:** tercer documento del sistema renal para el agente de medicina interna/triage (ICIS), complementando ERC (IRIS) y AKI ya cargados con el enfoque específico de proteinuria de origen glomerular — una causa de enfermedad renal con manejo diagnóstico y terapéutico propio.
+
+---
+
+## 1. Por qué merece un documento aparte de ERC/AKI
+
+- La enfermedad glomerular es una causa específica de proteinuria y disfunción renal progresiva — distinta en enfoque diagnóstico y terapéutico del marco general de ERC (estadificación) y AKI (gradación aguda) ya cubiertos.
+- Incluye: glomerulonefritis (inmunomediada), amiloidosis renal, y nefropatía perdedora de proteínas de otras causas.
+- Incluso **sin diagnóstico histopatológico confirmado**, el manejo de casos con proteinuria presumiblemente glomerular debe orientarse a reducir la proteinuria y manejar las complicaciones clínicamente relevantes — es decir, el tratamiento estándar no espera necesariamente a la biopsia.
+
+## 2. Cuándo investigar — el umbral de proteinuria que activa el trabajo diagnóstico
+
+- Guías de IRIS y ACVIM: una razón proteína:creatinina urinaria (UPC) **≥0.5 en perros no azotémicos** amerita investigación diagnóstica de causas subyacentes de daño renal.
+- El trabajo diagnóstico se organiza en **niveles/tiers de prioridad diagnóstica** según el consenso — no todos los perros con proteinuria requieren el mismo nivel de estudio inmediato; la profundidad de la investigación se escalona según hallazgos iniciales.
+- **Cribado serológico para enfermedades infecciosas** es parte explícita de la recomendación — incluyendo anaplasmosis (ver el resumen ya cargado de Ehrlichiosis/Anaplasmosis: la conexión es directa, dado que estas infecciones vectoriales pueden inducir proteinuria de origen glomerular), leptospirosis y borreliosis, entre otras causas infecciosas conocidas de proteinuria.
+- Para el diagnóstico histopatológico definitivo, los hallazgos diagnósticos apropiados generalmente requieren **microscopía electrónica de transmisión (TEM) e inmunofluorescencia**, no solo histopatología de luz convencional — relevante para decidir el manejo de la muestra de biopsia si se realiza.
+
+## 3. Terapia estándar — la base recomendada para TODOS los pacientes, independiente de la causa
+
+El consenso de 2013 establece que la terapia estándar debe considerarse en **todos** los perros con enfermedad glomerular, independientemente de la causa subyacente identificada o no. Los pilares son:
+
+### Inhibición del sistema renina-angiotensina-aldosterona (RAAS)
+- **Recomendación central del consenso**: la modificación del RAAS debe ser el estándar de cuidado en perros con proteinuria glomerular.
+- Se logra habitualmente con un **inhibidor de la enzima convertidora de angiotensina (IECA)** — benazepril y enalapril son los más utilizados en la práctica.
+
+### Manejo de la hipertensión sistémica
+- La hipertensión sistémica es problemática porque las elevaciones sostenidas de presión arterial producen daño tisular acumulativo (**daño de órgano blanco, TOD**) — en el riñón, se manifiesta como mayor tasa de declive de la función renal, mayor mortalidad, más frecuentes crisis urémicas, y mayor magnitud de la proteinuria.
+- El daño de órgano blanco también puede observarse a nivel ocular, del sistema nervioso central, y cardiovascular.
+- **La hipertensión puede presentarse en cualquier estadio de IRIS**, aunque es más prevalente en ERC avanzada — no debe asumirse ausente en estadios tempranos.
+- El diagnóstico y manejo de la hipertensión debe basarse en la categorización de riesgo de daño de órgano blanco futuro (recomendación conjunta del Panel de Consenso de Hipertensión de ACVIM e IRIS).
+
+### Modificación dietaria
+- Consideración especial a nutrientes con efectos renales conocidos — parte integral de la terapia estándar, no un complemento opcional.
+
+### Manejo del volumen de fluidos corporales
+- Evaluación y manejo activo del estado de volumen — relevante porque estos pacientes pueden tener tanto tendencia a la sobrecarga (por hipoalbuminemia/edema) como a la depleción de volumen según la etapa de la enfermedad.
+
+## 4. Tratamiento inmunosupresor sin diagnóstico histopatológico — cuándo sí es defendible
+
+- Situación clínica frecuente: el veterinario debe decidir si recomendar terapia inmunosupresora en perros con **sospecha** de enfermedad glomerular, **sin evidencia derivada de biopsia renal** que confirme mecanismos inmunes activos contribuyendo al daño glomerular.
+- El consenso desarrolló recomendaciones específicas para esta situación mediante método formal de consenso, alcanzando **alto nivel de acuerdo (mediana 92.5%)** entre los participantes.
+- **Recomendación central**: la biopsia renal **no debe realizarse** cuando existen contraindicaciones para el procedimiento, o cuando el resultado no cambiaría el tratamiento ni el desenlace esperado — es decir, la ausencia de biopsia no es automáticamente una falla de manejo; en ciertos escenarios clínicos, omitirla es la decisión correcta.
+- Esto valida un enfoque pragmático: en la práctica general (fuera de centros de referencia con acceso a biopsia + microscopía electrónica), el manejo de la enfermedad glomerular presuntiva con terapia estándar (y ocasionalmente inmunosupresión) es una decisión clínica legítima, no un compromiso de segunda categoría.
+
+## 5. Conclusión operativa para ICIS
+
+- Ante cualquier perro con **UPC ≥0.5 sin azotemia**, debe iniciarse investigación diagnóstica activa — este es el umbral operativo más simple y accionable de todo el documento.
+- El cribado infeccioso (incluyendo anaplasmosis) debe ser parte estándar de la investigación de proteinuria glomerular — refuerza nuevamente la conexión entre el sistema infeccioso y el resto de sistemas ya cargados en la Base de Conocimiento de ICIS.
+- La terapia estándar (IECA + manejo de hipertensión + dieta + manejo de volumen) debe iniciarse en todo perro con proteinuria glomerular presumida, **incluso sin diagnóstico histopatológico confirmado** — no es necesario esperar biopsia para comenzar el tratamiento de base.
+- La decisión de biopsiar (y, en consecuencia, de iniciar inmunosupresión con o sin biopsia) debe evaluarse caso por caso: si hay contraindicación para el procedimiento, o si el resultado no cambiaría el manejo, **no biopsiar es la recomendación correcta**, no una limitación del caso.
+- Este documento completa el sistema renal de ICIS (ERC + AKI + enfermedad glomerular) y refuerza la interconexión ya establecida con el sistema infeccioso a través del cribado serológico recomendado en la investigación de proteinuria.

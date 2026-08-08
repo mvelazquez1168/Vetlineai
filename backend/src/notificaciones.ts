@@ -124,7 +124,8 @@ export type ColumnaAvisoActivo =
   | "agenda_dia_siguiente_activo"
   | "confirmacion_cita_activo"
   | "cancelacion_cita_activo"
-  | "informe_disponible_activo";
+  | "informe_disponible_activo"
+  | "cumpleanos_activo";
 
 export async function avisoActivo(db: EjecutorSql, tenantId: string, columna: ColumnaAvisoActivo): Promise<boolean> {
   const result = await db.query(

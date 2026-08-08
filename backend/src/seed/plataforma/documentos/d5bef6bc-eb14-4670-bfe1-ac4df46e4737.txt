@@ -1,0 +1,133 @@
+CICLO ESTRAL CANINO Y MONITOREO DE PROGESTERONA — DETERMINACIÓN DEL MOMENTO ÓPTIMO DE SERVICIO
+
+Resumen clínico de referencia para RCIS. Componentes que lo consumen: CC-231 (Reproductive Cytology & Endocrine Intelligence), CC-232 (Ovulation Timing Engine), CC-233 (Gestational Monitoring Intelligence), CC-004 (Clinical Timeline, para eventos proyectados).
+
+---
+
+1. POR QUÉ IMPORTA LA PRECISIÓN
+
+El momento del servicio es el determinante modificable más importante del resultado reproductivo. La receptividad sexual de la hembra —aceptar la monta— no coincide necesariamente con su período fértil, de modo que servir por comportamiento produce fallos de concepción o camadas reducidas cuando la superposición es solo parcial.
+
+La especie canina tiene dos particularidades que obligan a un abordaje distinto al de otras especies. La ovulación no ocurre en ambiente estrogénico sino después de que la progesterona ya comenzó a elevarse. Y los ovocitos se liberan como ovocitos primarios: requieren una división meiótica adicional y maduración antes de ser fertilizables. Por eso el servicio no se programa para coincidir con la ovulación, sino algunos días después.
+
+2. FASES DEL CICLO
+
+PROESTRO. Estrógenos en ascenso, edema vulvar, descarga serosanguinolenta. La hembra atrae al macho pero no acepta. Duración habitual de una a dos semanas, con variabilidad individual amplia.
+
+ESTRO. Aceptación de la monta. El pico de LH ocurre típicamente dentro de las primeras 24 horas del estro conductual. La hembra puede permanecer receptiva varios días después de haber ovulado, lo que explica por qué la conducta no sirve como marcador de fertilidad.
+
+DIESTRO. Fase lútea. La citología cambia de forma abrupta —el llamado giro diestral— con reaparición de células parabasales y, con frecuencia, neutrófilos. La hembra se vuelve refractaria.
+
+ANESTRO. Reposo ovárico.
+
+3. CITOLOGÍA VAGINAL
+
+Tres tipos celulares informan sobre la influencia estrogénica: parabasales (redondas, pequeñas, núcleo grande; influencia estrogénica nula o mínima), intermedias (ovaladas, más citoplasma), y superficiales cornificadas (influencia estrogénica máxima).
+
+Uso correcto y límites. La citología no debe usarse sola para determinar el momento de servicio, y no permite inferir la concentración de progesterona. No existe un protocolo estandarizado universalmente adoptado de toma, tinción y criterios de evaluación, lo que genera variabilidad interobservador documentada al estadificar el ciclo.
+
+Su valor real es doble. Primero, indica cuándo empezar a medir progesterona, lo que evita mediciones tempranas innecesarias. Segundo, permite identificar el primer día de diestro (D1) mediante el descenso brusco de células cornificadas —una caída de al menos 20% desde valores de 80–100%— junto con la aparición de parabasales y neutrófilos en menos de 24 a 48 horas.
+
+El D1 es un marcador retrospectivo valioso: la gestación desde D1 dura 57 ± 3 días. En una serie de 242 gestaciones monitoreadas, el parto ocurrió dentro de 57 ± 1, ± 2 y ± 3 días en 88%, 99% y 100% de los casos respectivamente. Es un método barato, rápido y confiable, aunque solo aplicable una vez que el D1 ya ocurrió.
+
+4. PROGESTERONA: INTERPRETACIÓN SERIADA
+
+Valores de referencia para los eventos clave
+
+Basal: menor a 1 ng/mL antes del inicio de la fase lútea.
+
+Pico de LH: se toma como el primer día en que la progesterona alcanza ≥1.5 ng/mL. Algunos autores usan 2–3 ng/mL, y otros exigen ≥1.5 ng/mL seguido de ≥3 ng/mL al día siguiente. Esta divergencia entre criterios es real y debe declararse: la elección del umbral desplaza toda la cronología posterior.
+
+Ovulación: ocurre aproximadamente 48–60 horas después del pico de LH, con progesterona entre 4 y 10 ng/mL según la serie consultada; otras fuentes reportan 3.4–6.6 ng/mL o un valor de referencia de 6 ng/mL.
+
+Maduración ovocitaria: los ovocitos requieren unos 2 días adicionales tras la ovulación; para entonces la progesterona suele promediar 10 ng/mL o más. La vida útil del ovocito secundario es de 2 a 3 días.
+
+Consideraciones de método
+
+Los ensayos cuantitativos son sustancialmente más confiables que los kits semicuantitativos. La quimioluminiscencia reemplazó al radioinmunoensayo como estándar, y existen analizadores de punto de atención con resultado en clínica. Los valores absolutos no son intercambiables entre métodos: comparar puntos de una serie medidos con ensayos distintos introduce error, y esto debe registrarse en el caso.
+
+Frecuencia de muestreo
+
+El monitoreo suele iniciarse hacia el día 5–7 desde el inicio del sangrado, con mediciones cada 2–3 días, y se acorta el intervalo conforme el valor asciende. La pendiente inicial del ascenso está influida por el peso corporal pregestacional, con incrementos más rápidos en hembras pequeñas.
+
+5. LH
+
+La medición diaria de LH identifica el pico con precisión y es la referencia más exacta para la datación. Su desventaja es operativa: exige extracciones diarias aproximadamente a la misma hora, porque el pico dura entre 24 y 48 horas y se pierde con muestreo espaciado. Existen kits semicuantitativos de uso en clínica.
+
+Se reserva para casos donde la precisión justifica el costo: infertilidad en estudio, servicios con semen congelado, historial de celos silentes o de no receptividad.
+
+6. DETERMINACIÓN DEL MOMENTO DE SERVICIO
+
+Regla general: la inseminación se realiza 2 a 4 días después de la ovulación.
+
+El margen tolerable depende del tipo de semen, y esta es la variable que más frecuentemente se omite al planificar:
+
+Monta natural o semen fresco: mayor longevidad espermática en el tracto de la hembra, margen más amplio.
+
+Semen refrigerado: longevidad reducida, requiere mayor precisión.
+
+Semen congelado: longevidad marcadamente menor tras la descongelación; es el escenario donde la datación por progesterona seriada o LH deja de ser recomendable y pasa a ser necesaria.
+
+Los eventos críticos de la datación ocurren 4 a 6 días antes de las fechas óptimas de servicio, de modo que un monitoreo iniciado tarde no puede recuperarse dentro del mismo ciclo.
+
+Una consecuencia operativa: el momento óptimo de servicio no coincide con la ovulación, y tampoco con el momento en que la hembra acepta al macho. Ambas confusiones son causas frecuentes de fallo.
+
+7. FECHA PROBABLE DE PARTO — LOS TRES MÉTODOS Y SU PRECISIÓN
+
+Este es el punto donde la elección del método cambia el resultado clínico de forma más marcada.
+
+Desde la ovulación: 63 ± 1 día (rango 62–64). Es el método más preciso.
+
+Desde el primer día de diestro citológico (D1): 57 ± 3 días, con las exactitudes citadas en la sección 3.
+
+Desde la fecha de monta: 57 a 72 días. La variabilidad es tan amplia que este método no permite planificar una cesárea electiva ni anticipar una gestación prolongada.
+
+Factores que modifican la duración. El tamaño de camada influye: gestaciones de uno o dos cachorros tienden a ser más largas que las de tres o más. La raza y el tamaño materno también parecen influir, aunque los resultados publicados son contradictorios y el efecto de la raza puede quedar enmascarado por el del tamaño. La edad de la hembra, la paridad, la regularidad de los interestros, el tipo de monta y el sexo de los cachorros no muestran efecto consistente.
+
+Regla para RCIS: toda fecha probable de parto se emite con el método que la generó y su margen. Presentar una fecha derivada de monta con la misma apariencia que una derivada de ovulación es un error clínico, no de formato.
+
+8. PROGESTERONA PREPARTO
+
+En las últimas 24 horas antes del parto, la progesterona cae por debajo de 2 ng/mL, y al momento del parto es menor a 1 ng/mL. La caída se debe a la liberación de PGF2alfa y la luteólisis consiguiente, que comienza unas 36 horas antes.
+
+Utilidad y límite. Una medición única preparto tiene baja sensibilidad pero alta especificidad: sirve para confirmar proximidad, no para descartarla. Su uso apropiado es discriminar qué hembras están a término —candidatas a cesárea— de las que no lo están, no para fijar la hora del parto.
+
+Excepción a considerar: en gestaciones de un solo cachorro la progesterona puede no descender por debajo de 2 ng/mL al término, probablemente por luteólisis incompleta.
+
+Temperatura rectal. Desciende cerca de 1 °C en las últimas 12–24 horas. Su confiabilidad como predictor aislado es discutida: el descenso no se detecta en todas las hembras, el umbral es variable, y hay factores de confusión de observador y de técnica. No debe usarse como parámetro único para programar una cesárea.
+
+9. ERRORES FRECUENTES
+
+Servir por conducta. La receptividad no delimita el período fértil.
+
+Interpretar un valor aislado de progesterona. Un punto único no ubica la fase del ciclo. Sin serie, la interpretación es provisional por definición.
+
+Iniciar el monitoreo tarde. Los eventos que definen la ventana ocurren días antes del servicio óptimo.
+
+Mezclar métodos de ensayo dentro de una misma serie.
+
+Usar citología sola para decidir el servicio.
+
+Tratar la fecha probable de parto como un dato único, sin método ni margen.
+
+10. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Protocolos de inseminación artificial y técnicas de depósito seminal. Manejo del semen congelado. Infertilidad de la hembra y sus causas. Interrupción de la gestación. Celo silente e inducción del celo. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS.
+
+FUENTES
+
+Siena G, Milani C. Usefulness of Maternal and Fetal Parameters for the Prediction of Parturition Date in Dogs. Animals 2021;11(3):878. DOI 10.3390/ani11030878. Licencia CC BY.
+
+Merck Veterinary Manual — Breeding Management of Bitches; Pregnancy Determination in Bitches and Queens.
+
+University of California Davis, School of Veterinary Medicine — Breeding Management of the Bitch.
+
+IDEXX — Simplifying the Canine Reproductive Cycle Using Progesterone.
+
+Volkmann DH y col. sobre comparación de analizador de punto de atención contra inmunoensayo quimioluminiscente en la determinación de progesterona sérica. PMC8155301.
+
+Arlt S. Canine ovulation timing: a survey on methodology and an assessment on reliability of vaginal cytology. Reprod Domest Anim 2018;53:53–62.
+
+De Cramer K, Nöthling J. The precision of peri-oestrous predictors of the date of onset of parturition in the bitch. Theriogenology 2017;96:153–157.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

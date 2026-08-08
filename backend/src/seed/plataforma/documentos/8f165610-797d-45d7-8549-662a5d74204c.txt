@@ -1,0 +1,123 @@
+Banderas Rojas Gastrointestinales — Guía de Derivación para Medicina General
+
+Propósito de este documento
+
+Este extracto está pensado para el agente de medicina general/internista (ICIS), no para un especialista en gastroenterología. Su objetivo no es enseñar a manejar la enfermedad digestiva, sino permitir reconocer cuándo un cuadro gastrointestinal deja de ser competencia de medicina general y debe derivarse a GCIS, y con qué prioridad.
+
+Principio rector de este documento: en gastroenterología, a diferencia de cardiología, el problema no es detectar un hallazgo sutil sino separar lo autolimitado de lo que no lo es. La enorme mayoría de los cuadros de vómito y diarrea aguda se resuelven con manejo de soporte, y tratar cada uno como grave satura al especialista tanto como subestimar un caso real. El error clínicamente costoso es el contrario: no reconocer al subgrupo pequeño que esconde una obstrucción, una torsión, una pancreatitis grave o una hemorragia, donde el tiempo cambia el desenlace.
+
+Segundo principio, propio de este dominio: ante un paciente con signos digestivos hay tres destinos posibles, no dos. Resolución en medicina general, derivación a gastroenterología, y urgencia que no se deriva sino que se estabiliza. Confundir el tercero con el segundo es el error de triage más frecuente y más caro del dominio: derivar una dilatación-vólvulo gástrico es perder tiempo que el paciente no tiene.
+
+1. Señales de alarma que ameritan manejo de emergencia — no derivación
+
+Cualquiera de las siguientes indica un cuadro que se estabiliza primero. La derivación a gastroenterología, si corresponde, viene después:
+
+Distensión abdominal aguda con arcadas improductivas, en perro de raza grande o gigante de tórax profundo, con inquietud y sialorrea — es dilatación-vólvulo gástrico hasta demostrar lo contrario. Es quirúrgica y tiempo-dependiente.
+
+Abdomen agudo: dolor intenso a la palpación, rigidez de la pared abdominal o rechazo del decúbito.
+
+Sospecha de obstrucción intestinal: vómito persistente, ausencia de defecación, dolor abdominal y antecedente de acceso a cuerpos extraños.
+
+Hematemesis abundante o melena con mucosas pálidas, taquicardia o tiempo de llenado capilar prolongado.
+
+Vómito o regurgitación con signos respiratorios concurrentes, por riesgo de neumonía por aspiración.
+
+Ictericia de instalación aguda con deterioro sistémico.
+
+Deshidratación marcada, hipotensión o colapso en un paciente con diarrea o vómito agudo.
+
+Ante cualquiera de estas, el rol del agente de medicina general es estabilizar —fluidoterapia, analgesia, descompresión gástrica si corresponde y está en su alcance— y resolver de inmediato. En la sospecha de dilatación-vólvulo gástrico, no debe postergarse la conducta para confirmar con imagen: la ventana de intervención es corta.
+
+2. Cuándo un cuadro digestivo amerita derivación no urgente
+
+Estos son los criterios para pasar de "cuadro a manejar" a "candidato a derivación", sin que exista una urgencia inmediata:
+
+Vómito que persiste más de cinco a siete días pese al manejo de soporte, o que es recurrente durante más de dos a tres semanas aunque el paciente esté estable entre episodios.
+
+Diarrea de más de tres semanas de evolución. Ese umbral es el que usan las guías de enteropatía crónica inflamatoria y es el que define la entidad, no una convención arbitraria.
+
+Diarrea recurrente en episodios, aunque cada uno sea breve.
+
+Pérdida de peso progresiva acompañando cualquier signo digestivo, aun leve.
+
+Diarrea o vómito que no responden a un ensayo dietario correctamente conducido — el ensayo dietario es primera línea y su fracaso es en sí mismo un dato diagnóstico.
+
+Hipoalbuminemia sin proteinuria ni hepatopatía evidente — sospechar enteropatía perdedora de proteínas.
+
+Elevación persistente de enzimas hepáticas en controles sucesivos, con o sin signos clínicos.
+
+Antecedente de pancreatitis previa con signos digestivos nuevos.
+
+Cualquier cuadro digestivo crónico en un gato de edad media a avanzada, donde la enteropatía inflamatoria crónica y el linfoma alimentario son clínicamente indistinguibles y la diferenciación requiere biopsia.
+
+Regla práctica: un episodio único de vómito o diarrea aguda de menos de 72 horas, en un paciente alerta, hidratado, sin dolor abdominal y que responde al soporte, no amerita derivación. El mismo cuadro que se repite, que se acompaña de pérdida de peso o que no responde, sí.
+
+3. Distinguir el cuadro autolimitado del que no lo es
+
+Esta es la distinción más importante que debe hacer el agente antes de clasificar el nivel de manejo:
+
+	Autolimitado (manejar y observar)	No autolimitado (derivar)
+Duración	Episodio único o pocos días	Más de tres semanas, o recurrente
+Estado general	Alerta, hidratado, come	Letargia, deshidratación, anorexia completa
+Dolor abdominal	Ausente o leve difuso	Localizado, intenso, con rigidez
+Peso	Estable	Pérdida progresiva
+Heces	Sin sangre o hematoquecia escasa	Melena, o hematoquecia con signos sistémicos
+Respuesta al soporte	Mejora en 24 a 48 horas	Sin cambios o empeora
+Albúmina	Normal	Baja sin proteinuria
+
+Un vómito aislado sin ninguna columna derecha presente no es indicación de derivación. Si aparece junto con cualquiera de esos elementos, el cuadro cambia de categoría.
+
+4. Pearls de contexto racial y de especie
+
+Estos ayudan a que la derivación llegue con información útil, y también a calibrar el umbral según el paciente concreto:
+
+Razas grandes y gigantes de tórax profundo (Gran Danés, Setter, Weimaraner, Pastor Alemán, Dóberman) con distensión abdominal aguda — el umbral para sospechar dilatación-vólvulo gástrico debe ser el más bajo de toda la gastroenterología.
+
+Schnauzer miniatura, Yorkshire Terrier y razas con hiperlipidemia documentada, ante vómito con dolor craneal — sospechar pancreatitis aguda.
+
+Yorkshire Terrier con diarrea crónica e hipoalbuminemia — considerar enteropatía perdedora de proteínas y linfangiectasia; el pronóstico depende de la derivación temprana.
+
+Bedlington Terrier, West Highland White Terrier, Dóberman y Labrador con enzimas hepáticas persistentemente elevadas — sospechar hepatopatía por acumulación de cobre, cuya confirmación requiere biopsia con cuantificación.
+
+Bóxer y Bulldog Francés jóvenes con diarrea de intestino grueso y sangre — considerar colitis histiocítica ulcerativa, que tiene tratamiento específico y responde mal al manejo empírico.
+
+Pastor Alemán y Collie de pelo largo con heces voluminosas, pérdida de peso y apetito conservado o aumentado — sospechar insuficiencia pancreática exocrina.
+
+Gatos, cualquier raza, con signos digestivos crónicos — no asumir un solo órgano. La enfermedad intestinal, pancreática y hepatobiliar coexisten con frecuencia en esta especie.
+
+Gatos con pérdida de peso como único hallazgo — el umbral de sospecha digestiva debe ser más bajo que en perros: la presentación inespecífica es la norma, no la excepción, y el cuadro puede cursar sin vómito ni diarrea.
+
+Cachorros y gatitos con vómito agudo y anorexia — considerar cuerpo extraño e intususcepción además de las causas infecciosas.
+
+5. Qué NO debe hacer el agente de medicina general
+
+No debe indicar antimicrobianos en diarrea aguda no complicada — las guías vigentes contienen recomendaciones fuertes en contra de su uso en enfermedad leve y moderada, y su prescripción rutinaria es el error más frecuente y más evitable del dominio.
+
+No debe administrar un antiemético y dar el caso por resuelto — el maropitant puede enmascarar una obstrucción quirúrgica en curso, y la mejoría sintomática sin resolución de la causa retrasa el diagnóstico en el escenario donde el tiempo más importa.
+
+No debe prescribir protectores gastrointestinales de rutina en pancreatitis, hepatopatía o enfermedad renal sin un factor de riesgo de ulceración presente, ni combinarlos entre sí sin separar su administración al menos dos horas.
+
+No debe inducir el vómito ante sospecha de cuerpo extraño esofágico, de objeto punzante o de material cáustico.
+
+No debe postergar la conducta ante una sospecha de dilatación-vólvulo gástrico para confirmar con radiografía cuando el cuadro clínico es compatible — estabilizar y resolver de inmediato.
+
+No debe interpretar la ausencia de vómito y diarrea como ausencia de enfermedad digestiva en el gato, donde la pérdida de peso puede ser el único signo.
+
+No debe iniciar corticoides ante sospecha de enteropatía inflamatoria crónica antes de la biopsia — compromete el diagnóstico y puede enmascarar un linfoma.
+
+No debe derivar una urgencia quirúrgica a gastroenterología en lugar de estabilizarla: es la confusión de destinos descrita en el principio rector.
+
+Resumen para uso rápido
+
+Si el paciente presenta...	Acción del agente de medicina general
+Distensión abdominal aguda con arcadas improductivas en raza grande	Estabilizar y resolver como urgencia quirúrgica — no derivar ni diferir para imagen
+Abdomen agudo, sospecha de obstrucción, hematemesis con signos sistémicos	Estabilizar como urgencia — la derivación viene después
+Ictericia aguda con deterioro sistémico	Estabilizar como urgencia
+Vómito de más de cinco a siete días, o recurrente por más de dos semanas	Derivar — no urgente, pero no diferir indefinidamente
+Diarrea de más de tres semanas, o recurrente	Derivar — no urgente
+Pérdida de peso con cualquier signo digestivo	Derivar — no urgente
+Hipoalbuminemia sin proteinuria	Derivar — no urgente, considerar enteropatía perdedora de proteínas
+Sin respuesta a un ensayo dietario correctamente conducido	Derivar — el fracaso del ensayo es un dato diagnóstico
+Episodio único de vómito o diarrea, paciente estable y con respuesta al soporte	Manejar con soporte y reevaluar — no derivar todavía
+Gato con pérdida de peso sin otro signo	Umbral de derivación más bajo que en perros — la presentación silente es la norma
+Raza de riesgo alto o muy alto documentado (Breed Knowledge Object)	Reducir el umbral de derivación incluso ante hallazgos leves

@@ -1,0 +1,193 @@
+Knowledge Base Standard (KBS) — ICIS
+
+Versión: 1.0
+Estado: Draft
+Código: ICIS-KB-001
+
+1. Introducción
+
+Objetivo
+
+El Knowledge Base Standard (KBS) define las reglas para transformar casos clínicos en unidades de conocimiento estructuradas, reutilizables y comparables.
+
+La Base de Conocimiento constituye uno de los principales activos del Internal Medicine Clinical Intelligence System (ICIS), permitiendo que la experiencia acumulada en casos anteriores — incluyendo casos que terminaron en derivación, no solo los que llegaron a diagnóstico definitivo — contribuya al análisis de nuevos pacientes.
+
+Cada caso incorporado deberá mantener trazabilidad, calidad clínica y consistencia terminológica.
+
+2. Filosofía
+
+La Base de Conocimiento no es un repositorio de documentos. Es un repositorio de conocimiento clínico estructurado. El objetivo no es almacenar PDFs. El objetivo es almacenar experiencia clínica.
+
+Cada caso deberá responder preguntas como:
+
+-   ¿Qué ocurrió?
+
+-   ¿Por qué ocurrió?
+
+-   ¿Cómo evolucionó?
+
+-   ¿Qué tratamiento funcionó?
+
+-   ¿Qué errores se evitaron?
+
+-   ¿La decisión de manejo o derivación fue acertada, y por qué? (nueva — en ICIS esta pregunta es tan importante como "qué tratamiento funcionó")
+
+-   ¿Qué aprendimos?
+
+3. Objetivos
+
+La Base de Conocimiento deberá permitir: buscar casos similares, comparar evolución, encontrar patrones, identificar tratamientos efectivos, apoyar el diagnóstico, apoyar la docencia, facilitar investigación clínica, mejorar continuamente el razonamiento del sistema, y mejorar continuamente la precisión de las decisiones de derivación (especialidad correcta, urgencia correcta, momento apropiado).
+
+4. Arquitectura Conceptual
+
+Caso Clínico → Clinical Components → Report Composer Engine → Knowledge Extraction Engine → Knowledge Validation Engine → Knowledge Base → Case Matching Engine → Nuevo Caso
+
+5. Ciclo de Vida del Conocimiento
+
+Todo caso seguirá uno de estos dos flujos:
+
+Flujo A — Caso resuelto en atención primaria:
+Consulta Inicial → Seguimientos → Caso Cerrado → Reporte Clínico → Extracción de Conocimiento → Validación → Ingreso a la Base → Disponible para futuras consultas.
+
+Flujo B — Caso derivado (nuevo):
+Consulta Inicial → Evaluación de derivación → Informe de Derivación generado → (opcional) Resultado reportado por el especialista → Extracción de Conocimiento → Validación → Ingreso a la Base → Disponible para futuras consultas.
+
+El Flujo B es válido y completo por sí mismo, incluso si nunca se recibe el resultado del especialista. Una decisión de derivación bien razonada es, en sí misma, una unidad de conocimiento útil.
+
+6. Unidad de Conocimiento (Knowledge Unit)
+
+Cada caso almacenado constituye una Knowledge Unit (KU), con identificador único. Ejemplo: ICIS-KU-000001.
+
+Estructura
+
+Cada Knowledge Unit contendrá:
+
+-   Metadata
+
+-   Perfil del paciente
+
+-   Problema principal
+
+-   Historia resumida
+
+-   Hallazgos relevantes
+
+-   Diagnósticos diferenciales
+
+-   Diagnóstico final (o, en su defecto, sospecha diagnóstica al momento de la derivación)
+
+-   Decisión de manejo/derivación (nueva — nivel de manejo asignado, especialidad de destino si aplica, urgencia, justificación)
+
+-   Evidencia
+
+-   Tratamiento (el administrado en atención primaria, si el caso fue derivado)
+
+-   Evolución
+
+-   Pronóstico
+
+-   Lecciones aprendidas
+
+-   Nivel de calidad
+
+7. Metadata
+
+Cada caso almacenará: Código, Fecha, Especialidad/sistema comprometido, Especie, Raza, Edad, Sexo, País, Idioma, Versión, Nivel de manejo asignado, Especialidad de destino (si hubo derivación), Resultado de la derivación conocido (Sí/No).
+
+8. Resumen Clínico
+
+Claude generará automáticamente un resumen estructurado, máximo dos páginas. Este resumen será el principal elemento utilizado por el motor de búsqueda. En casos derivados, el resumen debe dejar explícito, en la primera línea, si el caso fue resuelto en atención primaria o derivado, y a qué especialidad — un colega que busca precedentes de derivación necesita encontrar esto de inmediato, sin leer todo el resumen.
+
+9. Hallazgos Relevantes
+
+Organizados por: Historia, Exploración física, Laboratorio, Imagen, Histopatología, Tratamiento, Seguimiento.
+
+10. Diagnóstico
+
+La Base almacenará: Diagnóstico principal, Diagnósticos secundarios, Diagnósticos descartados, Nivel de confianza. Cuando el caso fue derivado antes de alcanzar diagnóstico definitivo, este campo se completará como "Sospecha diagnóstica al momento de la derivación", sin forzar un diagnóstico final que el sistema nunca llegó a confirmar.
+
+11. Evidencia Clínica
+
+Cada diagnóstico (o sospecha diagnóstica) deberá tener asociada su evidencia. Ejemplo: Enteropatía Inflamatoria → Biopsia compatible → Respuesta al tratamiento → Ecografía compatible → Hipoalbuminemia.
+
+12. Tratamientos
+
+Cada tratamiento registrará: Inicio, Fin, Objetivo, Resultado, Complicaciones. En casos derivados, se registrará únicamente el manejo de atención primaria administrado antes o durante la espera de la derivación — no un tratamiento especializado que el sistema no indicó.
+
+13. Evolución
+
+Se almacenará una narrativa longitudinal, no únicamente fechas. Claude resumirá: cómo evolucionó, qué cambió, qué aprendimos. Si el caso fue derivado y no se conoce el desenlace posterior, la narrativa se detiene honestamente en el punto de la derivación, sin inventar una evolución posterior.
+
+14. Clinical Lessons Learned ⭐⭐⭐⭐⭐
+
+Claude deberá responder: ¿qué enseñó este caso? Ejemplos:
+
+Caso resuelto en atención primaria: "En pacientes caninos jóvenes con diarrea crónica y buena respuesta a la primera semana de dieta de eliminación, la intolerancia alimentaria fue la causa más frecuente y no ameritó estudios adicionales."
+
+Caso derivado (nuevo tipo de lección, propio de ICIS): "En pacientes felinos con pérdida de peso progresiva y hallazgos de colon comprometido, la ausencia de mejoría tras dos semanas de manejo dietario fue el punto en que la derivación a gastroenterología, en retrospectiva, debió haberse hecho antes — este patrón ayuda a calibrar el umbral de espera en casos similares."
+
+15. Pitfalls
+
+Toda Knowledge Unit deberá incluir errores potenciales a evitar. Ejemplo: "No asumir que toda hipoalbuminemia corresponde a enteropatía perdedora de proteínas sin descartar origen renal o hepático." Para casos derivados: "No demorar la derivación intentando confirmar un diagnóstico que, por definición, requiere el equipamiento o la interpretación del especialista."
+
+16. Red Flags
+
+Hallazgos críticos registrados en el caso. Ejemplo: pérdida rápida de peso, melena, hipoproteinemia severa, ascitis, dificultad respiratoria, deterioro hemodinámico. Cuando una bandera roja documentada en este caso provino de un documento de banderas rojas por sistema de la Base de Conocimiento, se referenciará explícitamente cuál, para reforzar la trazabilidad entre el criterio usado y la fuente que lo sustenta.
+
+17. Outcome
+
+Cada caso finalizará con un resultado. Categorías: Recuperación, Remisión, Control, Crónico, Recaída, Fallecimiento, Desconocido, Derivado — resultado confirmado por especialista, Derivado — resultado desconocido (dos categorías nuevas, indispensables porque una proporción importante de los casos de ICIS terminarán aquí y no en una de las categorías originales).
+
+18. Similarity Tags
+
+Cada caso será etiquetado automáticamente. Ejemplo: Perro, Labrador, Vómito crónico, Pérdida de peso, Hipoalbuminemia, Derivado-Gastroenterología (nuevo tipo de etiqueta), Manejo-Atención-Primaria (nuevo tipo de etiqueta), Biopsia, Prednisolona, Dieta Hidrolizada.
+
+19. Clinical Ontology
+
+Toda la Base utilizará una terminología controlada, aplicada a todos los sistemas, no solo al gastrointestinal. Ejemplo: no almacenar "vomita" / "sigue vomitando" / "emesis" / "vómitos" — todo se normaliza como Vómito. El mismo principio aplica a terminología cardiológica, dermatológica, ortopédica, etc. Esto mejora enormemente la búsqueda.
+
+20. Knowledge Quality Score
+
+Cada caso tendrá un puntaje de calidad. Variables: número de consultas, seguimiento, biopsia, imagen, laboratorio, diagnóstico confirmado, tiempo de evolución. Ejemplo: Knowledge Score 96% — Alta calidad.
+
+Para casos derivados (regla nueva): la ausencia de "diagnóstico confirmado" no penalizará automáticamente el puntaje de calidad. En su lugar, se evaluará la calidad de la decisión de derivación: ¿la especialidad elegida fue coherente con los diferenciales?, ¿la urgencia asignada fue razonable?, ¿la pregunta clínica planteada al especialista fue específica? Un caso derivado con una decisión bien justificada puede tener la misma calidad que un caso resuelto con diagnóstico confirmado.
+
+21. Knowledge Validation Engine
+
+Antes de incorporar un caso, Claude verificará: ¿existe diagnóstico o decisión de manejo/derivación documentada?, ¿existe evolución (o, si fue derivado, el punto hasta donde se conoce)?, ¿hay seguimiento?, ¿existe evidencia?, ¿las fechas son consistentes?, ¿hay contradicciones?
+
+22. Knowledge Matching Engine
+
+Cuando se analice un nuevo paciente, Claude comparará automáticamente: edad, especie, raza, laboratorio, imagen, diagnóstico (o sospecha diagnóstica), tratamiento, evolución, y nivel de manejo/especialidad de destino en casos similares (nuevo — permite responder "¿casos parecidos a este terminaron derivándose, y a dónde?", que es una de las consultas más valiosas que un colega de atención primaria puede hacerle a la Base). No realizará búsqueda textual. Realizará búsqueda clínica.
+
+23. Teaching Mode
+
+Toda Knowledge Unit podrá convertirse automáticamente en un caso docente. El sistema ocultará diagnóstico, tratamiento y resultado, presentando el caso paso a paso para fines educativos. En Knowledge Units derivadas, la pregunta docente central puede ser, en lugar de "¿cuál es el diagnóstico?": "¿este caso amerita derivación, a qué especialidad, y con qué urgencia?" — reforzando específicamente la habilidad de triage, que es la competencia distintiva de un médico de atención primaria.
+
+24. Research Mode
+
+En el futuro, la Base permitirá encontrar todos los casos con combinaciones específicas de hallazgos, diagnóstico y tratamiento (ejemplo: hipoalbuminemia + enteropatía perdedora de proteínas + raza específica + respuesta a un fármaco determinado). También permitirá análisis específicos de ICIS, como: todos los casos con un signo de presentación dado que terminaron derivados a una especialidad concreta, o el tiempo promedio transcurrido entre la primera consulta y la derivación por sistema comprometido.
+
+25. Governance
+
+Todos los casos deberán: mantener anonimización cuando corresponda, conservar versiones, registrar fecha de actualización, permitir auditoría.
+
+Architecture Decisions
+
+AD-018 — Knowledge Unit Architecture: la unidad mínima de conocimiento será el caso clínico completo, no un documento ni una consulta aislada.
+
+AD-019 — Clinical Similarity Search: la similitud entre casos se calculará mediante múltiples dimensiones clínicas y no por coincidencias textuales.
+
+AD-020 — Lessons Learned Engine: todo caso deberá generar automáticamente una sección de Lecciones Aprendidas, convirtiendo la experiencia clínica en conocimiento explícito.
+
+AD-021 — Knowledge Quality Score: solo los casos que superen un umbral mínimo de calidad podrán utilizarse para apoyar el razonamiento diagnóstico de nuevos pacientes.
+
+AD-022 — Continuous Learning Repository: la Base de Conocimiento será un sistema vivo. Cada caso cerrado (o derivado) incrementará automáticamente el conocimiento disponible para el sistema, sin modificar ni sobrescribir los casos originales.
+
+AD-023 — Clinical Pattern Discovery Engine ⭐⭐⭐⭐⭐
+
+Además de recuperar casos similares, ICIS analizará periódicamente toda la Base de Conocimiento para descubrir patrones emergentes. Ejemplos: razas con mayor respuesta a determinadas dietas, biomarcadores asociados a mejor pronóstico, combinaciones de hallazgos que preceden a una recaída, factores asociados a remisión sostenida, hallazgos con mayor valor predictivo, estrategias terapéuticas con mejores resultados según perfil del paciente, y patrones de derivación: qué combinaciones de signos, en qué razas o edades, terminan derivándose con mayor frecuencia a cada especialidad, y si existen demoras sistemáticas en el reconocimiento de ciertos cuadros. Estos patrones no sustituirán la evidencia científica, pero podrán generar hipótesis clínicas, orientar investigaciones futuras y ayudar al médico de atención primaria a calibrar mejor sus propios umbrales de derivación con el tiempo.
+
+AD-026 — Referral Knowledge Capture (nueva)
+
+Una Knowledge Unit que termina en derivación, sin diagnóstico definitivo ni desenlace conocido, no es un caso incompleto ni de menor valor — es el tipo de conocimiento más característico y más valioso que puede producir un sistema de atención primaria, precisamente porque documenta la habilidad que más distingue a un buen médico general: reconocer a tiempo cuándo un caso ya no le corresponde. El sistema nunca deberá tratar estos casos como "pendientes" o de segunda categoría frente a los que llegan a cierre completo.

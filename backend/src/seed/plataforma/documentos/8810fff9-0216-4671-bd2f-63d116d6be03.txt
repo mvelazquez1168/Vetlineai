@@ -1,0 +1,120 @@
+DIAGNÓSTICO Y MONITOREO GESTACIONAL EN LA PERRA — DATACIÓN, BIOMETRÍA FETAL Y EVALUACIÓN DE MADUREZ
+
+Resumen clínico de referencia para RCIS. Componentes que lo consumen: CC-233 (Gestational Monitoring Intelligence), CC-220 (Imaging Intelligence, extensión gestacional), CC-234 (Dystocia & Delivery Decision Engine), CC-004 (Clinical Timeline, eventos proyectados).
+
+Documento complementario de "Ciclo Estral Canino y Monitoreo de Progesterona", que cubre la datación desde la ovulación. Aquí se aborda qué hacer cuando esa datación no está disponible o debe confirmarse.
+
+---
+
+1. EL PROBLEMA CENTRAL
+
+Cuando la fecha de ovulación es conocida, la gestación se predice con buena precisión (63 ± 1 día) y el seguimiento ecográfico cumple una función de vigilancia. Cuando no lo es —el escenario clínico frecuente, con montas repetidas o fechas imprecisas—, la ecografía pasa a ser el instrumento de datación, y su precisión varía sustancialmente según el parámetro elegido y el momento en que se mide.
+
+De ahí la regla operativa que atraviesa este documento: no existe un parámetro único válido para toda la gestación. Cada uno tiene una ventana en la que es preciso y fuera de la cual deja de serlo.
+
+2. DIAGNÓSTICO DE GESTACIÓN
+
+La ecografía permite confirmar gestación aproximadamente desde los días 19 a 21 posteriores al pico de LH, cuando se detecta la vesícula embrionaria. La actividad cardíaca fetal aparece hacia los días 21–22 y el movimiento fetal hacia los días 31–32. En la gata, la identificación del polo fetal es posible algo más temprano en términos relativos.
+
+Además de confirmar, la ecografía temprana permite estimar edad gestacional y, desde los días 25–26, evaluar viabilidad y detectar signos de sufrimiento fetal.
+
+La radiografía no sirve para diagnóstico temprano: el esqueleto fetal comienza a calcificar hacia el día 28 pero no es detectable de forma confiable hasta los días 42–45, y resulta claramente visible hacia los días 47–48.
+
+3. DATACIÓN POR BIOMETRÍA — QUÉ MEDIR Y CUÁNDO
+
+Estructuras extrafetales
+
+Cavidad coriónica interna (ICC). Es el parámetro extraembrionario más preciso en gestación temprana. Útil aproximadamente desde los días 17–18 hasta el día 37 posovulación, con máxima exactitud entre los días 20 y 25. En hembras pequeñas y medianas alcanza 64–91% de exactitud dentro de ± 1 día; en grandes, 85–88% dentro de ± 2 días.
+
+Diámetro uterino externo (OUD). Menos confiable, porque sus puntos de medición no están bien definidos.
+
+Grosor placentario. Correlaciona positivamente con la edad gestacional con independencia de raza y peso. La longitud de la placenta zonaria, en cambio, no muestra correlación significativa en razas pequeñas.
+
+Estructuras fetales
+
+Longitud cráneo-rabadilla (CRL). Medible entre los días 26 y 45 posteriores al pico de LH; después el feto se flexiona y la medición pierde exactitud. Óptima hacia el día 30.
+
+Diámetro corporal (BD). Desde el día 26, con mejor exactitud hacia el día 30. Se mide en el corte transversal de mayor sección, incluyendo hígado y estómago.
+
+Diámetro biparietal (BP). El parámetro fetal más preciso en gestación avanzada. Identificable desde el día 30, mejor visualizado tras el día 35. Buena exactitud en las semanas 5 y 6 (95.2% y 88.4% dentro de ± 2 días) y aceptable hasta la semana 8.
+
+Advertencia clínica relevante: el BP no debe usarse en la última semana para programar una cesárea. Su exactitud cae a 50.9% dentro de ± 1 día y 69.8% dentro de ± 2 días, con variabilidad alta entre fetos de una misma camada.
+
+Vesícula diencéfalo-telencefálica (DPTV). Visualizable de 30 a 7 días antes del parto, con mejor consistencia a 7 días. Exactitud 42.9% dentro de ± 1 día, 62% dentro de ± 2.
+
+Longitud renal fetal. Correlación fuerte con edad gestacional; el mejor período de monitoreo se sitúa entre 15 y 11 días antes del parto.
+
+Combinación recomendada
+
+La única secuencia de parámetros validada de forma consistente es ICC en gestación temprana seguida de BP en gestación avanzada. Las mediciones deben realizarse en al menos dos fetos ubicados en ambos cuernos uterinos; en gestaciones de feto único conviene emplear múltiples parámetros.
+
+Efecto del tamaño materno. En hembras muy pequeñas (≤10 kg) y gigantes (>40 kg), el peso materno afecta la exactitud de ICC, CRL y BD. Existen fórmulas específicas por clase de peso, y también fórmulas raciales para algunas razas concretas, aunque la mayoría carece de exactitud publicada, por lo que su recomendación clínica generalizada aún no está establecida. El tamaño de camada no afecta a ICC, CRL ni BD.
+
+4. VIABILIDAD Y SUFRIMIENTO FETAL
+
+La frecuencia cardíaca fetal (FCF) evaluada con Doppler pulsado es el indicador operativo de bienestar:
+
+Por encima de 220 lpm: normal.
+Entre 180 y 220 lpm: sufrimiento fetal moderado.
+Por debajo de 180 lpm: sufrimiento fetal grave.
+Por debajo de 160 lpm: se requiere intervención.
+Por debajo de 130 lpm: los fetos deben extraerse en un plazo de 1 a 2 horas.
+Por debajo de 100 lpm: mortalidad alta si no se extraen de inmediato.
+
+Esta escala es la entrada principal que CC-233 aporta a CC-234 durante el trabajo de parto.
+
+Patrón normal a lo largo de la gestación: la FCF y la relación feto-materna aumentan desde unos 35 días antes del parto, alcanzan su máximo alrededor de 20 días antes, y descienden progresivamente en el preparto. En los últimos 5 días aparecen desaceleraciones transitorias seguidas de aceleraciones, atribuidas a contracciones uterinas.
+
+Doppler de arteria umbilical. El índice de resistencia (RI) aporta información sobre proximidad al parto y sufrimiento temprano: cuando todos los fetos muestran RI menor a 0.7, el parto normal es probable dentro de 12 horas. Combinado con una variación de frecuencia cardíaca superior al 30%, la predicción de parto en 12 horas alcanza 95% de sensibilidad y 80% de especificidad.
+
+5. CONTEO FETAL
+
+La radiografía tardía (más allá del día 55) es el mejor método para determinar el tamaño de la camada.
+
+Es un dato con consecuencia directa: sin conteo fetal no se puede saber si un parto está completo. Su ausencia antes del parto debe tratarse como faltante crítico, no como estudio opcional. La ecografía tiende a subestimar el número de fetos y no lo sustituye para este fin.
+
+6. MADUREZ FETAL Y CESÁREA ELECTIVA
+
+El objetivo de la datación no es solo predecir el parto, sino evitar dos errores opuestos: una cesárea prematura con fetos inmaduros, y una espera excesiva en una gestación que ya superó el término.
+
+Madurez pulmonar. Los neumocitos tipo I y II se desarrollan entre los días 48 y 57. Se postula que la producción de surfactante comienza en la fase sacular, del día 57 al 60, de modo que a partir del día 57 el pulmón fetal sería teóricamente apto para la vida extrauterina. La relación pulmón-hígado de nivel medio de gris ha mostrado 83% de sensibilidad y especificidad, pero todavía no permite por sí sola programar una cesárea.
+
+Motilidad gastrointestinal fetal. Es el marcador de madurez más aplicable hoy. El área intestinal se visualiza como región homogéneamente ecogénica entre los días 40 y 44; la pared intestinal se identifica entre los días 44 y 48; y entre los días 50 y 54 aparece la primera motilidad, que en ese momento requiere observación prolongada de al menos un minuto. Entre los días 59 y 62 todas las capas de la pared son visibles y el peristaltismo se observa en pocos segundos. En los últimos 4 a 1 días previos al parto la motilidad se detecta con rapidez a lo largo de todo el tracto.
+
+Dato correlacionado: la presencia de motilidad gastrointestinal fetal confirma que el desarrollo renal está completo.
+
+Criterio operativo. La combinación de progesterona preparto con marcadores ecográficos de madurez es hoy el abordaje más sólido para programar una cesárea electiva. El uso de parámetros ecográficos sin determinación paralela de progesterona está desaconsejado cuando el día de ovulación es desconocido: la ecografía sola no basta para fijar la fecha del parto.
+
+7. ERRORES FRECUENTES
+
+Datar con un parámetro fuera de su ventana de validez, en particular usar BP en la última semana para decidir una cesárea.
+
+Medir un solo feto. Se requieren al menos dos, en cuernos distintos.
+
+Omitir el conteo fetal radiográfico y descubrir su ausencia durante el parto.
+
+Aplicar fórmulas de tamaño medio a hembras miniatura o gigantes sin corrección.
+
+Usar ecografía sin progesterona cuando la ovulación es desconocida.
+
+Interpretar una FCF baja de un solo feto sin repetir la medición ni comparar con el resto de la camada: se recomiendan mediciones repetidas en la misma sesión y comparación entre fetos.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnica quirúrgica y anestésica de la cesárea. Manejo de la pérdida gestacional y del aborto. Gestación de término prolongado y su manejo. Interrupción farmacológica de la gestación. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS.
+
+FUENTES
+
+Siena G, Milani C. Usefulness of Maternal and Fetal Parameters for the Prediction of Parturition Date in Dogs. Animals 2021;11(3):878. DOI 10.3390/ani11030878. Licencia CC BY. Fuente principal de las secciones 3, 4 y 6.
+
+Lopate C. Gestational Aging and Determination of Parturition Date in the Bitch and Queen Using Ultrasonography and Radiography. Vet Clin North Am Small Anim Pract 2018;48:617–638.
+
+Merck Veterinary Manual — Pregnancy Determination in Bitches and Queens.
+
+Beccaglia M, Alonge S, Trovò C, Luvoni GC. Determination of gestational time and prediction of parturition in dogs and cats: an update. Reprod Domest Anim 2016;51:12–17.
+
+Gil EM, Garcia DA, Froes TR. In utero development of the fetal intestine: sonographic evaluation and correlation with gestational age and fetal maturity in dogs. Theriogenology 2015;84:681–686.
+
+Giannico AT y col. The use of Doppler evaluation of the canine umbilical artery in prediction of delivery time and fetal distress. Anim Reprod Sci 2015;154:105–112.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -1,0 +1,118 @@
+DEMODICOSIS Y SARNA SARCÓPTICA EN PERROS Y GATOS — DIAGNÓSTICO Y TRATAMIENTO
+
+Resumen clínico de referencia para DCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico), y los componentes de citología y raspado de DCIS.
+
+---
+
+1. POR QUÉ VAN JUNTOS Y POR QUÉ HAY QUE SEPARARLOS
+
+Ambas son dermatosis parasitarias pruriginosas que comparten opciones terapéuticas, lo que lleva a tratarlas como si fueran el mismo problema. No lo son, y la diferencia con mayor consecuencia clínica es esta: **en demodicosis los corticoides están contraindicados**, mientras que en sarna sarcóptica el manejo del prurito es parte del tratamiento.
+
+Confundirlas en esa dirección —dar corticoides a un paciente con demodicosis por asumir cuadro alérgico o sarcóptico— agrava el cuadro.
+
+2. DEMODICOSIS — QUÉ ES
+
+Enfermedad causada por la proliferación excesiva de ácaros del género Demodex. Es común en la práctica de pequeños animales en todo el mundo, con variedad de opciones diagnósticas y terapéuticas.
+
+Clasificación en dos ejes, y ambos importan para la conducta:
+
+Por edad de inicio: juvenil o del adulto.
+Por extensión de las lesiones: localizada o generalizada.
+
+La demodicosis de inicio adulto debe disparar la búsqueda de enfermedad sistémica subyacente. Además, los casos de inicio adulto pueden tardar más en resolver por completo que los juveniles. El pronóstico de la forma generalizada es impredecible por su relación potencial con enfermedad sistémica; algunos casos resuelven espontáneamente.
+
+3. DEMODICOSIS — DIAGNÓSTICO
+
+El método estándar es el raspado cutáneo profundo. Los tricogramas y las preparaciones por compresión con cinta pueden ser útiles en determinadas circunstancias.
+
+El matiz interpretativo que más importa: **los ácaros Demodex son organismos comensales normales**. La observación de un único ácaro en un raspado profundo puede ser un hallazgo normal, aunque poco frecuente. Un solo ácaro no establece el diagnóstico por sí mismo; el cuadro clínico compatible es indispensable.
+
+En el gato. El diagnóstico se hace con raspado superficial para Demodex gatoi y profundo para Demodex cati. El número de ácaros suele ser pequeño, especialmente con D. gatoi, lo que hace que los falsos negativos sean esperables.
+
+Los cultivos para dermatofitos son esenciales en el gato con demodicosis, porque dermatofitosis y demodicosis pueden ser condiciones concomitantes. La evaluación médica general está indicada en gatos con enfermedad generalizada.
+
+4. DEMODICOSIS — TRATAMIENTO
+
+El amitraz, las lactonas macrocíclicas y, más recientemente, las isoxazolinas han demostrado buena eficacia en demodicosis canina. La selección terapéutica debe guiarse por la legislación farmacéutica local, la disponibilidad de medicamentos y los parámetros del caso individual.
+
+Esa última frase es importante para un agente que opera en Latinoamérica: la disponibilidad y el registro de moléculas varía por país, y la recomendación debe declararlo en vez de asumir el escenario europeo o norteamericano.
+
+Lactonas macrocíclicas — consenso WAVD
+
+La guía de consenso clínico de la World Association of Veterinary Dermatology establece como terapias efectivas para demodicosis canina: ivermectina oral a 0.3–0.6 mg/kg diarios, moxidectina a 0.3–0.5 mg/kg diarios, oxima de milbemicina a 1.0–2.0 mg/kg diarios, y doramectina inyectada por vía subcutánea semanalmente a 0.6 mg/kg.
+
+Advertencia de seguridad del mismo consenso: se recomienda un incremento gradual inicial de la dosis para moxidectina e ivermectina sistémicas, con el fin de identificar perros sensibles a las toxicosis inducidas por esas lactonas macrocíclicas.
+
+La moxidectina/imidacloprid tópica debe considerarse para casos leves a moderados.
+
+Isoxazolinas
+
+Se han convertido en el tratamiento preferido para la demodicosis generalizada, tanto de inicio juvenil como del adulto. Sus ventajas son la facilidad de administración y la certeza de alcanzar todas las áreas corporales.
+
+Moléculas y frecuencia: afoxolaner, lotilaner y sarolaner con administración mensual; fluralaner cada 12 semanas. La dosis y frecuencia son las mismas que las indicadas en etiqueta para control de pulgas y garrapatas.
+
+Situación regulatoria: en muchos países la demodicosis no es una indicación aprobada y el uso es extraetiqueta; en Europa, sarolaner, afoxolaner y fluralaner están aprobados para esta indicación. Los únicos productos con registro para demodicosis generalizada en la mayoría de los países se basan en amitraz o en la combinación imidacloprid-moxidectina.
+
+Reglas de manejo que no se negocian
+
+Los corticoides locales y sistémicos están contraindicados en todo paciente diagnosticado con demodicosis.
+
+Las infecciones bacterianas secundarias deben tratarse de forma agresiva con un antimicrobiano apropiado.
+
+La terapia antiparasitaria debe continuarse no solo hasta que los signos clínicos remitan, sino hasta obtener **al menos dos raspados cutáneos negativos consecutivos con un mes de intervalo**. Suspender por mejoría clínica es la causa evitable más común de recaída.
+
+Demodicosis felina. Los baños semanales con azufre de cal al 2% fueron el tratamiento más común y se consideran seguros y habitualmente efectivos; las isoxazolinas transdérmicas más recientes han demostrado efectividad y son hoy el tratamiento preferido.
+
+5. SARNA SARCÓPTICA
+
+Tratamiento. Las isoxazolinas se han convertido en el tratamiento de elección, empleadas a la dosis de etiqueta. Los preventivos de dirofilaria con oxima de milbemicina también han demostrado eficacia a la dosis etiquetada.
+
+Advertencia: la ivermectina oral a dosis alta no se recomienda; se asocia a fallo terapéutico y a toxicidad en perros sensibles.
+
+Duración basada en el ciclo del ácaro. El ciclo se completa en tres semanas, de adulto a adulto productor de huevos. Por eso se recomienda mantener la mayoría de los productos durante 30 a 60 días, para asegurar que cada generación de ácaros que eclosiona sea eliminada. Se espera que una dosis única elimine los adultos existentes, y que los ácaros mueran rápidamente tras eclosionar si la aplicación es consistente y repetida según etiqueta.
+
+Criterio de alta: continuar hasta dos raspados negativos separados por 2 a 4 semanas.
+
+El azufre de cal es principalmente un tratamiento histórico, de uso menos frecuente desde la disponibilidad de las opciones anteriores.
+
+Infección bacteriana secundaria. Igual que en demodicosis, el tratamiento antibacteriano puede estar indicado.
+
+6. ERRORES FRECUENTES
+
+Administrar corticoides a un paciente con demodicosis.
+
+Diagnosticar demodicosis por el hallazgo de un único ácaro sin cuadro clínico compatible.
+
+Descartar demodicosis felina por raspado negativo, especialmente ante sospecha de D. gatoi.
+
+No buscar enfermedad sistémica subyacente en demodicosis de inicio adulto.
+
+Suspender el tratamiento por resolución clínica sin los dos raspados negativos.
+
+Usar ivermectina a dosis alta en sarna sarcóptica.
+
+Iniciar lactonas macrocíclicas sistémicas sin escalado gradual de dosis.
+
+Recomendar una molécula sin considerar su disponibilidad y registro en el país del paciente.
+
+No investigar dermatofitosis concomitante en el gato con demodicosis.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnica del raspado cutáneo profundo y sus fuentes de error. Otras ectoparasitosis: Cheyletiella, Otodectes, trombiculiasis, piojos. Dermatitis alérgica por picadura de pulga. Sensibilidad a lactonas macrocíclicas y su base genética. Manejo del prurito en sarna sarcóptica. Contagio a humanos y manejo del ambiente. Estos temas quedan como vacíos declarados de la Base de Conocimiento de DCIS.
+
+FUENTES
+
+Mueller RS y col. Diagnosis and treatment of demodicosis in dogs and cats: Clinical Consensus Guidelines of the World Association for Veterinary Dermatology. Vet Dermatol 2020. Fuente principal de las secciones 3 y 4, incluida la Declaración de Consenso 10.
+
+Merck Veterinary Manual — Mange in Dogs and Cats. Fuente de las reglas de manejo y del apartado felino.
+
+Isoxazolines for treating canine demodicosis, sarcoptic mange (scabies), and lice infestation. PubMed 36325416.
+
+Treatment and Management of Canine Mange. Fuente de la sección 5.
+
+Efficacy of oral fluralaner for the treatment of canine generalized demodicosis: a molecular-level confirmation. PMC6537169.
+
+A European field assessment of the efficacy of fluralaner chewable and spot-on formulations for treatment of dogs with generalized demodicosis. PMC7291464.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

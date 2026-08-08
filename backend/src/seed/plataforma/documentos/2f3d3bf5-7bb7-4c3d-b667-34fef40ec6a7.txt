@@ -1,0 +1,113 @@
+PATOLOGÍA PROSTÁTICA CANINA — HIPERPLASIA BENIGNA, PROSTATITIS Y QUISTES
+
+Resumen clínico de referencia para RCIS. Componentes que lo consumen: CC-237 (Prostatic Assessment Intelligence), CC-236 (Andrology & Semen Analysis Intelligence, por el impacto sobre la fertilidad), CC-305 (Reproductive Pharmacotherapy), CC-220 (Imaging Intelligence).
+
+Alcance: hiperplasia prostática benigna, prostatitis y quistes prostáticos y paraprostáticos. La neoplasia prostática queda explícitamente fuera del alcance de RCIS — se documenta y se escala a ICIS para derivación a OCIS. Ver AD-RCIS-03.
+
+---
+
+1. POR QUÉ LA PRÓSTATA ES UN PROBLEMA REPRODUCTIVO
+
+La patología prostática pertenece a RCIS y no a urología por una razón fisiopatológica, no organizativa: es una condición dependiente del estado hormonal reproductivo. Aparece en machos enteros, se relaciona con el equilibrio andrógenico, la castración la resuelve, y su tratamiento en un reproductor está condicionado por la necesidad de preservar la fertilidad.
+
+La hiperplasia prostática benigna (HPB) es el trastorno prostático más frecuente en el macho entero de edad avanzada, y su prevalencia aumenta con la edad.
+
+2. FISIOPATOLOGÍA DE LA HPB
+
+La condición se caracteriza por proliferación del tejido prostático y aumento del volumen celular. La presentación clínica depende de factores hormonales y está marcada por un desequilibrio en la relación testosterona/dihidrotestosterona (DHT): reducción de la concentración de testosterona junto con elevación de DHT.
+
+3. PRESENTACIÓN CLÍNICA — TRES DOMINIOS SIMULTÁNEOS
+
+El rasgo que define el reconocimiento de esta patología es que compromete tres territorios a la vez, y el motivo de consulta puede provenir de cualquiera de ellos:
+
+Digestivo: tenesmo y constipación, por compresión rectal.
+Urinario: hematuria.
+Reproductivo: descarga uretral, alteración de la calidad seminal, subfertilidad.
+
+Un macho entero que consulta por tenesmo es un caso prostático hasta que se demuestre lo contrario, y esa es exactamente la razón por la que ICIS debe contemplar RCIS como destino de derivación ante signos urinarios bajos en un macho entero.
+
+4. EL HALLAZGO QUE MÁS CAMBIA LA INTERPRETACIÓN
+
+Históricamente el tamaño prostático se consideró el rasgo distintivo de la HPB. La evidencia actual muestra una correlación débil entre el tamaño de la próstata y la severidad clínica.
+
+Consecuencia para CC-237: no se debe inferir gravedad a partir del volumen. Una próstata marcadamente aumentada puede cursar con signos leves, y una moderadamente aumentada puede producir signos severos. El componente debe razonar sobre signos y hallazgos, no sobre tamaño.
+
+5. DIAGNÓSTICO
+
+Palpación rectal. Debe realizarse al menos una vez al año en todo macho, incluidos los castrados, dado el riesgo de lesiones neoplásicas. Se evalúan tamaño, consistencia y simetría de los dos lóbulos. La maniobra se facilita elevando el tren anterior del animal y usando la mano libre bajo el abdomen para aproximar la glándula al dedo explorador.
+
+Observación de la práctica real: en un estudio retrospectivo, la exploración rectal no se realizó en una proporción notable de casos diagnosticados clínicamente como HPB, y cuando se realizó, la mayoría de las descripciones fueron incompletas. Lo mismo ocurrió con la ecografía: muchos informes se limitaron a consignar una impresión general en vez de describir la ecotextura. Esto significa que un expediente prostático suele llegar incompleto, y CC-237 debe pedir explícitamente lo que falta antes de interpretar.
+
+Ecografía. Permite medir el tamaño y compararlo con el esperado según edad y peso del paciente, y describir la ecotextura. Es el estudio con mayor rendimiento y debe informarse de forma estructurada.
+
+Diagnóstico definitivo. Requiere evaluación histológica de una biopsia prostática o evaluación citológica de un aspirado con aguja fina del parénquima o de un quiste intraprostático.
+
+Diagnósticos diferenciales de prostatomegalia: prostatitis y neoplasia prostática.
+
+Otros: marcadores séricos como el CPSE (esterasa específica prostática canina) han sido incorporados a la evaluación; el urianálisis y el cultivo aportan al diagnóstico de infección concurrente. La bacteriuria concurrente es un hallazgo a buscar activamente, no incidental.
+
+6. PROSTATITIS
+
+Puede presentarse de forma concurrente con la HPB, y la distinción tiene consecuencias terapéuticas directas. La forma aguda cursa con signos sistémicos y dolor; la crónica puede ser silente y manifestarse como infección urinaria recurrente o subfertilidad.
+
+La sospecha de prostatitis obliga a documentar el cultivo antes de instaurar antimicrobianos, y a considerar la penetración prostática del fármaco elegido.
+
+7. TRATAMIENTO
+
+En machos no destinados a reproducción ni exposición
+
+La castración es el tratamiento de elección. La involución prostática suele ser evidente en pocas semanas y con frecuencia completa en varios meses.
+
+En machos reproductores — el escenario propio de RCIS
+
+Aquí la castración quirúrgica o química, aunque efectiva, resulta inadecuada porque cesa la capacidad reproductiva de forma permanente o temporal. El objetivo del tratamiento médico es reducir el volumen prostático, aliviar los signos clínicos y evitar la intervención quirúrgica.
+
+Una revisión sistemática de los tratamientos médicos publicados en las últimas dos décadas, evaluados específicamente por su capacidad de preservar la función reproductiva, concluye:
+
+Finasterida y acetato de osaterona son las moléculas más estudiadas y las adecuadas para perros reproductores, aunque su efecto sobre la calidad seminal sigue siendo materia de discusión.
+
+Tamoxifeno y acilina mostraron impacto negativo sobre la función reproductiva o la calidad seminal, y no se recomiendan en perros reproductores.
+
+Otras opciones evaluadas incluyen tadalafilo, anastrozol, mepartricina y preparados de origen vegetal, con menor volumen de evidencia.
+
+La terapia con campo electromagnético pulsado produjo una reducción sustancial del volumen prostático sin alterar la calidad seminal, las concentraciones de testosterona ni la libido.
+
+Regla para CC-305: toda recomendación farmacológica sobre próstata debe declarar si el paciente está destinado a reproducción, porque esa variable —y no la severidad— es la que determina la opción terapéutica.
+
+8. FRONTERAS
+
+Con UCIS. Un macho entero con signos urinarios bajos requiere que la próstata se evalúe como diferencial antes de concluir que el cuadro es puramente urinario. Si tras esa evaluación la próstata queda descartada, el caso se escala de vuelta a ICIS para su redirección a UCIS. RCIS no deriva lateralmente.
+
+Con OCIS. Ante sospecha de neoplasia prostática: se documentan los hallazgos, se señala el escalamiento a ICIS, y no se propone conducta oncológica. La presencia de patología prostática en un macho castrado eleva la sospecha de neoplasia, dado que la HPB es propia del entero.
+
+9. ERRORES FRECUENTES
+
+Inferir severidad del tamaño prostático.
+
+Interpretar un caso prostático sin declarar si el paciente es entero o castrado.
+
+Instaurar antimicrobianos sin cultivo ante sospecha de prostatitis.
+
+Recomendar castración por defecto sin preguntar si el animal es reproductor.
+
+Aceptar un informe ecográfico que solo dice "próstata aumentada" sin ecotextura ni medición comparada con la esperada.
+
+Atribuir el tenesmo a causa digestiva primaria en un macho entero de edad avanzada.
+
+10. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Neoplasia prostática, fuera del alcance de RCIS. Abscesos prostáticos y su manejo quirúrgico. Técnicas de drenaje y omentalización. Protocolos antimicrobianos detallados con dosis. Prostatitis en el gato. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS.
+
+FUENTES
+
+Posastiuc FP, Constantin NT, Domain G, Van Soom A, Diaconescu AI, Codreanu MD. A Systematic Review of Medical Treatments for Benign Prostatic Hyperplasia in Dogs: Evaluating Strategies for Reproductive Function Preservation. Vet Sci 2025;12(1):70. DOI 10.3390/vetsci12010070. Licencia CC BY. Fuente principal de la sección 7.
+
+A retrospective review of canine benign prostatic hyperplasia with and without prostatitis. PMC8782267. Fuente de las secciones 4 y 5.
+
+Derakhshandeh N, Mogheiseh A, Nazifi S. Diagnosis and Treatment of Benign Prostatic Hyperplasia in Dogs: New Approaches. Vet Med Int 2025;4153172. DOI 10.1155/vmi/4153172.
+
+Merck Veterinary Manual — Benign Prostatic Hyperplasia in Dogs.
+
+Society for Theriogenology / dvm360 — Canine breeding soundness examination of the stud, sobre exploración rectal prostática.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -1,0 +1,111 @@
+CUERPO EXTRAÑO Y OBSTRUCCIÓN GASTROINTESTINAL — DIAGNÓSTICO POR IMAGEN Y DECISIÓN QUIRÚRGICA
+
+Resumen clínico de referencia para GCIS. Componentes que lo consumen: CC-220 (imagenología), CC-240 (correlación diagnóstica), CC-201/202/203 (laboratorio y equilibrio ácido-base).
+
+Documento complementario del de vómito agudo, cuya advertencia central —el maropitant puede enmascarar una obstrucción— depende de este.
+
+---
+
+1. POR QUÉ ES UNA URGENCIA DE DECISIÓN
+
+La obstrucción por cuerpo extraño es una de las emergencias más críticas en tiempo de la medicina de pequeños animales. Cuando el material ingerido no puede pasar, el resultado es obstrucción parcial o completa, con vómito, dolor, compromiso intestinal y potencialmente perforación si no se aborda con prontitud.
+
+La obstrucción mecánica es una causa común de vómito agudo, y la radiografía abdominal es la herramienta diagnóstica de primera línea. Su función es precisa: **determinar si la causa requiere intervención médica o quirúrgica.**
+
+Regla para GCIS: en un paciente con vómito agudo, la pregunta que la imagen debe responder no es "qué tiene" sino "¿esto se opera?". Esa es la decisión que define el pronóstico.
+
+2. RADIOGRAFÍA — TRES PROYECCIONES, NO DOS
+
+Se recomienda una serie de tres proyecciones: **lateral derecha, lateral izquierda y ventrodorsal**. La posición del paciente determina dónde se ubica el gas, y por eso la serie de tres es necesaria.
+
+El motivo de la proyección lateral izquierda merece énfasis propio: **es crítica porque muchos cuerpos extraños lineales se anclan en el píloro.** Omitirla es la causa evitable más común de un lineal no visto.
+
+Signos radiográficos subjetivos de obstrucción mecánica: dilatación intestinal, forma anormal de las asas, material extraño radiopaco y, ocasionalmente, el signo de la gravilla.
+
+Evaluación objetiva: medición del diámetro del intestino delgado.
+
+Las características radiográficas dependen de la completitud, la localización y la duración de la obstrucción.
+
+3. EL CUERPO EXTRAÑO LINEAL — POR QUÉ SE COMPORTA DISTINTO
+
+Ocurre cuando un objeto —cuerda, hilo, cinta, tela, espumillón— queda atrapado oralmente pero se extiende aboralmente por el tracto. Un extremo puede anclarse en la base de la lengua o en el píloro mientras las contracciones peristálticas intentan propulsarlo, haciendo que el intestino delgado se desplace oralmente y termine **plegado** alrededor del hilo.
+
+Esto aumenta de forma dramática el riesgo de perforación intestinal a lo largo del borde mesentérico.
+
+**La trampa diagnóstica**: los cuerpos extraños lineales no siempre muestran dilatación del intestino delgado. En su lugar, el gas atrapado en bolsillos puede aparecer como burbujas en forma de media luna o de coma. La evaluación radiográfica del lineal difiere de la del resto de las obstrucciones y no debe hacerse con los mismos criterios.
+
+Truco de exploración descrito para el intestino plegado: el intestino delgado normal se desplaza tras la compresión con una cuchara de madera, mientras que **el intestino plegado permanece estacionario** y se hace más fácil de ver.
+
+Nota de especie: el patrón lineal es especialmente característico del gato, donde hilo y gomas de pelo son causas típicas.
+
+4. ECOGRAFÍA
+
+Se emplea cuando el material es radiolúcido —tela, plástico, goma— o cuando se sospecha el patrón de plicatura lineal, especialmente en gatos.
+
+Confirma la plicatura demostrando el plegamiento característico en acordeón del intestino reunido alrededor de una estructura lineal hiperecoica.
+
+En obstrucción mecánica no lineal, el patrón típico es dilatación del intestino oral al cuerpo extraño, con intestino normal y no dilatado inmediatamente aboral a él. El cuerpo extraño puede visualizarse como superficie hiperecoica con sombra acústica distal.
+
+La imagen es esencial no solo para confirmar el diagnóstico, sino para caracterizar localización, número de objetos, grado de obstrucción y evidencia de compromiso gastrointestinal — todo lo que guía la planificación quirúrgica y la evaluación de urgencia.
+
+5. EL DATO QUE DEFINE EL MANEJO EXPECTANTE
+
+La pregunta clínica frecuente es si conviene repetir radiografías antes de operar. Un estudio retrospectivo la respondió con números:
+
+**Solo el 17,1% de los animales con dilatación del intestino delgado y diagnóstico radiográfico de íleo mecánico resolvió en radiografías repetidas.** Cuando había dilatación gástrica **y** de intestino delgado, resolvió solo el 11,4%.
+
+La dilatación gástrica aislada fue significativamente más probable de resolver que la dilatación de intestino delgado o la combinación de ambas.
+
+De los 49 animales sin resolución que fueron a cirugía, dos desarrollaron neumoperitoneo y siete requirieron resección intestinal — tres de ellos con cuerpo extraño lineal y tres con masas o estenosis intestinales.
+
+Regla para GCIS: ante dilatación de intestino delgado con íleo mecánico radiográfico, **la probabilidad de resolución espontánea es baja y el manejo expectante prolongado tiene costo**. La dilatación gástrica aislada es el único escenario donde esperar tiene respaldo razonable.
+
+Si las radiografías iniciales son inconclusas, las de seguimiento a las 7 a 24 horas pueden ayudar. Si aun así no llevan a diagnóstico concluyente, corresponde radiografía seriada, ecografía abdominal o tomografía.
+
+6. CRITERIOS DE INTERVENCIÓN QUIRÚRGICA
+
+La exploración quirúrgica está indicada cuando: el manejo conservador y la endoscopia fallan en aliviar el cuadro; el cuerpo extraño no se mueve en radiografías sucesivas; la obstrucción empeora; o **hay evidencia de cuerpo extraño lineal**.
+
+Ese último criterio es categórico y no requiere las condiciones anteriores.
+
+Evaluación preoperatoria: hemograma completo, bioquímica sérica y urianálisis, que además ayudan a descartar otras causas de los signos. Radiografías abdominales y ocasionalmente torácicas. Radiografías de contraste positivo con bario cuando las simples no muestran la causa. Ecografía abdominal, y en algunos casos tomografía.
+
+Los cuerpos extraños esofágicos requieren abordaje torácico.
+
+7. ERRORES FRECUENTES
+
+Realizar solo dos proyecciones radiográficas, omitiendo la lateral izquierda.
+
+Aplicar los criterios de obstrucción convencional a un cuerpo extraño lineal y descartarlo por ausencia de dilatación.
+
+Prolongar el manejo expectante ante dilatación de intestino delgado con íleo mecánico.
+
+Administrar antiemético sin imagen planificada en un paciente con sospecha de obstrucción — ver el documento de vómito agudo.
+
+No reconocer el patrón de plicatura en el gato.
+
+Tratar la evidencia de cuerpo extraño lineal como indicación relativa de cirugía.
+
+Interpretar la mejoría sintomática tras fluidos y antieméticos como resolución de la obstrucción.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnica quirúrgica: enterotomía, resección y anastomosis, y evaluación intraoperatoria de viabilidad tisular. Extracción endoscópica: indicaciones, técnica y límites. Intususcepción. Manejo del paciente séptico con peritonitis por perforación. Protocolos anestésicos y de fluidoterapia. Obstrucción por masas y estenosis. Cuerpo extraño esofágico. Manejo posoperatorio y realimentación. Ingestión de objetos punzantes. Estos temas quedan como vacíos declarados de la Base de Conocimiento de GCIS, y varios corresponden a cirugía más que a gastroenterología médica.
+
+FUENTES
+
+Diagnosing Foreign Body Obstructions via Radiography. Clinician's Brief. Fuente de las secciones 2 y 3.
+
+Diagnosing Foreign Body Obstructions in Dogs & Cats. Clinician's Brief. Fuente de las secciones 3 y 4.
+
+Radiographic Diagnosis of Small Intestinal Mechanical Obstruction. Today's Veterinary Practice. Fuente de las secciones 2, 3 y 5.
+
+Miles S y col. Influence of repeat abdominal radiographs on the resolution of mechanical obstruction and gastrointestinal foreign material in dogs and cats. Vet Radiol Ultrasound 2021. Fuente de la sección 5.
+
+Gastrointestinal Foreign Bodies. American College of Veterinary Surgeons. Fuente de la sección 6.
+
+Hobday M, Pachtinger G, Drobatz K, Syring R. Linear versus non-linear gastrointestinal foreign bodies in 499 dogs: clinical presentation, management and short-term outcome. J Small Anim Pract 2014;55(11):560–565.
+
+Gollnick HR y col. Retrospective evaluation of surgical treatment of linear and discrete gastrointestinal foreign bodies in cats: 2009–2021. J Feline Med Surg 2023;25(6).
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "fff6c0ec-e179-418f-afa5-ff4124763d78",
+    "modelo": "claude-sonnet-4-6",
+    "tipo_token": "cache_escritura",
+    "precio_usd_por_millon": "3.750000",
+    "facturable": true
+  },
+  {
+    "id": "7b5b3a20-12fa-4113-96ec-0282f1dde252",
+    "modelo": "claude-sonnet-4-6",
+    "tipo_token": "cache_escritura_1h",
+    "precio_usd_por_millon": "6.000000",
+    "facturable": true
+  },
+  {
+    "id": "28c1213e-32c4-4e64-8211-8b0be5211bb6",
+    "modelo": "claude-sonnet-4-6",
+    "tipo_token": "cache_lectura",
+    "precio_usd_por_millon": "0.300000",
+    "facturable": true
+  },
+  {
+    "id": "05e4eabf-c150-4100-a7d9-67d8dbf21d20",
+    "modelo": "claude-sonnet-4-6",
+    "tipo_token": "entrada",
+    "precio_usd_por_millon": "3.000000",
+    "facturable": true
+  },
+  {
+    "id": "791977c3-72d9-430e-b57e-8417604aeb0f",
+    "modelo": "claude-sonnet-4-6",
+    "tipo_token": "salida",
+    "precio_usd_por_millon": "15.000000",
+    "facturable": true
+  }
+]

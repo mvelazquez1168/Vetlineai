@@ -1,0 +1,104 @@
+RCIS-REP-001
+
+Clinical Report Specification v1.0 (adaptado de ICIS-REP-001)
+
+NOTA DE ALCANCE DE ESTA ADAPTACIÓN (RCIS-REP-001)
+
+Define la estructura, el contenido y las reglas de generación de los informes clínicos de RCIS (Reproducción y Andrología Veterinaria). No define estilo: hereda íntegramente el lenguaje visual de RCIS-DESIGN-001. No define componentes clínicos: los consume de RCIS-ARCH-001 por su código.
+
+La diferencia estructural de RCIS frente a otras especialidades es que sus informes no son todos del mismo tipo. Un informe de planificación reproductiva y un informe obstétrico se emiten en momentos distintos del mismo caso, con destinatarios y urgencias distintas. Esta especificación define seis tipos, no uno.
+
+---
+
+1. Principios de generación
+
+Un informe de RCIS se emite sobre un estado del caso, no sobre el caso completo. Como el caso reproductivo se extiende en el tiempo —de un celo a un parto pueden pasar dos meses— un único informe final llegaría tarde para casi todas las decisiones que el colega tiene que tomar en el camino.
+
+Todo informe declara su fecha y hora de emisión y la posición del paciente en el eje reproductivo en ese momento. Sin ese anclaje, un informe de RCIS es ilegible una semana después.
+
+Ninguna estimación pierde su método ni su margen al pasar al documento. La regla DD-RCIS-02 del Design System se traslada íntegra: si el informe muestra una fecha probable de parto, muestra de dónde salió.
+
+El estado provisional se conserva. Una recomendación emitida con datos insuficientes se imprime marcada como provisional. El informe no es el lugar donde la incertidumbre se limpia.
+
+2. Los seis tipos de informe
+
+INFORME DE PLANIFICACIÓN REPRODUCTIVA. Se emite durante el proestro/estro, antes del servicio. Componente principal: CC-232. Responde cuándo servir y por qué. Es el informe con mayor consecuencia por demora en su entrega: una ventana fértil que se cierra no se recupera hasta el siguiente ciclo.
+
+INFORME DE SEGUIMIENTO GESTACIONAL. Se emite en cada control de la gestación confirmada. Componente principal: CC-233, apoyado en CC-220. Responde cómo va la gestación y qué falta antes del parto.
+
+INFORME OBSTÉTRICO. Se emite después de resuelto el parto o la cesárea. Componente principal: CC-234. Documenta la evolución del trabajo de parto, la conducta tomada y su fundamento, y el resultado. Nota: durante el trabajo de parto no se emiten informes — la información viaja por el Dashboard, que es la vista de tiempo real. El informe es posterior por definición.
+
+INFORME NEONATAL. Se emite al cierre del período neonatal o ante mortalidad. Componente principal: CC-235. Documenta la camada, su evolución ponderal y las pérdidas con su causa cuando sea determinable.
+
+INFORME ANDROLÓGICO. Se emite tras la evaluación reproductiva del macho. Componente principal: CC-236. Responde si el macho es apto y, si no lo es, qué queda por descartar.
+
+INFORME PROSTÁTICO. Se emite en casos de patología prostática. Componente principal: CC-237. Incluye obligatoriamente el estado reproductivo del macho y la correlación entre los signos urinarios, digestivos y reproductivos.
+
+3. Estructura común
+
+Todo informe de RCIS, sea del tipo que sea, se compone de las mismas siete secciones en el mismo orden:
+
+Encabezado institucional. Logo de la clínica, identificación del agente emisor, tipo de informe, fecha y hora de emisión.
+
+Identificación. Paciente, propietario, especie, raza, edad, y —obligatorio en RCIS— estado reproductivo: entera/entero o castrada/castrado, número de partos previos en la hembra.
+
+Posición en el eje reproductivo. Día del ciclo, día de gestación, día posparto, o sin evento activo. Es la sección que hace legible todo lo que sigue.
+
+Motivo y antecedentes. Motivo de la consulta o del control, y los antecedentes reproductivos relevantes tomados de CC-101.
+
+Hallazgos. Los datos objetivos del período que cubre el informe, agrupados por componente. Las series (progesterona, biometría, peso neonatal) van como tabla con fecha y hora de cada punto.
+
+Interpretación y conducta. La lectura clínica y la recomendación, con su fundamento explícito. Toda estimación aquí lleva método y margen.
+
+Cierre. Pendientes con su fecha, próximo control, y firma.
+
+4. Firma y trazabilidad
+
+La firma se compone a partir de los datos del médico responsable ya existentes en el sistema —nombre y número de colegiado— no de una imagen de firma escaneada.
+
+Todo informe registra qué versión de los componentes y de la Base de Conocimiento lo produjeron, de forma que un informe emitido hoy siga siendo auditable cuando la base haya cambiado.
+
+5. Reglas de contenido
+
+Sobre las fechas. Cada fecha estimada aparece con su método y su margen, en la misma línea. Si el informe incluye más de una estimación de la misma fecha por métodos distintos —caso frecuente cuando hay progesterona y ecografía— se muestran ambas con su método, no se promedian ni se elige una en silencio.
+
+Sobre los datos faltantes. El informe distingue no solicitado, pendiente, y no aplicable a la fase. Un conteo fetal no realizado antes del parto se declara como faltante crítico en la sección de cierre, no se omite.
+
+Sobre el alcance. Si el caso presenta un hallazgo fuera del alcance de RCIS, el informe lo consigna como hallazgo y señala que requiere escalamiento a ICIS. No emite conducta sobre él. El caso de neoplasia prostática es el ejemplo canónico: se documenta, se señala, no se trata.
+
+Sobre la Base de Conocimiento. Cuando la interpretación se apoya en un documento de la base, el informe lo referencia. Cuando el caso no está cubierto por la base disponible, el informe lo dice explícitamente en lugar de razonar sin sustento declarado.
+
+6. Reglas de exclusión
+
+El informe de RCIS no incluye: recomendación de derivación hacia otra especialidad —esa es función de ICIS, según AD-RCIS-01—, conducta sobre hallazgos fuera de alcance, ni estimaciones sin método.
+
+Tampoco incluye recomendación farmacológica cuando la fase reproductiva no está confirmada. CC-305 no emite en esa condición, y el informe respeta esa negativa en vez de rellenarla.
+
+7. Versionado y reemisión
+
+Un informe emitido no se edita. Si la información cambia, se emite uno nuevo que referencia al anterior. Esto importa especialmente en RCIS: una fecha probable de parto corregida tras una ecografía tiene valor clínico, y perder la estimación previa borra la evidencia de por qué se tomó la decisión que se tomó.
+
+---
+
+Report Decisions
+
+RD-RCIS-01 — Seis tipos, no uno. RCIS no emite un informe único de cierre de caso. La duración del caso reproductivo hace que un informe final llegue tarde para la mayoría de las decisiones intermedias.
+
+RD-RCIS-02 — Sin informe durante el trabajo de parto. La distocia activa se sostiene en el Dashboard, no en documentos. Generar un informe mientras corre el reloj de CC-234 desvía atención y tiempo del único componente donde el tiempo importa.
+
+RD-RCIS-03 — Las estimaciones divergentes se muestran, no se resuelven. Cuando dos métodos dan fechas distintas, el informe presenta ambas con su método. Elegir por el clínico oculta la incertidumbre real del caso.
+
+RD-RCIS-04 — El estado provisional sobrevive a la exportación. Ningún proceso de generación de documento puede limpiar una marca de provisionalidad.
+
+
+---
+
+Formato del Marcado en Secciones de Texto Libre
+
+Las secciones de texto libre del informe (Historia Clínica, Razonamiento Diagnóstico, Evolución Clínica, contenido de apéndices, y cualquier otra sección sin una estructura de campos fija) se renderizan interpretando el marcado: negrita, cursiva, encabezados de nivel 2 (## Título), listas con viñeta y numeradas, y tablas en formato markdown.
+
+Si el contenido de una de estas secciones se subdivide internamente, esa subdivisión deberá marcarse con un encabezado de nivel 2 (## Título) — nunca con negrita a modo de título.
+
+La negrita (**texto**) queda reservada exclusivamente para destacar una palabra o frase dentro de un párrafo, nunca como sustituto de un encabezado.
+
+Si el texto anuncia una cantidad de partes, elementos o pilares ("en base a X pilares..."), esa cantidad deberá coincidir exactamente con la cantidad que efectivamente se enumera a continuación. Ante la duda, no anunciar una cantidad específica.

@@ -15,11 +15,13 @@ import {
 } from "../../components/caso/ConsumoBanner";
 import { CasoDashboardPanel } from "../../components/caso/CasoDashboardPanel";
 import { DashboardGcisPanel } from "../../components/caso/DashboardGcisPanel";
+import { FichaPropietarioModal } from "../../components/caso/FichaPropietarioModal";
 import { HistorialFarmacologicoModal } from "../../components/caso/HistorialFarmacologicoModal";
 import { MensajesLista } from "../../components/caso/MensajesLista";
 import { RecetaPanel } from "../../components/caso/RecetaPanel";
 import { useAuth } from "../../hooks/useAuth";
 import { ApiError } from "../../lib/api";
+import { citasApi } from "../../lib/agendaApi";
 import { exportarDashboardHtml } from "../../lib/exportarDashboardHtml";
 import { formatearFecha } from "../../lib/formatFecha";
 import {
@@ -56,6 +58,11 @@ const ESPECIE_A_RAZA_ESPECIE: Record<string, "canina" | "felina"> = {
 
 const LIMITE_ARCHIVOS_POR_MENSAJE = 8;
 
+// prompt_code_paciente_nacimiento_estado.md, Parte C — el selector de
+// reportes no está en uso todavía. Se va a retomar: NO borrar el bloque
+// de abajo, solo ocultarlo detrás de esta bandera.
+const SELECTOR_REPORTES_VISIBLE = false;
+
 // Un chip por archivo seleccionado/arrastrado, con su propio ciclo de vida
 // independiente — no hay un solo booleano "subiendo" global como antes.
 interface AdjuntoEnProgreso {
@@ -74,7 +81,7 @@ const ESTADO_BADGE: Record<string, BadgeVariant> = {
 export function CasoWorkspace() {
   const { agenteId, casoId } = useParams<{ agenteId: string; casoId?: string }>();
   const navigate = useNavigate();
-  const { zonaHoraria } = useAuth();
+  const { user, zonaHoraria } = useAuth();
 
   const [casos, setCasos] = useState<CasoResumen[]>([]);
   // Búsqueda del sidebar — client-side, sobre la lista ya cargada
@@ -104,6 +111,7 @@ export function CasoWorkspace() {
   const [descargandoInformeId, setDescargandoInformeId] = useState<string | null>(null);
   const [recetaPanelAbierto, setRecetaPanelAbierto] = useState(false);
   const [historialFarmacologicoAbierto, setHistorialFarmacologicoAbierto] = useState(false);
+  const [fichaPropietarioAbierta, setFichaPropietarioAbierta] = useState(false);
 
   const [nuevoMensaje, setNuevoMensaje] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -199,11 +207,28 @@ export function CasoWorkspace() {
   const [cargandoPacientes, setCargandoPacientes] = useState(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<PacienteDePropietario | null>(null);
   const [formNuevoPacienteAbierto, setFormNuevoPacienteAbierto] = useState(false);
-  const [nuevoPaciente, setNuevoPaciente] = useState({ nombre: "", especie: "Canino", razaId: null as string | null });
+  const [nuevoPaciente, setNuevoPaciente] = useState({
+    nombre: "",
+    especie: "Canino",
+    razaId: null as string | null,
+    fechaNacimiento: "",
+  });
   const [creandoPaciente, setCreandoPaciente] = useState(false);
 
   const [motivoNuevoCaso, setMotivoNuevoCaso] = useState("");
   const [creandoCaso, setCreandoCaso] = useState(false);
+
+  // prompt: vincular caso↔cita — Paso 3 del wizard ofrece, además del
+  // motivo, un vínculo opcional a una cita de agenda (nunca bloquea la
+  // creación del caso). "sin_cita" es el default: no fuerza nada.
+  const [vinculoCita, setVinculoCita] = useState<"sin_cita" | "elegir" | "crear">("sin_cita");
+  const [citasDeHoyDisponibles, setCitasDeHoyDisponibles] = useState<
+    { id: string; hora_inicio: string; hora_fin: string; estado: string }[]
+  >([]);
+  const [citaSeleccionadaId, setCitaSeleccionadaId] = useState<string | null>(null);
+  const [nuevaCitaHoraInicio, setNuevaCitaHoraInicio] = useState("");
+  const [nuevaCitaDuracion, setNuevaCitaDuracion] = useState(30);
+  const [avisoVinculoCita, setAvisoVinculoCita] = useState<string | null>(null);
 
   const [ultimaActualizacion, setUltimaActualizacion] = useState<string | null>(null);
   // Paso 2 de prompt_code_dashboards_informes — indicación no bloqueante:
@@ -487,9 +512,30 @@ export function CasoWorkspace() {
     setPacientesDelPropietario([]);
     setPacienteSeleccionado(null);
     setFormNuevoPacienteAbierto(false);
-    setNuevoPaciente({ nombre: "", especie: "Canino", razaId: null as string | null });
+    setNuevoPaciente({ nombre: "", especie: "Canino", razaId: null as string | null, fechaNacimiento: "" });
     setMotivoNuevoCaso("");
+    setVinculoCita("sin_cita");
+    setCitasDeHoyDisponibles([]);
+    setCitaSeleccionadaId(null);
+    setNuevaCitaHoraInicio("");
+    setNuevaCitaDuracion(30);
+    setAvisoVinculoCita(null);
   };
+
+  // prompt: vincular caso↔cita — se busca en cuanto hay paciente
+  // seleccionado y se llega al Paso 3 (no antes: no tiene sentido buscar
+  // citas de un paciente que todavía no se eligió). Si no hay resultados,
+  // la opción "elegir cita de hoy" simplemente no se ofrece.
+  useEffect(() => {
+    if (paso !== 3 || !pacienteSeleccionado || !user?.userId) {
+      setCitasDeHoyDisponibles([]);
+      return;
+    }
+    workspaceApi
+      .listarCitasDeHoyDelPaciente(pacienteSeleccionado.id, user.userId)
+      .then(setCitasDeHoyDisponibles)
+      .catch(() => setCitasDeHoyDisponibles([]));
+  }, [paso, pacienteSeleccionado, user?.userId]);
 
   // Catálogo de tipos de identificación del país de la propia clínica —
   // se carga una sola vez por apertura del modal, no en cada tecla.
@@ -595,6 +641,7 @@ export function CasoWorkspace() {
         nombre: nuevoPaciente.nombre.trim(),
         especie: nuevoPaciente.especie,
         razaId: nuevoPaciente.razaId ?? undefined,
+        fechaNacimiento: nuevoPaciente.fechaNacimiento || undefined,
       });
       setPacienteSeleccionado(paciente);
       // La agregamos a la grilla del paso 2 (no solo a la selección) para
@@ -602,7 +649,7 @@ export function CasoWorkspace() {
       // creada siga apareciendo y pueda re-confirmarla sin perder nada.
       setPacientesDelPropietario((prev) => [...prev, paciente]);
       setFormNuevoPacienteAbierto(false);
-      setNuevoPaciente({ nombre: "", especie: "Canino", razaId: null as string | null });
+      setNuevoPaciente({ nombre: "", especie: "Canino", razaId: null as string | null, fechaNacimiento: "" });
       setPaso(3);
     } catch (err: any) {
       setErrorWizard(err?.message ?? "No pudimos crear la mascota.");
@@ -615,12 +662,40 @@ export function CasoWorkspace() {
     if (!agenteId || !pacienteSeleccionado || !motivoNuevoCaso.trim()) return;
     setCreandoCaso(true);
     setErrorWizard(null);
+    setAvisoVinculoCita(null);
     try {
-      const { caso } = await workspaceApi.crearCaso({
+      const { caso, citaVinculada } = await workspaceApi.crearCaso({
         pacienteId: pacienteSeleccionado.id,
         agenteId,
         motivoConsulta: motivoNuevoCaso.trim(),
+        citaId: vinculoCita === "elegir" && citaSeleccionadaId ? citaSeleccionadaId : undefined,
       });
+      if (vinculoCita === "elegir" && citaSeleccionadaId && citaVinculada === false) {
+        // No bloquea: el caso ya existe. Solo se informa que el vínculo no
+        // prendió (p.ej. la cita se vinculó a otra cosa mientras tanto).
+        console.warn("No se pudo vincular la cita elegida — el caso se creó igual.");
+      }
+
+      // prompt: vincular caso↔cita — rama "crear cita ahora": la cita no
+      // existía todavía, se crea recién acá, ya vinculada al caso. Es
+      // best-effort: si falla, el caso ya se creó y no se bloquea la
+      // navegación, solo se avisa.
+      if (vinculoCita === "crear" && nuevaCitaHoraInicio && user?.userId) {
+        try {
+          await citasApi.crear({
+            pacienteId: pacienteSeleccionado.id,
+            medicoId: user.userId,
+            fecha: new Date().toISOString().slice(0, 10),
+            horaInicio: nuevaCitaHoraInicio,
+            duracionMinutos: nuevaCitaDuracion,
+            motivoConsulta: motivoNuevoCaso.trim(),
+            casoId: caso.id,
+          });
+        } catch {
+          setAvisoVinculoCita("El caso se creó, pero no pudimos registrar la cita.");
+        }
+      }
+
       setModalAbierto(false);
       setCasos((prev) => [caso, ...prev]);
       navigate(`/workspace/agentes/${agenteId}/casos/${caso.id}`);
@@ -974,9 +1049,10 @@ export function CasoWorkspace() {
           <>
             <header className="flex flex-wrap items-start justify-between gap-4 border-b border-black/5 bg-surface px-8 py-4">
               <div>
-                <h2 className="text-lg font-bold text-primary">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-primary">
                   {detalle.paciente_nombre} — {detalle.especie} ({detalle.sexo}
                   {detalle.edad_anios ? `, ${detalle.edad_anios}a` : ""})
+                  {detalle.paciente_estado === "fallecido" && <Badge variant="neutral">Fallecido</Badge>}
                 </h2>
                 <p className="text-xs text-text-muted">Expediente N.º {detalle.numero_expediente}</p>
                 <p className="text-sm text-text-muted">{detalle.motivo}</p>
@@ -984,33 +1060,35 @@ export function CasoWorkspace() {
 
               <div className="flex flex-col items-end gap-2">
                 <div className="flex flex-wrap items-center gap-3">
-                <div className="flex flex-col items-end gap-1">
-                  <select
-                    value={tipoReporteSeleccionado}
-                    onChange={(e) => e.target.value && generarReporte(e.target.value)}
-                    disabled={estadoReporte !== "idle"}
-                    className="rounded-lg border border-black/10 bg-background px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
-                  >
-                    <option value="">Generar Reporte ▾</option>
-                    {gruposReporte.map((g) => (
-                      <optgroup key={g.grupo} label={g.grupo}>
-                        {g.tipos.map((t) => (
-                          <option key={t} value={t}>
-                            {t}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  {estadoReporte === "generando" && (
-                    <span className="text-xs text-text-muted">Generando informe…</span>
-                  )}
-                  {estadoReporte === "listo" && (
-                    <span className="text-xs font-semibold text-success">
-                      ✓ Informe generado
-                    </span>
-                  )}
-                </div>
+                {SELECTOR_REPORTES_VISIBLE && (
+                  <div className="flex flex-col items-end gap-1">
+                    <select
+                      value={tipoReporteSeleccionado}
+                      onChange={(e) => e.target.value && generarReporte(e.target.value)}
+                      disabled={estadoReporte !== "idle"}
+                      className="rounded-lg border border-black/10 bg-background px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+                    >
+                      <option value="">Generar Reporte ▾</option>
+                      {gruposReporte.map((g) => (
+                        <optgroup key={g.grupo} label={g.grupo}>
+                          {g.tipos.map((t) => (
+                            <option key={t} value={t}>
+                              {t}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    {estadoReporte === "generando" && (
+                      <span className="text-xs text-text-muted">Generando informe…</span>
+                    )}
+                    {estadoReporte === "listo" && (
+                      <span className="text-xs font-semibold text-success">
+                        ✓ Informe generado
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <Button
                   variant="secondary"
@@ -1081,6 +1159,14 @@ export function CasoWorkspace() {
                   className="px-3 py-2 text-xs"
                 >
                   Historial farmacológico
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  onClick={() => setFichaPropietarioAbierta(true)}
+                  className="px-3 py-2 text-xs"
+                >
+                  Ficha del propietario
                 </Button>
                 </div>
 
@@ -1516,6 +1602,21 @@ export function CasoWorkspace() {
           pacienteNombre={detalle.paciente_nombre}
           zonaHoraria={zonaHoraria}
           onClose={() => setHistorialFarmacologicoAbierto(false)}
+          onVerPropietario={() => {
+            setHistorialFarmacologicoAbierto(false);
+            setFichaPropietarioAbierta(true);
+          }}
+          pacienteEstado={detalle.paciente_estado}
+          onMarcadoFallecido={() =>
+            setDetalle((prev) => (prev ? { ...prev, paciente_estado: "fallecido" } : prev))
+          }
+        />
+      )}
+
+      {fichaPropietarioAbierta && detalle && (
+        <FichaPropietarioModal
+          propietarioId={detalle.propietario_id}
+          onClose={() => setFichaPropietarioAbierta(false)}
         />
       )}
 
@@ -1803,6 +1904,17 @@ export function CasoWorkspace() {
                       value={nuevoPaciente.razaId}
                       onChange={(razaId) => setNuevoPaciente((prev) => ({ ...prev, razaId }))}
                     />
+                    {/* prompt_code_paciente_nacimiento_estado.md, Parte B1 —
+                        opcional a propósito: muchos tutores no la saben,
+                        sobre todo con animales adoptados. Sin fecha, la
+                        edad sigue siendo la que se cargue después (edad_anios,
+                        fuera de este wizard) — nunca se piden las dos juntas. */}
+                    <Input
+                      type="date"
+                      label="Fecha de nacimiento (si se conoce)"
+                      value={nuevoPaciente.fechaNacimiento}
+                      onChange={(e) => setNuevoPaciente((prev) => ({ ...prev, fechaNacimiento: e.target.value }))}
+                    />
                     <div className="flex justify-end gap-2">
                       <Button variant="secondary" onClick={() => setFormNuevoPacienteAbierto(false)}>
                         Cancelar
@@ -1841,6 +1953,84 @@ export function CasoWorkspace() {
                   placeholder="Ej: cojera en pata trasera derecha desde hace 3 días…"
                 />
 
+                {/* prompt: vincular caso↔cita — opcional, nunca bloquea
+                    "Abrir caso". El vínculo es lo que le da al reporte de
+                    atenciones un horario real de inicio/fin; sin esto el
+                    caso queda igual de válido, solo sin cita asociada. */}
+                <div className="mt-5 rounded-lg border border-black/10 p-4">
+                  <p className="text-sm font-semibold text-text-primary">¿Esta consulta corresponde a una cita agendada?</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setVinculoCita("sin_cita")}
+                      className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                        vinculoCita === "sin_cita" ? "bg-primary text-white" : "bg-black/5 text-text-muted"
+                      }`}
+                    >
+                      Sin cita
+                    </button>
+                    {citasDeHoyDisponibles.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setVinculoCita("elegir")}
+                        className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                          vinculoCita === "elegir" ? "bg-primary text-white" : "bg-black/5 text-text-muted"
+                        }`}
+                      >
+                        Elegir cita de hoy ({citasDeHoyDisponibles.length})
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setVinculoCita("crear")}
+                      className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                        vinculoCita === "crear" ? "bg-primary text-white" : "bg-black/5 text-text-muted"
+                      }`}
+                    >
+                      Crear cita ahora
+                    </button>
+                  </div>
+
+                  {vinculoCita === "elegir" && (
+                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {citasDeHoyDisponibles.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => setCitaSeleccionadaId(c.id)}
+                          className={[
+                            "rounded-lg border p-2.5 text-left text-sm",
+                            citaSeleccionadaId === c.id ? "border-accent bg-accent/5" : "border-black/10",
+                          ].join(" ")}
+                        >
+                          <p className="font-semibold text-primary">
+                            {c.hora_inicio.slice(0, 5)}–{c.hora_fin.slice(0, 5)}
+                          </p>
+                          <p className="text-xs text-text-muted">{c.estado}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {vinculoCita === "crear" && (
+                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <Input
+                        type="time"
+                        label="Hora de inicio"
+                        value={nuevaCitaHoraInicio}
+                        onChange={(e) => setNuevaCitaHoraInicio(e.target.value)}
+                      />
+                      <Input
+                        type="number"
+                        label="Duración (minutos)"
+                        value={String(nuevaCitaDuracion)}
+                        onChange={(e) => setNuevaCitaDuracion(Number(e.target.value) || 30)}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {avisoVinculoCita && <p className="mt-3 text-sm text-warning">{avisoVinculoCita}</p>}
                 {errorWizard && <p className="mt-3 text-sm text-error">{errorWizard}</p>}
 
                 <div className="mt-4 flex items-center justify-between border-t border-black/5 pt-4">

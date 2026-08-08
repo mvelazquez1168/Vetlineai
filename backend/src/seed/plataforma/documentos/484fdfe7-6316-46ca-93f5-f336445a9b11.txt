@@ -1,0 +1,103 @@
+MENINGOENCEFALITIS DE ORIGEN DESCONOCIDO (MUO) EN EL PERRO — DIAGNÓSTICO, PRONÓSTICO Y TRATAMIENTO
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-220 (Imaging Intelligence), CC-201/202 (laboratorio), y los componentes de neurolocalización de NCIS.
+
+---
+
+1. QUÉ ES Y QUÉ NO ES
+
+MUO es un término paraguas para enfermedades inflamatorias no infecciosas del sistema nervioso central del perro. Se usa con fines diagnósticos precisamente en ausencia de confirmación histopatológica y clasificación específica.
+
+Subtipos incluidos. Meningoencefalomielitis granulomatosa (GME), meningoencefalitis necrotizante (NME) y leucoencefalitis necrotizante (NLE); estas dos últimas se agrupan a veces como encefalitis necrotizante.
+
+Entidades excluidas o discutidas. La meningitis-arteritis respondedora a esteroides (SRMA) —una meningitis y vasculitis predominantemente neutrofílica— es una entidad distinta y no se incluye dentro de MUO. Otras entidades como meningoencefalitis eosinofílica, encefalitis del galgo, cerebelitis idiopática y encefalitis por autoanticuerpos quedan excluidas de la categoría en parte de la literatura.
+
+Regla para el agente: MUO es un diagnóstico de exclusión y de presunción. Nunca debe presentarse como diagnóstico definitivo sin histopatología, y la distinción entre subtipos por medios clínicos es limitada.
+
+2. FRECUENCIA Y PERFIL DEL PACIENTE
+
+En poblaciones de referencia, MUO parece ser la condición inflamatoria más frecuente del SNC canino. En un estudio multicéntrico sobre 1.121 casos en 13 centros de referencia de Inglaterra, representó el 2.21% de las nuevas derivaciones neurológicas.
+
+Edad. El diagnóstico alcanza su pico alrededor de los 4 años (mediana 4.33; rango intercuartílico 2.50–6.92) y declina después de los 10.
+
+Raza. Frente a perros cruzados, las razas con mayor probabilidad de diagnóstico en ese estudio fueron Welsh Springer Spaniel, Maltés, Papillón, Boston Terrier y Bulldog Francés, con odds ratios que van de aproximadamente 9 a 24. Las razas braquicéfalas presentaron 2.56 veces más probabilidad que las mesocéfalas.
+
+Este perfil racial es material que corresponde aportar a la arquitectura de Breed Intelligence.
+
+3. DIAGNÓSTICO
+
+Los dos estudios que sostienen el diagnóstico clínico son la resonancia magnética y el análisis de líquido cefalorraquídeo. En la serie inglesa, ambos se realizaron en el 91.5% de los casos, y de esos, el 89.3% mostró resultados indicativos de MUO en los dos.
+
+El punto que más importa: los estudios normales no descartan
+
+En esa misma serie: RM anormal con LCR normal en 5.4%, RM normal con LCR anormal en 3.5%, y ambos normales en 1.5%. Otra revisión reporta cifras del mismo orden —9%, 6% y 3% respectivamente— y señala que en conjunto alrededor del 13% de los perros con MUO presenta LCR normal.
+
+Regla dura para el agente: un LCR normal no descarta MUO. Presentar un estudio negativo como exclusión del diagnóstico es el error interpretativo más consecuente en esta enfermedad.
+
+Descarte de causas infecciosas. Es paso obligado, no opcional: se realizó en el 92.5% de los casos de la serie. La superposición con enfermedad infecciosa es lo que define el "de origen desconocido".
+
+Hallazgos de imagen. Las lesiones multifocales son frecuentes —en una serie, 89% de los casos— y a menudo bilaterales. La afectación del prosencéfalo es predominante.
+
+Superposición con neoplasia. Los hallazgos clínicos, de RM y de LCR pueden solaparse con los de neoplasia del SNC. Ante esa ambigüedad, el caso corresponde escalar a ICIS, no razonar hacia oncología desde NCIS.
+
+Ausencia de biomarcador. Actualmente ningún biomarcador aislado ni combinación de ellos establece de forma confiable el diagnóstico ni distingue entre subtipos.
+
+4. PRONÓSTICO
+
+Las cifras publicadas son severas y conviene tenerlas presentes al comunicar expectativas: entre 25% y 33% de los perros con MUO mueren dentro de la primera semana del diagnóstico, y alrededor del 31% dentro de los 100 días.
+
+Factores asociados a mayor supervivencia: menor edad al diagnóstico, y diagnóstico temprano —dentro de los 7 días desde la aparición de los signos clínicos—.
+
+Factores asociados a menor supervivencia: presencia de convulsiones y obnubilación.
+
+Implicación operativa: la ventana de los primeros 7 días es un factor pronóstico modificable. Un caso con sospecha de MUO no es un caso que pueda esperar estudios programados con holgura, y NCIS debe señalarlo así.
+
+Escala de discapacidad neurológica (NDS). Se ha demostrado como herramienta de evaluación clínica confiable en perros con MUO, aunque datos iniciales de una población pequeña no mostraron asociación entre sus puntajes y el desenlace.
+
+Recaída. La respuesta al tratamiento inmunosupresor es impredecible y las recaídas son frecuentes.
+
+5. TRATAMIENTO
+
+No existe consenso sobre el tratamiento óptimo. Este es un punto que el agente debe declarar de forma explícita en vez de presentar un protocolo como establecido.
+
+Los glucocorticoides han sido el pilar del tratamiento. La respuesta positiva a la inmunosupresión, junto con los efectos adversos prominentes de la terapia con glucocorticoides a dosis altas, ha impulsado la búsqueda de sustitutos y complementos.
+
+Se ha empleado un rango amplio de terapias inmunosupresoras. La citarabina se convirtió en una medicación favorecida, aunque la literatura señala que las razones de esa preferencia no son del todo transparentes. El micofenolato de mofetilo combinado con prednisona y, más recientemente, la leflunomida como inmunosupresor de segunda línea, cuentan con series retrospectivas que sugieren tolerancia y eficacia potencial, con datos de desenlace todavía limitados.
+
+Limitación de fondo: existe escasez de evidencia sobre eficacia comparativa entre regímenes, porque los ensayos aleatorizados comparativos formalmente diseñados son raros.
+
+6. ERRORES FRECUENTES
+
+Descartar MUO por un LCR normal.
+
+Presentar MUO como diagnóstico definitivo sin histopatología.
+
+Identificar el subtipo (GME, NME, NLE) por medios clínicos y presentarlo como establecido.
+
+Omitir el descarte de causas infecciosas antes de iniciar inmunosupresión.
+
+Tratar la sospecha de MUO como un cuadro que admite estudios diferidos, cuando el diagnóstico dentro de los 7 días se asocia a mejor supervivencia.
+
+Presentar un protocolo inmunosupresor como consenso cuando no lo hay.
+
+Razonar hacia neoplasia desde NCIS ante hallazgos ambiguos, en vez de escalar a ICIS.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis y protocolos completos de inmunosupresión. Técnica de obtención de LCR y sus contraindicaciones. Protocolos de RM: secuencias y planos. SRMA: diagnóstico y manejo, que es entidad distinta y merece documento propio. Encefalitis infecciosas específicas. Manejo de las convulsiones en el paciente con MUO, cubierto parcialmente por los documentos de epilepsia y status epilepticus de NCIS. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+FUENTES
+
+Meningoencephalitis of unknown origin in dogs under veterinary referral care in England (2017–2021): a multicenter case control study. PMC12690937. Fuente de las secciones 2 y 3.
+
+Of potential new treatment targets and polythetic approach in meningoencephalitis of unknown origin: a review. PMC11518845. Fuente de las secciones 1 y 3.
+
+Prognosis in meningoencephalitis of unknown origin in dogs: Risk factors associated with survival, clinical relapse, and long-term disability. PMC11099754. Fuente de la sección 4.
+
+New insights into the treatment of meningoencephalomyelitis of unknown origin since 2009: A review of 671 cases. Front Vet Sci 2023;10:1114798. Fuente de la sección 5.
+
+Retrospective evaluation of leflunomide as second-line immunosuppressive therapy in dogs with meningoencephalomyelitis of unknown origin: 18 cases (2018-2025). J Vet Intern Med 2026;40(1).
+
+Evolution of Brain Magnetic Resonance Imaging Lesions in Dogs Treated for Meningoencephalomyelitis of Unknown Origin Between Initial Diagnosis and Relapse. J Vet Intern Med 2025;39(3).
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

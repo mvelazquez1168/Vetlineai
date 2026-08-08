@@ -1,0 +1,101 @@
+ESPONDILOMIELOPATÍA CERVICAL CANINA (SÍNDROME DE WOBBLER) — DIAGNÓSTICO Y MANEJO
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: CC-220 (Imaging Intelligence), CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico), y los componentes de neurolocalización de NCIS.
+
+---
+
+1. QUÉ ES, Y POR QUÉ CUESTA HABLAR DE ELLA
+
+La espondilomielopatía cervical es una enfermedad común de la columna cervical de perros de raza grande y gigante. Se caracteriza por compresiones **dinámicas y estáticas** de la médula espinal cervical, las raíces nerviosas, o ambas, produciendo grados variables de déficits neurológicos y dolor cervical.
+
+Es una enfermedad controvertida, y hay un dato que lo ilustra mejor que cualquier discusión: **pocas enfermedades en medicina veterinaria han sido designadas con 14 nombres distintos**. Síndrome de Wobbler, espondilomielopatía cervical caudal, espondilopatía cervical, compresión asociada a disco, inestabilidad vertebral cervical, síndrome de malformación/malarticulación cervical, espondilolistesis cervical, mielopatía estenótica cervical, síndrome de Wobbler asociado a disco, estenosis espinal cervical, subluxación cervical, síndrome de inestabilidad-malformación vertebral cervical y mielopatía espondilótica cervical designan todos lo mismo.
+
+Regla para NCIS: al recibir un expediente, el componente debe reconocer estos términos como sinónimos. Un caso descrito como "inestabilidad cervical" y otro como "Wobbler" no son entidades distintas, y tratarlos como tales fragmenta la base de conocimiento del paciente.
+
+Correlato humano: la enfermedad es comparable a la mielopatía espondilótica cervical o mielopatía cervical degenerativa del humano de edad avanzada, de naturaleza progresiva. La historia natural humana está bien descrita; la canina, escasamente.
+
+2. LAS DOS FORMAS Y SUS POBLACIONES
+
+Forma asociada a disco. Afecta típicamente a perros de raza grande de mediana edad a mayores, con el Doberman Pinscher como raza emblemática.
+
+Forma asociada a hueso (osea). Afecta a perros de raza gigante **jóvenes** —Gran Danés, Mastín, Rottweiler— con rango etario de varios meses a 4 años.
+
+Esa diferencia de edad es la que más rápido orienta: un gigante joven con ataxia cervical apunta a la forma ósea; un Doberman adulto, a la asociada a disco.
+
+Mecanismos descritos. Estenosis del canal vertebral por anormalidades de crecimiento en los pedículos vertebrales. En Gran Daneses afectados, el canal vertebral es significativamente menor en C6-C7 y C7-T1, y la altura foraminal media es menor de C3-C4 a C7-T1 comparada con Gran Daneses normales. Algunos casos se complican con estenosis congénita del canal o hipertrofia del ligamento amarillo.
+
+Otras razas descritas: Dálmata, además de las mencionadas.
+
+3. DIAGNÓSTICO — LO QUE LA RADIOGRAFÍA NO PUEDE HACER
+
+**Las radiografías simples no pueden confirmar el diagnóstico.** Son útiles, en cambio, para excluir discoespondilitis y neoplasia ósea.
+
+El diagnóstico definitivo requiere **mielografía, tomografía computarizada o resonancia magnética**.
+
+Regla para CC-220 y NCIS: un expediente con radiografías cervicales y sospecha de Wobbler no tiene diagnóstico. El componente debe declarar que el estudio realizado no es diagnóstico para esta entidad, en vez de interpretar hallazgos radiográficos como confirmatorios.
+
+El concepto que explica por qué: las compresiones son dinámicas además de estáticas. Un estudio en posición neutra puede subestimar la compresión que ocurre en flexión o extensión, lo que también tiene consecuencia sobre cómo se interpreta un estudio avanzado aparentemente leve frente a signos clínicos marcados.
+
+Diferenciales a considerar además de discoespondilitis y neoplasia: el propio documento de mielopatía degenerativa de NCIS, la enfermedad discal cervical del perro grande no condrodistrófico, y las meningoencefalitis del documento de MUO.
+
+4. TRATAMIENTO NO QUIRÚRGICO — CON SUS NÚMEROS
+
+Está indicado en perros con signos clínicos leves y consiste en:
+
+Restricción de ejercicio.
+
+Prednisona a 0,5 mg/kg por vía oral cada 24 horas, **reducida lentamente a lo largo de meses a años**.
+
+Pérdida de peso si es necesaria.
+
+Resultados reportados: los signos clínicos mejoran en aproximadamente el **50%** de los perros y permanecen sin cambios en aproximadamente el **25%** con tratamiento no quirúrgico.
+
+Regla para NCIS: esas cifras deben presentarse juntas. Alrededor de tres cuartas partes de los pacientes con signos leves no empeoran con manejo conservador, lo que hace del tratamiento no quirúrgico una opción legítima y no un paso previo obligado a la cirugía. Al mismo tiempo, la mitad no mejora, y eso también debe decirse.
+
+El régimen de corticoide merece énfasis por su duración: meses a años de reducción lenta no es un curso corto, e implica una conversación sobre efectos adversos a largo plazo con el propietario.
+
+5. TRATAMIENTO QUIRÚRGICO
+
+Existen múltiples técnicas descritas, con abordajes de distracción-fusión mediante caja intervertebral y placas de bloqueo, placas de bloqueo cervicales combinadas con aloinjerto de anillo cortical, y descompresión por foraminotomía anterior microquirúrgica, entre otras. Se han publicado comparaciones entre técnicas y revisiones críticas del tratamiento.
+
+Nota de alcance: la elección de técnica es decisión del cirujano. El aporte de NCIS está en la localización, la caracterización por imagen avanzada, la identificación de la forma y la discusión honesta de las expectativas del manejo conservador.
+
+6. ERRORES FRECUENTES
+
+Tratar como entidades distintas los múltiples sinónimos de la enfermedad.
+
+Considerar diagnóstica una radiografía cervical simple.
+
+No distinguir la forma ósea del gigante joven de la asociada a disco del adulto.
+
+Presentar la cirugía como única opción ante signos leves, omitiendo las cifras del manejo conservador.
+
+Presentar el manejo conservador como resolutivo, omitiendo que la mitad no mejora.
+
+Prescribir el curso de corticoide sin advertir su duración de meses a años.
+
+Interpretar un estudio avanzado en posición neutra como descarte de compresión dinámica.
+
+Omitir discoespondilitis y neoplasia ósea del diferencial, que son precisamente lo que la radiografía sí sirve para excluir.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnicas quirúrgicas en detalle, sus indicaciones comparadas y complicaciones. Protocolos de mielografía y de resonancia magnética dinámica. Escalas de graduación neurológica. Rehabilitación posoperatoria. Síndrome del segmento adyacente. Enfermedad discal cervical como entidad propia. Conformación corporal como factor de riesgo. Pronóstico a largo plazo comparado entre manejo conservador y quirúrgico. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+FUENTES
+
+Merck Veterinary Manual — Degenerative Diseases of the Spinal Column and Cord in Animals. Fuente de las secciones 2, 3 y 4.
+
+Cervical Spondylomyelopathy (Wobbler Syndrome) in Dogs. Fuente de la sección 1, incluidos los 14 sinónimos y el correlato humano.
+
+Wobbler Syndrome / Cervical Spondylomyelopathy — Frequently Asked Questions. NeuroVet. Fuente de las secciones 1 y 2.
+
+Cervical spondylomyelopathy in dogs. Journal of the Hellenic Veterinary Medical Society. Fuente de la sección 5.
+
+Chen AV, Bagley RS. Treatment of canine cervical spondylomyelopathy: a critical review. En: Kirk's Current Veterinary Therapy XIV.
+
+Falzone C, Tranquillo V, Gasparinetti N. Comparison of two surgical techniques for the treatment of canine disc-associated cervical spondylomyelopathy. Front Vet Sci 2022;9:880018.
+
+Martin-Vaquero P, da Costa RC. Body conformation in Great Danes with and without clinical signs of cervical spondylomyelopathy. Vet J 2015;203:219–222.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -1,0 +1,104 @@
+MELANOMA ORAL MALIGNO CANINO — ESTADIFICACIÓN, TRATAMIENTO Y EL DEBATE SOBRE LA VACUNA
+
+Resumen clínico de referencia para OCIS. Componentes que lo consumen: CC-232 (Staging & Grading Engine), CC-231 (Histopathology Intelligence), CC-220 (Imaging Intelligence), CC-305 (Oncology Pharmacotherapy).
+
+---
+
+1. POR QUÉ IMPORTA
+
+El melanoma oral es la neoplasia más frecuente de la cavidad oral del perro.
+
+La localización es el principal factor pronóstico del melanoma canino, aunque no predice por completo la invasividad local ni el potencial metastásico. El subtipo oral/mucoso es el de peor pronóstico, con alto grado de invasividad local y alto potencial metastásico, y supervivencias medianas reportadas entre 3 y 24 meses según el estadio.
+
+Tasas de metástasis reportadas, desde la presentación hasta el seguimiento postratamiento: 30,3 a 74,0% en linfonodos regionales, y 14 a 92% en pulmón y otros sitios distantes. Los rangos son amplios porque las series difieren en estadificación y seguimiento.
+
+2. ESTADIFICACIÓN
+
+Se emplea el esquema de la Organización Mundial de la Salud, basado en el diámetro tumoral:
+
+Estadio I — diámetro menor a 2 cm.
+Estadio II — diámetro de 2 a menos de 4 cm.
+Estadio III — diámetro mayor a 4 cm, o evidencia de metástasis en linfonodo.
+Estadio IV — metástasis a distancia.
+
+Estadificación completa descrita en la literatura: tomografía computarizada o radiografía torácica de tres vistas, más ecografía abdominal.
+
+Propuesta de estratificación de riesgo. Una revisión sistemática reciente propone expandir el sistema TNM para incorporar designaciones específicas que capturen posibles variables pronósticas, ante la constatación de que las inconsistencias en estadificación y reporte dificultan comparar estudios.
+
+3. FACTORES PRONÓSTICOS — Y CUÁLES TIENEN EVIDENCIA REAL
+
+Los parámetros con significancia pronóstica estadística descritos incluyen: estadio, presencia de metástasis a distancia, atipia nuclear, índice mitótico, grado de pigmentación, invasión linfática e índice Ki67.
+
+Pero la revisión sistemática que evaluó niveles de evidencia llega a una conclusión más restringida y más útil: **el tamaño tumoral y la presencia de lisis ósea fueron las características reproducibles con el nivel de evidencia más alto** para efectos pronósticos sobre supervivencia. Con criterios estrictos de inclusión, los niveles de evidencia que respaldan los demás factores de riesgo propuestos resultaron bajos.
+
+Regla para CC-232: al pronosticar, OCIS debe separar tamaño y lisis ósea —respaldados— del resto de las variables, que se reportan como asociadas pero con evidencia baja. Presentarlas todas al mismo nivel es un error de calibración.
+
+El subgrupo que cambia la conversación. Se ha descrito una subsección de neoplasias melanocíticas histológicamente bien diferenciadas, con índice mitótico menor a 3 por 10 campos de gran aumento. El único estudio que investigó su comportamiento biológico reportó una supervivencia mediana favorable de **1.020 días** tras cirugía con intención curativa.
+
+Consecuencia: ante un melanoma oral con índice mitótico bajo y buena diferenciación, el pronóstico sombrío general no aplica. CC-231 debe reportar el índice mitótico siempre, porque puede reubicar al paciente en este subgrupo.
+
+4. TRATAMIENTO — CONTROL LOCAL
+
+El estándar de cuidado para control local es la escisión quirúrgica amplia, incluyendo 1,5 a 2 cm de tejido macroscópicamente normal y hueso adyacente si forma parte del margen de escisión. Otras fuentes describen márgenes de 2 a 3 cm de hueso y 1 cm de tejido blando.
+
+Radioterapia: se considera en casos de escisión incompleta, tumores no resecables, o cuando el propietario rechaza la cirugía.
+
+Los perros sometidos a cirugía radical con esos márgenes, o a cirugía más radioterapia, tienen supervivencias medianas más largas.
+
+5. TRATAMIENTO SISTÉMICO — EL PUNTO CONTROVERTIDO
+
+El tratamiento sistémico adyuvante se emplea con frecuencia dada la alta probabilidad de metástasis. Pero la conclusión de la literatura reciente es incómoda y OCIS debe transmitirla sin suavizarla:
+
+**Las terapias sistémicas actualmente disponibles, incluidas quimioterapia e inmunoterapia, no han mejorado los desenlaces de forma consistente, ni solas ni combinadas con terapia local.**
+
+La vacuna de ADN xenogénico. ONCEPT contiene ADN plasmídico xenogénico con un inserto que codifica tirosinasa humana. Fue evaluada en un ensayo clínico prospectivo multicéntrico en perros con enfermedad localmente controlada —tumor primario y linfonodos regionales resecados, con irradiación en tumores incompletamente resecados— en estadios 2 y 3 de melanoma oral maligno. Se administra por vía transdérmica mediante un dispositivo de vacunación intramuscular sin aguja, en 4 dosis cada 2 semanas, seguidas de refuerzos cada 6 meses. Está aprobada para estadios II y III con control local adecuado.
+
+El estado de la evidencia: la literatura inicial describió actividad prometedora, con supervivencias medianas más largas que el grupo control. **Estudios posteriores no lograron mostrar diferencias significativas similares.** Esos estudios fueron retrospectivos, con números pequeños de pacientes en los grupos vacunados y no vacunados, y deben interpretarse con cautela. Algunos estudios retrospectivos mostraron respuestas completas a la vacuna sola en perros con enfermedad macroscópica.
+
+Regla para CC-305: la vacuna se presenta como **opción con evidencia contradictoria**, cuyos beneficios y limitaciones corresponde discutir caso por caso con el propietario. Ni como tratamiento eficaz establecido ni como intervención descartada. Presentar una de las dos posiciones como la conclusión de la literatura es inexacto.
+
+Otras estrategias descritas: electroquimioterapia, quimioterapia metronómica, inhibidores de tirosina cinasa, y vacunación anti-CSPG4 con o sin electroporación, esta última con evidencia europea reciente sobre el impacto de la invasión ósea y de la extensión de la linfadenectomía cervical.
+
+6. PRONÓSTICO
+
+El pronóstico general permanece reservado. La mayoría de los perros muere de enfermedad metastásica.
+
+Ese enunciado convive con el subgrupo de la sección 3, y ambos deben presentarse juntos: el pronóstico agregado es malo, y existe un subconjunto histológicamente definido con supervivencia sustancialmente mayor.
+
+7. ERRORES FRECUENTES
+
+Presentar todos los factores pronósticos al mismo nivel de evidencia.
+
+No reportar el índice mitótico, perdiendo la identificación del subgrupo bien diferenciado.
+
+Presentar la vacuna como eficaz establecida, o como descartada.
+
+Omitir la evaluación de lisis ósea, que es uno de los dos factores con mejor respaldo.
+
+Estadificar sin evaluación de linfonodo regional, que define el paso a estadio III.
+
+Aplicar márgenes quirúrgicos de tejido blando convencional sin considerar el hueso adyacente.
+
+Asumir que el melanoma oral y el cutáneo comparten pronóstico: la localización es el principal factor y el oral/mucoso es el peor.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Melanoma cutáneo, digital y ocular. Melanoma felino. Técnicas de mandibulectomía y maxilectomía. Protocolos de radioterapia hipofraccionada. Dosis de quimioterápicos y de inhibidores de tirosina cinasa. Electroquimioterapia: técnica y protocolos. Inmunohistoquímica de melanoma amelanótico: Melan-A, PNL2, TRP-1/2. Linfadenectomía: técnica y extensión. Manejo del dolor oral y soporte nutricional. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+FUENTES
+
+Melanoma of the dog and cat: consensus and guidelines. Front Vet Sci 2024;11:1359426. Fuente de las secciones 1 y 5.
+
+Risk stratification scheme based on the TNM staging system for dogs with oral malignant melanoma centered on clinicopathologic presentation. Front Vet Sci 2024. PMC11463030. Fuente de las secciones 2, 3 y 5.
+
+Treatment of canine oral melanomas: a critical review of the literature. PMC9147014. Fuente de las secciones 2 y 3.
+
+Diagnosis and Treatment of Canine Oral Melanoma. Today's Veterinary Practice 2022. Fuente de las secciones 4, 5 y 6.
+
+Smedley RC, Bongiovanni L, Bacmeister C y col. Diagnosis and histopathologic prognostication of canine melanocytic neoplasms: a consensus of the Oncology-Pathology Working Group. Vet Comp Oncol 2022;20:739–751.
+
+Grosenbaugh DA, Leard AT, Bergman PJ y col. Safety and efficacy of a xenogeneic DNA vaccine encoding for human tyrosinase as adjunctive treatment for oral malignant melanoma in dogs following surgical excision of the primary tumor. Am J Vet Res 2011;72(12):1631–1638.
+
+Influence of the extent of cervical lymph node dissection and lymph node metastases on prognosis in dogs with oral malignant melanoma treated by surgical resection and adjuvant anti-CSPG4 electrovaccination. PMC12333538.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

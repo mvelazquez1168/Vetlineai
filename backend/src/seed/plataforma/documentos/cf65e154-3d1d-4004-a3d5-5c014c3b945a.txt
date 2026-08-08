@@ -1,0 +1,111 @@
+PANCREATITIS AGUDA CANINA — DIAGNÓSTICO, MANEJO Y PRONÓSTICO
+
+Resumen clínico de referencia para GCIS. Componentes que lo consumen: CC-240 (correlación diagnóstica), CC-220 (imagenología), CC-201/202 (laboratorio), CC-301 a CC-304 (farmacoterapia), CC-306 a CC-309 (nutrición terapéutica).
+
+Documento complementario del consenso ACVIM 2021 sobre pancreatitis en gatos, ya presente en la Base de Conocimiento. Las dos especies difieren lo suficiente como para requerir documentos separados.
+
+---
+
+1. POR QUÉ IMPORTA
+
+La pancreatitis de inicio agudo es común en el perro y presenta desafíos tanto diagnósticos como de manejo. La mayoría de los casos se consideran idiopáticos, de modo que la identificación de una causa —aunque importante— resulta infructuosa con frecuencia.
+
+Hasta hace poco, el manejo se basaba casi exclusivamente en cuidado sintomático y de soporte. Eso cambió con la aparición del primer agente terapéutico específico, tratado en la sección 5.
+
+2. DIAGNÓSTICO — INTEGRACIÓN, NO UNA PRUEBA
+
+El diagnóstico se basa en la integración de datos de la historia clínica, el examen físico, la imagenología diagnóstica y un ensayo de lipasa pancreática. Ninguno de esos elementos es suficiente por sí solo.
+
+Regla para GCIS: un valor de lipasa pancreática aislado no diagnostica pancreatitis, y su normalidad tampoco la descarta. El componente debe declarar sobre qué combinación de elementos está razonando.
+
+Ensayos de lipasa. Los dos formatos en uso son la lipasa pancreática específica canina (Spec cPL) y los ensayos colorimétricos basados en el sustrato DGGR. Vale trasladar aquí la advertencia que el consenso felino documenta con detalle: los ensayos basados en DGGR no son específicos de lipasa pancreática, porque también miden lipasa hepática y lipoproteica, entre otras. La concordancia entre ambos métodos es imperfecta.
+
+Efecto de la historia clínica y la medicación. Se ha estudiado el efecto de la historia médica y de factores clínicos sobre la actividad de lipasa sérica y sobre la evidencia ecográfica de pancreatitis, con el resultado de que el hallazgo aislado debe interpretarse en contexto.
+
+Imagenología. La ecografía es la modalidad de rutina. La angiotomografía computarizada ha sido evaluada como complemento en el diagnóstico y la evaluación de la pancreatitis aguda canina.
+
+Marcadores inflamatorios. La proteína C reactiva ha sido evaluada como marcador pronóstico en perros con lipasa pancreática elevada, y junto con la cPL se ha estudiado para el seguimiento de la progresión de la enfermedad. La relación neutrófilos/linfocitos, la relación plaquetas/linfocitos y el ancho de distribución eritrocitaria también se han evaluado como parámetros pronósticos.
+
+3. MANEJO — LOS CUATRO PILARES
+
+Fluidoterapia. Es crucial, y la instrucción central es que debe adaptarse a las necesidades del paciente: proveer hidratación adecuada **previniendo a la vez la sobrehidratación**. No es un protocolo fijo.
+
+Antieméticos. Requeridos para controlar el vómito y la pérdida de fluidos, y para permitir el soporte nutricional temprano. El control de la náusea no es solo confort: es lo que habilita alimentar.
+
+Analgesia. El dolor abdominal es un componente central del cuadro y su manejo se describe como muy importante. A diferencia del gato —donde el dolor abdominal se reporta con poca frecuencia y probablemente se subestima—, en el perro es un hallazgo esperable.
+
+Soporte nutricional temprano. Se aborda como parte del manejo, no como cuidado posterior a la estabilización.
+
+Reconocimiento y manejo de complicaciones. Descrito también como crucial.
+
+4. LA COMPLICACIÓN QUE MÁS PESA EN EL PRONÓSTICO
+
+Un estudio de cohorte retrospectivo sobre 146 perros con pancreatitis —diagnosticados por lipasa pancreática canina ≥ 400 µg/L más signos clínicos— estratificó los casos en cuatro grupos: pancreatitis sola, pancreatitis con lesión renal aguda, pancreatitis con enfermedades concurrentes, y pancreatitis con ambas.
+
+La lesión renal aguda concurrente aparece así como el eje de estratificación pronóstica, junto con la presencia de enfermedades concurrentes.
+
+Regla para GCIS: en todo caso de pancreatitis canina, la evaluación renal forma parte del abordaje inicial, no del seguimiento. Un paciente con pancreatitis y azotemia no es un paciente con dos problemas independientes.
+
+Sistemas de puntuación. Se ha desarrollado y validado un sistema de puntuación clínica para la predicción a corto plazo de muerte en perros con pancreatitis aguda. GCIS debe declarar cuál emplea cuando estratifique severidad.
+
+5. FUZAPLADIB — EL PRIMER AGENTE ESPECÍFICO
+
+Más recientemente, la modificación farmacológica de la cascada inflamatoria ganó interés, y el fuzapladib sódico se convirtió en el primer agente terapéutico específico para el tratamiento de la pancreatitis aguda canina, con expectativa razonable de efectividad demostrada en un estudio piloto y en un ensayo controlado aleatorizado posterior.
+
+Estado regulatorio: cuenta con aprobación condicional de la FDA. La aprobación condicional es una categoría distinta de la aprobación plena, y esa distinción debe declararse al mencionarlo.
+
+Regla para GCIS: el fuzapladib se presenta como agente específico disponible con aprobación condicional, no como estándar de cuidado establecido. La evidencia disponible al momento de este documento es limitada.
+
+6. LO QUE NO SE RECOMIENDA DE RUTINA
+
+Antimicrobianos. Trasladando el criterio del consenso felino, que se apoya en la literatura humana: la pancreatitis aguda se considera un proceso estéril y los antimicrobianos no están recomendados en casos no complicados. Se reservan para sospecha o confirmación de infección pancreática, ascenso de infección por el conducto biliar o pancreático, o hallazgos hematológicos sugestivos de sepsis.
+
+Corticoides. Su uso en pancreatitis aguda ha sido objeto de estudio comparativo en perros, con resultados que sugieren mejores desenlaces en trabajos recientes, pero sin que exista consenso que respalde su uso rutinario. Debe presentarse como área de evidencia en desarrollo.
+
+7. DIFERENCIAS RELEVANTES CON EL GATO
+
+En el gato, más del 95% de los casos son idiopáticos, la pancreatitis crónica es la forma histológicamente predominante, y el dolor abdominal se reporta con poca frecuencia. En el perro, el cuadro agudo domina la presentación clínica y el dolor es un hallazgo esperable.
+
+Consecuencia para GCIS: el documento felino no debe usarse como sustituto de este ni viceversa. Al razonar sobre pancreatitis, el componente debe declarar la especie sobre la que está razonando.
+
+8. ERRORES FRECUENTES
+
+Diagnosticar sobre un valor de lipasa aislado, o descartar por su normalidad.
+
+Tratar un resultado de ensayo DGGR como equivalente a un Spec cPL.
+
+Fluidoterapia agresiva sin vigilar sobrehidratación.
+
+Diferir la nutrición hasta después de la estabilización completa.
+
+Prescribir antimicrobianos de rutina en un caso no complicado.
+
+No evaluar función renal al ingreso.
+
+Presentar el fuzapladib como estándar de cuidado sin declarar su estado de aprobación condicional.
+
+Aplicar criterios felinos a un perro.
+
+9. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis y protocolos completos de fluidoterapia, antieméticos, analgésicos y fuzapladib. Pancreatitis crónica canina. Insuficiencia pancreática exocrina. Diabetes mellitus secundaria a pancreatitis. Manejo de la coagulación intravascular diseminada y del síndrome de respuesta inflamatoria sistémica. Nutrición enteral: vías y protocolos. Predisposición racial, en particular en Schnauzer miniatura e hipertrigliceridemia. Estos temas quedan como vacíos declarados de la Base de Conocimiento de GCIS.
+
+FUENTES
+
+Management of acute-onset pancreatitis in dogs: a narrative review. J Am Vet Med Assoc 2024;262(9). DOI 10.2460/javma.24.02.0107. Fuente principal de las secciones 1, 3 y 5.
+
+Forman MA, Steiner JM, Armstrong PJ y col. ACVIM consensus statement on pancreatitis in cats. J Vet Intern Med 2021;35:703–723. Fuente de las secciones 6 y 7, por traslado explícito.
+
+Survival outcomes and prognostic indicators in canine pancreatitis: a retrospective cohort study of acute kidney injury and concurrent diseases. PMC12668752. Fuente de la sección 4.
+
+Febres V, Dossin O, Reif C y col. Development and validation of a novel clinical scoring system for short-term prediction of death in dogs with acute pancreatitis. J Vet Intern Med 2019;33(2):499–507.
+
+Hammes K, Kook PH. Effects of medical history and clinical factors on serum lipase activity and ultrasonographic evidence of pancreatitis: analysis of 234 dogs. J Vet Intern Med 2022;36(3):935–946.
+
+French JM, Twedt DC, Rao S, Marolf AJ. Computed tomographic angiography and ultrasonography in the diagnosis and evaluation of acute pancreatitis in dogs. J Vet Intern Med 2019;33(1):79–88.
+
+Oberholtzer S, Cook A, Gomez R, Steiner J. Prognostic value of C-reactive protein in dogs with elevated serum pancreatic lipase immunoreactivity concentrations. J Am Vet Med Assoc 2024;262:370–375.
+
+Steiner JM, Lainesse C, Noshiro Y y col., sobre fuzapladib en ensayo controlado aleatorizado.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

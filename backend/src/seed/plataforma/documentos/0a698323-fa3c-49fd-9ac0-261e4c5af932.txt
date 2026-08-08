@@ -1,0 +1,91 @@
+RCIS-DASH-001
+
+Dashboard Functional Specification v1.0 (adaptado de ICIS-DASH-001)
+
+NOTA DE ALCANCE DE ESTA ADAPTACIÓN (RCIS-DASH-001)
+
+Define la estructura funcional y el comportamiento del dashboard clínico de RCIS. Hereda el lenguaje visual de RCIS-DESIGN-001 y consume los componentes de RCIS-ARCH-001 por su código; no redefine ninguno de los dos.
+
+La diferencia funcional de RCIS frente a otras especialidades es que su dashboard no tiene una sola forma. Cambia de configuración según la fase reproductiva del paciente, porque un caso en planificación de servicio y un caso en trabajo de parto no comparten ni las cards relevantes ni la urgencia con que deben leerse.
+
+---
+
+1. Principio rector
+
+El dashboard responde una pregunta antes que ninguna otra: dónde está este paciente en su eje reproductivo y qué vence pronto. Todo lo demás se subordina a eso.
+
+2. Estructura base
+
+Tres zonas fijas:
+
+Zona de anclaje temporal, superior y siempre presente. Muestra la posición del paciente en el eje reproductivo, el próximo evento proyectado con su fecha y su margen, y la cuenta de días hacia él. Es la única zona que no desaparece en ninguna configuración.
+
+Zona principal, central. Contiene las cards relevantes a la fase actual, en el orden que define la sección 3.
+
+Zona de contexto, inferior. Núcleo de caso, historia, laboratorio y la timeline bidireccional de la sección 5.
+
+3. Configuraciones por fase
+
+El dashboard adopta una de seis configuraciones. La fase la determina CC-231 y CC-233; el dashboard no la infiere por su cuenta.
+
+SIN EVENTO REPRODUCTIVO ACTIVO. Configuración base. Zona principal con historial reproductivo y últimos estudios. Sin cards de urgencia.
+
+PLANIFICACIÓN DE SERVICIO. Timing Card (CC-232) en posición dominante, con la serie de progesterona visible sin necesidad de expandir. Debajo, hallazgos de CC-231 y CC-220. La zona de anclaje muestra la ventana fértil como cuenta regresiva.
+
+GESTACIÓN CONFIRMADA. Gestational Status Card (CC-233) dominante. La zona de anclaje muestra día de gestación y fecha probable de parto con método. Si el conteo fetal no se realizó y la gestación está avanzada, aparece un aviso persistente en la zona de anclaje —no una card más abajo, donde se pierde.
+
+TRABAJO DE PARTO ACTIVO. Configuración de excepción. La Obstetric Urgency Card (CC-234) ocupa la zona principal completa y desplaza todo lo demás a un nivel colapsado. La escala de urgencia corre en tiempo real. Ninguna otra card puede competir por atención en esta configuración; es la única del sistema que suprime contenido en vez de reordenarlo.
+
+PUERPERIO Y NEONATOLOGÍA. Neonatal Litter Card (CC-235) dominante, con la tabla de camada expandida por defecto. En paralelo, seguimiento de involución uterina de la madre por CC-220. La zona de anclaje muestra día posparto contra el límite de puerperio normal.
+
+EVALUACIÓN DEL MACHO. Andrology Summary Card (CC-236) y, cuando aplique, Prostatic Assessment Card (CC-237). El estado reproductivo —entero o castrado— permanece visible en la zona de anclaje, porque condiciona la lectura de todo lo prostático.
+
+4. Comportamiento de la urgencia obstétrica
+
+Mientras la configuración de trabajo de parto esté activa:
+
+La escala de CC-234 se actualiza sin requerir acción del usuario. Es el único elemento del dashboard con actualización continua.
+
+El contador de fetos nacidos contra el conteo esperado es permanente. Si el conteo fetal no existe, ese hueco se muestra donde iría el número, no se oculta.
+
+La recomendación de conducta se acompaña siempre del tiempo transcurrido que la fundamenta. Una recomendación de cesárea sin el reloj visible pierde la mitad de su información.
+
+No hay estado de reposo. La card no se colapsa ni se archiva mientras el trabajo de parto no se declare resuelto.
+
+5. Timeline bidireccional
+
+Ocupa la zona de contexto y sigue la sección 13 de RCIS-DESIGN-001. Funcionalmente:
+
+El presente es una divisoria explícita. Los eventos proyectados se representan con su margen como extensión, no como punto.
+
+Al cumplirse un evento proyectado, se conserva junto al ocurrido. La diferencia entre estimado y real queda visible y es consultable en el caso siguiente del mismo paciente.
+
+La timeline es la única vista que atraviesa todas las configuraciones sin cambiar de forma.
+
+6. Regeneración y costo
+
+El dashboard de RCIS se compone de contenido generado. Regenerarlo tiene costo real de consumo, y un caso reproductivo se consulta muchas más veces que un caso de otra especialidad, porque se extiende semanas.
+
+Reglas:
+
+El contenido generado se cachea por caso y se reutiliza mientras no cambien sus entradas. Abrir el dashboard no regenera nada por sí solo.
+
+La regeneración se dispara únicamente por evento: nuevo dato de laboratorio, nuevo estudio de imagen, nuevo evento clínico registrado, o cambio de fase. No por navegación ni por refresco de pantalla.
+
+Los elementos puramente temporales —cuenta regresiva, días de gestación, escala de CC-234— se calculan en el cliente a partir de fechas ya almacenadas. No requieren generación. Esta distinción es la que permite que la configuración de trabajo de parto se actualice de forma continua sin costo por actualización.
+
+7. Estados vacíos
+
+El dashboard distingue tres vacíos y los muestra distinto: no solicitado, pendiente, y no aplicable a la fase. En RCIS un vacío es frecuentemente un hallazgo, y presentarlo como espacio en blanco lo oculta.
+
+---
+
+Dashboard Decisions
+
+DA-RCIS-01 — El dashboard cambia de forma, no solo de contenido. Seis configuraciones, determinadas por la fase reproductiva. Una única configuración con cards que aparecen y desaparecen produciría una vista ilegible en trabajo de parto.
+
+DA-RCIS-02 — La configuración obstétrica suprime, no reordena. Es la única del sistema con esa licencia, y se justifica porque es la única situación donde el tiempo de lectura tiene costo clínico directo.
+
+DA-RCIS-03 — Lo temporal se calcula, no se genera. Separar el cálculo de fechas de la generación de contenido es lo que hace viable un caso que vive semanas sin que su costo de consumo escale con las consultas.
+
+DA-RCIS-04 — Sin regeneración por navegación. Abrir, cerrar y reabrir un caso no produce contenido nuevo. La regeneración es por evento clínico, siempre.

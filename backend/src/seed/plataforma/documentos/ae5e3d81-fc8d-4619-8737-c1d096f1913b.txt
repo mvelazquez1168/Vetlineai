@@ -1,0 +1,129 @@
+# Consenso ACVIM 2024 — Tratamiento de la Trombocitopenia Inmunomediada (ITP) en perros y gatos
+
+**Fuente:** LeVine DN, Goggs R, Kohn B, et al. ACVIM consensus statement on the treatment of immune thrombocytopenia in dogs and cats. *J Vet Intern Med.* 2024;38(4):1982-2007. Licencia CC BY-NC-ND 4.0. Documento complementario al ya cargado sobre diagnóstico de ITP.
+
+**Alcance de este resumen:** referencia clínica condensada para ICIS — tratamiento de ITP primaria (pITP) y consideraciones para ITP secundaria (sITP). Se omiten metodología del panel y tablas completas de evidencia; se conservan definiciones de respuesta, algoritmo de manejo, y recomendaciones farmacológicas/de soporte con su nivel de evidencia.
+
+---
+
+## 1. Definiciones de respuesta al tratamiento (base para monitoreo)
+
+| Categoría | Definición |
+|---|---|
+| Sin respuesta (NR) | Plaquetas <30,000/μL o sangrado activo ≥2 semanas tras iniciar tratamiento |
+| Respuesta parcial (PR) | Plaquetas ≥30,000 y <100,000/μL + aumento >2 veces desde diagnóstico + ausencia de sangrado |
+| Respuesta completa (CR) | Plaquetas ≥100,000/μL sin sangrado |
+| Remisión completa | Plaquetas ≥100,000/μL sin sangrado, **sin tratamiento en curso** |
+
+**Meta de tratamiento**: plaquetas ≥100,000/μL sin evidencia de sangrado, en tratamiento o tras suspenderlo.
+
+## 2. Primera línea — glucocorticoides + adyuvante de emergencia si hay sangrado clínicamente relevante
+
+### Vincristina (perros) — recomendada como primer adyuvante de emergencia
+- Dosis única IV 0.02 mg/kg (máximo 0.5 mg/m² en perros >25kg), junto con glucocorticoides a dosis inmunosupresora.
+- Acelera recuperación plaquetaria inicial y acorta hospitalización — evidencia moderadamente fuerte.
+- **Precaución en razas con alta incidencia de mutación ABCB1/MDR1**: Collie liso/de pelo largo, Pastor de Shetland, Pastor Australiano, Whippet de pelo largo — usar con cautela, o evitar.
+- Si se planea ciclosporina modificada concurrente: **retrasar su inicio varios días** tras la vincristina, para minimizar riesgo de neutropenia inducida por interacción.
+- Monitorear conteo de neutrófilos en perros que reciben vincristina, especialmente con ciclosporina concurrente.
+- **Gatos**: evidencia limitada sugiere que vincristina puede ser inefectiva — **no recomendada** hasta contar con más evidencia.
+
+### Inmunoglobulina humana IV (hIVIg) — alternativa/complemento a vincristina
+- Dosis única IV 0.5-1.0 g/kg en infusión de 6-12h, junto con glucocorticoides — evidencia fuerte en perros (2 ensayos randomizados).
+- Acelera recuperación plaquetaria y acorta hospitalización de forma similar a vincristina.
+- **Vincristina se prefiere sobre hIVIg como primera opción** por costo sustancialmente menor, disponibilidad y facilidad de administración — salvo en razas de riesgo MDR1 o cuando vincristina fue inefectiva.
+- Monitorear complicaciones trombóticas mientras el conteo plaquetario se recupera (se ha observado estado hipercoagulable asociado a la infusión).
+- No se recomienda repetir infusiones de IVIg más allá de 3 días (seguridad/eficacia no evaluada).
+- **Gatos**: evidencia débil pero favorable — considerar en sangrado clínicamente relevante o enfermedad refractaria.
+- hIVIg como monoterapia (sin glucocorticoides) **no se recomienda**.
+
+## 3. Segundo inmunosupresor — cuándo agregar
+
+**Indicaciones para agregar un segundo fármaco:**
+- Sin respuesta dentro de 5-7 días de iniciar glucocorticoides.
+- Efectos adversos severos (desarrollados o esperados) por glucocorticoides.
+- Recaída durante el descenso de dosis tras alcanzar respuesta completa.
+- **Uso temprano a considerar en**: perros >25kg (permite descenso más rápido de glucocorticoide) y sangrado severo (por el inicio de acción retrasado de los fármacos secundarios).
+
+**Opciones razonables (perros, orden alfabético)**: azatioprina, ciclosporina modificada, leflunomida, micofenolato mofetilo (MMF).
+
+**Gatos**:
+- Ciclosporina modificada y clorambucilo son opciones razonables.
+- **Azatioprina NUNCA debe usarse en gatos** — metabolismo deficiente, riesgo de toxicidad hematológica.
+- Clorambucilo: asociado a trombocitopenia con uso crónico — vigilar.
+
+**Regla general**: no hay evidencia de que agregar un tercer inmunosupresor mejore resultados — mayor inmunosupresión solo aumenta riesgo de efectos adversos. Si el segundo fármaco no funciona, considerar cambiarlo, no sumar un tercero.
+
+## 4. Individualización según severidad — no todos los pacientes necesitan lo mismo
+
+- Pacientes con sangrado pulmonar, del SNC, o GI evidente sospechado: iniciar vincristina o hIVIg + considerar segundo inmunosupresor desde el principio.
+- Pacientes con sangrado mínimo o ausente: manejar con glucocorticoides solos, salvo intolerancia anticipada.
+- **Mejores predictores de severidad**: sangrado GI (especialmente melena), hemorragia de SNC o pulmonar, BUN elevado, y anemia que requiere transfusión.
+
+## 5. Manejo de recaídas
+
+- Tasa de recaída reportada: 9-47% (mediana de aparición ~79 días en un estudio).
+- Causas potenciales: descenso demasiado rápido de inmunosupresión, nueva comorbilidad desencadenante, o comorbilidad oculta persistente no detectada inicialmente.
+- **Ante sospecha de recaída**: reconfirmar diagnóstico con los mismos criterios del consenso de diagnóstico; investigar desencadenantes (historia, hemograma+frotis, bioquímica, urianálisis; imagen/citología/screening infeccioso/neoplásico según epidemiología local).
+- Si no se identifica desencadenante y la recaída ocurre durante el descenso de dosis: aumentar la dosis de inmunosupresores. Recaída leve → volver a la dosis previa efectiva. Recaída severa → reiniciar protocolo de inducción completo (± vincristina/hIVIg si no se usó antes).
+- Tras recuperar respuesta, el descenso posterior de dosis debe ser **más gradual** que el intento anterior.
+- Recaídas recurrentes pese a descenso cuidadoso: considerar inmunosupresión de por vida a la dosis mínima efectiva, romiplostim, o esplenectomía (tras excluir desencadenantes infecciosos).
+
+## 6. ITP secundaria (sITP) — rol de la inmunosupresión
+
+- Con desencadenante infeccioso identificado o sospechado (especialmente agentes transmitidos por vector): **el tratamiento antimicrobiano específico suele resolver la trombocitopenia sin necesidad de inmunosupresión**.
+- Mientras se esperan resultados diagnósticos, en un paciente con trombocitopenia severa y riesgo vital, considerar inmunosupresión de corto plazo junto con el tratamiento específico si no se espera resolución rápida solo con este último.
+- **Tratamiento empírico con doxiciclina está justificado** mientras se completa la investigación, en cualquier paciente sin contraindicaciones donde un agente vectorial doxiciclina-respondedor sea un desencadenante potencial.
+- La inmunosupresión puede empeorar o perpetuar una infección subyacente — sopesar cuidadosamente.
+
+## 7. Terapias de rescate/refractariedad
+
+### Agonistas del receptor de TPO (romiplostim)
+- Evidencia limitada (5 perros con ITP) sugiere mejoría de conteo plaquetario en enfermedad refractaria, sin efectos adversos reportados.
+- Considerar en refractariedad con riesgo sustancial de sangrado clínico — costo actual muy alto limita uso rutinario.
+- **Eltrombopag** (otro agonista TPO) probablemente NO es efectivo en perros ni gatos (estudios in vitro con plaquetas caninas).
+- **Gatos**: sin reportes de uso — no recomendado hasta contar con evidencia.
+
+### Esplenectomía
+- Puede inducir remisión sostenida sin tratamiento médico en algunos individuos refractarios, pero **la recaída futura es común**.
+- **Ni se recomienda ni se desaconseja de rutina** — considerar en enfermedad refractaria al tratamiento médico o cuando efectos adversos obligan a discontinuar inmunosupresión.
+- **Screening cuidadoso de enfermedad infecciosa local antes de la cirugía es obligatorio.**
+- Advertir a los propietarios que la tasa de respuesta a largo plazo es variable.
+- **Gatos**: esplenectomía de rutina no recomendada; considerar solo en refractariedad, con expectativas de éxito inciertas.
+
+### Intercambio plasmático terapéutico (TPE)
+- No recomendado de rutina en perros; considerar en enfermedad severa refractaria al tratamiento estándar.
+- Complicaciones reportadas hasta en 35% de los tratamientos (coagulación del filtro, reacciones de hipersensibilidad, hipovolemia, hipocalcemia).
+- **No recomendado en gatos** (sin estudios disponibles).
+
+## 8. Manejo de soporte
+
+### Antitrombóticos
+- Evidencia contradictoria sobre riesgo de trombosis durante tratamiento de ITP — **no indicados de rutina**.
+- Considerar tromboprofilaxis cuando el paciente ya no está en riesgo de sangrado espontáneo (conteo plaquetario en recuperación) Y tiene comorbilidades de riesgo trombótico reconocido.
+
+### Gastroprotectores
+- Evidencia insuficiente de beneficio en resultados, pero **se sugiere considerar ante melena observada o sospechada** — dado que no puede excluirse con certeza la ulceración GI concurrente, especialmente bajo tratamiento glucocorticoide.
+- Advertencia: sucralfato administrado junto con otros fármacos podría inhibir la absorción de medicación esencial para el ITP (interacción documentada en humanos con micofenolato e IBP; desconocido en perros/gatos).
+
+### Pruebas de coagulación
+- **No indicadas de rutina** durante el tratamiento — sí deben medirse como parte del diagnóstico inicial (para descartar otras causas de trombocitopenia) y si aparece sangrado en cavidades corporales (atípico de ITP) o sangrado tras mejorar el conteo plaquetario.
+
+### Transfusión de productos con plaquetas
+- **No recomendada de rutina** — considerar solo ante sangrado severo o que amenaza la vida.
+- El incremento promedio de plaquetas post-transfusión es modesto — es una estrategia adyuvante, no una solución definitiva.
+- Elección de producto (fresco, criopreservado, liofilizado): sin diferencia de eficacia demostrada entre tipos — decidir según disponibilidad, seguridad, volumen y cantidad de partículas plaquetarias.
+
+### Transfusión de glóbulos rojos
+- Considerar para anemia clínicamente relevante o hipovolemia hemorrágica — sin evidencia específica que compare productos, decidir según disponibilidad y necesidad clínica.
+
+## 9. Vacunación tras recuperación de ITP
+
+- Evidencia muy limitada de asociación entre vacunación y recaída — un estudio pequeño no encontró recaídas en perros revacunados ≥1 mes tras suspender inmunosupresores.
+- Recomendación: individualizar según riesgo de exposición a enfermedad, requisitos legales (rabia), y considerar monitoreo de títulos como alternativa a revacunación sistemática para core vaccines (moquillo, adenovirus, parvovirus/panleucopenia).
+- Si se vacuna: **un solo antígeno por visita**, solo tras discontinuar inmunosupresores (o con dosis antiinflamatoria de glucocorticoide, ej. prednisona 0.5 mg/kg c/24h, si no se anticipa discontinuación completa) — considerar medir plaquetas a las 2 y 5 semanas post-vacunación.
+
+## 10. Conclusión operativa para ICIS
+
+- Glucocorticoides son la base del tratamiento en todos los casos de pITP; la decisión clave es **cuándo agregar un adyuvante de emergencia** (vincristina primero, salvo contraindicación racial/gato) según la severidad de sangrado, no según el conteo plaquetario aislado.
+- Para sITP, la prioridad es identificar y tratar el desencadenante — la inmunosupresión es secundaria, y en desencadenantes vectoriales, el tratamiento antimicrobiano específico suele bastar.
+- El manejo de recaída sigue una lógica reconfirmación-diagnóstica → reintroducción escalonada → descenso más lento la próxima vez — nunca asumir automáticamente que una recaída requiere el mismo protocolo desde cero sin reevaluar comorbilidades.

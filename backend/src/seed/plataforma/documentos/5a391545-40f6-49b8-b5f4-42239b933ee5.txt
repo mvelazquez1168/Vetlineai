@@ -1,0 +1,103 @@
+TUMORES MAMARIOS EN LA PERRA Y LA GATA — ESTADIFICACIÓN, PRONÓSTICO Y TRATAMIENTO
+
+Resumen clínico de referencia para OCIS. Componentes que lo consumen: CC-232 (Staging & Grading Engine), CC-231 (Histopathology Intelligence), CC-220 (Imaging Intelligence), CC-305 (Oncology Pharmacotherapy).
+
+---
+
+1. RELEVANCIA
+
+Entre las condiciones que afectan la glándula mamaria de la perra, las neoplasias son especialmente prominentes: afectan con frecuencia a hembras de edad avanzada y no esterilizadas, y representan más de la mitad de todos los casos tumorales.
+
+Esta última cifra tiene una implicación directa para el mercado de la plataforma: en poblaciones donde la esterilización es tardía o poco frecuente, el tumor mamario es la consulta oncológica más probable, no una entidad de segunda línea.
+
+Perfil epidemiológico. En una serie retrospectiva de 198 casos, la mayoría de las afectadas fueron hembras de mediana edad y mayores; las no esterilizadas y aquellas con historia de pseudogestación presentaron el riesgo más alto. Los tumores benignos fueron más comunes en perras jóvenes, mientras que los malignos predominaron en las de mayor edad, representando el 89.9% de los casos de esa serie.
+
+Prevención. La esterilización temprana reduce la incidencia; la extracción ovárica completa antes del primer celo se señala como medida preventiva efectiva.
+
+Este punto conecta con RCIS: la decisión de esterilizar y su momento es una conversación reproductiva con consecuencia oncológica, y ambos agentes deben razonar sobre el mismo hecho sin contradecirse.
+
+2. ESTADIFICACIÓN CLÍNICA
+
+El sistema histórico es el TNM, con parámetros clínicos:
+
+T — tamaño tumoral clínico, con umbrales de 3 y 5 centímetros.
+N — presencia de metástasis en linfonodo.
+M — metástasis a distancia.
+
+Se diagnostican por palpación, imagenología, biopsia o citología. Se reconocen cuatro o cinco estadios según la fuente, y todos ellos se han asociado significativamente con el pronóstico en análisis de supervivencia.
+
+Los perros con enfermedad de estadio más bajo tienen pronóstico significativamente mejor que los de estadio avanzado. La estadificación también se usa para adaptar el tratamiento.
+
+Propuesta de estadificación histológica. Inspirado en la oncología humana —donde en el cáncer de mama estadio I–III el T clínico se reemplaza por el tamaño tumoral patológico (pT) y el N clínico por el estadio nodal patológico (pN), ambos evaluados por el patólogo—, se ha diseñado un sistema de estadificación histológica para carcinomas mamarios caninos y felinos, evaluado sobre 433 perras con carcinoma mamario.
+
+Regla para CC-232: al reportar un estadio, debe declararse si es clínico o histológico. No son equivalentes y su capacidad predictiva difiere.
+
+3. GRADO HISTOLÓGICO
+
+El grado tumoral también predice el desenlace en tumores epiteliales. Se evalúan y puntúan tres parámetros: formación de túbulos, pleomorfismo nuclear, y número de mitosis por 10 campos de gran aumento.
+
+Regla para CC-231: si el informe de patología no incluye alguno de esos tres parámetros, el componente debe declarar explícitamente qué falta, en lugar de asumir un grado.
+
+4. LA EXCEPCIÓN QUE MÁS SE PASA POR ALTO: LOS SARCOMAS
+
+Los tumores mamarios mesenquimales malignos primarios —sarcomas— se asocian a un pronóstico reservado, y su comportamiento obliga a razonar distinto.
+
+El osteosarcoma es el sarcoma mamario primario más frecuente y se caracteriza por comportamiento biológico agresivo, similar al de los osteosarcomas de otras localizaciones.
+
+Dos consecuencias que cambian la conducta:
+
+**El sistema de estadificación de la OMS empleado para tumores epiteliales no aplica a los sarcomas.**
+
+**Los sarcomas no metastatizan habitualmente por vía linfática sino por vía hematógena.** Por lo tanto, una perra con osteosarcoma mamario primario tiene pronóstico pobre a pesar de la ausencia de metástasis en linfonodo.
+
+Regla para CC-232: la ausencia de metástasis ganglionar no es un hallazgo tranquilizador en un sarcoma mamario. Aplicar la lectura epitelial a un sarcoma produce un pronóstico falsamente favorable.
+
+Para el osteosarcoma mamario primario pueden resultar útiles protocolos similares a los empleados en osteosarcoma apendicular.
+
+5. TRATAMIENTO
+
+Cirugía. Es el pilar. La intervención quirúrgica temprana mejora significativamente la supervivencia y la calidad de vida. La detección temprana, el tratamiento quirúrgico oportuno y el seguimiento posoperatorio son determinantes del resultado.
+
+Terapia adyuvante. Su indicación depende del tipo histológico, el grado tumoral, el estadio clínico y el perfil inmunohistoquímico. La quimioterapia y la terapia dirigida son las modalidades recomendadas con mayor frecuencia.
+
+Estado de la evidencia — punto que debe declararse. No existen ensayos prospectivos aleatorizados sobre el efecto de la quimioterapia en perras con tumores de alto riesgo. Aun así, la quimioterapia se emplea con frecuencia ante factores pronósticos negativos.
+
+Un estudio prospectivo no aleatorizado mostró beneficio significativo en supervivencia en perras de alto riesgo (estadio III de la OMS) tratadas con la combinación de ciclofosfamida y 5-fluorouracilo. Muchos oncólogos añaden doxorrubicina a ese protocolo, basándose en que es uno de los agentes más efectivos en el cáncer de mama humano de alto riesgo; sin embargo, ningún estudio ha confirmado su actividad en la perra.
+
+Regla para CC-305: la adición de doxorrubicina en este contexto es extrapolación desde oncología humana, no evidencia canina, y debe presentarse así.
+
+Quimioterapia metronómica. Los carcinomas mamarios están entre las entidades con resultados positivos publicados para este abordaje. Ver el documento de farmacoterapia oncológica.
+
+6. ERRORES FRECUENTES
+
+Aplicar la estadificación de tumores epiteliales a un sarcoma mamario.
+
+Interpretar la ausencia de metástasis ganglionar como pronóstico favorable en un sarcoma.
+
+Reportar un estadio sin declarar si es clínico o histológico.
+
+Asignar grado con un informe de patología incompleto.
+
+Presentar la doxorrubicina en tumor mamario como conducta respaldada por evidencia canina.
+
+Omitir la historia reproductiva —esterilización, pseudogestación— en la evaluación del caso.
+
+Tratar la ausencia de ensayos aleatorizados como si fuera evidencia de ausencia de efecto, o al revés, presentar la práctica habitual como si estuviera validada.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Tumores mamarios felinos en profundidad: su comportamiento, estadificación y pronóstico propios, que difieren de los caninos y merecen documento aparte. Técnicas quirúrgicas: nodulectomía, mastectomía regional y radical, y sus indicaciones comparadas. Perfil inmunohistoquímico: marcadores y su interpretación. Terapia hormonal. Carcinoma inflamatorio mamario. Osteosarcoma apendicular como entidad propia. Estadificación por imagen: protocolo de búsqueda de metástasis pulmonar. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+FUENTES
+
+Cassali GD y col. Consensus on the diagnosis, prognosis, and treatment of canine and feline mammary tumors, 2023.
+
+Canine Mammary Tumors: Treatment, Prognostic Factors and Outcome. WSAVA 2011. Fuente de las secciones 3, 4 y 5.
+
+Proposal for a Histological Staging System of Mammary Carcinomas in Dogs and Cats. Part 1: Canine Mammary Carcinomas. PMC6854021. Fuente de la sección 2.
+
+Epidemiological investigation and surgical treatment of canine mammary tumors in Dalian, China, from 2019 to 2023. PLoS One 2024;19. DOI 10.1371/journal.pone.0314292. Fuente de la sección 1.
+
+Metronomic chemotherapy: bridging theory to clinical application in canine and feline oncology. PMC11187343.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

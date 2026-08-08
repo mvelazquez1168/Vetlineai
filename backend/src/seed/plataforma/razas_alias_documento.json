@@ -1,0 +1,166 @@
+{
+  "documento_id_esperado": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+  "filas": [
+    {
+      "id": "099947ce-90ac-477f-9e0d-b2d9f6ec90f9",
+      "raza_nombre": "Akita Inu",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Akita",
+      "nota": null
+    },
+    {
+      "id": "a982ec05-beb1-4996-89eb-2361767da0a0",
+      "raza_nombre": "American Staffordshire Terrier",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "American Pit Bull Terrier / Staffordshire Terrier Americano",
+      "nota": "Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente."
+    },
+    {
+      "id": "49a1456f-ced7-4f7c-9994-88a23edad7ef",
+      "raza_nombre": "Angora Turco",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Turco Van / Turco Angora",
+      "nota": null
+    },
+    {
+      "id": "04e8106c-24c3-4d84-a707-888895fd97cd",
+      "raza_nombre": "Boyero Australiano",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Australian Cattle Dog (Blue Heeler)",
+      "nota": null
+    },
+    {
+      "id": "59672c9c-ae53-4c1e-b171-0abc501e954a",
+      "raza_nombre": "Boyero de Berna",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Bernés de la Montaña (Bernese Mountain Dog)",
+      "nota": null
+    },
+    {
+      "id": "fdd128c0-43bf-44c2-b9a1-68b065694dc6",
+      "raza_nombre": "Boyero de Flandes",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Bouvier des Flandres",
+      "nota": null
+    },
+    {
+      "id": "aea2714a-3282-42b4-be85-1f074dbd7208",
+      "raza_nombre": "Braco Alemán",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Braco Alemán de Pelo Corto (German Shorthaired Pointer)",
+      "nota": "Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente."
+    },
+    {
+      "id": "badedca5-add1-455c-a5a9-829a3ef91570",
+      "raza_nombre": "Corgi Galés Cardigan",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Welsh Corgi Cardigan",
+      "nota": null
+    },
+    {
+      "id": "273f0a4f-1e96-420e-bff3-bf8f40924920",
+      "raza_nombre": "Corgi Galés Pembroke",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Welsh Corgi Pembroke",
+      "nota": null
+    },
+    {
+      "id": "b4ec8893-2b0b-41a2-859c-23671a1b9155",
+      "raza_nombre": "Dóberman",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Dóberman Pinscher",
+      "nota": null
+    },
+    {
+      "id": "787b82dc-faeb-47d7-bb82-acaa54731b78",
+      "raza_nombre": "Galgo Español",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Galgo/Whippet/Greyhound",
+      "nota": "Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente."
+    },
+    {
+      "id": "ebe2106f-e3e0-4325-a1bc-9db85ecff300",
+      "raza_nombre": "Galgo Inglés",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Galgo/Whippet/Greyhound",
+      "nota": "Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente."
+    },
+    {
+      "id": "25c1472b-18c0-475c-86e3-e80019c950b1",
+      "raza_nombre": "Malamute de Alaska",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Alaskan Malamute",
+      "nota": null
+    },
+    {
+      "id": "99712ac5-1761-492a-a2a0-d4862ff020e1",
+      "raza_nombre": "Mastín Tibetano",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Dogo del Tíbet (Tibetan Mastiff)",
+      "nota": null
+    },
+    {
+      "id": "01a21416-c006-4f8d-b005-51a268750a41",
+      "raza_nombre": "Pastor Belga Tervueren",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Pastor Belga (Tervueren / Groenendael)",
+      "nota": "Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente."
+    },
+    {
+      "id": "e70cae61-2b88-414d-8c8b-84cb34290268",
+      "raza_nombre": "Perro Chino Crestado",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Crestado Chino (Chinese Crested)",
+      "nota": null
+    },
+    {
+      "id": "a2457678-b35e-4b4b-acf3-370e5735ddda",
+      "raza_nombre": "Perro de Agua Portugués",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Perro de Agua Español / Portugués",
+      "nota": "Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente."
+    },
+    {
+      "id": "2201c8fc-7b0f-4309-9217-c0e9b327cd09",
+      "raza_nombre": "Pit Bull Terrier",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "American Pit Bull Terrier / Staffordshire Terrier Americano",
+      "nota": "Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente."
+    },
+    {
+      "id": "cea81b80-89e9-4b5d-bd7c-3920b8abac32",
+      "raza_nombre": "Schnauzer Estándar",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Schnauzer Gigante y Estándar",
+      "nota": "Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente."
+    },
+    {
+      "id": "a18de6db-b33f-4c8e-ab07-9d6644b6f97a",
+      "raza_nombre": "Setter Gordon",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Gordon Setter",
+      "nota": null
+    },
+    {
+      "id": "2fe72ef0-6852-462a-bde4-641d5e644052",
+      "raza_nombre": "Springer Spaniel",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "English Springer Spaniel",
+      "nota": null
+    },
+    {
+      "id": "b323feb6-22ab-4124-aa40-fb39a7e427a1",
+      "raza_nombre": "Van Turco",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Turco Van / Turco Angora",
+      "nota": null
+    },
+    {
+      "id": "d46a9ba9-bdac-461f-a8e2-8070baed8d79",
+      "raza_nombre": "Wire Fox Terrier",
+      "documento_id": "e0b493ae-ac3d-4807-bf28-c8d3d92162bd",
+      "titulo_seccion": "Fox Terrier (Pelo de Alambre y Liso)",
+      "nota": null
+    }
+  ]
+}

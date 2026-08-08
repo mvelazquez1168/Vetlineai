@@ -1,0 +1,49 @@
+Clinical Report Specification — NCIS
+
+Versión: 1.0
+Código: NCIS-REP-001
+
+1. Filosofía del Informe
+
+Cinco objetivos: Documento Médico, Segunda Opinión, Documento Legal, Documento Científico (exponiendo el marco de gradación aplicado según la línea clínica), Documento de Conocimiento.
+
+2. Tipos de Reporte
+
+CR-001 a CR-006 y CR-009, igual que en el resto de agentes especializados. Se remueve CR-008.
+
+3. Report Architecture
+
+Portada → Executive Summary → Patient Information → Reason for Consultation → Clinical History → Timeline → Physical/Neurological Examination → Laboratory Analysis → Imaging Studies → Neurological Severity Summary (grado IVDD + dolor profundo, o control de crisis + monitoreo AED, según línea) → Diagnostic Reasoning → Differential Diagnosis → Treatment History → Clinical Evolution → Current Status → Prognosis → Recommendations → Firma y Certificación → References → Appendices
+
+4. Secciones propias de NCIS
+
+- **Neurological Severity Summary** (sección propia, adaptativa según línea clínica): para casos IVDD, grado 1-5 y estado de dolor profundo con implicación pronóstica explícita; para casos de epilepsia, frecuencia de crisis, fecha del último episodio, y resultado de monitoreo de niveles séricos de AED cuando disponible.
+- **Treatment History**: para IVDD, manejo médico vs. quirúrgico y su justificación; para epilepsia, esquema de AEDs, ajustes de titulación, e interacciones farmacocinéticas documentadas.
+
+5. Resto de secciones
+
+Idénticas en estructura al resto de agentes especializados (Firma y Certificación con las mismas reglas, Export Formats, Architecture Decisions con la misma remoción de "Versión de Derivación").
+
+6. Clinical Quality Checklist — adaptación relevante
+
+Gradación/Control: ¿se identificó explícitamente la línea clínica del caso? Para IVDD, ¿se documentó el estado de dolor profundo? Para epilepsia, ¿se documentó la frecuencia de crisis y el estado de monitoreo de AED? ¿se revisaron interacciones farmacocinéticas cuando hay múltiples AEDs?
+
+---
+
+ADDENDUM — Línea Ortopédica en el Informe
+
+La sección "Neurological Severity Summary" se extiende: para casos ortopédicos, incluye el estadio COASTeR asignado, elementos "base" y "build" del plan de manejo, y fecha de próxima reevaluación.
+
+Clinical Quality Checklist — se agrega: para casos ortopédicos, ¿se asignó explícitamente el estadio COASTeR? ¿el tratamiento corresponde al estadio? ¿hay fecha de reevaluación documentada?
+
+---
+
+Formato del Marcado en Secciones de Texto Libre
+
+Las secciones de texto libre del informe (Historia Clínica, Razonamiento Diagnóstico, Evolución Clínica, contenido de apéndices, y cualquier otra sección sin una estructura de campos fija) se renderizan interpretando el marcado: negrita, cursiva, encabezados de nivel 2 (## Título), listas con viñeta y numeradas, y tablas en formato markdown.
+
+Si el contenido de una de estas secciones se subdivide internamente, esa subdivisión deberá marcarse con un encabezado de nivel 2 (## Título) — nunca con negrita a modo de título.
+
+La negrita (**texto**) queda reservada exclusivamente para destacar una palabra o frase dentro de un párrafo, nunca como sustituto de un encabezado.
+
+Si el texto anuncia una cantidad de partes, elementos o pilares ("en base a X pilares..."), esa cantidad deberá coincidir exactamente con la cantidad que efectivamente se enumera a continuación. Ante la duda, no anunciar una cantidad específica.

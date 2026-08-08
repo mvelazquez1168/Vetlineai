@@ -1,0 +1,32 @@
+DCIS Clinical Design System
+
+Versión 1.0
+Documento: DCIS-DESIGN-001
+
+Hereda el sistema base compartido de ICIS-DESIGN-001, remueve los elementos de triage/derivación, y agrega los elementos propios de dermatología.
+
+1. Clinical Design Principles
+
+Se heredan los principios base. Se remueve "Triage Clarity". Se agrega: "Diagnostic Rule-Out Clarity" (nuevo, propio de DCIS) — el diseño debe comunicar de inmediato qué diferenciales ya fueron descartados sistemáticamente (pulgas, ectoparásitos, infección secundaria, reacción adversa a alimentos) antes de que un diagnóstico de dermatitis atópica se presente como válido — sin que el usuario deba revisar el historial completo del caso para saberlo.
+
+2. Color System
+
+Se remueve "Estado Derivación". Se agrega: Estado de Descarte Diagnóstico (nuevo) — verde (descarte completo, diagnóstico de DA aplicable), ámbar (descarte parcial, diagnóstico presuntivo), rojo (piodermia profunda activa o signos de enfermedad sistémica subyacente no descartada).
+
+3. Clinical Cards
+
+Se heredan las cards base. Se remueve Referral Recommendation Card. Se agregan (propias de DCIS):
+
+- Rule-Out Checklist Card (nuevo) — muestra el estado de cada diferencial en la secuencia obligatoria (pulgas/ectoparásitos/infección/dieta), marcando cuáles están descartados, cuáles pendientes, y cuáles no aplican al caso.
+- Pyoderma Depth Card (nuevo) — muestra la clasificación de profundidad (superficie/superficial/profunda) con el tipo de lesión identificado, y si la terapia tópica sola es apropiada o se requiere sistémica.
+- Treatment Duration Card (nuevo) — muestra el curso de tratamiento activo, semana actual del ciclo, y fecha de la reevaluación programada (2-3 semanas según profundidad).
+
+4. Icons
+
+Se agregan: Descarte Diagnóstico, Citología Cutánea, Cultivo Bacteriano, Terapia Tópica. Se remueve ícono de Derivación.
+
+5. Clinical Badges
+
+Se agrega: badge de Estado de Descarte ("Descarte completo" / "Descarte parcial — pendiente de X" / "Piodermia profunda activa"). Se remueve badge de Derivación.
+
+6. Resto de secciones (Typography, Grid System, Dashboard Components, Tables, Charts, AI Components, Confidence Meter, Dashboard States, Report Components, Accessibility, Motion System, Future Design) — heredadas sin cambios de ICIS-DESIGN-001, con la misma remoción del estado "Referred" y del Referral Package en Report Components.

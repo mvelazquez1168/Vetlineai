@@ -1,0 +1,536 @@
+Clinical Report Specification
+
+Versión: 1.0
+
+Estado: Draft
+
+Código: GCIS-REP-001
+
+1. Introducción
+
+Objetivo
+
+Definir la estructura, contenido, reglas de generación y estándares de calidad de todos los informes clínicos generados por el GastroVet Clinical Intelligence System (GCIS).
+
+Este documento establece el formato oficial para la documentación clínica producida por el sistema y garantiza consistencia entre casos, consultas y usuarios.
+
+2. Filosofía del Informe
+
+Todo informe deberá cumplir cinco objetivos fundamentales:
+
+1. Documento Médico
+
+Debe servir como respaldo clínico del caso.
+
+2. Segunda Opinión
+
+Debe poder entregarse a otro especialista sin necesidad de explicaciones adicionales.
+
+3. Documento Legal
+
+Debe representar fielmente la información disponible en el expediente.
+
+4. Documento Científico
+
+Debe exponer claramente el razonamiento clínico y la evidencia utilizada.
+
+5. Documento de Conocimiento
+
+Debe poder incorporarse a la Base de Conocimiento GCIS para apoyar futuros casos.
+
+3. Principios de Diseño
+
+Todo informe deberá ser:
+
+- Clínicamente preciso. 
+
+- Basado en evidencia. 
+
+- Longitudinal. 
+
+- Explicable. 
+
+- Reproducible. 
+
+- Auditable. 
+
+- Profesional. 
+
+- Libre de ambigüedades. 
+
+4. Tipos de Reporte
+
+El sistema soportará múltiples tipos de informe.
+
+| Código | Reporte | MVP |
+| --- | --- | --- |
+| CR-001 | Clinical Consultation Report | ✅ |
+| CR-002 | Follow-up Report | ✅ |
+| CR-003 | Case Closure Report | ✅ |
+| CR-004 | Second Opinion Report | ✅ |
+| CR-005 | Teaching Case | ✅ |
+| CR-006 | Knowledge Base Case | ✅ |
+| CR-007 | Owner Report | v2 |
+| CR-008 | Referral Report | v2 |
+| CR-009 | Research Report | v3 |
+
+5. Report Architecture
+
+Todos los informes compartirán exactamente la misma estructura.
+
+Portada
+
+↓
+
+Executive Summary
+
+↓
+
+Patient Information
+
+↓
+
+Reason for Consultation
+
+↓
+
+Clinical History
+
+↓
+
+Timeline
+
+↓
+
+Physical Examination
+
+↓
+
+Laboratory Analysis
+
+↓
+
+Imaging Studies
+
+↓
+
+Histopathology
+
+↓
+
+Diagnostic Reasoning
+
+↓
+
+Differential Diagnosis
+
+↓
+
+Therapeutic Plan
+
+↓
+
+Clinical Evolution
+
+↓
+
+Current Status
+
+↓
+
+Recommendations
+
+↓
+
+References
+
+↓
+
+Appendices
+
+6. Report Sections
+
+CRS-001 — Cover Page
+
+- Incluye: Logo GastroCare Vet (asset oficial: Logo_GastroCareVet_horizontal_con_texto.png, variante horizontal con wordmark), nombre del informe, código del caso, fecha de emisión, veterinario responsable, versión del reporte, estado del caso, firma y certificación (CRS-023).
+
+Regla de mecanismo: dado que la Base de Conocimiento del proyecto no admite archivos de imagen sueltos como tipo de documento soportado, el archivo del logo debe estar disponible como adjunto directo en la conversación al momento de generar el informe. Si no está disponible, el sistema debe solicitarlo explícitamente al usuario antes de finalizar el documento — nunca omitir el logo en silencio ni generar el encabezado sin él.
+
+CRS-002 — Executive Case Summary
+
+Este componente debe responder:
+
+- ¿Qué paciente es? 
+
+- ¿Cuál fue el problema principal? 
+
+- ¿Cuál es el diagnóstico más probable? 
+
+- ¿Cuál es el estado clínico actual? 
+
+- ¿Cuál es el pronóstico? 
+
+Máximo: una página.
+
+CRS-003 — Patient Information
+
+- Nombre 
+
+- Especie 
+
+- Raza 
+
+- Sexo 
+
+- Edad 
+
+- Peso 
+
+- BCS 
+
+- Propietario 
+
+- Veterinario remitente 
+
+CRS-004 — Reason for Consultation
+
+Motivo de consulta.
+
+Tiempo de evolución.
+
+Antecedentes relevantes.
+
+CRS-005 — Clinical History
+
+Narrativa cronológica.
+
+No copiar notas.
+
+Claude deberá sintetizar.
+
+CRS-006 — Clinical Timeline
+
+Cronología completa.
+
+Consultas.
+
+Laboratorios.
+
+Ecografías.
+
+Endoscopias.
+
+Biopsias.
+
+Cambios terapéuticos.
+
+CRS-007 — Physical Examination
+
+Hallazgos clínicos organizados por sistemas.
+
+Estado general.
+
+Abdomen.
+
+Estado nutricional.
+
+Hidratación.
+
+CRS-008 — Laboratory Analysis
+
+Comparación longitudinal.
+
+Hemograma.
+
+Bioquímica.
+
+Electrolitos.
+
+Marcadores gastrointestinales.
+
+Interpretación automática.
+
+Gráficos evolutivos.
+
+CRS-009 — Imaging Studies
+
+Ecografía.
+
+Radiología.
+
+Endoscopia.
+
+Histopatología.
+
+Cada estudio incluirá:
+
+Resumen.
+
+Hallazgos.
+
+Interpretación.
+
+Comparación.
+
+CRS-010 — Diagnostic Reasoning
+
+Esta es la sección más importante del informe.
+
+Claude deberá explicar paso a paso cómo llegó al diagnóstico.
+
+No únicamente el resultado.
+
+También el razonamiento.
+
+CRS-011 — Differential Diagnosis
+
+Tabla.
+
+| Diagnóstico | Probabilidad | Evidencia | Estado |
+| --- | --- | --- | --- |
+
+CRS-012 — Evidence Matrix
+
+Matriz completa.
+
+Toda afirmación deberá estar sustentada.
+
+CRS-013 — Therapeutic History
+
+Todos los tratamientos.
+
+Cronología.
+
+Respuesta.
+
+Cambios.
+
+CRS-014 — Clinical Evolution
+
+Narrativa longitudinal.
+
+Desde la primera consulta.
+
+Hasta la actualidad.
+
+CRS-015 — Current Clinical Status
+
+Estado calculado por el Clinical State Engine.
+
+Ejemplo.
+
+🟡 Mejorando.
+
+Con explicación.
+
+CRS-016 — Recommendations
+
+No únicamente recomendaciones terapéuticas.
+
+También.
+
+Estudios.
+
+Seguimiento.
+
+Monitoreo.
+
+Información faltante.
+
+Riesgos.
+
+CRS-017 — Prognosis
+
+Claude deberá justificar.
+
+Favorable.
+
+Reservado.
+
+Grave.
+
+Incierto.
+
+Y explicar por qué.
+
+CRS-018 — References
+
+Cuando el análisis se apoye en literatura científica o guías clínicas, se citarán las fuentes utilizadas.
+
+Cuando se base en casos similares del GCIS, deberá indicarse el identificador del caso y un resumen de las similitudes y diferencias relevantes.
+
+CRS-019 — Appendices
+
+Se incluirán automáticamente, según disponibilidad:
+
+- Hemogramas completos. 
+
+- Perfiles bioquímicos. 
+
+- Informes ecográficos. 
+
+- Endoscopias. 
+
+- Histopatología. 
+
+- Imágenes seleccionadas. 
+
+- Gráficos evolutivos. 
+
+- Línea de tiempo clínica. 
+
+- Matrices diagnósticas. 
+
+RS-020 — Nutritional Management
+
+- Registro estructurado de la dieta terapéutica y suplementos activos e históricos del paciente (CC-306): clase dietaria, objetivo terapéutico, fecha de inicio y cambios, fuente de la indicación, y extras no controlados reportados (premios, sobras, alimento casero) que puedan comprometer un manejo dietario en curso.
+
+- Regla especial: cuando exista una dieta de eliminación activa, esta sección debe indicar explícitamente el tiempo transcurrido respecto al punto de decisión esperado (3 semanas para primera evaluación, ~12 semanas para prueba de tolerancia) y si ese punto ya fue alcanzado (CC-309).
+
+- Regla especial: cualquier alerta de interacción dieta-fármaco detectada por CC-307 se presenta en esta misma sección, no en un lugar separado — para que el veterinario lea la dieta y sus consideraciones de interacción en un solo bloque.
+
+- Acá está, siguiendo exactamente el mismo formato que usamos para CRS-021.
+
+CRS-022 — Pharmacological Considerations
+
+- Registro estructurado de las alertas generadas por el motor de interacciones y contraindicaciones (CC-302): interacciones fármaco-fármaco, alertas de sensibilidad racial (p. ej. mutación MDR1), y precauciones asociadas a función renal/hepática comprometida — cada una con su nivel de relevancia clínica y su fuente/mecanismo.
+
+- Regla especial: toda alerta debe quedar vinculada a su fuente (Breed Knowledge Object, hallazgo de laboratorio, regla clínica documentada) — nunca se presenta una alerta sin poder explicar de dónde sale, consistente con el principio de trazabilidad del AI Reasoning Standard.
+
+- Regla especial: cuando esta sección coexista con CRS-021 (Nutritional Management) por haber también alertas de interacción dieta-fármaco (CC-307), ambas deben leerse en bloques adyacentes del informe, no separadas — el veterinario debe poder revisar todas las consideraciones de interacción (fármaco-fármaco, fármaco-raza, dieta-fármaco) en una sola pasada de lectura.
+
+- Regla especial: cuando se ejecutó el motor de interacciones y no se encontró ninguna alerta, esta sección debe indicarlo explícitamente ("Sin interacciones ni contraindicaciones relevantes detectadas con la información disponible") — nunca omitirse por no tener contenido que reportar, consistente con el paso obligatorio y visible que ya quedó definido en las Project Instructions.
+
+CRS-023 — Firma y Certificación
+
+Cierre formal del informe. Contenido fijo: nombre completo del veterinario responsable, número de colegiatura, nombre de la clínica y de la marca, con línea de firma y fecha de emisión.
+
+Datos fijos de este proyecto:
+Dra. Melany Velázquez Chaves — Médica Veterinaria — Col. N.º 2096 — Medicavet, Clínica Veterinaria — GastroCare Vet.
+
+Reglas: 
+
+- El nombre, la colegiatura y la clínica se completan automáticamente en todo informe generado por este sistema, ya que corresponden siempre a la misma profesional. La fecha de emisión se completa con la fecha real de generación del informe. La línea de firma física/digital queda siempre en blanco — es un acto de la veterinaria, nunca algo que el sistema complete por ella.
+
+- Cuando el informe se genere como Referral Report (CR-008), esta sección debe indicar además que el informe fue revisado y autorizado por la veterinaria remitente antes de su envío al especialista.
+
+- Este bloque es un dato fijo, no una afirmación clínica — no pasa por el Explainable Report Engine ni requiere evidencia de sustento.
+
+- Tipografía y alineación siguen el Clinical Design System (estilo "Footnote" o "Clinical Text"), nunca formato de tabla de contenido clínico.
+
+- Aparece de forma idéntica en todos los formatos de exportación (Word, PDF, HTML, Markdown, caso docente, caso para Base de Conocimiento) — consistente con AD-016 (Multi-Format Consistency).
+
+7. Reglas de Generación
+
+El reporte deberá generarse utilizando toda la información acumulada en el chat del caso.
+
+No deberá omitir información relevante.
+
+No deberá duplicar información innecesariamente.
+
+La narrativa deberá estar organizada cronológicamente.
+
+Toda inferencia realizada por la IA deberá diferenciarse claramente de los hallazgos objetivos.
+
+8. Export Formats
+
+El mismo contenido podrá exportarse a:
+
+- Microsoft Word (.docx) 
+
+- PDF 
+
+- HTML 
+
+- Markdown 
+
+- Caso Docente 
+
+- Caso para Base de Conocimiento 
+
+La estructura clínica será idéntica en todos los formatos.
+
+9. Clinical Quality Checklist
+
+Antes de finalizar el informe, Claude ejecutará automáticamente una validación.
+
+Integridad
+
+- ¿Todos los datos del paciente están presentes? 
+
+- ¿Existe motivo de consulta? 
+
+- ¿Se documentó la evolución? 
+
+Evidencia
+
+- ¿Cada diagnóstico diferencial tiene sustento? 
+
+- ¿Las recomendaciones se basan en la evidencia disponible? 
+
+Consistencia
+
+- ¿Existen contradicciones entre secciones? 
+
+- ¿Las fechas son coherentes? 
+
+- ¿La evolución coincide con los laboratorios y las imágenes? 
+
+Calidad
+
+- ¿El informe puede entenderse sin consultar el chat? 
+
+- ¿Puede ser utilizado como segunda opinión? 
+
+- ¿Es apto para incorporarse a la Base de Conocimiento? 
+
+Si alguna respuesta es negativa, Claude deberá advertirlo antes de generar la versión final.
+
+¿El informe incluye el bloque de firma y certificación completo, con fecha de emisión correcta?
+
+Si algún día detecta que falta este bloque, el informe no puede marcarse como final.
+
+¿El logo oficial está presente en el encabezado? Si el archivo de imagen no se adjuntó en la conversación, ¿se le solicitó explícitamente al usuario antes de finalizar el informe?
+
+10. Architecture Decisions
+
+AD-009 — Single Source Report
+
+El informe nunca será escrito manualmente.
+
+Será ensamblado automáticamente a partir de los Clinical Components (CC-xxx).
+
+Esto garantiza consistencia entre Dashboard, Reporte y Base de Conocimiento.
+
+AD-010 — Progressive Report
+
+El informe será un documento vivo.
+
+Cada nueva consulta actualizará automáticamente las secciones correspondientes, manteniendo un historial de versiones.
+
+AD-011 — Multi-Audience Reporting
+
+A partir del mismo caso clínico, el sistema podrá generar distintas versiones adaptadas al destinatario:
+
+- Versión Técnica: para gastroenterólogos y especialistas. 
+
+- Versión General: para médicos veterinarios remitentes. 
+
+- Versión para Propietario: con lenguaje claro y sin tecnicismos (v2). 
+
+- Versión Académica: con mayor detalle y referencias para docencia. 
+
+- Versión para Base de Conocimiento: anonimizada y optimizada para búsqueda semántica.
+
+
+---
+
+Formato del Marcado en Secciones de Texto Libre
+
+Las secciones de texto libre del informe (Historia Clínica, Razonamiento Diagnóstico, Evolución Clínica, contenido de apéndices, y cualquier otra sección sin una estructura de campos fija) se renderizan interpretando el marcado: negrita, cursiva, encabezados de nivel 2 (## Título), listas con viñeta y numeradas, y tablas en formato markdown.
+
+Si el contenido de una de estas secciones se subdivide internamente, esa subdivisión deberá marcarse con un encabezado de nivel 2 (## Título) — nunca con negrita a modo de título.
+
+La negrita (**texto**) queda reservada exclusivamente para destacar una palabra o frase dentro de un párrafo, nunca como sustituto de un encabezado.
+
+Si el texto anuncia una cantidad de partes, elementos o pilares ("en base a X pilares..."), esa cantidad deberá coincidir exactamente con la cantidad que efectivamente se enumera a continuación. Ante la duda, no anunciar una cantidad específica.

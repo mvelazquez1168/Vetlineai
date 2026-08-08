@@ -1,0 +1,61 @@
+# Linfoma Canino — Clasificación, Estadificación y Enfoque Clínico
+
+**Fuentes principales (síntesis de literatura convergente):**
+- Valli VE, Kass PH, San Myint M, Scott F. Canine Lymphomas: Association of Classification Type, Disease Stage, Tumor Subtype, Mitotic Rate, and Treatment With Survival. *Vet Pathol.* 2013;50(5):738-748.
+- Valli VE, et al. Classification of Canine Malignant Lymphomas According to the World Health Organization Criteria. *Vet Pathol.* 2011 (iniciativa del ACVP Oncology Committee, respaldada por WSAVA).
+- Childress et al. Diagnosis and Classification of Primary Nodal Lymphomas in Dogs: A Consensus of the Oncology-Pathology Working Group. *Vet Comp Oncol.* 2025.
+- Literatura complementaria sobre estadificación y factores pronósticos (varios estudios, referenciados donde corresponde).
+
+**Alcance de este resumen:** segundo documento del sistema oncológico para el agente de medicina interna/triage (ICIS). El linfoma es la neoplasia hematopoyética más común y una de las neoplasias sistémicas más frecuentes en la especie canina — complementa directamente al resumen ya cargado de tumores de mastocitos.
+
+---
+
+## 1. Por qué importa — magnitud y presentación típica
+
+- Una de las neoplasias más comunes en medicina veterinaria de pequeños animales.
+- **El subtipo más frecuente es el linfoma difuso de células B grandes, multicéntrico** — representa aproximadamente **70-80% de todos los casos** de linfoma canino.
+- Presentación típica: **linfadenopatía periférica generalizada** — el hallazgo clínico que con más frecuencia motiva la primera sospecha.
+- Edad de diagnóstico: mediana estable de **6-9 años**, aunque las formas más agresivas se reconocen cada vez con más frecuencia en perros jóvenes.
+- Razas con predisposición reportada: Golden Retriever, Bóxer, Pastor Alemán, entre otras.
+- **Diferencial obligatorio ante linfadenopatía generalizada**: Ehrlichiosis u otras enfermedades vectoriales, enfermedad inmunomediada, micosis sistémica, piodermia severa u otra enfermedad cutánea extensa, e hiperplasia reactiva benigna — la forma más simple y directa de discriminar entre estas posibilidades es la **citología por aspiración con aguja fina de un ganglio afectado**.
+
+## 2. Diagnóstico y clasificación — el sistema WHO como estándar
+
+- El diagnóstico definitivo requiere biopsia con histopatología (o citología de alta calidad como aproximación inicial), idealmente complementada con inmunofenotipificación (inmunohistoquímica o citometría de flujo) para distinguir linfoma de células B vs. células T — esta distinción tiene relevancia pronóstica directa.
+- La clasificación vigente es una adaptación del sistema de la **Organización Mundial de la Salud (WHO)** para neoplasias linfoides — desarrollada por un grupo internacional de patólogos, respaldada por el Comité de Oncología del ACVP y la **WSAVA**.
+- Un estudio de validación con 20 patólogos veterinarios evaluando 300 casos usando este sistema mostró una precisión general del 83%, que sube a 87% cuando el análisis se limita a los 6 diagnósticos más comunes (que agrupan 80% de todos los casos) — es decir, el sistema es razonablemente reproducible entre observadores para las presentaciones típicas, con más variabilidad en los subtipos infrecuentes.
+- Ensayos de clonalidad y otras herramientas de diagnóstico molecular están ganando un rol complementario cada vez más relevante junto a los métodos morfológicos tradicionales, particularmente en casos con presentación atípica o resultados discordantes entre citología e histopatología.
+
+## 3. Gradación — el mitosis rate como eje central
+
+- La agrupación pronóstica se basa en **grado histológico** (determinado por tasa mitótica por campo de 400x: bajo grado 0-5, intermedio 6-10, alto grado >10) junto con el **estadio clínico**.
+- Todas las categorías diagnósticas de tipo indolente/bajo grado mostraron tasas mitóticas bajas de forma consistente, mientras que las de grado clínicamente alto mostraron tasas mitóticas altas — validando la utilidad práctica de este parámetro simple.
+- **Los linfomas de alto grado tienen mortalidad significativamente mayor** que la categoría diagnóstica más representada (linfoma centroblástico de células B grandes); **los linfomas de células T de bajo grado tienen mortalidad significativamente menor** en comparación.
+- Ni el tamaño del paciente (aproximado por raza) ni el sexo mostraron asociación con la sobrevida.
+
+## 4. Estadificación clínica — sistema WHO de 5 estadios
+
+| Estadio | Definición |
+|---|---|
+| **I** | Enfermedad confinada a un único ganglio linfático |
+| **II** | Linfadenopatía regional (confinada a un lado del diafragma) |
+| **III** | Linfadenopatía generalizada |
+| **IV** | Afectación hepática y/o esplénica (con o sin afectación ganglionar) |
+| **V** | Afectación de médula ósea y/o sangre periférica, u otros órganos extralinfáticos |
+
+- Cada estadio se subclasifica además según presencia de signos sistémicos: **subestadio a** (ausencia de signos sistémicos) vs. **subestadio b** (presencia de fiebre, pérdida de peso >10%, o hipercalcemia).
+- **En la práctica, la mayoría de los perros se diagnostican ya en estadio III** (linfadenopatía generalizada) y subestadio a (sin sentirse clínicamente enfermos) — esto es importante para calibrar expectativas del propietario: un estadio "avanzado" en el momento del diagnóstico es la norma, no la excepción, y no necesariamente implica que el paciente esté sintomático.
+- La estadificación completa típicamente requiere: examen físico con palpación ganglionar completa, hemograma y bioquímica, imagenología (radiografía torácica, ecografía abdominal), y evaluación de médula ósea cuando está indicado clínicamente.
+
+## 5. Tratamiento — expectativas realistas
+
+- El linfoma canino generalmente **responde bien a la quimioterapia sistémica convencional** — tasa de respuesta inicial reportada **≥90%**.
+- **Solo una fracción pequeña de los pacientes logra curación** con las opciones de tratamiento convencionales disponibles — el objetivo principal del tratamiento es, en la mayoría de los casos, **paliativo**: mejorar calidad de vida y prolongar la sobrevida general, no necesariamente lograr remisión permanente.
+- Esta distinción (objetivo paliativo vs. curativo) es central en la conversación inicial con el propietario, dado que la alta tasa de respuesta inicial (≥90%) puede generar expectativas de curación que no se corresponden con el pronóstico real a largo plazo de la mayoría de los subtipos.
+
+## 6. Conclusión operativa para ICIS
+
+- Ante un perro con **linfadenopatía generalizada**, el linfoma debe estar en el diferencial activo, pero **no debe asumirse antes de descartar causas infecciosas/inflamatorias tratables** (particularmente enfermedades vectoriales como Ehrlichiosis, ya cubierta en la Base de Conocimiento) — la citología por aspiración con aguja fina de un ganglio afectado es el paso diagnóstico inicial más simple y de mayor rendimiento para esta discriminación.
+- El hallazgo de que la mayoría de los perros se diagnostican ya en estadio III/subestadio a es clínicamente relevante para el triage: un estadio avanzado al momento del diagnóstico **no debe interpretarse automáticamente como signo de mal pronóstico agudo** ni como urgencia inmediata, ya que es la presentación esperada y habitual, no la excepción.
+- La conversación con el propietario debe distinguir explícitamente entre la **alta tasa de respuesta inicial a quimioterapia (≥90%)** y la **baja tasa de curación real** — ambas cifras son correctas simultáneamente y no deben presentarse de forma aislada, para evitar expectativas desalineadas con el pronóstico a largo plazo.
+- Este documento se conecta con el ya cargado de tumores de mastocitos como los dos pilares principales de la Base de Conocimiento oncológica de ICIS — ambos representan, respectivamente, la neoplasia cutánea y la neoplasia sistémica/hematopoyética más frecuentes en la especie canina.

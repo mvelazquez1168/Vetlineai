@@ -1,0 +1,11 @@
+// Generado en cada arranque del contenedor por docker-entrypoint.sh (envsubst
+// sobre este template) — NO editar a mano, y NO commitear un env-config.js
+// generado. Ver runtimeEnv.ts sobre por qué esto existe: las variables
+// VITE_* de Vite se resuelven en la compilación, y esta imagen se compila
+// una sola vez para cualquier ambiente — esto las resuelve en tiempo de
+// arranque en cambio.
+window.__ENV__ = {
+  VITE_API_URL: "${VITE_API_URL}",
+  VITE_KEYCLOAK_ISSUER: "${VITE_KEYCLOAK_ISSUER}",
+  VITE_KEYCLOAK_CLIENT_ID: "${VITE_KEYCLOAK_CLIENT_ID}"
+};

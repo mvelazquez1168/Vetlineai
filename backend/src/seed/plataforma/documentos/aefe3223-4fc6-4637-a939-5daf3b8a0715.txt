@@ -1,0 +1,84 @@
+EXTENSIÓN NEUROLÓGICA Y ORTOPÉDICA — FAMILIA CC-3xx FARMACOTERAPIA (NCIS)
+
+**Relación con el documento base:** este documento no reemplaza la especificación genérica de CC-301 a CC-304 construida para ICIS — la extiende. NCIS hereda el núcleo completo (Medication Registry, Drug Interaction Engine, Therapeutic Class Reasoning, Response Tracking) tal cual, y este documento agrega profundidad específica de neurología y ortopedia dentro de cada uno de esos cuatro componentes.
+
+**Misma regla que en ICIS y GCIS, sin excepción: ningún componente de esta familia calcula ni sugiere dosis.**
+
+---
+
+## Extensión de CC-301 (Medication Registry) — Clases terapéuticas neurológicas y ortopédicas
+
+CC-301 en NCIS reconocerá específicamente las siguientes clases, en vez de tratarlas como texto libre:
+
+- **Antiepilépticos** (fenobarbital, levetiracetam, imepitoína, zonisamida, bromuro)
+- **Agentes hiperosmolares** (manitol, solución salina hipertónica)
+- **Corticoides** — con la distinción obligatoria entre uso antiinflamatorio e inmunosupresor
+- **Inmunosupresores no esteroideos del sistema nervioso central** (citarabina, leflunomida, micofenolato de mofetilo, ciclosporina)
+- **Analgésicos para dolor espinal y neuropático** (opioides, gabapentinoides, AINEs)
+- **Antiparasitarios sistémicos con relevancia neurotóxica** (lactonas macrocíclicas)
+- **Suplementos y agentes de soporte en enfermedad degenerativa** (vitamina B, vitamina E, ácido aminocaproico, N-acetilcisteína)
+- **Sedantes y anestésicos con relevancia neurológica** (acepromazina, butorfanol)
+- **Antieméticos y procinéticos con relevancia por transportador** (maropitant, metoclopramida)
+
+Las tres últimas clases no son "de neurología" en sentido estricto, pero se registran acá porque son las que disparan los patrones de la sección siguiente.
+
+## Extensión de CC-302 (Drug Interaction Engine) — Patrones específicos de neurología
+
+Además de los tres patrones genéricos ya definidos en ICIS (sensibilidad racial, función orgánica, interacción fármaco-fármaco), NCIS reconocerá estos patrones adicionales:
+
+**Patrón N-1 — Corticoides según entidad neurológica.** Es el patrón de mayor consecuencia de esta extensión, porque el mismo fármaco tiene indicación opuesta según el diagnóstico. **Los corticoides están contraindicados en trauma craneoencefálico**, y son en cambio el pilar del tratamiento en meningoencefalitis de origen desconocido y en meningitis-arteritis respondedora a esteroides. También están contraindicados en la hepatitis aguda, indicados en la crónica inmunomediada. Interpretación: alerta de alta relevancia cuando se registre o considere un corticoide en un paciente con diagnóstico o sospecha de trauma craneal. Ver los documentos de trauma craneoencefálico, MUO y SRMA de la Base de Conocimiento.
+
+**Patrón N-2 — Sensibilidad ABCB1 (MDR1).** La variante del gen ABCB1 —antes MDR1— altera la glicoproteína P, que normalmente elimina fármacos y mantiene ciertas sustancias fuera del cerebro. Con la proteína disfuncional, esos fármacos se acumulan o cruzan al cerebro, con reacciones severas y a veces fatales. Se hereda con dominancia incompleta y penetrancia incompleta: los homocigotos exhiben sensibilidad, y **algunos heterocigotos también**. Es más común en razas de pastoreo —Collie, Border Collie, Pastor Australiano, Pastor Alemán, Shetland, Whippet de pelo largo, Pastor Blanco, entre otras— pero **cualquier perro puede estar afectado**, incluidos mestizos, y existe una mutación análoga menos común en el gato. Fármacos descritos como problemáticos: ivermectina y otras lactonas macrocíclicas, acepromazina, loperamida, ciclosporina, digoxina, butorfanol, y quimioterápicos. Signos: temblores, ataxia, sialorrea, convulsiones, bradicardia, midriasis, letargo, vómito y diarrea, paro respiratorio y coma. Interpretación: alerta de sensibilidad racial cuando se registre cualquiera de esos fármacos en una raza predispuesta o en un mestizo sin genotipo conocido.
+
+Matiz obligatorio del patrón: **a las dosis bajas usadas en prevención de dirofilariasis, la ivermectina es segura incluso en pacientes con la variante**. El riesgo aparece con dosis altas o con exposición ambiental. La alerta debe declarar la dosis-dependencia y no desaconsejar la prevención.
+
+Advertencia adicional documentada: los efectos neurotóxicos pueden exacerbarse por la administración concurrente de otros sustratos de glicoproteína P, como metoclopramida y maropitant.
+
+**Patrón N-3 — Escalada de corticoide ante recaída de SRMA.** Ante recaída, la evidencia disponible indica que dosis más altas se correlacionan con efectos adversos más severos y peor calidad de vida, **sin mejorar el desenlace clínico**, y no se identificó relación entre protocolo de tratamiento y frecuencia de recaída. Interpretación: alerta informativa que sugiere considerar inmunosupresores adicionales en vez de escalar el corticoide.
+
+**Patrón N-4 — Corticoides a dosis alta y complicaciones gastrointestinales.** Las complicaciones gastrointestinales asociadas a enfermedad medular y cirugía espinal son más probablemente causadas por la administración de dosis altas de glucocorticoides que por otros factores. Y no existe evidencia de que los gastroprotectores prevengan o disminuyan esas complicaciones. Interpretación: alerta que señala el riesgo sin sugerir gastroprotector profiláctico, cuya ineficacia está documentada. Ver el documento de protectores gastrointestinales de GCIS.
+
+**Patrón N-5 — Antiepilépticos y función hepática.** Los antiepilépticos de metabolismo hepático requieren consideración de la función del órgano. Interpretación: alerta de función orgánica, en la línea del patrón genérico heredado de ICIS.
+
+## Extensión de CC-303 (Therapeutic Class Reasoning) — Racionales neurológicos
+
+Siempre a nivel de clase, nunca de fármaco ni dosis:
+
+| Diagnóstico o síndrome presuntivo | Clases habitualmente consideradas | Nota de racional |
+|---|---|---|
+| Epilepsia canina o felina | Antiepilépticos | En el gato no existe consenso sobre cuándo iniciar; la decisión es caso a caso |
+| Trauma craneoencefálico | Agentes hiperosmolares, analgésicos, anticonvulsivantes si indicados | **Corticoides contraindicados**; la elección entre manitol y salina depende del estado volémico y del sodio |
+| Meningoencefalitis de origen desconocido | Corticoides, inmunosupresores no esteroideos | No existe consenso sobre el tratamiento óptimo; debe declararse |
+| SRMA | Corticoides en monoterapia | Inmunosupresores adicionales reservados a los que recaen, no escalada de dosis |
+| Espondilomielopatía cervical, signos leves | Corticoides a dosis antiinflamatoria, más restricción de ejercicio y control de peso | Reducción lenta a lo largo de meses a años; conversación de efectos adversos prolongados |
+| Mielopatía degenerativa | Ninguna clase modifica el curso | Separar lo que mejora el confort de lo que modificaría la progresión; la neurorrehabilitación es lo de mayor respaldo relativo |
+| Enfermedad discal y dolor espinal | Analgésicos, AINEs | Considerar riesgo gastrointestinal y renal; ver patrón GI-3 de GCIS |
+| Artrosis y enfermedad articular degenerativa | Analgésicos, AINEs, condroprotectores, manejo del peso | El manejo no farmacológico —peso, ejercicio controlado, rehabilitación— acompaña siempre a la clase farmacológica |
+
+## Extensión de CC-304 (Response Tracking) — Ventanas de reevaluación específicas
+
+Puntos de referencia por defecto, ajustables por el veterinario:
+
+- **Trauma craneoencefálico:** puntaje de escala de Glasgow modificada seriado; la serie, no el valor único, es lo que informa la respuesta.
+- **Antiepiléptico tras inicio o ajuste:** reevaluación clínica y de frecuencia de crisis, con monitoreo de función hepática cuando corresponda.
+- **Inmunosupresores en MUO y SRMA:** seguimiento con proteína C reactiva sérica en SRMA, que sirve para eficacia y para detectar recaída. **La IgA no sirve para seguimiento**, porque permanece elevada durante toda la enfermedad.
+- **Corticoide en espondilomielopatía cervical:** reducción lenta a lo largo de meses a años, con reevaluación clínica periódica.
+- **Mielopatía degenerativa:** seguimiento funcional y de calidad de vida, no de respuesta farmacológica.
+
+Estas ventanas no son reglas rígidas — son puntos de referencia para que el componente sepa cuándo preguntar por la evolución, no un protocolo de tratamiento.
+
+---
+
+## Nota final sobre la relación entre documentos
+
+Si se actualiza la especificación base CC-301 a CC-304 en ICIS, esta extensión debe revisarse en paralelo. El Patrón N-2 tiene alcance que excede a NCIS: la sensibilidad ABCB1 afecta a fármacos usados por DCIS, OCIS y CCIS, y su implementación conviene resolverla a nivel de plataforma en vez de duplicarla en cada extensión.
+
+FUENTES DEL CONTENIDO CLÍNICO
+
+Los racionales de la sección CC-303 y las ventanas de CC-304 provienen de los documentos clínicos ya cargados en la Base de Conocimiento de NCIS: trauma craneoencefálico, MUO, SRMA, epilepsia canina y felina, espondilomielopatía cervical, mielopatía degenerativa, IVDD y artrosis.
+
+Para el Patrón N-2: Mealey KL, Bentjen SA, Gay JM, Cantor GH. Ivermectin sensitivity in collies is associated with a deletion mutation of the mdr1 gene. Pharmacogenetics 2001;11(8):727–733. Gramer I y col. Breed distribution of the nt230(del4) MDR1 mutation in dogs. Vet J 2011;189(1):67–71. Orthopedic Foundation for Animals — Multiple Drug Sensitivity (MDR1). Cornell University College of Veterinary Medicine — Drug sensitivity: MDR1. Case report: adverse reaction to butorphanol in a Collie homozygous for the ABCB1-1Δ mutation. PMC12159028.
+
+Para el Patrón N-4: Marks SL y col. ACVIM consensus statement: support for rational administration of gastrointestinal protectants to dogs and cats. J Vet Intern Med 2018;32(6):1823–1840.
+
+Documento de arquitectura elaborado para Vetline Ai.

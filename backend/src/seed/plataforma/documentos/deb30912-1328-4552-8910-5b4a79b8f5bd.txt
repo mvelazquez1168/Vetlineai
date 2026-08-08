@@ -1,0 +1,142 @@
+RCIS-ARCH-001
+
+Clinical Components Catalog v1.0 (adaptado de ICIS-ARCH-001)
+
+NOTA DE ALCANCE DE ESTA ADAPTACIÓN (RCIS-ARCH-001)
+
+Este catálogo es una adaptación del catálogo v2.0 de ICIS, especializada para RCIS (Reproducción y Andrología Veterinaria). Se excluye deliberadamente la capa completa de Derivación (CC-260 a CC-263) — RCIS es una especialidad receptora de casos ya derivados, no un sistema que decide si derivar hacia afuera; esa responsabilidad pertenece exclusivamente a ICIS.
+
+El alcance clínico de RCIS es la reproducción completa: hembra (ciclo estral, servicio, gestación, parto, puerperio, patología uterina) y macho (evaluación andrológica, espermiograma, próstata), más neonatología inmediata. La patología prostática pertenece a RCIS y no a UCIS.
+
+Componentes heredados de ICIS sin modificación estructural: CC-001 a CC-003, CC-005, CC-101, CC-102, CC-104, CC-201 a CC-204, CC-240.
+
+Componentes heredados con extensión propia de RCIS: CC-004 (Clinical Timeline — extendido a eje prospectivo), CC-220 (Imaging Intelligence — extendido para ecografía reproductiva y radiografía gestacional).
+
+Componentes nuevos, sin equivalente en ICIS: CC-231 (Reproductive Cytology & Endocrine Intelligence), CC-232 (Ovulation Timing Engine), CC-233 (Gestational Monitoring Intelligence), CC-234 (Dystocia & Delivery Decision Engine), CC-235 (Neonatal Viability Assessment), CC-236 (Andrology & Semen Analysis Intelligence), CC-237 (Prostatic Assessment Intelligence), CC-305 (Reproductive Pharmacotherapy).
+
+Componentes mencionados como integraciones pero aún no definidos en ninguna versión verificada: CC-103 (Signalment Analysis), CC-250 (Clinical Evidence Graph) — mismas dependencias declaradas como pendientes que ya existen en ICIS-ARCH-001 y OCIS-ARCH-001; cualquier motor de RCIS que dependa de estos debe declarar esa dependencia explícitamente, nunca asumir su comportamiento.
+
+Nota sobre numeración: los códigos CC-231 y siguientes se reutilizan con significado propio en cada agente especializado, siguiendo el precedente ya establecido entre ICIS (CC-231 = endoscopia digestiva) y OCIS (CC-231 = histopatología). La banda 2xx especializada es local al agente, no un espacio compartido de plataforma. Ver AD-RCIS-05.
+
+---
+
+CC-001 a CC-003, CC-005 — Núcleo de Caso (heredado de ICIS sin cambios)
+
+Executive Case Summary, Patient Profile, Case Metadata, Active Problems Registry. Se heredan íntegramente de ICIS-ARCH-001. La única diferencia funcional es que el Executive Case Summary de RCIS debe encabezar su síntesis con la posición del paciente en el eje temporal reproductivo (día del ciclo, día de gestación, día posparto, o "sin evento reproductivo activo"), porque ese dato condiciona la interpretación de todo lo demás.
+
+CC-004 — Clinical Timeline (extendido a eje prospectivo)
+
+Hereda la estructura base de ICIS-ARCH-001 (registro cronológico de eventos del caso). Extensión propia de RCIS: la timeline de un caso reproductivo no es solo retrospectiva. RCIS es la única especialidad de la plataforma en la que el caso tiene fechas futuras de cumplimiento biológico obligatorio.
+
+El componente debe sostener, además de los eventos ya ocurridos, eventos proyectados con su fecha estimada y su margen de error: ventana fértil estimada, fecha probable de parto (calculada desde el pico de LH inferido, no desde la fecha de monta), fecha de próximo control de progesterona, fecha de radiografía para conteo fetal, límite de puerperio normal.
+
+Regla: todo evento proyectado debe mostrarse visualmente distinguido de un evento ocurrido, y debe declarar el método con el que se calculó. Una fecha probable de parto derivada de progesterona seriada y una derivada de fecha de monta tienen precisión muy distinta, y presentarlas igual induce error clínico.
+
+CC-101, CC-102, CC-104 — Historia Clínica (heredado sin cambios)
+
+Clinical History, Presenting Complaint, Physical Examination. Heredados íntegramente. Nota de uso: la anamnesis reproductiva requiere datos que la historia clínica general no solicita por defecto (fecha del último celo, número de partos previos, intervalo entre partos, resultado de servicios anteriores, historial de camadas). Estos se capturan como campos de CC-101, sin crear un componente nuevo.
+
+CC-201 a CC-204 — Laboratorio (heredado sin cambios)
+
+Complete Blood Count Intelligence, Serum Biochemistry Intelligence, Electrolyte & Acid-Base Intelligence, Urinalysis Intelligence. Heredados íntegramente. Notas de uso propias de RCIS: en sospecha de piometra, CC-201 y CC-202 deben leerse en conjunto (leucograma inflamatorio más azotemia) y vincularse al hallazgo ecográfico de CC-220, en vez de reportarse por separado; en la hembra periparto, CC-203 es el componente que sostiene la evaluación de calcemia ante sospecha de eclampsia.
+
+CC-220 — Imaging Intelligence (extendido)
+
+Hereda la estructura base de ICIS-ARCH-001. Extensión propia de RCIS en cuatro dominios: ecografía uterina (contenido, grosor endometrial, quistes, diferenciación piometra/mucómetra/gestación temprana), ecografía gestacional (viabilidad, frecuencia cardíaca fetal, biometría, estimación de edad gestacional), radiografía gestacional (conteo fetal desde mineralización, relación entre diámetro biparietal y canal pélvico materno), y ecografía prostática y testicular.
+
+El componente debe poder comparar mediciones entre estudios sucesivos —igual que en OCIS para tamaño tumoral— porque el seguimiento gestacional y el seguimiento de involución uterina posparto son inherentemente seriados.
+
+CC-231 — Reproductive Cytology & Endocrine Intelligence (nuevo)
+
+Propósito: interpretar citología vaginal exfoliativa y perfiles endocrinos reproductivos, y traducirlos a una fase del ciclo estral con su grado de certeza.
+
+Alcance — incluye: porcentaje de células superficiales/intermedias/parabasales, presencia de neutrófilos y eritrocitos, valores seriados de progesterona con su fecha y hora de extracción, LH cuando esté disponible, testosterona en el macho.
+
+Alcance — no incluye: la decisión del momento de servicio, que pertenece exclusivamente a CC-232.
+
+Regla: un valor de progesterona aislado no permite ubicar la fase del ciclo. Ante un único valor sin serie, el componente debe declarar explícitamente que la interpretación es provisional e indicar cuándo debe repetirse la medición, nunca inferir la fase como si tuviera la curva completa.
+
+CC-232 — Ovulation Timing Engine (nuevo, propio de RCIS)
+
+Propósito: determinar la ventana fértil y el momento óptimo de servicio o inseminación, de forma explícita y trazable, usando como fuente los datos producidos por CC-231 (progesterona seriada, citología) y CC-220 (ecografía ovárica cuando esté disponible).
+
+Entradas: CC-231, CC-220, CC-101 (historial reproductivo), tipo de servicio previsto (monta natural, IA con semen fresco, refrigerado o congelado — el margen aceptable cambia sustancialmente entre ellos).
+
+Salidas: día estimado de ovulación con su margen, ventana de servicio recomendada con fecha y hora, fecha probable de parto derivada del mismo cálculo, y el listado de los valores que sustentaron la estimación más los que quedaron pendientes.
+
+Regla: nunca emite una recomendación de servicio con una serie de progesterona insuficiente sin marcarla como provisional. Una ventana estimada a partir de dos puntos y una estimada a partir de una curva completa no pueden presentarse con la misma confianza.
+
+Este componente alimenta directamente la Timing Card definida en RCIS-DESIGN-001 y los eventos proyectados de CC-004.
+
+CC-233 — Gestational Monitoring Intelligence (nuevo)
+
+Propósito: sostener el seguimiento de la gestación confirmada, desde el diagnóstico hasta el parto.
+
+Alcance — incluye: confirmación y datación de la gestación, viabilidad fetal por frecuencia cardíaca, conteo fetal, evaluación de riesgo de distocia por desproporción fetopélvica, detección de pérdida gestacional y de gestación de término prolongado.
+
+Regla: el conteo fetal radiográfico es la entrada obligatoria para que CC-234 pueda determinar si el parto está completo. Si no se realizó, el componente debe señalarlo como dato faltante crítico antes del parto, no después.
+
+CC-234 — Dystocia & Delivery Decision Engine (nuevo)
+
+Propósito: evaluar el trabajo de parto en curso y sostener la decisión entre manejo médico y cesárea, con criterios explícitos y tiempos de referencia.
+
+Entradas: CC-233 (conteo fetal, biometría, viabilidad), CC-220 (estado fetal actual), CC-203 (calcemia, glucemia), CC-004 (cronología del trabajo de parto), hallazgos de examen obstétrico.
+
+Salidas: clasificación del tipo de distocia (materna, fetal, obstructiva) cuando sea determinable, recomendación de conducta con su justificación, y el tiempo transcurrido contra los límites de referencia.
+
+Regla: este es el componente de RCIS con mayor consecuencia por demora. Ante deterioro de frecuencia cardíaca fetal o superación de límites de tiempo, la salida debe presentarse como recomendación urgente y no diluirse entre otros hallazgos del caso. Ante ausencia de datos suficientes, el componente indica qué falta y el tiempo disponible para obtenerlo, nunca aconseja esperar por defecto.
+
+CC-235 — Neonatal Viability Assessment (nuevo)
+
+Propósito: evaluar al neonato en las primeras horas y días, y detectar el deterioro temprano.
+
+Alcance — incluye: puntuación de vitalidad al nacimiento, temperatura, glucemia, peso y curva de ganancia diaria, evaluación de ingesta de calostro, signos de sepsis neonatal.
+
+Regla arquitectónica: el neonato no es una entidad `paciente` propia en el modelo de datos vigente — el caso pertenece a la madre. Los datos de la camada se registran como parte del caso materno hasta que se resuelva AD-RCIS-04.
+
+CC-236 — Andrology & Semen Analysis Intelligence (nuevo)
+
+Propósito: interpretar la evaluación reproductiva del macho.
+
+Alcance — incluye: espermiograma completo (volumen, concentración, motilidad total y progresiva, morfología con clasificación de anomalías primarias y secundarias, viabilidad), evaluación testicular y epididimaria, aptitud para colecta y criopreservación.
+
+Regla: un espermiograma único no permite concluir infertilidad. Ante un resultado anormal, el componente debe indicar el intervalo de repetición apropiado según la duración del ciclo espermatogénico de la especie, y considerar la existencia de causas transitorias antes que emitir una conclusión de aptitud definitiva.
+
+CC-237 — Prostatic Assessment Intelligence (nuevo)
+
+Propósito: evaluar la patología prostática del macho, que por decisión de arquitectura pertenece a RCIS y no a UCIS.
+
+Alcance — incluye: hiperplasia prostática benigna, prostatitis aguda y crónica, quistes prostáticos y paraprostáticos, correlación con estado reproductivo (entero vs. castrado), y el vínculo entre signos urinarios, digestivos (tenesmo) y reproductivos que caracteriza a este cuadro.
+
+Alcance — no incluye: neoplasia prostática, que se escala a ICIS para derivación a OCIS.
+
+Regla de frontera con UCIS: un macho entero con signos urinarios bajos requiere que la próstata se evalúe como diferencial antes de concluir que el cuadro es puramente urinario. Si tras esa evaluación la próstata queda descartada, el caso se escala de vuelta a ICIS para su redirección a UCIS — RCIS no deriva lateralmente.
+
+CC-305 — Reproductive Pharmacotherapy (nuevo, propio de RCIS)
+
+Propósito: gestionar los fármacos de uso reproductivo activos del caso, con sus ventanas de indicación y sus contraindicaciones dependientes de la fase.
+
+Alcance — incluye: protocolos de inducción y sincronización, uterotónicos y su relación con la conducta obstétrica de CC-234, antimicrobianos en patología uterina y prostática, y agentes de manejo de la hiperplasia prostática.
+
+Regla: la mayoría de estos fármacos tienen contraindicaciones que dependen enteramente de la fase reproductiva del paciente. Toda recomendación de este componente debe declarar explícitamente el estado gestacional o la fase del ciclo sobre el que está razonando, tomado de CC-231 o CC-233. Si ese estado no está confirmado, el componente no emite recomendación: la solicita.
+
+---
+
+Contrato de Consumo
+
+Todo motor o especificación que consuma un Clinical Component de RCIS deberá:
+- Referenciarlo por su código (CC-xxx), nunca reimplementar su lógica localmente.
+- Registrar en el Clinical Evidence Graph (CC-250, cuando esté definido) cualquier inferencia derivada de CC-232 (Ovulation Timing) y CC-234 (Dystocia Decision), con el mismo estándar de explicabilidad que cualquier otra inferencia.
+- Declarar la fase reproductiva sobre la que razona cuando consuma CC-231, CC-233 o CC-305.
+
+Architecture Decisions
+
+AD-RCIS-01 — No Referral Layer. A diferencia de ICIS, RCIS no incluye ni incluirá una capa CC-26x. Cualquier necesidad de derivar un caso hacia otra especialidad debe resolverse escalando el caso de vuelta a ICIS, no construyendo un motor de derivación paralelo dentro de RCIS.
+
+AD-RCIS-02 — Ovulation Timing as a First-Class Component. CC-232 es el componente que define la razón de ser diferenciadora de RCIS frente a un manejo reproductivo genérico, de la misma forma que CC-232 (Staging) lo es para OCIS y CC-260/261/262 para ICIS. Ningún otro componente de RCIS puede emitir una recomendación de momento de servicio por su cuenta.
+
+AD-RCIS-03 — Prostatic Scope. La patología prostática pertenece a RCIS. UCIS debe declarar explícitamente esta exclusión en su propio catálogo cuando se construya, e ICIS debe ajustar sus banderas rojas urinarias para que un macho entero con signos urinarios bajos considere RCIS como destino de derivación. Neoplasia prostática es la única excepción: se escala a ICIS para derivación a OCIS.
+
+AD-RCIS-04 — El neonato no es paciente de registro (pendiente). El modelo de datos vigente encadena propietario → paciente → caso, sin representación para una camada. Hoy los datos neonatales de CC-235 viven dentro del caso materno. Esto es aceptable para el seguimiento inmediato, pero impide que un cachorro tenga expediente propio y trazabilidad hacia adelante. Decisión pendiente a nivel de plataforma, no resoluble dentro de RCIS.
+
+AD-RCIS-05 — Colisión de numeración en la banda 2xx (pendiente de plataforma). CC-231 significa endoscopia digestiva en ICIS, histopatología en OCIS y citología reproductiva en RCIS. Este catálogo sigue ese precedente por consistencia, pero la ausencia de un registro central de códigos es un riesgo conocido: el día que se defina un componente verdaderamente compartido entre agentes, no habrá forma de distinguirlo de uno local. Decisión pendiente a nivel de plataforma.

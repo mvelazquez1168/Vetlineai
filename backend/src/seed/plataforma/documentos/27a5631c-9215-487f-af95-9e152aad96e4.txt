@@ -1,0 +1,89 @@
+ENFERMEDAD DEL LIGAMENTO CRUZADO CRANEAL EN EL PERRO — DIAGNÓSTICO, MANEJO Y SU CONFUSIÓN CON LA CADERA
+
+Resumen clínico de referencia para NCIS, línea ortopédica. Componentes que lo consumen: CC-241 (estadificación COAST de artrosis), CC-220 (Imaging Intelligence), CC-104 (examen físico), CC-240 (Diagnostic Correlation Engine).
+
+---
+
+1. POR QUÉ ESTE DOCUMENTO EXISTE
+
+La rotura del ligamento cruzado craneal es la causa más común de cojera del miembro posterior en el perro, y a la vez una de las más frecuentemente pasadas por alto o mal diagnosticadas.
+
+El dato que fundamenta este documento: en una serie de 369 perros derivados a un hospital universitario para tratamiento de displasia de cadera, el 32% tenía en realidad rotura de ligamento cruzado craneal como causa primaria de la cojera del miembro posterior.
+
+Esa cifra tiene una lectura directa para NCIS y para ICIS: en un perro con cojera de miembro posterior y hallazgos radiográficos de cadera, la cadera puede ser un hallazgo concurrente y no la causa del cuadro actual. Muchos perros con cojera de miembro posterior tienen algún grado de displasia de cadera o cambios degenerativos coxofemorales, pero una cojera aguda típicamente no se debe a un problema de cadera.
+
+Regla operativa: ante cojera de miembro posterior, la rodilla debe evaluarse antes de atribuir el cuadro a la cadera, aunque la radiografía de cadera muestre cambios.
+
+2. BILATERALIDAD
+
+Entre un tercio y la mitad de los perros presentan enfermedad bilateral incluso cuando la cojera es unilateral. La enfermedad bilateral severa puede además simular otros cuadros, incluida la displasia de cadera severa.
+
+Consecuencia: un examen que solo explora el miembro cojo produce una imagen incompleta del caso. Ambas rodillas deben evaluarse.
+
+3. PATOGENIA — DEGENERATIVA MÁS QUE TRAUMÁTICA
+
+La enfermedad del ligamento cruzado craneal es una condición compleja influida por factores biomecánicos, genéticos y de manejo. No responde al modelo de lesión traumática aguda sobre un ligamento sano.
+
+Factores anatómicos y conformacionales. La torsión interna del fémur distal y el aumento de la angulación de la tibia proximal incrementan el empuje tibial craneal durante el apoyo, lo que contribuye a estrés ligamentario crónico y a la rotura eventual.
+
+Comorbilidades que desestabilizan aún más la articulación: luxación de rótula y displasia de cadera aparecen con frecuencia asociadas.
+
+Otros factores de riesgo: predisposición genética, obesidad, y conformación del miembro pélvico específica de raza. La asociación entre gonadectomía —y su momento— y el riesgo de enfermedad del cruzado ha sido objeto de revisión sistemática y metaanálisis.
+
+Identificar estas predisposiciones conformacionales permite intervención temprana y puede mitigar la severidad en razas predispuestas.
+
+4. DIAGNÓSTICO
+
+Maniobras de examen. La enseñanza tradicional ha puesto el énfasis en maniobras sutiles y técnicamente difíciles como el signo de cajón craneal y el empuje tibial craneal. Son útiles, pero su dificultad de ejecución es parte de la explicación de por qué el cuadro se pasa por alto.
+
+Imagen. Las modalidades avanzadas —tomografía computarizada y resonancia magnética— han mejorado la exactitud diagnóstica.
+
+Radiografía y artrosis. En la mayoría de los perros, una rotura no diagnosticada o no tratada produce avance rápido de la artrosis. Las radiografías tomadas dentro de las 6 semanas de una rotura aguda muestran con frecuencia signos de artrosis: osteofitos peripatelares y peritrocleares, efusión articular y colapso del espacio articular.
+
+Este vínculo conecta directamente con CC-241: un paciente con enfermedad del cruzado es un paciente que está generando artrosis, y la estadificación COAST debe aplicarse desde el diagnóstico, no cuando la cojera se cronifica.
+
+5. TRATAMIENTO
+
+Las opciones descritas van desde métodos tradicionales como la estabilización con sutura fabelar lateral hasta técnicas quirúrgicas avanzadas: osteotomía niveladora de la meseta tibial (TPLO) y avance de la tuberosidad tibial (TTA).
+
+Tendencia reciente: combinar abordajes, por ejemplo TPLO con artroscopia, para optimizar los resultados.
+
+Rehabilitación posoperatoria. Cumple un papel relevante en la recuperación, con terapias como hidroterapia y crioterapia por compresión que reducen el dolor y mejoran la función.
+
+Nota de alcance para NCIS: la elección de técnica quirúrgica es decisión del cirujano. El aporte del agente está en el diagnóstico oportuno, el reconocimiento de la bilateralidad, la estadificación de la artrosis concurrente y la identificación de factores modificables como la obesidad.
+
+6. IMPACTO Y OPORTUNIDAD
+
+El diagnóstico y tratamiento oportunos y exactos son probablemente muy importantes para minimizar la progresión de la artrosis y optimizar los resultados quirúrgicos. Es decir, el valor de detectarlo temprano no es solo evitar la cojera actual: es reducir la carga artrósica que el paciente arrastrará el resto de su vida.
+
+7. ERRORES FRECUENTES
+
+Atribuir una cojera aguda de miembro posterior a la displasia de cadera visible en radiografía.
+
+Explorar solo el miembro cojo y no la rodilla contralateral.
+
+Concluir ausencia de enfermedad del cruzado por una maniobra de cajón negativa realizada en un paciente tenso o sin sedación.
+
+No aplicar estadificación de artrosis en el momento del diagnóstico, cuando el proceso artrósico ya está en marcha.
+
+Tratar el sobrepeso como observación accesoria en vez de como factor de riesgo modificable.
+
+Interpretar el cuadro como lesión traumática aislada y no investigar conformación ni comorbilidades articulares.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnicas quirúrgicas en detalle: indicaciones comparadas de TPLO, TTA y estabilización extracapsular, y sus complicaciones. Lesión meniscal concurrente: diagnóstico y manejo. Protocolos de rehabilitación detallados. Manejo conservador: criterios de selección y resultados. Displasia de cadera como entidad propia. Luxación de rótula. Osteocondrosis. Analgesia y manejo farmacológico de la artrosis. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+FUENTES
+
+Canine Cranial Cruciate Ligament Disease (CCLD): A Concise Review of the Recent Literature. Animals 2025;15(7):1030. DOI 10.3390/ani15071030. Licencia CC BY. Fuente principal de las secciones 3 y 5.
+
+Canine Cranial Cruciate Disease: Updating Our Knowledge about Pathogenesis & Diagnosis. Today's Veterinary Practice. Fuente de las secciones 1 y 4.
+
+Powers MY, Martinez SA, Lincoln JD y col. Prevalence of cranial cruciate ligament rupture in a population of dogs with lameness previously attributed to hip dysplasia: 369 cases (1994-2003). J Am Vet Med Assoc 2005;227:1109–1111. Fuente del dato central de la sección 1.
+
+Witsberger TH, Villamil JA, Schultz LG, Hahn AW, Cook JL. Prevalence of and risk factors for hip dysplasia and cranial cruciate ligament deficiency in dogs. J Am Vet Med Assoc 2008;232:1818–1824.
+
+Taylor-Brown FE y col. Epidemiology of cranial cruciate ligament disease diagnosis in dogs attending primary-care veterinary practices in England. Vet Surg 2015;44:777–783.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

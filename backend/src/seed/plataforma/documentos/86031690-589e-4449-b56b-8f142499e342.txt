@@ -1,0 +1,84 @@
+EXTENSIÓN CARDIOVASCULAR — FAMILIA CC-3xx FARMACOTERAPIA (CCIS)
+
+**Relación con el documento base:** este documento no reemplaza la especificación genérica de CC-301 a CC-304 construida para ICIS — la extiende. CCIS hereda el núcleo completo tal cual, y este documento agrega profundidad específica de cardiología dentro de cada uno de esos cuatro componentes.
+
+**Misma regla que en ICIS y GCIS, sin excepción: ningún componente de esta familia calcula ni sugiere dosis.**
+
+---
+
+## Extensión de CC-301 (Medication Registry) — Clases terapéuticas cardiovasculares
+
+CC-301 en CCIS reconocerá específicamente las siguientes clases:
+
+- **Diuréticos de asa** (furosemida, torasemida)
+- **Inodilatadores** (pimobendán)
+- **Inhibidores de la enzima convertidora de angiotensina**
+- **Antagonistas de aldosterona** (espironolactona)
+- **Bloqueantes de canales de calcio** (amlodipino, diltiazem)
+- **Bloqueantes del receptor de angiotensina II** (telmisartán)
+- **Antiarrítmicos**, subclasificados por su uso: de mantenimiento oral (sotalol, diltiazem, digoxina), parenterales de urgencia (lidocaína, procainamida), y de cardioversión (quinidina)
+- **Antiplaquetarios** (clopidogrel, aspirina)
+- **Anticoagulantes** (rivaroxabán, heparinas de bajo peso molecular, heparina)
+- **Trombolíticos** (activador tisular del plasminógeno)
+- **Vasodilatadores y agentes para hipertensión pulmonar** (nitroprusiato de sodio, sildenafilo)
+- **Adulticidas y adyuvantes para dirofilariasis** (melarsomina, doxiciclina, lactonas macrocíclicas)
+- **Sedantes en el paciente disneico**
+
+## Extensión de CC-302 (Drug Interaction Engine) — Patrones específicos de cardiología
+
+**Patrón C-1 — Fluidoterapia intravenosa en insuficiencia cardíaca congestiva aguda.** Los fluidos intravenosos suplementarios **están contraindicados** en el paciente con ICC aguda fulminante, salvo que otros fármacos deban administrarse por infusión a razón constante; en ese caso corresponde un fluido bajo en sodio a la menor velocidad posible. Interpretación: alerta de alta relevancia cuando se registre fluidoterapia en un paciente con ICC aguda. Es el patrón que más contradice el reflejo habitual ante un paciente crítico.
+
+**Patrón C-2 — Dosis repetidas de diurético de asa y electrolitos.** Las dosis repetidas de furosemida pueden causar hipokalemia marcada y alcalosis metabólica, **particularmente en gatos**. Interpretación: alerta que solicita ionograma tras dosis repetidas, con prioridad en el paciente felino.
+
+**Patrón C-3 — Pimobendán en el gato.** No está aprobado para uso felino, aunque parece bien tolerado y puede beneficiar a gatos con insuficiencia cardíaca **que no presenten evidencia de obstrucción sustancial del tracto de salida del ventrículo izquierdo**. Interpretación: alerta que exige declarar el fenotipo ecocardiográfico antes de la recomendación, y señalar el uso extraetiqueta.
+
+**Patrón C-4 — Quinidina y función miocárdica.** Debe evitarse en perros con falla miocárdica severa o con insuficiencia cardíaca actual o previa. Su indicación principal es facilitar la cardioversión sincronizada en fibrilación auricular, no el control de frecuencia crónico ni las arritmias ventriculares. Interpretación: alerta de precaución de alta relevancia.
+
+**Patrón C-5 — Monoterapia en fibrilación auricular secundaria.** La combinación de digoxina y diltiazem controla la frecuencia ventricular mejor que cualquiera de los dos en monoterapia, según ensayo aleatorizado cruzado. Interpretación: alerta informativa cuando se registre monoterapia con cualquiera de los dos en un paciente con fibrilación auricular secundaria.
+
+**Patrón C-6 — Digoxina y sensibilidad ABCB1.** La digoxina es sustrato de glicoproteína P y figura entre los fármacos descritos como problemáticos en pacientes con la variante ABCB1, más común en razas de pastoreo pero posible en cualquier perro. Interpretación: alerta de sensibilidad racial. Ver el Patrón N-2 de la extensión de NCIS, cuyo alcance excede a un solo agente.
+
+**Patrón C-7 — Respuesta variable al clopidogrel.** No todos los gatos responden igual: existe una mutación genética documentada que afecta la respuesta al fármaco y lo vuelve menos efectivo, de modo que un abordaje único para todos probablemente no ofrece protección óptima. Interpretación: alerta informativa que obliga a declarar la variabilidad al recomendar profilaxis, en vez de presentarla como eficacia uniforme.
+
+**Patrón C-8 — Terapia antitrombótica dual y contexto del evento.** La evidencia de sinergia entre clopidogrel y rivaroxabán proviene de estudios cuyo criterio de inclusión fue tromboembolismo cardiogénico **estable entre 1 y 3 meses**. Interpretación: alerta que impide trasladar esa evidencia al evento agudo sin declararlo.
+
+**Patrón C-9 — AINEs en el paciente cardiovascular.** Consideración de función renal y de terapia diurética concurrente. Interpretación: alerta de función orgánica, en la línea del patrón genérico heredado de ICIS.
+
+## Extensión de CC-303 (Therapeutic Class Reasoning) — Racionales cardiovasculares
+
+| Diagnóstico o síndrome presuntivo | Clases habitualmente consideradas | Nota de racional |
+|---|---|---|
+| ICC aguda | Oxígeno, diurético de asa, donadores de óxido nítrico, sedación | **Fluidoterapia contraindicada**; la sedación de la ansiedad por disnea es parte del manejo, no confort |
+| ICC crónica | Diurético de asa, inodilatador, IECA, antagonista de aldosterona | La llamada terapia cuádruple; los diuréticos de asa se recomiendan para el manejo crónico y agudo en MMVD estadios C y D |
+| Fibrilación auricular secundaria | Bloqueante de canales de calcio más digoxina | Meta de frecuencia cardíaca media igual o menor a 125 lpm, medida por Holter y no por auscultación |
+| Arritmia ventricular hemodinámicamente consecuente | Antiarrítmico oral de mantenimiento | Para las que amenazan la vida, parenterales combinados |
+| Miocardiopatía felina estadio B2 | Antiplaquetario para prevención primaria | La identificación del gato en riesgo por agrandamiento auricular izquierdo es lo que habilita la profilaxis |
+| Tromboembolismo arterial felino, evento agudo | Antiplaquetario más anticoagulante, analgesia, soporte | Trombolíticos sin beneficio demostrado en supervivencia; analgesia obligada |
+| Hipertensión sistémica con daño de órgano blanco | Bloqueante de canales de calcio, bloqueante del receptor de angiotensina, IECA | Meta de sistólica menor a 140 mmHg; tratamiento de por vida, y esa conversación forma parte de la decisión |
+| Hipertensión pulmonar y dirofilariasis complicada | Vasodilatador pulmonar, diurético de asa | Ver el documento de dirofilariasis para el protocolo adulticida y su sección de espectro de atención |
+| Dirofilariasis sin síndrome de vena cava | Lactona macrocíclica, doxiciclina, adulticida arsenical, corticoide | **Todo protocolo no arsenical debe incluir doxiciclina**; la restricción de actividad es parte del tratamiento |
+
+## Extensión de CC-304 (Response Tracking) — Ventanas de reevaluación específicas
+
+- **ICC aguda:** monitoreo estrecho durante las siguientes 1 a 2 horas; idealmente la frecuencia y el esfuerzo respiratorios comienzan a descender tras la primera hora, aunque algunos perros gravemente afectados requieren varias dosis antes de mejorar.
+- **Tras dosis repetidas de diurético de asa:** ionograma, con prioridad en el gato.
+- **Fibrilación auricular:** frecuencia cardíaca media por Holter, no por auscultación en consulta. Y Holter también para caracterizar arritmia ventricular concurrente, presente en la enorme mayoría de estos pacientes.
+- **Hipertensión sistémica:** monitoreo estrecho de todo paciente en tratamiento; los no tratados en zona normotensa a prehipertensa se controlan cada 3 a 6 meses según factores de riesgo.
+- **Tromboembolismo arterial felino:** análisis sanguíneos e imagen repetida durante el tratamiento. **Puede tomar varias semanas ver mejoría**, y ese horizonte debe comunicarse desde el inicio para que la ausencia de cambios en días no se lea como fracaso.
+- **Dirofilariasis:** restricción de actividad durante todo el tratamiento y al menos 6 a 8 semanas después; prueba de antígeno de control para confirmar negativización.
+
+---
+
+## Nota final sobre la relación entre documentos
+
+Si se actualiza la especificación base CC-301 a CC-304 en ICIS, esta extensión debe revisarse en paralelo. Los patrones C-6 y C-9 tienen alcance de plataforma y conviene resolverlos a ese nivel.
+
+FUENTES DEL CONTENIDO CLÍNICO
+
+Los racionales de CC-303 y las ventanas de CC-304 provienen de los documentos clínicos ya cargados en la Base de Conocimiento de CCIS: insuficiencia cardíaca congestiva aguda, MMVD, cardiomiopatía dilatada, miocardiopatías felinas, arritmias, tromboembolismo arterial felino, hipertensión sistémica, derrame pericárdico, hipertensión pulmonar y dirofilariasis.
+
+Para el Patrón C-5: Gelzer AR y col. Combination therapy with digoxin and diltiazem controls ventricular rate in chronic atrial fibrillation in dogs better than digoxin or diltiazem monotherapy. J Vet Intern Med 2009;23(3):499–508.
+
+Para el Patrón C-6: Orthopedic Foundation for Animals — Multiple Drug Sensitivity (MDR1); Veterinary Genetics Laboratory, UC Davis.
+
+Documento de arquitectura elaborado para Vetline Ai.

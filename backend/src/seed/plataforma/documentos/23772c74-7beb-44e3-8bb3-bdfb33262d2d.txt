@@ -1,0 +1,55 @@
+# Ehrlichiosis y Anaplasmosis Caninas — Diagnóstico y Tratamiento
+
+**Fuentes principales (síntesis de literatura convergente):**
+- Sainz Á, Roura X, Miró G, Estrada-Peña A, Kohn B, Harrus S, Solano-Gallego L. Guideline for veterinary practitioners on canine ehrlichiosis and anaplasmosis in Europe. *Parasit Vectors.* 2015;8:75. Acceso abierto (CC BY 4.0).
+- Neer TM, Breitschwerdt EB, Greene RT, Lappin MR. Consensus statement on ehrlichial disease of small animals from the Infectious Disease Study Group of the ACVIM. *J Vet Intern Med.* 2002;16(3):309-315.
+- LeVine DN, et al. ACVIM consensus statement on the diagnosis of immune thrombocytopenia in dogs and cats. *J Vet Intern Med.* 2024 (sección sobre Ehrlichia/Anaplasma como desencadenantes de ITP).
+
+**Alcance de este resumen:** ampliación del sistema infeccioso para el agente de medicina interna/triage (ICIS), complementando el resumen ya cargado de Leptospirosis. Particularmente relevante para Costa Rica/Centroamérica dada la alta prevalencia de patógenos transmitidos por garrapatas en la región, y por la conexión directa ya identificada con el diferencial de trombocitopenia inmunomediada (ITP) en la Base de Conocimiento.
+
+---
+
+## 1. Los agentes — tres especies con comportamiento clínico distinto
+
+- **Ehrlichia canis**: agente de la ehrlichiosis monocítica canina — la forma clásicamente más severa, con fase aguda, subclínica y crónica bien descritas.
+- **Anaplasma phagocytophilum**: causa anaplasmosis granulocítica — signos clínicos frecuentes: fiebre, trombocitopenia, linfadenopatía, anorexia.
+- **Anaplasma platys**: causa trombocitopenia cíclica infecciosa canina (ICCT) — los perros infectados suelen ser **asintomáticos**, y la detección en sangre es difícil porque la carga bacteriana circulante suele ser baja.
+- Los tres pueden **coinfectar** al mismo paciente, y *A. platys* puede transmitirse por la misma garrapata que *E. canis* — relevante porque un solo evento de exposición puede generar cuadros mixtos.
+
+## 2. Vector y epidemiología — por qué es tan relevante en esta región
+
+- Transmitido por garrapatas — *Rhipicephalus sanguineus* (garrapata café del perro) es el vector más relevante para *E. canis*, y su distribución se ha expandido con el calentamiento climático.
+- Enfermedad de distribución mundial con prevalencias altas documentadas en múltiples regiones — el patrón epidemiológico exacto depende de la presencia y densidad del vector local.
+- Relevancia zoonótica: varias especies de *Ehrlichia* y *Anaplasma* tienen un rol zoonótico probado o potencial — motivo adicional para mantener vigilancia activa en la práctica clínica.
+
+## 3. Presentación clínica
+
+- Fase aguda: fiebre, letargia, anorexia, linfadenopatía generalizada, esplenomegalia — clínicamente puede ser indistinguible de otras enfermedades vectoriales o incluso de linfoma en su forma de linfadenopatía generalizada (ver el resumen ya cargado de Linfoma, sección de diferenciales).
+- Hallazgos hematológicos frecuentes: **trombocitopenia** (el hallazgo de laboratorio más consistente en ambas infecciones), leucopenia (particularmente descrita en la forma granulocítica humana/canina de *A. phagocytophilum*), y anemia en casos más avanzados o crónicos.
+- La ehrlichiosis por *E. canis* no tratada puede progresar a una **fase crónica** con pancitopenia severa por supresión de médula ósea — el desenlace más grave de la enfermedad no controlada.
+
+## 4. Conexión directa con trombocitopenia inmunomediada (ITP)
+
+- Existe evidencia de nivel intermedio a alto de que especies de *Anaplasma* y *Ehrlichia* pueden **causar o contribuir a un cuadro de ITP** mediado inmunológicamente — es decir, la trombocitopenia en estos pacientes no siempre es solo consumo/destrucción directa por el patógeno, sino que puede involucrar mecanismos de destrucción plaquetaria mediada por anticuerpos.
+- Este mecanismo está mejor documentado específicamente para *A. phagocytophilum* que para *A. platys*, donde aún no está establecido si ocurre destrucción plaquetaria mediada por anticuerpos.
+- **Implicación práctica directa para ICIS**: ante un perro con trombocitopenia significativa, la enfermedad vectorial (Ehrlichia/Anaplasma) debe descartarse activamente **antes o en paralelo** con la investigación de ITP primaria — esto ya está reflejado en el enfoque del resumen de ITP cargado previamente, y este documento lo refuerza desde el lado infeccioso específico.
+
+## 5. Diagnóstico
+
+- Métodos disponibles: pruebas serológicas rápidas inmunoenzimáticas (point-of-care), inmunofluorescencia indirecta (IFA), y PCR de punto final o en tiempo real.
+- Cada método tiene limitaciones — la seropositividad indica exposición pero no necesariamente enfermedad activa; la PCR puede ser negativa en fases donde la carga bacteriana circulante es baja (particularmente relevante para *A. platys*).
+- La combinación de hallazgos clínicos + hematológicos (trombocitopenia) + prueba serológica/PCR sigue siendo el enfoque práctico recomendado, más que depender de una sola prueba aislada.
+
+## 6. Tratamiento
+
+- **Doxiciclina** es el fármaco de elección para ambas infecciones — consistente con el estándar ya usado para leptospirosis y otras rickettsiosis en el manejo veterinario.
+- Esquema descrito en estudios comparativos: dosis estándar de doxiciclina administrada durante un curso prolongado (semanas, no días) para lograr resolución clínica y hematológica — los protocolos de tratamiento más cortos utilizados en algunas infecciones bacterianas no son directamente extrapolables a estas enfermedades vectoriales.
+- Estudios de comparación histórica sugieren que doxiciclina supera a alternativas como imidocarb dipropionato en el tratamiento de ehrlichiosis natural.
+- Con tratamiento oportuno, la resolución clínica y de los parámetros hematológicos (incluyendo recuento plaquetario) es la evolución esperada — refuerza la importancia de iniciar tratamiento empírico con doxiciclina ante sospecha clínica razonable, sin esperar necesariamente confirmación serológica/molecular completa cuando el cuadro es compatible.
+
+## 7. Conclusión operativa para ICIS
+
+- Ante cualquier perro con **trombocitopenia inexplicada**, **linfadenopatía generalizada**, o **fiebre de origen no claro con antecedente de exposición a garrapatas**, Ehrlichia/Anaplasma debe estar activamente en el diferencial — con especial atención a la región centroamericana donde el vector (*Rhipicephalus sanguineus*) es endémico.
+- La trombocitopenia por sí sola **no debe llevar directamente a un diagnóstico presuntivo de ITP primaria** sin antes descartar razonablemente enfermedad vectorial — dado que ambas entidades pueden coexistir o que la infección puede ser la causa subyacente del cuadro inmunomediado.
+- Doxiciclina como tratamiento empírico ante sospecha clínica razonable es una decisión defendible incluso antes de tener confirmación diagnóstica completa, dado el buen perfil de respuesta documentado y el bajo riesgo relativo del fármaco.
+- Este documento completa la ampliación del sistema infeccioso de ICIS (junto con Leptospirosis ya cargada), y refuerza específicamente el vínculo cruzado con el sistema hematológico/inmune (documentos de ITP ya cargados) — ambos sistemas comparten un diferencial que no puede resolverse mirando solo uno de los dos de forma aislada.

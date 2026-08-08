@@ -1,0 +1,162 @@
+Knowledge Base Standard (KBS) — OCIS
+
+Versión: 1.0
+Estado: Draft
+Código: OCIS-KB-001
+
+1. Introducción
+
+Objetivo
+
+El Knowledge Base Standard (KBS) define las reglas para transformar casos clínicos oncológicos en unidades de conocimiento estructuradas, reutilizables y comparables — derivado de ICIS-KB-001, con la lógica de derivación removida y una lógica de estadificación/respuesta terapéutica en su lugar.
+
+La Base de Conocimiento constituye uno de los principales activos de OCIS, permitiendo que la experiencia acumulada en casos anteriores contribuya al análisis de nuevos pacientes.
+
+Cada caso incorporado deberá mantener trazabilidad, calidad clínica y consistencia terminológica.
+
+2. Filosofía
+
+La Base de Conocimiento no es un repositorio de documentos. Es un repositorio de conocimiento clínico estructurado. El objetivo no es almacenar PDFs. El objetivo es almacenar experiencia clínica oncológica.
+
+Cada caso deberá responder preguntas como:
+
+- ¿Qué neoplasia fue, y en qué grado/estadio?
+- ¿Por qué se asignó ese grado/estadio?
+- ¿Cómo evolucionó bajo tratamiento?
+- ¿Qué protocolo funcionó, y a qué dosis?
+- ¿Qué toxicidades se presentaron y cómo se manejaron?
+- ¿La estadificación inicial predijo correctamente el curso clínico, y por qué? (propia de OCIS — en OCIS esta pregunta es tan importante como "qué tratamiento funcionó")
+- ¿Qué aprendimos?
+
+3. Objetivos
+
+La Base de Conocimiento deberá permitir: buscar casos similares por neoplasia/grado/estadio, comparar evolución bajo distintos protocolos, encontrar patrones de respuesta terapéutica, identificar toxicidades frecuentes por fármaco, apoyar el diagnóstico y la estadificación, apoyar la docencia, facilitar investigación clínica, y mejorar continuamente la precisión de las estimaciones pronósticas asociadas a cada grado/estadio.
+
+4. Arquitectura Conceptual
+
+Caso Clínico → Clinical Components → Report Composer Engine → Knowledge Extraction Engine → Knowledge Validation Engine → Knowledge Base → Case Matching Engine → Nuevo Caso
+
+5. Ciclo de Vida del Conocimiento
+
+A diferencia de ICIS (que distingue Flujo A/casos resueltos vs. Flujo B/casos derivados), en OCIS todo caso sigue un único flujo, porque OCIS ya es la especialidad de destino:
+
+Consulta Inicial → Estadificación → Tratamiento (uno o más protocolos) → Seguimientos → Caso Cerrado o en Seguimiento Continuo → Reporte Clínico → Extracción de Conocimiento → Validación → Ingreso a la Base → Disponible para futuras consultas.
+
+6. Unidad de Conocimiento (Knowledge Unit)
+
+Cada caso almacenado constituye una Knowledge Unit (KU), con identificador único. Ejemplo: OCIS-KU-000001.
+
+Estructura
+
+Cada Knowledge Unit contendrá:
+
+- Metadata
+- Perfil del paciente
+- Neoplasia identificada
+- Grado/estadio asignado, con criterios utilizados
+- Historia resumida
+- Hallazgos relevantes (incluyendo histopatología/citología)
+- Diagnósticos diferenciales considerados
+- Protocolo(s) de tratamiento aplicados
+- Evidencia
+- Toxicidades y su manejo
+- Evolución
+- Pronóstico (estimado al inicio vs. observado)
+- Lecciones aprendidas
+- Nivel de calidad
+
+7. Metadata
+
+Cada caso almacenará: Código, Fecha, Neoplasia (tipo), Grado/Estadio, Especie, Raza, Edad, Sexo, País, Idioma, Versión, Protocolo(s) de tratamiento utilizados.
+
+8. Resumen Clínico
+
+Claude generará automáticamente un resumen estructurado, máximo dos páginas. Este resumen será el principal elemento utilizado por el motor de búsqueda. El resumen debe dejar explícito, en la primera línea, la neoplasia y el grado/estadio — un colega que busca precedentes para calibrar pronóstico necesita encontrar esto de inmediato, sin leer todo el resumen.
+
+9. Hallazgos Relevantes
+
+Organizados por: Historia, Exploración física, Laboratorio, Imagen, Histopatología/Citología, Tratamiento, Seguimiento.
+
+10. Diagnóstico y Estadificación
+
+La Base almacenará: Diagnóstico principal (neoplasia confirmada), diagnósticos diferenciales descartados, grado/estadio asignado con la nomenclatura exacta del sistema correspondiente, nivel de confianza de la estadificación (completa vs. provisional, y qué criterios quedaron pendientes si aplica).
+
+11. Evidencia Clínica
+
+Cada diagnóstico y grado/estadio deberá tener asociada su evidencia. Ejemplo: Tumor de mastocitos → Citología compatible → Histopatología confirma grado Kiupel bajo → Márgenes limpios en cirugía.
+
+12. Tratamientos
+
+Cada protocolo registrará: Fármaco(s), dosis, ciclos completados, fecha de inicio y fin de cada ciclo, objetivo, respuesta observada por ciclo, complicaciones/toxicidades. A diferencia de ICIS (que limita el registro al manejo de atención primaria pre-derivación), en OCIS el registro terapéutico es completo, porque OCIS es quien administra el tratamiento definitivo.
+
+13. Evolución
+
+Se almacenará una narrativa longitudinal, no únicamente fechas. Claude resumirá: cómo evolucionó, si hubo progresión/remisión/recaída, qué cambió en el protocolo y por qué, qué aprendimos.
+
+14. Clinical Lessons Learned
+
+Claude deberá responder: ¿qué enseñó este caso? Ejemplo propio de OCIS: "En pacientes caninos con tumor de mastocitos Kiupel bajo grado y márgenes quirúrgicos limpios, la ausencia de recurrencia a los 12 meses de seguimiento confirma que la estadificación completa no fue necesaria para este subgrupo — consistente con el criterio ya documentado en la Base de Conocimiento clínica."
+
+15. Pitfalls
+
+Toda Knowledge Unit deberá incluir errores potenciales a evitar. Ejemplo propio de OCIS: "No asumir grado bajo por apariencia macroscópica sin confirmación histopatológica del índice mitótico." "No atribuir automáticamente una citopenia a mielosupresión por quimioterapia sin descartar progresión de enfermedad como causa alternativa."
+
+16. Red Flags
+
+Hallazgos críticos registrados en el caso. Ejemplo propio de OCIS: sangrado activo por masa esplénica (sospecha de hemangiosarcoma roto), signos de mielosupresión severa post-quimioterapia (fiebre + neutropenia), progresión rápida pese a tratamiento activo.
+
+17. Outcome
+
+Cada caso finalizará con un resultado. Categorías propias de OCIS: Remisión completa, Remisión parcial, Enfermedad estable, Progresión, Recaída, Fallecimiento por la enfermedad, Fallecimiento por causa no relacionada, En tratamiento activo (seguimiento continuo), Perdido de seguimiento.
+
+Se remueven las categorías "Derivado — resultado confirmado" y "Derivado — resultado desconocido" de ICIS-KB-001 — no aplican a OCIS.
+
+18. Similarity Tags
+
+Cada caso será etiquetado automáticamente. Ejemplo: Perro, Labrador, Tumor de Mastocitos, Kiupel-Bajo-Grado, Márgenes-Limpios, Vincristina, Prednisolona, Protocolo-CHOP (cuando aplique a linfoma), Recaída (cuando aplique).
+
+Se remueven las etiquetas "Derivado-Especialidad" y "Manejo-Atención-Primaria" de ICIS-KB-001 — no aplican a OCIS.
+
+19. Clinical Ontology
+
+Toda la Base utilizará terminología controlada. Ejemplo: no almacenar "quimio" / "quimioterapia" / "tratamiento citotóxico" — todo se normaliza según la nomenclatura oficial del fármaco/protocolo. El mismo principio aplica a la nomenclatura de grado/estadio: siempre la denominación exacta del sistema correspondiente (Kiupel, Patnaik, WHO), nunca una paráfrasis. Esto mejora enormemente la búsqueda y la comparabilidad entre casos.
+
+20. Knowledge Quality Score
+
+Cada caso tendrá un puntaje de calidad. Variables: número de consultas, seguimiento, confirmación histopatológica, imagen de estadificación, laboratorio seriado, grado/estadio confirmado (no provisional), tiempo de seguimiento post-tratamiento. Ejemplo: Knowledge Score 96% — Alta calidad.
+
+Un caso con estadio confirmado y seguimiento prolongado tiene mayor puntaje que uno con estadio provisional y seguimiento corto — a diferencia de ICIS, donde un caso derivado sin diagnóstico confirmado puede igualmente tener alta calidad si la decisión de derivación fue bien justificada (esa lógica no aplica a OCIS).
+
+21. Knowledge Validation Engine
+
+Antes de incorporar un caso, Claude verificará: ¿existe diagnóstico y grado/estadio documentado (o explícitamente marcado como provisional)?, ¿existe evolución bajo tratamiento?, ¿hay seguimiento?, ¿existe evidencia histopatológica?, ¿las fechas son consistentes?, ¿hay contradicciones?
+
+22. Knowledge Matching Engine
+
+Cuando se analice un nuevo paciente, Claude comparará automáticamente: edad, especie, raza, tipo de neoplasia, grado/estadio, laboratorio, imagen, protocolo de tratamiento, evolución y desenlace en casos similares — permitiendo responder "¿cómo evolucionaron casos con este mismo grado/estadio y protocolo?", una de las consultas más valiosas para calibrar pronóstico. No realizará búsqueda textual. Realizará búsqueda clínica.
+
+23. Teaching Mode
+
+Toda Knowledge Unit podrá convertirse automáticamente en un caso docente. El sistema ocultará diagnóstico, grado/estadio, tratamiento y resultado, presentando el caso paso a paso para fines educativos. La pregunta docente central en OCIS suele ser: "¿qué grado/estadio le asignarías con esta evidencia, y qué protocolo terapéutico recomendarías?" — reforzando la competencia distintiva de un oncólogo: aplicar correctamente los sistemas de gradación/estadificación.
+
+24. Research Mode
+
+En el futuro, la Base permitirá encontrar todos los casos con combinaciones específicas de neoplasia, grado/estadio, protocolo y desenlace (ejemplo: tumor de mastocitos + Kiupel alto grado + raza específica + respuesta a un TKI determinado). También permitirá análisis específicos de OCIS, como: tasa de recaída por protocolo, tiempo promedio hasta progresión por grado/estadio, o correlación entre toxicidad temprana y respuesta terapéutica.
+
+25. Governance
+
+Todos los casos deberán: mantener anonimización cuando corresponda, conservar versiones, registrar fecha de actualización, permitir auditoría.
+
+Architecture Decisions
+
+AD-OCIS-KB-01 — Knowledge Unit Architecture: la unidad mínima de conocimiento será el caso clínico completo, no un documento ni una consulta aislada.
+
+AD-OCIS-KB-02 — Clinical Similarity Search: la similitud entre casos se calculará mediante múltiples dimensiones clínicas (incluyendo grado/estadio como dimensión de primer orden), no por coincidencias textuales.
+
+AD-OCIS-KB-03 — Lessons Learned Engine: todo caso deberá generar automáticamente una sección de Lecciones Aprendidas, convirtiendo la experiencia clínica en conocimiento explícito.
+
+AD-OCIS-KB-04 — Knowledge Quality Score: solo los casos que superen un umbral mínimo de calidad podrán utilizarse para apoyar el razonamiento diagnóstico y pronóstico de nuevos pacientes.
+
+AD-OCIS-KB-05 — Continuous Learning Repository: la Base de Conocimiento será un sistema vivo. Cada caso cerrado incrementará automáticamente el conocimiento disponible para el sistema, sin modificar ni sobrescribir los casos originales.
+
+AD-OCIS-KB-06 — Staging Outcome Correlation: además de recuperar casos similares, OCIS analizará periódicamente toda la Base de Conocimiento para correlacionar el grado/estadio asignado al inicio con el desenlace real observado — permitiendo, con el tiempo, calibrar si las estimaciones pronósticas documentadas en la Base de Conocimiento clínica siguen siendo precisas para la población de pacientes real de la clínica, o si ameritan ajuste. Reemplaza directamente a AD-023 (Clinical Pattern Discovery Engine) y AD-026 (Referral Knowledge Capture) de ICIS-KB-001, que no aplican a OCIS.

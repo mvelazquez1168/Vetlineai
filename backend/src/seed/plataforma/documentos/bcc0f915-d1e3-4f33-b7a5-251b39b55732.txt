@@ -1,0 +1,94 @@
+Referral Engine Specification — ICIS
+
+Documento: ICIS-REF-001
+Versión: 1.0
+Estado: Draft
+Owner: ICIS
+
+1. Propósito
+
+El Referral Engine es el componente que responde la pregunta que define el rol de ICIS: ¿este caso le corresponde a atención primaria, o hay que derivarlo — y a quién? Ningún otro documento de la arquitectura resuelve esta pregunta por sí solo; este es el que la formaliza.
+
+Operativamente, el Referral Engine está compuesto por tres Clinical Components ya definidos en el Clinical Components Catalog (ICIS-ARCH-001, Sección 9): CC-260 Referral Threshold Engine, CC-261 Specialty Routing Engine y CC-262 Red Flag Matching Engine. Este documento especifica cómo operan esos tres componentes en conjunto — el catálogo dice qué son; este documento dice cómo deciden.
+
+2. Principio Rector
+
+La derivación no es un fallo del razonamiento diagnóstico ni una salida de emergencia — es el desenlace más común y más valioso que puede producir un sistema de atención primaria (Knowledge Base Standard, AD-026). El Referral Engine trata "manejable en atención primaria" y "requiere derivación" como dos conclusiones igualmente válidas del mismo proceso de razonamiento, nunca como un éxito frente a un fracaso.
+
+3. Las Cuatro Clasificaciones de Manejo
+
+Todo caso, una vez construidos los diagnósticos diferenciales (Project Instructions, Sección 4.3), debe clasificarse en exactamente una de estas categorías:
+
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Clasificación                              Criterio                                                                                                                                     Acción
+  ------------------------------------------ -------------------------------------------------------------------------------------------------------------------------------------------- ----------------------------------------------------------------------------------------------------------------------------
+  Manejable en atención primaria             Sin señales de alarma; dentro del alcance razonable de medicina general; no requiere equipamiento o interpretación especializada             Continuar manejo, documentar la evaluación igual (CRS-013)
+
+  Requiere derivación no urgente             Cuadro crónico, recurrente, sin respuesta al manejo inicial, o que requiere estudios/interpretación fuera del alcance de atención primaria   Generar Referral Report cuando el usuario lo solicite; el caso puede continuar en observación mientras se coordina la cita
+
+  Requiere derivación urgente                Señales de alarma que ameritan evaluación especializada sin demora                                                                           Generar Referral Report de inmediato; nunca demorar para "confirmar primero"
+
+  Información insuficiente para clasificar   El expediente no permite decidir con confianza razonable                                                                                     Nunca se resuelve por defecto hacia "atención primaria" — se solicita la información faltante antes de clasificar
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. CC-260 — Referral Threshold Engine (detalle operativo)
+
+4.1 Entradas: Differential Diagnosis Matrix (CC-240), Breed Knowledge Object si está disponible (ICIS-KD-001), resultado de CC-262 (banderas rojas activadas), Signalment Analysis (CC-103).
+
+4.2 Lógica de umbral. El umbral de evidencia necesario para recomendar derivación no es fijo — se ajusta por dos factores documentados explícitamente:
+
+-   Ajuste por banderas rojas: cada bandera roja activada (CC-262) reduce el umbral necesario. Una sola bandera roja de alta severidad (ej. hematemesis, deterioro hemodinámico) puede ser, por sí sola, suficiente para clasificar como derivación urgente, sin necesidad de que el resto del cuadro esté completo.
+
+-   Ajuste por riesgo racial: cuando el Breed Knowledge Object indica riesgo R4 (Alto) o R5 (Muy Alto) para el sistema comprometido (ICIS-KD-001, Capítulo 9), el umbral de evidencia clínica requerido para recomendar derivación se reduce proporcionalmente — la misma combinación de signos que ameritaría "esperar y observar" en una raza sin esa predisposición puede ameritar derivación más temprana en una raza de alto riesgo documentado.
+
+4.3 Ninguno de estos dos ajustes decide por sí solo. El riesgo racial y las banderas rojas modifican el umbral — la clasificación final siempre requiere al menos un hallazgo clínico específico del paciente (AI Reasoning Standard, Sección 4.2). Una raza de riesgo R5 sin ningún signo clínico presente no genera una recomendación de derivación.
+
+5. CC-262 — Red Flag Matching Engine (detalle operativo)
+
+5.1 Funcionamiento. Compara los hallazgos del caso actual contra los documentos de banderas rojas por sistema disponibles en la Base de Conocimiento (por ejemplo, el ya existente para el sistema gastrointestinal — ver ICIS Operational Manual, ítem 9).
+
+5.2 Cuando no existe documento de banderas rojas para el sistema comprometido. El componente lo declara explícitamente — nunca improvisa criterios de urgencia no documentados (Project Instructions, Sección 5.3). En ese caso, la clasificación se apoya únicamente en el razonamiento clínico general (severidad, progresión, respuesta al manejo inicial) hasta que exista un documento de banderas rojas para ese sistema.
+
+5.3 Trazabilidad obligatoria. Toda bandera roja que influya en la clasificación debe citarse por su fuente exacta — no basta con decir "hay signos de alarma"; debe decir cuál signo, y de qué documento de banderas rojas proviene (AI Reasoning Standard, Sección 9) por ejemplo los ya existentes para los sistemas gastrointestinal, cardiovascular, dermatológico, oncológico. reproductivo, renal,neuro ortopedico.
+
+6. CC-261 — Specialty Routing Engine (detalle operativo)
+
+6.1 Determinación de especialidad. Se deriva de qué sistema domina en los Diagnósticos Diferenciales (CC-240) y, cuando esté disponible, del Organ-Specific Risk Profile racial (ICIS-KD-001, Sección 9.9).
+
+6.2 Casos multisistema. Cuando más de un sistema está comprometido y no hay urgencia que dicte prioridad clara, el orden de derivación se determina comparando el nivel de riesgo (R1–R5) de cada sistema afectado para la raza del paciente — se prioriza el de mayor riesgo documentado. Si no hay perfil racial disponible, se prioriza por severidad clínica y luego por el sistema con menor información diagnóstica ya reunida (para no duplicar estudios que atención primaria ya puede resolver).
+
+6.3 La pregunta clínica específica. El Specialty Routing Engine no se limita a nombrar la especialidad — debe formular la pregunta puntual que se espera que el especialista resuelva (Clinical Report Specification, CRS-013). "Evaluar al paciente" nunca es una pregunta clínica válida; "confirmar o descartar enteropatía perdedora de proteínas mediante endoscopia y biopsia" sí lo es.
+
+7. Qué el Referral Engine Nunca Hace
+
+Hereda directamente de Project Instructions Sección 5.4 y AI Reasoning Standard Sección 7.3, consolidado aquí como referencia única:
+
+-   Nunca extiende el plan diagnóstico o terapéutico más allá de lo razonable para atención primaria solo porque el usuario no derivó todavía.
+
+-   Nunca asume un diagnóstico definitivo a partir de hallazgos que típicamente requieren confirmación especializada.
+
+-   Nunca recomienda posponer una derivación urgente para "confirmar primero".
+
+-   Nunca resuelve la incertidumbre por defecto hacia "no derivar" — la ausencia de información se clasifica como tal, no como ausencia de riesgo.
+
+-   Nunca decide una derivación basándose solo en riesgo racial sin evidencia clínica específica del paciente (Sección 4.3 de este documento).
+
+8. Reevaluación en Seguimiento
+
+En cada consulta de seguimiento (Project Instructions, Sección 3), el Referral Engine se reejecuta — un caso clasificado inicialmente como "manejable en atención primaria" puede escalar a "requiere derivación" si el cuadro se vuelve crónico o no responde al manejo (Report Composer Engine Specification, plantilla de Seguimiento). La reclasificación siempre se documenta con su justificación en el Clinical Reasoning Journal (Project Instructions, Sección 6).
+
+9. Salida del Referral Engine
+
+El resultado de CC-260/261/262 alimenta directamente:
+
+-   CRS-013 (Referral Recommendation) en cualquier informe generado.
+
+-   La Referral Recommendation Card del Dashboard (ICIS-DASH-001, Sección 6), incluyendo su regla de expansión automática cuando el nivel de manejo es "requiere derivación".
+
+-   CC-263 (Referral Outcome Tracker), que registrará más adelante si el desenlace real confirmó la especialidad y urgencia recomendadas — con ese dato, futuras ejecuciones de CC-260/261 pueden calibrarse mejor (Clinical Components Catalog, Sección 9).
+
+10. Architecture Decisions
+
+AD-033 — Threshold Transparency. Todo ajuste de umbral (por bandera roja o por riesgo racial) debe quedar explícito en la Referral Recommendation — nunca se aplica un ajuste silencioso que el usuario no pueda auditar.
+
+AD-034 — No Referral Without Evidence. Ratifica de forma arquitectónica lo dicho en la Sección 4.3: ningún componente del sistema puede generar una recomendación de derivación sustentada únicamente en predisposición racial o en un documento de banderas rojas sin al menos un hallazgo clínico específico del paciente actual.

@@ -1,4 +1,5 @@
 import { Pool, PoolClient } from "pg";
+import { calcularEdadEfectiva } from "./edadPaciente";
 
 // ---------------------------------------------------------------------
 // Ajustes del área de trabajo, Prioridad 1 — el signalment del paciente
@@ -32,7 +33,7 @@ type EjecutorSql = Pool | PoolClient;
 
 export async function construirBloqueContextoCaso(db: EjecutorSql, casoId: string): Promise<string> {
   const result = await db.query(
-    `SELECT p.nombre, p.especie, r.nombre AS raza, p.sexo, p.edad_anios, c.motivo
+    `SELECT p.nombre, p.especie, r.nombre AS raza, p.sexo, p.edad_anios, p.fecha_nacimiento, c.motivo
      FROM casos c
      JOIN pacientes p ON p.id = c.paciente_id
      LEFT JOIN razas r ON r.id = p.raza_id
@@ -48,10 +49,11 @@ export async function construirBloqueContextoCaso(db: EjecutorSql, casoId: strin
   // en el modelo de datos de pacientes (no hay dónde cargarlos todavía),
   // así que no pueden inyectarse — quedan pendientes de una fase futura
   // que agregue esas columnas.
+  const edadEfectiva = calcularEdadEfectiva(fila.fecha_nacimiento, fila.edad_anios);
   const lineas = [`- Paciente: ${fila.nombre}`, `- Especie: ${fila.especie}`];
   if (fila.raza) lineas.push(`- Raza: ${fila.raza}`);
   if (fila.sexo) lineas.push(`- Sexo: ${fila.sexo}`);
-  if (fila.edad_anios !== null) lineas.push(`- Edad: ${fila.edad_anios} años`);
+  if (edadEfectiva !== null) lineas.push(`- Edad: ${edadEfectiva} años`);
   if (fila.motivo) lineas.push(`- Motivo de consulta: ${fila.motivo}`);
 
   return (

@@ -1,0 +1,81 @@
+# Piodermia Canina — Guías ISCAID de Uso Antimicrobiano (2025)
+
+**Fuente:** Loeffler A, Cain CL, Ferrer L, et al. Antimicrobial use guidelines for canine pyoderma by the International Society for Companion Animal Infectious Diseases (ISCAID). *Vet Dermatol.* 2025;36:1-47 (documento completo) y su sinopsis en *Vet Dermatol.* 2025;36:552-565. Acceso abierto (CC BY 4.0).
+
+**Alcance de este resumen:** tercer documento del sistema dermatológico para el agente de medicina interna/triage (ICIS), cerrando la última brecha notable identificada — la piodermia es una de las presentaciones más comunes en la práctica de pequeños animales y frecuentemente lleva a prescripción antimicrobiana, con implicaciones directas de uso racional de antibióticos.
+
+---
+
+## 1. Clasificación por profundidad — la base de todas las decisiones de tratamiento
+
+| Tipo | Presentaciones clínicas | Lesiones típicas |
+|---|---|---|
+| **Superficie** ("surface") | Dermatitis pyotraumática ("hot spot"), intertrigo (dermatitis de pliegue), síndrome de sobrecrecimiento bacteriano | Eritema, exudación, alopecia, prurito |
+| **Superficial** | Foliculitis bacteriana superficial (la más común), piodermia exfoliativa superficial, impétigo, piodermia mucocutánea | Pápulas, pústulas foliculares, collaretes epidérmicos, costras |
+| **Profunda** | Furunculosis/celulitis localizada o generalizada, dermatitis por lamido acral, nódulos interdigitales infectados, piodermia del mentón | Costras hemorrágicas, secreción hemopurulenta, fístulas, úlceras, nódulos; puede haber dolor y linfadenomegalia |
+
+- ***Staphylococcus pseudintermedius*** se aísla en más del 90% de los casos de piodermia superficial y en aproximadamente 60% de los casos profundos — la población microbiana en piodermia de superficie es más mixta.
+
+## 2. Enfoque diagnóstico — 3 pasos antes de prescribir cualquier antimicrobiano
+
+1. **Examen cutáneo completo** para determinar tipo y distribución de lesiones.
+2. **Citología de piel afectada en TODOS los casos sospechosos** — es el paso que confirma causa bacteriana y diferencia de causas estériles o fúngicas. Hallazgos que apoyan piodermia: bacterias intracelulares, bacterias extracelulares con estriación nuclear, o gran cantidad de bacterias sin células inflamatorias (sobrecrecimiento bacteriano).
+3. **Investigación de la causa primaria subyacente** — la piodermia es siempre secundaria. Las causas más comunes: trauma, infestación ectoparasitaria, y dermatitis atópica (ver resúmenes ya cargados de DA) — también considerar cornificación alterada o enfermedad sistémica (endocrinopatías, neoplasia).
+
+**Cultivo bacteriano + antibiograma (BC/AST)**: recomendado siempre que se planee terapia sistémica, y **fuertemente recomendado** ante mayor riesgo de resistencia (uso antimicrobiano reciente/frecuente, aislamiento previo de estafilococo resistente a meticilina, o alta prevalencia regional de resistencia). Debe combinarse siempre con citología para interpretación correcta.
+
+## 3. Tratamiento por tipo de piodermia
+
+### Piodermia de superficie
+- **Terapia tópica antimicrobiana sola es el tratamiento de elección** — resolución esperada en 7-14 días.
+- Combinación con glucocorticoides tópicos, o un curso corto (5-7 días) de glucocorticoides sistémicos a dosis antiinflamatoria, puede ser útil en dermatitis pyotraumática e intertrigo cuando hay componente inflamatorio/pruriginoso.
+- Considerar analgesia, particularmente en dermatitis pyotraumática, que suele ser dolorosa.
+
+### Piodermia superficial (la más frecuente)
+- **Terapia tópica sola como único tratamiento antibacteriano es el tratamiento de elección** — la evidencia clínica muestra eficacia comparable a la terapia sistémica en múltiples ensayos.
+- Mejoría notable esperada en 1-2 semanas, resolución en 3-4 semanas.
+- **Terapia sistémica reservada para**: falla de respuesta a terapia tópica sola, o cuando la terapia tópica no es viable por temperamento del paciente o limitaciones del propietario — **no existe razón clínica que justifique preferir sistémico sobre tópico por defecto**.
+- Si se usa terapia sistémica empírica (sin cultivo), solo debe considerarse cuando el riesgo de resistencia a meticilina es bajo, y únicamente con fármacos de primera elección.
+- Curso inicial de **2 semanas**, con reevaluación programada antes de finalizar el curso para decidir si continuar o suspender.
+- Resolución clínica = ausencia de lesiones primarias (pápulas, pústulas, collaretes eritematosos) — **no hay evidencia que respalde extender el tratamiento más allá de la resolución de signos clínicos**; en su lugar, identificar y abordar la causa primaria.
+
+### Piodermia profunda
+- **Terapia sistémica siempre indicada**, y la elección del fármaco **siempre debe basarse en cultivo/antibiograma**.
+- Si hay alto riesgo de deterioro o septicemia, se puede iniciar tratamiento empírico guiado por citología mientras se esperan resultados de laboratorio, con reevaluación al recibirlos.
+- Terapia tópica adyuvante recomendada en todos los casos una vez que el paciente esté libre de dolor.
+- Curso inicial de **3 semanas**, con reevaluación cada 2 semanas si persisten signos. Rara vez debería requerirse más de 6 semanas de tratamiento antimicrobiano apropiado.
+- Es una presentación **potencialmente seria, dolorosa y con riesgo de diseminación hematógena a septicemia** — no debe subestimarse su severidad relativa comparada con las formas superficiales.
+
+## 4. Fármacos sistémicos — sistema de semáforo por categorías
+
+### Primera elección (buena eficacia esperada contra *S. pseudintermedius* sensible a meticilina, bajo riesgo de efectos adversos)
+- Amoxicilina-clavulanato, cefalexina/cefadroxilo (cefalosporinas de primera generación), clindamicina — únicos fármacos que deben considerarse para terapia empírica cuando el riesgo de resistencia es bajo.
+
+### Segunda elección (solo con cultivo/antibiograma confirmando susceptibilidad Y cuando primera elección no es apropiada)
+- Cefovecina, cefpodoxima, fluoroquinolonas (enrofloxacina, marbofloxacina, orbifloxacina, pradofloxacina), doxiciclina, minociclina, trimetoprim-sulfa — mayor riesgo relativo de selección de patógenos multirresistentes o de eventos adversos.
+
+### Reservados (solo para estafilococos multirresistentes confirmados, ej. MRSP)
+- Rifampicina, amikacina, gentamicina, cloranfenicol — requieren cumplir 5 criterios antes de su uso: susceptibilidad confirmada sin otras opciones apropiadas, riesgos evaluados, buen pronóstico esperado, causa subyacente identificada con plan de prevención, y propietario informado del riesgo/necesidad de cumplimiento.
+
+### Fuertemente desaconsejados
+- Linezolid y vancomicina — de uso exclusivo humano, reservados para infecciones multirresistentes graves en personas; su uso en animales está prohibido en la Unión Europea desde 2023.
+
+## 5. Terapia tópica — el pilar subutilizado
+
+- **Clorhexidina 2-4%** es el agente con mayor respaldo de eficacia — disponible en múltiples formulaciones (champú, solución, jabón quirúrgico). Los antisépticos deben priorizarse sobre antibióticos tópicos.
+- Otros con buena evidencia: combinación clorhexidina/miconazol, peróxido de benzoilo, olanexidina, combinación diluida de hipoclorito de sodio/ácido salicílico.
+- No se ha descrito resistencia real que cause falla clínica con clorhexidina hasta la fecha.
+- Terapia tópica proactiva puede mantenerse indefinidamente (potencialmente de por vida) cuando la causa primaria no puede resolverse completamente (ej. pliegues cutáneos) y persiste riesgo de recurrencia.
+
+## 6. Prevención de recurrencias
+
+- Piodermia que requiere terapia sistémica **más de una vez al año** debe motivar una búsqueda intensificada o repetida de la causa primaria subyacente.
+- Revisión diagnóstica de causas primarias potenciales debería repetirse al menos cada 6-12 meses.
+- En piodermia recurrente secundaria a enfermedad alérgica (incluyendo DA), **el manejo de la alergia debe priorizarse sobre el tratamiento antimicrobiano repetido** — conecta directamente con los resúmenes de dermatitis atópica ya cargados.
+
+## 7. Conclusión operativa para ICIS
+
+- El primer filtro decisional es la **profundidad de la piodermia** (superficie/superficial/profunda) — determina directamente si la terapia tópica sola es apropiada (superficie y superficial, la gran mayoría de los casos) o si la terapia sistémica es obligatoria desde el inicio (profunda).
+- La regla más importante para el uso racional de antimicrobianos: **terapia tópica sola es el tratamiento de elección en piodermia superficial**, la presentación más común — la terapia sistémica no debe ser la primera opción por defecto.
+- Ante piodermia recurrente (>1 vez/año), la pregunta correcta no es "qué antibiótico usar de nuevo" sino "qué causa primaria no se ha identificado o controlado" — con la dermatitis atópica como la causa subyacente más frecuente a investigar activamente.
+- Este documento completa el sistema dermatológico de ICIS junto con los dos ya cargados de dermatitis atópica (diagnóstico y tratamiento), cubriendo ahora tanto la enfermedad alérgica de base como su complicación infecciosa secundaria más común.

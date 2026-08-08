@@ -1,0 +1,243 @@
+Banderas Rojas Renales y Urinarias — Guía de Derivación para Medicina
+General
+
+Propósito de este documento
+
+Este extracto está pensado para el agente de medicina general/internista
+(ICIS). Su objetivo no es enseñar nefrología clínica, sino ayudar a
+reconocer la enfermedad renal antes de que la pérdida de función sea
+irreversible, distinguir entre un problema renal (parénquima) y uno
+urinario bajo (vejiga/uretra) que pueden presentarse con signos
+superpuestos, y calibrar cuándo un hallazgo obliga a derivar de urgencia
+frente a cuándo puede manejarse y vigilarse en atención primaria.
+
+Principio rector de este documento: el riñón tiene una reserva funcional
+enorme — los signos clínicos evidentes (poliuria/polidipsia, pérdida de
+peso, vómito) suelen aparecer recién cuando ya se perdió una proporción
+importante de la función renal. Por eso, a diferencia de cardiología
+(donde el signo clínico suele preceder al daño irreversible) o
+dermatología (donde raramente hay riesgo vital), en el sistema renal la
+ausencia de signos no es tranquilizadora — el umbral de sospecha debe
+activarse con hallazgos de laboratorio de rutina, no solo con la
+clínica.
+
+1. Señales de alarma que ameritan derivación urgente o manejo de
+emergencia
+
+-   Anuria o oliguria (el paciente deja de orinar o lo hace en cantidad
+    marcadamente reducida) — es una urgencia real, con riesgo de
+    sobrecarga de líquidos y alteraciones electrolíticas graves en
+    horas.
+
+-   Vómito persistente con deshidratación evidente, en un paciente con
+    función renal comprometida conocida o sospechada.
+
+-   Letargia marcada, colapso, o depresión del sensorio en un paciente
+    con signos urinarios previos — sospechar uremia avanzada o
+    desequilibrio electrolítico grave.
+
+-   Distensión abdominal dolorosa con incapacidad para orinar,
+    especialmente en gatos machos — sospechar obstrucción uretral, una
+    urgencia real con riesgo vital en horas si no se resuelve.
+
+-   Hematuria macroscópica franca y persistente, sobre todo si se
+    acompaña de coágulos o de dificultad para orinar.
+
+-   Hipotermia, bradicardia, o arritmia en un paciente con sospecha de
+    insuficiencia renal aguda — sospechar hiperkalemia grave, que puede
+    ser letal si no se corrige con rapidez.
+
+-   Antecedente de exposición a tóxicos nefrotóxicos conocidos
+    (etilenglicol, uvas/pasas, ciertos AINEs, lirios en gatos) con
+    cualquier signo clínico, aunque sea leve — el umbral de derivación
+    baja de inmediato ante esta combinación, porque el daño renal agudo
+    por tóxicos puede progresar muy rápido y beneficiarse enormemente de
+    intervención temprana.
+
+-   Deterioro agudo de la función renal en un paciente con enfermedad
+    renal crónica ya conocida ("crisis urémica" sobre una condición
+    crónica) — distinto de la progresión lenta esperada, amerita
+    evaluación pronta.
+
+2. Cuándo un hallazgo renal "de rutina" amerita derivación no urgente
+
+-   Elevación de creatinina/urea en un paciente sin signos clínicos
+    evidentes — no esperar a que aparezcan signos para actuar; la
+    enfermedad renal crónica se estadifica y maneja mejor cuanto antes
+    se detecta.
+
+-   Densidad urinaria persistentemente baja (orina diluida) en un
+    paciente sin causa evidente que lo explique (no está recibiendo
+    diuréticos, no tiene poliuria por otra causa identificada).
+
+-   Poliuria y polidipsia de instauración gradual, sin otra explicación
+    evidente (endocrina, ver Sección 3).
+
+-   Proteinuria persistente confirmada en más de una muestra,
+    especialmente si la relación proteína:creatinina urinaria está
+    elevada.
+
+-   Hipertensión arterial detectada de forma incidental, sobre todo en
+    paciente geriátrico — con frecuencia asociada a enfermedad renal
+    subyacente, y también puede ser causa de daño renal progresivo si no
+    se controla.
+
+-   Cistitis o infección urinaria baja recurrente, sin causa mecánica
+    evidente — ameritan investigar causa subyacente en vez de repetir el
+    mismo ciclo antibiótico indefinidamente.
+
+-   Urolitiasis recurrente, incluso si cada episodio individual se
+    resolvió — el patrón de recurrencia en sí mismo amerita estudio de
+    la causa (composición del cálculo, dieta, metabolismo).
+
+Regla práctica: en el sistema renal, "esperar y ver" tiene menos margen
+que en otros sistemas — la reevaluación de rutina (perfil renal,
+uroanálisis) en pacientes geriátricos o de raza predispuesta debería ser
+proactiva, no reactiva a la aparición de signos clínicos.
+
+3. Distinguir problema renal de problema urinario bajo, y de mimetismo
+endocrino
+
+Esta distinción es clave porque el manejo y la urgencia son
+completamente distintos:
+
+  -----------------------------------------------------------------------
+  Presentación            Sospechar                Nota
+  ----------------------- ------------------------ ----------------------
+  Poliuria/polidipsia,    Enfermedad renal         Evaluar función renal
+  sin dolor ni molestia   (parénquima)             (creatinina, urea,
+  al orinar, con densidad                          SDMA si está
+  urinaria baja                                    disponible,
+                                                   uroanálisis completo)
+
+  Disuria, polaquiuria,   Enfermedad del tracto    La función renal suele
+  hematuria, orina en     urinario bajo (cistitis, ser normal; el
+  pequeñas cantidades     urolitiasis, neoplasia   malestar es local, no
+  frecuentes, dolor al    vesical)                 sistémico
+  orinar                                           
+
+  Poliuria/polidipsia +   Diabetes mellitus o      Descartar causa
+  polifagia + pérdida de  hipertiroidismo (en      endocrina antes de
+  peso                    gatos)                   asumir origen renal
+                                                   primario
+
+  Poliuria/polidipsia +   Hiperadrenocorticismo    Igual que arriba — la
+  alopecia + abdomen                               poliuria/polidipsia es
+  péndulo                                          un signo compartido
+                                                   por muchos sistemas
+
+  Distensión abdominal +  Obstrucción uretral      Urgencia real — no es
+  incapacidad para                                 "solo" una cistitis
+  orinar + dolor, en gato                          
+  macho                                            
+  -----------------------------------------------------------------------
+
+Nota de conexión con otros sistemas ya documentados: la
+poliuria/polidipsia es, junto con la pérdida de peso, uno de los signos
+más "promiscuos" en medicina veterinaria — aparece en renal, endocrino,
+hepático y hasta en algunos cuadros gastrointestinales. El agente debe
+resistir la tentación de anclarse en el primer diferencial y
+sistemáticamente descartar los otros sistemas antes de derivar a uno
+solo.
+
+4. Pearls de contexto racial
+
+-   Gato macho, cualquier raza — mayor riesgo anatómico de obstrucción
+    uretral por el diámetro estrecho de la uretra distal; cualquier
+    signo de disuria en un gato macho amerita descartar obstrucción
+    antes de asumir cistitis simple, sobre todo si hay distensión
+    vesical palpable.
+
+-   Persa y razas relacionadas (Exótico de Pelo Corto, Himalayo) —
+    enfermedad renal poliquística hereditaria, con predisposición muy
+    marcada y bien documentada (ver Breed Intelligence Knowledge Base
+    Specification). En estas razas, la vigilancia proactiva de función
+    renal desde edades más tempranas está justificada.
+
+-   Dálmata — hiperuricosuria hereditaria y urolitiasis por urato,
+    predisposición extrema y característica de la raza; ante urolitiasis
+    recurrente en un Dálmata, el diferencial de composición del cálculo
+    debe orientarse distinto que en otras razas desde el inicio.
+
+-   Shar Pei — amiloidosis renal secundaria a la fiebre familiar de la
+    raza; un Shar Pei con proteinuria persistente y antecedente de
+    episodios febriles recurrentes amerita sospecha específica de esta
+    entidad racial.
+
+-   Bull Terrier — displasia renal juvenil hereditaria; insuficiencia
+    renal en un paciente joven de esta raza no debe atribuirse
+    automáticamente a causa adquirida.
+
+-   Basenji — síndrome de Fanconi hereditario (defecto de reabsorción
+    tubular); glucosuria con glicemia normal en esta raza es un hallazgo
+    característico que no debe confundirse con diabetes mellitus.
+
+-   Cocker Spaniel, Shar Pei, y razas con predisposición a nefropatía
+    asociada a IgA o glomerulopatías hereditarias — proteinuria
+    persistente en estas razas amerita un umbral de sospecha más bajo
+    que en razas sin esa predisposición documentada.
+
+-   Terranova — cistinuria hereditaria, con riesgo de urolitiasis por
+    cistina; relevante para orientar la composición probable del cálculo
+    en esta raza específicamente.
+
+5. Qué NO debe hacer el agente de medicina general
+
+-   No debe esperar a que aparezcan signos clínicos evidentes para
+    investigar función renal en pacientes geriátricos o de raza
+    predispuesta — la vigilancia debe ser proactiva.
+
+-   No debe asumir que toda poliuria/polidipsia es de origen renal sin
+    descartar causas endocrinas, que son igual de frecuentes y tienen
+    manejo completamente distinto.
+
+-   No debe tratar una cistitis recurrente indefinidamente con el mismo
+    ciclo antibiótico sin investigar causa subyacente (urolitiasis,
+    anatomía, neoplasia).
+
+-   No debe subestimar la incapacidad para orinar en un gato macho como
+    "solo molestia" — es de las pocas urgencias verdaderas de este
+    sistema y el tiempo hasta la resolución importa.
+
+-   No debe demorar la derivación ante sospecha de intoxicación
+    nefrotóxica esperando a que aparezcan signos clínicos francos — en
+    estos casos, la ventana de intervención temprana es la que más
+    cambia el pronóstico.
+
+-   No debe interpretar una densidad urinaria normal aislada como
+    descarte definitivo de enfermedad renal temprana — la capacidad de
+    concentración se pierde progresivamente, y hay una ventana donde los
+    valores pueden estar en el límite.
+
+Resumen para uso rápido
+
+  -----------------------------------------------------------------------
+  Si el paciente presenta...         Acción del agente de medicina
+                                     general
+  ---------------------------------- ------------------------------------
+  Anuria/oliguria, o gato macho con  Derivar o manejar como urgencia
+  incapacidad para orinar            inmediata — riesgo vital en horas
+
+  Exposición a tóxico nefrotóxico    Derivar sin esperar signos francos —
+  conocido, con cualquier signo      la ventana temprana es crítica
+
+  Deterioro agudo sobre enfermedad   Derivar — no es la progresión
+  renal crónica conocida             esperada
+
+  Creatinina/urea elevadas sin       Derivar o iniciar estudio — no
+  signos clínicos                    esperar a que aparezcan signos
+
+  Poliuria/polidipsia gradual, sin   Descartar causas endocrinas primero;
+  otra explicación evidente          luego evaluar función renal
+
+  Cistitis recurrente sin causa      Investigar causa subyacente — no
+  mecánica evidente                  repetir el mismo ciclo antibiótico
+                                     indefinidamente
+
+  Proteinuria persistente confirmada Derivar — sobre todo en razas con
+                                     predisposición documentada
+
+  Raza con riesgo renal alto/muy     Reducir el umbral de vigilancia y
+  alto documentado (Breed Knowledge  derivación, igual que en los demás
+  Object)                            sistemas
+  -----------------------------------------------------------------------

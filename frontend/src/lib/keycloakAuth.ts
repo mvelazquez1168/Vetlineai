@@ -1,13 +1,13 @@
 import { ApiError } from "./apiError";
+import { obtenerEnv } from "./runtimeEnv";
 
 // Seguimos con Direct Access Grant (usuario/contraseña directo contra
 // Keycloak desde nuestro propio formulario) — sin redirect a la pantalla
 // de Keycloak, decisión ya tomada. El backend valida cada request de
 // forma independiente contra el JWKS del realm (ver backend/src/middleware/auth.ts);
 // acá solo hablamos con el endpoint de token para obtener/renovar la sesión.
-const KEYCLOAK_ISSUER =
-  import.meta.env.VITE_KEYCLOAK_ISSUER ?? "http://localhost:8080/realms/Vetplatform";
-const KEYCLOAK_CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? "vetplatform-web";
+const KEYCLOAK_ISSUER = obtenerEnv("VITE_KEYCLOAK_ISSUER") ?? "http://localhost:8080/realms/Vetplatform";
+const KEYCLOAK_CLIENT_ID = obtenerEnv("VITE_KEYCLOAK_CLIENT_ID") ?? "vetplatform-web";
 
 const TOKEN_ENDPOINT = `${KEYCLOAK_ISSUER}/protocol/openid-connect/token`;
 const LOGOUT_ENDPOINT = `${KEYCLOAK_ISSUER}/protocol/openid-connect/logout`;

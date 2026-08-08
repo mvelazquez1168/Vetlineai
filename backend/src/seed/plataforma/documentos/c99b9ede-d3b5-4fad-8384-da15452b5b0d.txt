@@ -1,0 +1,105 @@
+DIROFILARIASIS CANINA (DIROFILARIA IMMITIS) — DIAGNÓSTICO Y PROTOCOLO ADULTICIDA
+
+Resumen clínico de referencia para CCIS. Componentes que lo consumen: CC-220 (Imaging Intelligence), CC-201/202 (laboratorio), CC-240 (Diagnostic Correlation Engine), y los componentes de estadificación cardíaca de CCIS.
+
+Documento complementario del de hipertensión pulmonar: la dirofilariasis es una de sus causas, y ambos casos se solapan con frecuencia.
+
+---
+
+1. RELEVANCIA Y ALCANCE
+
+La dirofilariasis es una enfermedad parasitaria potencialmente mortal causada por Dirofilaria immitis, caracterizada por insuficiencia cardíaca congestiva derecha, neumonía alérgica y tromboembolismo.
+
+Sigue siendo demasiado frecuente pese a la disponibilidad de medicaciones altamente efectivas para prevenirla y tratarla. En regiones de clima tropical y subtropical con presencia sostenida de vectores, la exposición es continua durante todo el año, lo que la vuelve una consideración obligada en el paciente cardiovascular y no una entidad ocasional.
+
+Alcance de este documento: el protocolo estándar aplica a perros **sin síndrome de la vena cava**. Ese cuadro es una entidad distinta, de manejo quirúrgico y urgente, y queda fuera.
+
+2. DIAGNÓSTICO
+
+La base es la prueba de antígeno. Un resultado positivo inicial debe confirmarse, ya sea mediante una segunda prueba de antígeno de fuente distinta, o mediante la identificación positiva de microfilarias por microscopía directa o por prueba de filtración microfilarial.
+
+Regla para CCIS: un único antígeno positivo sin confirmación no es diagnóstico establecido, y el componente debe declarar si la confirmación se realizó.
+
+Evaluación complementaria. Según el paciente sea sintomático o no, corresponde considerar radiografía torácica, ultrasonografía y ecocardiografía. Las guías actualizadas incorporan una sección con recomendaciones detalladas sobre el uso de ultrasonografía en el punto de atención (POCUS).
+
+Repercusión sistémica. Los efectos sistémicos de la enfermedad impactan particularmente la función cardíaca y renal. Se ha descrito daño renal caracterizado por aumento de biomarcadores séricos —nitrógeno ureico y creatinina— y desarrollo de proteinuria en algunos perros. La evaluación de biomarcadores cardíacos, específicamente troponina I cardíaca, mioglobina y dímero D, ha sugerido lesión miocárdica e insuficiencia cardíaca tanto en infecciones agudas como crónicas.
+
+Consecuencia operativa: el perro con dirofilariasis requiere evaluación renal basal, no solo cardíaca. La azotemia y la proteinuria pueden ser parte del cuadro, no comorbilidad independiente.
+
+3. EL PROTOCOLO ADULTICIDA DE LA AMERICAN HEARTWORM SOCIETY
+
+El protocolo de la AHS representa el estándar actual de terapia y garantiza la tasa de negativización más alta, cercana al 99%. Su estructura permanece en lo esencial sin cambios en la actualización más reciente.
+
+Secuencia
+
+Día 0. Administración de una lactona macrocíclica al momento del diagnóstico.
+
+Días 1 a 28. Doxiciclina por vía oral cada 12 horas durante cuatro semanas, para eliminar Wolbachia, el endosimbionte del parásito. La dosis descrita en la literatura consultada es de 10 mg/kg cada 12 horas. Se ha utilizado minociclina cuando la doxiciclina no está disponible.
+
+Días 30, 60 y 90. Continuación mensual de la lactona macrocíclica.
+
+Días 60, 90 y 91. Serie de tres inyecciones de melarsomina, por vía intramuscular profunda: la primera el día 60, y la segunda y tercera un mes después, separadas por 24 horas.
+
+Corticoides. Se recomienda un curso de prednisona en el momento de las inyecciones de melarsomina, para reducir la inflamación pulmonar asociada a la muerte de los parásitos.
+
+Restricción de actividad. Se recomienda durante todo el período de tratamiento y por al menos 6 a 8 semanas después de completado. Es parte del tratamiento, no una recomendación accesoria: la actividad física durante la muerte parasitaria es lo que precipita el tromboembolismo.
+
+Sobre el intervalo. Los clínicos preguntan con frecuencia si es necesario un período de espera de 30 días entre el fin de la doxiciclina y la primera inyección de melarsomina; la AHS ha dejado ese punto de temporización a criterio.
+
+Por qué tres inyecciones. La AHS recomienda el protocolo de tres inyecciones para todos los perros, independientemente de la severidad de la infección, porque ha mostrado mejor eficacia que las alternativas, incluidos los protocolos de dos inyecciones.
+
+4. LA SECCIÓN QUE MÁS IMPORTA EN NUESTRO CONTEXTO: ESPECTRO DE ATENCIÓN
+
+La actualización de las guías incorpora una sección nueva sobre espectro de atención, que discute protocolos alternativos: esquemas con menos inyecciones de melarsomina, alternativas al tratamiento con melarsomina, y guía para cuando el tratamiento se interrumpe.
+
+Está destinada explícitamente a situaciones clínicas en las que el profesional no puede seguir el protocolo óptimo y necesita acceso a información sobre eficacia y tasas de complicación. Ante la necesidad de seguir un protocolo alternativo, las guías proveen información científicamente respaldada sobre priorización de tratamientos, eficacia y complicaciones.
+
+Condición que el comité estipula: **todo protocolo no arsenical debe incluir doxiciclina**, tanto al inicio del protocolo como repetida posteriormente.
+
+Regla para CCIS: cuando el costo o la disponibilidad impiden el protocolo estándar, la respuesta correcta no es omitir el tratamiento ni improvisar, sino aplicar el marco de espectro de atención declarando qué se pierde en eficacia. Presentar solo el protocolo óptimo ante un propietario que no puede costearlo produce un paciente sin tratar.
+
+5. COMPLICACIONES CONCURRENTES
+
+En perros con hipertensión pulmonar severa e insuficiencia cardíaca congestiva derecha se han empleado terapias adicionales dirigidas a esas complicaciones, entre ellas sildenafilo y furosemida, y en menor medida inhibidores de la enzima convertidora de angiotensina y espironolactona.
+
+Este es el punto de encuentro con el documento de hipertensión pulmonar de CCIS: en un paciente dirofilariásico con hipertensión pulmonar, ambos razonamientos deben integrarse, no aplicarse en paralelo.
+
+6. ERRORES FRECUENTES
+
+Tratar sobre un único antígeno positivo sin confirmación.
+
+Omitir la doxiciclina, incluso en protocolos alternativos.
+
+Presentar la restricción de actividad como recomendación opcional.
+
+No evaluar función renal al diagnóstico y atribuir después la azotemia a otra causa.
+
+Ofrecer únicamente el protocolo óptimo a un propietario con limitación de recursos, en vez de aplicar el marco de espectro de atención.
+
+Aplicar el protocolo estándar a un perro con síndrome de la vena cava.
+
+Interpretar la mejoría clínica como negativización sin prueba de antígeno de control.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Síndrome de la vena cava: diagnóstico y extracción quirúrgica. Estadificación de severidad de la enfermedad y sus criterios. Dosis completas de melarsomina y de prednisona. Protocolos de prevención: moléculas, esquemas y resistencia. Dirofilariasis felina, cuyo diagnóstico y manejo difieren sustancialmente. Manejo de la reacción adversa a la muerte parasitaria. Neumonía alérgica y neumonitis eosinofílica. Estos temas quedan como vacíos declarados de la Base de Conocimiento de CCIS.
+
+Nota: las dosis citadas provienen de las fuentes indicadas y deben verificarse contra las guías completas de la AHS vigentes al momento del caso.
+
+FUENTES
+
+American Heartworm Society — Guidelines for the Prevention, Diagnosis, and Management of Heartworm Infection in Dogs. Fuente principal del protocolo.
+
+Guidelines for canine heartworm disease are updated. dvm360. Fuente de la sección 4 sobre espectro de atención.
+
+American Heartworm Society Announces Updated Guidelines on Management of Canine Heartworm Disease. VETgirl. Fuente de la secuencia del protocolo y de POCUS.
+
+Romito G y col. Efficacy and tolerability of the American Heartworm Society therapeutic protocol in dogs affected by heartworm disease without caval syndrome. J Small Anim Pract 2024. Fuente de la sección 5 y de la tasa de negativización.
+
+Evaluation of renal values during treatment for heartworm disease in 27 client-owned dogs. PMC10251593. Fuente de la sección 2 sobre repercusión renal.
+
+Further variation of the adulticide protocol for the treatment of canine heartworm infection. PMC10142153.
+
+Evaluation of cardiopulmonary and inflammatory markers in dogs with heartworm infection during treatment with the AHS recommended treatment protocol. PMC5688508.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

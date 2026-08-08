@@ -1,0 +1,67 @@
+CCIS-ARCH-001
+
+Clinical Components Catalog v1.0 (adaptado de ICIS-ARCH-001)
+
+NOTA DE ALCANCE DE ESTA ADAPTACIÓN (CCIS-ARCH-001)
+
+Este catálogo es una adaptación del catálogo v2.0 de ICIS, especializada para CCIS (cardiología). Se excluye deliberadamente la capa completa de Derivación (CC-260 a CC-263) — CCIS es una especialidad receptora de casos ya derivados, no un sistema que decide si derivar hacia afuera.
+
+Componentes heredados de ICIS sin modificación estructural: CC-001 a CC-005, CC-101, CC-102, CC-104, CC-201 a CC-204, CC-240.
+
+Componente heredado con extensión propia: CC-220 (Imaging Intelligence — extendido para hallazgos ecocardiográficos y radiográficos torácicos).
+
+Componentes nuevos, sin equivalente en ICIS: CC-221 (Echocardiography Intelligence), CC-222 (ECG Intelligence), CC-233 (Cardiac Staging Engine), CC-306 (Cardiology Pharmacotherapy).
+
+---
+
+CC-001 a CC-005, CC-101/102/104, CC-201 a CC-204, CC-240 — Heredados sin cambios
+
+Mismo criterio que en OCIS-ARCH-001: son componentes de plataforma que no requieren especialización cardiológica. El Executive Case Summary de CCIS debe priorizar en su síntesis el estadio ACVIM como dato de mayor jerarquía, consistente con el principio de Hemodynamic Clarity de CCIS-DESIGN-001.
+
+CC-220 — Imaging Intelligence (extendido)
+
+Hereda la estructura base. Extensión propia de CCIS: interpretación de radiografía torácica orientada a cardiomegalia (VHS, VLAS) y patrón de edema pulmonar cuando aplique.
+
+CC-221 — Echocardiography Intelligence (nuevo, propio de CCIS)
+
+Propósito: interpretar mediciones ecocardiográficas y vincularlas explícitamente con los criterios de estadificación documentados en la Base de Conocimiento (los 4 criterios de Etapa B2: intensidad de soplo, razón AI:Ao, LVIDDN, VHS/VLAS).
+
+Alcance — incluye: dimensiones de cámaras cardíacas, función sistólica, hallazgos Doppler relevantes (regurgitación mitral, velocidad de regurgitación tricuspídea para estimación de hipertensión pulmonar).
+
+Regla: si falta un dato necesario para aplicar los criterios de Etapa B2 (ej. LVIDDN no calculado), el componente debe declararlo explícitamente, nunca asumir que el criterio se cumple o no se cumple sin ese dato.
+
+CC-222 — ECG Intelligence (nuevo, propio de CCIS)
+
+Propósito: interpretar hallazgos electrocardiográficos — ritmo, frecuencia, presencia de arritmias — y vincularlos con decisiones de manejo (ej. necesidad de control de frecuencia en fibrilación atrial).
+
+CC-233 — Cardiac Staging Engine (nuevo, propio de CCIS)
+
+Propósito: aplicar de forma explícita y trazable el sistema de estadificación correspondiente (ACVIM A/B1/B2/C/D para MMVD; grupos 1-6 para hipertensión pulmonar cuando aplique), usando como fuente CC-221, CC-220, CC-104 (examen físico, intensidad de soplo).
+
+Entradas: CC-221, CC-220, CC-104.
+
+Salidas: estadio asignado con la nomenclatura exacta del consenso, más el listado de criterios evaluados y pendientes.
+
+Regla: nunca asigna estadio B2 sin que se cumplan explícitamente los 4 criterios documentados, ni con información incompleta sin señalarlo como provisional.
+
+Este componente alimenta directamente la Cardiac Staging Card definida en CCIS-DESIGN-001.
+
+CC-306 — Cardiology Pharmacotherapy (nuevo, propio de CCIS)
+
+Propósito: gestionar el esquema terapéutico cardíaco activo — clases farmacológicas (pimobendán, IECA, espironolactona, diuréticos de asa, sildenafil), objetivo de cada una, y signos de alarma a vigilar (azotemia tras inicio de IECA, hipokalemia con diuréticos).
+
+Regla: nunca indica dosis específicas — solo clases, objetivos, y parámetros de monitoreo recomendados (ej. "medir creatinina y electrolitos 3-14 días tras iniciar IECA").
+
+Este componente alimenta directamente la Treatment Protocol Card.
+
+---
+
+Contrato de Consumo
+
+Idéntico al de OCIS-ARCH-001: todo motor que consuma un Clinical Component debe referenciarlo por su código, nunca reimplementar su lógica localmente.
+
+Architecture Decisions
+
+AD-CCIS-01 — No Referral Layer. Igual que OCIS, CCIS no incluye capa CC-26x.
+
+AD-CCIS-02 — Staging as a First-Class Component. CC-233 no es una extensión opcional — es el componente que define la razón de ser diferenciadora de CCIS. Ningún otro componente puede asignar estadio por su cuenta.

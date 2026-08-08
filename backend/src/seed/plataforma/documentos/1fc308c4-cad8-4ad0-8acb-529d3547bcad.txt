@@ -1,0 +1,101 @@
+DIARREA AGUDA CANINA — GUÍAS ENOVAT DE USO DE ANTIMICROBIANOS
+
+Resumen clínico de referencia para GCIS. Componentes que lo consumen: CC-240 (correlación diagnóstica), CC-301 a CC-304 (farmacoterapia), CC-306 a CC-309 (nutrición terapéutica), CC-201 (hemograma).
+
+Fuente principal: Jessen LR, Werner M, Singleton D y col.; ESCMID Study Group for Veterinary Microbiology (ESGVM) y European Network for Optimization of Antimicrobial Therapy (ENOVAT). European Network for Optimization of Veterinary Antimicrobial Therapy (ENOVAT) guidelines for antimicrobial use in canine acute diarrhoea. Vet J 2024;307:106208. DOI 10.1016/j.tvjl.2024.106208.
+
+Metodología: guía basada en evidencia desarrollada con el marco GRADE por un panel multidisciplinario, con incorporación de la opinión de veterinarios clínicos y de propietarios. Cuatro recomendaciones fuertes con evidencia de alta certeza, y tres condicionales con evidencia de certeza baja o muy baja. El nivel de acuerdo del panel fue del 100% en todas.
+
+---
+
+1. EL PROBLEMA QUE ESTAS GUÍAS RESUELVEN
+
+La diarrea aguda canina es de las presentaciones más frecuentes en la clínica —entre el 20 y el 30% de las visitas de animales de compañía se relacionan con vómito, diarrea o ambos— y a la vez de las peor estudiadas en cuanto a causa y tratamiento óptimo.
+
+Los antimicrobianos sistémicos se prescriben con frecuencia. La conclusión de la revisión sistemática y el metaanálisis que sustentan estas guías es que, en la mayoría de los casos, los perros mejoraban a pesar del tratamiento y no gracias a él.
+
+Causas descritas de gastroenteritis aguda: intolerancia o sensibilidad dietaria, organismos infecciosos —virales, bacterianos, parasitarios o protozoarios—, ingestión de toxinas, hurgar en la basura, reacción a medicamentos, y trauma por ingestión de cuerpo extraño. La gastroenteritis y la colitis agudas son, con amplio margen, las causas más comunes.
+
+2. LA ESTRUCTURA DE LA DECISIÓN: SEVERIDAD, NO ASPECTO DE LA DIARREA
+
+El eje que organiza las recomendaciones no es si la diarrea es hemorrágica o no, sino **la severidad del compromiso del paciente**. Esa es la inversión conceptual más importante de la guía: la presencia de sangre no indica antimicrobianos.
+
+Las tres categorías que el panel define:
+
+Enfermedad leve. Perro en buena condición general, sin signos de deshidratación ni de enfermedad sistémica.
+
+Enfermedad moderada. Condición general comprometida y grados variables de deshidratación o hipovolemia. Puede haber signos de enfermedad sistémica relacionados con el déficit de fluidos corporales, **que se resuelven con fluidoterapia adecuada**.
+
+Enfermedad severa. Condición general comprometida y grados variables de deshidratación o hipovolemia, con signos de enfermedad sistémica **que persisten pese a la fluidoterapia adecuada**.
+
+La distinción entre moderada y severa se define entonces por la respuesta a la fluidoterapia, no por el aspecto inicial del paciente. Un perro que impresiona grave al ingreso y mejora con fluidos es un caso moderado.
+
+3. LAS RECOMENDACIONES
+
+Recomendaciones 1 y 2 — enfermedad leve, no hemorrágica y hemorrágica. **Se recomienda en contra del tratamiento con antimicrobianos.** Recomendación fuerte, evidencia de alta certeza.
+
+Recomendaciones 3 y 4 — enfermedad moderada, no hemorrágica y hemorrágica. **Se recomienda en contra del tratamiento con antimicrobianos.** Recomendación fuerte, evidencia de alta certeza.
+
+Excepción explícita en la recomendación 4: los perros con valores de laboratorio indicativos de inflamación severa o abrumadora —neutrofilia severa por encima de 25 × 10⁹/L, neutropenia, o desviación a la izquierda degenerativa— representan una excepción.
+
+Regla para GCIS: esa excepción exige hemograma. Ante diarrea hemorrágica moderada, el componente debe señalar que la decisión sobre antimicrobianos depende de un dato que puede no estar en el expediente.
+
+Recomendación 5 — enfermedad severa. Se **sugiere** tratamiento sistémico con antimicrobianos. Recomendación condicional, evidencia de muy baja certeza.
+
+Nótese el contraste de fuerza: las cuatro recomendaciones en contra son fuertes y con alta certeza; la única a favor es condicional y con muy baja certeza. GCIS debe conservar esa asimetría al presentarlas.
+
+Recomendación 6 — vía y elección del fármaco en enfermedad severa. Se sugiere administración parenteral, intravenosa o intramuscular, de antimicrobianos con expectativa de eficacia frente a translocación bacteriana, bacteriemia o sepsis. La elección depende de qué tan crítico sea el estado clínico, de la prevalencia regional de resistencia antimicrobiana y de la disponibilidad del fármaco.
+
+En enfermedad no crítica se sugieren como primera línea ampicilina —alternativamente amoxicilina-clavulánico— o trimetoprim-sulfonamidas.
+
+En enfermedad crítica, o donde la resistencia sea más probable por tendencias geográficas o por historial de exposición antimicrobiana del paciente, se sugiere un protocolo de cuatro cuadrantes que cubra gram positivos, gram negativos, aerobios y anaerobios. Los perros con enfermedad no crítica que no responden a la primera línea más el soporte también deben recibir ese protocolo.
+
+Combinaciones descritas para el espectro de cuatro cuadrantes: aminopenicilinas o clindamicina combinadas con fluoroquinolonas o aminoglucósidos (gentamicina, amikacina).
+
+Nota de aplicación regional: la propia recomendación condiciona la elección a la prevalencia local de resistencia y a la disponibilidad. GCIS no debe trasladar la primera línea europea sin declarar esa dependencia.
+
+Recomendación 7 — duración. Depende de la respuesta al tratamiento, y el panel sugiere evaluación diaria del animal mientras esté hospitalizado. **La terapia antimicrobiana no debe extenderse más allá de la resolución clínica.** Para la mayoría de los perros, 3 a 7 días es probablemente adecuado. Recomendación condicional, evidencia de muy baja certeza.
+
+Recomendación 8 — probióticos. **No se recomienda ni a favor ni en contra** de su uso en perros con diarrea aguda. Los compromisos entre beneficios y costos están estrechamente equilibrados. Evidencia de certeza moderada.
+
+Regla para GCIS: la recomendación 8 es una no-recomendación explícita, y debe presentarse como tal. Convertirla en un "se pueden usar" o en un "no sirven" tergiversa la conclusión del panel.
+
+4. CONCORDANCIA CON LA ARQUITECTURA DE GCIS
+
+Estas guías respaldan y extienden el Patrón GI-2 de la extensión de farmacoterapia CC-302, sobre metronidazol y cronicidad. La heurística que ya estaba documentada en la Base de Conocimiento —que el metronidazol mejora la crisis aguda pero su uso repetido favorece la cronicidad por alteración de la microbiota— es consistente con la posición del panel.
+
+También conectan con el consenso ACVIM 2026 de enteropatía inflamatoria crónica, que igualmente desaconseja el tratamiento antimicrobiano empírico. Es la misma dirección de conducta en el cuadro agudo y en el crónico.
+
+5. ERRORES FRECUENTES
+
+Prescribir antimicrobianos porque la diarrea es hemorrágica.
+
+Clasificar como severo a un paciente que mejora con fluidoterapia.
+
+Aplicar la excepción de la recomendación 4 sin hemograma.
+
+Presentar la recomendación 5 con la misma fuerza que las cuatro que la preceden, cuando es condicional y de muy baja certeza.
+
+Extender el tratamiento antimicrobiano más allá de la resolución clínica.
+
+Trasladar la primera línea europea sin considerar resistencia y disponibilidad locales.
+
+Convertir la no-recomendación sobre probióticos en una recomendación en cualquier dirección.
+
+6. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis de los antimicrobianos citados. Manejo de fluidos y electrolitos. Soporte nutricional en el cuadro agudo y dietas gastrointestinales. Antieméticos y protectores de mucosa. Parvovirosis y otras causas infecciosas específicas. Parasitosis: diagnóstico y tratamiento. Síndrome de diarrea hemorrágica aguda como entidad propia. Diarrea aguda felina. Diagnóstico diferencial completo del abdomen agudo. Estos temas quedan como vacíos declarados de la Base de Conocimiento de GCIS.
+
+Nota de método: este resumen se elaboró sobre el documento de recomendaciones publicado por ENOVAT, no sobre resúmenes secundarios. La sección ungraded sobre el abordaje diagnóstico y el metaanálisis completo están en la publicación original.
+
+FUENTES
+
+Jessen LR y col. ENOVAT guidelines for antimicrobial use in canine acute diarrhoea. Vet J 2024;307:106208.
+
+Scahill K y col. Efficacy of antimicrobial and nutraceutical treatment for canine acute diarrhoea: a systematic review and meta-analysis for ENOVAT guidelines. PubMed 38049062.
+
+Unterer S, Strohmeyer K, Kruse BD, Sauter-Louis C, Hartmann K. Treatment of aseptic dogs with hemorrhagic gastroenteritis with amoxicillin/clavulanic acid: a prospective blinded study. J Vet Intern Med 2011;25(5):973–979.
+
+Merck Veterinary Manual — Acute Hemorrhagic Diarrhea Syndrome in Dogs.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

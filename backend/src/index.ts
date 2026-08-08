@@ -3,7 +3,6 @@ import express from "express";
 import path from "path";
 import { config, validarFrontendUrlConfigurada } from "./config";
 import { auditoria } from "./middleware/auditoria";
-import { iniciarJobsProgramados } from "./jobs/suscripciones.job";
 import { iniciarJobNotificaciones } from "./jobs/notificaciones.job";
 import { iniciarJobCiclo } from "./jobs/ciclo.job";
 import { iniciarJobCicloCobro } from "./jobs/cicloCobro.job";
@@ -62,8 +61,17 @@ app.use(express.json());
 // sin que cada endpoint tenga que llamarlo (ver middleware/auditoria.ts).
 app.use(auditoria);
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok" });
+// Verifica también la base de datos, no solo que el proceso esté vivo: un
+// orquestador que solo comprueba "el proceso responde" no detecta una base
+// caída ni saca al contenedor de servicio en ese caso.
+app.get("/api/health", async (_req, res) => {
+  try {
+    await pool.query("SELECT 1");
+    res.json({ status: "ok" });
+  } catch (err) {
+    console.error("GET /api/health — base de datos no responde", err);
+    res.status(503).json({ status: "error" });
+  }
 });
 
 // SOLO los logos de clínica quedan públicos sin autenticación — son un
@@ -74,7 +82,14 @@ app.get("/api/health", (_req, res) => {
 // GET /api/platform-admin/documentos/:id/archivo. Nunca vuelvas a montar
 // express.static sobre /uploads en general: eso reabre la fuga de datos
 // clínicos entre tenants que este mismo commit cierra.
-app.use("/uploads/logos", express.static(path.join(__dirname, "../uploads/logos")));
+//
+// Este mount solo tiene sentido con el proveedor de almacenamiento local
+// (dev): con S3 (producción), almacenamientoPublico.url() ya devuelve la
+// URL directa del bucket — nada pasa por acá, y el directorio uploads/
+// tampoco existe en la imagen de producción (ver Dockerfile).
+if (config.almacenamientoProveedor === "local") {
+  app.use("/uploads/logos", express.static(path.join(__dirname, "../uploads/logos")));
+}
 
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
@@ -114,9 +129,8 @@ app.use("/api/citas", citasRouter);
 app.use("/api/lista-espera", listaEsperaRouter);
 app.use("/api", agendaRouter);
 
-app.listen(config.port, () => {
+const server = app.listen(config.port, () => {
   console.log(`VetPlatform backend escuchando en http://localhost:${config.port}`);
-  iniciarJobsProgramados();
   iniciarJobNotificaciones();
   iniciarJobCiclo();
   iniciarJobCicloCobro();
@@ -127,3 +141,22 @@ app.listen(config.port, () => {
     console.error("[pagos] No se pudo validar las credenciales de pasarela por país al arrancar", err)
   );
 });
+
+// Apagado ordenado: en un contenedor descartable, el orquestador manda
+// SIGTERM antes de matar el proceso. server.close() deja de aceptar
+// conexiones nuevas pero espera a que terminen las peticiones en curso
+// antes de resolver — sin esto, un despliegue corta a mitad una petición
+// real (ej. generación de un informe).
+function apagarOrdenadamente(señal: string) {
+  console.log(`${señal} recibida, cerrando conexiones en curso...`);
+  server.close((err) => {
+    if (err) {
+      console.error("Error al cerrar el servidor", err);
+      process.exit(1);
+    }
+    pool.end().finally(() => process.exit(0));
+  });
+}
+
+process.on("SIGTERM", () => apagarOrdenadamente("SIGTERM"));
+process.on("SIGINT", () => apagarOrdenadamente("SIGINT"));

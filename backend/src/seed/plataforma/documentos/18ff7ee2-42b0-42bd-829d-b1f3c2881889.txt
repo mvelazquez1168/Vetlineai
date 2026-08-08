@@ -1,0 +1,133 @@
+DISPLASIA DE CODO CANINA — LAS CUATRO ENTIDADES, POR QUÉ LA RADIOGRAFÍA NO ALCANZA, Y MANEJO
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: CC-220 (Imaging Intelligence), CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico), y los componentes de Breed Intelligence.
+
+Es la causa más frecuente de claudicación del miembro anterior en razas medianas y grandes.
+
+---
+
+## 1. No es una enfermedad, son cuatro
+
+La displasia de codo es una condición que engloba varias anormalidades del desarrollo de una articulación formada por tres huesos: húmero, radio y ulna. Cuando esos tres no encajan perfectamente por alteraciones del crecimiento, la distribución del peso se vuelve anormal y se produce dolor, claudicación y artrosis.
+
+Las entidades se agrupan en dos bloques:
+
+**Enfermedad del compartimento medial**, que incluye fragmentación del proceso coronoides medial, osteocondrosis del cóndilo humeral medial, incongruencia articular y anomalía del cartílago.
+
+**Proceso ancóneo no unido**, que se maneja aparte.
+
+**Un dato que ordena el razonamiento: los perros afectados suelen tener solo una de las tres entidades principales, y es raro que un mismo perro tenga las tres.** Nombrarlas todas como si coexistieran es un error frecuente de interpretación.
+
+Razas predispuestas: Labrador Retriever, Golden Retriever, Boyero de Berna, Pastor Alemán y Rottweiler, entre otras razas grandes y gigantes.
+
+## 2. La incongruencia articular es el mecanismo, no un hallazgo aislado
+
+Cuando los tres huesos no congruyen, ciertas zonas —particularmente el compartimento medial— soportan presión aumentada. Eso predispone a las lesiones del coronoides medial y contribuye al daño del cartílago y a la artrosis.
+
+La incongruencia se identifica comúnmente en perros jóvenes de razas grandes y gigantes en crecimiento rápido. Su diagnóstico suele requerir imagen avanzada o artroscopia para evaluar grado y tipo.
+
+**Consecuencia terapéutica que importa:** el desbridamiento articular convencional con extracción de cuerpos osteocartilaginosos libres **no da buen resultado si la incongruencia persiste**. El resultado es sobrecarga y exposición del hueso subcondral, con erosión del cartílago del cóndilo humeral medial y del área coronoidea, lo que lleva a enfermedad del compartimento medial.
+
+## 3. Por qué la radiografía simple no alcanza
+
+**En la mayoría de los casos el fragmento del coronoides no es visible en la radiografía.** Ese es el punto que más cambia la conducta diagnóstica.
+
+Lo que la radiografía sí muestra es la consecuencia: proliferación ósea periarticular y cambios degenerativos. Pero un codo con artrosis incipiente en un perro de raza predispuesta **no permite descartar una patología del desarrollo subyacente**, y la ausencia de fragmento visible no descarta su fragmentación.
+
+Jerarquía diagnóstica:
+
+**Radiografía**: detecta artrosis y sirve como primer paso, pero tiene baja sensibilidad para la lesión primaria.
+
+**Tomografía o resonancia**: aportan información adicional ante sospecha de fragmentación del coronoides.
+
+**Artroscopia por portales mediales**: es lo que confirma la fragmentación con mayor exactitud, y permite tratar en el mismo acto.
+
+Regla para CC-220 y NCIS: ante claudicación de miembro anterior en una raza predispuesta, con cambios degenerativos de codo en radiografía, el diagnóstico no está cerrado. La lesión primaria requiere imagen avanzada, y esa distinción cambia el tratamiento.
+
+**El proceso ancóneo no unido tiene una salvedad temporal**: su diagnóstico se establece después de los 5 meses de edad, porque antes la falta de fusión es fisiológica.
+
+## 4. El paciente adulto que llega tarde
+
+Este es el escenario más frecuente en la práctica general y el que más se malinterpreta.
+
+**La fragmentación del coronoides medial es causa común de enfermedad del codo, y muchos perros no se diagnostican hasta ser adultos, ya con enfermedad articular degenerativa establecida.**
+
+Significa que un perro de mediana edad o senior con claudicación de miembro anterior y artrosis de codo puede tener una patología del desarrollo no diagnosticada como causa primaria, aunque nunca haya claudicado de joven o el propietario no lo recuerde.
+
+Regla para NCIS: en un perro de raza predispuesta con artrosis de codo, la pregunta no es solo qué grado de artrosis tiene, sino **qué la causó**. Y esa respuesta condiciona si hay algo que corregir además de manejar el dolor.
+
+## 5. El diferencial que no conviene sobredimensionar
+
+En razas grandes con claudicación de miembro anterior, el osteosarcoma aparece siempre como diferencial. Pero hay un dato de localización que ajusta su probabilidad:
+
+**Los sitios de predilección del osteosarcoma apendicular siguen la regla clásica de "lejos del codo, cerca de la rodilla"**: radio distal, húmero proximal, fémur distal y tibia proximal. El codo mismo es una localización poco frecuente.
+
+Regla para NCIS: ante una lesión centrada en la articulación del codo, el osteosarcoma no deja de ser diferencial, pero su probabilidad previa es menor que si la lesión estuviera en el radio distal o el húmero proximal. Omitir esa consideración sobredimensiona el diferencial oncológico.
+
+Ver el documento de osteosarcoma apendicular de OCIS para el resto del abordaje.
+
+## 6. Tratamiento
+
+En la mayoría de los casos se recomienda cirugía, aunque puede indicarse manejo médico si el problema es muy leve, o tan severo que la articulación probablemente no se beneficie de una cirugía de rutina.
+
+**Enfermedad del compartimento medial.** Históricamente se tratan por extracción del fragmento, desbridamiento del cartílago suelto adyacente y, cuando está indicado, microfractura del hueso eburnado, por artrotomía o artroscopia.
+
+Resultados reportados: **entre 50% y 75% de probabilidad de mejoría** con tratamiento artroscópico, entendida por ejemplo como no requerir antiinflamatorios no esteroideos a largo plazo. Con coronoidectomía subtotal, **el 94% de los casos no claudica a las cinco semanas del posoperatorio**.
+
+El desbridamiento artroscópico se asocia a pronóstico favorable, aumento del rango de movimiento y reducción de la claudicación.
+
+**Proceso ancóneo no unido.** Puede tratarse por extracción del proceso o por estabilización interna, pero empíricamente se maneja mejor con osteotomía ulnar proximal, con o sin fijación interna suplementaria mediante tornillo de compresión.
+
+**Enfermedad avanzada.** En artrosis moderada a severa, las alternativas incluyen extracción de cuerpos libres y osteofitos, osteotomía humeral deslizante, artrodesis y reemplazo total de codo.
+
+**El límite que hay que comunicar:** con un diagnóstico definitivo de displasia de codo, el cirujano puede mejorar la función pero **no puede prevenir por completo la progresión de la artrosis**. En todos los casos se desarrolla algún grado de artrosis; con tratamiento quirúrgico suele ser menos severa y con menos dolor.
+
+**Manejo médico y coadyuvante.** Antiinflamatorios no esteroideos para dolor e inflamación, modificadores del líquido articular como glicosaminoglicanos y ácido hialurónico, y control del peso. Ver el documento de osteoartritis de NCIS para la estadificación COAST y el manejo por estadio, y la extensión de farmacoterapia para las consideraciones de los antiinflamatorios.
+
+**Prevención.** La restricción dietaria prolongada, especialmente entre las 6 semanas y los 8 meses de vida, puede disminuir la incidencia de proceso ancóneo no unido, y conviene conversarla con propietarios de cachorros de razas de alto riesgo en la consulta inicial.
+
+## 7. Errores frecuentes
+
+Descartar patología del desarrollo porque la radiografía no muestra el fragmento.
+
+Nombrar las tres entidades como si coexistieran en el mismo paciente.
+
+Cerrar el diagnóstico en "artrosis de codo" sin buscar la causa primaria.
+
+Desbridar sin corregir la incongruencia, con lo que la sobrecarga persiste.
+
+Diagnosticar proceso ancóneo no unido antes de los 5 meses.
+
+Prometer detención de la artrosis con la cirugía.
+
+Sobredimensionar el osteosarcoma en una lesión centrada en el codo.
+
+No evaluar el codo contralateral: la afectación bilateral es frecuente y el perro puede cargar de forma compensatoria sin claudicar de ese lado.
+
+## 8. Lo que este documento no cubre
+
+Técnicas quirúrgicas en detalle: coronoidectomía subtotal, osteotomía ulnar proximal, osteotomía humeral deslizante, artrodesis y reemplazo total. Protocolos de artroscopia. Proyecciones radiográficas específicas para el coronoides medial. Estadificación radiográfica de la artrosis de codo. Rehabilitación posoperatoria. Consejo genético y programas de tamizaje reproductivo. Displasia de codo en el gato. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+Nota: las cifras de resultado citadas provienen de las fuentes indicadas y corresponden a poblaciones y técnicas específicas.
+
+FUENTES
+
+Canine Elbow Dysplasia. American College of Veterinary Surgeons. Fuente de las secciones 1 y 6.
+
+Elbow Dysplasia in Dogs. Merck Veterinary Manual. Fuente de las secciones 1 y 2.
+
+Canine Elbow Dysplasia. Vet Clin North Am Small Anim Pract. Fuente de las secciones 2 y 6.
+
+Elbow dysplasia (Proceedings). dvm360. Fuente de la sección 6.
+
+Elbow dysplasia in small animals (Proceedings). dvm360. Fuente de las secciones 4 y 6.
+
+Kähn H, Zablotski Y, Meyer-Lindenberg A. Therapeutic success in fragmented coronoid process disease and other canine medial elbow compartment pathology: a systematic review with meta-analyses. Front Vet Sci 2023;10:1228497. PMC10666176.
+
+Alves-Pimenta S, Ginja MM, Colaço B. Role of elbow incongruity in canine elbow dysplasia: advances in diagnostics and biomechanics. Vet Comp Orthop Traumatol 2019;32(2):87–96.
+
+Meyer-Lindenberg A, Fehr M, Nolte I. Short- and long-term results after surgical treatment of an ununited anconeal process. Vet Comp Orthop Traumatol 2001;14:101.
+
+Kealy RD, Lawler DF, Ballam JM y col. Evaluation of the effect of limited food consumption on radiographic evidence of osteoarthritis in dogs. J Am Vet Med Assoc 2000;217:1678–1680.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

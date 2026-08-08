@@ -1,0 +1,171 @@
+# Composición de PRODUCCIÓN — separada de docker-compose.yml (desarrollo),
+# que sigue existiendo tal cual, sin tocar.
+#
+# Diferencias de fondo con la de desarrollo:
+#   - Imágenes construidas (Dockerfile.prod de cada servicio), nunca
+#     código montado desde el disco.
+#   - Un proxy inverso (Caddy) adelante, con certificados TLS automáticos
+#     (Let's Encrypt) — es el ÚNICO servicio con puertos publicados al
+#     host. backend/frontend/keycloak solo se hablan entre sí por la red
+#     interna de Docker.
+#   - Keycloak corre en modo producción (`start`, no `start-dev`), con su
+#     propia base de datos — separada de la base de la aplicación.
+#   - La base de datos de la aplicación NO está acá: es una base
+#     administrada aparte (RDS, Cloud SQL, etc.) — DATABASE_URL/
+#     TENANT_DATABASE_URL apuntan a esa base externa, no a un contenedor.
+#   - Nada de credenciales en este archivo: todo sale de variables de
+#     entorno del shell/orquestador (ver .env.prod.example — la plantilla,
+#     sin valores reales, gitignoreada como .env.* junto con cualquier
+#     .env real).
+#   - Reinicio automático (`restart: unless-stopped`) y límites de memoria
+#     por servicio en todos los contenedores.
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    # 512m se quedaba corto: la carga de adjuntos ahora pasa por memoria
+    # (multer.memoryStorage, ver almacenamiento/) — cada archivo ocupa un
+    # buffer del tamaño real subido mientras se procesa. El límite por
+    # archivo es LIMITE_TAMANO_ARCHIVO en archivos.routes.ts/platform-admin.routes.ts
+    # (25MB, multer corta el stream ahí, nunca bufferiza de más). Con 768m,
+    # varias cargas simultáneas (25MB × ~10 archivos = 250MB) más el uso
+    # base de Node/Express (~100-150MB) siguen dejando margen real.
+    mem_limit: 768m
+    mem_reservation: 384m
+    networks:
+      - interna
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      TENANT_DATABASE_URL: ${TENANT_DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      # Igual que en dev: el issuer público (KEYCLOAK_ISSUER, detrás de
+      # Caddy) no resuelve desde ADENTRO de la red de Docker — el backend
+      # necesita el nombre de servicio interno para buscar el JWKS.
+      KEYCLOAK_JWKS_HOST: keycloak:8080
+      KEYCLOAK_ADMIN_URL: http://keycloak:8080/admin/realms/${KEYCLOAK_REALM}
+      KEYCLOAK_SERVICE_CLIENT_ID: ${KEYCLOAK_SERVICE_CLIENT_ID}
+      KEYCLOAK_SERVICE_CLIENT_SECRET: ${KEYCLOAK_SERVICE_CLIENT_SECRET}
+      PORT: 4000
+      CORS_ORIGIN: ${APP_URL}
+      FRONTEND_URL: ${APP_URL}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      RESEND_WEBHOOK_SECRET: ${RESEND_WEBHOOK_SECRET}
+      TILOPAY_API_KEY: ${TILOPAY_API_KEY}
+      TILOPAY_API_USER: ${TILOPAY_API_USER}
+      TILOPAY_API_PASSWORD: ${TILOPAY_API_PASSWORD}
+      TILOPAY_MODO_PRUEBAS: ${TILOPAY_MODO_PRUEBAS}
+      PASARELA_CR_API_KEY: ${PASARELA_CR_API_KEY}
+      PASARELA_CR_API_USER: ${PASARELA_CR_API_USER}
+      PASARELA_CR_API_PASSWORD: ${PASARELA_CR_API_PASSWORD}
+      PAGOS_CALLBACK_SECRET: ${PAGOS_CALLBACK_SECRET}
+      # Nada de Stripe acá — el modelo de facturación viejo ya no corre en
+      # producción (ver jobs/suscripciones.job.ts, borrado).
+      ALMACENAMIENTO_PROVEEDOR: s3
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_REGION: ${S3_REGION}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET_PRIVADO: ${S3_BUCKET_PRIVADO}
+      S3_BUCKET_PUBLICO: ${S3_BUCKET_PUBLICO}
+      S3_URL_PUBLICA_BASE: ${S3_URL_PUBLICA_BASE}
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    mem_limit: 128m
+    mem_reservation: 64m
+    depends_on:
+      - backend
+    networks:
+      - interna
+    environment:
+      # Resueltas en tiempo de ARRANQUE del contenedor (envsubst sobre
+      # env-config.js.template — ver docker-entrypoint.sh), no en el
+      # build: la misma imagen sirve para cualquier ambiente.
+      VITE_API_URL: ${APP_URL}/api
+      VITE_KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
+      VITE_KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3
+    # Sintaxis del proveedor de hostname v2 (Keycloak 26 cambió esto —
+    # verificado real contra la imagen: la sintaxis vieja, --hostname-port
+    # + KC_HOSTNAME_STRICT_HTTPS, ya no existe y tira "Unknown option").
+    # --hostname toma una URL completa; --hostname-strict=true es el
+    # default en producción, explícito acá para que quede documentado.
+    command: start --hostname=https://${KEYCLOAK_HOSTNAME} --hostname-strict=true --proxy-headers=xforwarded
+    restart: unless-stopped
+    mem_limit: 768m
+    mem_reservation: 384m
+    networks:
+      - interna
+    environment:
+      # Base de datos PROPIA de Keycloak — administrada aparte, igual que
+      # la de la aplicación, pero una base/instancia distinta (Keycloak no
+      # comparte esquema con vetplatform). "Modo producción" real: sin
+      # esto, `start` (a diferencia de `start-dev`) ni siquiera arranca.
+      KC_DB: postgres
+      KC_DB_URL: ${KEYCLOAK_DB_URL}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USERNAME}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      # Caddy termina TLS y reenvía por HTTP dentro de la red interna —
+      # proxy-headers (arriba, en command) le dice a Keycloak que confíe
+      # en los headers X-Forwarded-* de Caddy para saber que la conexión
+      # original SÍ fue HTTPS (si no, redirige mal o rechaza).
+      KC_HTTP_ENABLED: "true"
+      # Verificado real: KEYCLOAK_ADMIN/KEYCLOAK_ADMIN_PASSWORD siguen
+      # funcionando en 26.3 pero la imagen las marca deprecadas al arrancar.
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # Sin esto, la JVM dimensiona el heap sola contra el límite del
+      # contenedor y no deja margen para lo que Keycloak necesita FUERA
+      # del heap (metaspace — carga muchas clases —, stacks de hilos,
+      # buffers directos, caché nativa de Infinispan). El síntoma real es
+      # que el kernel mata el contenedor por memoria sin ningún error en
+      # el log de Keycloak — no es un fallo de aplicación, así que no dice
+      # nada útil. -Xmx384m dentro de un límite de 768m deja 384m (50%)
+      # de margen para todo lo no-heap; JAVA_OPTS_APPEND (no JAVA_OPTS)
+      # porque agrega estas dos flags a los valores por defecto que
+      # Keycloak ya calcula, en vez de reemplazarlos.
+      JAVA_OPTS_APPEND: "-Xms256m -Xmx384m"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    mem_limit: 128m
+    mem_reservation: 64m
+    # ÚNICO servicio con puertos publicados al host — todo lo demás se
+    # habla solo por la red interna de Docker.
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - interna
+    depends_on:
+      - backend
+      - frontend
+      - keycloak
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      KEYCLOAK_DOMAIN: ${KEYCLOAK_DOMAIN}
+      TLS_EMAIL: ${TLS_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+networks:
+  interna:
+
+volumes:
+  caddy_data:
+  caddy_config:

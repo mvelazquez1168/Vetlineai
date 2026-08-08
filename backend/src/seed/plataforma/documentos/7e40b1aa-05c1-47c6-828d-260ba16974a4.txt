@@ -1,0 +1,95 @@
+VÓMITO AGUDO EN PERROS Y GATOS — ABORDAJE DIAGNÓSTICO Y TERAPIA ANTIEMÉTICA
+
+Resumen clínico de referencia para GCIS. Componentes que lo consumen: CC-240 (correlación diagnóstica), CC-220 (imagenología), CC-201/202/203 (laboratorio y equilibrio ácido-base), CC-301 a CC-304 (farmacoterapia).
+
+---
+
+1. EL ERROR QUE ESTE DOCUMENTO EXISTE PARA EVITAR
+
+El vómito es uno de los motivos de consulta más frecuentes. Casi siempre se resuelve con manejo sintomático, y esa alta probabilidad de resolución espontánea es exactamente lo que vuelve peligroso al caso minoritario.
+
+El riesgo concreto: **el maropitant administrado a un animal con obstrucción gastrointestinal puede detener el vómito y hacer que parezca que mejora.** Eso puede retrasar la decisión de avanzar con diagnóstico por imagen y, por lo tanto, la intervención quirúrgica. Un perro con obstrucción que no recibe maropitant sigue vomitando, lo que empuja al clínico a buscar la causa.
+
+La magnitud del riesgo está descrita sin ambigüedad: incluso un retraso quirúrgico de seis horas en un perro con obstrucción gastrointestinal podría llevar a perforación intestinal.
+
+Regla operativa para GCIS: el uso de antieméticos en perros con sospecha de obstrucción gastrointestinal debe considerarse con cuidado **si no hay imagenología avanzada planificada**. Si la causa del vómito ya se conoce, o si el estudio de imagen está pendiente de realizarse, no hay razón para no administrarlo cuando esté indicado.
+
+Formulado como pregunta que el componente debe hacerse antes de recomendar un antiemético: ¿está descartada la obstrucción, o hay un estudio programado que la descartará?
+
+2. ABORDAJE ESCALONADO
+
+El tratamiento del vómito agudo puede ir desde una consulta ambulatoria breve —o incluso una llamada telefónica— hasta hospitalización con soporte agresivo y cirugía de urgencia.
+
+Primer nivel. Historia clínica y evaluación clínica. La decisión de hospitalizar debe basarse en la historia, la evaluación clínica y la capacidad económica del cliente. La comunicación frecuente y completa con el propietario es lo que hace viable un plan escalonado.
+
+Regla de escalamiento. **Si el paciente mejora, no es necesario continuar con el diagnóstico.** Si no mejora, corresponde avanzar: radiografías, ecografía abdominal y análisis sanguíneo básico.
+
+Estudios adicionales según sospecha: lipasa pancreática específica canina o felina; cortisol basal, y prueba de estimulación con ACTH cuando corresponda —el hipoadrenocorticismo simula cuadros gastrointestinales y es un diferencial que se pasa por alto—; y exploración quirúrgica del abdomen cuando esté indicada.
+
+3. OBJETIVOS DEL TRATAMIENTO SINTOMÁTICO
+
+Corregir las alteraciones de fluidos, electrolitos y equilibrio ácido-base que pueden ocurrir como consecuencia del vómito frecuente.
+
+Los antieméticos están indicados cuando el vómito persistente pone al animal en riesgo de neumonía por aspiración o de alteraciones ácido-base y electrolíticas, **y el animal no está sufriendo obstrucción gastrointestinal ni toxicidad**. Esas dos condiciones van juntas en la indicación, no por separado.
+
+Reconocimiento de la náusea. No puede evaluarse de forma confiable en animales, pero los signos interpretados como náusea incluyen salivación, aumento de la frecuencia o exageración de los movimientos deglutorios, y lamido de labios.
+
+4. MAROPITANT
+
+Mecanismo. Antagonista selectivo del receptor de neurokinina 1 que inhibe la unión de la sustancia P a los receptores NK-1 en el centro del vómito, la zona quimiorreceptora gatillo y el plexo entérico del intestino. Por actuar en ambos sitios, inhibe el vómito a través de las vías humoral y neural, lo que explica su espectro amplio.
+
+Dosis aprobadas. Formulación inyectable: 1 mg/kg cada 24 horas, aprobada para vómito agudo en perros desde las 8 semanas y en gatos desde las 16 semanas. Comprimidos: 2 mg/kg por vía oral cada 24 horas para vómito agudo en perros desde las 8 semanas, y 8 mg/kg por vía oral cada 24 horas para prevención de mareo por movimiento desde las 16 semanas. No debe alimentarse al perro durante la hora previa a la administración.
+
+Advertencia hepática, con conexión directa a otro documento de esta base. Debe usarse a dosis reducida en animales con disfunción hepática significativa, o seleccionar un antiemético alternativo —ondansetrón o dolasetrón— en animales con enfermedad hepática. En un paciente con hepatitis crónica que vomita, esta es la decisión relevante.
+
+Límite documentado. Los antagonistas del receptor NK-1, pese a ser antieméticos efectivos en humanos, no alivian completamente la náusea asociada a quimioterapia ni la inducida por hidromorfona en perros.
+
+5. OTROS AGENTES
+
+Metoclopramida. Antiemético central razonablemente bueno en el perro, pero no en el gato. Su valor adicional es el efecto procinético, de modo que se selecciona cuando ese efecto se desea.
+
+En el gato. Clorpromazina, dolasetrón, ondansetrón o maropitant como primera o segunda elección para controlar el vómito agudo frecuente. La metoclopramida se reserva para cuando se busca el efecto procinético.
+
+Contexto histórico útil: la mayoría de los fármacos usados para controlar el vómito en animales fueron desarrollados para humanos y no están aprobados para pequeños animales. El maropitant es la excepción y por eso concentra la evidencia específica.
+
+6. LO QUE GCIS DEBE DECLARAR
+
+Antes de recomendar un antiemético, el componente debe declarar si la obstrucción gastrointestinal está descartada o pendiente de descartar, y si hay disfunción hepática documentada. Son las dos condiciones que cambian la conducta.
+
+Ante un paciente que mejora, debe señalar explícitamente que continuar el diagnóstico no es necesario. La contención del estudio innecesario forma parte del criterio, no es una omisión.
+
+7. ERRORES FRECUENTES
+
+Administrar maropitant a un paciente con sospecha de obstrucción sin imagenología planificada.
+
+Interpretar el cese del vómito tras un antiemético como mejoría del cuadro subyacente.
+
+Escalar el diagnóstico en un paciente que ya está mejorando.
+
+No considerar hipoadrenocorticismo entre los diferenciales de vómito agudo.
+
+Usar maropitant a dosis plena en un paciente con enfermedad hepática significativa.
+
+Usar metoclopramida como antiemético central en el gato.
+
+Indicar antieméticos por vómito persistente sin haber evaluado la obstrucción.
+
+No corregir fluidos, electrolitos y estado ácido-base mientras se controla el vómito.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Cuerpo extraño y obstrucción gastrointestinal como entidad propia: diagnóstico por imagen, criterios quirúrgicos y manejo. Vómito crónico. Diferenciación entre vómito y regurgitación, y megaesófago. Gastritis aguda. Úlcera gástrica y protectores de mucosa. Intoxicaciones. Neumonía por aspiración. Parvovirosis. Íleo y gastroparesia. Protocolos de fluidoterapia. Estos temas quedan como vacíos declarados de la Base de Conocimiento de GCIS.
+
+FUENTES
+
+A Rational Approach to Acute Vomiting in Dogs. MSPCA-Angell. Fuente principal de las secciones 1 y 2.
+
+GI Intervention: Approach to Diagnosis and Therapy of the Vomiting Patient. Today's Veterinary Practice. Fuente de las secciones 2, 3 y 4.
+
+Merck Veterinary Manual — Drugs Used to Control or Stimulate Vomiting in Monogastric Animals. Fuente de las dosis de la sección 4.
+
+Diagnostic strategy for vomiting in dogs and cats. dvm360. Fuente de la advertencia hepática y de la sección 5.
+
+Pharmacologic control of vomiting. dvm360.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

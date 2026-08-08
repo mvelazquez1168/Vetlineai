@@ -1,4 +1,5 @@
 import { ApiError } from "./apiError";
+import { obtenerEnv } from "./runtimeEnv";
 import { obtenerTokenValido, redirigirABloqueada } from "./session";
 
 // Vetline_Ai_Suspension_Bloqueo.md — señal que manda authenticate() cuando
@@ -13,7 +14,7 @@ function interceptarClinicaBloqueada(data: unknown): void {
   }
 }
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+const API_URL = obtenerEnv("VITE_API_URL") ?? "http://localhost:4000/api";
 
 // Para armar URLs absolutas hacia archivos servidos por /uploads (rutas
 // relativas tipo "/uploads/x.png" que vienen de la DB) — API_URL apunta a

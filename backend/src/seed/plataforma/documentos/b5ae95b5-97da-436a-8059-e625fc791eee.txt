@@ -1,0 +1,113 @@
+FARMACOTERAPIA ONCOLÓGICA EN PEQUEÑOS ANIMALES — TOXICIDAD, MIELOSUPRESIÓN E INHIBIDORES DE TIROSINA CINASA
+
+Resumen clínico de referencia para OCIS. Componente principal que lo consume: CC-305 (Oncology Pharmacotherapy). Componentes vinculados: CC-201 (hemograma), CC-232 (Staging & Grading Engine), CC-231 (histopatología).
+
+Este documento cubre el pendiente declarado en OCIS-MANUAL-000: farmacoterapia oncológica como documento de tipo dedicado.
+
+---
+
+1. EL PRINCIPIO QUE EXPLICA LA TOXICIDAD
+
+Los protocolos clásicos se basan en fármacos citostáticos bajo el concepto de dosis máxima tolerada (MTD), cuyo límite está determinado por los efectos tóxicos sobre los tejidos sanos del paciente. Ese enfoque se asocia a mayor riesgo de toxicidad y de resistencia.
+
+Los efectos adversos de la quimioterapia se relacionan principalmente con el daño a tejidos sanos de proliferación rápida. De ahí que los más comunes sean la toxicidad gastrointestinal y la mielosupresión.
+
+2. MIELOSUPRESIÓN — LA TOXICIDAD QUE LIMITA LA DOSIS
+
+La supresión medular se traduce con mayor frecuencia en neutropenia, que es **la toxicidad limitante de dosis en oncología veterinaria**. Los neutrófilos y las plaquetas están particularmente en riesgo por su vida media circulante más corta. También pueden observarse trombocitopenia y anemia.
+
+Diferencia de especie: los gatos tienden a tolerar mejor estos efectos adversos que los perros.
+
+El nadir y su cronología
+
+Para la mayoría de los quimioterápicos, el nadir de neutrófilos ocurre a los siete días de la administración. Para algunos fármacos —carboplatino y lomustina entre ellos— el nadir puede ser tardío e impredecible.
+
+Consecuencia operativa para CC-305: la fecha esperada de nadir depende del fármaco, y programar el control hematológico a los siete días por defecto es incorrecto para esos agentes.
+
+Graduación
+
+El grado de neutropenia y del resto de los eventos adversos se gradúa según los criterios comunes de terminología para eventos adversos del Veterinary Cooperative Oncology Group (VCOG-CTCAE), que incluye sistemas de graduación también para signos gastrointestinales.
+
+Regla para OCIS: los eventos adversos se reportan con su grado VCOG, no con adjetivos. "Neutropenia grado III" es información; "neutropenia importante" no lo es.
+
+Umbrales de conducta y su divergencia entre fuentes
+
+Una neutropenia leve suele tolerarse, y la quimioterapia puede continuar administrándose con recuentos de neutrófilos por encima de aproximadamente 1.5–2.0 K/µL, con variación según el criterio del clínico.
+
+Sobre antibióticos profilácticos las fuentes no coinciden, y esa divergencia debe declararse: una fuente los indica solo cuando se encuentra un recuento por debajo de 0.75 K/µL; las guías de AAHA señalan que a veces se prescriben para administrarse en el nadir esperado, pero califican esa práctica de controvertida. Los antibióticos empleados con mayor frecuencia son trimetoprim-sulfametoxazol y amoxicilina-clavulánico.
+
+3. LA REGLA INTERPRETATIVA MÁS IMPORTANTE
+
+No toda neutropenia en un paciente oncológico es inducida por quimioterapia.
+
+En pacientes con cáncer, la neutropenia también puede resultar de la infiltración de la médula ósea por células neoplásicas —leucemia, linfoma avanzado, mieloma múltiple— o de un consumo aumentado de neutrófilos por infección.
+
+Regla para CC-201 y CC-305: ante neutropenia en un paciente con protocolo activo, el componente debe vincular el hallazgo con el ciclo de tratamiento, pero sin cerrar el diferencial. Atribuirla automáticamente al fármaco puede enmascarar progresión de la enfermedad o una infección en curso.
+
+4. INHIBIDORES DE TIROSINA CINASA
+
+Fundamento. Existen mutaciones genéticas que impulsan la proliferación neoplásica. El ejemplo canónico en oncología veterinaria es la mutación de c-Kit presente en algunos tumores de mastocitos caninos, que produce activación constitutiva del receptor KIT en ausencia de unión al ligando. Esto conecta directamente con el documento de tumores de mastocitos de la Base de Conocimiento de OCIS.
+
+Moléculas licenciadas en medicina veterinaria
+
+Fosfato de toceranib. Tiene como dianas PDGFR-β, KIT, VEGFR-2 y FLT-3.
+
+Mesilato de masitinib. Tiene como dianas PDGFR-α, PDGFR-β y KIT.
+
+Ambos están licenciados únicamente para el manejo del tumor de mastocitos canino.
+
+Uso extraetiqueta. Debido a su rango más amplio de dianas, el toceranib se emplea con frecuencia en otros tipos tumorales, principalmente adenocarcinoma de sacos anales, tumores del estroma gastrointestinal —muchos de los cuales expresan KIT— y tumores neuroendocrinos.
+
+Regla para CC-305: al recomendar un TKI fuera del tumor de mastocitos, el componente debe declarar que se trata de uso extraetiqueta.
+
+5. QUIMIOTERAPIA METRONÓMICA
+
+Consiste en administrar dosis bajas de quimioterápicos de forma continua durante un período prolongado, modulando el microambiente tumoral mediante la combinación de efectos citotóxicos, antiangiogénicos e inmunomoduladores.
+
+Se ha descrito como opción de tratamiento en varios cánceres caninos y felinos desde 2007, con resultados positivos publicados particularmente en carcinomas mamarios y sarcomas de tejidos blandos en perros.
+
+Es un paradigma distinto al de la dosis máxima tolerada, no una versión reducida del mismo protocolo, y OCIS debe presentarlo como tal.
+
+6. SOBREDOSIS
+
+Las sobredosis de quimioterápicos parecen ser raras en medicina veterinaria y típicamente son de 2 a 3 veces la dosis pretendida.
+
+Efectos clínicos observados: malestar gastrointestinal de grado VCOG I y II, y efectos hematológicos de grado VCOG III y IV. Con soporte apropiado, la mayoría de los pacientes sobrevive al evento.
+
+Advertencia de especie: los eventos que amenazan la vida son más comunes en gatos tras sobredosis de vincristina.
+
+7. ERRORES FRECUENTES
+
+Reportar eventos adversos sin graduación VCOG.
+
+Programar el control hematológico a los siete días en pacientes que reciben carboplatino o lomustina.
+
+Atribuir toda neutropenia al protocolo sin considerar infiltración medular ni infección.
+
+Presentar un TKI fuera de su indicación licenciada sin declarar el uso extraetiqueta.
+
+Tratar la quimioterapia metronómica como una versión de dosis reducida del protocolo estándar.
+
+Aplicar umbrales de conducta de una fuente sin señalar que existe divergencia entre guías.
+
+Asumir que la tolerancia del gato es igual a la del perro.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Protocolos completos con dosis por fármaco y por tumor: CHOP, carboplatino, doxorrubicina y demás. Manejo de la extravasación. Seguridad ocupacional en la manipulación de citostáticos. Antieméticos y soporte gastrointestinal: selección y dosis. Factores estimulantes de colonias. Cardiotoxicidad de antraciclinas y su monitoreo. Nefrotoxicidad y protocolos de hidratación. Inmunoterapia. Radioterapia. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+Nota sobre dosis: este documento no incorpora dosis de quimioterápicos de forma deliberada. Los umbrales de recuento celular citados provienen de las fuentes indicadas y deben verificarse contra la referencia que el clínico utilice.
+
+FUENTES
+
+Chemotherapy in Small Animal Oncology. Veterinary Ireland Journal. Fuente principal de las secciones 1, 2 y 4.
+
+AAHA Oncology Guidelines for Dogs and Cats — Therapeutic Modalities: Chemotherapy. Fuente de las secciones 2 y 3.
+
+Metronomic chemotherapy: bridging theory to clinical application in canine and feline oncology. PMC11187343. Fuente de la sección 5.
+
+A Retrospective Evaluation of Chemotherapy Overdoses in Dogs and Cats. PMC8492923. Fuente de la sección 6.
+
+Veterinary Cooperative Oncology Group — Common Terminology Criteria for Adverse Events (VCOG-CTCAE) following chemotherapy or biological antineoplastic therapy in dogs and cats.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

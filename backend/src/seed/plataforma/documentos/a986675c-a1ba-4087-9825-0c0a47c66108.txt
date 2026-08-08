@@ -1,0 +1,47 @@
+# Toxicidad por Insecticidas y Pesticidas en Perros — Piretrinas/Piretroides y Agentes Relacionados
+
+**Fuentes principales (síntesis de literatura convergente):**
+- Revisiones de referencia sobre toxicosis por insecticidas derivados de plantas (piretrinas/piretroides) en animales.
+- Literatura sobre farmacocinética dérmica y neurotoxicidad de permetrina en animales de compañía.
+- Reporte de caso sobre intoxicación por deltametrina con presentación similar a organofosforados.
+
+**Alcance de este resumen:** segundo documento del área de toxicología de emergencia para el agente de medicina interna/triage (ICIS) — complementa el resumen ya cargado de agentes comunes (chocolate, uvas, xilitol, AINEs, rodenticidas) con la categoría de insecticidas/pesticidas, particularmente relevante por su uso doméstico rutinario en productos antipulgas/garrapatas.
+
+---
+
+## 1. Por qué este grupo merece atención especial en la clínica canina
+
+- A diferencia de la mayoría de los tóxicos que llegan por ingestión accidental, la exposición a piretrinas/piretroides en perros ocurre frecuentemente por **aplicación tópica rutinaria** de productos antiparasitarios — el propio tratamiento preventivo puede ser la fuente de la toxicosis si se sobredosifica o aplica incorrectamente.
+- **Los perros generalmente son mucho menos sensibles que los gatos** a estos compuestos — la mayoría de los mamíferos, con la notable excepción de los felinos, pueden metabolizar la permetrina eficientemente, lo que la hace relativamente segura en perros cuando se usa según indicaciones.
+- **Implicación de bioseguridad en el hogar**: un perro tratado tópicamente con permetrina representa un riesgo real para gatos convivientes por contacto cercano, ropa de cama compartida, o aplicación accidental — el asesoramiento a propietarios con hogares multiespecie debe incluir explícitamente esta advertencia.
+
+## 2. Mecanismo y clasificación
+
+- Las piretrinas naturales derivan de la flor del crisantemo; los piretroides sintéticos (incluyendo la permetrina) fueron desarrollados para aumentar potencia y duración de efecto.
+- Se dividen en **Tipo I** (sin sustituyente alfa-ciano: permetrina, resmetrina, aletrina, entre otros) y **Tipo II** (con componente alfa-ciano-3-fenoxibencilo estabilizador: cipermetrina, deltametrina, fenvalerato, entre otros) — **los piretroides Tipo II son más tóxicos que los Tipo I**.
+- Mecanismo de acción: modificación de la cinética de los canales de sodio dependientes de voltaje (Nav) en membranas excitables — de ahí su efecto neurotóxico tanto en insectos objetivo como, en dosis suficientes, en mamíferos.
+- Son compuestos lipofílicos que se distribuyen a tejidos con alto contenido lipídico (grasa, tejido nervioso), además de hígado, riñón, y leche.
+
+## 3. Presentación clínica en perros
+
+- Los productos "spot-on" (pipetas) para perros pueden contener concentraciones de permetrina de hasta **65%**, resultando en dosis dérmicas de hasta 100 mg/kg — muy por encima de lo que se usaría en formulaciones diluidas.
+- En perros pequeños, puede ocurrir **parestesia** (sensación de hormigueo/picazón en la piel) incluso a dosis terapéuticas — típicamente se resuelve en 12-24 horas sin intervención.
+- Signos de toxicidad verdadera: temblores musculares finos, sialorrea, y en casos más severos, **convulsiones**.
+- **Los efectos tóxicos pueden potenciarse con exposición simultánea a organofosforados u otros piretroides sintéticos** — relevante si el paciente recibió múltiples productos antiparasitarios de forma concurrente.
+- Un dato clínico importante para el diagnóstico diferencial: la intoxicación por piretroides puede **presentarse de forma muy similar a la intoxicación por organofosforados** (fasciculaciones, temblores musculares, convulsiones, sialorrea, lagrimeo, vómito) — esto puede llevar a error diagnóstico si se desconoce el compuesto exacto involucrado, especialmente relevante si el propietario no puede confirmar qué producto se aplicó.
+
+## 4. Tratamiento — sin antídoto específico, soporte es la base
+
+- **No existe antídoto específico** para la intoxicación por piretrinas o piretroides — el tratamiento es fundamentalmente de soporte tras la exposición.
+- **Baño con jabón lavaplatos suave y agua tibia** para eliminar producto residual de la piel y reducir absorción adicional — primer paso práctico incluso antes de llegar a la clínica si el propietario puede realizarlo con seguridad.
+- **Diazepam o pentobarbital** para control de convulsiones.
+- **Metocarbamol** para tratamiento de temblores musculares — puede requerir administraciones múltiples durante la hospitalización.
+- Fluidoterapia IV continua y hospitalización son generalmente recomendadas en casos con signos clínicos significativos.
+- **Pronóstico favorable con tratamiento oportuno**: la mayoría de los perros con toxicidad por permetrina/piretrina se recuperan lo suficiente para el alta dentro de 24-48 horas, aunque pueden persistir temblores musculares finos residuales por un período adicional.
+
+## 5. Conclusión operativa para ICIS
+
+- Ante un perro con temblores musculares, sialorrea o convulsiones **con historia reciente de aplicación de un producto antiparasitario tópico**, la toxicidad por piretroides debe estar en el diferencial activo — y debe distinguirse clínicamente de la intoxicación por organofosforados, dado que la presentación puede ser indistinguible sin conocer el producto exacto usado.
+- El baño de descontaminación con jabón suave es una intervención de bajo riesgo y potencialmente alto beneficio que puede iniciarse de inmediato, incluso antes de completar la evaluación diagnóstica completa.
+- En hogares con gatos convivientes, cualquier consulta sobre aplicación de productos antipulgas en el perro debe incluir la advertencia explícita sobre el riesgo de exposición secundaria felina — la permetrina que es segura para el perro puede ser letal para un gato en contacto cercano.
+- Este documento se conecta directamente con el resumen ya cargado de Status Epilepticus (sistema neurológico): las convulsiones por intoxicación con piretroides deben manejarse siguiendo el mismo marco general de estabilización de emergencias convulsivas, en paralelo con la descontaminación específica del tóxico.

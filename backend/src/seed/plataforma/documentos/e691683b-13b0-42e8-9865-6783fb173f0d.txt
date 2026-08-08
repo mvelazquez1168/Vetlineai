@@ -1,0 +1,71 @@
+NCIS-ARCH-001
+
+Clinical Components Catalog v1.0 (adaptado de ICIS-ARCH-001)
+
+NOTA DE ALCANCE
+
+Adaptación especializada para NCIS (neurología/ortopedia). Se excluye la capa de Derivación (CC-260 a CC-263).
+
+Componentes heredados sin cambios: CC-001 a CC-005, CC-101, CC-102, CC-104, CC-201 a CC-204, CC-240.
+
+Componentes nuevos, sin equivalente en ICIS: CC-238 (Neurological Grading Engine — línea IVDD), CC-239 (Seizure Management & AED Monitoring Engine — línea epilepsia), CC-309 (Neurologic Pharmacotherapy).
+
+---
+
+CC-001 a CC-005, CC-101/102/104, CC-201 a CC-204, CC-240 — Heredados sin cambios
+
+El Executive Case Summary de NCIS debe identificar explícitamente primero a qué línea clínica pertenece el caso (estructural/IVDD, funcional/epilepsia, o ambas) antes de priorizar el dato de severidad correspondiente, consistente con Neurological Severity Clarity.
+
+CC-238 — Neurological Grading Engine (nuevo, propio de NCIS — línea IVDD)
+
+Propósito: aplicar el sistema de gradación neurológica 1-5 para deficit agudo, con énfasis explícito en el estado de percepción de dolor profundo como el dato pronóstico más determinante.
+
+Entradas: examen neurológico, CC-220 (imagen, cuando hay estudio disponible).
+
+Salidas: grado asignado (1-5), estado de dolor profundo (presente/ausente), y urgencia quirúrgica implicada (grados 4-5 con dolor profundo ausente requieren decisión temprana).
+
+Regla: nunca omite el estado de dolor profundo del resumen del caso, incluso cuando el resto del examen esté incompleto — es el único dato individual que consistentemente determina el pronóstico.
+
+Este componente alimenta directamente la Neurological Grade Card de NCIS-DESIGN-001.
+
+CC-239 — Seizure Management & AED Monitoring Engine (nuevo, propio de NCIS — línea epilepsia)
+
+Propósito: rastrear frecuencia de crisis, clasificar el nivel de control, y gestionar el monitoreo terapéutico de fármacos antiepilépticos, incluyendo interacciones farmacocinéticas conocidas entre ellos (fenobarbital acelera la eliminación de levetiracetam y zonisamida).
+
+Entradas: historial de crisis reportadas por el propietario, niveles séricos de AED cuando estén disponibles, CC-309.
+
+Salidas: clasificación de control (bien controlada/parcial/crisis activa), y alertas de interacción farmacocinética relevante cuando aplique.
+
+Regla: ante un paciente con múltiples AEDs, nunca omite la revisión de interacciones conocidas — debe declararlas explícitamente incluso cuando no cambien la recomendación inmediata.
+
+Este componente alimenta directamente la Seizure Control Card y la AED Monitoring Card.
+
+CC-309 — Neurologic Pharmacotherapy (nuevo, propio de NCIS)
+
+Propósito: gestionar clases de fármacos antiepilépticos activos (fenobarbital, imepitoína, levetiracetam, zonisamida) — objetivo de cada uno, necesidad de monitoreo (niveles séricos, función hepática), e interacciones conocidas.
+
+Regla: nunca indica dosis específicas — solo clases, objetivos, y parámetros de monitoreo requeridos.
+
+---
+
+Contrato de Consumo y Architecture Decisions
+
+Idénticos en estructura a los de OCIS/CCIS/ECIS/DCIS: todo motor debe referenciar componentes por código, nunca reimplementar lógica localmente.
+
+AD-NCIS-01 — No Referral Layer.
+
+AD-NCIS-02 — Dual-Track Severity as First-Class Components. CC-238 y CC-239 no son extensiones opcionales — cada caso de NCIS debe pasar por el motor correspondiente a su línea clínica antes de presentarse como completamente caracterizado. Ningún otro componente puede asignar grado neurológico o clasificación de control de crisis por su cuenta.
+
+CC-241 — Orthopedic Assessment & OA Staging Engine (nuevo, propio de NCIS — línea ortopédica)
+
+Propósito: aplicar el sistema de estadificación COAST/COASTeR (0-4) para osteoartritis canina, y gestionar el plan de manejo "base y build" correspondiente al estadio asignado.
+
+Entradas: examen ortopédico (marcha, postura, palpación articular), cuestionario validado de dolor/función reportado por el propietario, radiografía cuando esté disponible (para COAST completo; el tratamiento se guía por COASTeR, que excluye radiografía).
+
+Salidas: estadio COASTeR asignado (0-4), elementos "base" aplicables, elementos "build" específicos del estadio, y fecha de próxima reevaluación según la frecuencia recomendada para ese estadio.
+
+Regla: nunca basa la decisión de tratamiento únicamente en hallazgos radiográficos — los cambios radiográficos de OA no se correlacionan de forma confiable con la función clínica real; el estadio que guía el manejo (COASTeR) se determina excluyendo la radiografía. La radiografía se usa para confirmar diagnóstico y descartar otras patologías, no para decidir el nivel de tratamiento.
+
+Regla: nunca omite la reevaluación programada del plan — todo caso con estadio asignado debe tener una fecha de reevaluación explícita según la frecuencia recomendada para ese estadio (más frecuente a mayor severidad).
+
+Este componente alimenta directamente la Orthopedic Staging Card (a agregar en NCIS-DESIGN-001) y coexiste con CC-238 (línea IVDD) y CC-239 (línea epilepsia) como el tercer motor de severidad de NCIS, correspondiente a la línea ortopédica.

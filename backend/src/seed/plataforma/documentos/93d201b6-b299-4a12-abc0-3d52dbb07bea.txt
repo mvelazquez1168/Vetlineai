@@ -1,0 +1,330 @@
+# Familia CC-3xx — Nutrición Terapéutica (Dietary & Supplement Intelligence)
+
+**Aplica a:** GCIS (profundidad gastroenterológica). Diseñada de forma que, igual que la familia de Farmacoterapia, pueda extenderse a ICIS en el futuro con una capa genérica multisistema — pero nace acá porque, como bien señalás, en gastroenterología la dieta suele ser el tratamiento en sí mismo, no un complemento.
+
+## Nota de diseño previa a los componentes
+
+Esta familia extiende **CC-105 (Nutritional Assessment)**, que ya existe en el catálogo pero es puramente descriptivo (registra peso, BCS, dieta, apetito). CC-306 a CC-309 le dan a la información nutricional el mismo salto cualitativo que CC-301→CC-304 le dieron a la medicación: de "registrar qué come" a "razonar sobre si eso que come es compatible con lo demás, y si está funcionando".
+
+**Regla que gobierna esta familia:** igual que con farmacoterapia, ningún componente sugiere una marca comercial específica de alimento — razona a nivel de **clase dietaria** (hidrolizada, baja en grasa, baja en residuos, novel protein, etc.), consistente con el criterio ya aplicado en toda la Base de Conocimiento del proyecto. La única diferencia deliberada respecto a farmacoterapia: las **cantidades orientativas de porción sí pueden mencionarse** cuando el veterinario las solicite, porque el riesgo de un error de gramaje no es equiparable al de un error de dosis farmacológica — pero esto sigue siendo información de apoyo al razonamiento, nunca una prescripción cerrada que reemplace el criterio del veterinario tratante.
+
+---
+
+## CC-306 — Dietary & Supplement Registry
+
+**1. Información General**
+
+| Campo | Valor |
+|---|---|
+| Component ID | CC-306 |
+| Nombre | Dietary & Supplement Registry |
+| Categoría | Therapeutic Management |
+| Tipo | Clinical Data Component |
+| Prioridad | Crítica |
+| Estado | Approved |
+| Versión | 1.0 |
+| Owner | GastroCare Vet |
+| Dependencias | CC-002 Patient Profile, CC-101 Clinical History, CC-105 Nutritional Assessment |
+| Consumido por | CC-307, CC-308, CC-309, Executive Case Summary, Dashboard, Report Composer |
+| Produce | Active Diet Registry, Supplement Registry, Diet Timeline |
+
+**2. Propósito Clínico**
+
+El **Dietary & Supplement Registry** centraliza la dieta terapéutica y los suplementos del paciente como una entidad estructurada e independiente — con el mismo estatus que la medicación, no como una nota accesoria dentro de la historia clínica. Registra qué clase de dieta, con qué objetivo terapéutico, desde cuándo, y con qué evidencia de cumplimiento, extendiendo lo que ya captura CC-105 pero dándole estructura suficiente para que otros componentes razonen sobre esa información.
+
+**3. Objetivos**
+
+Registrar la dieta terapéutica activa y su clase; diferenciar dieta indicada por este sistema de dieta que el propietario administra por su cuenta; registrar el objetivo terapéutico de cada dieta; registrar suplementos activos (probióticos, fibra, ácidos grasos, enzimas pancreáticas, hepatoprotectores nutricionales); registrar evidencia de cumplimiento; vincular cada dieta/suplemento con el problema clínico que motivó su indicación.
+
+**4. Alcance**
+
+**Incluye:** clase de dieta terapéutica (hidrolizada, novel protein, baja en grasa, baja en residuos, alta en fibra fermentable, gastrointestinal de recuperación), marca si se conoce, objetivo terapéutico, fecha de inicio, fecha de cambio/suspensión, fuente de la indicación, suplementos activos con su clase y objetivo, alimentos caseros o "extras" reportados por el propietario que puedan interferir con el manejo dietario de eliminación.
+
+**No incluye:** cálculo de requerimiento calórico exacto ni formulación nutricional completa — eso, si se necesita a ese nivel de detalle, corresponde a un nutricionista veterinario.
+
+**5. Clinical Workflow**
+
+Historia clínica / consulta → identificación de dieta y suplementos mencionados → clasificación por clase terapéutica → registro de objetivo → vinculación con el problema activo (CC-005) → disponible para CC-307/308/309
+
+**6. Modelo de Datos**
+
+Cada entrada contendrá: Diet/Supplement ID, tipo (dieta terapéutica / suplemento / alimento extra no controlado), clase, objetivo terapéutico, fecha de inicio, fecha de fin (si aplica), estado (activa/suspendida/completada), fuente de la indicación, problema clínico asociado (referencia a CC-005), evidencia de cumplimiento reportada.
+
+**7. Variables Derivadas**
+
+Claude calculará automáticamente: duración de cada dieta activa, número de cambios dietarios en el curso del caso, clases de dieta ya probadas para el mismo problema, presencia de alimentos extra no controlados que puedan comprometer una dieta de eliminación en curso.
+
+**8. Clinical Intelligence**
+
+Claude deberá vincular cada dieta con el problema clínico que la originó (CC-005), y detectar cuando un "extra" no controlado (premios, sobras) coexiste con una dieta de eliminación estricta — un patrón que, según la Base de Conocimiento del proyecto, es una de las causas más frecuentes de fracaso aparente de un manejo dietario que en realidad nunca se cumplió correctamente.
+
+**9. Clinical Rules**
+
+Nunca eliminar dietas históricas, solo marcarlas como suspendidas. Toda entrada debe tener clase terapéutica, aunque no se conozca la marca exacta. Diferenciar dieta indicada por este sistema de la administrada por el propietario sin indicación formal.
+
+**10. Validation Rules**
+
+Antes de avanzar al análisis nutricional, debe existir al menos una revisión explícita de "dieta activa". Advertencia si hay una dieta de eliminación activa sin verificación de extras/premios en el registro.
+
+**11. Dashboard Representation**
+
+**CVC-310 — Active Diet Card** (dieta activa, clase, objetivo, tiempo transcurrido) · **CVC-311 — Diet Timeline** (cronología de cambios dietarios vinculada a la evolución del caso, en el mismo eje temporal que el Clinical Timeline general).
+
+**12. Clinical Report Representation**
+
+Sección **Manejo Nutricional**: dieta activa e histórica, objetivo de cada una, suplementos, extras no controlados reportados, relación con los problemas clínicos documentados.
+
+**13. Knowledge Base Contribution**
+
+Diet Class Tags, Supplement Tags, Compliance Tags, Uncontrolled Extras Tags.
+
+**14. AI Behaviour**
+
+Claude deberá identificar y clasificar dietas y suplementos mencionados en la narrativa clínica, aunque el usuario no los liste de forma estructurada. Nunca deberá asumir cumplimiento estricto de una dieta de eliminación sin preguntar explícitamente por extras, premios o alimento casero.
+
+**15. Integraciones:** consume de CC-002, CC-101, CC-105; es utilizado por CC-307, CC-308, CC-309, Dashboard, Report Composer, Knowledge Base.
+
+**16. KPIs:** dieta activa correctamente registrada >95 % · extras no controlados detectados cuando existan >90 %
+
+**17. Prompt Contract:** durante la apertura del caso, Claude preguntará explícitamente por dieta actual, suplementos, y — de forma específica, no genérica — por premios, sobras o cualquier alimento fuera de la dieta principal. Durante el seguimiento, actualizará el registro sin eliminar entradas previas.
+
+---
+
+## CC-307 — Diet-Drug & Diet-Supplement Interaction Engine
+
+**1. Información General**
+
+| Campo | Valor |
+|---|---|
+| Component ID | CC-307 |
+| Nombre | Diet-Drug & Diet-Supplement Interaction Engine |
+| Categoría | Therapeutic Management |
+| Tipo | Clinical Intelligence Component |
+| Prioridad | Alta |
+| Estado | Approved |
+| Versión | 1.0 |
+| Owner | GastroCare Vet |
+| Dependencias | CC-306, CC-301 (Medication Registry) |
+| Consumido por | Dashboard, Report Composer |
+| Produce | Diet-Drug Interaction Alerts, Sequencing Recommendations |
+
+**2. Propósito Clínico**
+
+Cruza la dieta y los suplementos activos (CC-306) con la medicación activa (CC-301), detectando interacciones y consideraciones de secuencia de administración — con la misma disciplina de CC-302: alerta el riesgo, nunca lo resuelve por su cuenta.
+
+**3. Objetivos**
+
+Detectar combinaciones dieta-fármaco o suplemento-fármaco con interacción documentada; señalar cuándo la secuencia u orden de administración es clínicamente relevante, sin prescribir el intervalo exacto; detectar cuándo una dieta terapéutica específica podría verse comprometida por un fármaco concurrente (o viceversa).
+
+**4. Alcance**
+
+**Incluye:** pares fármaco-suplemento o fármaco-dieta con interacción o consideración de secuencia documentada.
+
+**No incluye:** el intervalo exacto de separación horaria — eso queda a criterio del veterinario.
+
+**5. Clinical Workflow**
+
+CC-306 (dieta/suplementos activos) + CC-301 (medicación activa) → cruce → generación de alertas → Dashboard / Report Composer
+
+**6. Modelo de Datos**
+
+Cada alerta contendrá: Alert ID, tipo (fármaco-suplemento / fármaco-dieta), elementos involucrados, nivel de relevancia clínica, racional del mecanismo.
+
+**7. Variables Derivadas:** número de alertas activas por paciente, fármacos con consideración de secuencia respecto a algún suplemento o dieta activa.
+
+**8. Clinical Intelligence**
+
+**Patrón GI-D1 — Fibra/psyllium y fármacos orales concurrentes.** Igual mecanismo que el ya documentado para sucralfato en CC-302 (extensión GCIS): la fibra administrada simultáneamente puede reducir la absorción de otros fármacos orales. Interpretación: alerta de secuencia relevante.
+
+**Patrón GI-D2 — Dieta de alto contenido graso + antecedente de pancreatitis + corticoides activos.** Combinación de riesgo que amerita señalarse, ya que tanto la dieta grasa como los corticoides pueden favorecer hiperlipidemia, un factor de riesgo documentado para pancreatitis. Interpretación: alerta de precaución, sin indicar el ajuste.
+
+**Patrón GI-D3 — Probióticos y antimicrobianos concurrentes.** No es una contraindicación grave, pero el componente debe señalar la lógica de objetivo: si el probiótico se está usando para mitigar el efecto del antimicrobiano sobre la microbiota, o si ambos coexisten sin relación intencional documentada.
+
+**Patrón GI-D4 — Suplementos minerales (calcio, hierro) y antimicrobianos quelantes.** Algunos antimicrobianos (ciertas quinolonas, tetraciclinas) ven reducida su absorción por quelación con minerales. Interpretación: alerta de secuencia relevante, mismo tratamiento que el Patrón GI-D1.
+
+**9. Clinical Rules**
+
+Toda alerta debe indicar su fuente/mecanismo. Las alertas se recalculan automáticamente cada vez que se registra un cambio en CC-301 o CC-306.
+
+**10. Validation Rules:** si hay ≥1 dieta de eliminación estricta activa y se añade un fármaco nuevo, este componente debe ejecutarse antes de que el caso avance a la sección de recomendaciones del informe.
+
+**11. Dashboard Representation:** **CVC-312 — Diet-Drug Interaction Panel** (mismo tratamiento visual que CVC-303 de farmacoterapia, color funcional "Estado Advertencia").
+
+**12. Clinical Report Representation:** sección **Consideraciones Dieta-Fármaco**, integrada junto a la sección de Consideraciones Farmacológicas del informe, no separada.
+
+**13. Knowledge Base Contribution:** Diet-Drug Interaction Tags.
+
+**14. AI Behaviour:** Claude deberá señalar cada alerta con su racional, nunca decidir la conducta a seguir por el veterinario.
+
+**15. Integraciones:** consume de CC-306, CC-301; es utilizado por Dashboard, Report Composer.
+
+**16. KPIs:** alertas de secuencia correctamente identificadas >90 %
+
+**17. Prompt Contract:** se reejecuta automáticamente cada vez que cambia la medicación activa o la dieta/suplementos activos.
+
+---
+
+## CC-308 — Therapeutic Diet Class Reasoning
+
+**1. Información General**
+
+| Campo | Valor |
+|---|---|
+| Component ID | CC-308 |
+| Nombre | Therapeutic Diet Class Reasoning |
+| Categoría | Therapeutic Management |
+| Tipo | Clinical Intelligence Component |
+| Prioridad | Alta |
+| Estado | Approved |
+| Versión | 1.0 |
+| Owner | GastroCare Vet |
+| Dependencias | CC-240 Diagnostic Correlation Engine |
+| Consumido por | Dashboard, Report Composer |
+| Produce | Therapeutic Diet Class Suggestions, Rationale Summary |
+
+**2. Propósito Clínico**
+
+Ante un diagnóstico presuntivo o confirmado, sugiere clases de manejo dietario a considerar — nunca una marca comercial específica. Es el paralelo exacto de CC-303 (clases farmacológicas), y ambos deben presentarse juntos en el razonamiento terapéutico.
+
+**3. Objetivos**
+
+Sugerir clases dietarias relevantes según el diagnóstico o síndrome activo; explicar el racional fisiopatológico de cada clase; señalar cuándo una clase dietaria está contraindicada por hallazgos ya documentados (remitiendo a CC-307); indicar la duración orientativa habitual del manejo, cuando exista consenso documentado en la Base de Conocimiento.
+
+**4. Alcance**
+
+**Incluye:** nombre de la clase dietaria, racional clínico, duración orientativa del manejo, nivel de evidencia de la indicación.
+
+**No incluye:** marca comercial específica como recomendación cerrada.
+
+**5. Clinical Workflow**
+
+Diagnóstico presuntivo/confirmado (CC-240) → clases dietarias habitualmente consideradas → cruce con CC-307 → presentación al usuario, junto a CC-303 si hay clases farmacológicas también sugeridas
+
+**6. Modelo de Datos**
+
+Cada sugerencia contendrá: Suggestion ID, diagnóstico/síndrome asociado, clase dietaria, racional, duración orientativa, nivel de evidencia, alertas de CC-307 aplicables.
+
+**7. Variables Derivadas:** clases ya utilizadas previamente en este paciente para el mismo problema, tiempo transcurrido en la clase actual respecto a la duración orientativa.
+
+**8. Clinical Intelligence**
+
+Tabla de razonamiento base (extensible, no exhaustiva):
+
+| Diagnóstico/síndrome presuntivo | Clase dietaria habitualmente considerada | Duración orientativa |
+|---|---|---|
+| Sospecha de intolerancia/alergia alimentaria | Dieta de eliminación (hidrolizada o novel protein) | ~3 semanas para primera evaluación; ciclo completo ~12 semanas antes de prueba de tolerancia |
+| Enteropatía perdedora de proteínas / linfangiectasia | Dieta baja en grasa | Manejo sostenido, reevaluación periódica con albúmina |
+| Insuficiencia pancreática exocrina | Dieta de fácil digestión, baja en fibra | Junto con enzimas pancreáticas (CC-303) |
+| Colitis / diarrea de intestino grueso | Dieta alta en fibra fermentable | Reevaluación en 1-2 semanas |
+| Constipación / megacolon | Dieta con fibra + hidratación asistida | Reevaluación temprana, en días |
+| Postoperatorio de estenosis esofágica | Dieta líquida/semisólida progresiva | Progresión gradual documentada, no fija |
+
+**9. Clinical Rules**
+
+Nunca sugerir marca comercial como conclusión del razonamiento. Siempre presentar junto al nivel de evidencia. Presentar en el mismo bloque que CC-303 para el mismo diagnóstico, cuando corresponda.
+
+**10. Validation Rules:** toda sugerencia debe estar vinculada a un diagnóstico o síndrome activo documentado.
+
+**11. Dashboard Representation:** **CVC-313 — Therapeutic Diet Class Panel** (mismo formato visual que CVC-305 de farmacoterapia).
+
+**12. Clinical Report Representation:** sección **Consideraciones Dietarias**, junto a Consideraciones Terapéuticas — explícitamente marcada como apoyo al razonamiento, no como prescripción cerrada.
+
+**13. Knowledge Base Contribution:** Therapeutic Diet Class Tags, Rationale Tags.
+
+**14. AI Behaviour:** Claude deberá presentar esto siempre como opciones a considerar. Puede mencionar cantidades orientativas de porción si el veterinario lo solicita explícitamente, dejando claro que es orientativo y no reemplaza el cálculo individualizado.
+
+**15. Integraciones:** consume de CC-240; es utilizado por Dashboard, Report Composer.
+
+**16. KPIs:** sugerencias vinculadas a diagnóstico documentado 100 % · ausencia de recomendación cerrada de marca comercial 100 %
+
+**17. Prompt Contract:** se activa junto con CC-303 como parte de la sección "Próximos pasos sugeridos" del formato de diagnóstico clínico.
+
+---
+
+## CC-309 — Nutritional Response Tracking
+
+**1. Información General**
+
+| Campo | Valor |
+|---|---|
+| Component ID | CC-309 |
+| Nombre | Nutritional Response Tracking |
+| Categoría | Therapeutic Management |
+| Tipo | Clinical Intelligence Component |
+| Prioridad | Crítica |
+| Estado | Approved |
+| Versión | 1.0 |
+| Owner | GastroCare Vet |
+| Dependencias | CC-306, CC-103 (Clinical Signs Registry), CC-105 (Nutritional Assessment) |
+| Consumido por | Dashboard, Report Composer, Knowledge Base |
+| Produce | Diet-Outcome Correlation, Response Timeline, Elimination Trial Tracker |
+
+**2. Propósito Clínico**
+
+Este es el componente que responde directamente a tu pedido: correlaciona el inicio/cambio de cada dieta o suplemento (CC-306) con la evolución de los signos clínicos (CC-103) y los parámetros nutricionales (CC-105 — peso, BCS), generando un factor de correlación visible y explicable entre alimento prescrito y evolución del paciente. Es, literalmente, el mecanismo que formaliza el protocolo de dieta de eliminación → reintroducción → alergia vs. intolerancia ya documentado en la Base de Conocimiento.
+
+**3. Objetivos**
+
+Documentar la evolución clínica y nutricional tras cada cambio dietario; calcular un índice de correlación entre el cambio dietario y la evolución de los signos; detectar respuesta favorable, parcial, ausente, o empeoramiento asociado a una dieta; identificar automáticamente cuándo un paciente en dieta de eliminación llega al punto de decisión (3 semanas / 12 semanas) para la prueba de tolerancia; alimentar la Base de Conocimiento con patrones reales de respuesta dietaria.
+
+**4. Alcance**
+
+**Incluye:** signos clínicos y parámetros nutricionales antes/después de cada cambio dietario, tiempo hasta la respuesta observada, clasificación de la respuesta, alertas de "punto de decisión" alcanzado.
+
+**No incluye:** el ajuste de cantidad/porción en respuesta a la evolución — eso queda a criterio del veterinario.
+
+**5. Clinical Workflow**
+
+Cambio de dieta (CC-306) → seguimiento de signos clínicos (CC-103) y parámetros nutricionales (CC-105) → correlación temporal → cálculo de índice de correlación → clasificación de respuesta → alerta de punto de decisión si corresponde → registro en Knowledge Base
+
+**6. Modelo de Datos**
+
+Cada registro de respuesta contendrá: Response ID, dieta/suplemento asociado, signo(s) clínico(s) y parámetro(s) nutricional(es) evaluados, estado antes del cambio, estado tras el intervalo de seguimiento, clasificación de respuesta (favorable/parcial/ausente/empeoramiento), índice de correlación calculado, punto de decisión alcanzado (sí/no, con fecha).
+
+**7. Variables Derivadas**
+
+Claude calculará automáticamente: índice de correlación dieta-evolución (nivel cualitativo: alta/moderada/baja correlación, no una cifra estadística que sugiera una precisión que el sistema no tiene), tiempo transcurrido en la dieta actual respecto al punto de decisión esperado, tasa de respuesta favorable por clase dietaria en este paciente específico.
+
+**8. Clinical Intelligence**
+
+**Ejemplo de razonamiento:** se inicia dieta de eliminación hidrolizada para sospecha de intolerancia alimentaria en paciente con diarrea crónica. Semana 1: sin cambios. Semana 2: heces más consistentes, menos episodios. Semana 3 (punto de decisión): heces normales, sin diarrea en los últimos 7 días. El componente genera automáticamente: "Correlación alta entre el inicio de la dieta de eliminación y la resolución de la diarrea — patrón consistente con reacción adversa al alimento. Paciente en el punto de decisión: considerar reintroducción de la proteína previa para diferenciar intolerancia de alergia" — activando explícitamente el protocolo ya documentado en el Knowledge Base Standard.
+
+**Caso de correlación ausente:** si el cambio dietario no coincide temporalmente con ninguna mejoría, el componente debe señalarlo igual de claro: "Sin correlación clara entre el cambio dietario (semana 3) y la evolución clínica — los signos ya venían mejorando desde antes del cambio, o no mostraron cambio tras él." Esto evita atribuirle el mérito (o la culpa) a la dieta cuando la evidencia temporal no lo sustenta.
+
+**9. Clinical Rules**
+
+Nunca eliminar un registro de respuesta, incluso si la dieta se suspendió. La correlación se expresa siempre como nivel cualitativo con su justificación, nunca como una cifra numérica de precisión estadística que el sistema no puede respaldar con el volumen de datos de un solo paciente. Todo "punto de decisión" alcanzado debe generar una notificación explícita.
+
+**10. Validation Rules:** para clasificar una respuesta debe existir al menos una reevaluación de signos y/o parámetros nutricionales posterior al cambio dietario.
+
+**11. Dashboard Representation**
+
+**CVC-314 — Diet-Outcome Correlation Panel** *(el componente central de tu pedido)* — panel que muestra, en un mismo eje temporal: la línea de cambios dietarios (de CVC-311), superpuesta con las curvas de signos clínicos relevantes (de CC-103) y con la tendencia de peso/BCS (ya existentes en CC-105) — permitiendo ver de un vistazo si las mejorías coinciden con los cambios de dieta o son independientes de ellos.
+
+**CVC-315 — Elimination Trial Tracker** — panel específico para dietas de eliminación, con una barra de progreso visual hacia el punto de decisión (semana 3, o semana 12 según el protocolo activo) y una alerta destacada cuando se alcanza.
+
+**CVC-316 — Nutritional Response Timeline** — cronología de respuestas clasificadas (favorable/parcial/ausente/empeoramiento) por cada dieta o suplemento probado en el caso.
+
+**12. Clinical Report Representation**
+
+Sección **Respuesta Nutricional**, incluyendo el panel de correlación, la clasificación de cada dieta probada, y el estado del protocolo de eliminación si está en curso — con lenguaje explícito sobre el grado de certeza de la correlación (nunca presentada como causalidad confirmada).
+
+**13. Knowledge Base Contribution**
+
+Diet-Outcome Correlation Tags, Elimination Trial Outcome Tags, Diet Class Response Tags — estos alimentan directamente el AD-023 (Clinical Pattern Discovery Engine) ya definido en el Knowledge Base Standard, permitiendo en el futuro preguntas agregadas como "¿qué porcentaje de mis pacientes con diarrea crónica responden a dieta hidrolizada en las primeras 3 semanas?".
+
+**14. AI Behaviour**
+
+Claude deberá diferenciar siempre una correlación temporal de una relación causal confirmada — el lenguaje debe ser "compatible con" o "sugiere", nunca "confirma" o "demuestra", salvo que exista una prueba de reintroducción formal que sí permita esa afirmación más fuerte. Nunca deberá inflar la confianza de una correlación basada en un solo cambio dietario y una sola observación de seguimiento.
+
+**15. Integraciones:** consume de CC-306, CC-103, CC-105; es utilizado por Dashboard, Report Composer, Knowledge Base.
+
+**16. KPIs:** respuestas clasificadas con evidencia de seguimiento 100 % · puntos de decisión detectados y notificados a tiempo >95 %
+
+**17. Prompt Contract:** en cada seguimiento donde haya una dieta activa, Claude preguntará explícitamente por la evolución de los signos y parámetros nutricionales asociados a esa dieta, y verificará si se alcanzó el punto de decisión correspondiente al protocolo en curso.
+
+---
+
+## Nota final sobre el diseño del panel de correlación
+
+Fue deliberado no convertir el "factor de correlación" en un número estadístico con apariencia de precisión (por ejemplo, un porcentaje o coeficiente) — con los datos de un solo paciente y sin grupo control, cualquier cifra de ese tipo sería una ilusión de rigor que el sistema no puede respaldar honestamente. El AI Reasoning Standard ya establece que Claude nunca debe presentar una inferencia con más certeza de la que la evidencia sostiene, y ese principio aplica con la misma fuerza acá — por eso el panel usa niveles cualitativos explicados en texto, no un número que invite a sobreinterpretarse.

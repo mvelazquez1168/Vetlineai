@@ -1,0 +1,185 @@
+HEPATITIS CRÓNICA CANINA — CLASIFICACIÓN, BIOPSIA Y ENFERMEDAD ASOCIADA A COBRE
+
+Resumen clínico de referencia para GCIS. Componentes que lo consumen: CC-240 (correlación diagnóstica), CC-202 (bioquímica sérica), CC-220 (imagenología), CC-301 a CC-304 (farmacoterapia).
+
+Fuente principal: Webster CRL, Center SA, Cullen JM, Penninck DG, Richter KP, Twedt DC, Watson PJ. ACVIM consensus statement on the diagnosis and treatment of chronic hepatitis in dogs. J Vet Intern Med 2019;33(3):1173–1200. DOI 10.1111/jvim.15467. Acceso abierto.
+
+Versión 2.0. Nota de alcance y método: este resumen se elaboró a partir del abstract y de secciones accesibles del consenso y de fuentes secundarias que lo citan, no de su texto completo. La versión 1.0 declaraba el tratamiento como vacío; esta versión lo incorpora (secciones 7 y 8). Las dosis citadas provienen de las fuentes indicadas y deben verificarse contra las tablas del documento original antes de aplicarse.
+
+---
+
+1. EL PRINCIPIO QUE ORDENA EL DIAGNÓSTICO
+
+El panel reconoce que el diagnóstico y el tratamiento de la hepatitis crónica en el perro es un proceso complejo que requiere **integración de la presentación clínica con la patología clínica, la imagenología diagnóstica y la biopsia hepática**.
+
+Consecuencia para GCIS: ningún elemento aislado establece el diagnóstico, y en particular la elevación de enzimas hepáticas no lo hace. El componente debe declarar cuáles de los cuatro pilares están disponibles en el caso y cuáles faltan.
+
+2. LA DISTINCIÓN QUE MÁS CAMBIA LA CONDUCTA: PRIMARIA CONTRA SECUNDARIA
+
+Los cambios inflamatorios en una biopsia hepática pueden deberse a hepatopatías primarias o secundarias, y la diferencia determina dónde debe dirigirse el tratamiento.
+
+Hepatopatías primarias. El proceso patológico está centrado en el hígado. Incluyen la hepatitis crónica, que puede progresar a cirrosis, y la hepatitis lobular disecante. Se acompañan típicamente de evidencia de necrosis o apoptosis de hepatocitos, junto con grados variables de proliferación ductular y fibrosis.
+
+Hepatopatías secundarias. Ocurren por un proceso patológico primario en otra parte del organismo —con frecuencia comprometiendo la circulación esplácnica— que daña el hígado. La hepatitis reactiva es la forma descrita.
+
+Regla para GCIS: ante hallazgos hepáticos en un paciente con enfermedad gastrointestinal, pancreática o sistémica concurrente, la hepatopatía secundaria debe considerarse antes de asumir enfermedad hepática primaria. Este punto es especialmente relevante en gastroenterología, donde la enfermedad esplácnica es el motivo de consulta.
+
+3. ENFERMEDAD HEPÁTICA ASOCIADA A COBRE
+
+Es la vía etiológica mejor caracterizada y tiene base genética documentada en varias razas.
+
+Valores de referencia. La concentración hepática normal de cobre se sitúa entre 120 y 400 µg/g de peso seco.
+
+Bedlington Terrier. Deleciones autosómicas recesivas en el exón 2 del gen COMMD1, asociado a ATP7B, conducen a hepatitis crónica por cobre. Las concentraciones pueden superar los 10.000 µg/g de peso seco en esta raza — más de veinte veces el límite superior normal. El tamizaje genético para la deleción de COMMD1, junto con la cría selectiva, ha eliminado casi por completo la enfermedad en la raza. Recientemente se implicó al gen candidato ABCA12 de forma independiente de la deleción de COMMD1.
+
+Labrador Retriever. La lesión hepática mediada por cobre puede estar influida por mutaciones en el gen ATP7B, que predisponen a la acumulación de cobre, y por mutaciones en ATP7A —el transportador intestinal de cobre—, que protegen contra ella. Existe prueba genética comercial para ambas mutaciones, pero **la utilidad predictiva y diagnóstica de ese tamizaje es actualmente desconocida**.
+
+Regla para GCIS: al mencionar pruebas genéticas de cobre en Labrador, debe declararse que su valor diagnóstico no está establecido. Es una prueba disponible, no una prueba validada.
+
+Colestasis crónica. Puede causar acumulación hepática de cobre. A diferencia de humanos y gatos, los perros son más resistentes a acumular cobre por colestasis, salvo exposición a concentraciones elevadas.
+
+Esta información racial corresponde aportarse a la especificación de Breed Intelligence (GCIS-KD-001), que es el documento que el índice operativo indica consultar apenas se conoce la raza.
+
+4. BIOPSIA HEPÁTICA — MANEJO DE LA MUESTRA
+
+El consenso dedica atención específica al manejo preanalítico, porque la calidad de la muestra determina la interpretabilidad del resultado.
+
+Las muestras pequeñas obtenidas por aguja requieren manejo especial y el uso de casetes de malla especializados para proteger los cilindros de la fragmentación durante el transporte. Pueden usarse esponjas no compresivas, cuidando evitar la distorsión del tejido por compresión del casete, y seleccionando esponjas que no perforen las muestras.
+
+Regla para GCIS: si el expediente no documenta cómo se manejó la muestra, y el resultado histopatológico es no concluyente o fragmentario, el componente debe considerar la calidad preanalítica como explicación antes que el hallazgo clínico.
+
+Interpretación. Las características clave de la interpretación de la biopsia hepática son: inflamación, lesión o muerte celular, fibrosis, reacción ductular y depósito de pigmento.
+
+La evaluación completa requiere aplicar varias tinciones especiales además de hematoxilina-eosina, que permiten mejor evaluación del remodelado y del depósito de cobre, hierro y tejido conectivo.
+
+Regla para CC-231 y para el razonamiento de GCIS: un informe de biopsia hepática que solo reporta hematoxilina-eosina está incompleto para el estándar del consenso. El componente debe señalar qué tinciones faltan en vez de razonar como si el estudio fuera completo.
+
+5. RIESGO HEMORRÁGICO Y COAGULACIÓN
+
+El consenso aborda la evaluación del riesgo de sangrado para la biopsia hepática percutánea guiada por ultrasonido, y remite a la literatura sobre trastornos de la coagulación en enfermedad hepatobiliar.
+
+El concepto que conviene retener es el de hemostasia reequilibrada: en la enfermedad hepática coexisten alteraciones procoagulantes y anticoagulantes, de modo que las pruebas de coagulación convencionales pueden no reflejar el riesgo real de sangrado en ninguna de las dos direcciones.
+
+6. ESTRUCTURA DEL CONSENSO
+
+El documento presenta la información bajo nueve encabezados principales. Se elaboró a partir de opinión experta de siete especialistas, búsqueda en PubMed, resúmenes y actas de congresos de ACVIM y ECVIM recuperados de la Veterinary Information Network, y manuscritos seleccionados de la literatura humana sobre hepatitis crónica.
+
+Nivel de evidencia: es un consenso basado en opinión experta con revisión de literatura, no una revisión sistemática con evidencia graduada como las guías ENOVAT o el consenso de enteropatía inflamatoria crónica. GCIS debe conservar esa diferencia de estatus al citarlo.
+
+7. TRATAMIENTO
+
+El principio rector es que el tratamiento se dirige a la etiología. Los agentes infecciosos sospechados se tratan con antimicrobianos apropiados; los agentes tóxicos o fármacos implicados se eliminan del entorno del perro; y **todo aumento de cobre hepático en un perro con hepatitis crónica debe tratarse**.
+
+Quelación de cobre
+
+La D-penicilamina es el quelante de elección. Une el cobre hepático, que posteriormente se elimina por orina. Además incrementa la metalotioneína en hepatocitos —destoxificando el cobre intracelular— y en enterocitos —facilitando la eliminación fecal—, y tiene propiedades antiinflamatorias y antifibróticas leves.
+
+Administración: por vía oral con el estómago vacío, porque el alimento disminuye sustancialmente su biodisponibilidad.
+
+Tiempos esperables. Combinada con restricción dietaria de cobre, la D-penicilamina normaliza concentraciones hepáticas de hasta 1.500 µg/g de peso seco en unos 6 meses; concentraciones de 2.000 a 3.000 µg/g suelen normalizarse en unos 9 meses. Valores más altos pueden requerir intervalos más largos. **La quelación puede fallar o demorar más si no se acompaña de dieta restringida en cobre.**
+
+La eficacia se determina mejor por cuantificación repetida del cobre hepático, no por enzimas séricas: la actividad de ALT carece de sensibilidad para detectar acumulación residual leve.
+
+Efectos adversos y la contradicción práctica que conviene conocer. Son mayormente gastrointestinales. Las estrategias descritas para contrarrestarlos son escalado gradual de dosis, administrar el fármaco con un trozo pequeño de carne, o uso concurrente de antieméticos. Nótese la tensión: el estómago vacío maximiza la biodisponibilidad, pero un trozo de carne mejora la tolerancia. Esa disyuntiva está documentada en el propio consenso y GCIS debe presentarla como tal, no elegir una de las dos en silencio. Algunos miembros del panel prefirieron coadministrar un curso corto de corticoides a dosis baja para estimular el apetito en perros inapetentes. Otros efectos adversos son raros, siendo proteinuria y erupciones cutáneas los más comunes.
+
+Alternativa. La trientina puede servir cuando la penicilamina no se tolera.
+
+Dieta restringida en cobre
+
+Se recomiendan dietas que aporten menos de 0,12 mg de cobre por cada 100 kcal en todo perro con concentración hepática superior a 600 µg/g de peso seco.
+
+**La restricción dietaria no reemplaza la necesidad de quelación.**
+
+Advertencia nutricional relevante: como la mayoría de las dietas restringidas en cobre disponibles están además modestamente restringidas en proteína, y la mayoría de los perros con hepatitis crónica no requieren restricción proteica, se aconseja suplementación proteica adicional. Si el perro no acepta una dieta comercial, un nutricionista clínico puede formular una casera.
+
+Agua: la concentración de cobre debe ser menor a 0,1 µg/g. Con cañería de cobre, dejar correr el agua 5 minutos elimina el cobre acumulado.
+
+Este apartado conecta directamente con los componentes CC-306 a CC-309 de nutrición terapéutica.
+
+Mantenimiento tras la quelación
+
+Las dietas restringidas en cobre como intervención única después de la quelación pueden mantener la concentración hepática en rango en algunos perros, pero eso depende del cumplimiento del propietario y no se ha estudiado en muchas razas distintas.
+
+Algunos perros requieren estrategias crónicas adicionales: zinc a dosis baja de forma crónica, o D-penicilamina intermitente a dosis baja 2 a 3 veces por semana (5 a 10 mg/kg por vía oral). El consenso aclara que esta estrategia de dosificación puede ser efectiva pero **no ha sido estudiada** en perros con hepatitis crónica por cobre.
+
+Precaución con el zinc: puede producirse toxicidad por administración oral, por lo que se recomienda monitoreo periódico de la concentración sanguínea de zinc.
+
+Hepatoprotectores y antioxidantes
+
+La enfermedad hepática necroinflamatoria se asocia a depleción de los mecanismos de defensa antioxidante, lo que justifica el uso de agentes citoprotectores con propiedades antioxidantes.
+
+Ácido ursodesoxicólico. Ácido biliar secundario dihidroxilado relativamente hidrofílico, con propiedades coleréticas, inmunomoduladoras, antioxidantes, antiinflamatorias, citoprotectoras y antiapoptóticas. Es ampliamente prescrito en enfermedad hepática **pese a la escasa investigación de su eficacia**, y esa salvedad debe conservarse al recomendarlo.
+
+S-adenosilmetionina. Indicada como agente citoprotector.
+
+Vitamina E. La evidencia de su eficacia en hepatitis crónica canina es limitada.
+
+Silimarina. **No se recomienda**: sus efectos beneficiosos no se demostraron en estudios en humanos.
+
+Regla para GCIS: al listar hepatoprotectores debe distinguirse entre los que el consenso indica (ursodesoxicólico y SAMe, con la salvedad de evidencia), el que tiene evidencia limitada (vitamina E) y el que no se recomienda (silimarina). Presentarlos como un grupo homogéneo pierde la información.
+
+Inmunosupresión
+
+Los estudios respaldan la existencia de un subconjunto de perros con hepatitis crónica que responden a tratamientos inmunosupresores. La evidencia disponible no alcanza para recomendarlo de forma universal.
+
+La corticoterapia con prednisona o prednisolona es la medicación inmunosupresora más empleada, y se ha demostrado que prolonga la supervivencia, mejora los cambios histológicos hepáticos e induce remisión.
+
+Elección entre prednisona y prednisolona: se prefiere prednisolona, porque es el metabolito activo y la conversión de prednisona puede estar comprometida en perros con disfunción hepática sustancial. Es una distinción que suele pasarse por alto y que en este paciente concreto importa.
+
+La leflunomida puede agregarse como adyuvante con efecto ahorrador de corticoides o para lograr remisión.
+
+Contraindicación: la terapia antiinflamatoria está indicada en la hepatitis crónica inmunomediada y contraindicada en la hepatitis aguda.
+
+Determinación de la remisión: se establece mejor por biopsia hepática repetida. Los quelantes de cobre se emplean típicamente durante 3 a 6 meses antes de una segunda biopsia que confirme remisión y normalización del cobre.
+
+Manejo de complicaciones
+
+Encefalopatía hepática: modificación dietaria, lactulosa, metronidazol a dosis baja o antimicrobianos orales no absorbibles.
+
+Ascitis: restricción de sodio, diuréticos y abdominocentesis terapéutica juiciosa.
+
+Cálculos de biurato de amonio: puede requerirse uretrostomía permanente en machos que los desarrollan.
+
+8. PRONÓSTICO
+
+El pronóstico varía. Se han reportado tiempos de supervivencia mediana de 18,3 a 36,4 meses.
+
+Se asocian a supervivencia más corta: hipoalbuminemia, hipoglucemia, tiempos de coagulación prolongados, fibrosis en puente y ascitis.
+
+9. ERRORES FRECUENTES
+
+Diagnosticar hepatitis crónica sobre elevación enzimática sin biopsia.
+
+Asumir hepatopatía primaria en un paciente con enfermedad gastrointestinal o pancreática activa.
+
+Interpretar un informe de biopsia con hematoxilina-eosina únicamente como estudio completo.
+
+Atribuir un resultado histopatológico fragmentario al paciente y no al manejo de la muestra.
+
+Presentar el tamizaje genético de cobre en Labrador como prueba diagnóstica validada.
+
+Interpretar pruebas de coagulación convencionales como estimación fiable del riesgo hemorrágico en enfermedad hepática.
+
+Citar este consenso con el mismo peso de evidencia que una guía graduada por GRADE.
+
+Añadidos en la versión 2.0: administrar D-penicilamina sin dieta restringida en cobre; presentar la restriccion dietaria como sustituto de la quelacion; usar prednisona en vez de prednisolona ante disfunción hepática sustancial; recomendar silimarina; presentar el ursodesoxicólico sin la salvedad sobre su evidencia; no suplementar proteína en un perro que recibe dieta restringida en cobre y no requiere restricción proteica; seguir la eficacia de la quelación por ALT en vez de por cuantificación hepática repetida.
+
+10. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis completas de D-penicilamina, trientina, zinc, prednisolona, leflunomida y hepatoprotectores; deben tomarse de las tablas del consenso original. Tampoco cubre: sistema de clasificación histológica de la WSAVA en detalle; shunt portosistémico congénito y adquirido; hipertensión portal y ascitis; encefalopatía hepática; colangitis y enfermedad del tracto biliar; hepatopatía vacuolar; neoplasia hepática; hepatopatías felinas, incluida la lipidosis hepática; pruebas de función hepática y ácidos biliares; técnica de biopsia. Todos quedan como vacíos declarados de la Base de Conocimiento de GCIS.
+
+FUENTES
+
+Webster CRL, Center SA, Cullen JM, Penninck DG, Richter KP, Twedt DC, Watson PJ. ACVIM consensus statement on the diagnosis and treatment of chronic hepatitis in dogs. J Vet Intern Med 2019;33(3):1173–1200.
+
+Cullen JM. Summary of the World Small Animal Veterinary Association standardization committee guide to classification of liver disease in dogs and cats. Vet Clin North Am Small Anim Pract 2009;39:395–418.
+
+WSAVA Standards for Clinical and Histological Diagnosis of Canine and Feline Liver Diseases, 2021.
+
+Webster CR. Hemostatic disorders associated with hepatobiliary disease. Vet Clin North Am Small Anim Pract 2017;47:601–615.
+
+Marks SL, Kook PH, Papich MG y col. ACVIM consensus statement: support for rational administration of gastrointestinal protectants to dogs and cats. J Vet Intern Med 2018;32:1823–1840.
+
+Immune-Mediated Chronic Hepatitis in Dogs. Vet Clin North Am Small Anim Pract 2025.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

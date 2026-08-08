@@ -1,0 +1,326 @@
+Banderas Rojas Reproductivas — Guía de Derivación para Medicina General
+
+Propósito de este documento
+
+Este extracto está pensado para el agente de medicina general/internista
+(ICIS). Su objetivo no es enseñar teriogenología, sino ayudar a
+reconocer las urgencias reproductivas genuinas de las condiciones
+manejables en atención primaria, y a mantener la piómetra siempre
+presente en el diferencial de hembras enteras con signos inespecíficos —
+porque es, de los siete sistemas documentados hasta ahora, uno de los
+que tiene la relación más directa entre reconocimiento temprano y
+desenlace favorable.
+
+Principio rector de este documento: a diferencia de todos los sistemas
+anteriores, acá el dato demográfico más simple —¿está esterilizado o no,
+y de qué sexo es— cambia por completo el diferencial antes de considerar
+un solo signo clínico. Un mismo cuadro de decaimiento,
+poliuria/polidipsia y distensión abdominal significa algo completamente
+distinto en una hembra entera que en una esterilizada o en un macho. Por
+eso este documento empieza, más que ningún otro, por el estado
+reproductivo del paciente.
+
+1. Señales de alarma que ameritan derivación urgente o manejo de
+emergencia
+
+-   Hembra entera con letargia, poliuria/polidipsia, distensión
+    abdominal y/o secreción vulvar purulenta o sanguinolenta,
+    especialmente entre 4-8 semanas después del último celo — sospechar
+    piómetra hasta descartarla; es una de las urgencias quirúrgicas más
+    frecuentes en la clínica de hembras enteras y el retraso en el
+    reconocimiento se asocia directamente con peor pronóstico (sepsis,
+    peritonitis por rotura uterina).
+
+-   Piómetra de cérvix cerrado (sin secreción vulvar visible, pero con
+    el resto del cuadro) — más peligrosa que la de cérvix abierto porque
+    el útero se distiende sin drenaje, con mayor riesgo de rotura; la
+    ausencia de secreción no descarta la sospecha, la vuelve más
+    urgente.
+
+-   Distocia — trabajo de parto prolongado sin progreso, esfuerzo de
+    pujo intenso sin expulsión de cría en un tiempo razonable, o
+    secreción vaginal anormal (verde/negra sin cría expulsada, o
+    hemorrágica abundante) durante el parto — urgencia obstétrica real,
+    con riesgo tanto para la madre como para las crías restantes.
+
+-   Prolapso uterino o vaginal — urgencia que requiere manejo pronto
+    para preservar el tejido y evitar necrosis.
+
+-   Hembra gestante con decaimiento marcado, vómito, o signos de dolor
+    abdominal agudo — descartar torsión uterina, rotura uterina, o
+    eclampsia (esta última especialmente en el periparto/lactancia
+    temprana, con riesgo de convulsiones).
+
+-   Sangrado vaginal abundante y activo, fuera del contexto esperado de
+    un celo normal o un parto en curso.
+
+-   Testículo aumentado de tamaño de forma aguda, con dolor, en macho
+    entero — sospechar torsión testicular; menos frecuente que la
+    piómetra pero con el mismo principio de urgencia por compromiso
+    vascular.
+
+-   Retención fecal o urinaria asociada a una masa perineal/perianal de
+    crecimiento rápido, en macho entero geriátrico — considerar dentro
+    del diferencial una neoplasia perianal hormono-dependiente con
+    efecto de masa (ver también Sección 4).
+
+2. Cuándo un hallazgo reproductivo "de rutina" amerita derivación no
+urgente
+
+-   Ciclos de celo irregulares o ausentes en hembra entera en edad
+    reproductiva, sin otro signo asociado — candidato a estudio
+    hormonal/ecográfico programado, no urgente.
+
+-   Aumento de tamaño testicular gradual y no doloroso, en macho entero
+    — evaluar por sospecha de neoplasia testicular (ver contexto racial
+    en la Sección 4), sin la urgencia de una torsión aguda.
+
+-   Criptorquidia detectada en el examen de rutina de un cachorro/gatito
+    — no es una urgencia, pero amerita seguimiento y eventual manejo
+    quirúrgico programado, dado el mayor riesgo de torsión y de
+    neoplasia testicular en el testículo retenido.
+
+-   Secreción mamaria fuera del contexto de lactancia, o nódulos
+    mamarios palpables en hembra entera o esterilizada tardíamente —
+    evaluar (ver conexión con Banderas Rojas Oncológicas: la glándula
+    mamaria es uno de los sitios de neoplasia más frecuentes en hembras
+    no esterilizadas tempranamente).
+
+-   Pseudogestación (embarazo psicológico) recurrente — manejable en
+    atención primaria en la mayoría de los casos, pero la recurrencia
+    frecuente es un argumento válido para discutir esterilización con el
+    propietario, no solo tratar cada episodio de forma aislada.
+
+-   Infertilidad o dificultad reproductiva reportada por el propietario
+    en un programa de cría — candidato a evaluación reproductiva
+    especializada, sin urgencia clínica inmediata salvo que se acompañe
+    de alguno de los signos de la Sección 1.
+
+3. La pregunta que cambia todo el diferencial: estado reproductivo
+primero
+
+A diferencia de los sistemas anteriores, acá conviene resolver esta
+pregunta antes de construir cualquier lista de diferenciales:
+
+  -------------------------------------------------------------------------
+  Estado         Qué cambia
+  reproductivo   
+  -------------- ----------------------------------------------------------
+  Hembra entera  La piómetra debe estar siempre en el diferencial ante
+                 decaimiento + poliuria/polidipsia + distensión abdominal,
+                 incluso sin secreción vulvar visible. Este mismo cuadro en
+                 una hembra esterilizada apunta hacia otros sistemas
+                 (renal, endocrino — ver esos documentos).
+
+  Hembra         El diferencial reproductivo prácticamente desaparece
+  esterilizada   (salvo remanente ovárico, poco frecuente) — reorientar
+                 hacia renal, endocrino, hepático según el cuadro.
+
+  Macho entero   Considerar patología testicular/prostática (hiperplasia
+                 prostática benigna, prostatitis, neoplasia
+                 testicular/perianal) ante signos urinarios bajos, dolor
+                 perineal, o masa perianal.
+
+  Macho castrado El diferencial prostático benigno hormono-dependiente
+                 prácticamente desaparece; signos urinarios bajos deben
+                 reorientarse hacia las Banderas Rojas Renales/Urinarias.
+  -------------------------------------------------------------------------
+
+El error más común que este documento busca prevenir: evaluar un cuadro
+de decaimiento y poliuria/polidipsia en una hembra entera con el mismo
+orden de diferenciales que se usaría en cualquier otro paciente
+(empezando por renal o endocrino), en vez de descartar piómetra primero
+por ser la causa más urgente y más tiempo-dependiente de las posibles.
+
+4. Pearls de contexto racial y de edad
+
+-   Todas las razas de hembras enteras, sin excepción — la piómetra no
+    tiene una predisposición racial fuerte y documentada como otras
+    entidades de este proyecto; el factor de riesgo dominante es la edad
+    (más frecuente en hembras de edad media a avanzada) y el número de
+    celos sin gestación, no la raza en sí. Este es uno de los pocos
+    documentos donde el contexto racial pesa menos que el contexto
+    demográfico simple (sexo, estado reproductivo, edad).
+
+-   Boxer, Bóxer y razas braquicéfalas en general — mayor tasa de
+    distocia por desproporción cefalopélvica; en estas razas, un parto
+    que se prolonga más allá de lo esperado amerita evaluación más
+    pronta que en razas sin esta predisposición anatómica.
+
+-   Bulldog Francés, Bulldog Inglés — distocia casi universal por
+    conformación, frecuentemente resuelta por cesárea programada; un
+    parto vaginal espontáneo prolongado en estas razas amerita sospecha
+    de complicación desde etapas más tempranas del trabajo de parto.
+
+-   Boxer, razas grandes — mayor incidencia de tumores testiculares
+    (Sertoli, seminoma, células intersticiales); relevante en el
+    diferencial de aumento testicular no doloroso.
+
+-   Perros criptórquidos, cualquier raza — el testículo retenido tiene
+    mayor riesgo tanto de neoplasia como de torsión que el testículo
+    descendido normalmente; esto ya estaba mencionado en varias fichas
+    de predisposición racial y aplica de forma transversal, no ligado a
+    una raza específica.
+
+-   Gatas, en general, con esterilización tardía o nunca realizada —
+    mayor riesgo de neoplasia mamaria, que en la especie felina tiende a
+    comportarse de forma más agresiva que en la canina (ver conexión
+    directa con las Banderas Rojas Oncológicas).
+
+5. Qué NO debe hacer el agente de medicina general
+
+-   No debe descartar piómetra en una hembra entera solo por la ausencia
+    de secreción vulvar — la variante de cérvix cerrado es, si acaso,
+    más peligrosa.
+
+-   No debe tratar el decaimiento y la poliuria/polidipsia en una hembra
+    entera con el mismo orden de prioridad diagnóstica que en un
+    paciente esterilizado — el estado reproductivo debe resolverse
+    primero, no al final de una lista genérica de diferenciales.
+
+-   No debe manejar una distocia con manejo puramente expectante más
+    allá de un tiempo razonable sin progreso — la ventana de
+    intervención segura para la madre y las crías es limitada.
+
+-   No debe demorar la evaluación de un testículo agudamente doloroso y
+    aumentado de tamaño esperando a ver si mejora solo.
+
+-   No debe ignorar nódulos mamarios en hembras no esterilizadas
+    tempranamente por considerarlos "probablemente benignos" sin
+    evaluación — la neoplasia mamaria es frecuente y su pronóstico
+    mejora con detección temprana.
+
+Resumen para uso rápido
+
+  -----------------------------------------------------------------------
+  Si el paciente presenta...              Acción del agente de medicina
+                                          general
+  --------------------------------------- -------------------------------
+  Hembra entera + decaimiento + PU/PD +   Sospechar piómetra — derivar
+  distensión abdominal, con o sin         con prioridad, incluso sin
+  secreción vulvar                        secreción visible
+
+  Distocia sin progreso en tiempo         Derivar como urgencia
+  razonable                               obstétrica
+
+  Prolapso uterino o vaginal              Derivar con prioridad
+
+  Hembra gestante con decaimiento/dolor   Descartar torsión/rotura
+  abdominal agudo                         uterina o eclampsia periparto
+
+  Testículo aumentado de tamaño, agudo y  Sospechar torsión testicular —
+  doloroso                                derivar con prioridad
+
+  Aumento testicular gradual, no doloroso Evaluar por sospecha de
+                                          neoplasia — no urgente
+
+  Criptorquidia en paciente joven         Seguimiento y manejo quirúrgico
+                                          programado
+
+  Nódulos mamarios en hembra no           Evaluar — ver también Banderas
+  esterilizada tempranamente              Rojas Oncológicas
+
+  Cualquier signo inespecífico en hembra  Resolver primero el estado
+  entera                                  reproductivo antes de construir
+                                          el diferencial
+  -----------------------------------------------------------------------
+
+Contenido
+
+Intervencionismo endoscópico en patologías digestivas - Parte 1.docx
+
+docx
+
+Intervencionismo endoscópico en patologías digestivas - Parte 2.docx
+
+docx
+
+Intervencionismo endoscópico en patologías digestivas - Parte 3.docx
+
+docx
+
+Intervencionismo endoscópico en patologías digestivas - Parte 4.docx
+
+docx
+
+Aproximación diagnóstica- Sistema gastrointestinal- Parte 1.docx
+
+docx
+
+Aproximación diagnóstica- Sistema gastrointestinal- Parte 2.docx
+
+docx
+
+Aproximación diagnóstica- Sistema gastrointestinal- Parte 3 A.docx
+
+docx
+
+RADIOGRAFIA EN LA ENFERMEDAD DIGESTIVA FELINA (PARTE 5).docx
+
+docx
+
+Aproximación diagnóstica- Sistema gastrointestinal- Parte 3 B.docx
+
+docx
+
+Endoscopia digestiva. Alcances y limitaciones (PARTE 1).docx
+
+docx
+
+GCIS GastroVet Knowledge Base.docx
+
+docx
+
+Clinical Report Specification.docx
+
+docx
+
+Report Composer Engine Specification.docx
+
+docx
+
+Knowledge Base Standard.docx
+
+docx
+
+GCIS-KD-001 - Breed Intelligence Knowledge Base Specification.docx
+
+docx
+
+GastroCare Vet Clinical Intelligence System.docx
+
+docx
+
+GastroCare Vet Clinical Design System.docx
+
+docx
+
+pdf
+
+1784828567389_Predisposiciones_raciales_perros_gatos.md
+
+md
+
+Clinical Components specification .docx
+
+docx
+
+GastroCare Vet Clinical Intelligence System.docx
+
+docx
+
+Project Instructions v2.0 Eres el Motor de Inteligencia Clínica del
+GastroCare Vet Clinical Intelligence System (GCIS), un sistema de apoyo
+al diagnóstico y seguimiento clínico especializado en gastroenterología
+veterinaria dirigido exclusivamente a médicos veterinarios. Tu función
+no consiste úni
+
+pasted
+
+Project Instructions v2.0 Eres el Motor de Inteligencia Clínica del
+GastroCare Vet Clinical Intelligence System (GCIS), un sistema de apoyo
+al diagnóstico y seguimiento clínico especializado en gastroenterología
+veterinaria dirigido exclusivamente a médicos veterinarios. Tu función
+no consiste úni
+
+pasted

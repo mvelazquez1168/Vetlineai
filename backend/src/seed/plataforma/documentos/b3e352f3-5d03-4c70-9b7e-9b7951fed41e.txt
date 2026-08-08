@@ -1,0 +1,32 @@
+ECIS Clinical Design System
+
+Versión 1.0
+Documento: ECIS-DESIGN-001
+
+Hereda el sistema base compartido de ICIS-DESIGN-001, remueve los elementos de triage/derivación, y agrega los elementos propios de endocrinología.
+
+1. Clinical Design Principles
+
+Se heredan los principios base. Se remueve "Triage Clarity". Se agrega: "Diagnostic Confirmation Clarity" (nuevo, propio de ECIS) — el diseño debe comunicar de inmediato si el diagnóstico está confirmado mediante prueba de estimulación apropiada, o si sigue siendo presuntivo pendiente de esa confirmación — sin que el usuario deba interpretar valores de laboratorio crudos para saberlo.
+
+2. Color System
+
+Se remueve "Estado Derivación". Se agrega: Estado de Confirmación Diagnóstica (nuevo) — verde (confirmado por prueba de estimulación), ámbar (presuntivo, pendiente de confirmación), rojo (hallazgos compatibles con crisis aguda — ej. crisis addisoniana, DKA descompensada).
+
+3. Clinical Cards
+
+Se heredan las cards base. Se remueve Referral Recommendation Card. Se agregan (propias de ECIS):
+
+- Diagnostic Confirmation Card (nuevo) — muestra qué prueba de estimulación se usó (ACTH, LDDST, razón Na:K, TLI), el resultado, y si confirma, descarta, o deja indeterminado el diagnóstico.
+- Therapeutic Monitoring Card (nuevo) — muestra el fármaco activo (trilostano, DOCP, insulina), la fase de titulación actual, y la fecha del próximo retesteo programado.
+- Metabolic Status Card (nuevo, específico para DKA) — muestra fase de resolución (deshidratación/electrolitos/cetonas/glucemia), con indicador de progreso hacia resolución completa.
+
+4. Icons
+
+Se agregan: Prueba de Estimulación, Titulación de Dosis, Crisis Metabólica. Se remueve ícono de Derivación.
+
+5. Clinical Badges
+
+Se agrega: badge de Confirmación Diagnóstica ("Confirmado" / "Presuntivo — pendiente de prueba" / "Crisis activa"). Se remueve badge de Derivación.
+
+6. Resto de secciones (Typography, Grid System, Dashboard Components, Tables, Charts, AI Components, Confidence Meter, Dashboard States, Report Components, Accessibility, Motion System, Future Design) — heredadas sin cambios de ICIS-DESIGN-001, con la misma remoción del estado "Referred" y del Referral Package en Report Components.

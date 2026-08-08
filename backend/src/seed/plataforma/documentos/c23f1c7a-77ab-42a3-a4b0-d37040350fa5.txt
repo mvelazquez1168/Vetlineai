@@ -1,0 +1,551 @@
+Knowledge Base Standard (KBS)
+
+Versión: 1.0
+
+Estado: Draft
+
+Código: GCIS-KB-001
+
+1. Introducción
+
+Objetivo
+
+El Knowledge Base Standard (KBS) define las reglas para transformar casos clínicos en unidades de conocimiento estructuradas, reutilizables y comparables.
+
+La Base de Conocimiento constituye uno de los principales activos del GastroCare Vet Clinical Intelligence System (GCIS), permitiendo que la experiencia acumulada en casos anteriores contribuya al análisis de nuevos pacientes.
+
+Cada caso incorporado deberá mantener trazabilidad, calidad clínica y consistencia terminológica.
+
+2. Filosofía
+
+La Base de Conocimiento no es un repositorio de documentos.
+
+Es un repositorio de conocimiento clínico estructurado.
+
+El objetivo no es almacenar PDFs.
+
+El objetivo es almacenar experiencia clínica.
+
+Cada caso deberá responder preguntas como:
+
+- ¿Qué ocurrió? 
+
+- ¿Por qué ocurrió? 
+
+- ¿Cómo evolucionó? 
+
+- ¿Qué tratamiento funcionó? 
+
+- ¿Qué errores se evitaron? 
+
+- ¿Qué aprendimos? 
+
+3. Objetivos
+
+La Base de Conocimiento deberá permitir:
+
+- Buscar casos similares. 
+
+- Comparar evolución. 
+
+- Encontrar patrones. 
+
+- Identificar tratamientos efectivos. 
+
+- Apoyar el diagnóstico. 
+
+- Apoyar la docencia. 
+
+- Facilitar investigación clínica. 
+
+- Mejorar continuamente el razonamiento del sistema. 
+
+4. Arquitectura Conceptual
+
+Caso Clínico
+
+↓
+
+Clinical Components
+
+↓
+
+Report Composer Engine
+
+↓
+
+Knowledge Extraction Engine
+
+↓
+
+Knowledge Validation Engine
+
+↓
+
+Knowledge Base
+
+↓
+
+Case Matching Engine
+
+↓
+
+Nuevo Caso
+
+5. Ciclo de Vida del Conocimiento
+
+Todo caso seguirá el siguiente flujo:
+
+Consulta Inicial
+
+↓
+
+Seguimientos
+
+↓
+
+Caso Cerrado
+
+↓
+
+Reporte Clínico
+
+↓
+
+Extracción de Conocimiento
+
+↓
+
+Validación
+
+↓
+
+Ingreso a la Base
+
+↓
+
+Disponible para futuras consultas
+
+6. Unidad de Conocimiento (Knowledge Unit)
+
+Cada caso almacenado constituye una Knowledge Unit (KU).
+
+Cada KU tendrá un identificador único.
+
+Ejemplo:
+
+GCIS-KU-000001
+
+Estructura
+
+Cada Knowledge Unit contendrá:
+
+- Metadata 
+
+- Perfil del paciente 
+
+- Problema principal 
+
+- Historia resumida 
+
+- Hallazgos relevantes 
+
+- Diagnósticos diferenciales 
+
+- Diagnóstico final 
+
+- Evidencia 
+
+- Tratamiento 
+
+- Evolución 
+
+- Pronóstico 
+
+- Lecciones aprendidas 
+
+- Nivel de calidad 
+
+7. Metadata
+
+Cada caso almacenará:
+
+- Código 
+
+- Fecha 
+
+- Especialidad 
+
+- Especie 
+
+- Raza 
+
+- Edad 
+
+- Sexo 
+
+- País 
+
+- Idioma 
+
+- Versión 
+
+8. Resumen Clínico
+
+Claude generará automáticamente un resumen estructurado.
+
+Máximo dos páginas.
+
+Este resumen será el principal elemento utilizado por el motor de búsqueda.
+
+9. Hallazgos Relevantes
+
+Organizados por categorías.
+
+Historia
+
+Exploración física
+
+Laboratorio
+
+Imagen
+
+Histopatología
+
+Tratamiento
+
+Seguimiento
+
+10. Diagnóstico
+
+La Base almacenará:
+
+Diagnóstico principal
+
+Diagnósticos secundarios
+
+Diagnósticos descartados
+
+Nivel de confianza
+
+11. Evidencia Clínica
+
+Cada diagnóstico deberá tener asociada su evidencia.
+
+Ejemplo:
+
+Enteropatía Inflamatoria
+
+↓
+
+Biopsia compatible
+
+↓
+
+Respuesta al tratamiento
+
+↓
+
+Ecografía compatible
+
+↓
+
+Hipoalbuminemia
+
+12. Tratamientos
+
+Cada tratamiento registrará:
+
+Inicio
+
+Fin
+
+Objetivo
+
+Resultado
+
+Complicaciones
+
+13. Evolución
+
+Se almacenará una narrativa longitudinal.
+
+No únicamente fechas.
+
+Claude resumirá.
+
+Cómo evolucionó.
+
+Qué cambió.
+
+Qué aprendimos.
+
+14. Clinical Lessons Learned ⭐⭐⭐⭐⭐
+
+Este es uno de los componentes más importantes.
+
+Claude deberá responder.
+
+¿Qué enseñó este caso?
+
+Ejemplo.
+
+En pacientes con hipoalbuminemia persistente y engrosamiento yeyunal, la respuesta favorable a dieta hidrolizada antes del inicio de inmunosupresión redujo la necesidad de terapia agresiva.
+
+Esto constituye conocimiento.
+
+15. Pitfalls
+
+Toda Knowledge Unit deberá incluir.
+
+Errores potenciales.
+
+Ejemplo.
+
+No asumir que toda hipoalbuminemia corresponde a PLE.
+
+16. Red Flags
+
+Hallazgos críticos.
+
+Ejemplo.
+
+Pérdida rápida de peso.
+
+Melena.
+
+Hipoproteinemia severa.
+
+Ascitis.
+
+17. Outcome
+
+Cada caso finalizará con un resultado.
+
+Recuperación.
+
+Remisión.
+
+Control.
+
+Crónico.
+
+Recaída.
+
+Fallecimiento.
+
+Desconocido.
+
+18. Similarity Tags
+
+Cada caso será etiquetado automáticamente.
+
+Ejemplo.
+
+Perro
+
+Labrador
+
+PLE
+
+IBD
+
+Hipoalbuminemia
+
+Vómito
+
+Diarrea
+
+Biopsia
+
+Prednisolona
+
+Dieta Hidrolizada
+
+19. Clinical Ontology
+
+Toda la Base utilizará una terminología controlada.
+
+Ejemplos.
+
+No almacenar:
+
+"vomita"
+
+"sigue vomitando"
+
+"emesis"
+
+"vómitos"
+
+Todo será normalizado como:
+
+Vómito
+
+Esto mejora enormemente la búsqueda.
+
+20. Knowledge Quality Score
+
+Cada caso tendrá un puntaje de calidad.
+
+Variables.
+
+Número de consultas.
+
+Seguimiento.
+
+Biopsia.
+
+Imagen.
+
+Laboratorio.
+
+Diagnóstico confirmado.
+
+Tiempo de evolución.
+
+Ejemplo.
+
+Knowledge Score
+
+96%
+
+Alta calidad
+
+21. Knowledge Validation Engine
+
+Antes de incorporar un caso.
+
+Claude verificará.
+
+¿Existe diagnóstico?
+
+¿Existe evolución?
+
+¿Hay seguimiento?
+
+¿Existe evidencia?
+
+¿Las fechas son consistentes?
+
+¿Hay contradicciones?
+
+22. Knowledge Matching Engine
+
+Cuando se analice un nuevo paciente.
+
+Claude comparará automáticamente.
+
+Edad.
+
+Especie.
+
+Raza.
+
+Laboratorio.
+
+Imagen.
+
+Diagnóstico.
+
+Tratamiento.
+
+Evolución.
+
+No realizará búsqueda textual.
+
+Realizará búsqueda clínica.
+
+23. Teaching Mode
+
+Toda Knowledge Unit podrá convertirse automáticamente en un caso docente.
+
+El sistema ocultará.
+
+Diagnóstico.
+
+Tratamiento.
+
+Resultado.
+
+Y presentará el caso paso a paso para fines educativos.
+
+24. Research Mode
+
+En el futuro.
+
+La Base permitirá.
+
+Encontrar todos los casos con:
+
+Hipoalbuminemia.
+
+PLE.
+
+Yorkshire.
+
+IBD.
+
+Biopsia positiva.
+
+Respuesta a Budesonida.
+
+Etc.
+
+25. Governance
+
+Todos los casos deberán:
+
+Mantener anonimización cuando corresponda.
+
+Conservar versiones.
+
+Registrar fecha de actualización.
+
+Permitir auditoría.
+
+Architecture Decisions
+
+AD-018 — Knowledge Unit Architecture
+
+La unidad mínima de conocimiento será el caso clínico completo, no un documento ni una consulta aislada.
+
+AD-019 — Clinical Similarity Search
+
+La similitud entre casos se calculará mediante múltiples dimensiones clínicas y no por coincidencias textuales.
+
+AD-020 — Lessons Learned Engine
+
+Todo caso deberá generar automáticamente una sección de Lecciones Aprendidas, convirtiendo la experiencia clínica en conocimiento explícito.
+
+AD-021 — Knowledge Quality Score
+
+Solo los casos que superen un umbral mínimo de calidad podrán utilizarse para apoyar el razonamiento diagnóstico de nuevos pacientes.
+
+AD-022 — Continuous Learning Repository
+
+La Base de Conocimiento será un sistema vivo.
+
+Cada caso cerrado incrementará automáticamente el conocimiento disponible para el sistema, sin modificar ni sobrescribir los casos originales.
+
+AD-023 — Clinical Pattern Discovery Engine ⭐⭐⭐⭐⭐
+
+Esta es, en mi opinión, la decisión más innovadora de toda la arquitectura.
+
+Además de recuperar casos similares, el GCIS analizará periódicamente toda la Base de Conocimiento para descubrir patrones emergentes.
+
+Ejemplos:
+
+- Razas con mayor respuesta a determinadas dietas. 
+
+- Biomarcadores asociados a mejor pronóstico. 
+
+- Combinaciones de hallazgos que preceden a una recaída. 
+
+- Factores asociados a remisión sostenida. 
+
+- Hallazgos ecográficos con mayor valor predictivo. 
+
+- Estrategias terapéuticas con mejores resultados según perfil del paciente. 
+
+Estos patrones no sustituirán la evidencia científica, pero podrán generar hipótesis clínicas, orientar investigaciones futuras y ayudar al especialista a identificar relaciones que serían difíciles de detectar revisando casos de forma individual.

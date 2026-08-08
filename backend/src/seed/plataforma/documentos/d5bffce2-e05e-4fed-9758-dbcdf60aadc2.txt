@@ -1,0 +1,51 @@
+Knowledge Base Standard (KBS) — CCIS
+
+Versión: 1.0
+Estado: Draft
+Código: CCIS-KB-001
+
+1. Introducción y Filosofía
+
+Define las reglas para transformar casos clínicos cardiológicos en unidades de conocimiento estructuradas — derivado de ICIS-KB-001, sin la distinción de flujo derivado/no derivado (mismo criterio que OCIS-KB-001).
+
+Cada caso deberá responder: ¿qué enfermedad cardíaca fue, y en qué estadio? ¿Por qué se asignó ese estadio? ¿Cómo evolucionó bajo tratamiento? ¿Qué esquema funcionó mejor? ¿El estadio inicial predijo correctamente el curso clínico?
+
+2. Unidad de Conocimiento (Knowledge Unit)
+
+Identificador: CCIS-KU-000001. Contiene: Metadata, perfil del paciente, enfermedad cardíaca identificada, estadio asignado con criterios, historia resumida, hallazgos relevantes (incluyendo ecocardiografía/ECG), tratamiento aplicado, evidencia, evolución, pronóstico estimado vs. observado, lecciones aprendidas, nivel de calidad.
+
+3. Metadata
+
+Código, fecha, enfermedad cardíaca (tipo), estadio ACVIM, especie, raza, edad, sexo, esquema terapéutico utilizado.
+
+4. Diagnóstico y Estadificación
+
+La Base almacenará diagnóstico principal, estadio asignado con nomenclatura exacta, y nivel de confianza de la estadificación (completa vs. provisional).
+
+5. Tratamientos
+
+Cada esquema registrará: clases farmacológicas, objetivo, fecha de inicio de cada componente, respuesta observada, complicaciones (ej. azotemia, hipokalemia).
+
+6. Outcome
+
+Categorías propias: Compensado/estable, Episodio de descompensación resuelto, Descompensación refractaria, Progresión de estadio, Fallecimiento por causa cardíaca, Fallecimiento por causa no relacionada, En tratamiento activo, Perdido de seguimiento.
+
+Se remueven las categorías de "Derivado" — no aplican.
+
+7. Similarity Tags
+
+Ejemplo: Perro, Cavalier King Charles Spaniel, MMVD, Estadio-B2, Pimobendan, IECA. Se remueven las etiquetas de derivación.
+
+8. Knowledge Quality Score
+
+Un caso con estadio confirmado (no provisional) y seguimiento prolongado tiene mayor puntaje que uno con estadio provisional y seguimiento corto.
+
+9. Teaching Mode
+
+La pregunta docente central en CCIS: "¿qué estadio ACVIM le asignarías con esta evidencia ecocardiográfica, y qué esquema terapéutico recomendarías?"
+
+10. Architecture Decisions
+
+AD-CCIS-KB-01 a AD-CCIS-KB-05 — heredados sin cambios estructurales de OCIS-KB-01 a 05 (Knowledge Unit Architecture, Clinical Similarity Search, Lessons Learned Engine, Knowledge Quality Score, Continuous Learning Repository), adaptando las referencias de "grado/estadio tumoral" a "estadio ACVIM/grupo de hipertensión pulmonar".
+
+AD-CCIS-KB-06 — Staging Outcome Correlation. Análoga a AD-OCIS-KB-06: correlación periódica entre el estadio asignado al inicio y el desenlace real observado, para calibrar las estimaciones pronósticas documentadas en la Base de Conocimiento clínica.

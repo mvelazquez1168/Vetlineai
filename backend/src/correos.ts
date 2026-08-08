@@ -42,7 +42,8 @@ export type TipoCorreo =
   | "agenda_dia_siguiente"
   | "confirmacion_cita"
   | "cita_cancelada_o_reprogramada"
-  | "informe_disponible";
+  | "informe_disponible"
+  | "cumpleanos";
 
 export interface DatosPlantilla {
   invitacion_medico: { nombreClinica: string; enlace: string; vigenciaDias: number; nombreMedico?: string | null };
@@ -87,6 +88,7 @@ export interface DatosPlantilla {
     horaNueva?: string;
   };
   informe_disponible: { nombrePaciente: string };
+  cumpleanos: { nombrePaciente: string };
 }
 
 // Layout compartido — español neutro, una sola acción principal por
@@ -411,6 +413,19 @@ function construirCorreo<T extends TipoCorreo>(
         asunto: `Informe clínico disponible — ${d.nombrePaciente}`,
         texto: `El veterinario generó un nuevo informe clínico de ${d.nombrePaciente}. Consultalo en tu próxima visita a la clínica.`,
         html: envolverLayoutInformativo("Informe clínico disponible", cuerpo),
+      };
+    }
+    // prompt_code_paciente_nacimiento_estado.md, Parte B3 — el único aviso
+    // puramente comercial de los diez. Tono cálido y breve a propósito, SIN
+    // ningún llamado a agendar ni mención de servicios: un saludo que
+    // intenta vender pierde el efecto que lo justifica.
+    case "cumpleanos": {
+      const d = datos as DatosPlantilla["cumpleanos"];
+      const cuerpo = `<p>¡Feliz cumpleaños, ${d.nombrePaciente}! 🎉 Todo el equipo te manda un saludo muy cariñoso.</p>`;
+      return {
+        asunto: `¡Feliz cumpleaños, ${d.nombrePaciente}!`,
+        texto: `¡Feliz cumpleaños, ${d.nombrePaciente}! Todo el equipo te manda un saludo muy cariñoso.`,
+        html: envolverLayoutInformativo(`¡Feliz cumpleaños, ${d.nombrePaciente}!`, cuerpo),
       };
     }
     case "cuenta_suspendida_manual": {

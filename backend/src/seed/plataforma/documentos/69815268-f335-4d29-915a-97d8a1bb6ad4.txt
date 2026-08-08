@@ -1,0 +1,68 @@
+# Anemia Hemolítica Inmunomediada Canina (IMHA) — Diagnóstico y Cribado de Desencadenantes
+
+**Fuente:** Garden OA, Kidd L, Mexas AM, et al. ACVIM consensus statement on the diagnosis of immune-mediated hemolytic anemia in dogs and cats. *J Vet Intern Med.* 2019;33(2):313-334. Licencia CC BY-NC.
+
+**Alcance de este resumen:** tercer documento del sistema hematológico/inmune para el agente de medicina interna/triage (ICIS) — complementa directamente los dos documentos ya cargados de ITP (trombocitopenia inmunomediada), formando junto con ellos el núcleo de citopenias inmunomediadas de la Base de Conocimiento. También se conecta con el sistema infeccioso (Leptospirosis, Ehrlichiosis/Anaplasmosis) a través del cribado de desencadenantes vectoriales.
+
+---
+
+## 1. Marco general — no existe un "estándar de oro" diagnóstico
+
+- Al igual que en medicina humana, **no existe una prueba única definitiva (gold standard)** para diagnosticar IMHA en veterinaria — el diagnóstico se construye combinando varias líneas de evidencia, nunca de una sola prueba aislada.
+- Distinción clave: IMHA **secundaria** (atribuible a una enfermedad subyacente identificada) vs. **primaria/idiopática** (sin causa identificada) — eliminar activamente las causas subyacentes puede detener o atenuar la destrucción inmunomediada, y evita los riesgos de inmunosupresión prolongada innecesaria.
+
+## 2. Algoritmo diagnóstico — dos pilares que deben combinarse
+
+### Pilar 1 — Evidencia de destrucción inmunomediada (se requieren ≥2, o 1 aglutinación en salino persistente tras lavado)
+- **Esferocitosis marcada**: criterio válido solo en perros (no en gatos, cuyos eritrocitos no muestran palidez central consistente). Debe evaluarse en la monocapa de un frotis bien hecho, evitando artefactos en bordes/zonas gruesas. Umbral de referencia: ≥5 esferocitos por campo de inmersión en aceite (100x) apoya el diagnóstico; 3-4 también son compatibles si se descartan otras causas de esferocitosis (daño oxidativo, envenenamiento, hiperesplenismo, fragmentación eritrocitaria, deficiencia de piruvato cinasa, entre otras).
+- **Prueba de aglutinación en salino positiva**: la aglutinación que persiste tras mezclar 1 gota de sangre con 4 de solución salina se considera evidencia adecuada en la mayoría de los casos. Ante resultados equívocos, confirmar que persiste tras lavar los eritrocitos 3 veces.
+- **Demostración de anticuerpos antieritrocitarios**: prueba de antiglobulina directa (DAT/Coombs directo) o citometría de flujo. Sensibilidad de DAT: 61-82% en perros; especificidad: 94-100%. Si la aglutinación persiste tras el lavado y el DAT no puede realizarse, la combinación de anemia + hemólisis + aglutinación persistente es suficiente para el diagnóstico.
+- **Recomendación práctica importante**: recolectar muestras para DAT/citometría **antes de iniciar inmunosupresión y antes de transfusión sanguínea**, cuando sea posible — ambas intervenciones pueden alterar los resultados.
+
+### Pilar 2 — Evidencia de hemólisis (se requiere al menos 1)
+- Esferocitosis (también cuenta aquí).
+- Hiperbilirrubinemia (ictericia, bilirrubina sérica/plasmática elevada, bilirrubinuria).
+- Hemoglobinemia/hemoglobinuria — debe descartarse hemólisis in vitro artefactual (punción traumática, congelación, catéter IV) antes de interpretarla como evidencia real.
+- Fantasmas eritrocitarios ("ghost cells") en frotis hecho inmediatamente tras la extracción — evidencia de hemólisis intravascular.
+
+**Regla operativa**: la falta de regeneración (por conteo de reticulocitos) **no descarta IMHA** — aproximadamente 30% de los perros tienen anemia no regenerativa al momento de la presentación.
+
+## 3. Desencadenantes infecciosos — jerarquía de evidencia (relevante para Costa Rica/Centroamérica)
+
+| Agente | Nivel de evidencia como causa de IMHA |
+|---|---|
+| ***Babesia gibsoni*** | **Alto** — mecanismo bien estudiado: daño oxidativo y remoción de ácido siálico exponen epítopos eritrocitarios normalmente ocultos |
+| Otras especies de *Babesia* (*B. canis*, *B. vogeli*, *B. rossi*) | Variable, generalmente intermedio a bajo — diferencias de patogenicidad entre especies |
+| *Anaplasma phagocytophilum* | Bajo (evidencia limitada a reportes de casos/series retrospectivas, no diseñados para probar causalidad) |
+| *Anaplasma platys* | Bajo (evidencia limitada a una sola serie retrospectiva) |
+| *Dirofilaria immitis*, *Ehrlichia* spp., *Borrelia* spp., *Mycoplasma* hemotrópico, *Bartonella* spp., *Leishmania infantum* | Insignificante a bajo — pero clínicamente relevante igual: estos agentes se asocian frecuentemente con **DAT positivo** aunque la evidencia de causalidad directa sea débil |
+
+**Implicación clínica explícita del consenso**: incluso con evidencia de causalidad baja, **es prudente eliminar estos agentes infecciosos antes de iniciar inmunosupresión** — la ausencia de evidencia fuerte de causalidad no exime de investigarlos.
+
+## 4. Otros desencadenantes evaluados
+
+- **Cáncer**: evidencia de asociación causal actualmente insignificante a baja en perros — a diferencia de medicina humana, donde la leucemia linfocítica crónica es causa bien establecida de IMHA. No obstante, el cáncer no puede descartarse como desencadenante potencial en casos individuales.
+- **Pancreatitis**: evidencia insignificante en perros; baja en gatos.
+- **Fármacos/toxinas**: evidencia generalmente baja, con la excepción notable de cefazedona (antimicrobiano) en un ensayo clínico controlado en perros.
+- **Vacunas**: la evidencia es **inconclusa** — de solo dos estudios diseñados específicamente para evaluar esta asociación, uno la apoya y el otro la refuta. **Conclusión del consenso**: dada la amplia práctica de vacunación y la falta de evidencia concluyente de asociación, las estrategias de vacunación actuales son generalmente seguras — la decisión debe individualizarse según riesgo/beneficio de cada paciente, sin suspender vacunación de rutina basándose únicamente en el temor a IMHA.
+
+## 5. Base de datos mínima recomendada y cribado infeccioso específico
+
+- **Base de datos óptima mínima**: historia completa (vacunación, viajes, exposición a pulgas/garrapatas, prevención antiparasitaria, prueba y prevención de gusano del corazón), examen físico completo incluyendo fondo de ojo, hemograma con revisión de frotis por patólogo clínico certificado, bioquímica sérica, urianálisis de rutina. Considerar cultivo urinario y flotación fecal con centrifugación.
+- **Radiografía abdominal** recomendada específicamente para **descartar hemólisis por toxicidad por zinc**.
+- **Cribado infeccioso específico en perros**: *Babesia* spp. mediante serología + PCR combinadas (repetir PCR si la sospecha de exposición es alta pese a resultado inicial negativo); descartar *D. immitis* en zonas endémicas o con historia de viaje a ellas; considerar fuertemente el cribado de *Anaplasma* spp., *Bartonella* spp., *Ehrlichia* spp., y en zonas endémicas, *Leishmania* spp.
+- **No se recomienda de rutina** el estudio sistemático de pancreatitis, salvo que la presentación clínica lo sugiera activamente.
+
+## 6. Nomenclatura propuesta — el "modelo del iceberg"
+
+- El consenso propone abandonar la dicotomía tradicional "primaria" (idiopática) vs. "secundaria" (con causa identificada), por ser conceptualmente imprecisa: "primaria" implica erróneamente que todos los desencadenantes posibles fueron descartados, mientras "secundaria" implica causalidad probada que rara vez se confirma con certeza absoluta.
+- **Nueva terminología propuesta**: **"asociativa"** (cuando se identifica una comorbilidad, sea o no la causa real) vs. **"no asociativa"** (sin comorbilidad identificada en la evaluación diagnóstica, incluyendo casos idiopáticos y crípticos).
+- El "modelo del iceberg" postula que la mayoría de los mecanismos patogénicos subyacentes a la IMHA permanecen actualmente no reconocidos u ocultos — reconocer esta incertidumbre es clínicamente honesto y evita sobreinterpretar un caso "sin causa encontrada" como definitivamente idiopático.
+
+## 7. Conclusión operativa para ICIS
+
+- El diagnóstico de IMHA requiere **combinar evidencia de destrucción inmunomediada + evidencia de hemólisis** — nunca basarse en un solo hallazgo aislado (ej. solo esferocitosis, o solo DAT positivo).
+- Ante cualquier perro con sospecha de IMHA, el cribado de *Babesia* spp. (particularmente *B. gibsoni*) debe considerarse de alta prioridad dado el nivel de evidencia alto como causa directa — muy superior al de *Anaplasma*/*Ehrlichia*, que sin embargo también deben descartarse por prudencia clínica antes de inmunosuprimir.
+- Este documento refuerza la misma lógica ya establecida en el resumen de Ehrlichiosis/Anaplasmosis: **la citopenia inmunomediada (sea plaquetaria o eritrocitaria) nunca debe tratarse como automáticamente "primaria" sin antes investigar activamente el panel de agentes vectoriales relevantes para la región**.
+- La decisión de vacunar a un paciente con historia de IMHA (o a cualquier paciente, por el temor a inducirla) debe basarse en evaluación de riesgo/beneficio individual — la evidencia actual no respalda evitar la vacunación de rutina por esta preocupación.
+- Con este documento, el sistema hematológico/inmune de ICIS cubre las dos citopenias inmunomediadas más relevantes en la práctica clínica canina: trombocitopenia (ITP) y anemia hemolítica (IMHA), con un enfoque diagnóstico paralelo y complementario entre ambas.

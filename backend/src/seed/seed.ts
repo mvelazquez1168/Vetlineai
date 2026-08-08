@@ -118,8 +118,8 @@ async function main() {
     // Personas: admin de clínica y médico
     // -----------------------------------------------------------------
     const adminResult = await client.query(
-      `INSERT INTO personas (tenant_id, nombre, email, password_hash, es_admin_clinica)
-       VALUES ($1, $2, $3, $4, true)
+      `INSERT INTO personas (tenant_id, nombre, email, password_hash, es_admin_clinica, es_medico)
+       VALUES ($1, $2, $3, $4, true, false)
        RETURNING id`,
       [tenantId, "María López", "admin@sanmartin.com", passwordHash]
     );

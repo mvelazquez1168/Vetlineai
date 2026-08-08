@@ -1,0 +1,66 @@
+# Tumores de Mastocitos Caninos — Diagnóstico, Gradación, Estadificación y Tratamiento
+
+**Fuentes principales:**
+- Willmann M, Yuzbasiyan-Gurkan V, Marconato L, et al. Proposed Diagnostic Criteria and Classification of Canine Mast Cell Neoplasms: A Consensus Proposal. *Front Vet Sci.* 2021;8:755258. Acceso abierto (consenso de la Working Conference de Viena, 2019).
+- Berlato D, Bulman-Fleming J, Clifford CA, et al. Value, Limitations, and Recommendations for Grading of Canine Cutaneous Mast Cell Tumors: A Consensus of the Oncology-Pathology Working Group. *Vet Pathol.* 2021 (iniciativa conjunta de la Veterinary Cancer Society y el American College of Veterinary Pathologists).
+- Literatura complementaria sobre mutaciones KIT e inhibidores de tirosina cinasa (varios estudios, referenciados donde corresponde).
+
+**Alcance de este resumen:** primer documento del sistema oncológico para el agente de medicina interna/triage (ICIS). Se eligió el tumor de mastocitos (MCT) por ser, según múltiples fuentes convergentes, **el tumor cutáneo maligno más frecuente en perros** — con fuerte conexión al sistema dermatológico ya cubierto en la Base de Conocimiento (cualquier masa cutánea nueva en un perro debe incluir MCT en el diferencial).
+
+---
+
+## 1. Por qué importa — magnitud y comportamiento biológico variable
+
+- Representa aproximadamente el **20% de todos los tumores cutáneos caninos** — el segundo cáncer diagnosticado con más frecuencia en perros, después de los tumores mamarios.
+- El comportamiento biológico es **extremadamente variable** entre pacientes — desde tumores benignos curables con cirugía simple hasta enfermedad sistémica agresiva con metástasis a ganglios, hígado, bazo y otros órganos.
+- Edad de diagnóstico: rango de 7 meses a 18 años, promedio ~8.2 años.
+- Razas predispuestas: Bóxer, Labrador Retriever, American Staffordshire Terrier, Golden Retriever, Bulldog Francés, Dachshund, Shar-Pei. El Bóxer en particular tiene ~97% de predisposición hacia MCT de **bajo grado** — dato relevante para calibrar la ansiedad inicial ante una masa sospechosa en esta raza.
+- Puede presentarse en piel (más frecuente), sitios mucosos (cavidad oral, tracto GI), órganos hematopoyéticos (ganglios, bazo, hígado, médula ósea), o como leucemia mastocitaria.
+
+## 2. Gradación histológica — el factor pronóstico individual más importante
+
+- Existen dos sistemas de gradación en uso: el sistema de **3 niveles de Patnaik** (grado I-II-III, histórico) y el sistema de **2 niveles de Kiupel** (bajo grado / alto grado, más reciente y con mejor correlación pronóstica).
+- **El grado histológico, independientemente del sistema usado, debe considerarse siempre junto con otros factores pronósticos** — no es un dato aislado suficiente para decidir el manejo completo del caso.
+- Localización anatómica también modifica el pronóstico — MCT prepucial y escrotal, por ejemplo, **no muestran evidencia de mayor malignidad biológica inherente** pese a la percepción clínica tradicional de que estas zonas son de peor pronóstico.
+- El recuento mitótico es un componente relevante del sistema de Kiupel y debe reportarse explícitamente.
+
+## 3. Estadificación — cuándo SÍ y cuándo NO es necesaria
+
+- El trabajo de estadificación clásico incluye: base de datos de laboratorio, aspiración con aguja fina (FNA) del ganglio linfático de drenaje esperado del tumor, imagenología, y FNA de hígado y bazo.
+- **Hallazgo clave del consenso**: en perros con MCT cutáneo o subcutáneo de **bajo grado** diagnosticado histopatológicamente, **un protocolo completo de estadificación (ecografía abdominal + radiografía torácica) NO está indicado** tras la resección quirúrgica, dado el comportamiento biológico benigno de la enfermedad — **salvo que haya organomegalia u otros signos de enfermedad metastásica**.
+- Esto está respaldado por datos de campo: en un estudio de 136 perros con MCT cutáneo de bajo grado (Patnaik I-II, Kiupel bajo grado), **solo 1 de 136 tuvo metástasis visceral al diagnóstico** — sugiriendo que la citología de hígado/bazo de rutina en estos casos tiene un rendimiento diagnóstico extremadamente bajo y puede omitirse razonablemente.
+- El mapeo del ganglio centinela está emergiendo como herramienta más precisa que asumir el "ganglio de drenaje esperado" por ubicación anatómica, dado que los patrones de drenaje linfático de los MCT no siempre son intuitivos.
+
+## 4. Mutaciones KIT — relevancia pronóstica y terapéutica, con matices importantes
+
+- El receptor **KIT** es una tirosina cinasa con rol central en la proliferación, diferenciación y supervivencia de los mastocitos.
+- Mutaciones activadoras de KIT (más frecuentemente duplicaciones internas en tándem del exón 11, también descritas en exón 9) generan activación constitutiva independiente de ligando — un evento oncogénico central en muchos MCT caninos.
+- **Presencia de mutación KIT se asocia generalmente con peor pronóstico** (comportamiento más agresivo, menor tiempo de supervivencia) que en tumores KIT silvestre (sin mutación).
+- **Paradoja clínica importante**: pese a asociarse con peor pronóstico basal, los MCT con mutación KIT suelen **responder mejor a inhibidores de tirosina cinasa (TKIs)** — la respuesta de masitinib es significativamente mejor con mutación en exón 11 que en tipo silvestre. Sin embargo, **la ausencia de mutación no descarta respuesta a TKIs** — no debe usarse como criterio único para negar este tratamiento.
+- Existe evidencia contradictoria reciente que cuestiona la correlación directa entre mutación KIT y respuesta a TKIs en algunas cohortes — el consenso recomienda **reportar explícitamente qué mutaciones específicas se identificaron** en cada caso para permitir evaluación futura de su significancia pronóstica, en lugar de reportar solo "positivo/negativo".
+- Puede desarrollarse **resistencia adquirida** por mutaciones secundarias en el dominio de tirosina cinasa (ej. p.Ala510Val junto a la mutación activadora primaria) — explica fallos de tratamiento en casos que inicialmente respondían.
+- La secuenciación de KIT **aún no se ha adoptado como práctica rutinaria** en oncología veterinaria general, pese a su relevancia — vale considerarla especialmente en casos de alto riesgo o enfermedad no resecable donde se contempla TKI.
+
+## 5. Tratamiento
+
+### Cirugía — primera línea para enfermedad localizada
+- **Tratamiento de elección** para MCT solitarios sin evidencia de metástasis — ofrece la tasa de curación más alta para la mayoría de los MCT de grado bajo-intermedio.
+- **Márgenes quirúrgicos amplios son necesarios** — los MCT son localmente muy invasivos incluso cuando parecen bien delimitados a la palpación.
+- Para MCT de alto grado o biológicamente agresivos, el beneficio quirúrgico es limitado — la metástasis puede ocurrir hasta en 90% de estos casos, incluso con cirugía.
+
+### Terapia sistémica dirigida — inhibidores de tirosina cinasa (TKIs)
+- Indicada cuando la resección quirúrgica con márgenes adecuados no es factible, o ante enfermedad de alto riesgo/metastásica.
+- **Toceranib** (Palladia) fue el primer TKI aprobado por la FDA para uso en perros — bloquea KIT, VEGFR2 (angiogénesis tumoral) y PDGFR (proliferación celular).
+- **Masitinib** es otra opción TKI de uso frecuente, con respuesta mejorada en presencia de mutación KIT en exón 11.
+- **Imatinib** es una alternativa con eficacia comparable a la quimioterapia convencional (vinblastina + prednisona) en algunos estudios, aunque menos utilizada en la práctica rutinaria.
+- En un estudio de perros con MCT de alto riesgo (estadio II-III) tratados con TKIs, la sobrevida global de los respondedores fue significativamente mayor que la de los no respondedores (146.5 vs. 47 días) — subraya la importancia de definir tempranamente si el paciente está respondiendo al tratamiento sistémico.
+
+### Quimioterapia convencional
+- Vinblastina + prednisona sigue siendo una alternativa establecida a los TKIs, particularmente cuando el acceso a terapias dirigidas es limitado.
+
+## 6. Conclusión operativa para ICIS
+
+- Ante cualquier masa cutánea nueva en un perro, MCT debe estar en el diferencial activo — es el segundo cáncer más frecuentemente diagnosticado en la especie, y la variabilidad de su comportamiento biológico hace que **la citología por punción con aguja fina antes de cualquier decisión de manejo sea un paso obligatorio**, no opcional.
+- Un MCT cutáneo o subcutáneo confirmado histopatológicamente como de **bajo grado**, sin organomegalia ni otros signos de enfermedad diseminada, **no requiere automáticamente el protocolo completo de estadificación con ecografía/radiografía** — esto puede evitar gasto e intervención innecesaria en el propietario cuando el rendimiento diagnóstico esperado es muy bajo.
+- La raza del paciente aporta contexto pronóstico útil desde el primer contacto: un Bóxer con una masa cutánea sospechosa tiene una probabilidad basal alta de que se trate de un MCT de bajo grado, lo cual puede calibrar (sin reemplazar) la conversación inicial con el propietario mientras se espera la confirmación histopatológica.
+- Para enfermedad no resecable o metastásica, la secuenciación de mutación KIT — aunque no rutinaria aún — aporta información pronóstica y puede orientar la elección de TKI, aunque su ausencia no debe usarse para negar el tratamiento con estos fármacos.

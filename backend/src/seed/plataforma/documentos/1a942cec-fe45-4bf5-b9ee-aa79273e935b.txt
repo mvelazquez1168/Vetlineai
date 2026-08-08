@@ -1,0 +1,115 @@
+OTITIS EXTERNA CANINA — CLASIFICACIÓN PSPP, CITOLOGÍA Y MANEJO
+
+Resumen clínico de referencia para DCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico), y los componentes de citología e interpretación dermatológica de DCIS.
+
+Documento complementario de los de dermatitis atópica: la otitis recurrente es con frecuencia la manifestación de una enfermedad alérgica subyacente, no una enfermedad del oído.
+
+---
+
+1. LA IDEA QUE CAMBIA EL ABORDAJE
+
+La otitis externa es la inflamación del conducto auditivo externo, que puede incluir el pabellón. Se habla de otitis media cuando el oído medio también está comprometido, habitualmente por extensión de la infección a través de la membrana timpánica.
+
+Pero la definición anatómica es lo de menos. Lo importante es que **la otitis no es una enfermedad única**: es un complejo de componentes etiológicos interrelacionados, y con frecuencia el reflejo de una enfermedad dermatológica subyacente. Tratarla como una infección del oído explica por qué es uno de los cuadros más comunes, más difíciles y más frustrantes de la práctica veterinaria.
+
+El manejo exitoso requiere dos cosas simultáneas: identificar y controlar los factores patogénicos que contribuyen —lo que se vuelve especialmente importante en la otitis recurrente y crónica— y tratar la inflamación, el prurito, el malestar y los agentes infecciosos presentes en el momento del examen.
+
+2. CLASIFICACIÓN PSPP
+
+El consenso actual utiliza el sistema PSPP: factores Primarios, Secundarios, Predisponentes y Perpetuantes. Entender el sistema implica reconocer que algunos problemas surgen de los cambios producidos en el oído, y esos cambios perpetúan la enfermedad incluso después de tratar el factor primario.
+
+Factores predisponentes. Aumentan el riesgo de otitis alterando el ambiente del conducto: conformación auricular, exposición al agua, pH del conducto, distribución de los folículos pilosos, y trauma del conducto. No causan otitis por sí solos.
+
+Factores primarios. Inducen directamente inflamación, reacciones de hipersensibilidad, trauma u otro daño al conducto, de forma individual o combinada, y suelen derivar en infección secundaria y cambios crónicos si no se tratan. Incluyen: cuerpos extraños, ácaros del oído y otros parásitos, trauma, dermatitis atópica, reacción adversa cutánea al alimento, endocrinopatías, trastornos de la queratinización —siendo la seborrea idiopática primaria y el hipotiroidismo los más frecuentes— y enfermedades autoinmunes. En el gato, los ácaros del oído tienen peso particular.
+
+Factores secundarios. Contribuyen a la otitis solo en un oído ya anormal o en conjunción con factores predisponentes. Aquí entran las bacterias y las levaduras: son consecuencia, no origen.
+
+Factores perpetuantes. Resultan de la inflamación y la patología del oído, y impiden la resolución del cuadro aun cuando el factor primario haya sido tratado.
+
+El objetivo terapéutico derivado: prevenir que los factores perpetuantes se desarrollen.
+
+3. POR QUÉ SE PASAN POR ALTO LOS FACTORES PRIMARIOS
+
+Los factores primarios a veces no se diagnostican por tres razones concretas: los cambios son sutiles, no se implementa un plan diagnóstico adecuado, o el propietario decide no seguir el plan recomendado.
+
+Regla operativa para DCIS: ante otitis recurrente, la pregunta relevante no es qué antimicrobiano usar sino **cuál es el factor primario que no se identificó**. Un caso de otitis recurrente sin factor primario documentado es un caso incompleto, no un caso resistente.
+
+Herramienta práctica de comunicación: escribir explícitamente los cuatro grupos PSPP para el paciente concreto ayuda a que el propietario entienda por qué el tratamiento tópico solo no resuelve.
+
+4. DIAGNÓSTICO
+
+Se requiere un procedimiento diagnóstico sistemático para identificar causas y factores contribuyentes.
+
+En todos los casos: historia clínica, examen clínico, otoscopia y citología.
+
+En casos severos y recurrentes, se agrega: cultivo y antibiograma, evaluación de otitis media, y biopsia del conducto auditivo.
+
+Pruebas complementarias según la causa subyacente sospechada: cambios dietéticos ante sospecha de reacción adversa al alimento, estudios endocrinos, etc.
+
+La citología es la pieza central
+
+Es determinante para la selección adecuada del tratamiento. La muestra se examina primero a bajo aumento y luego con inmersión en aceite.
+
+Un sistema de graduación es necesario para cuantificar el número de organismos y hacer seguimiento en los controles. Puede usarse un sistema semicuantitativo de 0 a 4+, o contar organismos por campo y expresar un rango. **No importa qué sistema se use mientras se use de forma consistente**, porque el valor está en la comparación entre visitas, no en el valor absoluto.
+
+Regla para DCIS: una citología sin sistema de graduación declarado no permite evaluar respuesta al tratamiento. Si el informe no lo trae, el componente debe señalarlo.
+
+El cultivo es controvertido
+
+El consenso general entre dermatólogos es que el cultivo del conducto auditivo externo típicamente no es necesario ni muy útil. La razón es concreta: el antibiograma evalúa la concentración sanguínea de antibióticos, no la concentración tópica, que es significativamente mayor.
+
+Hay situaciones puntuales donde el cultivo sí importa, y el tratamiento de la otitis media es la principal.
+
+5. TRATAMIENTO
+
+La terapia tópica es la piedra angular del manejo. Los antimicrobianos sistémicos son inefectivos salvo que el epitelio del conducto esté severamente ulcerado.
+
+El tópico debe abordar tres cosas a la vez: infección, inflamación y detritos. Su elección se basa en la citología y en los hallazgos clínicos.
+
+La secuencia completa del manejo: identificar y abordar los factores predisponentes y primarios; limpiar el conducto; terapia tópica; terapia sistémica cuando sea necesaria; educación del propietario; seguimiento; y terapia preventiva y de mantenimiento según se requiera.
+
+Además de las infecciones, debe manejarse el dolor y la inflamación.
+
+La causa desencadenante debe abordarse para prevenir la recurrencia. La educación y el cumplimiento del propietario son factores importantes del éxito.
+
+6. ERRORES FRECUENTES
+
+Tratar la otitis como enfermedad del oído en vez de como manifestación de enfermedad dermatológica.
+
+Prescribir sin citología, o con citología sin sistema de graduación consistente.
+
+Solicitar cultivo del conducto externo de rutina.
+
+Usar antimicrobianos sistémicos como tratamiento principal.
+
+Repetir ciclos de tópico en otitis recurrente sin documentar el factor primario.
+
+Confundir factores secundarios (bacterias, levaduras) con la causa del cuadro.
+
+No reevaluar con citología en los controles y declarar resolución por aspecto clínico.
+
+Omitir la evaluación de otitis media en casos crónicos o recurrentes.
+
+7. VÍNCULO CON LOS DOCUMENTOS DE DERMATITIS ATÓPICA
+
+La dermatitis atópica y la reacción adversa cutánea al alimento figuran entre los factores primarios más frecuentes. Un paciente con otitis recurrente y sin otra causa identificada es candidato a estudio alérgico, y los documentos de diagnóstico y tratamiento de dermatitis atópica de la Base de Conocimiento de DCIS son la continuación natural del caso.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Fármacos tópicos específicos: composición, elección comparada y dosis. Productos de limpieza ótica y sus indicaciones. Otitis media: diagnóstico por imagen y manejo detallado. Miringotomía. Otitis externa felina y el pólipo auricular. Ablación del conducto auditivo y otras opciones quirúrgicas. Biofilm y otitis por Pseudomonas. Dermatitis por Malassezia como entidad cutánea. Estos temas quedan como vacíos declarados de la Base de Conocimiento de DCIS.
+
+FUENTES
+
+Diagnosis and medical treatment of otitis externa in the dog and cat. PubMed 12665128. Fuente de la clasificación PSPP y del abordaje diagnóstico.
+
+Kwochka KW. Diagnosis and Medical Management of Canine Otitis.
+
+I'm all Ears: Diagnosis and Management of Canine Otitis Externa. Fuente de las secciones sobre citología, cultivo y terapia tópica.
+
+MSD Veterinary Manual — Otitis Externa in Animals.
+
+World Association of Veterinary Dermatology — Canine Otitis Externa, Parte 1 (anatomía, fisiología, fisiopatología y diagnóstico) y Parte 2 (manejo).
+
+Therapeutic and Formulation Innovations in the Management of Canine Otitis Externa. PMC12567363.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

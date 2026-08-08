@@ -1,0 +1,117 @@
+MENINGITIS-ARTERITIS RESPONDEDORA A ESTEROIDES (SRMA) — DIAGNÓSTICO, MARCADORES Y RECAÍDA
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-201/202 (laboratorio), CC-220 (Imaging Intelligence), y los componentes de análisis de líquido cefalorraquídeo de NCIS.
+
+El documento de meningoencefalitis de origen desconocido de NCIS declara a la SRMA como entidad distinta y no la cubre. Este documento la cubre.
+
+---
+
+1. QUÉ ES Y A QUIÉN AFECTA
+
+Es una enfermedad sistémica inmunomediada caracterizada por inflamación de las meninges y de las arterias asociadas, afectando primariamente las leptomeninges.
+
+Paciente típico: perros de **6 a 18 meses de edad**, de razas medianas a grandes, aunque el rango reportado va de 3 meses a 9 años y cualquier raza puede afectarse, incluidos mestizos.
+
+Razas con probabilidad aumentada: Beagle, Border Collie, Bóxer, Springer Spaniel Inglés, Jack Russell Terrier, Weimaraner y Whippet. Predispuestos además: Boyero de Berna, Braco Alemán de pelo corto, Nova Scotia Duck Tolling Retriever, Petit Basset Griffon Vendéen y Grifón de pelo duro. En Golden Retriever la predisposición es controvertida, aunque un estudio norteamericano propone incluirlo.
+
+Afecta por igual a machos y hembras, con posible predisposición masculina.
+
+Nomenclatura. Ha recibido múltiples nombres: síndrome de dolor del Beagle, síndrome de dolor canino, síndrome de poliarteritis juvenil canina, vasculitis necrotizante, meningitis supurativa aséptica. **SRMA es el término más universalmente aceptado** porque describe tanto la patología predominante como el tratamiento. NCIS debe reconocer los sinónimos como equivalentes.
+
+2. LAS DOS FORMAS
+
+**Forma aguda fulminante**, la más común: caracterizada por pleocitosis neutrofílica.
+
+**Forma crónica protraída**: representada por pleocitosis mononuclear leve o mixta, asociada a déficits neurológicos que reflejan extensión de la inflamación a estructuras contiguas —mielitis o encefalitis—. Se observa tras recaídas de la forma aguda o después de tratamiento inadecuado.
+
+Ambas presentan un curso de exacerbación y remisión.
+
+El problema diagnóstico que esto crea: **la forma crónica puede ser difícil de distinguir de la meningoencefalitis de origen desconocido.** Esa es exactamente la frontera que ambos documentos de NCIS deben poder resolver, y la sección 4 explica con qué.
+
+3. PRESENTACIÓN CLÍNICA
+
+Fiebre alta de inicio agudo. Dolor cervical o espinal severo, con la apariencia característica de **porte bajo de la cabeza y cifosis**, rigidez cervical y renuencia a moverse. Puede haber dolor articular.
+
+El curso puede ser agudo o de exacerbación y remisión.
+
+Regla para NCIS: un perro joven con fiebre y dolor cervical severo **sin déficits neurológicos** es SRMA hasta demostrar lo contrario. La presencia de déficits neurológicos apunta a la forma crónica o a un diferencial distinto.
+
+4. DIAGNÓSTICO — LOS MARCADORES QUE LO SOSTIENEN
+
+Líquido cefalorraquídeo. Pleocitosis neutrofílica en la forma aguda, sin organismos patológicos. Se evalúan citología, recuento de células nucleadas, recuento de eritrocitos y proteínas.
+
+Criterio de inclusión descrito en un ensayo prospectivo, útil como marco diagnóstico: dolor espinal de inicio agudo o de curso fluctuante; pleocitosis neutrofílica si los signos duran menos de 7 días, o pleocitosis neutrofílica, mixta o mononuclear si duran más de 7 días, siempre sin organismos; e imagen espinal que excluya otros diferenciales —radiografías ortogonales normales, o resonancia o tomografía normales o consistentes con inflamación local en meninges o tejidos blandos perivertebrales—.
+
+Proteína C reactiva sérica. Su aumento apoya el diagnóstico, y **es particularmente útil para monitorizar la eficacia del tratamiento y detectar recaída**. Ese es su mayor aporte práctico: históricamente el monitoreo requería análisis repetido de líquido cefalorraquídeo, y la CRP lo evita en buena medida.
+
+Las proteínas de fase aguda séricas —CRP, amiloide A sérico, alfa-1-glicoproteína ácida y haptoglobina— son de utilidad en el diagnóstico y el manejo, particularmente en relación con la identificación de recaída.
+
+IgA. Las concentraciones de IgA en suero y líquido cefalorraquídeo están aumentadas, con **alta sensibilidad pero baja especificidad**. Su valor es ayudar a diferenciar la SRMA de otras meningoencefalitis idiopáticas e infecciosas. Pero permanecen elevadas a lo largo de toda la enfermedad, de modo que **contribuyen al diagnóstico y no al manejo**: no sirven para monitorizar respuesta ni recaída.
+
+Regla dura para NCIS: CRP para monitorizar, IgA para diagnosticar. Usar IgA como marcador de seguimiento es un error, porque no baja aunque el paciente mejore.
+
+Dímero D. Las concentraciones en suero y líquido cefalorraquídeo deberían estar elevadas, y pueden evaluarse como herramienta diagnóstica adicional.
+
+Advertencia final del diagnóstico. En algunos perros con signos clínicos característicos, los hallazgos del líquido cefalorraquídeo pueden ser muy leves, lo que dificulta el diagnóstico. En esos casos, corresponde respaldar el juicio clínico.
+
+5. TRATAMIENTO Y RECAÍDA
+
+**La monoterapia con prednisolona es una modalidad inmunosupresora exitosa.** En un estudio prospectivo sobre 20 perros, se logró resolución clínica en todos.
+
+El tratamiento consiste en corticoides a dosis alta con reducción lenta a lo largo de meses; los inmunosupresores adicionales se reservan para los que recaen.
+
+Recaída — los números y su lectura
+
+Las tasas publicadas van del **16% al 34%**. Un estudio norteamericano reportó 47,5%, aunque los propios autores señalan que su cifra puede ser falsamente alta porque se basó en el recuerdo del propietario en vez de en confirmación por reexamen y pruebas.
+
+Aproximadamente **un tercio de los perros de ese estudio recayó después de los 2 años de edad**. Las recaídas pueden ocurrir durante un período relativamente largo tras el diagnóstico inicial.
+
+Se identificó un efecto significativo del **recuento de células nucleadas en líquido cefalorraquídeo sobre la frecuencia de recaída**, pero **no se identificó relación entre el protocolo de tratamiento y la recaída**.
+
+El hallazgo que más debe cambiar la conducta: la calidad de vida se asoció con la severidad de los efectos adversos relacionados a corticoides, que fueron dependientes de la dosis. Y la conclusión de los autores es explícita: **el tratamiento con dosis más altas de corticoides se correlaciona con efectos adversos más severos y peor calidad de vida, pero puede no mejorar el desenlace clínico.**
+
+Regla para NCIS: ante una recaída, escalar la dosis de corticoide no está respaldado por la evidencia disponible sobre desenlace, y sí está asociado a peor calidad de vida. La decisión debe considerar inmunosupresores adicionales y no solo más esteroide.
+
+Se ha comparado en ensayo aleatorizado prospectivo el protocolo de prednisolona de 6 semanas contra el de 6 meses en relación con las tasas de recaída.
+
+Complicación descrita: hemorragia epidural secundaria, con compresión medular, en un caso que requirió tratamiento quirúrgico y médico.
+
+6. ERRORES FRECUENTES
+
+Usar IgA como marcador de seguimiento y de recaída.
+
+No emplear CRP para monitorizar, obligando a punciones repetidas de líquido cefalorraquídeo.
+
+Confundir la forma crónica con meningoencefalitis de origen desconocido sin evaluar IgA.
+
+Descartar SRMA por hallazgos leves en líquido cefalorraquídeo ante un cuadro clínico característico.
+
+Escalar la dosis de corticoide ante recaída, asumiendo mejor desenlace.
+
+No advertir que las recaídas pueden ocurrir más allá de los 2 años de edad.
+
+No excluir infección antes de inmunosuprimir.
+
+Interpretar déficits neurológicos como parte esperable de la forma aguda.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis y esquemas de reducción de prednisolona. Inmunosupresores de segunda línea: azatioprina, ciclosporina, citarabina. Técnica de obtención de líquido cefalorraquídeo. Manejo de los efectos adversos de la corticoterapia prolongada. Poliartritis inmunomediada concurrente. Diagnóstico diferencial detallado con meningitis bacteriana y con discoespondilitis. Manejo de la hemorragia epidural secundaria. Pronóstico a largo plazo y consejo reproductivo en razas predispuestas. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+FUENTES
+
+Lowrie M y col. Steroid responsive meningitis-arteritis: a prospective study of potential disease markers, prednisolone treatment, and long-term outcome in 20 dogs (2006–2008). J Vet Intern Med 2009;23(4):862. Fuente principal de las secciones 2, 4 y 5.
+
+Clinical characteristics, breed differences, and quality of life in North American dogs with acute steroid-responsive meningitis-arteritis. PMC6639478. Fuente de las secciones 1 y 5.
+
+Steroid responsive meningitis-arteritis in dogs. Veterinary Ireland Journal. Fuente de las secciones 2 y 4.
+
+Steroid Responsive Meningitis-Arteritis. MSPCA-Angell. Fuente de las secciones 1, 3 y 4.
+
+Prospective randomized trial comparing relapse rates in dogs with steroid-responsive meningitis-arteritis treated with a 6-week or 6-month prednisolone protocol. PMC11256166. Fuente de las secciones 1 y 4.
+
+Successful surgical and medical treatment of a severe, acute epidural bleed in a young dog due to steroid responsive meningitis-arteritis. PMC8272355. Fuente de la sección 4, incluido el dímero D.
+
+Tipold A, Schatzberg SJ, sobre diagnóstico y diferenciación de las meningoencefalitis caninas.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

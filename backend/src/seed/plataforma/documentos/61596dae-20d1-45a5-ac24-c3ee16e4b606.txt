@@ -1,0 +1,79 @@
+# Piometra Canina — Revisión Actualizada de Diagnóstico y Manejo
+
+**Fuente:** Xavier RGC, Santana CH, de Castro YG, et al. Canine Pyometra: A Short Review of Current Advances. *Animals.* 2023;13(21):3310. Licencia CC BY.
+
+**Alcance de este resumen:** primer documento del sistema reproductivo para el agente de medicina interna/triage (ICIS). A diferencia de los sistemas anteriores, no existe un "consenso" formal de una sociedad especializada (piometra es territorio de Theriogenología, no de ACVIM) — este es un artículo de revisión reciente (2023) que sintetiza la literatura actual, con foco particular en la **emergencia de triage más relevante del sistema reproductivo canino**.
+
+---
+
+## 1. Por qué importa — magnitud y letalidad
+
+- Enfermedad reproductiva más prevalente en caninas — afecta hasta el **25% de las hembras enteras**.
+- Sin tratamiento oportuno, **es fatal** — progresa a peritonitis, sepsis y disfunción multiorgánica.
+- Edad de diagnóstico predominante: media de **9 años**, aunque descrita desde 3 meses hasta 20 años.
+- Ocurre típicamente **2-4 meses post-estro** (fase de diestro).
+
+## 2. Factores de riesgo y patogenia — por qué ocurre en diestro
+
+- Durante el diestro, la progesterona: estimula proliferación/secreción de glándulas endometriales, inhibe la contractilidad miometrial, y **debilita la respuesta inmune uterina local** — favoreciendo la colonización bacteriana.
+- El riesgo aumenta con **ciclos estrales repetidos** (efecto acumulativo) — explica la mayor incidencia en hembras de mayor edad.
+- **Fármacos de control reproductivo** (progestágenos, estrógenos) son un factor de riesgo reconocido — asociados también a maceración fetal, tumores endometriales/mamarios, y resistencia a la insulina.
+- La terminología histopatológica tradicional ("complejo hiperplasia endometrial quística-piometra") está **desactualizada**: estudios recientes muestran que la **hiperplasia endometrial pseudoplacentacional** (no la hiperplasia quística) es la que se asocia significativamente con piometra — aunque la relación causa-efecto aún no está establecida.
+- **E. coli** es el patógeno más frecuente (hasta 90% de los casos) — típicamente asciende desde el recto/tracto GI, y las cepas causantes suelen ser indistinguibles de las que colonizan el intestino del mismo animal. Otros patógenos: *Staphylococcus pseudintermedius*, *Streptococcus canis*, *Klebsiella pneumoniae*, *Proteus mirabilis*. En hasta 25% de los casos no se aísla ningún microorganismo (posibles causas: eliminación inmune previa, uso previo de antimicrobianos, baja sensibilidad de cultivo, o patógenos no cultivables por métodos estándar — incluyendo hallazgos recientes de *Brucella abortus* y *Porphyromonas* spp., sugiriendo posibles rutas de infección hematógenas además de la ascendente clásica).
+
+## 3. Presentación clínica — abierta vs. cerrada, la diferencia que más importa en triage
+
+- **Piometra abierta (cérvix abierto)**: descarga vaginal mucopurulenta a hemorrágica — signo más prevalente.
+- **Piometra cerrada (cérvix cerrado)**: sin descarga visible, distensión abdominal por acumulación de contenido uterino sin drenaje — **cuadro clínico más severo y mayor riesgo de sepsis** que la forma abierta.
+- Signos clínicos comunes: inapetencia/anorexia, depresión/letargia, poliuria/polidipsia, taquicardia, taquipnea.
+- Complicaciones potencialmente letales: ruptura uterina, nefropatía, peritonitis, endotoxemia, sepsis.
+- **Fiebre e hipotermia** aumentan el riesgo de desarrollar peritonitis.
+- **Depresión general moderada-severa y mucosas pálidas** se asocian con hospitalización prolongada.
+
+## 4. Diagnóstico
+
+- El diagnóstico clínico es más directo en piometra abierta (por la descarga visible); en la cerrada, la variabilidad de otros signos clínicos hace el diagnóstico más desafiante.
+- Basado en: historia, signos clínicos, e imagenología (radiografía abdominal y **ecografía** — esta última útil incluso cuando el diámetro uterino está dentro de rango normal, y permite detectar patología ovárica concurrente como quistes o hiperplasia endometrial quística).
+- Hallazgos de laboratorio de apoyo: hemograma, leucograma, función hepática.
+- **Leucocitosis y anemia son frecuentes**; **azotemia** también es común — resultado de disfunción renal secundaria a endotoxemia, disfunción glomerular, daño tubular, y respuesta disminuida a hormona antidiurética.
+- Pruebas complementarias no solicitadas de rutina pero útiles: histopatología uterina post-OVH y cultivo microbiológico del contenido uterino con antibiograma.
+
+## 5. Tratamiento
+
+### Quirúrgico — tratamiento de elección
+- **Ovariohisterectomía (OVH)**: sigue siendo el tratamiento preferido — elimina la fuente de infección; el estado clínico general suele normalizarse en **2 semanas**.
+- Desventaja principal: esterilidad permanente — relevante si el propietario tiene interés reproductivo.
+- Complicaciones de la OVH: hemorragia, ligadura accidental de uréter, incontinencia urinaria estrógeno-dependiente, síndrome de remanente ovárico, y **"piometra de muñón"** (si queda tejido uterino y hay niveles elevados de progesterona y/o remanente ovárico — presentación clínica, diagnóstico y tratamiento similares a la piometra convencional, salvo la historia de OVH previa).
+
+### Antimicrobianos
+- Se recomienda reservarlos para animales con depresión moderada-severa, para minimizar uso innecesario.
+- Primera y segunda opción según guías de uso de antimicrobianos en pequeños animales: **fluoroquinolonas (enrofloxacina)** y **amoxicilina/clavulanato**. Guías finlandesas/suecas priorizan sulfadoxina-trimetoprim y ampicilina respectivamente. Otros efectivos: cefalotina, estreptomicina, gentamicina.
+- Un estudio retrospectivo reciente confirma **ampicilina o amoxicilina** como efectivos, particularmente en casos con depresión general moderada-severa.
+- Idealmente ajustar según cultivo/antibiograma — aunque en la práctica esto raramente se solicita.
+
+### Tratamiento farmacológico (no quirúrgico) — solo en escenarios específicos
+- Reservado para: hembras jóvenes reproductoras, o cuando anestesia/cirugía no son factibles en el momento.
+- Objetivo: expulsar activamente el contenido purulento e inhibir crecimiento bacteriano, promoviendo curación uterina.
+- Fármacos típicos combinados: **aglepristona** (bloqueador del receptor de progesterona) + **cloprostenol** (análogo sintético de PGF2α) + antimicrobianos (idealmente guiados por sensibilidad) + tratamiento de soporte.
+- **Contraindicado** en pacientes con fiebre, hipotermia, insuficiencia hepática/renal, o sospecha de peritonitis.
+- Requiere monitoreo cercano — riesgo de efectos adversos farmacológicos y deterioro rápido (típicamente ligado a sepsis/endotoxemia). Recurrencia es posible.
+- Contrario a la creencia previa: estudios recientes muestran que las lesiones endometriales tras tratamiento farmacológico **no reducen** la tasa de gestación ni el tamaño de camada subsecuente.
+
+## 6. Biomarcadores pronósticos
+
+- **Proteína C reactiva (PCR)**: el biomarcador más estudiado — desciende gradualmente tras la OVH; niveles sostenidos o en aumento sugieren complicaciones. Niveles más altos en piometra con sepsis vs. mucometra — potencial utilidad para diferenciar severidad.
+- Patrón similar en: amiloide sérico A, procalcitonina, ADN libre circulante.
+- Factores asociados con hospitalización prolongada: leucopenia, inapetencia, azotemia, hematocrito reducido, deshidratación.
+- **Leucopenia** se asocia específicamente con mayor incidencia de peritonitis.
+- **Creatinina sérica y gamma-glutamil transpeptidasa urinaria NO han demostrado utilidad clínica** para determinar severidad de la piometra o del daño renal asociado — importante no sobreinterpretar estos valores de rutina como marcadores de severidad en este contexto específico.
+
+## 7. Prevención
+
+- La OVH electiva ("esterilización") sigue siendo el método principal de prevención — pero debe sopesarse individualmente contra riesgos de la esterilización (complicaciones quirúrgicas/anestésicas, mayor incidencia de trastornos musculoesqueléticos y endocrinológicos, obesidad, incontinencia urinaria), considerando la raza del paciente.
+
+## 8. Conclusión operativa para ICIS
+
+- El primer punto de decisión en triage es **abierta vs. cerrada** — la piometra cerrada representa mayor severidad clínica y mayor riesgo de sepsis, por lo que la ausencia de descarga vaginal en una hembra entera con distensión abdominal, letargia y PU/PD **no debe tranquilizar**, sino elevar la sospecha.
+- La combinación de fiebre o hipotermia + depresión moderada-severa + mucosas pálidas es la señal de alarma que predice peritonitis y hospitalización prolongada — debe gatillar manejo agresivo inmediato, no observación.
+- El tratamiento farmacológico no quirúrgico tiene un rol muy acotado (hembra reproductora joven, o cirugía no factible en el momento) y está **formalmente contraindicado** ante fiebre, hipotermia, falla hepática/renal, o sospecha de peritonitis — en esos escenarios la cirugía no es opcional.
+- La azotemia y leucocitosis/anemia en una hembra entera de mediana edad con historia reproductiva compatible deben elevar la sospecha de piometra como diagnóstico diferencial activo, incluso sin descarga vaginal visible — la ecografía es la herramienta diagnóstica de mayor rendimiento en ese escenario.

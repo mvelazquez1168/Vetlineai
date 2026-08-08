@@ -30,13 +30,21 @@ const ESPECIE_PACIENTE_A_RAZA: Record<string, string> = {
 // corresponda a la misma especie declarada en el request. Los demás
 // campos opcionales del modelo (sexo, edad_anios) quedan NULL — se
 // completan después desde otra pantalla, fuera de este alcance.
+//
+// prompt_code_paciente_nacimiento_estado.md, Parte B1 — fechaNacimiento
+// opcional a propósito: muchos tutores no la saben (sobre todo en
+// adopciones). Nunca convive con edad_anios como dato independiente — ver
+// edadPaciente.ts. estado del paciente NO se acepta acá: nace 'activo'
+// (default de la columna), se marca 'fallecido' solo desde el endpoint
+// dedicado más abajo.
 // ---------------------------------------------------------------------
 pacientesRouter.post("/", async (req, res) => {
-  const { propietarioId, nombre, especie, razaId } = req.body as {
+  const { propietarioId, nombre, especie, razaId, fechaNacimiento } = req.body as {
     propietarioId?: string;
     nombre?: string;
     especie?: string;
     razaId?: string;
+    fechaNacimiento?: string;
   };
 
   if (!propietarioId || !nombre || !nombre.trim() || !especie || !especie.trim()) {
@@ -62,16 +70,58 @@ pacientesRouter.post("/", async (req, res) => {
     }
 
     const result = await req.db!.query(
-      `INSERT INTO pacientes (tenant_id, propietario_id, nombre, especie, raza_id)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, nombre, especie, raza_id`,
-      [req.auth!.tenantId, propietarioId, nombre.trim(), especie.trim(), razaId || null]
+      `INSERT INTO pacientes (tenant_id, propietario_id, nombre, especie, raza_id, fecha_nacimiento)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, nombre, especie, raza_id, fecha_nacimiento, estado`,
+      [req.auth!.tenantId, propietarioId, nombre.trim(), especie.trim(), razaId || null, fechaNacimiento || null]
     );
 
     res.status(201).json({ paciente: { ...result.rows[0], raza: razaNombre } });
   } catch (err) {
     console.error("POST /pacientes", err);
     res.status(500).json({ error: "Error al crear la mascota." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// PATCH /api/pacientes/:id/estado
+//
+// prompt_code_paciente_nacimiento_estado.md, Parte B2 — único punto de
+// entrada para registrar el fallecimiento de un paciente. La confirmación
+// ("es una acción sensible, no debe quedar a un clic de distancia") es
+// responsabilidad del frontend (modal de confirmación); acá solo se exige
+// que la fecha venga informada, porque no tiene sentido un estado
+// 'fallecido' sin ella. No existe camino para volver a 'activo' — un
+// fallecimiento no se deshace por error de carga sin intervención manual
+// directa en la base, a propósito.
+// ---------------------------------------------------------------------
+pacientesRouter.patch("/:id/estado", async (req, res) => {
+  const { estado, fechaFallecimiento } = req.body as {
+    estado?: "fallecido";
+    fechaFallecimiento?: string;
+  };
+
+  if (estado !== "fallecido") {
+    return res.status(400).json({ error: "El único estado que se puede registrar acá es 'fallecido'." });
+  }
+  if (!fechaFallecimiento) {
+    return res.status(400).json({ error: "Falta la fecha de fallecimiento." });
+  }
+
+  try {
+    const result = await req.db!.query(
+      `UPDATE pacientes SET estado = 'fallecido', fecha_fallecimiento = $1
+       WHERE id = $2 AND estado = 'activo'
+       RETURNING id, nombre, estado, fecha_fallecimiento`,
+      [fechaFallecimiento, req.params.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "El paciente no existe o ya está marcado como fallecido." });
+    }
+    res.json({ paciente: result.rows[0] });
+  } catch (err) {
+    console.error("PATCH /pacientes/:id/estado", err);
+    res.status(500).json({ error: "Error al registrar el fallecimiento." });
   }
 });
 
@@ -159,14 +209,25 @@ pacientesRouter.get("/:id/historial-farmacologico", async (req, res) => {
 // job diario de notificaciones lee de esta misma tabla, nunca la
 // modifica.
 // ---------------------------------------------------------------------
+// prompt_code_paciente_nacimiento_estado.md, Parte A — la desparasitación
+// distingue interna/externa (obligatorio, son dos cosas clínicamente
+// distintas) + producto aplicado en texto libre (opcional, mismo criterio
+// que `vacuna`: los nombres comerciales varían mucho entre países). El
+// disparador del aviso de "próxima" (jobs/notificaciones.job.ts) no
+// necesitó cambios — ya procesa cada fila de cuidados_preventivos por
+// separado, así que dos desparasitaciones vigentes con fechas distintas
+// ya disparaban cada una por su cuenta antes de este cambio.
 pacientesRouter.post("/:id/cuidados-preventivos", async (req, res) => {
-  const { tipo, fechaAplicacion, fechaProximaRecomendada, vacuna, lote } = req.body as {
-    tipo?: "desparasitacion" | "vacunacion";
-    fechaAplicacion?: string;
-    fechaProximaRecomendada?: string;
-    vacuna?: string;
-    lote?: string;
-  };
+  const { tipo, fechaAplicacion, fechaProximaRecomendada, vacuna, lote, subtipoDesparasitacion, productoDesparasitacion } =
+    req.body as {
+      tipo?: "desparasitacion" | "vacunacion";
+      fechaAplicacion?: string;
+      fechaProximaRecomendada?: string;
+      vacuna?: string;
+      lote?: string;
+      subtipoDesparasitacion?: "interna" | "externa";
+      productoDesparasitacion?: string;
+    };
 
   if (!tipo || !fechaAplicacion || !fechaProximaRecomendada) {
     return res.status(400).json({ error: "Faltan tipo, fechaAplicacion o fechaProximaRecomendada." });
@@ -177,13 +238,18 @@ pacientesRouter.post("/:id/cuidados-preventivos", async (req, res) => {
   if (tipo === "vacunacion" && !vacuna?.trim()) {
     return res.status(400).json({ error: "Falta indicar qué vacuna se aplicó." });
   }
+  if (tipo === "desparasitacion" && subtipoDesparasitacion !== "interna" && subtipoDesparasitacion !== "externa") {
+    return res.status(400).json({ error: "Falta indicar si la desparasitación es interna o externa." });
+  }
 
   try {
     const result = await req.db!.query(
       `INSERT INTO cuidados_preventivos
-         (tenant_id, paciente_id, tipo, fecha_aplicacion, fecha_proxima_recomendada, registrado_por, vacuna, lote)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id, tipo, fecha_aplicacion, fecha_proxima_recomendada, registrado_por, creado_en, vacuna, lote`,
+         (tenant_id, paciente_id, tipo, fecha_aplicacion, fecha_proxima_recomendada, registrado_por, vacuna, lote,
+          subtipo_desparasitacion, producto_desparasitacion)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING id, tipo, fecha_aplicacion, fecha_proxima_recomendada, registrado_por, creado_en, vacuna, lote,
+                 subtipo_desparasitacion, producto_desparasitacion`,
       [
         req.auth!.tenantId,
         req.params.id,
@@ -193,6 +259,8 @@ pacientesRouter.post("/:id/cuidados-preventivos", async (req, res) => {
         req.auth!.userId,
         tipo === "vacunacion" ? vacuna!.trim() : null,
         tipo === "vacunacion" ? lote?.trim() || null : null,
+        tipo === "desparasitacion" ? subtipoDesparasitacion : null,
+        tipo === "desparasitacion" ? productoDesparasitacion?.trim() || null : null,
       ]
     );
     res.status(201).json({ cuidadoPreventivo: result.rows[0] });
@@ -206,7 +274,8 @@ pacientesRouter.get("/:id/cuidados-preventivos", async (req, res) => {
   try {
     const result = await req.db!.query(
       `SELECT cp.id, cp.tipo, cp.fecha_aplicacion, cp.fecha_proxima_recomendada, cp.creado_en,
-              cp.vacuna, cp.lote, per.nombre AS registrado_por_nombre
+              cp.vacuna, cp.lote, cp.subtipo_desparasitacion, cp.producto_desparasitacion,
+              per.nombre AS registrado_por_nombre
        FROM cuidados_preventivos cp
        JOIN personas per ON per.id = cp.registrado_por
        WHERE cp.paciente_id = $1

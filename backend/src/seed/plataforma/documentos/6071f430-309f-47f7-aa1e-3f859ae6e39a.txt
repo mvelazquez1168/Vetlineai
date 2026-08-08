@@ -1,0 +1,191 @@
+ENTEROPATÍA INFLAMATORIA CRÓNICA (CIE) EN PERROS — CONSENSO ACVIM 2026
+
+Resumen clínico de referencia para GCIS, elaborado sobre el texto completo del consenso. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-220 (Imaging Intelligence), CC-201/202/204 (laboratorio), CC-301 a CC-304 (extensión de farmacoterapia GCIS), CC-306 a CC-309 (nutrición terapéutica).
+
+Fuente: Heilmann RM, Jergens AE, Kathrani A, Allenspach K, Salavati Schmitz S, Priestnall SL, Dandrieux JRS, O'Connor AM. ACVIM–endorsed statement: consensus statement and systematic review on guidelines for the diagnosis and treatment of chronic inflammatory enteropathy in dogs. J Vet Intern Med 2026;40(1):aalaf017. DOI 10.1093/jvimsj/aalaf017. Publicado 21 de enero de 2026. Licencia CC BY-NC. Actualiza el consenso ACVIM de 2010.
+
+Notación del consenso: SOR = fuerza de la recomendación (fuerte, débil, condicional). QOE = calidad de la evidencia (muy baja, baja, moderada, alta). Se conservan porque distinguen lo que el panel afirma con respaldo de lo que sugiere con reservas.
+
+---
+
+1. TERMINOLOGÍA — EL CAMBIO QUE ORDENA TODO LO DEMÁS
+
+El panel alcanzó consenso en usar el término enteropatía inflamatoria crónica (CIE) y **sugiere evitar el término enfermedad inflamatoria intestinal (IBD)**, porque designa una condición similar pero no idéntica en gastroenterología humana.
+
+Regla para GCIS: el agente no debe emplear "IBD" ni "enfermedad inflamatoria intestinal" salvo para señalar que el término fue reemplazado.
+
+Alcance del término. CIE describe un grupo de trastornos gastrointestinales con signos persistentes o recurrentes e inflamación mucosal variable. Ante la falta actual de evidencia de que la enteropatía perdedora de proteínas (PLE) y la colitis granulomatosa (GC) sean entidades enteramente separadas, ambas se consideran **fenotipos distintos dentro del espectro de CIE**, no enfermedades aparte.
+
+2. PACIENTE TÍPICO
+
+Los perros afectados suelen ser de mediana edad, aunque la enfermedad puede ocurrir en perros jóvenes, particularmente en la forma respondedora a dieta. No se ha reportado predisposición sexual. Cualquier raza puede afectarse; se reconocen predisposiciones en Pastor Alemán, Soft-coated Wheaten Terrier y Shar Pei chino.
+
+La CIE es prevalente en todo el mundo: dos estudios sugieren que entre el 20 y el 30% de las visitas veterinarias de animales de compañía son por vómito, diarrea o ambos.
+
+3. LA ESTRUCTURA DIAGNÓSTICA
+
+La CIE **sigue siendo un diagnóstico de exclusión**, y se subclasifica por respuesta al tratamiento: CIE-FR (respondedora a dieta) y CIE-IR (respondedora a inmunosupresores). El estándar de referencia definido por el panel es la respuesta a ensayos terapéuticos, o la endoscopia con histopatología, o ambos.
+
+El consenso recomienda un abordaje en dos niveles —CIE-I frente a CIE-II— basado en la evaluación clínica, según señalamiento, severidad y cronicidad.
+
+Consecuencia para GCIS: la clasificación es retrospectiva por respuesta. El agente no puede asignar subtipo antes de que el ensayo terapéutico se complete, y debe declararlo así.
+
+4. EVALUACIÓN CLÍNICA
+
+Examen físico (SOR = fuerte). En todo perro con sospecha de CIE debe evaluarse evidencia de malnutrición —puntuación de condición corporal (BCS) y de condición muscular (MCS)— e indicios de hipoalbuminemia como ascitis y edema periférico.
+
+Aproximadamente dos tercios de los perros con PLE están subcondicionados y presentan atrofia muscular al diagnóstico. La severidad de la pérdida de musculatura epaxial y la condición del pelaje se asocian a no alcanzar remisión clínica dentro de los 6 meses.
+
+Graduación de severidad (SOR = fuerte). Debe graduarse con CIBDAI, o CCECAI si se mide albúmina sérica. El CCECAI agrega tres variables al CIBDAI: cobalamina sérica, albúmina sérica y prurito.
+
+Interpretación de la variación del puntaje respecto del basal: descenso menor al 25%, sin respuesta; entre 25 y 75%, respuesta parcial; mayor al 75%, respuesta completa o remisión.
+
+Los perros con CIE-FR presentan los puntajes más bajos y los CIE-IR los más altos, aunque no todos los estudios confirman que estos índices diferencien ambos fenotipos.
+
+5. LABORATORIO
+
+Estudios de rutina (SOR = fuerte). Hematología, perfil bioquímico con electrolitos, parasitología fecal y urianálisis —con relación proteína/creatinina urinaria si hay hipoalbuminemia—.
+
+Hallazgos frecuentes: anemia normocítica normocrómica no regenerativa en 12–19%; relación neutrófilos/linfocitos aumentada asociada a mayor severidad y útil para diferenciar CIE-FR de CIE-IR; trombocitosis en enfermedad severa; **hipercoagulabilidad que afecta al 63–100% de los perros con PLE**, con predisposición a complicaciones tromboembólicas.
+
+Estudios adicionales en CIE-II (SOR = fuerte). Cobalamina, marcadores de enfermedad pancreática (lipasa pancreática, TLI) y cortisol sérico basal.
+
+Hipocobalaminemia: factor pronóstico negativo, presente en 19–61% de los perros con CIE. **La normocobalaminemia no excluye CIE**, y puede existir deficiencia intracelular con cobalamina sérica en el rango normal-bajo.
+
+Hipofolatemia: reportada en 1–47%, no específica, y puede resultar falsamente normal o aumentada por disbiosis intestinal o hipocobalaminemia.
+
+Hipovitaminosis D: detectada hasta en 35% de los perros con CIE, particularmente con PLE, y vinculada a desenlaces negativos.
+
+Diferencial que se pasa por alto: el hipoadrenocorticismo eunatrémico-eucalémico —antes llamado atípico— puede simular CIE.
+
+Biomarcadores (SOR = condicional). CRP sérica sirve para evaluar progresión y respuesta, pero **solo son relevantes los cambios de al menos 2,7 veces**. Calprotectina fecal como indicador de severidad. Alfa-1 antitripsina fecal (α1PI) para pérdida proteica intestinal, útil con independencia del estado de albúmina sérica.
+
+Enfermedades infecciosas según geografía (SOR = condicional). Deben considerarse pruebas para causas infecciosas relevantes —Histoplasma capsulatum, Heterobilharzia americana, Leishmania infantum— si el perro reside o viajó desde área endémica. Omitir una causa infecciosa puede ser grave, particularmente si se instaura tratamiento inmunomodulador.
+
+Nota de aplicación regional: esta recomendación es condicional según geografía y por lo tanto **no puede resolverse con el perfil de un país distinto al del paciente**. GCIS debe considerar la endemicidad local antes de descartar causa infecciosa.
+
+Pruebas de alergia sérica (SOR = condicional). Ante la falta de evidencia, corresponde proceder con un ensayo de dieta de eliminación adecuadamente diseñado en vez de realizar pruebas de alergia séricas.
+
+6. IMAGENOLOGÍA
+
+Ultrasonografía abdominal (SOR = fuerte) en todo perro con sospecha, particularmente ante signos moderados o marcados (CIBDAI o CCECAI ≥ 6), pérdida de peso ≥ 5%, hipoalbuminemia, o falta de respuesta al ensayo dietario. Su función principal es **excluir otros trastornos**, no confirmar CIE.
+
+Hallazgo que se malinterpreta con frecuencia: el engrosamiento de la pared intestinal es común en CIE pero **no es predictivo de inflamación**.
+
+Las estriaciones mucosales hiperecoicas tienen 75% de sensibilidad y 96% de especificidad para linfangiectasia intestinal causante de PLE; las moteaduras hiperecoicas son inespecíficas.
+
+Hasta el 93% de los perros con PLE presentan alteraciones ecográficas del intestino delgado.
+
+La radiografía cumple un papel secundario: descartar obstrucción o anormalidades macroscópicas, y evaluar derrame pleural en casos de PLE.
+
+7. ENSAYO DIETARIO — LA PRIMERA INTERVENCIÓN DIAGNÓSTICA
+
+Recomendación (SOR = fuerte, QOE = alta): dado que la CIE es diagnóstico de exclusión y se subclasifica por respuesta al tratamiento, **la eficacia del ensayo terapéutico es en sí misma diagnóstica**. Los ensayos dietarios son la primera intervención diagnóstica recomendada, antes de los estudios invasivos, siempre que el paciente esté clínicamente estable y no presente hipo o anorexia.
+
+Justificación: entre el 38 y el 89% de los perros con CIE son respondedores a dieta, y muchos mantienen remisión clínica a largo plazo solo con manejo dietario.
+
+Cómo se ejecuta (SOR = fuerte)
+
+Alimentación exclusiva con una dieta terapéutica durante al menos 2 semanas. Categorías válidas: altamente digestible, ingredientes limitados con proteína novel, proteína hidrolizada, proteína elemental, enriquecida en fibra, baja a ultra baja en grasa, o casera.
+
+La elección se basa en la historia dietaria, los signos gastrointestinales y los hallazgos del examen y de los estudios.
+
+**Deben considerarse al menos 3 ensayos con dietas diferentes**, si es posible. Algunos perros requieren hasta tres antes de mostrar respuesta.
+
+Monitoreo de la respuesta con CIBDAI o CCECAI al menos semanalmente, con guía al propietario para la implementación correcta.
+
+La respuesta clínica típicamente se observa dentro de 10 a 14 días, aunque algunos perros requieren más tiempo, particularmente con signos intermitentes.
+
+Una dieta que induce remisión debe mantenerse **al menos 12 semanas** antes de intentar la transición fuera de ella. Los perros con PLE pueden beneficiarse de mantenerla a largo plazo.
+
+Datos comparativos entre categorías. Un ensayo aleatorizado mostró que una dieta gastrointestinal terapéutica indujo remisión en 6 de 8 perros (75%), pero la respuesta a largo plazo fue menos probable (17%) frente a una dieta de proteína hidrolizada de soja (67% a corto plazo, 79% a largo plazo). Las dietas de proteína hidrolizada reportan tasas de remisión de 64–89% en práctica de referencia. Las dietas bajas en grasa (menos de 2 g de grasa por 100 kcal) son efectivas en linfangiectasia intestinal causante de PLE.
+
+En conjunto, la dieta disminuye los puntajes de severidad clínica más y obtiene generalmente mejores desenlaces que los glucocorticoides.
+
+8. ANTIMICROBIANOS — EL CAMBIO DE CONDUCTA MÁS IMPORTANTE
+
+**El tratamiento antimicrobiano empírico no está recomendado en sospechosos de CIE** (SOR = fuerte), lo que incluye a los perros con sospecha de colitis granulomatosa asociada a AIEC.
+
+Justificación: la respuesta al tratamiento antimicrobiano empírico —por ejemplo tilosina— suele ser de corta duración, con altas tasas de recaída tras la suspensión y disbiosis intestinal significativa que puede persistir a largo plazo.
+
+Qué dice el consenso cuando ya fallaron los ensayos dietarios. Tilosina 25 mg/kg cada 24 h por 7 días, metronidazol 10–15 mg/kg cada 12 h por 21 días, o rifaximina 25 mg/kg cada 12 h por 21 días **podrían** lograr respuesta parcial o completa a corto plazo (85–100%, QOE moderada). Pero el propio consenso subraya que la administración responsable de antimicrobianos **dicta firmemente que los antibióticos deben reservarse para casos que han fallado cualquier otro intento de tratamiento**.
+
+Excepción con indicación positiva: en colitis granulomatosa o ileocolitis granulomatosa confirmadas histológicamente por E. coli adherente e invasiva (AIEC), **debe** iniciarse enrofloxacina (4,8–12,8 mg/kg cada 24 h durante 4 a 19 semanas). Dada la frecuencia de resistencia antimicrobiana en AIEC, debe realizarse antibiograma sobre biopsia colónica antes de iniciar. La eficacia in vitro no siempre se traduce en eficacia in vivo.
+
+Concordancia con la arquitectura de GCIS: este apartado confirma y refuerza el Patrón GI-2 ya definido en la extensión de farmacoterapia CC-302 sobre metronidazol y cronicidad.
+
+9. PRE, PRO Y SIMBIÓTICOS
+
+Tienen un papel limitado, aunque parecen bien tolerados (SOR = condicional).
+
+**El único con respaldo de ensayo clínico aleatorizado** es la Formulación De Simone (DSF), un probiótico de 8 cepas —cuatro Lactobacillus, tres Bifidobacterium y un Streptococcus salivarius subsp. thermophilus— a 112–225 × 10⁸ bacterias liofilizadas/kg por vía oral cada 24 h. Puede considerarse en perros que fallaron los ensayos dietarios.
+
+Un ensayo abierto aleatorizado mostró que el DSF normalizó el CIBDAI en la misma medida que la combinación prednisona más metronidazol —aunque algo más lentamente—, con el beneficio adicional de inducir una respuesta inmune mucosal tolerogénica.
+
+El trasplante de microbiota fecal puede considerarse como adyuvante en perros que no alcanzaron o no mantuvieron remisión con otros tratamientos (SOR = condicional, QOE = débil).
+
+10. ENDOSCOPIA E HISTOPATOLOGÍA
+
+Cuándo (SOR = fuerte): en perros en los que se excluyeron las enfermedades que simulan CIE y que no resolvieron tras, idealmente, al menos 3 ensayos dietarios correctamente diseñados.
+
+Alcance: debe realizarse endoscopia alta **y** baja —esofagogastroduodenoscopia más ileocolonoscopia—.
+
+Número recomendado de muestras por sitio: estómago 6, duodeno 10–15, íleon 3–5, colon 9–12.
+
+Por qué el íleon importa: las muestras ileales pueden aportar un diagnóstico no disponible con la biopsia duodenal. La concordancia entre duodeno e íleon puede ser baja —por ejemplo, solo 17% para enteritis eosinofílica—.
+
+Histopatología (SOR = fuerte): evaluación de secciones teñidas con hematoxilina-eosina usando los criterios de la WSAVA o su versión modificada. Se consideran inmunohistoquímica, tinciones especiales como PAS para agentes infecciosos, y pruebas moleculares como PARR para diferenciar CIE severa de linfoma intestinal.
+
+Advertencia sobre la orientación de la muestra: la orientación óptima de las muestras de intestino delgado es esencial, e idealmente debe incluir la longitud vellositaria completa y mucosa hasta la muscular.
+
+11. TRATAMIENTO INMUNOMODULADOR
+
+Indicación (SOR = fuerte): perros con o sin PLE que respondieron parcialmente o no respondieron al tratamiento dietario adecuado, con o sin probióticos.
+
+Opciones de inducción descritas por el consenso: prednisolona o prednisona (1–2 mg/kg por vía oral cada 24 h, o 20–40 mg/m² cada 24 h en perros de más de 25 kg, por 2 a 3 semanas y luego reducción según respuesta clínica); budesonida (3 mg/m², con dosificación por bandas de peso, al menos 3 a 4 semanas y luego reducción); o prednisolona/prednisona combinada con ciclosporina (3–5 mg/kg cada 12–24 h por al menos 6 semanas), reduciendo primero el corticoide.
+
+Regla que acompaña a la inmunomodulación: si se identificó una dieta que indujo remisión parcial, debe administrarse concurrentemente y continuarse **más allá del cese del tratamiento inmunosupresor**.
+
+En PLE. Los glucocorticoides están indicados tras fallar la intervención dietaria, considerando el riesgo de atrofia muscular y de tromboembolismo. Ante fallo de corticoides: ciclosporina en monoterapia (5 mg/kg cada 24 h por 6 a 10 semanas) o combinada, o clorambucilo (2–4 mg/m² cada 24 h) con prednisolona. El clorambucilo requiere monitoreo de inducción enzimática hepática y supresión medular.
+
+Dato comparativo: al comparar prednisona contra budesonida en un ensayo aleatorizado, al menos el 69% de los perros alcanzó remisión en 2 a 3 semanas con cualquiera de los dos, sin diferencias en efectos adversos atribuibles a corticoides.
+
+12. VITAMINAS Y ENZIMAS
+
+Cobalamina (SOR = fuerte): el estado subóptimo de vitamina B12 debe tratarse por vía oral o parenteral, con reevaluación tras suspender el tratamiento. Cuatro ensayos aleatorizados respaldan ambas vías.
+
+Folato y vitamina D (SOR = condicional): la suplementación puede considerarse con cuidado ante deficiencia, en el caso de la vitamina D cuando causa hipocalcemia.
+
+Enzimas pancreáticas (SOR = débil): actualmente ninguna evidencia respalda la suplementación enzimática en CIE.
+
+13. ERRORES FRECUENTES
+
+Usar el término IBD.
+
+Tratar la PLE o la colitis granulomatosa como entidades separadas de la CIE.
+
+Iniciar antimicrobianos empíricos antes de agotar el manejo dietario.
+
+Realizar endoscopia antes de ensayos dietarios adecuados en un paciente estable.
+
+Descartar CIE por cobalamina normal.
+
+Interpretar el engrosamiento de pared intestinal como evidencia de inflamación.
+
+Dar por fallado un ensayo dietario antes de 2 semanas de alimentación exclusiva, o considerar suficiente un único ensayo.
+
+Retirar la dieta efectiva al iniciar inmunosupresores.
+
+Interpretar un cambio de CRP menor a 2,7 veces como significativo.
+
+Descartar causa infecciosa sin considerar la endemicidad de la región del paciente.
+
+Biopsiar solo duodeno cuando el cuadro sugiere enfermedad difusa.
+
+14. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Formularios completos de dosificación de todos los agentes citados. Técnica endoscópica. Criterios WSAVA de histopatología en detalle, disponibles en los archivos suplementarios del consenso. Plantillas de puntuación CIBDAI y CCECAI, también en los suplementarios. Enteropatía crónica felina. Diarrea aguda. Linfoma intestinal como entidad propia. Manejo del tromboembolismo en PLE. Estos temas quedan como vacíos declarados de la Base de Conocimiento de GCIS.
+
+Nota de método: este resumen se elaboró a partir del texto completo del consenso, no de resúmenes secundarios. Las dosis citadas son las que el consenso publica; deben verificarse contra el documento original antes de aplicarse.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de la fuente citada.

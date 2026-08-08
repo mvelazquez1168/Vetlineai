@@ -1,0 +1,105 @@
+# Consenso ACVIM 2019 — Enfermedad Degenerativa de la Válvula Mitral (MMVD) en perros
+
+**Fuente:** Keene BW, Atkins CE, Bonagura JD, et al. ACVIM consensus guidelines for the diagnosis and treatment of myxomatous mitral valve disease in dogs. *J Vet Intern Med.* 2019;33(3):1127-1140. Licencia CC BY-NC.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — sistema cardiovascular, complemento directo del resumen ya cargado sobre hipertensión pulmonar (el propio consenso de PH cita a la MMVD como su causa históricamente más frecuente).
+
+---
+
+## 1. Por qué importa — la cardiopatía más común en perros
+
+- Responsable de ~75% de los casos de cardiopatía en perros vistos en clínica en Norteamérica.
+- Afecta predominantemente razas pequeñas (<20 kg), aunque razas grandes también se afectan (con progresión más rápida y peor pronóstico).
+- ~1.5 veces más común en machos.
+- Predisposición marcada en Cavalier King Charles Spaniel (edad de aparición más temprana), Dachshund, Poodle Miniatura y Toy.
+- Prevalencia aumenta marcadamente con la edad — hasta 85% de perros pequeños tienen evidencia de la lesión valvular a los 13 años.
+- **Importante**: la presencia de la lesión patológica NO implica necesariamente que el perro desarrollará regurgitación clínicamente relevante o insuficiencia cardíaca — la progresión es variable e impredecible.
+- En ≥30% de los casos también se afecta la válvula tricúspide.
+
+## 2. Sistema de estadificación (4 etapas — la columna vertebral del manejo clínico)
+
+| Etapa | Definición |
+|---|---|
+| **A** | Riesgo alto de desarrollar la enfermedad, sin anormalidad estructural detectable (ej. cualquier Cavalier sin soplo) |
+| **B** | Enfermedad estructural presente (soplo típico + patología valvular), **nunca** tuvo signos clínicos de insuficiencia cardíaca |
+| **B1** | Asintomático, sin remodelado cardíaco significativo (o remodelado que no cumple criterios de B2) |
+| **B2** | Asintomático, pero con remodelado (agrandamiento AI/VI) suficiente para justificar tratamiento farmacológico preventivo |
+| **C** | Signos clínicos actuales o pasados de insuficiencia cardíaca por MMVD, no refractaria |
+| **D** | Insuficiencia cardíaca refractaria al tratamiento estándar de Etapa C |
+
+## 3. Criterios exactos para identificar Etapa B2 (el punto de decisión más importante)
+
+**Deben cumplirse idealmente los 4 criterios** antes de iniciar tratamiento preventivo (es un compromiso de por vida):
+- Intensidad del soplo ≥3/6.
+- Razón ecocardiográfica AI:Ao (vista de eje corto derecho, diástole temprana) **≥1.6**.
+- Diámetro interno del VI en diástole normalizado por peso (LVIDDN) **≥1.7** (fórmula: LVIDd(cm)/peso(kg)^0.294).
+- Score vertebral cardíaco (VHS) ajustado por raza **>10.5**.
+
+Si no hay ecocardiografía disponible: VHS general ≥11.5 (o equivalente ajustado por raza), o evidencia de cambio acelerado en el tamaño cardíaco entre controles, pueden sustituir. El **VLAS** (tamaño auricular izquierdo vertebral, medido en radiografía) ≥3 también sugiere Etapa B2 en ausencia de ecocardiografía.
+
+## 4. Tratamiento por etapa
+
+### Etapa A — sin tratamiento
+- Sin fármacos ni dieta especial. Auscultación anual en razas predispuestas.
+
+### Etapa B1 — sin tratamiento
+- Sin fármacos ni dieta especial (no hay evidencia de beneficio en esta etapa).
+- Reevaluación ecocardiográfica (o radiográfica) cada 6-12 meses.
+
+### Etapa B2 — tratamiento farmacológico preventivo
+- **Pimobendán 0.25-0.3 mg/kg VO c/12h** — recomendación fuerte (evidencia sólida, retrasa el inicio de insuficiencia cardíaca).
+- Dieta: restricción moderada de sodio, altamente palatable, con proteína/calorías adecuadas.
+- IECA: recomendación dividida entre el panel (evidencia débil, resultados mixtos en ensayos clínicos) — considerar especialmente si la AI ha crecido marcadamente entre controles.
+- **NO recomendados de rutina en B2**: beta-bloqueantes (sin beneficio demostrado), espironolactona (sin ensayos publicados al momento del consenso).
+- Cirugía de reparación valvular: opción viable en centros especializados con baja tasa de complicaciones.
+
+### Etapa C — tratamiento agudo (hospitalario)
+- **Furosemida 2 mg/kg IV/IM**, seguido de 2 mg/kg IV/IM horario hasta mejoría respiratoria sustancial o hasta 8 mg/kg en 4 horas.
+- Edema pulmonar potencialmente fatal: furosemida en infusión continua 0.66-1 mg/kg/h tras el bolo inicial.
+- **Pimobendán 0.25-0.3 mg/kg VO c/12h** desde el ingreso.
+- Oxígeno suplementario según necesidad.
+- Toracocentesis/abdominocentesis si hay efusión que compromete ventilación.
+- Sedación/ansiolisis para disnea: butorfanol 0.2-0.25 mg/kg IM/IV es lo más usado; alternativas incluyen buprenorfina+acepromazina.
+- Dobutamina (2.5-10 μg/kg/min CRI) si no hay respuesta adecuada a diuréticos+pimobendán+oxígeno — requiere monitoreo ECG continuo.
+- Nitroprusiato de sodio IV (1-15 μg/kg/min, hasta 48h) para edema pulmonar refractario a tratamiento estándar.
+
+### Etapa C — tratamiento crónico (domiciliario)
+- **Furosemida VO a efecto**, típicamente 2 mg/kg c/12h (o torsemida como alternativa, ~5-10% de la dosis de furosemida, c/24h).
+- **IECA** (enalapril o benazepril 0.5 mg/kg VO c/12h) — medir creatinina/electrolitos 3-14 días tras iniciar; preocupación por lesión renal aguda si creatinina sube ≥30% del basal.
+- **Espironolactona 2.0 mg/kg VO c/12-24h** — recomendado como adyuvante.
+- Continuar pimobendán 0.25-0.3 mg/kg VO c/12h.
+- **No iniciar beta-bloqueantes** en presencia de signos clínicos activos de ICC.
+- Fibrilación atrial concurrente: diltiazem ± digoxina para controlar la respuesta ventricular (meta: FC media <125 lpm por Holter).
+- Dosis de furosemida ≥8 mg/kg/día (con pimobendán+IECA+espironolactona a dosis estándar) **indica progresión a Etapa D** — investigar causas de resistencia a diuréticos (incumplimiento, alto sodio dietario, hipoproteinemia, hipotensión, activación neurohormonal).
+
+### Etapa C/D — dieta
+- **Caquexia cardíaca**: fácil de prevenir, difícil de tratar — vigilar activamente.
+- Calorías de mantenimiento ~60 kcal/kg de peso corporal.
+- Evitar dietas bajas en proteína (salvo insuficiencia renal concurrente severa).
+- Restricción moderada de sodio (considerando TODAS las fuentes: alimento, premios, comida de mesa, vehículos de medicación).
+- Monitorear electrolitos — hipokalemia más común con torsemida; hiperkalemia relativamente rara incluso con IECA+espironolactona combinados.
+- Considerar omega-3, especialmente con apetito disminuido, pérdida muscular o arritmia.
+
+### Etapa D — refractaria
+- Definida por necesidad de >8 mg/kg/día de furosemida (o equivalente) con dosis estándar del resto de fármacos.
+- **Cirugía de reparación valvular** posible pero con mayor mortalidad perioperatoria y peor sobrevida general que en Etapa C.
+- Torsemida como alternativa a furosemida no respondedora.
+- Aumento de dosis de pimobendán a 0.3 mg/kg c/8h (uso fuera de etiqueta, requiere consentimiento informado del propietario).
+- **Sildenafil (1-2 mg/kg VO c/8h)**: útil cuando hay hipertensión pulmonar clínicamente relevante concurrente — cada vez más reconocida como complicación de MMVD avanzada, ya sea consecuencia directa de la regurgitación severa o comorbilidad independiente. Ascitis o distensión yugular en un paciente predominantemente de cardiopatía izquierda sugiere hipertensión pulmonar y amerita investigación dirigida.
+- Hidralazina o amlodipino como reductores adicionales de poscarga, con monitoreo estrecho de presión arterial (mantener sistólica >85 mmHg o media >60 mmHg).
+- Reevaluar creatinina 24-72h tras iniciar reductores de poscarga adicionales.
+
+## 5. Diagnóstico en Etapa C — puntos clave para no confundir con enfermedad respiratoria
+
+- Alta prevalencia de enfermedad traqueobronquial crónica concurrente en la misma población de riesgo — **un soplo típico en un perro que tose no confirma que la tos sea por ICC**.
+- Hallazgos que hacen la ICC MENOS probable: obesidad sin pérdida de peso reciente, arritmia sinusal marcada con frecuencia relativamente baja.
+- **NT-proBNP**: valor normal o casi normal en un paciente sintomático (tos, disnea, intolerancia al ejercicio) sugiere fuertemente que la insuficiencia cardíaca NO es la causa de los signos clínicos.
+- Base de datos clínica mínima recomendada: radiografía torácica, idealmente ecocardiograma, PCV, proteínas totales, creatinina, BUN, electrolitos, densidad urinaria — la función renal es una comorbilidad importante a vigilar en estos pacientes.
+- Onda E de baja velocidad en Doppler pulsado previo a tratamiento argumenta fuertemente EN CONTRA de insuficiencia cardíaca izquierda activa.
+
+## 6. Conclusión operativa para ICIS
+
+- El punto de decisión terapéutica más importante es identificar correctamente **Etapa B2** (los 4 criterios) — es el único momento en que iniciar tratamiento farmacológico antes de que aparezcan signos clínicos cambia el curso de la enfermedad.
+- Un soplo mitral + tos en un perro de raza predispuesta **no debe asumirse automáticamente como ICC** — la alta coexistencia con enfermedad respiratoria crónica en esta misma población exige descartar activamente ambas causas, apoyándose en NT-proBNP y hallazgos ecocardiográficos/Doppler.
+- La progresión a Etapa D se define operativamente por la dosis de furosemida requerida (≥8mg/kg/día) pese al resto del tratamiento estándar a dosis completa — es un umbral objetivo, no una impresión clínica subjetiva.
+- Ante un paciente con MMVD avanzada + ascitis/distensión yugular, la sospecha debe extenderse a hipertensión pulmonar concurrente — conectar con el documento ya cargado sobre PH para el abordaje diagnóstico específico.

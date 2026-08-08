@@ -1,0 +1,81 @@
+# Consenso ACVIM 2020 — Hipertensión Pulmonar en perros: diagnóstico, clasificación, tratamiento y monitoreo
+
+**Fuente:** Reinero C, Visser LC, Kellihan HB, et al. ACVIM consensus statement guidelines for the diagnosis, classification, treatment, and monitoring of pulmonary hypertension in dogs. *J Vet Intern Med.* 2020;34:549-573. Licencia CC BY 4.0.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — sistema cardiovascular/respiratorio. Se omiten metodología del panel, tablas técnicas de imagen avanzada (TC) y el detalle farmacológico específico de tratamientos dirigidos a PH (sección truncada en la fuente disponible); se conservan definiciones, clasificación clínica, criterios de sospecha, y principios generales de tratamiento.
+
+---
+
+## 1. Qué es la hipertensión pulmonar (PH) — y por qué importa para triage
+
+- **No es una enfermedad en sí misma** — es un estado hemodinámico anormal (presión aumentada en la vasculatura pulmonar) que acompaña a una amplia variedad de enfermedades cardíacas, respiratorias y sistémicas.
+- El diagnóstico definitivo requiere cateterismo cardíaco derecho (rara vez realizado en la práctica clínica veterinaria) — en la práctica, **la ecocardiografía es la herramienta de estimación de probabilidad**, no una prueba diagnóstica definitiva por sí sola.
+- **Relevancia para ICIS**: la PH aparece como complicación secundaria de condiciones que el agente ya maneja en otros contextos — enfermedad valvular mitral (MMVD), enfermedad respiratoria crónica, tromboembolismo (asociado a IMHA, hiperadrenocorticismo espontáneo, nefropatía/enteropatía perdedora de proteínas, sepsis, neoplasia, CID), y enfermedad parasitaria (*Dirofilaria*, *Angiostrongylus*).
+
+## 2. Hallazgos clínicos que deben elevar la sospecha
+
+| Fuertemente sugestivos | Posiblemente sugestivos |
+|---|---|
+| Síncope (especialmente con esfuerzo/actividad) sin otra causa identificable | Taquipnea en reposo |
+| Distrés respiratorio en reposo | Esfuerzo respiratorio aumentado en reposo |
+| Actividad/ejercicio que termina en distrés respiratorio | Taquipnea prolongada post-ejercicio/actividad |
+| Insuficiencia cardíaca derecha (ascitis cardiogénica) | Mucosas cianóticas o pálidas |
+
+Ninguno de estos signos es específico de PH por sí solo — deben interpretarse en conjunto con hallazgos ecocardiográficos y de otras pruebas.
+
+## 3. Evaluación ecocardiográfica — criterios de probabilidad
+
+La velocidad pico de regurgitación tricuspídea (TRV) por Doppler continuo es la métrica clave. Junto con el número de sitios anatómicos con signos ecográficos de PH (ventrículos, arteria pulmonar, aurícula derecha/vena cava caudal), se estima la probabilidad:
+
+| TRV (m/s) | N.º de sitios anatómicos con signos de PH | Probabilidad de PH |
+|---|---|---|
+| ≤3.0 o no medible | 0-1 | Baja |
+| ≤3.0 o no medible | 2 | Intermedia |
+| 3.0-3.4 | 0-1 | Intermedia |
+| >3.4 | 0 | Intermedia |
+| ≤3.0 o no medible | 3 | Alta |
+| 3.0-3.4 | ≥2 | Alta |
+| >3.4 | ≥1 | Alta |
+
+**Definición clínica propuesta por el panel**: el punto de corte clínicamente relevante es **TRV >3.4 m/s** (gradiente de presión tricuspídeo >46 mmHg) — el panel desaconseja usar categorías de "leve/moderada/severa" basadas solo en presión estimada, ya que un perro con PH "severa" por presión puede estar asintomático, mientras uno con PH "moderada" puede estar en insuficiencia cardíaca derecha.
+
+**PH secundaria a enfermedad cardíaca izquierda (grupo 2)** requiere además: documentación de la enfermedad cardíaca izquierda (ej. MMVD) **Y** agrandamiento auricular izquierdo inequívoco.
+
+## 4. Clasificación en 6 grupos (adaptación del esquema humano para perros)
+
+| Grupo | Categoría | Ejemplos relevantes |
+|---|---|---|
+| **1** | Hipertensión arterial pulmonar (idiopática, hereditaria, inducida por fármacos/toxinas, o asociada a shunts congénitos, vasculitis pulmonar, amiloidosis vascular) | Shunts cardíacos congénitos con flujo izquierda-derecha |
+| **2** | PH secundaria a enfermedad cardíaca izquierda | **MMVD** (causa históricamente más común identificada), cardiomiopatía dilatada, miocarditis |
+| **3** | PH secundaria a enfermedad respiratoria/hipoxia | Colapso traqueal/bronquial, enfermedad pulmonar intersticial (fibrótica), neumonía infecciosa, neoplasia pulmonar difusa, síndrome braquicefálico obstructivo (BOAS) |
+| **4** | Embolia/trombo/tromboembolismo pulmonar | Asociado a IMHA, hiperadrenocorticismo espontáneo, nefropatía/enteropatía perdedora de proteínas, sepsis, neoplasia, CID |
+| **5** | Enfermedad parasitaria | ***Dirofilaria*** (dirofilariosis/enfermedad del gusano del corazón), ***Angiostrongylus*** |
+| **6** | Mecanismos multifactoriales o poco claros | ≥2 condiciones de los grupos 1-5 contribuyendo simultáneamente; masas comprimiendo arterias pulmonares |
+
+**Regla práctica de clasificación**: si un perro tiene más de una condición que podría contribuir a PH, evaluar la magnitud de la contribución de cada una — si una es claramente dominante, clasificar según esa; si ≥2 contribuyen de forma sustancial, clasificar como grupo 6 (esto tiene implicancia terapéutica directa: el grupo 6 típicamente requiere tratamiento multimodal dirigido a cada mecanismo subyacente, no un solo tratamiento).
+
+## 5. Recomendaciones diagnósticas (consenso D1-D7)
+
+- **D1**: considerar ecocardiografía tempranamente en perros con hallazgos clínicos sugestivos de PH, después de que el examen físico y la imagen torácica descarten otro trastorno específico no asociado a PH.
+- **D2**: considerar ecocardiografía si la radiografía torácica muestra arterias pulmonares tortuosas/dilatadas/con bordes borrosos, infiltrados alveolares parcheados difusos, abultamiento en la región del tronco pulmonar, o agrandamiento cardíaco derecho.
+- **D3**: considerar ecocardiografía en perros con signos sugestivos + ascitis (trasudado modificado, causas no cardíacas descartadas) o vena cava caudal dilatada.
+- **D4**: considerar ecocardiografía en perros de zonas endémicas con positividad confirmada (actual o histórica) para *Dirofilaria* o *Angiostrongylus* con signos clínicos o hallazgos radiográficos compatibles.
+- **D5**: considerar ecocardiografía en perros de alto riesgo de tromboembolismo pulmonar (ver condiciones asociadas del grupo 4) con signos sugestivos de PH, especialmente con hipoxemia sin otra causa identificada en la imagen torácica.
+
+## 6. Principios generales de tratamiento
+
+### Estrategias para reducir riesgo de progresión (aplican a PH de alta probabilidad, en general)
+- Restricción de ejercicio.
+- Prevención de patógenos respiratorios contagiosos (vacunación) y control parasitario (*Dirofilaria*/*Angiostrongylus*) con quimioprofilaxis en zonas endémicas.
+- Evitar preñez, altitud elevada, viajes aéreos, y procedimientos electivos no esenciales que requieran anestesia general.
+
+### Por grupo
+- **Grupo 1 (shunts congénitos, 1d1)**: cierre/oclusión del shunt recomendado si es hemodinámicamente relevante y el flujo es izquierda-derecha (o se vuelve así con vasodilatadores pulmonares). Si hay shunt derecha-izquierda con eritrocitosis y signos clínicos: flebotomías periódicas con reposición de fluidos; hidroxiurea como alternativa para reducir volumen eritrocitario.
+- **Grupo 2 (enfermedad cardíaca izquierda)**: el tratamiento se centra en la enfermedad cardíaca subyacente (referirse a las guías ACVIM de MMVD para el manejo específico). **Los inhibidores de fosfodiesterasa-5 (PDE5i, ej. sildenafil) NO se recomiendan como tratamiento de primera línea** en este grupo, precisamente porque la PH aquí es postcapilar por definición.
+- **Grupo 3 (respiratoria/hipoxia)**: tratamiento sintomático de la causa subyacente — supresión de tos, sedación, oxígeno suplementario, control de infección/inflamación secundaria. Pérdida de peso en pacientes obesos. Corticosteroides para enfermedad pulmonar eosinofílica y neumonía organizativa criptogénica (esta última con tratamiento temprano/agresivo, buen pronóstico). Neumonía por *Pneumocystis*: trimetoprim-sulfonamida en dosis alta ± corticosteroide antiinflamatorio. BOAS: corrección quirúrgica temprana de los componentes obstructivos.
+- **Grupo 4 (tromboembolismo)**: inicio pronto de antitrombóticos ante sospecha o confirmación — heparina (bajo peso molecular o no fraccionada) o anticoagulantes orales directos (rivaroxabán, apixabán) preferidos sobre antiplaquetarios orales (clopidogrel, aspirina). En tromboembolismo agudo con disfunción sistólica del VD y colapso hemodinámico: considerar activador tisular del plasminógeno (con acceso a monitoreo intensivo 24h).
+- **Grupo 5 (parasitaria)**: referirse a guías específicas de manejo de dirofilariosis y angiostrongilosis.
+
+## 7. Nota importante sobre PH en pacientes con múltiples comorbilidades
+
+Ejemplo del propio consenso, ilustrativo para el razonamiento de ICIS: un perro pequeño con insuficiencia cardíaca izquierda que además presenta estridor inspiratorio y respiración rápida/superficial **no debe cerrarse el algoritmo diagnóstico solo con el diagnóstico de enfermedad cardíaca izquierda** — debe investigarse activamente un defecto de vía aérea superior concurrente (ej. colapso traqueal extratorácico). Este es un principio general aplicable: la presencia de un diagnóstico que explica parte del cuadro no descarta automáticamente contribuciones adicionales de otros sistemas.

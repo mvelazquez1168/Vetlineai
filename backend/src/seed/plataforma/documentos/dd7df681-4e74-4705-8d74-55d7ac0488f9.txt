@@ -1,0 +1,119 @@
+INSUFICIENCIA PANCREÁTICA EXOCRINA EN PERROS Y GATOS — DIAGNÓSTICO POR TLI Y MANEJO
+
+Resumen clínico de referencia para GCIS. Componentes que lo consumen: CC-202 (bioquímica sérica), CC-240 (correlación diagnóstica), CC-306 a CC-309 (nutrición terapéutica), CC-301 a CC-304 (farmacoterapia).
+
+---
+
+1. QUÉ ES Y DE DÓNDE VIENE
+
+Es un síndrome malabsortivo causado por secreción insuficiente de enzimas digestivas desde los acinos pancreáticos.
+
+Las causas más comunes en perros y gatos son la **atrofia acinar pancreática** y la **pancreatitis crónica**.
+
+Esa segunda causa establece una conexión directa dentro de la propia base de GCIS: los documentos de pancreatitis felina y canina describen la enfermedad que, en su forma crónica, desemboca aquí. Un paciente con pancreatitis crónica es un paciente en riesgo de esta entidad.
+
+2. PRESENTACIÓN — Y LA DIFERENCIA ENTRE ESPECIES
+
+En el perro: **mala calidad de heces y pérdida de peso pese a buen apetito**. Los perros suelen ser además polifágicos. Es un diferencial importante ante diarrea de intestino delgado con pérdida de peso.
+
+En el gato: **los signos son inespecíficos, incluida pérdida de peso como único hallazgo.** Por eso los clínicos necesitan mantener un alto índice de sospecha para identificar la enfermedad en esta especie.
+
+Regla para GCIS: en el gato, la ausencia del cuadro clásico canino no descarta la entidad. Ante pérdida de peso sin explicación, la insuficiencia pancreática exocrina debe entrar en el diferencial aunque las heces sean normales.
+
+3. DIAGNÓSTICO — UNA SOLA PRUEBA
+
+La prueba de elección es la **inmunorreactividad similar a tripsina (TLI) sérica**, medida con inmunoensayos específicos de especie. Su concentración **refleja directamente la masa de tejido acinar pancreático funcionante**, lo que explica por qué es diagnóstica y no solo orientadora.
+
+Valores diagnósticos citados: TLI sérica **≤ 5,5 µg/L en perros** o **≤ 8,0 µg/L en gatos**.
+
+Es considerada el estándar de oro y el diagnóstico es esencialmente funcional.
+
+Concepto que evita un error de interpretación: como la digestión de un macronutriente puede lograrse a menudo por más de una enzima, **la ausencia de secreciones pancreáticas exocrinas no necesariamente produce signos clínicos**. Se ha reportado insuficiencia subclínica en varios Pastores Alemanes, con TLI severamente disminuida y ausencia de tejido acinar pancreático, pero sin signos o con signos solo intermitentes.
+
+Regla para GCIS: una TLI baja en un paciente sin signos compatibles no obliga a tratar. La entidad se define por la combinación de función ausente y cuadro clínico.
+
+Elastasa fecal. Existe un ensayo validado en perros, pero **algunos perros sanos o con enfermedad intestinal crónica pueden tener elastasa fecal severamente disminuida**, lo que la hace mucho menos confiable que la TLI sérica.
+
+Prueba complementaria obligada: la TLI debe realizarse junto con la medición de **cobalamina**, comúnmente baja en esta enfermedad, y de folato.
+
+Nota preanalítica: el ayuno afecta las concentraciones séricas de cobalamina, folato, TLI y lipasa pancreática, de modo que las condiciones de la muestra importan.
+
+4. TRATAMIENTO — TRES COMPONENTES
+
+**Terapia de reemplazo enzimático pancreático.** Es el tratamiento estándar. Se administra diariamente, agregada al alimento. Las formulaciones vienen como polvo, cápsula o comprimido. Los efectos adversos son raros, pero pueden incluir sangrado de la boca; cuando ocurre, algunos clínicos prescriben páncreas crudo picado de vacuno o cerdo.
+
+**Manejo nutricional.** Dietas de bajo residuo con contenido moderado de grasa, altamente digestibles. Otras fuentes describen dietas de proteína novel o hidrolizada.
+
+**Suplementación de cobalamina.** Un ensayo clínico aleatorizado prospectivo sobre 46 perros con hipocobalaminemia por enteropatía crónica o por insuficiencia pancreática exocrina mostró que **las concentraciones séricas aumentaron tanto con suplementación oral como inyectable en ambos grupos**. Conclusión de los autores: la suplementación oral es una alternativa válida.
+
+Matiz del mismo estudio: las concentraciones séricas de ácido metilmalónico —marcador de deficiencia intracelular— disminuyeron con suplementación oral o inyectable en enteropatía crónica, **pero solo con la oral en insuficiencia pancreática exocrina**.
+
+5. EL PACIENTE QUE NO RESPONDE
+
+Algunos perros y gatos tienen signos clínicos persistentes pese a estos tratamientos.
+
+Las causas descritas de respuesta subóptima:
+
+Tiempo insuficiente para permitir la respuesta clínica.
+
+Problema de dosis o de formulación enzimática.
+
+Dieta inadecuada.
+
+**Enteropatía crónica concurrente.**
+
+**Disbiosis persistente de la microbiota entérica.**
+
+La evidencia creciente sugiere que esos signos persistentes pueden deberse a disbiosis o a enfermedades concurrentes como las enteropatías crónicas, y **el manejo de esas anormalidades puede mejorar el desenlace**.
+
+Regla para GCIS: ante falta de respuesta, la secuencia de revisión es tiempo, dosis, formulación, dieta, y recién después enfermedad concurrente. Aumentar la enzima sin revisar los cuatro primeros es la conducta menos probable de resolver el caso.
+
+Conexión interna: la enteropatía inflamatoria crónica tiene documento propio en GCIS, y es el diagnóstico concurrente que más frecuentemente explica un fallo terapéutico aquí.
+
+6. PRONÓSTICO
+
+Generalmente bueno, pero **requiere tratamiento continuo y monitoreo regular**. La mayoría de los animales responde bien a la terapia.
+
+Un estudio sobre factores pronósticos concluye que la supervivencia prolongada es probable si se alcanza la remisión clínica.
+
+Nota nutricional adicional: se han estudiado las concentraciones séricas de vitaminas liposolubles en perros con esta enfermedad, dado el componente malabsortivo.
+
+7. ERRORES FRECUENTES
+
+Descartar la entidad en un gato por ausencia del cuadro clásico canino.
+
+Diagnosticar sobre elastasa fecal en vez de TLI sérica.
+
+Tratar a un paciente con TLI baja y sin signos compatibles.
+
+Solicitar TLI sin cobalamina y folato concurrentes.
+
+Asumir que la suplementación de cobalamina requiere vía inyectable.
+
+Escalar la dosis enzimática ante falta de respuesta sin revisar tiempo, formulación y dieta.
+
+No investigar enteropatía crónica ni disbiosis en el paciente que no responde.
+
+Presentar el tratamiento como curso limitado en vez de manejo de por vida.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis y formulaciones comparadas de las enzimas de reemplazo. Dosis y esquemas de suplementación de cobalamina. Atrofia acinar pancreática: patogenia, base inmunomediada y predisposición racial en Pastor Alemán y Collie de pelo largo. Diagnóstico y manejo de la disbiosis intestinal. Suplementación de vitaminas liposolubles. Insuficiencia pancreática exocrina secundaria a otras causas. Monitoreo a largo plazo: qué medir y con qué frecuencia. Estos temas quedan como vacíos declarados de la Base de Conocimiento de GCIS.
+
+FUENTES
+
+Exocrine pancreatic insufficiency in dogs and cats. J Am Vet Med Assoc 2024;262(2). Fuente principal de las secciones 1, 4 y 5.
+
+Merck Veterinary Manual — Exocrine Pancreatic Insufficiency in Dogs and Cats. Fuente de la sección 3, incluidos los valores diagnósticos de TLI.
+
+Canine and Feline Exocrine Pancreatic Insufficiency. Today's Veterinary Practice 2025. Fuente de las secciones 2 y 5.
+
+Exocrine pancreatic insufficiency in dogs. Royal Canin Academy. Fuente de las secciones 2 y 6.
+
+Effect of oral or injectable supplementation with cobalamin in dogs with hypocobalaminemia caused by chronic enteropathy or exocrine pancreatic insufficiency. PMC9511088. Fuente de la sección 4.
+
+Batchelor DJ, Noble PJ, Taylor RH, Cripps PJ, German AJ. Prognostic factors in canine exocrine pancreatic insufficiency: prolonged survival is likely if clinical remission is achieved. J Vet Intern Med 2007;21(1):54–60.
+
+Wiberg ME. Pancreatic acinar atrophy in German shepherd dogs and rough-coated collies: etiopathogenesis, diagnosis and treatment. A review. Vet Q 2004;26(2):61–75.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

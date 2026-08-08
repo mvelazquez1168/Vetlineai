@@ -65,7 +65,14 @@ const jwks = jwksClient({
 // público de punta a punta, nunca antes con tokens obtenidos por el
 // navegador (que siempre entran por "localhost").
 const issuerInternoDocker = `${issuerUrl.protocol}//${jwksHost}${issuerUrl.pathname}`;
-const ISSUERS_ACEPTADOS = Array.from(new Set([config.keycloakIssuer, issuerInternoDocker]));
+// jwt.verify espera `issuer` como string | [string, ...string[]] (tupla no
+// vacía), no un string[] genérico — Array.from pierde esa forma. Siempre
+// tiene al menos 1 elemento (config.keycloakIssuer es obligatorio), así que
+// el cast es seguro, no un silenciamiento del chequeo de tipos.
+const ISSUERS_ACEPTADOS = Array.from(new Set([config.keycloakIssuer, issuerInternoDocker])) as [
+  string,
+  ...string[],
+];
 
 function resolverClaveFirma(header: JwtHeader, callback: SigningKeyCallback) {
   if (!header.kid) {

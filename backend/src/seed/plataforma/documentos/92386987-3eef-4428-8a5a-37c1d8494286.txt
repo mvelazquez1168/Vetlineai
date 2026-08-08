@@ -1,0 +1,94 @@
+# Consenso ACVIM 2023 (actualizado) — Leptospirosis en perros
+
+**Fuente:** Sykes JE, Francey T, Schuller S, Stoddard RA, Cowgill LD, Moore GE. Updated ACVIM consensus statement on leptospirosis in dogs. *J Vet Intern Med.* 2023;37(6):1966-1982. Licencia CC BY-NC-ND 4.0.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — enfermedad infecciosa zoonótica multisistémica. Se omiten metodología del panel, discusión epidemiológica extensa y listado bibliográfico completo; se conservan manifestaciones clínicas, criterios diagnósticos, tratamiento y consideraciones de salud pública.
+
+---
+
+## 1. Contexto clínico — por qué importa para triage
+
+- Todo perro está en riesgo, **independientemente de raza, ubicación geográfica, estilo de vida o vacunación con vacunas de 2 serovares** — la vacunación tetravalente reduce pero no elimina el riesgo.
+- Enfermedad multisistémica, pero predomina el compromiso renal (nefritis tubulointersticial) y hepático (hepatopatía colestásica), que suelen presentarse juntos.
+- Debe considerarse **como diferencial en todo perro evaluado por lesión renal aguda (AKI)**, especialmente si hay disfunción hepática concurrente o evidencia de hemorragia pulmonar.
+- En gatos: considerar si hay AKI + ≥1 hallazgo clinicopatológico sugestivo de infección sistémica sin otra explicación (los gatos son más resistentes a la enfermedad clínica, pero pueden ser reservorios).
+
+## 2. Manifestaciones clínicas por órgano (tabla de referencia)
+
+| Sistema | Signos posibles | Hallazgos diagnósticos |
+|---|---|---|
+| Renal (nefritis tubulointersticial) | Vómito, diarrea, deshidratación, letargo, PU/PD, oliguria/anuria, dolor abdominal | Azotemia, alteraciones electrolíticas, isostenuria, glucosuria, proteinuria, piuria, cilindruria, corteza renal hiperecoica |
+| Hepático (colestásico) | Vómito, diarrea, deshidratación, letargo, ictericia | Enzimas hepáticas elevadas, hiperbilirrubinemia, hipoalbuminemia |
+| Pulmonar (síndrome de hemorragia pulmonar leptospiral, SHPL) | Taquipnea, hemoptisis, ruidos respiratorios aumentados | Anemia, hipoxemia, patrón intersticial-alveolar difuso o parcheado |
+| Coagulopatía | Petequias, equimosis, hematuria, melena, hematemesis, epistaxis | Anemia, hipoalbuminemia, trombocitopenia, hiperfibrinogenemia |
+| Vascular | Edema periférico, ascitis leve, efusión pleural | Efusión pleural, ascitis/líquido retroperitoneal leve |
+| Pancreático | Vómito, diarrea, dolor abdominal | Hiperbilirrubinemia, enzimas hepáticas ↑, lipasa pancreática específica ↑ |
+| Ocular | Uveítis, conjuntivitis, hemorragias retinianas | Examen de fondo de ojo |
+| Cardíaco | Arritmias | Troponina sérica ↑, alteraciones en ECG |
+| Muscular | Renuencia a moverse | CK elevada |
+
+Hallazgos de laboratorio de rutina más frecuentes: neutrofilia (27-94%), trombocitopenia (14-73%), anemia no regenerativa leve-moderada (18-92%), azotemia, ALP elevada (19-94%), hiperbilirrubinemia (15-94%), hipoalbuminemia (18-88%).
+
+## 3. Diagnóstico
+
+### Criterios clínicos (para definición de caso)
+1. Inicio de enfermedad sistémica (fiebre inespecífica, letargo, PU/PD, anorexia) en las últimas 2 semanas, con o sin: signos GI, pulmonares, oculares, sospecha de AKI, ictericia, o hemorragia.
+2. **Y** ≥2 de las siguientes alteraciones clinicopatológicas: leucocitosis neutrofílica, trombocitopenia, evidencia bioquímica de AKI, evidencia de hepatopatía colestásica, evidencia de pancreatitis, CK aumentada, glucosuria sin hiperglicemia, sedimento urinario activo, hallazgos radiográficos de SHPL, hallazgos ecográficos abdominales compatibles, arritmias/troponina elevada en ECG.
+
+### Caso probable vs. confirmado
+- **Probable**: cumple criterios clínicos + ≥1 criterio de laboratorio de soporte (título MAT ≥800 en una muestra; detección de IgM en fase aguda; NAAT positivo en orina; visualización de espiroquetas por microscopía de campo oscuro).
+- **Confirmado**: cumple criterios clínicos + ≥1 criterio confirmatorio (aumento ≥4 veces en título de aglutinación entre fase aguda y convaleciente en el mismo laboratorio; NAAT positivo en sangre; aislamiento de *Leptospira* por laboratorio de referencia).
+
+### Pruebas específicas
+- **MAT (test de microaglutinación)**: estándar de referencia. Un solo título positivo (salvo muy alto, >1:3200) carece de especificidad — puede reflejar vacunación reciente. **No se recomienda diagnóstico basado en una sola muestra**; se recomienda intervalo de 7-14 días entre muestra aguda y convaleciente para documentar seroconversión.
+- **Pruebas rápidas point-of-care** (SNAP Lepto, WITNESS Lepto): sensibilidad/especificidad variable según región (ver estudios: 68-79% sensibilidad, 72-100% especificidad) — un resultado negativo no descarta la enfermedad, debe repetirse a los 7-14 días.
+- **NAAT (PCR)** en sangre Y orina (enviar ambas muestras, antes de iniciar antibióticos si es posible): sensibilidad variable (21-69% según el tipo de muestra), especificidad alta (100% reportado). Un NAAT positivo en sangre + signos clínicos compatibles es diagnóstico. Un NAAT positivo en orina debe interpretarse junto con el cuadro clínico (hasta 20% de perros sanos pueden tener ADN de *Leptospira* patógena en orina).
+- Cultivo y microscopía de campo oscuro: baja sensibilidad, no recomendados para diagnóstico de rutina.
+- Combinar serología + detección de organismo optimiza el diagnóstico — ninguna prueba aislada es suficiente.
+
+## 4. Tratamiento
+
+### Antimicrobiano (iniciar sin esperar confirmación diagnóstica, ante sospecha razonable)
+- **Doxiciclina 5 mg/kg VO cada 12h × 2 semanas** — tratamiento de elección.
+- Si hay vómito u otra razón que impida la vía oral: iniciar con **ampicilina (20-30 mg/kg IV c/6-8h)**, **amoxicilina (20-30 mg/kg IV c/6-8h)**, o **penicilina G (25,000-40,000 U/kg IV c/6-8h)**, con intervalo duplicado en perros con AKI grado IRIS ≥4 (creatinina >5 mg/dL).
+
+### Soporte
+- Manejo estándar de fluidos/electrolitos/ácido-base — **evitar sobrecarga hídrica iatrogénica**, que empeora la disfunción orgánica y es mal tolerada especialmente si hay compromiso pulmonar.
+- Perros con AKI no oligúrica pueden ser marcadamente poliúricos, requiriendo tasas >20 mL/kg/h para evitar hipovolemia.
+- Hipertensión persistente no resuelta con analgesia/volumen: **amlodipina 0.25-0.75 mg/kg/día VO**.
+- Analgesia con opioides; **AINEs no recomendados**.
+- Nutrición: dieta altamente digestible, contenido proteico normal-alto (no restringir proteína como en dietas renales estándar, dado el catabolismo) — considerar sondas de alimentación temprano.
+- Manejo de coagulopatía según el mecanismo dominante identificado por pruebas de coagulación; plasma fresco congelado si hay consumo de factores.
+
+### Terapia de reemplazo renal extracorpóreo (diálisis)
+- Leptospirosis es de las indicaciones más frecuentes de terapia de soporte renal extracorpóreo, con **alto potencial de recuperación exitosa** (>80% de recuperación reportada en AKI severa que falló manejo conservador).
+- Considerar referencia temprana a centro con esta capacidad si el paciente alcanza grado IRIS de AKI 4 (creatinina >5 mg/dL) — la intervención temprana se asocia a mejor sobrevida.
+
+### Monitoreo
+- Bioquímica sérica cada 24h durante hospitalización (función renal, bilirrubina, enzimas hepáticas, proteínas, PCR, electrolitos).
+- Hematocrito cada 24h, hemograma cada 48h.
+- Producción urinaria monitoreada frecuentemente para evitar sobrehidratación.
+- Reevaluación a la semana del alta con hemograma, bioquímica, densidad urinaria, y considerar título MAT convaleciente si no se obtuvo al alta.
+- Perros que se recuperan de AKI severa suelen quedar con algún grado de pérdida permanente de función renal — deben monitorearse y manejarse según su estadio IRIS de enfermedad renal crónica resultante.
+
+## 5. Pronóstico
+
+- Factores de mal pronóstico: hiperbilirrubinemia, hipocoagulabilidad.
+- Bilirrubina sérica ≥0.6 mg/dL se asoció fuertemente con muerte/eutanasia (OR 16.4).
+- Síndrome de hemorragia pulmonar leptospiral: mortalidad reportada hasta 70% en casos severos (existen formas leves que resuelven con tratamiento antimicrobiano).
+- Normalización de PCR con el tratamiento se correlaciona con curso clínico favorable; un retraso en su normalización sugiere complicación secundaria y amerita reevaluación.
+
+## 6. Prevención
+
+- Vacunas tetravalentes disponibles (Icterohaemorrhagiae, Canicola, Grippotyphosa, Pomona/Australis según región) — protección >80% contra enfermedad clínica y estado de portador renal en estudios experimentales.
+- Esquema: 2 dosis iniciales espaciadas 4 semanas, desde las 12 semanas de edad; revacunación anual.
+- Protección documentada por al menos 12 meses; algunos fabricantes garantizan 15 meses.
+- Vacunación recomendada tras recuperación de un episodio de leptospirosis (no hay evidencia de inmunidad de por vida tras infección natural).
+
+## 7. Implicaciones de salud pública (zoonosis) — relevante para orientar al propietario
+
+- El riesgo de transmisión zoonótica de un perro enfermo a los humanos **parece bajo** con precauciones básicas, pero es real — investigaciones de brotes no han demostrado transmisión significativa cuando se toman precauciones estándar.
+- La leptospiruria generalmente no comienza hasta 7-10 días después de la infección — perros en los primeros días de enfermedad representan menor riesgo.
+- Recomendación al propietario: evitar contacto con la orina del perro, usar guantes y protección ocular al limpiar orina, hasta completar 48 horas de tratamiento con doxiciclina.
+- No se requiere aislamiento hospitalario estricto (los perros no transmiten fácilmente entre sí ni a personas por vías distintas al contacto con orina), pero sí minimizar el desplazamiento del paciente por el hospital en las primeras 48h y desinfectar áreas de contacto.
+- Considerar tratamiento profiláctico de otros perros del mismo hogar potencialmente expuestos (doxiciclina 5 mg/kg c/12h × 14 días), idealmente con monitoreo serológico.

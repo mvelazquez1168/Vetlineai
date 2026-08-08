@@ -1,0 +1,103 @@
+FARMACOTERAPIA REPRODUCTIVA CANINA — ANTIPROGESTÁGENOS, PROSTAGLANDINAS Y AGENTES UTEROKINÉTICOS
+
+Resumen clínico de referencia para RCIS. Componente principal que lo consume: CC-305 (Reproductive Pharmacotherapy). Componentes vinculados: CC-231 y CC-233 (fase reproductiva sobre la que se razona), CC-237 (farmacoterapia prostática, tratada en su propio documento).
+
+---
+
+1. LA REGLA QUE GOBIERNA TODO ESTE DOCUMENTO
+
+Prácticamente todos los fármacos de uso reproductivo tienen indicaciones y contraindicaciones que dependen enteramente de la fase reproductiva del paciente. El mismo agente puede ser terapéutico en diestro y abortivo en gestación.
+
+Por eso CC-305 no emite recomendación sin que el estado gestacional o la fase del ciclo estén confirmados. Si no lo están, los solicita. Esta no es una precaución formal: es la diferencia entre tratar y provocar una pérdida gestacional.
+
+2. AGLEPRISTONA — ANTAGONISTA DEL RECEPTOR DE PROGESTERONA
+
+Mecanismo y usos. La aglepristona bloquea los efectos de la progesterona. En piometra de cérvix cerrado, ese bloqueo promueve además la relajación y apertura cervical, lo que permite el vaciamiento uterino. También se emplea para la interrupción de la gestación.
+
+Indicación principal en RCIS: piometra en una hembra en la que se desea preservar la fertilidad, o cuando la cirugía está contraindicada. En el resto de los casos, la ovariohisterectomía sigue siendo la resolución definitiva.
+
+Protocolos publicados y su comparación
+
+La literatura describe varios esquemas, y las diferencias entre ellos no son triviales:
+
+Protocolo clásico: administración en los días 0, 1 y 6 desde el diagnóstico. Eficacia reportada de 88.5% en una serie.
+
+Protocolo modificado: administración en los días 0, 2, 5 y 8. En el mismo estudio comparativo alcanzó 100% de eficacia, sin recurrencia registrada en 24 meses de seguimiento.
+
+Protocolo prolongado descrito en otra serie: días 1, 2, 8 y luego cada 7 días hasta que la progesterona sanguínea descienda por debajo de 1.2 ng/mL, con cloprostenol administrado en los días 3 a 5.
+
+Esquemas comparados por número de dosis: 10 mg/kg por vía subcutánea en los días 0, 1, 8 y 15 (cuatro dosis) frente a los días 0 y 1 (dos dosis).
+
+Advertencia relevante sobre el número de dosis. En ese último estudio, la hiperplasia vaginal durante el celo siguiente ocurrió en 53.3% de las hembras del esquema de cuatro dosis frente a 7% del esquema de dos. La hiperplasia de grado III se asoció con recurrencia de la piometra.
+
+Regla para CC-305: al referenciar un protocolo de aglepristona debe indicarse cuál, porque los esquemas difieren en eficacia y en efectos adversos posteriores. No existe "el protocolo de aglepristona".
+
+Recurrencia y enfermedad subclínica. El tratamiento médico de la piometra tiene tasa de recurrencia apreciable. Se ha concluido que la enfermedad subclínica puede persistir tras el tratamiento, con recurrencia clínica durante el diestro siguiente. Pese a ello, se considera un tratamiento práctico cuando se desea conservar la capacidad reproductiva.
+
+Consecuencia operativa: una hembra tratada médicamente por piometra requiere seguimiento en el diestro siguiente. Ese es un evento proyectado que corresponde registrar en la timeline de CC-004.
+
+Uso sin antibiótico. Un estudio evaluó aglepristona sola frente a aglepristona combinada con antimicrobianos. Los tres protocolos lograron resolución clínica —incluido el grupo de aglepristona sola—, con normalización de leucocitos y marcadores bioquímicos séricos. Es un resultado a conocer, no una recomendación de omitir antimicrobianos: la decisión sobre antibioterapia debe apoyarse en cultivo y en el estado del paciente.
+
+3. PROSTAGLANDINAS
+
+Cloprostenol, análogo de PGF2 alfa, se emplea combinado con aglepristona con el objetivo de inducir contracciones uterinas y favorecer el vaciamiento. La PGF2 alfa natural (dinoprost) también se ha utilizado en el tratamiento de la piometra, históricamente combinada con antibacterianos de amplio espectro.
+
+Un uso distinto y ajeno a la piometra: la administración de PGF2 alfa a 0.1 mg/kg por vía subcutánea 15 minutos antes de la colecta seminal ha mostrado aumentar el número total de espermatozoides en el eyaculado. Ver el documento de andrología.
+
+4. AGENTES UTEROKINÉTICOS
+
+Estudios in vitro sobre fibras miometriales caninas han comparado la actividad uterokinética de oxitocina y dinoprost, con y sin aglepristona previa, en distintas fases del ciclo. Una combinación de aglepristona y oxitocina mostró resultados prometedores in vitro, pero esos resultados aún no han sido confirmados clínicamente.
+
+Regla para CC-305: no debe presentarse la combinación aglepristona-oxitocina como conducta establecida. Es un hallazgo experimental sin confirmación clínica, y así debe declararse si aparece en el razonamiento.
+
+5. SEGUIMIENTO DEL TRATAMIENTO MÉDICO
+
+Un estudio prospectivo sobre respuesta inflamatoria y redox durante el tratamiento médico de la piometra de cérvix abierto comparó aglepristona sola frente a aglepristona con prostaglandina diaria. Su conclusión sobre monitoreo es directamente aplicable:
+
+Los marcadores oxidativos, las enzimas antioxidantes y la proteína C reactiva no son adecuados para evaluar la eficacia del tratamiento cuando se emplea prostaglandina.
+
+La albúmina resultó marcador sensible de evolución terapéutica en ambos protocolos.
+
+Esto le da a CC-202 un criterio concreto de seguimiento en estos casos, en lugar de vigilar parámetros que el propio tratamiento distorsiona.
+
+6. FISIOPATOLOGÍA QUE EXPLICA LA INDICACIÓN
+
+La piometra es altamente prevalente en la especie canina por las características de su ciclo estral: la actividad estrogénica del estro, seguida de la exposición prolongada del endometrio a la progesterona durante el diestro, induce alteraciones estructurales que predisponen a la colonización bacteriana.
+
+Entender esto es lo que justifica que el antagonismo de progesterona sea terapéutico y no meramente sintomático.
+
+7. ERRORES FRECUENTES
+
+Recomendar un fármaco reproductivo sin haber confirmado la fase del ciclo o el estado gestacional.
+
+Citar "el protocolo de aglepristona" como si hubiera uno solo.
+
+Elegir el esquema de más dosis asumiendo mayor eficacia, sin considerar la hiperplasia vaginal posterior y su asociación con recurrencia.
+
+Dar de alta a una hembra tratada médicamente sin programar el control del diestro siguiente.
+
+Presentar hallazgos in vitro como conducta clínica establecida.
+
+Usar proteína C reactiva para seguir la respuesta cuando se está administrando prostaglandina.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis completas y vías para todos los agentes mencionados: deben tomarse de la fuente de referencia que el clínico utilice, con la excepción de los valores explícitamente citados aquí junto a su estudio de origen. Inducción del parto. Uterotónicos en el manejo de la distocia. Antimicrobianos: selección, dosis y duración. Inducción y supresión del celo. Anticoncepción y control reproductivo. Interrupción de la gestación: protocolos detallados. Manejo de la pseudogestación. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS.
+
+Nota de alcance: la farmacoterapia prostática —finasterida, acetato de osaterona y las moléculas desaconsejadas en reproductores— está tratada en el documento de patología prostática y no se duplica aquí.
+
+FUENTES
+
+Fieni F y col. Aglepristone: a review on its clinical use in animals. Theriogenology 2015.
+
+Contri A, Gloria A, Carluccio A, Pantaleo S, Robbe D. Effectiveness of a modified administration protocol for the medical treatment of canine pyometra. Vet Res Commun 2015;39:1–5. Fuente de la comparación de protocolos de la sección 2.
+
+Lopes PHL de Lima y col. Antibiotic-Free Management of Canine Pyometra With Aglepristone: Endocrine Effects and Post-Treatment Vaginal Hyperplasia. Reprod Domest Anim 2025;60(9):e70127.
+
+Inflammatory and Redox Responses During Medical Treatment of Open-Cervix Pyometra in Female Dogs: A Prospective Study. PMC12729436. Fuente de la sección 5.
+
+Fieni F, Topie E, Gogny A. Medical treatment for pyometra in dogs. Reprod Domest Anim 2014;49(Suppl 2):28–32.
+
+Purswell BJ y col. Guidelines for using the canine breeding soundness evaluation form. Society for Theriogenology.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

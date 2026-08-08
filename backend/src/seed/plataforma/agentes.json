@@ -1,0 +1,101 @@
+[
+  {
+    "id": "5b3541b5-eb3b-46bd-b9e5-ea9e14d72ff4",
+    "nombre": "Cardiología",
+    "slug": "cardiologia",
+    "descripcion": "Agente de IA especializado en cardiologia veterinaria.",
+    "icono": "heart",
+    "estado_catalogo": "disponible",
+    "especialidad": "Cardiologia Veterinaria",
+    "estado": "activo",
+    "promptFile": "cardiologia.txt"
+  },
+  {
+    "id": "9e6da67c-168f-458a-a1ad-97b99eaafaf4",
+    "nombre": "Dermatología",
+    "slug": "dermatologia",
+    "descripcion": "Agente de IA especializado en dermatologia veterinaria.",
+    "icono": "sun",
+    "estado_catalogo": "disponible",
+    "especialidad": "Dermatologia Veterinaria",
+    "estado": "activo",
+    "promptFile": "dermatologia.txt"
+  },
+  {
+    "id": "b89ea9b0-5cbb-4da5-8a45-ef7e000375dd",
+    "nombre": "Endocrinologia",
+    "slug": "endocrino",
+    "descripcion": "Agente de IA especializado en endocrinologia veterinaria.",
+    "icono": "droplet",
+    "estado_catalogo": "disponible",
+    "especialidad": "Endocrinologia Veterinaria",
+    "estado": "activo",
+    "promptFile": "endocrino.txt"
+  },
+  {
+    "id": "fc0adced-e371-4fd3-915e-54344c4fa207",
+    "nombre": "Gastroenterología",
+    "slug": "gastroenterologia",
+    "descripcion": "Diagnóstico especializado del tracto gastrointestinal y patologías comunes.",
+    "icono": "circle-x",
+    "estado_catalogo": "disponible",
+    "especialidad": "Tracto Gastrointestinal",
+    "estado": "activo",
+    "promptFile": "gastroenterologia.txt"
+  },
+  {
+    "id": "4601a41d-a536-401a-a135-40890e6346f6",
+    "nombre": "Medicina General / Triage",
+    "slug": "medicina-general-triage",
+    "descripcion": "Evaluación inicial, triaje clínico y diagnóstico diferencial general.",
+    "icono": "stethoscope",
+    "estado_catalogo": "disponible",
+    "especialidad": "Diagnóstico General",
+    "estado": "activo",
+    "promptFile": "medicina-general-triage.txt"
+  },
+  {
+    "id": "94528969-2f98-4b18-bb80-ceba9a4a1294",
+    "nombre": "Neuro",
+    "slug": "neuro",
+    "descripcion": "Agente de IA especializado en neurologia y ortopedia veterinaria: apoya el diagnostico y manejo de pacientes caninos con emergencias convulsivas, epilepsia cronica, enfermedad de disco intervertebral, y otras presentaciones neurologicas/ortopedicas.",
+    "icono": "activity",
+    "estado_catalogo": "disponible",
+    "especialidad": "Neurologia y Ortopedia Veterinaria",
+    "estado": "activo",
+    "promptFile": "neuro.txt"
+  },
+  {
+    "id": "422bff04-cf0d-4aef-8cc1-8da617b1145b",
+    "nombre": "Oncología",
+    "slug": "oncologia",
+    "descripcion": "Agente de IA especializado en oncologia veterinaria: apoya el diagnostico, gradacion, estadificacion y manejo terapeutico de pacientes caninos con sospecha o confirmacion de neoplasia.",
+    "icono": "activity",
+    "estado_catalogo": "disponible",
+    "especialidad": "Oncologia Veterinaria",
+    "estado": "activo",
+    "promptFile": "oncologia.txt"
+  },
+  {
+    "id": "0fb1ab60-f6fc-4d39-a7d8-d76d869f8b47",
+    "nombre": "Reproduccion y Andrologia",
+    "slug": "reproduccion",
+    "descripcion": "Agente de IA especializado en reproduccion y andrologia veterinaria: ciclo estral y planificacion de servicio, gestacion, parto y distocia, puerperio, neonatologia, evaluacion andrologica y patologia prostatica.",
+    "icono": "baby",
+    "estado_catalogo": "disponible",
+    "especialidad": "Reproduccion y Andrologia Veterinaria",
+    "estado": "activo",
+    "promptFile": "reproduccion.txt"
+  },
+  {
+    "id": "3462efbe-b318-49fb-b8df-a936b72337bf",
+    "nombre": "Urologia",
+    "slug": "urologia",
+    "descripcion": "Agente de IA especializado en urologia y nefrologia veterinaria.",
+    "icono": "filter",
+    "estado_catalogo": "disponible",
+    "especialidad": "Urologia y Nefrologia Veterinaria",
+    "estado": "activo",
+    "promptFile": null
+  }
+]

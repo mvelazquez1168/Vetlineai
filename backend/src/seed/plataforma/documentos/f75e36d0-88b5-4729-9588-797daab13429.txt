@@ -1,0 +1,207 @@
+Banderas Rojas Cardiovasculares — Guía de Derivación para Medicina
+General
+
+Propósito de este documento
+
+Este extracto está pensado para el agente de medicina general/internista
+(ICIS), no para un especialista en cardiología. Su objetivo no es
+enseñar a manejar cardiopatías, sino ayudar a reconocer cuándo un
+hallazgo cardiovascular amerita derivación, con qué urgencia, y a
+diferenciar un hallazgo incidental de una descompensación real — que es
+precisamente donde este sistema es más propenso a errar en cualquiera de
+los dos sentidos: sobrederivar cada soplo leve, o subestimar un paciente
+que ya está descompensando.
+
+Principio rector de este documento: en cardiología, a diferencia de
+gastroenterología, el mismo hallazgo (por ejemplo, un soplo) puede ser
+desde un dato incidental sin ninguna urgencia hasta el primer signo de
+una descompensación grave — el umbral depende casi por completo del
+contexto (edad, raza, signos acompañantes, progresión en el tiempo), no
+del hallazgo aislado.
+
+1. Señales de alarma que ameritan derivación urgente o manejo de
+emergencia
+
+Cualquiera de las siguientes, presente en un paciente, indica
+descompensación cardiovascular activa o inminente — no "esperar y
+observar":
+
+-   Disnea o taquipnea en reposo, especialmente con patrón restrictivo o
+    esfuerzo abdominal marcado.
+
+-   Ortopnea (el paciente rechaza decúbito, prefiere mantenerse de pie o
+    sentado).
+
+-   Cianosis de mucosas.
+
+-   Síncope o colapso, sobre todo si se relaciona con el ejercicio o la
+    excitación.
+
+-   Distensión abdominal de instauración reciente compatible con
+    ascitis, en un paciente con otros signos cardíacos.
+
+-   Tos nocturna o de reposo en un paciente con cardiopatía conocida o
+    soplo ya documentado (distinta de la tos productiva de causa
+    respiratoria primaria).
+
+-   Pulso débil, irregular, o déficit de pulso (discrepancia entre
+    frecuencia cardíaca auscultada y pulso palpado).
+
+-   Mucosas pálidas o grisáceas con tiempo de llenado capilar
+    prolongado, en ausencia de causa hemorrágica evidente.
+
+-   Debilidad aguda de miembros posteriores con dolor, especialmente en
+    gatos — sospechar tromboembolismo arterial asociado a
+    cardiomiopatía.
+
+-   Distensión abdominal + debilidad + intolerancia al ejercicio de
+    curso rápido (días), sobre todo en razas grandes.
+
+Ante cualquiera de estos, el rol del agente de medicina general es
+estabilizar si es una urgencia inmediata (oxígeno, minimizar el estrés
+de manipulación, no forzar ejercicio ni transporte prolongado
+innecesario) y derivar sin demora — no iniciar estudios extensos por su
+cuenta.
+
+2. Cuándo un hallazgo cardíaco "de rutina" amerita derivación no urgente
+
+Estos son los criterios para pasar de "hallazgo a vigilar" a "candidato
+a derivación", sin que exista una urgencia inmediata:
+
+-   Soplo nuevo, de grado creciente en controles sucesivos, o que
+    aparece en un paciente sin antecedente previo.
+
+-   Intolerancia al ejercicio progresiva, referida por el propietario
+    como "se cansa más que antes" o "para a descansar en los paseos
+    habituales".
+
+-   Tos crónica que no responde al manejo respiratorio habitual,
+    especialmente en razas pequeñas de edad media a avanzada.
+
+-   Arritmia detectada de forma incidental en el examen físico (pulso
+    irregular, extrasístoles a la auscultación), incluso sin signos
+    clínicos acompañantes.
+
+-   Frecuencia respiratoria en reposo/sueño elevada de forma sostenida
+    (referida por el propietario, un dato que puede pedirse como
+    seguimiento en casa antes de decidir).
+
+Regla práctica: un soplo estable, de grado bajo (1-2/6), en un paciente
+asintomático y sin cambios entre controles, generalmente no amerita
+derivación inmediata — sí amerita quedar documentado y revalorado en
+cada consulta de rutina.
+
+3. Distinguir hallazgo incidental de descompensación
+
+Esta es la distinción más importante que debe hacer el agente antes de
+clasificar el nivel de manejo:
+
+  -----------------------------------------------------------------------
+                   Hallazgo incidental     Descompensación (derivar)
+                   (vigilar)               
+  ---------------- ----------------------- ------------------------------
+  Soplo            Estable, grado bajo,    Nuevo, en aumento, o de alto
+                   sin progresión          grado (≥4/6)
+
+  Frecuencia       Normal en reposo        Elevada en reposo o sueño
+  respiratoria                             
+
+  Tolerancia al    Sin cambios             Reducida de forma progresiva o
+  ejercicio                                aguda
+
+  Mucosas /        Normales                Pálidas, cianóticas, TLLC
+  perfusión                                prolongado
+
+  Abdomen          Sin distensión          Distensión de aparición
+                                           reciente
+
+  Estado general   Sin cambios             Letargia, debilidad, síncope
+  -----------------------------------------------------------------------
+
+Un soplo por sí solo, sin ninguna columna derecha presente, no es
+indicación de derivación urgente — pero si aparece junto con cualquiera
+de los signos de la columna derecha, el umbral baja de inmediato.
+
+4. Pearls de localización y contexto racial
+
+Estos ayudan a que la derivación llegue con información útil, y también
+a calibrar el umbral según el paciente concreto:
+
+-   Razas grandes y gigantes con intolerancia al ejercicio y arritmias
+    (Dóberman, Bóxer, Gran Danés, Terranova) — sospechar cardiomiopatía
+    dilatada; en estas razas, un episodio sincopal aislado ya amerita
+    evaluación, no esperar a que se repita.
+
+-   Razas pequeñas de edad media a avanzada con soplo apical izquierdo
+    (Cavalier King Charles Spaniel en particular, pero también Poodle,
+    Chihuahua, Dachshund) — sospechar enfermedad valvular degenerativa;
+    el soplo suele preceder a la clínica por meses o años, por lo que la
+    vigilancia seriada tiene sentido antes de derivar de urgencia.
+
+-   Gatos, cualquier raza, con soplo o ritmo de galope detectado de
+    forma incidental (incluso en chequeos de rutina sin ningún signo
+    clínico) — la cardiomiopatía hipertrófica felina es frecuentemente
+    silente hasta la descompensación aguda o el tromboembolismo; en
+    gatos, el umbral de derivación ante un soplo nuevo debe ser más bajo
+    que en perros, precisamente por esta tendencia a la presentación
+    silente.
+
+-   Razas con predisposición documentada (Maine Coon, Ragdoll, Sphynx
+    para cardiomiopatía hipertrófica felina; Bóxer para cardiomiopatía
+    arritmogénica) — cuando el Breed Knowledge Object indica riesgo alto
+    para el sistema cardiovascular, el umbral de derivación se reduce
+    proporcionalmente, incluso ante hallazgos leves (ver Referral Engine
+    Specification, Sección 4.2).
+
+-   Cachorros con soplo detectado en el primer chequeo — considerar
+    cardiopatía congénita (estenosis subaórtica, persistencia del
+    conducto arterioso, estenosis pulmonar); a diferencia del soplo
+    adquirido del adulto, el soplo congénito detectado temprano
+    generalmente sí amerita evaluación programada, no solo vigilancia.
+
+5. Qué NO debe hacer el agente de medicina general
+
+-   No debe tratar todo soplo como urgencia — sobrederivar
+    sistemáticamente erosiona la confianza del colega en el sistema
+    tanto como subestimar un caso real.
+
+-   No debe descartar un soplo como "irrelevante" solo por ser de bajo
+    grado sin considerar el contexto racial y la edad.
+
+-   No debe iniciar diuréticos, IECA u otro manejo cardiológico
+    específico por su cuenta — señalar la sospecha y derivar.
+
+-   No debe asumir que la ausencia de soplo descarta cardiopatía — la
+    cardiomiopatía dilatada e hipertrófica pueden cursar sin soplo
+    audible, especialmente en etapas tempranas.
+
+-   No debe posponer la derivación urgente para "confirmar con
+    radiografía primero" cuando ya hay signos de descompensación activa
+    (disnea, cianosis, síncope) — estabilizar y derivar de inmediato.
+
+Resumen para uso rápido
+
+  -----------------------------------------------------------------------
+  Si el paciente presenta...      Acción del agente de medicina general
+  ------------------------------- ---------------------------------------
+  Disnea, cianosis, síncope,      Estabilizar y derivar con prioridad
+  ortopnea, tos nocturna          urgente
+
+  Soplo nuevo o en aumento, sin   Derivar — no urgente, pero no diferir
+  signos de descompensación       indefinidamente
+
+  Soplo estable, bajo grado,      Vigilar y reevaluar en cada control —
+  paciente asintomático           no derivar todavía
+
+  Arritmia incidental sin signos  Documentar y considerar derivación no
+  clínicos                        urgente, sobre todo si la raza tiene
+                                  riesgo alto documentado
+
+  Gato con soplo o galope,        Umbral de derivación más bajo que en
+  cualquier edad                  perros — la presentación silente es la
+                                  norma, no la excepción
+
+  Raza de riesgo alto/muy alto    Reducir el umbral de derivación incluso
+  documentado (Breed Knowledge    ante hallazgos leves
+  Object)                         
+  -----------------------------------------------------------------------

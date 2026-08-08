@@ -1,0 +1,93 @@
+# Consenso ACVIM 2024 — Manejo de Status Epilepticus y Crisis en Racimo (Cluster Seizures) en perros y gatos
+
+**Fuente:** Charalambous M, Muñana K, Patterson EE, Platt SR, Volk HA. ACVIM Consensus Statement on the management of status epilepticus and cluster seizures in dogs and cats. *J Vet Intern Med.* 2024;38(1):19-40. Licencia CC BY-NC-ND 4.0.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — primer documento del sistema neurológico. Cubre exclusivamente el manejo de **emergencias** convulsivas (no epilepsia crónica, que está cubierta por otro consenso de 2015 aún no cargado). Es probablemente el escenario de emergencia neurológica más frecuente en la práctica de triage.
+
+---
+
+## 1. Definiciones — el punto de corte que determina "esto es una emergencia"
+
+- **Status epilepticus (SE)**: convulsión prolongada >5 minutos, o ≥2 convulsiones secuenciales sin recuperación completa de la conciencia entre ellas. (El punto de corte tradicional de 30 minutos, ligado a daño neuronal permanente, sigue siendo relevante como el momento en que el SE **debe** estar controlado — pero el tratamiento debe iniciarse mucho antes, a los 5 minutos).
+- **Crisis en racimo (CS)**: >2 convulsiones autolimitadas en un período de 24 horas. Puede progresar a SE y es poco probable que remita sin medicación de rescate.
+- **Mortalidad de SE**: 25.3-38.5% — sigue siendo un desafío terapéutico significativo.
+- SE puede ser **convulsivo** (con actividad motora prominente) o **no convulsivo (NCSE)** — este último debe sospecharse en cualquier animal con alteración prolongada de conciencia tras controlar convulsiones, especialmente al retirar anestésicos/sedantes. Sin EEG (raramente disponible en la práctica veterinaria), el diagnóstico de NCSE depende de un alto índice de sospecha clínica.
+
+## 2. Principio general — tratar rápido, y en paralelo atender la causa
+
+Además del tratamiento farmacológico, es igual de importante: identificar y corregir complicaciones (hipertermia, alteraciones metabólicas, hipoxemia) y la causa subyacente (hipoglucemia, desequilibrio electrolítico) — estas medidas deben iniciarse tempranamente, en paralelo con la medicación anticonvulsivante, no después.
+
+## 3. Primera línea — benzodiazepinas
+
+### Vías de administración recomendadas
+- **IV e intranasal (IN) son las vías más efectivas y seguras** para benzodiazepinas.
+- **Fuera del hospital (perros)**: midazolam IN (recomendación A — la más alta); diazepam rectal (recomendación C, más débil); midazolam IM (recomendación B, si el cuidador tiene entrenamiento médico).
+- **En el hospital (perros)**: midazolam IV o diazepam IV (ambos recomendación A); midazolam IN (recomendación A — ventajoso si no hay acceso IV inmediato); midazolam IM (recomendación B).
+- **En gatos**: las recomendaciones son consistentemente más débiles (nivel E — evidencia ausente) para casi todas las vías salvo midazolam/diazepam IV (recomendación B) — refleja la escasez de estudios felinos.
+
+### Midazolam vs. diazepam — cuál preferir
+- **Midazolam se considera más potente y más seguro que diazepam** — menor depresión respiratoria y del SNC.
+- Diazepam tiene limitaciones logísticas importantes para infusión continua: se **adsorbe al plástico** (pérdida de potencia de 55% a las 2h y 70% a las 24h en bolsas/líneas plásticas) y es **fotosensible** — si se usa en CRI, las líneas deben pre-tratarse con diazepam y cubrirse de la luz. Además, su vehículo de propilenglicol puede causar flebitis/hipotensión con administración rápida — de particular preocupación en gatos.
+
+### Cuándo considerar un bolo efectivo, y cuándo pasar a CRI
+- Un bolo de benzodiazepina se considera efectivo si la convulsión cesa **en <5 minutos** y no recurre en los siguientes 10 minutos.
+- Si recurre entre 10-60 minutos: considerar **SE recurrente**.
+- Si persiste tras el primer bolo: administrar un **segundo bolo tras un intervalo mínimo de 2 minutos**.
+- Si persiste tras 2 bolos: administrar un tercer bolo seguido inmediatamente de **CRI de benzodiazepina** — en perros, midazolam CRI (recomendación A) o diazepam CRI (recomendación B); en gatos, **solo midazolam CRI** (diazepam CRI recomendación D — evitar, por seguridad).
+
+## 4. Segunda línea — levetiracetam, fenobarbital, fosfenitoína
+
+- Pueden iniciarse tras el fallo de primera línea, **o antes, en combinación temprana simultánea** (junto con o después de los bolos/CRI de benzodiazepina) — esto acelera el control de la crisis y establece más rápido un plan de manejo a largo plazo si se termina diagnosticando epilepsia.
+- **Levetiracetam IV**: recomendación B en perros y gatos. Si no hay vía IV: rectal en perros (C), IM en perros (C) — en gatos, opciones alternativas son recomendación E.
+- **Fenobarbital IV**: recomendación A en perros, B en gatos. Se pueden usar esquemas de carga en animales sin tratamiento previo con función hepática normal; en animales con tratamiento crónico, ajustar según concentración sérica.
+- **Fosfenitoína IV** (bolo): recomendación B en perros, como adyuvante cuando levetiracetam o fenobarbital no responden adecuadamente.
+
+## 5. Tercera línea — anestésicos (SE refractario)
+
+Enfoque escalonado de 4 pasos:
+
+1. **Ketamina** IV bolo ± CRI (perros: recomendación A) — considerar **dexmedetomidina** IV bolo ± CRI si persiste (perros: recomendación B), o viceversa. Ketamina aumenta la presión arterial, contrarrestando efectos hemodinámicos adversos de otros anestésicos.
+2. **Propofol** IV bolo ± CRI si persiste tras los anteriores (perros: recomendación A). **En gatos, usar con cautela** (recomendación C) — riesgo de anemia por cuerpos de Heinz con dosis acumuladas altas (>40 mg/kg) o CRI prolongado; requiere intubación endotraqueal.
+3. **Barbitúricos anestésicos** (pentobarbital o tiopental sódico) IV bolo + CRI si persiste tras propofol (perros: B; gatos: C). Requieren monitoreo estrecho — sobredosis puede ser fatal; depresión cardiovascular/respiratoria significativa.
+4. **Anestesia inhalatoria** como último recurso farmacológico (perros y gatos: recomendación B).
+
+**Nota importante**: durante la recuperación de barbitúricos, pueden observarse movimientos tipo convulsión y vocalización que **no deben confundirse clínicamente con convulsiones reales**.
+
+## 6. Si todo lo anterior falla — SE super-refractario
+
+- Intervenciones farmacológicas adicionales (magnesio IV, alopregnanolona) — recomendación E (evidencia limitada a ausente, pero descritas en casos clínicos).
+- Hipotermia leve (36.7-37.7°C) combinada con ketamina-dexmedetomidina CRI mostró éxito en un reporte de casos.
+- Neuroestimulación (estimulación del nervio vago, magnética transcraneal, cerebral profunda) — recomendación E, último recurso, evidencia clínica veterinaria muy limitada.
+
+## 7. Cuándo dejar de agregar medicación anticonvulsivante
+
+- Si no hay más actividad convulsiva durante **24-48 horas** tras el último ajuste, no se necesita más anestésico — se acepta también un mínimo de **12 horas** en pacientes clínicamente estables, para reducir riesgos de hospitalización prolongada y complicaciones de CRIs anestésicos.
+- EEG combinado con confirmación clínica es preferible a solo confirmación clínica, especialmente en NCSE — pero el panel reconoce que en la práctica veterinaria esto no siempre es factible.
+
+## 8. Cómo reducir la politerapia una vez controlada la crisis
+
+- Esperar un período libre de convulsiones de 24-48h (mínimo 12h) antes de empezar a reducir.
+- Reducción **secuencial, nunca simultánea** de >1 anestésico.
+- Orden sugerido de descontinuación (generalmente inverso al de introducción): anestésicos inhalatorios primero, luego propofol/pentobarbital, luego ketamina, y por último dexmedetomidina y benzodiazepina CRI.
+- Reducir el CRI en **25-50% cada 4-6 horas** antes de suspender completamente.
+- Si recurre la actividad convulsiva al reducir/suspender un fármaco: regresar a la dosis previa efectiva, o reintroducir CRI tras un bolo.
+- Los fármacos anticonvulsivantes no anestésicos (levetiracetam, fenobarbital) deben mantenerse al menos hasta el alta hospitalaria (crisis reactivas) o de forma crónica (si se diagnostica epilepsia).
+
+## 9. Manejo específico de crisis en racimo (CS) — plan de 3 pasos
+
+### Paso 1 (fuera y dentro del hospital)
+- Medicamentos de acción corta: midazolam IN o diazepam rectal (fuera del hospital); midazolam/diazepam IV (en hospital).
+- Medicamento de acción más prolongada: **levetiracetam en "tratamiento pulso"** (no continuo — para evitar desarrollo de tolerancia por uso crónico) — VO fuera del hospital, IV dentro del hospital, con alternativas rectal/IM si no es posible la vía preferida.
+
+### Paso 2 (si persiste)
+- Benzodiazepinas de acción más prolongada VO (clonazepam o clorazepato) cada 8-12h — **atención en gatos por riesgo de hepatotoxicidad**.
+- O dosis adicionales de los fármacos de manejo crónico de epilepsia (ej. fenobarbital), si el animal ya tiene diagnóstico de epilepsia.
+
+### Paso 3 (si persiste)
+- Proceder según el protocolo de SE (tercera línea en adelante).
+
+## 10. Conclusión operativa para ICIS
+
+- El punto de decisión más importante y accionable es el **corte de 5 minutos**: cualquier convulsión que se prolongue más allá de ese punto debe tratarse como SE, sin esperar a los 30 minutos tradicionalmente asociados a daño neuronal.
+- La vía intranasal con midazolam es una opción de alto valor para triage — rápida, efectiva, y no depende de acceso IV inmediato, lo que la hace especialmente útil en la fase de estabilización inicial antes de canalizar una vena.
+- Un perro que llega en estado convulsivo prolongado o con convulsiones en racimo no debe manejarse solo con "dar diazepam y observar" — el consenso deja explícito un algoritmo escalonado con tiempos de espera definidos (2 minutos entre bolos) que evita tanto el sub-tratamiento como el retraso innecesario en escalar a CRI.

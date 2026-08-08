@@ -1,0 +1,46 @@
+Knowledge Base Standard (KBS) — DCIS
+
+Versión: 1.0
+Código: DCIS-KB-001
+
+1. Filosofía
+
+Define las reglas para transformar casos dermatológicos en unidades de conocimiento estructuradas. Cada caso deberá responder: ¿qué diferenciales se descartaron y en qué orden? ¿el diagnóstico de DA fue aplicable, o el cuadro correspondió a otra causa? ¿la piodermia respondió a terapia tópica sola, o requirió sistémica? ¿hubo recurrencia, y se identificó la causa primaria?
+
+2. Unidad de Conocimiento
+
+Identificador: DCIS-KU-000001. Contiene: Metadata, perfil del paciente, diagnóstico dermatológico identificado, estado de descarte con criterios, historia resumida, hallazgos relevantes (incluyendo citología), tratamiento aplicado, evidencia, evolución, lecciones aprendidas, nivel de calidad.
+
+3. Metadata
+
+Código, fecha, diagnóstico dermatológico (tipo), estado de descarte, especie, raza, edad, sexo, esquema terapéutico utilizado.
+
+4. Diagnóstico y Descarte
+
+La Base almacenará diagnóstico principal, secuencia de descarte documentada, y nivel de confianza del diagnóstico de DA (aplicable vs. presuntivo por descarte incompleto).
+
+5. Tratamientos
+
+Cada esquema registrará: tipo de terapia (tópica/sistémica), clase farmacológica, duración del curso, resultado de reevaluación, recurrencias.
+
+6. Outcome
+
+Categorías propias: Resolución completa, Control con terapia proactiva, Recurrencia — causa primaria identificada, Recurrencia — causa primaria no identificada, En tratamiento activo, Perdido de seguimiento.
+
+7. Similarity Tags
+
+Ejemplo: Perro, Bulldog Francés, Dermatitis-Atópica, Descarte-Completo, Piodermia-Superficial, Clorhexidina.
+
+8. Knowledge Quality Score
+
+Un caso con secuencia de descarte completa y documentada tiene mayor puntaje que uno con diagnóstico de DA presuntivo sin descarte completo.
+
+9. Teaching Mode
+
+Pregunta docente central: "¿qué diferenciales descartarías, en qué orden, antes de considerar aplicables los criterios de Favrot en este caso?"
+
+10. Architecture Decisions
+
+AD-DCIS-KB-01 a 05 — heredados sin cambios estructurales de OCIS-KB-01 a 05, adaptando referencias a "estado de descarte diagnóstico/clasificación de piodermia".
+
+AD-DCIS-KB-06 — Rule-Out Outcome Correlation, análoga a las decisiones equivalentes de OCIS/CCIS/ECIS: correlación entre el estado de descarte inicial y el desenlace real observado, para calibrar la Base de Conocimiento clínica.

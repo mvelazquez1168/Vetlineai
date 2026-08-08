@@ -1,0 +1,57 @@
+Dashboard Functional Specification — NCIS
+
+Documento: NCIS-DASH-001
+Versión: 1.0
+Estado: Draft
+
+1. Filosofía del Dashboard
+
+Un veterinario que abre el Dashboard de un caso neurológico debe poder responder en menos de 10 segundos: ¿es un caso estructural o funcional?, ¿cuál es su severidad según el marco correspondiente (grado IVDD + dolor profundo, o control de crisis)?, ¿requiere decisión urgente? La pregunta central de NCIS ocupa el lugar prioritario del header, adaptándose según la línea clínica identificada.
+
+2. Principios de Diseño
+
+Heredados de NCIS-DESIGN-001, con particular relevancia: Neurological Severity Clarity, Minimal Cognitive Load, Progressive Disclosure, Explainable AI.
+
+3. Layout del Dashboard
+
+Zona 1 — Header: Logo institucional + Executive Summary Card + Clinical State Card + [Neurological Grade Card si es línea IVDD, o Seizure Control Card si es línea epilepsia] + Clinical Confidence Meter.
+
+Zona 2 — Signos vitales del caso: Confidence Meter + Active Problems Panel + Alertas (dolor profundo ausente en IVDD, o crisis en racimo/status activo en epilepsia).
+
+Zona 3 — Evolución y evidencia: Clinical Timeline (incluyendo registro de crisis o evolución del grado neurológico), AED Monitoring Card (línea epilepsia), Imaging Comparison (línea IVDD, cuando hay estudios seriados).
+
+Zona 4 — Razonamiento y conocimiento (colapsado): Diagnostic Correlation Panel, detalle de gradación (CC-238 o CC-239 según línea), Knowledge Match Panel, Clinical Reasoning Journal.
+
+4. Reglas de aparición condicional
+
+| Condición | Componente que se activa |
+|---|---|
+| Siempre | Executive Summary Card, Clinical State Card, Confidence Meter, Active Problems Panel |
+| Caso clasificado como línea IVDD (CC-238) | Neurological Grade Card, con prioridad máxima si dolor profundo ausente |
+| Caso clasificado como línea epilepsia (CC-239) | Seizure Control Card, AED Monitoring Card cuando hay tratamiento activo |
+| Caso mixto (ambas líneas aplican) | Ambas cards se muestran, sin priorizar una sobre otra |
+| Existen ≥2 estudios de imagen seriados | Imaging Comparison |
+
+5. Reglas propias por línea clínica
+
+- **Neurological Grade Card**: si el dolor profundo está ausente (grados 4-5), la card se muestra en rojo con prioridad visual máxima en el header, sin colapsar, independientemente del resto del caso.
+- **Seizure Control Card**: si hay crisis en racimo o status activo, se muestra en rojo con la misma prioridad — el manejo de emergencia siempre antecede a cualquier otro análisis en pantalla.
+
+6. Resto de secciones
+
+Interactividad, Reglas de actualización, Dashboard States (sin "Referred"), Accesibilidad — heredadas sin cambios del patrón establecido en el resto de agentes especializados.
+
+7. Architecture Decisions
+
+AD-NCIS-DASH-01 — Dashboard as a View, not a Store.
+AD-NCIS-DASH-02 — Severity-First, Track-Aware Layout. A diferencia de OCIS/CCIS/ECIS/DCIS (un solo eje central), NCIS decide primero qué card de severidad mostrar según la línea clínica identificada, antes de aplicar el resto del layout.
+
+---
+
+ADDENDUM — Línea Ortopédica en el Dashboard
+
+Zona 1 del header se extiende: [Neurological Grade Card si es línea IVDD, Seizure Control Card si es línea epilepsia, o Orthopedic Staging Card si es línea ortopédica].
+
+Regla de aparición condicional agregada: si el caso se clasifica como línea ortopédica (CC-241), se activa la Orthopedic Staging Card. Si el estadio COASTeR es 3 o 4, la card se muestra en rojo/ámbar con prioridad visual alta.
+
+Casos mixtos: todas las cards de severidad aplicables se muestran, sin priorizar una sobre otra.

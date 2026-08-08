@@ -1,0 +1,56 @@
+# RCIS Operational Manual — Índice General (RCIS-MANUAL-000)
+
+**Propósito de este documento:** mapa de navegación entre las especificaciones que gobiernan a RCIS. No contiene contenido clínico ni de arquitectura por sí mismo — indica qué documento consultar según la tarea en curso, y documenta explícitamente qué piezas todavía no existen para este agente.
+
+**Versión 2.0** — unifica el formato con el del resto de los agentes de la plataforma y actualiza el estado real de las especificaciones y de la Base de Conocimiento.
+
+---
+
+## 1. Cómo usar este manual
+
+Cuando trabajes en RCIS, identificá primero la tarea que estás resolviendo y consultá la especificación correspondiente en la tabla de la sección 2. No dupliques contenido entre documentos — cada especificación es la fuente única de verdad para su dominio.
+
+## 2. Mapa de especificaciones — estado actual
+
+| Código | Documento | Estado | Qué define |
+|---|---|---|---|
+| RCIS-MANUAL-000 | Operational Manual — Índice General | Este documento | Navegación entre el resto de especificaciones |
+| RCIS-ARCH-001 | Clinical Components Catalog | Construido | Catálogo de componentes clínicos de reproducción, incluidos los de monitoreo gestacional, decisión de parto y viabilidad neonatal |
+| RCIS-DESIGN-001 | Clinical Design System | Construido | Lenguaje visual de tarjetas, badges, gráficos e íconos |
+| RCIS-REP-001 | Clinical Report Specification | Construido | Estructura, contenido y reglas de generación de los informes clínicos |
+| RCIS-DASH-001 | Dashboard Functional Specification | Construido | Estructura funcional y comportamiento del dashboard clínico |
+| RCIS-KB-001 | Knowledge Base Standard | Construido | Reglas para estructurar casos como unidades de conocimiento reutilizables |
+| — | Project Instructions | Construido | System prompt de RCIS, de 11.563 caracteres. Vive en la columna `system_prompt` de la tabla `agentes` |
+| RCIS-AI-001 | AI Reasoning Standard | Pendiente | Estándar de razonamiento clínico del agente |
+| RCIS-KD-001 | Breed Intelligence Knowledge Base Specification | Pendiente | Predisposiciones raciales relevantes para reproducción, especialmente en distocia por conformación |
+| — | Referral Engine Specification | No aplica | La derivación hacia RCIS es responsabilidad de ICIS |
+| — | Report Composer Engine Specification | Por decidir | Existe en ICIS. Falta resolver si es motor compartido de plataforma o uno por agente |
+| — | Manual de Identidad Visual | Fuera de alcance del agente | Pasó a ser documento de plataforma |
+## 3. Base de Conocimiento — estado actual
+
+**10 documentos clínicos**: ciclo estral canino y monitoreo de progesterona, diagnóstico y monitoreo gestacional, distocia canina, cesárea, neonatología canina, andrología y espermiograma, patología prostática, piometra canina, reproducción de la gata, y gestación, parto y distocia en la gata.
+
+**1 documento de farmacoterapia**: antiprogestágenos, prostaglandinas y uterokinéticos.
+
+Cobertura felina iniciada con dos documentos.
+
+## 4. Diferencias intencionales respecto al patrón general
+
+- **Frontera con UCIS**: la patología prostática pertenece a RCIS y no a urología. La derivación de banderas rojas urinarias en un macho entero debería llegar a RCIS, no a UCIS.
+- **La reproducción felina no admite el marco canino**: la gata es ovuladora inducida, de modo que el monitoreo de progesterona no aplica, y la duración de su gestación es intrínsecamente variable. Los documentos felinos declaran cuándo están extrapolando del perro.
+- **Sin motor de derivación propio**: RCIS recibe casos ya derivados por ICIS.
+
+## 5. Pendientes explícitos
+
+### Arquitectura
+
+1. **RCIS-AI-001 y RCIS-KD-001** — las dos piezas que faltan para igualar el conjunto de GCIS. Breed Intelligence tiene aquí un peso particular: la conformación racial es determinante del riesgo de distocia.
+2. **Ajuste del system prompt de ICIS**: las banderas rojas urinarias deben derivar a RCIS cuando el paciente es un macho entero con sospecha de patología prostática, y hoy derivan a UCIS.
+3. **Decisión sobre el Report Composer Engine**: la especificación existe cargada en ICIS con 14.729 caracteres. Falta decidir si es un motor compartido de plataforma o si cada agente especializado necesita su propia versión. La decisión afecta a todos los agentes y puede resolverse leyendo ese documento.
+4. **Manual de Identidad Visual**: deja de ser una especificación por agente y pasa a ser documento de plataforma. El logo de cada clínica se obtiene de su propia configuración en base de datos.
+
+### Base de Conocimiento
+
+1. **Piometra felina**: sin cobertura. El documento de gestación felina declara que la ausencia de descarga vulvar no la descarta, por los hábitos de limpieza de la especie.
+2. **Neonatología y cesárea felinas**: sin cobertura; la línea felina quedó a mitad de camino.
+3. **Infertilidad de la hembra canina**: sin cobertura.

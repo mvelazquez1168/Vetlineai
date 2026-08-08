@@ -1,0 +1,75 @@
+# Consenso ACVIM 2012 — Diagnóstico del hiperadrenocorticismo espontáneo canino (HAC / Síndrome de Cushing)
+
+**Fuente:** Behrend EN, Kooistra HS, Nelson R, Reusch CE, Scott-Moncrieff JC. Diagnosis of Spontaneous Canine Hyperadrenocorticism: 2012 ACVIM Consensus Statement (Small Animal). *J Vet Intern Med.* 2013;27:1292-1304.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — sistema endocrino. Se omiten metodología del panel y listado bibliográfico completo; se conservan indicaciones diagnósticas, protocolos de prueba y sus limitaciones.
+
+---
+
+## 1. Cuándo sospechar e indicar pruebas
+
+- El diagnóstico de HAC **nunca se basa solo en signos clínicos o hallazgos de laboratorio** — son indicadores para decidir si testear, no diagnóstico en sí.
+- Signos comunes: poliuria/polidipsia, polifagia, jadeo, distensión abdominal, alopecia endocrina, hepatomegalia, debilidad muscular.
+- Indicaciones concretas para testear: combinación de signos compatibles (a mayor número, mayor sospecha); macrotumor hipofisario; diabético con mala respuesta a insulina sin otra causa; masa adrenal hallada incidentalmente; hipertensión persistente (sin consenso unánime del panel sobre esto último).
+- **No testear si el paciente cursa una enfermedad sistémica grave concurrente** — muchas enfermedades alteran los resultados de las pruebas de HAC; postergar hasta resolver o controlar la condición concurrente cuando sea posible.
+- Una sola alteración de laboratorio (leucograma de estrés, ALP elevada, colesterol alto, ligero aumento de glucosa) **no es indicación por sí sola** para testear.
+
+## 2. Pruebas de tamizaje (screening)
+
+### LDDST (Test de supresión con dexametasona a dosis baja) — prueba de elección
+- Dosis: 0.01–0.015 mg/kg dexametasona IV (fosfato sódico o polietilenglicol, calculado sobre el compuesto activo, no la sal).
+- Puede iniciarse a cualquier hora del día; evitar alimentar durante la prueba.
+- Muestras: basal, 4h y 8h post-dexametasona.
+- El cortisol a las 8h es el que define el diagnóstico.
+- Sensibilidad 85–100%, especificidad 44–73% — cada laboratorio debe establecer sus propios puntos de corte, ya que los valores varían según el ensayo usado.
+- **Patrón "inverso"** (cortisol a las 8h por debajo del corte pero a las 4h aumentado): altamente sospechoso de HAC, amerita seguir investigando.
+- En perros tratados con fenobarbital, el fármaco no parece afectar el resultado del LDDST de forma consistente, pero la interpretación debe ser cautelosa si los signos clínicos persisten.
+
+### Test de estimulación con ACTH
+- Menos sensible que el LDDST para HAC espontáneo (57–95% según el subtipo) — es el estándar de oro para **HAC iatrogénico**, no para el espontáneo.
+- Dosis: 5 μg/kg de ACTH sintética (Cortrosyn/Cosyntropin/Synacthen), IV preferido por el panel.
+- Muestras: basal y a los 60 minutos.
+- No se recomienda ACTH compuesta (calidad/pureza inferior).
+- Progestágenos, glucocorticoides y ketoconazol suprimen el eje y disminuyen la respuesta; fenobarbital no parece afectarla.
+
+### UCCR (Relación corticoides:creatinina urinaria)
+- Sensibilidad alta (75–100% en muestra única) pero especificidad baja (20–25%) — útil para descartar, no para confirmar por sí solo.
+- Con protocolo de 2 muestras basales consecutivas, sensibilidad 99%, especificidad 77%.
+- **Recolectar la orina en casa**, al menos 2 días después de una visita a la clínica, para evitar el efecto del estrés — de preferencia orina de la mañana.
+- Enfermedad no adrenal puede elevar falsamente el UCCR — interpretar con cautela si la sospecha clínica de HAC es baja.
+
+## 3. Pruebas diferenciadoras (PDH vs. tumor adrenal) — solo tras tamizaje positivo
+
+### ACTH endógeno (cACTH)
+- Prueba diferenciadora aislada más precisa.
+- Requiere manejo de muestra muy cuidadoso: tubos enfriados con EDTA, centrifugar dentro de 15 minutos (idealmente en centrífuga refrigerada), congelar inmediatamente y enviar en hielo seco — la degradación de la muestra es la causa más común de resultados falsamente bajos.
+- Sensibilidad limitada en algunos ensayos, especialmente con analizadores menos sensibles.
+
+### Supresión con dexametasona (LDDST/HDDST) como diferenciador
+- Si hay supresión, es compatible con PDH (enfermedad hipofisario-dependiente).
+- **~25% de los perros con PDH no muestran supresión** — la ausencia de supresión NO confirma tumor adrenal.
+- HDDST (0.1 mg/kg) solo aporta diferenciación adicional en ~12% de casos más allá del LDDST.
+
+### UCCR con supresión
+- Protocolo: 2 muestras basales en días consecutivos en casa, luego 3 dosis de dexametasona 0.1 mg/kg VO cada 6-8h, y una tercera muestra al día siguiente.
+- Caída a <50% del basal es compatible con PDH (72% de sensibilidad en el estudio más grande).
+
+## 4. Imagen diagnóstica
+
+- **La imagen nunca diagnostica HAC por sí sola** — siempre debe interpretarse junto con las pruebas hormonales; glándulas adrenales de tamaño normal en imagen NO descartan HAC.
+- **Ecografía**: el ancho de la glándula adrenal es el parámetro más informativo. Asimetría marcada, atrofia contralateral (<4-5mm), o destrucción de arquitectura normal sugieren tumor adrenal. Ancho >4cm se correlaciona fuertemente con malignidad.
+- **Ningún perro debe ir a cirugía de adrenalectomía sin confirmación por imagen** (ecografía, TC o RM) de la presencia del tumor y atrofia de la glándula contralateral.
+- **Imagen hipofisaria**: recomendada en todos los casos de PDH al momento del diagnóstico, dado que algunos tumores hipofisarios progresan a macrotumores con el tiempo; esencial si hay signos neurológicos o antes de hipofisectomía/radioterapia.
+
+## 5. HAC "oculto" (occult/atypical HAC)
+
+- Definido como cuadro clínico compatible con HAC pero con LDDST, UCCR y ACTH estimulación dentro de rango de referencia.
+- El panel **no respalda** la teoría de que las hormonas sexuales adrenales causan este síndrome — la evidencia es débil y la especificidad del panel de hormonas sexuales es baja (potencialmente falsos positivos por enfermedad no adrenal).
+- Recomendación: si los signos son leves, esperar y reevaluar con pruebas clásicas cuando progresen. Si son moderados-severos, hacer ecografía abdominal; si hay adrenomegalia bilateral, considerar imagen hipofisaria.
+- Testear el panel de hormonas sexuales solo cuando todos los cortisoles (incluido el basal) están inesperadamente bajos en una prueba de HAC clásica, tras descartar administración exógena de glucocorticoides o fármacos que alteren la síntesis de cortisol (ej. ketoconazol).
+
+## 6. Conclusiones clave para uso clínico
+
+- Ningún test tiene 100% de precisión diagnóstica — un resultado negativo con sospecha clínica persistente amerita repetir o usar otra prueba.
+- Los rangos de referencia y puntos de corte varían por laboratorio y ensayo — no deben asumirse valores universales.
+- La combinación de historia + examen físico + hallazgos de laboratorio de apoyo es lo que justifica iniciar las pruebas — nunca un solo hallazgo aislado.

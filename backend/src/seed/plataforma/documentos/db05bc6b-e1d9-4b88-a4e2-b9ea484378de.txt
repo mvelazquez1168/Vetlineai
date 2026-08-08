@@ -1,0 +1,110 @@
+HIPERTENSIÓN SISTÉMICA EN PERROS Y GATOS — CLASIFICACIÓN, DAÑO DE ÓRGANO BLANCO Y MANEJO
+
+Resumen clínico de referencia para CCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-202 (bioquímica sérica), CC-204 (urianálisis), CC-220 (Imaging Intelligence).
+
+Fuente principal: Acierno MJ, Brown S, Coleman AE y col. ACVIM consensus statement: guidelines for the identification, evaluation, and management of systemic hypertension in dogs and cats. J Vet Intern Med 2018;32(6):1803–1822. DOI 10.1111/jvim.15331. Acceso abierto. Actualiza el consenso ACVIM de 2007.
+
+Es la entidad más transversal de CCIS: aparece como complicación en enfermedad renal, endocrinopatías y oncología, y su daño se manifiesta en ojo, cerebro, corazón y riñón.
+
+---
+
+1. EL CONCEPTO QUE ORGANIZA TODO: DAÑO DE ÓRGANO BLANCO
+
+La hipertensión no se trata por el número en sí. **El riesgo de daño de órgano blanco es la razón por la que se persigue el tratamiento.**
+
+Ese principio determina tanto la clasificación como el momento de intervenir, y es lo que separa este manejo del de una variable de laboratorio cualquiera.
+
+El abordaje recomendado de un paciente posiblemente hipertenso comprende dos cosas simultáneas: **mediciones confiables de presión arterial** y **identificación de posible daño de órgano blanco**.
+
+2. CLASIFICACIÓN
+
+La presión arterial se clasifica en cuatro categorías según la presión sistólica, cada una con un riesgo asociado de daño de órgano blanco:
+
+**Normotenso**: presión sistólica menor a 140 mmHg.
+**Prehipertenso**: 140 a 159 mmHg.
+**Hipertenso** (moderadamente): 160 a 179 mmHg.
+**Severamente hipertenso**: 180 mmHg o más.
+
+3. CUÁNDO TRATAR — LA REGLA QUE MÁS SE MALINTERPRETA
+
+El diagnóstico requiere documentación de presión persistentemente elevada **en múltiples ocasiones**. Una única lectura elevada puede reflejar hipertensión de bata blanca inducida por estrés. El consenso recomienda confirmar con al menos dos sesiones de medición separadas.
+
+Las dos excepciones que permiten tratar tras una sola sesión: **presión sistólica por encima de 180 mmHg**, o **presencia de daño de órgano blanco**.
+
+Formulado como regla operativa:
+
+Con daño de órgano blanco e hipertensión: tratar de inmediato.
+
+En ausencia de daño de órgano blanco: **retener el tratamiento hasta que la hipertensión se haya documentado repetidamente**.
+
+Regla para CCIS: ante una única medición elevada sin daño de órgano documentado, la recomendación correcta es repetir la medición, no iniciar antihipertensivo. El componente debe declarar cuántas sesiones de medición constan en el expediente.
+
+Seguimiento de los no tratados. Los pacientes en zona normotensa a prehipertensa en el tamizaje deben monitorizarse cada 3 a 6 meses, según sus factores de riesgo.
+
+El peso de la decisión. Vale conservar la formulación que se usa para explicarla: iniciar un antihipertensivo no es solo comenzar una medicación con efectos adversos posibles — es comenzar una medicación que, una vez iniciada, se pretende continuar por el resto de la vida del animal. Es un compromiso considerable para la familia del paciente, y esa conversación forma parte de la decisión.
+
+4. LOS CUATRO ÓRGANOS BLANCO
+
+Ojo. Los perros con hipertensión o con enfermedades asociadas a ella deben monitorizarse cuidadosamente en busca de daño ocular, y **la hipertensión debe descartarse sistemáticamente en perros con lesiones oculares características**. La vía funciona en ambas direcciones: del diagnóstico al ojo, y del ojo al diagnóstico.
+
+Sistema nervioso central. Se observan hemorragia e infarto, igual que en la hipertensión crónica humana. Un estudio describió lesiones en resonancia magnética consistentes con edema vasogénico en lóbulos occipital y parietal en gatos y perros afectados con signos neurológicos. La hipertensión aparece además como factor de riesgo de **mielopatía isquémica de la médula cervical craneal**, que produce tetraparesia o tetraplejia ambulatoria con nocicepción intacta en gatos viejos.
+
+Ese último punto tiene consecuencia para NCIS: un gato viejo con tetraparesia y nocicepción conservada requiere medición de presión arterial.
+
+Corazón. Las anormalidades cardíacas son comunes en gatos y perros hipertensos. Cuando se afecta, **el corazón es un órgano blanco**, y el gasto cardíaco aumentado rara vez es la causa de la hipertensión en animales. Los hallazgos de examen físico pueden incluir soplos sistólicos o sonidos de galope. Hipertrofia ventricular izquierda como manifestación estructural.
+
+Ese hallazgo conecta directamente con el documento de miocardiopatías felinas: un gato con hipertrofia ventricular izquierda e hipertensión sistémica tiene un fenotipo HCM asociado a hipertensión, no miocardiopatía hipertrófica primaria.
+
+Riñón. Enfermedad renal crónica, proteinuria y su seguimiento por relación proteína/creatinina urinaria.
+
+5. BUSCAR LA CAUSA
+
+Una vez establecido el diagnóstico, debe iniciarse la búsqueda de una condición subyacente compatible y su tratamiento apropiado.
+
+Las causas más comunes descritas: enfermedad renal crónica, y trastornos endocrinos como hipercortisolismo y diabetes mellitus. También se describe como condición idiopática.
+
+Consecuencia para la plataforma: la hipertensión es un punto de encuentro entre CCIS, ECIS y la línea renal. Un diagnóstico de hipertensión en un perro no es un caso cardiológico cerrado — es la señal de buscar en otro lado.
+
+6. OBJETIVO TERAPÉUTICO
+
+Las metas principales del tratamiento son reducir las lecturas de presión sistólica a un rango de referencia ideal —**menos de 140 mmHg**— de forma que se prevenga el daño futuro de órgano blanco.
+
+Todos los pacientes en tratamiento deben monitorizarse estrechamente.
+
+Clases farmacológicas referenciadas en el consenso: inhibidores de la enzima convertidora de angiotensina, bloqueantes del receptor de angiotensina II, bloqueantes de canales de calcio, y el eje renina-angiotensina-aldosterona como diana.
+
+7. ERRORES FRECUENTES
+
+Iniciar antihipertensivo sobre una única medición sin daño de órgano blanco.
+
+No repetir la medición ante una lectura elevada aislada en un paciente estresado.
+
+No examinar el fondo de ojo en un paciente hipertenso, ni medir presión en un paciente con lesiones oculares compatibles.
+
+Tratar la hipertensión como diagnóstico final en vez de buscar la causa subyacente.
+
+Atribuir hipertrofia ventricular izquierda felina a miocardiopatía primaria sin medir presión arterial.
+
+Omitir la medición de presión en un gato viejo con tetraparesia y nocicepción conservada.
+
+No advertir al propietario que el tratamiento es de por vida.
+
+Interrumpir el monitoreo tras alcanzar la meta.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnica de medición de presión arterial: Doppler, oscilometría, selección de manguito y protocolo de sesión. Dosis y elección comparada de amlodipino, telmisartán, benazepril y demás agentes. Diferencias de manejo entre perro y gato en la elección del fármaco de primera línea. Crisis hipertensiva y su manejo de urgencia. Hipertensión pulmonar, que es entidad distinta y tiene documento propio en CCIS. Retinopatía hipertensiva: hallazgos y manejo oftalmológico. Feocromocitoma e hiperaldosteronismo. Estadificación IRIS de enfermedad renal crónica. Estos temas quedan como vacíos declarados de la Base de Conocimiento de CCIS.
+
+FUENTES
+
+Acierno MJ, Brown S, Coleman AE y col. ACVIM consensus statement: guidelines for the identification, evaluation, and management of systemic hypertension in dogs and cats. J Vet Intern Med 2018;32(6):1803–1822. PMC6271319. Fuente principal de todo el documento.
+
+Management of systemic hypertension in dogs and cats. dvm360. Fuente de las secciones 2 y 3.
+
+Canine Systemic Hypertension: Diagnosis and Management. Fuente de las secciones 3 y 5.
+
+Brown S y col. Guidelines for the identification, evaluation, and management of systemic hypertension in dogs and cats. ACVIM consensus statement 2007, base del documento actualizado.
+
+Luis Fuentes V y col. ACVIM consensus statement guidelines for the classification, diagnosis, and management of cardiomyopathies in cats. J Vet Intern Med 2020;34(3):1062–1077. Referencia de la conexión de la sección 4.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

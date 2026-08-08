@@ -1,0 +1,139 @@
+HIPERCALCEMIA EN PERROS Y GATOS — VERIFICACIÓN, DIFERENCIALES Y ABORDAJE POR HORMONAS
+
+Resumen clínico de referencia para ECIS. Componentes que lo consumen: CC-202 (bioquímica sérica), CC-240 (Diagnostic Correlation Engine), CC-220 (Imaging Intelligence).
+
+Es la entidad más transversal de ECIS: aparece como hallazgo en oncología, urología, gastroenterología y endocrinología, y su abordaje es el mismo con independencia de dónde se detecte.
+
+---
+
+1. LAS TRES FRACCIONES Y POR QUÉ EL CALCIO TOTAL NO SIRVE
+
+El calcio circula en tres fracciones:
+
+**Calcio ionizado**, 45 a 50% del total. Es la fracción fisiológicamente activa y se mantiene en un rango estrecho.
+
+**Calcio unido a proteínas**, 50 a 55%, típicamente a albúmina. Forma inactiva.
+
+**Calcio complejado**, normalmente menos del 1 a 2%. Pero puede elevar el calcio total sin afectar el ionizado en la insuficiencia renal crónica, por retención de sustancias como citrato y oxalato que forman complejos.
+
+De ahí la regla más importante del documento: **el calcio total y el calcio total ajustado no son medidas confiables del estado del calcio.**
+
+Regla para CC-202 y ECIS: ante un calcio total elevado, el componente no debe razonar sobre hipercalcemia hasta contar con calcio ionizado. Y debe declarar cuál de los dos consta en el expediente.
+
+2. EL ALGORITMO DE VERIFICACIÓN
+
+Ante hipercalcemia en un paciente clínicamente normal, puede reenviarse una muestra en ayunas para descartar un resultado espurio.
+
+Alternativamente, o si la hipercalcemia es repetible, debe medirse calcio ionizado.
+
+**Si el ionizado es normal, aunque el total esté elevado, corresponde recontrolar el ionizado en 2 a 3 meses.**
+
+Si el ionizado está aumentado, deben considerarse las determinaciones de PTH y PTHrP, en caso de que no haya causas obvias en el examen físico.
+
+Contexto que evita el sobrediagnóstico: **las causas más comunes de hipercalcemia en perros y gatos son condiciones no patológicas y transitorias**, y las alteraciones leves se asocian con mayor frecuencia a esas condiciones.
+
+3. LA SEVERIDAD ORIENTA EL DIFERENCIAL
+
+Un estudio sobre una población grande encontró que **el grado de hipercalcemia se asocia con la frecuencia del trastorno subyacente**.
+
+En el perro: los de hipercalcemia moderada a severa fueron significativamente más propensos a tener **hiperparatiroidismo, malignidad o hipervitaminosis D** que los de hipercalcemia leve.
+
+En el gato: los de hipercalcemia moderada a severa fueron significativamente más propensos a tener **malignidad o hipercalcemia idiopática**. La hipercalcemia idiopática felina apareció con más frecuencia en el rango moderado-severo, de modo que ese diferencial debe priorizarse en gatos con aumentos marcados del ionizado.
+
+**La malignidad fue la causa patológica identificada con mayor frecuencia de hipercalcemia ionizada en ambas especies.**
+
+Regla para ECIS: la magnitud del ionizado no es solo un dato de severidad — reordena la lista de diferenciales. Un aumento leve apunta a causas transitorias; uno marcado, a neoplasia, paratiroides o vitamina D.
+
+4. HIPERCALCEMIA HUMORAL DE MALIGNIDAD
+
+Es la causa más común de hipercalcemia y ocurre cuando el tumor produce sustancias que promueven la actividad osteoclástica y la reabsorción renal de calcio: PTH, **PTHrP**, 1,25-dihidroxivitamina D, citocinas como interleucina-1 y factor de necrosis tumoral, prostaglandinas, y factores humorales que estimulan la 1-alfa-hidroxilasa renal.
+
+El aforismo que la literatura repite y conviene conservar: **los tres primeros diferenciales de hipercalcemia deberían ser linfosarcoma, linfosarcoma y linfosarcoma.**
+
+El linfoma es la causa más común de concentraciones detectables de PTHrP, pero otros tumores también producen hipercalcemia por este mecanismo: **adenocarcinoma de glándulas apocrinas del saco anal** y diversos carcinomas —mamario, escamoso, broncogénico—.
+
+Esa lista conecta con OCIS: la hipercalcemia puede ser el primer hallazgo de una neoplasia todavía no localizada.
+
+5. LA INTERPRETACIÓN HORMONAL
+
+La medición de calcio ionizado, PTH y PTHrP **de la misma muestra sanguínea** es lo que diferencia el hiperparatiroidismo primario de la hipercalcemia humoral de malignidad.
+
+**Hipercalcemia humoral de malignidad**: calcio ionizado aumentado, PTHrP detectable, PTH no detectable.
+
+**Hiperparatiroidismo primario**: calcio ionizado aumentado, PTH normal a aumentada, PTHrP no detectable.
+
+El concepto que sostiene la lectura: normalmente la hipercalcemia debería suprimir la PTH hasta valores bajos o no detectables. Por lo tanto, **un ionizado aumentado con PTH concurrente normal o aumentada es consistente con hiperparatiroidismo primario** — una PTH "normal" en presencia de hipercalcemia es anormal.
+
+La relación es dinámica, y por eso es importante interpretar la PTH **en función de la concentración de calcio**, no contra un rango de referencia aislado.
+
+Advertencia de rendimiento diagnóstico: un estudio encontró que **el 75% de los perros con hiperparatiroidismo primario confirmado tenía concentraciones de PTH dentro del rango de referencia**. Sin embargo, las concentraciones de PTHrP también pueden estar aumentadas, como en la hipercalcemia humoral de malignidad.
+
+Ecografía. El examen del complejo tiroparatiroideo puede revelar agrandamiento de una o más glándulas paratiroides.
+
+Vitamina D. El estado puede evaluarse midiendo calcidiol y calcitriol; dado que los metabolitos de la vitamina D participan en la homeostasis del calcio, evaluarlo debe considerarse al armar el plan diagnóstico.
+
+Fósforo sérico. Su medición y evaluación concurrentes pueden aportar información adicional sobre la causa.
+
+6. EL DIFERENCIAL QUE SE OLVIDA
+
+**La hipercalcemia ocurre hasta en aproximadamente el 30% de los pacientes con hipoadrenocorticismo.**
+
+Ese porcentaje es alto y la entidad tiene documento propio en la base de ECIS. Un perro con hipercalcemia y signos gastrointestinales inespecíficos debe evaluarse para enfermedad de Addison antes de escalar a estudios oncológicos.
+
+7. ESTUDIOS DE EXTENSIÓN
+
+Cuando se busca la malignidad subyacente son útiles: radiografías torácicas y abdominales, ecografía abdominal, evaluación citológica de aspirados de hígado, bazo, linfonodos y médula ósea, determinación de calcio ionizado, PTH y PTHrP, y ecografía cervical.
+
+En el perro, el **examen rectal** forma parte del estudio — es lo que detecta el adenocarcinoma de saco anal, y se omite con frecuencia.
+
+Base mínima: hemograma, perfil bioquímico, urianálisis, panel de PTH/PTHrP/calcio ionizado, y radiografías torácicas de tres vistas.
+
+8. TRATAMIENTO
+
+Los signos clínicos dependen de la magnitud, la velocidad de desarrollo y la duración de la hipercalcemia, así como de las alteraciones electrolíticas y ácido-base concurrentes. Pueden incluir vómito, depresión, debilidad, fasciculaciones musculares, arritmias cardíacas y convulsiones.
+
+La terapia médica para la hipercalcemia persistente **se dicta por el bienestar sistémico del paciente, la velocidad de aumento del calcio sérico y la severidad**, no solo por el valor absoluto.
+
+En hipercalcemia paraneoplásica, además de abordar el tumor primario, el tratamiento de soporte consiste principalmente en fluidoterapia y furosemida, y en algunos casos glucocorticoides y aminobisfosfonatos.
+
+Advertencia de secuencia: los glucocorticoides pueden dificultar el diagnóstico de linfoma. Su administración antes de completar el estudio puede comprometer la identificación de la causa.
+
+9. ERRORES FRECUENTES
+
+Razonar sobre hipercalcemia a partir del calcio total.
+
+No recontrolar el ionizado a los 2 a 3 meses cuando resultó normal con total elevado.
+
+Interpretar la PTH contra el rango de referencia en vez de en función del calcio.
+
+Descartar hiperparatiroidismo primario por PTH dentro del rango de referencia.
+
+Omitir el examen rectal en el perro.
+
+No considerar hipoadrenocorticismo.
+
+Administrar glucocorticoides antes de completar el estudio diagnóstico.
+
+Tratar por el valor absoluto sin considerar velocidad de instalación y estado del paciente.
+
+10. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis de fluidoterapia, furosemida, glucocorticoides y bisfosfonatos. Manejo de la crisis hipercalcémica. Hiperparatiroidismo primario: tratamiento quirúrgico y manejo posoperatorio de la hipocalcemia. Hipercalcemia idiopática felina: manejo específico. Hipervitaminosis D e intoxicación por colecalciferol. Nefrocalcinosis y lesión renal asociada. Hipocalcemia. Estos temas quedan como vacíos declarados de la Base de Conocimiento de ECIS.
+
+FUENTES
+
+Merck Veterinary Manual — Hypercalcemia in Dogs and Cats. Fuente de las secciones 2, 5 y 6.
+
+Hypercalcemia in Dogs and Cats: Etiology and Diagnostic Approach. WSAVA 2002, VIN. Fuente de las secciones 4, 5 y 7.
+
+Severity of ionized hypercalcemia and hypocalcemia is associated with etiology in dogs and cats. Front Vet Sci 2019;6:276. PMC6714612. Fuente de las secciones 2 y 3.
+
+Hypercalcemia in dogs and cats. dvm360. Fuente de las secciones 1 y 4.
+
+A Practical Approach to Hypercalcemia. Today's Veterinary Practice. Fuente de las secciones 2 y 8.
+
+Treating paraneoplastic hypercalcemia in dogs and cats. dvm360. Fuente de las secciones 7 y 8.
+
+Hypercalcemia: A Practical Diagnostic Approach in Dogs and Cats. VetWrap, DoveLewis. Fuente de la sección 7.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

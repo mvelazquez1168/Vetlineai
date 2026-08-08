@@ -1,0 +1,105 @@
+ABORDAJE DE LA MASA CUTÁNEA Y SUBCUTÁNEA — CUÁNDO PUNZAR, CUÁNDO BIOPSIAR
+
+Resumen clínico de referencia para OCIS. Componentes que lo consumen: CC-231 (Histopathology Intelligence), CC-232 (Staging & Grading Engine), CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico).
+
+Es la consulta oncológica más frecuente y la puerta de entrada a casi todos los demás documentos de OCIS.
+
+---
+
+1. EL PRINCIPIO QUE ORDENA TODO
+
+El error dominante no es diagnosticar mal: es **esperar**. Una masa cutánea observada durante meses y punzada tarde llega al diagnóstico con un tamaño que ya limita las opciones quirúrgicas.
+
+La campaña de detección temprana que articuló este criterio lo formuló como consigna: si se ve algo, se hace algo — ¿por qué esperar? Aspirar. Surgió de un caso concreto: una masa de 7 cm sobre el flanco que, al finalmente estudiarse, resultó un sarcoma de tejidos blandos de bajo grado.
+
+Regla operativa para OCIS: ante una masa cutánea o subcutánea reportada, la recomendación por defecto es **punción con aguja fina en la consulta actual**, no observación. La observación se justifica solo con un diagnóstico citológico previo que la respalde.
+
+2. LA HERRAMIENTA PRIMARIA: PUNCIÓN CON AGUJA FINA
+
+Es mínimamente invasiva, económica, rápida, no requiere hospitalización ni anestesia, tiene complicaciones despreciables, y evita la preocupación por diseminación tumoral. Su beneficio central es el diagnóstico preliminar rápido.
+
+Elección de la aguja. El tamaño de la aguja no impacta la capacidad de obtener un diagnóstico, pero cambia la calidad de la muestra: las agujas más finas de 25 G tienden a producir más detritus y trauma celular, mientras que las de 22 G generan más contaminación sanguínea. Con 25 G suelen requerirse más punciones —y más dolor— para obtener una muestra diagnóstica.
+
+Hallazgos orientadores en la citología:
+
+Lípido no secante y adipocitos sugieren lipoma.
+
+Células redondas grandes llenas de gránulos basofílicos sugieren **tumor de mastocitos**, lo que amerita estudio adicional y, si corresponde, una dosis de difenhidramina antes de manipular.
+
+3. LA EXCEPCIÓN QUE HAY QUE CONOCER: SARCOMA DE TEJIDOS BLANDOS
+
+Los sarcomas de tejidos blandos **exfolian mal con punción con aguja fina**. Son tumores muy sólidos y desprenden pocas células, de modo que la citología puede resultar inconcluyente aunque la técnica sea correcta.
+
+Estrategias descritas para mejorar el rendimiento: emplear una aguja de mayor calibre —18 a 20 G— o aplicar succión con jeringa de 5 o 10 mL si otras técnicas no rinden muestra adecuada.
+
+Qué muestra la citología cuando sí rinde: población celular que exfolia individualmente o en grumos desorganizados, mezclada con cantidades variables de sangre periférica. Las células son fusiformes y pueden presentar prolongaciones citoplasmáticas en cola. La relación núcleo-citoplasma suele ser alta y los núcleos pueden contener múltiples nucléolos de tamaño variable.
+
+**Una muestra no diagnóstica, o la presencia de grandes cantidades de sangre, es indicación de evaluación adicional** — no de repetir indefinidamente la punción ni de volver a observar.
+
+4. CUÁNDO PASAR A BIOPSIA
+
+La biopsia está indicada cuando la citología es no diagnóstica, o **cuando se necesita un grado**. Esa segunda condición se olvida con frecuencia: la citología puede identificar el tipo tumoral sin permitir graduarlo, y el grado es lo que define conducta en varias entidades.
+
+Biopsia escisional —remoción de la masa completa— cuando la masa es pequeña, móvil y está en una localización quirúrgicamente accesible.
+
+Biopsia incisional —remoción de una porción— cuando la masa es grande.
+
+Regla para OCIS: la elección entre escisional e incisional no es preferencia del cirujano sino consecuencia del tamaño y la localización. Una escisional sobre una masa grande compromete los márgenes de la cirugía definitiva.
+
+5. LO QUE LA PALPACIÓN NO DICE
+
+Los sarcomas de tejidos blandos pueden sentirse blandos o firmes y suelen estar adheridos a estructuras subyacentes. Aunque el tumor puede palparse bien definido, es altamente invasivo y emite extensiones microscópicas en todas direcciones.
+
+**La extensión del tumor se estima mal por palpación.** Ese enunciado debe conservarse literalmente en el razonamiento de OCIS: una masa que se siente delimitada no es una masa delimitada.
+
+Crecimiento: pueden crecer rápido en pocas semanas, aunque más comúnmente lo hacen lentamente durante meses o años. Inicialmente la mayoría de los perros no muestra signos relacionados con el tumor; cuando aparecen suelen deberse al tumor primario más que a diseminación. En casos avanzados la piel suprayacente puede ulcerarse, exponiendo al paciente a dolor e infección.
+
+6. PARTICULARIDADES DEL TUMOR DE MASTOCITOS
+
+La punción con aguja fina es el método diagnóstico primario del mastocitoma cutáneo canino, con alta exactitud diagnóstica y mínima invasividad.
+
+Está indicada una estadificación diagnóstica extensa si hay factores pronósticos negativos —como grado tumoral alto—, pero puede ser innecesaria en tumores de bajo riesgo.
+
+Un dato que corrige la percepción de benignidad: aunque los mastocitomas subcutáneos se consideran de comportamiento biológico mayormente benigno, un estudio reciente reporta en una cohorte de 45 perros una tasa de recurrencia local del 18%, metástasis ganglionar del 27% y mortalidad relacionada al mastocitoma del 13%.
+
+Limitación práctica que conviene registrar: la histopatología y la inmunohistoquímica se realizan más a menudo **después** de la cirugía definitiva que como biopsia incisional preoperatoria, lo que limita su utilidad para guiar la estadificación y las recomendaciones quirúrgicas. Además, con la comercialización del agente intratumoral tigilanol tiglato, algunos pacientes pueden no llegar nunca a una biopsia ni a análisis histopatológico.
+
+7. ERRORES FRECUENTES
+
+Recomendar observación de una masa sin diagnóstico citológico previo.
+
+Repetir punciones sin rendimiento en vez de escalar a biopsia.
+
+Concluir benignidad a partir de una citología no diagnóstica en una masa firme y adherida.
+
+Estimar la extensión tumoral por palpación.
+
+Realizar biopsia escisional sobre una masa grande, comprometiendo los márgenes de la cirugía definitiva.
+
+No solicitar biopsia cuando el grado es necesario para decidir conducta.
+
+Manipular una masa compatible con mastocitoma sin considerar premedicación antihistamínica.
+
+Asumir comportamiento benigno en un mastocitoma subcutáneo.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnica de la punción y preparación de extendidos. Márgenes quirúrgicos por tipo y grado tumoral. Sistemas de gradación del mastocitoma —Patnaik, Kiupel—, cubiertos en el documento de tumores de mastocitos. Gradación del sarcoma de tejidos blandos y su manejo completo. Tigilanol tiglato: indicaciones y protocolo. Lipoma infiltrativo. Masas cutáneas en el gato, incluido el sarcoma asociado a sitio de inyección. Histiocitoma y otras masas de células redondas. Citometría de flujo y marcadores pronósticos preoperatorios. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+FUENTES
+
+Best Practices for Evaluating and Sampling Canine Cutaneous and Subcutaneous Masses. The Vetiverse. Fuente de las secciones 2 y 4.
+
+Veterinary Oncology: What to Do With Lumps and Bumps on Dogs and Cats. Today's Veterinary Practice. Fuente de la sección 1 y de la campaña de detección temprana.
+
+Managing soft-tissue sarcomas in dogs and cats. dvm360. Fuente de la sección 3.
+
+Medical Oncology: Canine Soft Tissue Sarcoma. NC State Veterinary Hospital. Fuente de la sección 5.
+
+Soft tissue sarcomas in dogs. Cornell University College of Veterinary Medicine. Fuente de las secciones 3 y 4.
+
+Development of a flow cytometric panel to assess prognostic biomarkers in fine needle aspirates of canine cutaneous or subcutaneous mast cell tumors. PMC10704158. Fuente de la sección 6.
+
+AAHA Oncology Guidelines for Dogs and Cats.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

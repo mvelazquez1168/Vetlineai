@@ -1,0 +1,90 @@
+ICIS Clinical Design System
+
+Versión 1.0
+Documento: ICIS-DESIGN-001
+
+Este documento ya no define únicamente el Dashboard. Define TODO el lenguaje visual del producto.
+
+Relación entre documentos
+
+Manual de Identidad Visual ICIS
+↓
+ICIS-DESIGN-001 — Clinical Design System
+↓
+Dashboard → Artifacts → Reportes PDF → Reportes Word → Presentaciones
+
+Todo el ecosistema compartirá exactamente la misma identidad visual.
+
+Índice del documento
+
+1. Introducción — Objetivo, Alcance, Relación con el Manual de Marca, Principios de diseño.
+
+2. Brand Identity Integration
+
+Todos los elementos visuales definidos en este documento deberán utilizar la identidad visual establecida en el "Manual de Identidad Visual GastroCare Vet", que constituye la fuente oficial compartida para tipografía (Playwrite CC Deutschland Grundschrift para wordmark, Montserrat para texto), paleta cromática (turquesa #23B3B1, coral #F47676, violeta #8012FF, azul oscuro #102F59, marfil #FCF9F6) y lineamientos generales de comunicación visual, ya que ICIS es una extensión de la misma marca.
+
+El imagotipo de ICIS se referencia por su asset oficial: Logo_ICIS_MedicaVet.jpeg — isotipo circular "MedicaVet Clínica Veterinaria", sin la simbología del sistema gastrointestinal que identifica a GastroCare Vet, consistente con el rol de ICIS como sistema de triage y medicina general. Se mantiene la misma paleta y tipografía compartidas del Manual de Identidad Visual (turquesa/coral/violeta, Playwrite CC / Montserrat) — solo el isotipo es distinto entre ambos sistemas.
+
+3. Clinical Design Principles
+
+Clinical First, Evidence First, Minimal Cognitive Load, Progressive Disclosure, Consistency, Explainable AI, Visual Hierarchy, Accessibility, Longitudinal Thinking, Triage Clarity (nuevo — el diseño debe hacer inmediatamente obvio si un caso requiere derivación, sin que el usuario tenga que leer el informe completo para saberlo; esto no era un principio necesario en un sistema donde todo caso ya pertenece al especialista).
+
+4. Color System
+
+No pondremos colores corporativos aquí (ver Manual de Marca). Sí definiremos los colores funcionales:
+
+Estado Normal, Estado Advertencia, Estado Crítico, Estado Pendiente, Estado IA, Estado Diagnóstico, Estado Tratamiento, Estado Seguimiento, Estado Derivación (nuevo — color funcional propio, distinto de "Advertencia" o "Crítico"; una derivación no urgente no es una alerta de peligro, es una categoría de decisión clínica con identidad visual propia).
+
+5. Typography — H1, H2, H3, Card Title, Clinical Text, Table Text, Small Text, Footnote. (Tipografías tomadas del Manual de Marca, sin cambios.)
+
+6. Grid System — 12 columnas, Margen, Espaciado, Cards, Breakpoints. (Sin cambios.)
+
+7. Clinical Cards
+
+Executive Summary Card, Patient Card, Timeline Card, Medication Card, Hemogram Card, Confidence Card, Knowledge Card, Referral Recommendation Card (nuevo — corresponde al componente "Siempre incluir" que definimos en el Report Composer Engine Specification; debe tener tratamiento visual propio, no reutilizar el estilo de Executive Summary Card, porque su función es distinta: comunicar una decisión de manejo, no resumir el caso).
+
+8. Dashboard Components — Propósito, Tamaño, Estado, Icono, Acciones, Animaciones, Errores, Loading, Hover. (Sin cambios — aplica igual a la nueva Referral Recommendation Card.)
+
+9. Charts — Comparación Hemogramas, Comparación Bioquímica, Peso, BCS, Timeline, Respuesta Clínica, Confidence Meter. (Sin cambios.)
+
+10. Tables — Una sola especificación; todas las tablas lucen iguales. Excepción documentada: las tablas de laboratorio dentro de un Referral Report deben usar la variante "datos crudos" definida en el Clinical Report Specification (CRS-008) — visualmente pueden compartir el mismo sistema de tabla, pero sin el resumen/interpretación en línea que sí llevan las tablas de un informe de consulta estándar.
+
+11. Icons
+
+Paciente, Consulta, Laboratorio, Ecografía, Endoscopia, Histopatología, Tratamiento, Diagnóstico, IA, Reporte, PDF, Word, Conocimiento, Seguimiento, Derivación (nuevo — ícono propio y reconocible a simple vista, dado que la derivación es la salida más frecuente del sistema, no una excepción).
+
+12. Clinical Badges
+
+🟢 Remisión · 🔵 Estable · 🟡 Mejorando · 🟠 Respuesta Parcial · 🔴 Empeorando · ⚫ Crítico · ⚪ Información Insuficiente · 🔁 Derivado / en seguimiento por especialista (nuevo — debe coincidir exactamente con el Clinical State Engine de las Project Instructions; si el badge no existe acá, el Dashboard no podrá representar visualmente ese estado).
+
+Todo el Dashboard utilizará exactamente los mismos badges.
+
+13. Clinical Timeline — Colores, Eventos, Jerarquía, Filtros, Zoom. Se agrega evento tipo "Derivación" como hito propio de la línea de tiempo (distinto de "Consulta" o "Cambio terapéutico"), con su propio color e ícono.
+
+14. AI Components
+
+Toda inferencia, cálculo o recomendación generada por el sistema —nunca un dato objetivo copiado del expediente— se presenta en una tarjeta con fondo violeta (#DCD4FF), borde superior sólido violeta (#8012FF) y el símbolo ◆, seguido de la etiqueta "Insight" (no "Claude Insight") y una descripción breve de qué tipo de inferencia contiene — por ejemplo: "◆ Insight — Breed Knowledge Object", "◆ Insight — Diet-Outcome Correlation".
+
+Esta etiqueta es fija en todos los Dashboards, informes y demás superficies del sistema, sin variación por caso, especialidad o audiencia.
+
+Expediente Clínico
+────────────────────
+Texto. Texto. Texto.
+
+Insight
+────────────────────
+Con base en la evolución clínica...
+
+Esto aplica con especial fuerza a la Referral Recommendation Card — al ser una decisión generada por el sistema (no un dato objetivo del expediente), debe llevar siempre la identidad visual de "Insight", nunca la de un dato de expediente. Esto es fundamental desde el punto de vista médico y legal, más todavía tratándose de una recomendación de derivación.
+
+15. Clinical Confidence Meter™ — Colores, Animaciones, Escala, Iconografía, Interpretación. (Sin cambios.)
+
+16. Dashboard States — Loading, No Data, Incomplete, Review Needed, Archived, Critical, Teaching Mode, Presentation Mode. Se agrega: Referred (nuevo — estado de dashboard distinto de "Archived"; un caso derivado sigue activo y puede recibir actualizaciones, no debe archivarse automáticamente solo porque salió de manejo directo).
+
+17. Report Components — Cómo luce un componente en Word, en PDF, en un caso docente. Todos comparten el mismo ADN visual. Se agrega: cómo luce en un Referral Package (ver Report Composer Engine Specification, Sección 17) — mismo ADN visual, pero con la Referral Recommendation Card siempre visible en la primera página, no al final del documento.
+
+18. Accessibility — Contraste, Daltonismo, Tamaño mínimo, Navegación teclado, Modo oscuro. (Sin cambios.)
+
+19. Motion System — Animaciones, Transiciones, Hover, Expand, Collapse, Timeline. (Sin cambios.)
+
+20. Future Design — Responsive, Tablet, Teaching Mode, Research Mode, Presentation Mode, AI Workspace. (Sin cambios.)

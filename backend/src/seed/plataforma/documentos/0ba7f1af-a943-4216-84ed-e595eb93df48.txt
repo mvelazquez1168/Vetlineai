@@ -1,0 +1,161 @@
+DERMATOFITOSIS EN PERROS Y GATOS — DIAGNÓSTICO POR PRUEBAS COMPLEMENTARIAS, TRATAMIENTO Y DESCONTAMINACIÓN
+
+Resumen clínico de referencia para DCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico), y los componentes de citología de DCIS.
+
+Reemplaza al volcado de PDF previo. Fuente principal: guías de consenso clínico de la World Association for Veterinary Dermatology sobre diagnóstico y tratamiento de dermatofitosis en perros y gatos.
+
+Es zoonosis, y esa condición gobierna buena parte del manejo.
+
+---
+
+## 1. Qué es y quién la transmite
+
+Enfermedad fúngica **superficial** de la piel. Los patógenos más frecuentes en pequeños animales pertenecen a los géneros *Microsporum* y *Trichophyton*.
+
+**En el gato, el patógeno primario es *Microsporum canis*.** Los gatos con acceso al exterior pueden contraer además infecciones por *Trichophyton*.
+
+La transmisión ocurre por contacto directo o por inoculación traumática desde fómites. Ese segundo mecanismo importa: no basta el contacto, hace falta microtrauma que permita la implantación.
+
+**Presentación clínica muy variable:** alopecia, pápulas, eritema, descamación, costras e hiperpigmentación, con o sin prurito.
+
+Esa variabilidad es lo que la vuelve un diferencial obligado en casi cualquier dermatosis, y lo que hace que el diagnóstico no pueda apoyarse en el aspecto.
+
+## 2. No hay una prueba de referencia — el diagnóstico es por pruebas complementarias
+
+**Los estudios basados en evidencia concluyen que no existe una prueba única de referencia.** El diagnóstico se construye combinando varias, y cada una responde una pregunta distinta.
+
+Regla para DCIS: nunca concluir sobre dermatofitosis a partir de una sola prueba, ni descartarla por un único resultado negativo. El componente debe declarar qué pruebas constan en el expediente y cuáles faltan.
+
+### 2.1 Lámpara de Wood
+
+**Contra la creencia extendida, es una prueba útil.** Las guías de consenso señalan que el examen con lámpara de Wood es positivo en más del 91% de los gatos no tratados, y que tiene buena predictibilidad tanto positiva como negativa.
+
+Esa afirmación corrige directamente la idea de que la lámpara "no sirve", que sigue siendo común en la práctica.
+
+**Tres salvedades que definen su uso:**
+
+**Solo *Microsporum canis* produce fluorescencia detectable** entre las tres especies que se identifican habitualmente. Un *Trichophyton* no fluoresce, y un negativo en un paciente con exposición al exterior no descarta nada.
+
+**El sebo y algunos medicamentos también fluorescen**, lo que produce falsos positivos. Lo que se busca es fluorescencia **verde manzana adherida al pelo**, no fluorescencia difusa de la superficie.
+
+**Los pelos fluorescentes se encuentran sobre todo en infecciones no tratadas.** En un animal ya medicado la fluorescencia puede ser difícil de hallar, así que un negativo bajo tratamiento no significa curación.
+
+Su mayor valor es combinada con el examen directo: **la lámpara señala qué pelos arrancar.**
+
+### 2.2 Examen directo de pelo y escamas
+
+Documenta infección activa del pelo. Los pelos infectados se ven **anchos y pálidos**, en contraste con los normales, que son finos y de estructura regular.
+
+Junto con la lámpara de Wood, es la prueba de consultorio que permite iniciar tratamiento sin esperar el cultivo.
+
+### 2.3 Cultivo por técnica del cepillo de dientes
+
+**Responde dos preguntas que ninguna otra responde:** qué especie está involucrada, y cómo evoluciona la respuesta al tratamiento.
+
+Su limitación es el tiempo: el crecimiento suele demorar alrededor de dos semanas. Por eso no se espera el cultivo para tratar.
+
+### 2.4 PCR
+
+Detecta ADN de dermatofito con alta sensibilidad y especificidad.
+
+**Y tiene una limitación que cambia por completo su interpretación: un resultado positivo no indica necesariamente infección activa.** El ADN de organismos muertos, provenientes de una infección tratada con éxito, sigue detectándose.
+
+Regla dura para DCIS: **un PCR positivo en un paciente bajo tratamiento o recién tratado no significa fracaso terapéutico.** Confundirlo lleva a prolongar tratamientos innecesariamente.
+
+En cambio, **un PCR negativo sí apoya la curación micológica.**
+
+### 2.5 Biopsia
+
+No está indicada en casos de rutina. Se reserva para **lesiones nodulares o presentaciones inusuales**, y se solicita con tinciones especiales para hongos.
+
+Ese criterio es relevante por el pseudomicetoma dermatofítico, forma nodular descrita en el gato que exige biopsia para diagnosticarse.
+
+## 3. Tratamiento
+
+**Combina antifúngico sistémico y tópico.** Ninguno de los dos alcanza solo.
+
+**El sistémico** trata la infección del folículo. Las guías señalan que los antifúngicos sistémicos tienen un **amplio margen de seguridad**, lo que despeja una preocupación frecuente al indicarlos.
+
+**El tópico es necesario y no opcional**: desinfecta los pelos, minimiza la transmisión y previene la contaminación ambiental. Sin él, el paciente sigue siendo fuente de contagio aunque el folículo esté respondiendo.
+
+**Sobre la autolimitación.** En animales por lo demás sanos, la infección es autolimitante y en teoría no requeriría tratamiento. Pero se trata igual, y el motivo no es el paciente: **acorta el curso y reduce el período de contagio a otros animales y a las personas.**
+
+Regla para DCIS: el argumento para tratar es epidemiológico tanto como clínico, y conviene explicitarlo al propietario. Un tutor que entiende que trata para proteger a su familia y a sus otros animales cumple mejor.
+
+## 4. Descontaminación del ambiente
+
+**La limpieza física es lo más importante para descontaminar los ambientes expuestos.** Esa es la conclusión del consenso, y corrige el énfasis habitual en desinfectantes.
+
+Las artrosporas se detectan en los hogares de gatos y perros infectados, y persisten en el ambiente. Lo que las remueve es la remoción mecánica —aspirado, lavado, eliminación de pelo suelto— antes que cualquier producto.
+
+Regla para DCIS: ante dermatofitosis confirmada, el plan debe incluir manejo ambiental. Tratar solo al animal en un ambiente contaminado produce reinfección y da la impresión de fracaso terapéutico.
+
+## 5. Cuándo termina el tratamiento
+
+El final requiere **dos condiciones**:
+
+**Curación clínica** — resolución de todas las lesiones y ausencia de lesiones nuevas.
+
+**Curación micológica** — confirmada por prueba. Un cultivo negativo apoya la curación en un animal sin enfermedad sistémica, y un PCR negativo también.
+
+En infecciones por *M. canis*, la lámpara de Wood sirve para buscar pelos residualmente infectados una vez resueltas las lesiones.
+
+Regla para DCIS: **suspender por mejoría clínica sin confirmación micológica es la causa evitable más frecuente de recaída**, igual que en demodicosis. La diferencia es que acá la recaída además mantiene el riesgo zoonótico.
+
+## 6. La dimensión zoonótica, calibrada
+
+Es zoonosis y hay que informarlo. Pero conviene hacerlo sin alarmar de más:
+
+**Las complicaciones serias de la transmisión animal-humano son extremadamente raras**, según el consenso. Lo habitual en personas es una lesión cutánea superficial que responde a tratamiento tópico.
+
+Regla para DCIS: informar el riesgo, indicar medidas de higiene y manejo ambiental, y recomendar consulta médica ante lesiones en convivientes — sin presentar la enfermedad como un peligro grave para la familia, porque no lo es y esa exageración lleva a decisiones desproporcionadas, incluido el abandono del animal.
+
+Mención particular a hogares con personas inmunocomprometidas, niños pequeños o adultos mayores, donde la precaución sí se refuerza.
+
+## 7. Errores frecuentes
+
+Descartar dermatofitosis por una lámpara de Wood negativa, cuando *Trichophyton* no fluoresce y el paciente ya está tratado.
+
+Interpretar fluorescencia difusa de sebo o medicación como positivo.
+
+Concluir con una sola prueba, en cualquiera de las dos direcciones.
+
+Leer un PCR positivo bajo tratamiento como fracaso terapéutico.
+
+Esperar el cultivo para iniciar el tratamiento.
+
+Tratar solo con sistémico y omitir el tópico, con lo que el paciente sigue contagiando.
+
+Omitir el manejo ambiental y atribuir la reinfección a fracaso del fármaco.
+
+Suspender por curación clínica sin confirmación micológica.
+
+Solicitar biopsia en un caso de rutina, o no solicitarla ante lesión nodular.
+
+Alarmar desproporcionadamente sobre el riesgo zoonótico.
+
+## 8. Lo que este documento no cubre
+
+Dosis, esquemas y duración de itraconazol, terbinafina y griseofulvina, incluida la terapia en pulsos. Formulaciones y frecuencia de los tópicos: azufre de cal, enilconazol, miconazol con clorhexidina. Protocolo detallado de la técnica del cepillo de dientes. Interpretación del medio de cultivo para dermatofitos. Pseudomicetoma dermatofítico como entidad, incluida su predisposición racial y su manejo. Dermatofitosis en refugios y colonias, que tiene manejo poblacional propio. Protocolos concretos de descontaminación ambiental. Estos temas quedan como vacíos declarados de la Base de Conocimiento de DCIS.
+
+Nota: las decisiones terapéuticas concretas se apoyan además en la extensión dermatológica de farmacoterapia, que declara el uso de antifúngicos sistémicos como reservado a enfermedad severa o refractaria en el caso de Malassezia — criterio que **no aplica a dermatofitosis**, donde el sistémico es parte del tratamiento estándar.
+
+---
+
+FUENTES
+
+Moriello KA, Coyner K, Paterson S, Mignon B. Diagnosis and treatment of dermatophytosis in dogs and cats: Clinical Consensus Guidelines of the World Association for Veterinary Dermatology. Vet Dermatol 2017;28:266–e68. Fuente principal de las secciones 2, 3, 4 y 6.
+
+Dermatophytosis in Dogs and Cats. Merck Veterinary Manual. Fuente de las secciones 2 y 5.
+
+Feline dermatophytosis. En: Feline Dermatology. Springer. Fuente de las secciones 1 y 2.
+
+Dermatophytoses in Dogs and Cats. Today's Veterinary Practice. Fuente de la sección 2, incluida la evidencia sobre PCR cuantitativa.
+
+Frymus T, Gruffydd-Jones T, Pennisi MG y col. Dermatophytosis in cats: ABCD guidelines on prevention and management. J Feline Med Surg 2013;15:598–604.
+
+Mancianti F, Nardoni S, Corazza M y col. Environmental detection of Microsporum canis arthrospores in the households of infected cats and dogs. J Feline Med Surg 2003;5:323–328.
+
+Chang SC, Liao JW, Shyu CL y col. Dermatophytic pseudomycetomas in four cats. Vet Dermatol 2011;22:181–187.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

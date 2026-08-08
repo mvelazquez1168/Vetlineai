@@ -188,7 +188,7 @@ export function Clinica() {
                   <img src={logoPreviewUrl} alt="Logo de la clínica" className="h-full w-full object-contain" />
                 ) : tenant.logo_url ? (
                   <img
-                    src={`${API_ORIGIN}${tenant.logo_url}`}
+                    src={tenant.logo_url.startsWith("http") ? tenant.logo_url : `${API_ORIGIN}${tenant.logo_url}`}
                     alt="Logo de la clínica"
                     className="h-full w-full object-contain"
                   />

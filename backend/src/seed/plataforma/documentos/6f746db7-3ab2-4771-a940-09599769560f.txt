@@ -1,0 +1,129 @@
+Dashboard Functional Specification — ICIS
+
+Documento: ICIS-DASH-001
+Versión: 1.0
+Estado: Draft
+Owner: ICIS
+
+1. Introducción
+
+Objetivo
+
+Definir la estructura funcional, las reglas de composición y el comportamiento del Dashboard clínico generado por el Internal Medicine Clinical Intelligence System (ICIS) — el Artifact interactivo mencionado en las Project Instructions, Sección 12 (Dashboard Intelligence).
+
+El Dashboard no es un informe estático: es una representación viva del estado del caso, que se reconstruye cada vez que el usuario lo solicita, usando siempre la información más reciente del expediente clínico longitudinal.
+
+2. Filosofía del Dashboard
+
+El Dashboard responde a una pregunta distinta a la del Clinical Report: el reporte está pensado para leerse (por un colega, un especialista, o para el expediente); el Dashboard está pensado para entenderse de un vistazo. Un veterinario que abre el Dashboard en medio de una consulta debe poder responder en menos de 10 segundos: ¿qué le pasa a este paciente, cómo está evolucionando, y necesita derivación?
+
+Esta última pregunta es la razón por la que ICIS necesita su propia especificación de Dashboard y no puede simplemente heredar la de un sistema de especialidad: en GCIS, el Dashboard nunca necesitaba responder "¿a quién deriva?", porque el caso ya estaba en manos del especialista. En ICIS, esa pregunta es tan importante como el estado clínico mismo — por eso el Referral Recommendation Panel no es un componente más entre muchos: ocupa un lugar fijo y prioritario en el layout (ver Sección 4).
+
+3. Principios de Diseño
+
+Heredados del Clinical Design System (ICIS-DESIGN-001, Sección 3), con particular relevancia para el Dashboard:
+
+-   Triage Clarity — el nivel de manejo/derivación debe ser visible sin necesidad de hacer scroll ni abrir ningún panel.
+
+-   Minimal Cognitive Load — no todos los componentes se muestran siempre; solo los que tienen información disponible (ver Sección 5.2).
+
+-   Progressive Disclosure — el resumen ejecutivo va primero; el detalle completo (matrices, journal de razonamiento) queda a un clic de distancia, no en la vista inicial.
+
+-   Explainable AI — toda card generada por inferencia de Claude debe distinguirse visualmente de los datos objetivos del expediente (Clinical Design System, Sección 14).
+
+4. Layout del Dashboard
+
+El Dashboard se organiza en cuatro zonas fijas, en este orden:
+
+Zona 1 — Header: Logo MedicaVet / ICIS (esquina superior) + Executive Summary Card + Clinical State Card + Referral Recommendation Card + Clinical Confidence Meter.Zona 2 — Signos vitales del caso:
+Clinical Confidence Meter + Active Problems Panel + Alertas (banderas rojas activas, si las hay).
+
+Zona 3 — Evolución y evidencia:
+Clinical Timeline, Weight Trend, BCS Trend, CBC Trend/Comparison, Clinical Chemistry Trend, Imaging Comparison, Treatment Timeline, Diagnostic Evolution — cada una solo si existe información suficiente (ver Sección 5.2, heredado de AD-024 del Report Composer Engine).
+
+Zona 4 — Razonamiento y conocimiento (colapsado por defecto):
+Diagnostic Correlation Panel, Differential Diagnosis Matrix, Evidence Matrix, Knowledge Match Panel, Clinical Reasoning Journal.
+
+5. Dashboard Components
+
+5.1 Catálogo de componentes
+
+El Dashboard reutiliza exactamente el catálogo de Clinical Cards definido en el Clinical Design System (ICIS-DESIGN-001, Sección 7) — el Dashboard no define sus propias cards; las consume. Esto garantiza que una card se vea igual en el Dashboard, en el reporte exportado a Word/PDF, y en un caso docente (Design System, Sección 17).
+
+5.2 Reglas de aparición condicional
+
+Idénticas a las reglas de AD-024 (Report Composer Engine Specification): un componente solo se genera si aporta valor clínico y existe información suficiente. Nunca se insertan componentes vacíos ni decorativos.
+
+  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Condición                                                    Componente que se active
+  ------------------------------------------------------------ --------------------------------------------------------------------------------------------------------------------------------------------------
+  Siempre                                                      Executive Summary Card, Clinical State Card, Referral Recommendation Card, Clinical Confidence Meter, Active Problems Panel
+
+  Existen ≥3 hemogramas                                        CBC Trend, CBC Comparison
+
+  Existen ≥2 perfiles bioquímicos                              Clinical Chemistry Trend
+
+  Existen ≥2 pesos registrados                                 Weight Trend
+
+  Existen ≥2 BCS registrados                                   BCS Trend
+
+  Existen estudios de imagen seriados                          Imaging Comparison
+
+  Existen ≥2 consultas                                         Clinical Timeline
+
+  Hubo cambios terapéuticos                                    Treatment Timeline
+
+  Siempre                                                      CVC-240 — Diagnostic Correlation Panel (incluye el Diagnostic Confidence Panel, CVC-336, como su tabla resumen)
+
+  Hubo cambios en el diagnóstico o los diferenciales           Diagnostic Evolution
+
+  Existen ≥2 diagnósticos diferenciales activos                Differential Diagnosis Matrix
+
+  Existen casos similares en la Base de Conocimiento           Knowledge Match Panel
+
+  El nivel de manejo es "requiere derivación" (urgente o no)   Se expande automáticamente el Referral Recommendation Card mostrando especialidad, urgencia y pregunta clínica — no queda colapsado en la Zona 1
+  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Logo institucional: el Dashboard incorporará siempre el logo oficial (mismo asset que CRS-001: Logo_ICIS_MedicaVet.jpeg) en el header, codificado directamente en el widget. Si el archivo no está disponible en la conversación al momento de generar el Dashboard, se solicitará explícitamente antes de renderizar.
+
+Excepción a la regla de datos suficientes: a diferencia del resto de los componentes de esta tabla, el Diagnostic Correlation Panel (CVC-240) nunca se omite por falta de evidencia — cuando la evidencia disponible no permite establecer una correlación entre dos fuentes, el panel lo declara explícitamente ("sin datos suficientes para correlacionar X con Y") en vez de no aparecer. La correlación diagnóstica es parte del razonamiento clínico central del caso, no un panel opcional condicionado a la cantidad de información disponible.
+
+6. El Referral Recommendation Card en el Dashboard
+
+Este componente merece regla propia, dado su rol central en ICIS:
+
+-   Estado colapsado (nivel de manejo = atención primaria): muestra solo un badge de una línea — "Manejable en atención primaria" — en color funcional "Estado Normal".
+
+-   Estado expandido (requiere derivación): muestra especialidad de destino, nivel de urgencia (con el color funcional "Estado Derivación", definido en el Design System), pregunta clínica específica, y un botón de acción que dispara la generación del Referral Report (CR-008) directamente desde el Dashboard, sin que el usuario tenga que pedirlo por texto.
+
+-   Cuando la clasificación provino de un documento de banderas rojas por sistema, el card incluye un enlace/referencia visible a ese documento — refuerza la trazabilidad exigida en la Sección 5.3 del Motor de Derivación (Project Instructions).
+
+7. Interactividad
+
+-   Cada card es expandible/colapsable (Progressive Disclosure).
+
+-   Hover sobre cualquier valor de laboratorio o imagen muestra su fuente y fecha (Evidence Traceability, heredado de AD-015 del Report Composer Engine).
+
+-   Un botón "Generar informe" en el header dispara el Report Composer Engine con la plantilla correspondiente al estado actual del caso — si hay derivación activa, ofrece directamente la Plantilla de Derivación en vez de la genérica.
+
+-   Los gráficos de tendencia (peso, BCS, hemograma, bioquímica) son interactivos: al pasar el cursor sobre un punto, se muestra el valor, la fecha y la consulta asociada.
+
+8. Reglas de actualización
+
+El Dashboard nunca se genera una sola vez y queda estático — cada vez que el usuario lo solicita, se reconstruye con el estado más reciente del expediente (Progressive Report, AD-010 del Report Composer Engine aplica también aquí). No existe una versión "cacheada" del Dashboard que pueda quedar desactualizada respecto al Clinical Reasoning Journal.
+
+9. Dashboard States
+
+Hereda directamente los estados definidos en el Clinical Design System (Sección 16): Loading, No Data, Incomplete, Review Needed, Referred, Archived, Critical, Teaching Mode, Presentation Mode.
+
+Regla especial para el estado Referred: un caso en este estado sigue mostrando el Dashboard completo y activo — nunca se degrada automáticamente a "Archived" solo por haber sido derivado. Se archiva únicamente cuando el usuario lo cierra explícitamente o cuando se confirma un desenlace final.
+
+10. Accesibilidad
+
+Hereda las reglas del Clinical Design System, Sección 18 (contraste, daltonismo, tamaño mínimo, navegación por teclado, modo oscuro) — sin excepciones ni reglas adicionales propias del Dashboard.
+
+11. Architecture Decisions
+
+AD-027 — Dashboard as a View, not a Store. El Dashboard nunca almacena su propio estado independiente del expediente clínico; es una vista generada en el momento a partir del Clinical Reasoning Journal, el expediente y la Base de Conocimiento. Esto evita que el Dashboard y el Reporte puedan mostrar información contradictoria entre sí.
+
+AD-028 — Referral-First Layout. A diferencia de un dashboard de especialidad, donde el estado clínico (remisión/estable/mejorando/etc.) es la información más importante del header, en ICIS el nivel de manejo/derivación comparte ese lugar prioritario desde el primer diseño — no se agrega como un componente más al final de la lista, sino que define la estructura misma de la Zona 1. (Refleja, a nivel de interfaz, el mismo principio que AD-025 estableció a nivel de motor de generación en el Report Composer Engine Specification.)

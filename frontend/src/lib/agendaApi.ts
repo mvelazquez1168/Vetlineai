@@ -118,6 +118,9 @@ export interface CrearCitaInput {
   duracionMinutos: number;
   prioridad?: PrioridadCita;
   motivoConsulta?: string;
+  // prompt: vincular caso↔cita — rama "crear cita ahora" del wizard "Nuevo
+  // Caso": la cita nace ya vinculada al caso recién creado.
+  casoId?: string | null;
 }
 
 const ESTADO_LABEL: Record<EstadoCita, string> = {

@@ -1,0 +1,121 @@
+DISPLASIA DE CADERA CANINA — LAXITUD, MÉTODOS DE MEDICIÓN Y DECISIÓN POR EDAD
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: CC-220 (Imaging Intelligence), CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico), y los componentes de Breed Intelligence.
+
+Documento complementario del de displasia de codo y del de ligamento cruzado craneal, que cubre la confusión entre claudicación de origen coxofemoral y de rodilla.
+
+---
+
+## 1. La secuencia que define la enfermedad
+
+Es un trastorno del desarrollo poligénico y multifactorial, caracterizado por **laxitud de la articulación coxofemoral, degeneración y artrosis**.
+
+Ese orden importa: la laxitud es el fenómeno primario y la artrosis es su consecuencia. De ahí que los métodos diagnósticos más predictivos midan laxitud y no artrosis — cuando la artrosis es visible, el daño ya ocurrió.
+
+## 2. Examen físico
+
+**Prueba de Ortolani.** Con el perro en decúbito lateral, se toma la rodilla con una mano y se apoya la otra sobre el dorso de la cadera como contraapoyo. Con el fémur paralelo a la mesa, se aplica fuerza hacia la columna dorsal para subluxar la articulación. Suele requerir sedación o anestesia.
+
+**El signo es positivo ante cualquier indicación de que la articulación puede luxarse o subluxarse con presión dorsal sobre el fémur, y reducirse al abducir el miembro.**
+
+Cuando es positivo, deben medirse y registrarse el **ángulo de reducción**, que indica laxitud articular, y el **ángulo de luxación**.
+
+**Advertencia central: un Ortolani negativo NO indica ausencia de laxitud.** Si el perro resiste la extensión de la cadera, corresponde radiografiar igual.
+
+**En el perro maduro**, la sospecha se plantea ante dolor y crepitación en las caderas, y se confirma con signos radiográficos de artrosis.
+
+## 3. Los métodos de medición y qué predice cada uno
+
+**Ángulo de Norberg.** Se forma con una línea horizontal que une los centros de ambas cabezas femorales y una línea desde cada centro al margen craneal del acetábulo correspondiente. Es un método de radiografía ventrodorsal con caderas extendidas, y forma parte del sistema de puntuación FCI.
+
+**Puntuación FCI.** Radiografías con caderas extendidas y miembros abducidos, tomadas al año de edad —18 meses en razas grandes— y evaluadas por radiólogos aprobados. Incluye el ángulo de Norberg y parámetros subjetivos de conformación. **Cada articulación recibe un grado de A a E**, de sana a displasia severa, y **la más displásica de las dos define el puntaje final del perro**.
+
+**Índice de distracción (PennHIP).** Requiere certificación y un dispositivo específico, más sedación o anestesia y tres radiografías obligatorias.
+
+**Es el método más exacto para predecir el desarrollo de enfermedad articular degenerativa**, y puede correlacionar con el desarrollo posterior de displasia desde las 16 semanas de edad. Tiene baja incidencia de falsos negativos.
+
+Valores de referencia: **un índice de 0,30 o menos es normal**, y esos cachorros no presentan signo de Ortolani ni desarrollan displasia ni artrosis posterior. Un índice de 0,40 o superior identifica candidatos a cirugía preventiva.
+
+**La escala OFA con caderas extendidas** no requiere equipamiento especial e identifica artrosis, pero **no es un método sensible para detectar laxitud temprana o leve**.
+
+**Limitación común a todos:** ninguna técnica radiográfica elimina por completo los falsos positivos y negativos antes del inicio de la artrosis.
+
+Regla para CC-220 y NCIS: el método usado determina qué se puede afirmar. Un ángulo de Norberg alterado en un adulto describe conformación; un índice de distracción en un cachorro predice el futuro. No son intercambiables.
+
+## 4. El hallazgo incidental en el adulto
+
+Escenario frecuente y que se malinterpreta: **incongruencia coxofemoral bilateral con ángulos de Norberg alterados, sin artrosis y sin claudicación de miembros posteriores**, en un perro adulto que consulta por otra cosa.
+
+Cómo leerlo:
+
+Describe **conformación displásica**, no enfermedad clínica activa.
+
+Sin signos clínicos ni artrosis, es un hallazgo contributivo a un patrón de carga anormal, no una causa primaria de claudicación en otro miembro.
+
+**No puede descartarse que contribuya de forma subclínica**, y justifica manejo preventivo —control de peso, ejercicio controlado— aunque no tratamiento activo.
+
+Y tiene consecuencia reproductiva: es un perro que no debería usarse para cría.
+
+Regla para NCIS: ante este hallazgo, la conclusión correcta no es "tiene displasia de cadera" a secas, sino distinguir conformación de enfermedad. Confundirlas lleva a atribuir a la cadera una claudicación cuyo origen está en otro lado.
+
+## 5. Decisión por edad
+
+La edad determina qué opciones existen, y varias se pierden si el paciente llega tarde.
+
+**Antes de las 16 semanas.** La sinfisiodesis púbica juvenil detiene el crecimiento del pubis y produce rotación ventrolateral de los acetábulos, con mejor cobertura de la cabeza femoral a medida que la pelvis sigue creciendo. **Es más efectiva con índice de distracción entre 0,4 y 0,6, idealmente menor a 0,5**, y para ser útil conviene realizarla hacia las 12 a 16 semanas, porque requiere potencial de crecimiento remanente. Eso subraya el valor del tamizaje temprano.
+
+**De 5 a 10 meses.** Se recomienda radiografiar a los perros con laxitud y signos clínicos: claudicación, marcha de conejo, alteraciones de la marcha o dolor a la manipulación.
+
+**Perro inmaduro sin artrosis radiográfica.** La osteotomía pélvica triple corta la pelvis y rota el ilion y el acetábulo hacia afuera para mejorar la cobertura, idealmente hasta negativizar el Ortolani. **El resultado mejora si el ángulo de reducción preoperatorio es menor a 45° y el de subluxación menor a 20°.** La artrosis probablemente progrese igual, pero la claudicación y la función mejoran.
+
+**Adulto con artrosis establecida.** Manejo médico y, según severidad, reemplazo total de cadera o escisión de la cabeza femoral. Ver el documento de osteoartritis de NCIS para la estadificación COAST.
+
+Regla para NCIS: si el paciente es un cachorro de raza predispuesta, el tiempo es la variable crítica. Las opciones preventivas se cierran a las 16 semanas, y para entonces el propietario tiene que haber sido informado.
+
+## 6. Seguimiento del paciente en riesgo
+
+Los pacientes de alto riesgo deben monitorearse estrechamente durante los primeros cinco meses de vida, con exámenes mensuales que incluyan la prueba de Ortolani.
+
+Incluso el manejo médico temprano puede reducir los signos clínicos en perros jóvenes, enlentecer el desarrollo de artrosis y disminuir la necesidad de cirugía en la adultez.
+
+## 7. Errores frecuentes
+
+Descartar laxitud por un Ortolani negativo.
+
+Usar la escala de caderas extendidas para descartar laxitud temprana, para lo que no es sensible.
+
+Interpretar un ángulo de Norberg alterado sin artrosis ni signos clínicos como enfermedad activa.
+
+Atribuir a la cadera una claudicación cuyo origen está en otro miembro, cuando el hallazgo coxofemoral es solo conformacional.
+
+Postergar el tamizaje más allá de las 16 semanas y perder la ventana de la sinfisiodesis.
+
+Realizar el Ortolani sin sedación y concluir que es negativo.
+
+Omitir la evaluación de rodilla: la enfermedad del ligamento cruzado craneal se confunde con la cadera, y tiene documento propio en NCIS.
+
+No informar la consecuencia reproductiva del hallazgo.
+
+## 8. Lo que este documento no cubre
+
+Técnicas quirúrgicas en detalle: sinfisiodesis púbica juvenil, osteotomía pélvica triple o doble, reemplazo total de cadera y escisión de cabeza femoral. Protocolos de posicionamiento radiográfico de cada método. Interpretación de las escalas de puntuación FCI y OFA. Nutracéuticos y modificadores del líquido articular. Rehabilitación. Programas de cría y consejo genético. Displasia de cadera en el gato. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+Nota: los valores de referencia citados provienen de las fuentes indicadas y corresponden a métodos específicos que no son intercambiables entre sí.
+
+FUENTES
+
+Canine Hip Dysplasia, partes 1 y 2. Clinician's Brief. Fuente de las secciones 2, 3, 5 y 6.
+
+Canine Hip Dysplasia: Algorithms for When to Refer for Surgery. Today's Veterinary Practice 2025. Fuente de la sección 5.
+
+Diagnosis, prevention, and management of canine hip dysplasia: a review. Vet Med Res Rep. PMC6070021. Fuente de las secciones 1 y 3.
+
+Hip dysplasia in adult dogs — options and nutraceuticals (Proceedings). dvm360. Fuente de las secciones 2 y 3.
+
+Smith GK y col. Early detection of canine hip dysplasia: comparison of two palpation and five radiographic methods. PubMed 9657168. Fuente de la sección 3.
+
+Klever J, Brühschwein A, Wagner S, Reese S, Meyer-Lindenberg A. Comparison of reliability of Norberg angle and distraction index as measurements for hip laxity in dogs. Vet Comp Orthop Traumatol.
+
+Puerto DA, Smith GK, Gregor TP. Relationship between results of the Ortolani method of hip joint palpation and distraction index, Norberg angle, and hip score in dogs. J Am Vet Med Assoc 1999;214:497–501.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

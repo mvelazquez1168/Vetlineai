@@ -108,6 +108,55 @@ propietariosRouter.get("/buscar", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------
+// GET /api/propietarios?q=texto&pagina=1
+// Fichero de clientes de la clínica — a diferencia de /buscar (typeahead
+// de 10 resultados para wizards), esta es la pantalla de listado: mismo
+// criterio de búsqueda (nombre, teléfono, email o número de
+// identificación) pero paginada, sin límite artificial.
+// ---------------------------------------------------------------------
+const PROPIETARIOS_POR_PAGINA = 20;
+
+propietariosRouter.get("/", async (req, res) => {
+  const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  const pagina = Math.max(1, parseInt(String(req.query.pagina ?? "1"), 10) || 1);
+
+  const condicion = q
+    ? `WHERE p.nombre ILIKE '%' || $1 || '%'
+        OR p.telefono ILIKE '%' || $1 || '%'
+        OR p.email ILIKE '%' || $1 || '%'
+        OR p.numero_identificacion ILIKE '%' || $1 || '%'`
+    : "";
+  const params = q ? [q] : [];
+
+  try {
+    const totalResult = await req.db!.query(`SELECT COUNT(*) FROM propietarios p ${condicion}`, params);
+    const total = Number(totalResult.rows[0].count);
+
+    const result = await req.db!.query(
+      `SELECT p.id, p.nombre, p.telefono, p.email, p.numero_identificacion,
+              ti.etiqueta AS tipo_identificacion_etiqueta,
+              (SELECT COUNT(*) FROM pacientes pa WHERE pa.propietario_id = p.id) AS cantidad_pacientes
+       FROM propietarios p
+       LEFT JOIN tipos_identificacion ti ON ti.id = p.tipo_identificacion_id
+       ${condicion}
+       ORDER BY p.nombre
+       LIMIT ${PROPIETARIOS_POR_PAGINA} OFFSET ${(pagina - 1) * PROPIETARIOS_POR_PAGINA}`,
+      params
+    );
+
+    res.json({
+      propietarios: result.rows,
+      total,
+      pagina,
+      porPagina: PROPIETARIOS_POR_PAGINA,
+    });
+  } catch (err) {
+    console.error("GET /propietarios", err);
+    res.status(500).json({ error: "Error al listar los propietarios." });
+  }
+});
+
+// ---------------------------------------------------------------------
 // POST /api/propietarios
 // tipoIdentificacionId/numeroIdentificacion son opcionales — Parte B2:
 // una clínica que atiende una urgencia no debe verse obligada a pedirle
@@ -159,6 +208,67 @@ propietariosRouter.post("/", async (req, res) => {
     }
     console.error("POST /propietarios", err);
     res.status(500).json({ error: "Error al crear el propietario." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// GET /api/propietarios/:id
+// Ficha del propietario — datos + tipo/número de identificación (para
+// mostrarlos, nunca para editarlos desde acá).
+// ---------------------------------------------------------------------
+propietariosRouter.get("/:id", async (req, res) => {
+  try {
+    const result = await req.db!.query(
+      `SELECT p.id, p.nombre, p.telefono, p.email, p.direccion,
+              p.numero_identificacion, ti.etiqueta AS tipo_identificacion_etiqueta
+       FROM propietarios p
+       LEFT JOIN tipos_identificacion ti ON ti.id = p.tipo_identificacion_id
+       WHERE p.id = $1`,
+      [req.params.id]
+    );
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: "Propietario no encontrado." });
+    }
+    res.json({ propietario: result.rows[0] });
+  } catch (err) {
+    console.error("GET /propietarios/:id", err);
+    res.status(500).json({ error: "Error al obtener el propietario." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// PATCH /api/propietarios/:id
+// Editables: nombre, teléfono, correo, dirección. La identificación
+// (tipo y número) NO se acepta acá a propósito — una vez creado el
+// propietario queda fija; si el body la incluye, se ignora en silencio
+// en vez de fallar, para no forzar al frontend a nunca mandarla.
+// ---------------------------------------------------------------------
+propietariosRouter.patch("/:id", async (req, res) => {
+  const { nombre, telefono, email, direccion } = req.body as {
+    nombre?: string;
+    telefono?: string;
+    email?: string;
+    direccion?: string;
+  };
+
+  if (!nombre || !nombre.trim()) {
+    return res.status(400).json({ error: "Falta el nombre del propietario." });
+  }
+
+  try {
+    const result = await req.db!.query(
+      `UPDATE propietarios SET nombre = $1, telefono = $2, email = $3, direccion = $4
+       WHERE id = $5
+       RETURNING id, nombre, telefono, email, direccion, numero_identificacion`,
+      [nombre.trim(), telefono?.trim() || null, email?.trim() || null, direccion?.trim() || null, req.params.id]
+    );
+    if (!result.rows[0]) {
+      return res.status(404).json({ error: "Propietario no encontrado." });
+    }
+    res.json({ propietario: result.rows[0] });
+  } catch (err) {
+    console.error("PATCH /propietarios/:id", err);
+    res.status(500).json({ error: "Error al actualizar el propietario." });
   }
 });
 

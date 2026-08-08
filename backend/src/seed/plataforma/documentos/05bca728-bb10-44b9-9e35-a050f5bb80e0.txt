@@ -1,0 +1,111 @@
+SARCOMA DE TEJIDOS BLANDOS CANINO — GRADO HISTOLÓGICO, MÁRGENES Y RIESGO DE RECURRENCIA
+
+Resumen clínico de referencia para OCIS. Componentes que lo consumen: CC-231 (Histopathology Intelligence), CC-232 (Staging & Grading Engine), CC-305 (Oncology Pharmacotherapy).
+
+Documento complementario del de abordaje de la masa cutánea, que cubre el muestreo. Este cubre qué hacer con el resultado.
+
+---
+
+1. QUÉ SON Y CÓMO SE COMPORTAN
+
+Son neoplasias mesenquimales malignas que afectan los tejidos conectivos, comunes en perros, especialmente de razas medianas a grandes y de edad avanzada.
+
+El rasgo que define su manejo: **tienen márgenes mal definidos, lo que los vuelve invasivos y propensos a la recurrencia local**. Metastatizan a tasas bajas y responden mal a la quimioterapia.
+
+Esa combinación —localmente agresivo, poco metastásico, poco quimiosensible— define la estrategia: **el problema es quirúrgico y el determinante es el margen**.
+
+Diagnóstico y pronóstico pueden ser desafiantes por la diversidad de subtipos. Organizaciones internacionales como el Oncology Pathology Working Group trabajan en estandarizar el diagnóstico y el tratamiento.
+
+2. EL GRADO — LO QUE PREDICE
+
+Se asignan tres grados: 1 (bajo), 2 (intermedio) y 3 (alto). El grado es el principal predictor de recurrencia local y también determina el riesgo metastásico.
+
+Tasas metastásicas por grado:
+
+Grado 1: menos del 10%.
+Grado 2: entre 10 y 20%.
+Grado 3: entre 40 y 50%.
+
+En conjunto, aproximadamente **20 a 30% de los perros tratados por sarcoma de tejidos blandos terminará muriendo por progresión de la enfermedad**.
+
+Distribución en la práctica. En una serie de 139 tumores graduados: 71 grado 1 (51%), 59 grado 2 (42%) y 9 grado 3 (7%). En otra serie de 249 perros: 40,9% grado 1, 48,2% grado 2 y 10,8% grado 3.
+
+Es decir, la mayoría de los pacientes tiene tumores de grado bajo o intermedio, con pronóstico favorable si la resección es completa.
+
+3. EL LÍMITE DE LA BIOPSIA PREOPERATORIA
+
+Identificar el grado antes de operar ayudaría a pronosticar y a determinar los márgenes quirúrgicos necesarios para el control local. El problema es que no lo hace de forma confiable.
+
+En un estudio sobre 68 perros diagnosticados por biopsia pretratamiento y confirmados por biopsia escisional, evaluando técnicas de cuña, punch y aguja gruesa: **la concordancia de grado entre la biopsia pretratamiento y la escisional fue del 59%**.
+
+Regla para CC-231 y OCIS: el grado obtenido de una biopsia preoperatoria acierta en poco más de la mitad de los casos. Debe reportarse como grado provisional, y el plan quirúrgico no debe apoyarse solo en él. El grado definitivo es el de la pieza escindida.
+
+4. LOS MÁRGENES — DONDE ESTÁN LOS NÚMEROS QUE IMPORTAN
+
+La evaluación histológica de los márgenes quirúrgicos es crucial para pronosticar correctamente y para recomendar tratamiento adyuvante.
+
+Un estudio sobre 98 sarcomas escindidos evaluó tres categorías de margen y midió la incidencia acumulada de recurrencia local a tres años:
+
+**Márgenes libres de tumor: 7%.**
+**Márgenes limpios pero cercanos: 23%.**
+**Márgenes infiltrados: 42%.**
+
+Las tres categorías difirieron significativamente entre sí. La conclusión de los autores es directa: la categoría de márgenes limpios pero cercanos **debe considerarse una categoría pronóstica separada**, y agruparla con los libres de tumor —como algunos autores propusieron— subestima el riesgo.
+
+Regla para OCIS: un informe que solo distingue "completo" de "incompleto" pierde información pronóstica relevante. Ante un margen limpio pero cercano, el riesgo de recurrencia triplica al del margen libre, y eso debe entrar en la decisión sobre adyuvancia.
+
+La interacción grado-margen
+
+Un estudio sobre 236 perros con sarcomas subcutáneos evaluó la recurrencia tras escisión marginal:
+
+**Ninguno de los 30 tumores completamente escindidos con seguimiento recurrió.** Los márgenes limpios predicen no recurrencia.
+
+Tras escisión marginal: recurrió el 7% de los grado 1 (3 de 41), el 34% de los grado 2 (14 de 41), y 3 de 4 grado 3.
+
+Los intervalos libres de recurrencia se relacionaron inversamente con el grado tumoral.
+
+Hallazgo que sorprende y conviene comunicar: **la recurrencia tumoral no redujo significativamente el tiempo de supervivencia**. Las curvas de supervivencia de pacientes con grados 1, 2 o 3 tratados por escisión marginal no difirieron significativamente entre sí ni de las de pacientes tratados con escisión completa.
+
+Regla para OCIS: la recurrencia local de un sarcoma de tejidos blandos es un problema de morbilidad y de reintervención, no necesariamente de supervivencia. Esa distinción cambia por completo la conversación con un propietario que enfrenta una segunda cirugía o una amputación.
+
+En conjunto, la recurrencia reportada varía entre **7% y 75%** según grado y márgenes — un rango que es enteramente explicable por esas dos variables.
+
+5. RADIOTERAPIA ADYUVANTE
+
+Se recomienda tratamiento adyuvante en perros con sarcomas escindidos de forma incompleta, para reducir el riesgo de recurrencia local.
+
+Un estudio multiinstitucional retrospectivo sobre 272 perros evaluó cirugía seguida de radioterapia definitiva posoperatoria, analizando progresión local y supervivencia, con factores de riesgo asociados.
+
+6. ERRORES FRECUENTES
+
+Planificar la cirugía definitiva sobre el grado de una biopsia preoperatoria, que acierta en el 59% de los casos.
+
+Clasificar los márgenes de forma dicotómica, agrupando los limpios pero cercanos con los libres.
+
+Presentar la recurrencia local como equivalente a peor supervivencia.
+
+Asumir que el tumor de grado alto siempre metastatiza y el de grado bajo nunca — las tasas son 40-50% y menos del 10%, no 100% y 0%.
+
+Indicar quimioterapia como manejo principal en un tumor que responde mal a ella.
+
+Estimar la extensión tumoral por palpación — ver el documento de abordaje de la masa cutánea.
+
+No plantear radioterapia adyuvante ante escisión incompleta.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Sistema de graduación histológica en detalle y sus criterios. Márgenes quirúrgicos recomendados en centímetros por grado. Técnicas quirúrgicas y planificación de la resección. Protocolos de radioterapia. Subtipos histológicos específicos: fibrosarcoma, hemangiopericitoma, sarcoma de vaina nerviosa periférica, liposarcoma, mixosarcoma. Sarcoma asociado a sitio de inyección felino, que es entidad distinta con márgenes y comportamiento propios. Quimioterapia metronómica en sarcomas, cubierta parcialmente en el documento de farmacoterapia oncológica. Marcadores inmunohistoquímicos. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+FUENTES
+
+Canine cutaneous and subcutaneous soft tissue sarcoma in dogs: a consensus report from the Brazilian Association of Veterinary Oncology. Front Vet Sci 2026;13:1750148. Fuente de las secciones 1 y 2.
+
+McSporran KD. Histologic grade predicts recurrence for marginally excised canine subcutaneous soft tissue sarcomas. Vet Pathol 2009;46(5):928–933. Fuente de la sección 4.
+
+Surgical margins in canine cutaneous soft-tissue sarcomas: a dichotomous classification system does not accurately predict the risk of local recurrence. PMC8388623. Fuente de la sección 4.
+
+Diagnostic accuracy of pre-treatment biopsy for grading soft tissue sarcomas in dogs. PubMed 22617002. Fuente de la sección 3.
+
+Surgery and postoperative definitive radiotherapy for management of canine soft tissue sarcoma: a multi-institutional retrospective study of 272 dogs (2010–2020). J Am Vet Med Assoc 2025;263(3). Fuente de las secciones 2 y 5.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

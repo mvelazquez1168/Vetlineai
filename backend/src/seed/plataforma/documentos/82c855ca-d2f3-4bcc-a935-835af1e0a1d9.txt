@@ -1,0 +1,113 @@
+Dashboard Functional Specification — GCIS
+
+Documento: GCIS-DASH-001
+Versión: 1.0
+Estado: Draft
+Owner: GastroCare Vet
+
+1. Introducción
+
+Objetivo
+
+Definir la estructura funcional, las reglas de composición y el comportamiento del Dashboard clínico generado por el GastroCare Vet Clinical Intelligence System (GCIS) — el Artifact interactivo mencionado en las Project Instructions, Sección 11 (Dashboard Intelligence).
+
+El Dashboard no es un informe estático: es una representación viva del estado del caso, reconstruida cada vez que el usuario la solicita, usando siempre la información más reciente del expediente clínico longitudinal.
+
+2. Filosofía del Dashboard
+
+El Dashboard responde una pregunta distinta a la del Clinical Report: el reporte está pensado para leerse (por un colega o para el expediente); el Dashboard está pensado para entenderse de un vistazo. Un veterinario que abre el Dashboard en medio de una consulta debe poder responder en menos de 10 segundos: ¿qué le pasa a este paciente, con qué grado de confianza, y cómo está evolucionando?
+
+A diferencia de un sistema de triage, GCIS ya asume que el caso le corresponde — por lo tanto, el Dashboard prioriza profundidad diagnóstica y longitudinalidad por encima de cualquier decisión de "a quién le corresponde este caso".
+
+3. Principios de Diseño
+
+Heredados del Clinical Design System (GCIS-DESIGN-001, Sección 3): Clinical First, Evidence First, Minimal Cognitive Load, Progressive Disclosure, Consistency, Explainable AI, Visual Hierarchy, Accessibility, Longitudinal Thinking.
+
+4. Layout del Dashboard
+
+El Dashboard se organiza en cuatro zonas fijas, en este orden:
+
+Zona 1 — Header: Logo GastroCare Vet (esquina superior, versión horizontal) + Executive Summary Card + Clinical State Card + Clinical Confidence Meter.
+Executive Summary Card + Clinical State Card + Clinical Confidence Meter.
+
+Zona 2 — Signos vitales del caso:
+Active Problems Panel + Alertas (hallazgos críticos activos, si los hay).
+
+Zona 3 — Evolución y evidencia:
+Clinical Timeline, Weight Trend, BCS Trend, CBC Trend/Comparison, Clinical Chemistry Trend, Ultrasound/Imaging Comparison, Treatment Timeline, Diet Timeline, Diet-Outcome Correlation Panel, Elimination Trial Tracker —— cada una solo si existe información suficiente (ver Sección 5.2).
+
+Zona 4 — Razonamiento y conocimiento (colapsado por defecto):
+Diagnostic Correlation Panel,Differential Diagnosis Matrix, Evidence Matrix, Knowledge Match Panel, Clinical Reasoning Journal.
+
+5. Dashboard Components
+
+5.1 Catálogo de componentes
+
+El Dashboard reutiliza el catálogo de Clinical Cards definido en el Clinical Design System (GCIS-DESIGN-001, Sección 7): Executive Summary Card, Patient Card, Timeline Card, Medication Card, Hemogram Card, Confidence Card, Knowledge Card. El Dashboard no define sus propias cards; las consume — así una card se ve igual en el Dashboard, en Word/PDF, y en un caso docente.
+
+5.2 Reglas de aparición condicional
+
+Ningún componente se genera sin información suficiente que lo sustente (no se insertan componentes vacíos ni decorativos):
+
+| Condición | Componente que se activa |
+| --- | --- |
+| Siempre | Executive Summary Card, Clinical State Card, Clinical Confidence Meter, Active Problems Panel |
+| Existen ≥3 hemogramas | CBC Trend, CBC Comparison |
+| Existen ≥2 perfiles bioquímicos | Clinical Chemistry Trend |
+| Existen ≥2 pesos registrados | Weight Trend |
+| Existen ≥2 BCS registrados | BCS Trend |
+| Existen ecografías seriadas | Imaging Comparison |
+| Existen ≥2 consultas | Clinical Timeline |
+| Hubo cambios terapéuticos | Treatment Timeline |
+| Existen ≥2 diagnósticos diferenciales activos | Differential Diagnosis Matrix |
+| Existen casos similares en la Base de Conocimiento | Knowledge Match Panel |
+| Existe dieta o suplemento activo registrado (CC-306) | CVC-310 — Active Diet Card |
+| Existen ≥2 cambios de dieta/suplementos en el curso del caso | CVC-311 — Diet Timeline |
+| CC-307 detecta al menos una alerta de interacción dieta-fármaco | CVC-312 — Diet Drug Interaction Panel |
+| Existe diagnóstico/síndrome activo con clase dietaria sugerida (CC-308) | CVC-313 — Therapeutic Diet Class Panel |
+| Existe al menos un cambio dietario con seguimiento de signos clínicos y/o peso/BCS posterior (CC-309) | CVC-314 — Diet-Outcome Correlation Panel |
+| Siempre | CVC-240 — Diagnostic Correlation Panel (incluye el Diagnostic Confidence Panel, CVC-336, como su tabla resumen) |
+| Existe una dieta de eliminación activa | CVC-315 — Elimination Trial Tracker |
+| Existe al menos una respuesta dietaria clasificada (favorable/parcial/ausente/empeoramiento) | CVC-316 — Nutritional Response |
+
+Logo institucional: el Dashboard incorporará siempre el logo oficial (mismo asset que CRS-001: Logo_GastroCareVet_horizontal_con_texto.png) en el header, codificado directamente en el widget. Si el archivo no está disponible en la conversación al momento de generar el Dashboard, se solicitará explícitamente antes de renderizar — igual que en la Etapa 7 del Report Composer Engine, nunca se genera un Dashboard sin logo de forma silenciosa.
+
+Excepción a la regla de datos suficientes: a diferencia del resto de los componentes de esta tabla, el Diagnostic Correlation Panel (CVC-240) nunca se omite por falta de evidencia — cuando la evidencia disponible no permite establecer una correlación entre dos fuentes, el panel lo declara explícitamente ("sin datos suficientes para correlacionar X con Y") en vez de no aparecer. La correlación diagnóstica es parte del razonamiento clínico central del caso, no un panel opcional condicionado a la cantidad de información disponible.
+
+Los componentes CVC-310 a CVC-316 siguen la misma regla general que el resto del catálogo: ningún panel se genera sin datos suficientes que lo sustenten, y ninguno es decorativo. El CVC-314 (Diet-Outcome Correlation Panel) merece mención aparte porque no es un panel más de la lista — su función es mostrar en un mismo eje temporal la línea de cambios dietarios superpuesta con los signos clínicos y la tendencia de peso/BCS, por lo que depende de que existan datos en dos fuentes distintas (CC-306 y CC-103/CC-105) simultáneamente, no solo de una.
+
+El componente CVC-408 (Treatment-Outcome Correlation Panel, CC-304) sigue la misma regla general del catálogo — se activa cuando existe tratamiento farmacológico con signos clínicos documentados en el mismo período.
+
+6. Contexto Racial en el Dashboard
+
+Cuando exista un Breed Knowledge Object cargado (GCIS-KD-001) para la raza del paciente, el Executive Summary Card incluirá una línea de contexto — por ejemplo, "Raza con riesgo Alto documentado para enteropatía perdedora de proteínas" — sin que esto constituya nunca una conclusión diagnóstica por sí sola (GCIS-KD-001, Capítulo 5).
+
+7. Interactividad
+
+- Cada card es expandible/colapsable (Progressive Disclosure).
+
+- Hover sobre cualquier valor de laboratorio o imagen muestra su fuente y fecha.
+
+- Un botón "Generar informe" en el header dispara el Report Composer Engine con la plantilla correspondiente al estado actual del caso.
+
+- Los gráficos de tendencia (peso, BCS, hemograma, bioquímica) son interactivos: al pasar el cursor sobre un punto se muestra el valor, la fecha y la consulta asociada.
+
+8. Reglas de actualización
+
+El Dashboard nunca se genera una sola vez y queda estático — cada vez que el usuario lo solicita, se reconstruye con el estado más reciente del expediente. No existe una versión cacheada que pueda quedar desactualizada respecto al Clinical Reasoning Journal.
+
+9. Dashboard States
+
+Loading, No Data, Incomplete, Review Needed, Archived, Critical, Teaching Mode, Presentation Mode — heredados del Clinical State Engine (Project Instructions, Sección 6) y del Clinical Design System (Sección 16, una vez desarrollada).
+
+10. Accesibilidad
+
+Hereda las reglas del Clinical Design System (contraste, daltonismo, tamaño mínimo, navegación por teclado, modo oscuro) sin excepciones propias del Dashboard.
+
+11. Architecture Decisions
+
+AD-DASH-01 — Dashboard as a View, not a Store. El Dashboard nunca almacena su propio estado independiente del expediente clínico; es una vista generada en el momento a partir del Clinical Reasoning Journal, el expediente y la Base de Conocimiento. Esto evita que el Dashboard y el Reporte muestren información contradictoria entre sí.
+
+AD-DASH-02 — Single-System Depth. A diferencia de un dashboard de triage multisistema, el de GCIS puede asumir que el sistema gastrointestinal/hepático/pancreático es siempre relevante — por lo tanto no necesita una zona dedicada a "decidir el sistema", y puede invertir ese espacio en mayor profundidad longitudinal (más gráficos de tendencia visibles por defecto, menos necesidad de colapsar contenido).
+
+AD-DASH-03 — Consistent Branding Asset. El Dashboard y los informes exportados usan exactamente el mismo archivo de logo como fuente única — nunca una versión regenerada o reinterpretada por separado para cada superficie. Esto evita que el logo se vea ligeramente distinto entre el Dashboard y el Word exportado.

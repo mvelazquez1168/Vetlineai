@@ -19,51 +19,17 @@ CREATE TABLE razas_alias_documento (
     UNIQUE (raza_id, documento_id)
 );
 
--- Las 23 filas de la Lista 1 (solo difieren en el nombre). `nota` solo en
--- las secciones que agrupan más de una raza del catálogo bajo un mismo
--- encabezado — esa nota es la que se le muestra al agente para que no
--- trate el contenido compartido como específico del paciente.
-DO $$
-DECLARE
-  doc_id uuid;
-BEGIN
-  SELECT id INTO doc_id FROM documentos_conocimiento
-   WHERE nombre = 'Predisposiciones Raciales a Enfermedades — Perros y Gatos';
-
-  INSERT INTO razas_alias_documento (raza_id, documento_id, titulo_seccion, nota)
-  SELECT r.id, doc_id, m.titulo_seccion, m.nota
-  FROM (VALUES
-    ('Akita Inu', 'Akita', NULL),
-    ('American Staffordshire Terrier', 'American Pit Bull Terrier / Staffordshire Terrier Americano',
-      'Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente.'),
-    ('Boyero Australiano', 'Australian Cattle Dog (Blue Heeler)', NULL),
-    ('Boyero de Berna', 'Bernés de la Montaña (Bernese Mountain Dog)', NULL),
-    ('Boyero de Flandes', 'Bouvier des Flandres', NULL),
-    ('Braco Alemán', 'Braco Alemán de Pelo Corto (German Shorthaired Pointer)',
-      'Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente.'),
-    ('Corgi Galés Cardigan', 'Welsh Corgi Cardigan', NULL),
-    ('Corgi Galés Pembroke', 'Welsh Corgi Pembroke', NULL),
-    ('Dóberman', 'Dóberman Pinscher', NULL),
-    ('Galgo Español', 'Galgo/Whippet/Greyhound',
-      'Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente.'),
-    ('Galgo Inglés', 'Galgo/Whippet/Greyhound',
-      'Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente.'),
-    ('Malamute de Alaska', 'Alaskan Malamute', NULL),
-    ('Mastín Tibetano', 'Dogo del Tíbet (Tibetan Mastiff)', NULL),
-    ('Pastor Belga Tervueren', 'Pastor Belga (Tervueren / Groenendael)',
-      'Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente.'),
-    ('Perro Chino Crestado', 'Crestado Chino (Chinese Crested)', NULL),
-    ('Perro de Agua Portugués', 'Perro de Agua Español / Portugués',
-      'Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente.'),
-    ('Pit Bull Terrier', 'American Pit Bull Terrier / Staffordshire Terrier Americano',
-      'Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente.'),
-    ('Schnauzer Estándar', 'Schnauzer Gigante y Estándar',
-      'Esta sección cubre varias razas emparentadas; las predisposiciones listadas no son necesariamente específicas de la raza de este paciente.'),
-    ('Setter Gordon', 'Gordon Setter', NULL),
-    ('Springer Spaniel', 'English Springer Spaniel', NULL),
-    ('Wire Fox Terrier', 'Fox Terrier (Pelo de Alambre y Liso)', NULL),
-    ('Angora Turco', 'Turco Van / Turco Angora', NULL),
-    ('Van Turco', 'Turco Van / Turco Angora', NULL)
-  ) AS m(raza_nombre, titulo_seccion, nota)
-  JOIN razas r ON r.nombre = m.raza_nombre;
-END $$;
+-- Las 23 filas de alias (Lista 1) NO se insertan acá: dependen de un
+-- documento en documentos_conocimiento que esta migración no crea (ese
+-- documento tiene contenido real de varias decenas de miles de caracteres,
+-- no algo para hardcodear en una migración de esquema). Insertarlas acá
+-- con un SELECT id FROM documentos_conocimiento WHERE nombre = '...' fallaba
+-- en cualquier base sin ese documento ya sembrado por fuera de las
+-- migraciones — exactamente el caso de una base nueva — con
+-- "documento_id" NULL violando el NOT NULL de arriba.
+--
+-- El documento y sus 23 alias ahora se siembran juntos, con IDs fijos
+-- conocidos de antemano, en backend/src/seed/seedPlataforma.ts — ver
+-- backend/src/seed/plataforma/documentos/documentos.json y
+-- backend/src/seed/plataforma/razas_alias_documento.json. Esta migración
+-- solo deja creada la tabla.

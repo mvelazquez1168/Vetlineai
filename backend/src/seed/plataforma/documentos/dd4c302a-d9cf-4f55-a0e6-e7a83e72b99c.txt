@@ -1,0 +1,159 @@
+Clinical Report Specification — OCIS
+
+Versión: 1.0
+Estado: Draft
+Código: OCIS-REP-001
+
+1. Introducción
+
+Objetivo: Definir la estructura, contenido, reglas de generación y estándares de calidad de todos los informes clínicos generados por OCIS, el sistema de apoyo oncológico veterinario — derivado de ICIS-REP-001, con la capa de derivación removida y una capa de estadificación/seguimiento terapéutico en su lugar.
+
+Este documento establece el formato oficial para la documentación clínica producida por el sistema y garantiza consistencia entre casos, consultas y usuarios.
+
+2. Filosofía del Informe
+
+Todo informe deberá cumplir cinco objetivos fundamentales (se remueve el sexto objetivo de ICIS, "Documento de Derivación" — OCIS ya es la especialidad de destino, no necesita producir un informe pensado para ser recibido por otro especialista):
+
+1. Documento Médico — debe servir como respaldo clínico del caso.
+2. Segunda Opinión — debe poder entregarse a otro colega sin necesidad de explicaciones adicionales.
+3. Documento Legal — debe representar fielmente la información disponible en el expediente.
+4. Documento Científico — debe exponer claramente el razonamiento clínico, el sistema de gradación/estadificación aplicado, y la evidencia utilizada.
+5. Documento de Conocimiento — debe poder incorporarse a la Base de Conocimiento OCIS para apoyar futuros casos.
+
+3. Principios de Diseño
+
+Todo informe deberá ser: clínicamente preciso, basado en evidencia, longitudinal, explicable, reproducible, auditable, profesional, libre de ambigüedades.
+
+4. Tipos de Reporte
+
+| Código | Reporte | MVP |
+|---|---|---|
+| CR-001 | Clinical Consultation Report | ✅ |
+| CR-002 | Follow-up Report | ✅ |
+| CR-003 | Case Closure Report | ✅ |
+| CR-004 | Second Opinion Report | ✅ |
+| CR-005 | Teaching Case | ✅ |
+| CR-006 | Knowledge Base Case | ✅ |
+| CR-007 | Owner Report | v2 |
+| CR-009 | Research Report | v3 |
+
+Se remueve CR-008 (Referral Report) — específico de ICIS, no aplica a OCIS.
+
+5. Report Architecture
+
+Portada → Executive Summary → Patient Information → Reason for Consultation → Clinical History → Timeline → Physical Examination → Laboratory Analysis → Imaging Studies → Histopathology → Staging & Grading Summary → Diagnostic Reasoning → Differential Diagnosis → Treatment Protocol History → Clinical Evolution → Current Status → Prognosis → Recommendations → Firma y Certificación → References → Appendices
+
+6. Report Sections
+
+CRS-001 — Cover Page: Incluye logo institucional de OCIS, nombre del informe, código del caso, fecha de emisión, veterinario responsable, versión del reporte, estado del caso, firma y certificación (CRS-023).
+
+Regla de mecanismo: igual que en ICIS-REP-001, el archivo del logo debe estar disponible como adjunto directo en la conversación al momento de generar el informe. Si no está disponible, el sistema debe solicitarlo explícitamente antes de finalizar el documento.
+
+CRS-002 — Executive Case Summary: ¿Qué paciente es? ¿Cuál fue el problema principal? ¿Cuál es el diagnóstico más probable? ¿En qué grado/estadio se encuentra la neoplasia? ¿Cuál es el estado clínico actual? ¿Cuál es el pronóstico? Máximo: una página.
+
+CRS-003 — Patient Information: Nombre, especie, raza, sexo, edad, peso, BCS, propietario, veterinario remitente.
+
+CRS-004 — Reason for Consultation: Motivo de consulta. Tiempo de evolución. Antecedentes relevantes.
+
+CRS-005 — Clinical History: Narrativa cronológica. No copiar notas. Claude deberá sintetizar.
+
+CRS-006 — Clinical Timeline: Cronología completa: consultas, laboratorios, estudios de imagen, procedimientos, ciclos de tratamiento y su fecha.
+
+CRS-007 — Physical Examination: Hallazgos clínicos organizados por sistemas. Estado general. Sistema afectado según motivo de consulta. Estado nutricional. Hidratación.
+
+CRS-008 — Laboratory Analysis: Comparación longitudinal. Hemograma. Bioquímica. Electrolitos. Interpretación automática, contextualizada con el ciclo de tratamiento activo cuando aplique (ej. mielosupresión esperada post-quimioterapia). Gráficos evolutivos.
+
+CRS-009 — Imaging Studies: Ecografía, radiología, otros estudios según el caso. Cada estudio incluirá resumen, hallazgos, interpretación, comparación seriada de tamaño tumoral cuando aplique.
+
+CRS-010 — Histopathology & Cytology: Sección propia de OCIS (en ICIS es solo un ítem dentro de Imaging Studies; en OCIS tiene jerarquía propia dado su rol central). Tipo celular, grado histológico, márgenes quirúrgicos, índice mitótico, invasión vascular/linfática — según lo producido por CC-231.
+
+CRS-011 — Staging & Grading Summary: Sección nueva, propia de OCIS. Grado/estadio asignado con la nomenclatura exacta del sistema correspondiente, criterios evaluados, criterios pendientes de confirmar (cuando el estadio sea provisional), y fuente de cada criterio (según lo producido por CC-232).
+
+CRS-012 — Diagnostic Reasoning: La sección más importante del informe. Explicar paso a paso cómo se llegó al diagnóstico y a la asignación de grado/estadio. No únicamente el resultado — también el razonamiento.
+
+CRS-013 — Differential Diagnosis: Tabla con columnas Diagnóstico / Probabilidad / Evidencia / Estado.
+
+CRS-014 — Evidence Matrix: Matriz completa. Toda afirmación deberá estar sustentada.
+
+CRS-015 — Treatment Protocol History: Sección nueva, propia de OCIS (reemplaza la lógica de "Therapeutic History" limitada de ICIS). Protocolo(s) aplicados, fármaco y dosis por ciclo, ciclo actual, respuesta observada por ciclo, efectos adversos documentados, cambios de protocolo y su justificación (según lo producido por CC-305).
+
+CRS-016 — Clinical Evolution: Narrativa longitudinal, desde la primera consulta hasta la actualidad.
+
+CRS-017 — Current Clinical Status: Estado calculado por el Clinical State Engine (ej. 🟢 Remisión, 🟡 Respuesta Parcial), con explicación.
+
+CRS-018 — Prognosis: Favorable / reservado / grave / incierto, con justificación basada explícitamente en el grado/estadio asignado y la literatura de sobrevida documentada en la Base de Conocimiento para esa neoplasia específica.
+
+CRS-019 — Recommendations: Recomendaciones terapéuticas, estudios, seguimiento, monitoreo, información faltante, riesgos.
+
+CRS-020 — References: Fuentes de literatura científica o guías clínicas utilizadas. Casos similares de la Base de Conocimiento con su identificador y un resumen de similitudes/diferencias.
+
+CRS-021 — Appendices: Hemogramas completos, perfiles bioquímicos, informes de estudios de imagen, histopatología, imágenes seleccionadas, gráficos evolutivos, línea de tiempo clínica, matrices diagnósticas.
+
+CRS-023 — Firma y Certificación
+
+Cierre formal del informe. Contenido:
+
+- Nombre completo, colegiatura y clínica — se completan automáticamente a partir del código de médico registrado para el caso, consultando el Registro de Médicos compartido. Nunca se vuelven a solicitar si el código ya quedó registrado al abrir el caso, y nunca se escriben como valor fijo dentro de esta especificación.
+- Línea de firma (física o digital), siempre en blanco.
+- Fecha de emisión del informe.
+
+Regla: si el código de médico no está registrado en el caso, o no existe en el Registro de Médicos, esta sección no puede completarse — el sistema debe resolver esa falta antes de finalizar el informe, nunca completarla con un nombre supuesto o el de un caso anterior.
+
+Ubicación en el flujo del informe (Report Architecture): ... → Recommendations → Firma y Certificación → References → Appendices
+
+7. Reglas de Generación
+
+El reporte deberá generarse utilizando toda la información acumulada en el chat del caso. No deberá omitir información relevante ni duplicarla innecesariamente. La narrativa deberá estar organizada cronológicamente. Toda inferencia de la IA deberá diferenciarse claramente de los hallazgos objetivos.
+
+El sistema deberá verificar explícitamente que CRS-011 (Staging & Grading Summary) esté completa, o marcada explícitamente como provisional con sus criterios pendientes listados, antes de considerar el informe terminado.
+
+8. Export Formats
+
+Microsoft Word (.docx), PDF, HTML, Markdown, Caso Docente, Caso para Base de Conocimiento. La estructura clínica será idéntica en todos los formatos.
+
+9. Clinical Quality Checklist
+
+Integridad: ¿Todos los datos del paciente están presentes? ¿Existe motivo de consulta? ¿Se documentó la evolución?
+
+Evidencia: ¿Cada diagnóstico diferencial tiene sustento? ¿Las recomendaciones se basan en la evidencia disponible?
+
+Estadificación: ¿Se aplicó explícitamente un sistema de gradación/estadificación reconocido? Si el estadio es provisional, ¿se listaron los criterios pendientes? ¿La nomenclatura usada coincide exactamente con la del sistema correspondiente documentado en la Base de Conocimiento?
+
+Tratamiento: ¿El protocolo terapéutico activo está documentado con ciclo actual y próxima dosis? ¿Los efectos adversos se contextualizaron contra hallazgos de laboratorio cuando corresponde?
+
+Consistencia: ¿Existen contradicciones entre secciones? ¿Las fechas son coherentes? ¿La evolución coincide con laboratorios e imágenes?
+
+Calidad: ¿El informe puede entenderse sin consultar el chat? ¿Puede usarse como segunda opinión sin ediciones adicionales? ¿Es apto para la Base de Conocimiento?
+
+Logo: ¿El logo oficial está presente en el encabezado? Si el archivo de imagen no se adjuntó en la conversación, ¿se le solicitó explícitamente al usuario antes de finalizar el informe?
+
+Firma: ¿El código de médico registrado corresponde a una entrada válida del Registro de Médicos? ¿La firma refleja el nombre, colegiatura y clínica obtenidos de ese registro, no un dato fijo o inventado?
+
+Si alguna respuesta es negativa, Claude deberá advertirlo antes de generar la versión final.
+
+10. Architecture Decisions
+
+AD-OCIS-REP-01 — Single Source Report: el informe nunca será escrito manualmente; será ensamblado automáticamente a partir de los Clinical Components (CC-xxx de OCIS-ARCH-001), garantizando consistencia entre Dashboard, Reporte y Base de Conocimiento.
+
+AD-OCIS-REP-02 — Progressive Report: el informe será un documento vivo; cada nueva consulta o ciclo de tratamiento actualizará automáticamente las secciones correspondientes, manteniendo un historial de versiones.
+
+AD-OCIS-REP-03 — Multi-Audience Reporting: a partir del mismo caso, el sistema podrá generar:
+
+- Versión Técnica — para colegas veterinarios en general.
+- Versión para Propietario — lenguaje claro, sin tecnicismos, con especial cuidado en cómo se comunica el pronóstico (v2).
+- Versión Académica — mayor detalle y referencias para docencia.
+- Versión para Base de Conocimiento — anonimizada y optimizada para búsqueda semántica.
+
+Se remueve la "Versión de Derivación" de ICIS-REP-001 (AD-011) — no aplica a OCIS.
+
+---
+
+Formato del Marcado en Secciones de Texto Libre
+
+Las secciones de texto libre del informe (Historia Clínica, Razonamiento Diagnóstico, Evolución Clínica, contenido de apéndices, y cualquier otra sección sin una estructura de campos fija) se renderizan interpretando el marcado: negrita, cursiva, encabezados de nivel 2 (## Título), listas con viñeta y numeradas, y tablas en formato markdown.
+
+Si el contenido de una de estas secciones se subdivide internamente, esa subdivisión deberá marcarse con un encabezado de nivel 2 (## Título) — nunca con negrita a modo de título.
+
+La negrita (**texto**) queda reservada exclusivamente para destacar una palabra o frase dentro de un párrafo, nunca como sustituto de un encabezado.
+
+Si el texto anuncia una cantidad de partes, elementos o pilares ("en base a X pilares..."), esa cantidad deberá coincidir exactamente con la cantidad que efectivamente se enumera a continuación. Ante la duda, no anunciar una cantidad específica.

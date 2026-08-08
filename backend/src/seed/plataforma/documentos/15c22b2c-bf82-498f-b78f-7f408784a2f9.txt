@@ -1,0 +1,57 @@
+CCIS Clinical Design System
+
+Versión 1.0
+Documento: CCIS-DESIGN-001
+
+Este documento define el lenguaje visual completo del producto CCIS. Hereda el sistema base compartido de ICIS-DESIGN-001, remueve los elementos específicos de triage/derivación (no aplicables a una especialidad receptora), y agrega los elementos propios del dominio cardiológico.
+
+Índice del documento
+
+1. Brand Identity Integration — Heredado sin cambios (tipografía, paleta cromática compartida). Imagotipo específico de CCIS pendiente de definir, igual que el resto de agentes especializados nuevos.
+
+2. Clinical Design Principles
+
+Se heredan: Clinical First, Evidence First, Minimal Cognitive Load, Progressive Disclosure, Consistency, Explainable AI, Visual Hierarchy, Accessibility, Longitudinal Thinking.
+
+Se remueve: "Triage Clarity" — no aplica.
+
+Se agrega: "Hemodynamic Clarity" (nuevo, propio de CCIS) — el diseño debe comunicar de inmediato el estadio de la enfermedad cardíaca (ACVIM A/B1/B2/C/D) y, cuando aplique, el grupo de hipertensión pulmonar, sin que el usuario deba interpretar valores ecocardiográficos crudos para entender la severidad relativa del caso.
+
+3. Color System
+
+Se heredan los colores funcionales base.
+
+Se remueve: "Estado Derivación".
+
+Se agrega: Estado por Estadio ACVIM (nuevo) — escala cromática específica: verde (Estadio A/B1, sin remodelado significativo), ámbar (Estadio B2, remodelado que amerita tratamiento preventivo), rojo (Estadio C/D, insuficiencia cardíaca congestiva activa o refractaria) — mapea directamente a los criterios ya documentados en la Base de Conocimiento (los 4 criterios de Etapa B2).
+
+4. Clinical Cards
+
+Se heredan: Executive Summary Card, Patient Card, Timeline Card, Medication Card, Hemogram Card, Confidence Card, Knowledge Card.
+
+Se remueve: Referral Recommendation Card.
+
+Se agregan (propias de CCIS):
+- Cardiac Staging Card (nuevo) — comunica visualmente el estadio ACVIM actual (ej. "Estadio B2", "Estadio C") como dato de mayor jerarquía visual, dado el principio de Hemodynamic Clarity.
+- Echocardiogram Card (nuevo) — despliega mediciones ecocardiográficas clave (razón AI:Ao, LVIDDN, VHS) con indicador visual de si cumplen o no los criterios de Etapa B2.
+- Treatment Protocol Card (nuevo) — muestra el esquema terapéutico activo (ej. pimobendán + IECA + espironolactona) con las clases farmacológicas involucradas, nunca dosis específicas.
+
+5. Charts
+
+Se heredan los gráficos base (Peso, BCS, Timeline, Confidence Meter).
+
+Se agrega: Gráfico de Progresión de Estadio (nuevo, propio de CCIS) — visualización del cambio de estadio ACVIM a lo largo del tiempo, útil para conversaciones de seguimiento con el propietario sobre la progresión natural de la enfermedad.
+
+6. Icons
+
+Se agregan (propios de CCIS): Ecocardiograma, Electrocardiograma, Auscultación, Estadificación Cardíaca.
+
+Se remueve: ícono de Derivación.
+
+7. Clinical Badges
+
+Se heredan los badges de estado clínico general (Remisión/Estable/Mejorando/etc., adaptados a "Compensado"/"Descompensado" según el contexto cardíaco).
+
+Se agrega: badge de Estadio ACVIM (nuevo) — debe coincidir exactamente con la nomenclatura del consenso (A, B1, B2, C, D), no una escala genérica inventada.
+
+8. Resto de secciones (Typography, Grid System, Dashboard Components, Tables, AI Components, Clinical Confidence Meter, Dashboard States, Report Components, Accessibility, Motion System, Future Design) — heredadas sin cambios de ICIS-DESIGN-001, con la única excepción ya señalada de remover el estado "Referred" y el componente de Referral Package en Report Components.

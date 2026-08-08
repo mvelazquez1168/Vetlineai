@@ -1,9 +1,9 @@
 import crypto from "crypto";
 import { Router } from "express";
-import fs from "fs";
 import multer from "multer";
 import path from "path";
 import { PoolClient } from "pg";
+import { almacenamientoPrivado, almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import { eliminarUsuarioKeycloak } from "../keycloakAdmin";
 import { registrarEventoDetallado, registrarLecturaSensible } from "../middleware/auditoria";
 import { authenticate, withTenantClient } from "../middleware/auth";
@@ -24,6 +24,7 @@ import {
   mensajeRechazoCambio,
 } from "../cambios";
 import { generarPaqueteExportacion } from "../purga";
+import { calcularEdadEfectiva } from "../edadPaciente";
 import {
   crearInvitacion,
   listarInvitacionesPendientes,
@@ -356,12 +357,16 @@ adminRouter.get("/exportaciones/:id/descargar", async (req, res) => {
     if (!exportacion || exportacion.estado !== "lista" || !exportacion.archivo_ref) {
       return res.status(404).json({ error: "La exportación no está lista o no existe." });
     }
-    const rutaArchivo = path.join(__dirname, "../..", exportacion.archivo_ref);
-    if (!fs.existsSync(rutaArchivo)) {
+    let datos: Buffer;
+    try {
+      datos = await almacenamientoPrivado.leer(exportacion.archivo_ref);
+    } catch {
       return res.status(404).json({ error: "No se encontró el archivo de la exportación." });
     }
     await req.db!.query(`UPDATE exportaciones SET descargada_en = now() WHERE id = $1`, [req.params.id]);
-    res.download(rutaArchivo, `exportacion_${req.params.id}.zip`);
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="exportacion_${req.params.id}.zip"`);
+    res.send(datos);
   } catch (err) {
     console.error("GET /admin/exportaciones/:id/descargar", err);
     res.status(500).json({ error: "Error al descargar la exportación." });
@@ -513,8 +518,13 @@ adminRouter.get("/clinica", async (req, res) => {
       [req.auth!.tenantId]
     );
 
+    const tenant = tenantResult.rows[0];
+    if (tenant?.logo_url) {
+      tenant.logo_url = almacenamientoPublico.url(claveLogoDesdeValorGuardado(tenant.logo_url));
+    }
+
     res.json({
-      tenant: tenantResult.rows[0],
+      tenant,
       plan: {
         agentesHabilitados: Number(agentesHabilitados.rows[0].count),
         agentesTotal: Number(agentesTotal.rows[0].count),
@@ -555,6 +565,9 @@ const CONFIG_NOTIFICACIONES_DEFAULT = {
   confirmacionCitaActivo: true,
   cancelacionCitaActivo: true,
   informeDisponibleActivo: true,
+  // prompt_code_paciente_nacimiento_estado.md, Parte B3 — 10º aviso, el
+  // único puramente comercial: la clínica lo apaga sin pensarlo dos veces.
+  cumpleanosActivo: true,
 };
 
 const HORAS_AVISO_MIN = 1;
@@ -571,7 +584,7 @@ const COLUMNAS_CONFIG_NOTIFICACIONES = `
   vacunacion_activo, dias_aviso_vacunacion,
   seguimiento_posterior_activo, dias_seguimiento_posterior,
   agenda_dia_siguiente_activo, confirmacion_cita_activo,
-  cancelacion_cita_activo, informe_disponible_activo`;
+  cancelacion_cita_activo, informe_disponible_activo, cumpleanos_activo`;
 
 function filaAJson(fila: any) {
   return {
@@ -589,6 +602,7 @@ function filaAJson(fila: any) {
     confirmacionCitaActivo: fila.confirmacion_cita_activo,
     cancelacionCitaActivo: fila.cancelacion_cita_activo,
     informeDisponibleActivo: fila.informe_disponible_activo,
+    cumpleanosActivo: fila.cumpleanos_activo,
   };
 }
 
@@ -610,7 +624,7 @@ adminRouter.get("/clinica/configuracion-notificaciones", async (req, res) => {
     const creado = await req.db!.query(
       `INSERT INTO configuracion_notificaciones
          (tenant_id, ${COLUMNAS_CONFIG_NOTIFICACIONES})
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
        ON CONFLICT (tenant_id) DO UPDATE SET tenant_id = EXCLUDED.tenant_id
        RETURNING ${COLUMNAS_CONFIG_NOTIFICACIONES}`,
       [
@@ -629,6 +643,7 @@ adminRouter.get("/clinica/configuracion-notificaciones", async (req, res) => {
         d.confirmacionCitaActivo,
         d.cancelacionCitaActivo,
         d.informeDisponibleActivo,
+        d.cumpleanosActivo,
       ]
     );
     res.json(filaAJson(creado.rows[0]));
@@ -654,6 +669,7 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
     confirmacionCitaActivo,
     cancelacionCitaActivo,
     informeDisponibleActivo,
+    cumpleanosActivo,
   } = req.body as {
     recordatorioCitaActivo?: boolean;
     horasAvisoRecordatorioCita?: number;
@@ -669,6 +685,7 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
     confirmacionCitaActivo?: boolean;
     cancelacionCitaActivo?: boolean;
     informeDisponibleActivo?: boolean;
+    cumpleanosActivo?: boolean;
   };
 
   const enteroValido = (n: unknown, min: number, max: number) =>
@@ -688,7 +705,8 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
     typeof agendaDiaSiguienteActivo !== "boolean" ||
     typeof confirmacionCitaActivo !== "boolean" ||
     typeof cancelacionCitaActivo !== "boolean" ||
-    typeof informeDisponibleActivo !== "boolean"
+    typeof informeDisponibleActivo !== "boolean" ||
+    typeof cumpleanosActivo !== "boolean"
   ) {
     return res.status(400).json({
       error: `Datos inválidos. horasAvisoRecordatorioCita: ${HORAS_AVISO_MIN}-${HORAS_AVISO_MAX}. ` +
@@ -701,7 +719,7 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
     const result = await req.db!.query(
       `INSERT INTO configuracion_notificaciones
          (tenant_id, ${COLUMNAS_CONFIG_NOTIFICACIONES})
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
        ON CONFLICT (tenant_id) DO UPDATE SET
          recordatorio_cita_activo = EXCLUDED.recordatorio_cita_activo,
          horas_aviso_recordatorio_cita = EXCLUDED.horas_aviso_recordatorio_cita,
@@ -716,7 +734,8 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
          agenda_dia_siguiente_activo = EXCLUDED.agenda_dia_siguiente_activo,
          confirmacion_cita_activo = EXCLUDED.confirmacion_cita_activo,
          cancelacion_cita_activo = EXCLUDED.cancelacion_cita_activo,
-         informe_disponible_activo = EXCLUDED.informe_disponible_activo
+         informe_disponible_activo = EXCLUDED.informe_disponible_activo,
+         cumpleanos_activo = EXCLUDED.cumpleanos_activo
        RETURNING ${COLUMNAS_CONFIG_NOTIFICACIONES}`,
       [
         req.auth!.tenantId,
@@ -734,6 +753,7 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
         confirmacionCitaActivo,
         cancelacionCitaActivo,
         informeDisponibleActivo,
+        cumpleanosActivo,
       ]
     );
     res.json(filaAJson(result.rows[0]));
@@ -1062,26 +1082,16 @@ adminRouter.patch("/clinica/numeracion-expedientes", async (req, res) => {
   }
 });
 
-// Mismo mecanismo de disco que platform-admin.routes.ts/archivos.routes.ts
-// (filesystem local del contenedor, /uploads compartida), con su propio
-// límite de tamaño y filtro de tipo — un logo no es un documento clínico.
-// Vive en uploads/logos/, la ÚNICA subcarpeta que index.ts sirve pública
-// y sin autenticación (es un activo de marca cosmético, no dato clínico).
-const logoUploadsDir = path.join(__dirname, "../../uploads/logos");
-fs.mkdirSync(logoUploadsDir, { recursive: true });
-
-const logoStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, logoUploadsDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${crypto.randomUUID()}${ext}`);
-  },
-});
-
+// El logo va al ámbito PÚBLICO del almacenamiento de objetos — a
+// propósito alcanzable por URL directa, sin pasar por un endpoint
+// autenticado (se embebe en correos leídos sin sesión). Un logo no es un
+// documento clínico, así que no comparte el control de acceso del resto
+// de los archivos (ver almacenamiento/tipos.ts sobre por qué son dos
+// ámbitos separados).
 const TIPOS_LOGO_VALIDOS = ["image/png", "image/jpeg"];
 
 const uploadLogo = multer({
-  storage: logoStorage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!TIPOS_LOGO_VALIDOS.includes(file.mimetype)) {
@@ -1108,9 +1118,11 @@ adminRouter.post("/clinica/logo", (req, res) => {
     }
 
     try {
-      const logoUrl = `/uploads/logos/${req.file.filename}`;
+      const clave = `logos/${crypto.randomUUID()}${path.extname(req.file.originalname)}`;
+      await almacenamientoPublico.guardar(clave, req.file.buffer, req.file.mimetype);
+      const logoUrl = almacenamientoPublico.url(clave);
       await req.db!.query(`UPDATE tenants SET logo_url = $1 WHERE id = $2`, [
-        logoUrl,
+        clave,
         req.auth!.tenantId,
       ]);
       res.json({ logoUrl });
@@ -1606,12 +1618,155 @@ adminRouter.get("/casos", async (req, res) => {
   }
 });
 
+// =====================================================================
+// REPORTE DE ATENCIONES — respaldo ante el colegio de médicos
+// veterinarios (prompt_code_reporte_atenciones).
+//
+// La fila principal es la CITA completada (es lo único que tiene hora de
+// inicio/fin, que el colegio pide). "Atención" = cita en estado
+// 'completada' — programada/confirmada/cancelada/no_show no representan
+// una atención realizada.
+//
+// Pero no todo caso nace de una cita (el alta directa desde el área de
+// trabajo no crea ninguna) — relevamiento real: de 30 casos del último
+// año, 0 tenían cita asociada. Omitirlos haría que el reporte mienta por
+// omisión, así que se listan aparte, señalados como tales.
+// =====================================================================
+
+function parseRangoFechas(req: import("express").Request): { desde: string; hasta: string } | null {
+  const desde = typeof req.query.desde === "string" ? req.query.desde : "";
+  const hasta = typeof req.query.hasta === "string" ? req.query.hasta : "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta)) return null;
+  return { desde, hasta };
+}
+
+async function obtenerDatosReporteAtenciones(
+  db: import("pg").PoolClient,
+  rango: { desde: string; hasta: string },
+  medicoId?: string
+) {
+  const paramsAtenciones: any[] = [rango.desde, rango.hasta];
+  let filtroMedicoAtenciones = "";
+  if (medicoId) {
+    paramsAtenciones.push(medicoId);
+    filtroMedicoAtenciones = `AND ci.medico_id = $${paramsAtenciones.length}`;
+  }
+
+  // prompt: 5 columnas exactas — fecha de atención, hora de inicio, hora de
+  // fin, número de expediente, número de colegiado. paciente_nombre se cayó
+  // del SELECT (ya no se renderiza en ningún lado); medico_id/medico_nombre
+  // se mantienen solo para el bloque de totales por médico más abajo.
+  const atencionesResult = await db.query(
+    `SELECT ci.id, ci.fecha, ci.hora_inicio, ci.hora_fin,
+            c.numero_expediente,
+            per.id AS medico_id, per.nombre AS medico_nombre, per.colegiatura
+     FROM citas ci
+     JOIN personas per ON per.id = ci.medico_id
+     LEFT JOIN casos c ON c.id = ci.caso_id
+     WHERE ci.estado = 'completada' AND ci.fecha BETWEEN $1 AND $2 ${filtroMedicoAtenciones}
+     ORDER BY ci.fecha, ci.hora_inicio`,
+    paramsAtenciones
+  );
+
+  const paramsCasosSinCita: any[] = [rango.desde, rango.hasta];
+  let filtroMedicoCasos = "";
+  if (medicoId) {
+    paramsCasosSinCita.push(medicoId);
+    filtroMedicoCasos = `AND c.medico_id = $${paramsCasosSinCita.length}`;
+  }
+
+  // Ya no es una tabla con columnas propias — solo la lista de expedientes
+  // que quedan fuera de la tabla de atenciones, para que el reporte nunca
+  // los omita en silencio sin fingir que tienen las 5 columnas de arriba.
+  const casosSinCitaResult = await db.query(
+    `SELECT c.id, c.numero_expediente
+     FROM casos c
+     WHERE NOT EXISTS (SELECT 1 FROM citas ci WHERE ci.caso_id = c.id)
+       AND c.creado_en::date BETWEEN $1 AND $2 ${filtroMedicoCasos}
+     ORDER BY c.creado_en`,
+    paramsCasosSinCita
+  );
+
+  const totalesPorMedico = new Map<string, { medicoNombre: string; total: number }>();
+  for (const fila of atencionesResult.rows) {
+    const actual = totalesPorMedico.get(fila.medico_id) ?? { medicoNombre: fila.medico_nombre, total: 0 };
+    actual.total += 1;
+    totalesPorMedico.set(fila.medico_id, actual);
+  }
+
+  return {
+    atenciones: atencionesResult.rows,
+    casosSinCita: casosSinCitaResult.rows,
+    totalAtenciones: atencionesResult.rows.length,
+    totalesPorMedico: Array.from(totalesPorMedico.values()),
+  };
+}
+
+adminRouter.get("/reporte-atenciones", async (req, res) => {
+  const rango = parseRangoFechas(req);
+  if (!rango) {
+    return res.status(400).json({ error: "Faltan desde/hasta (formato YYYY-MM-DD)." });
+  }
+  const medicoId = typeof req.query.medicoId === "string" && req.query.medicoId ? req.query.medicoId : undefined;
+
+  try {
+    const datos = await obtenerDatosReporteAtenciones(req.db!, rango, medicoId);
+    res.json(datos);
+  } catch (err) {
+    console.error("GET /admin/reporte-atenciones", err);
+    res.status(500).json({ error: "Error al generar el reporte de atenciones." });
+  }
+});
+
+adminRouter.get("/reporte-atenciones/pdf", async (req, res) => {
+  const rango = parseRangoFechas(req);
+  if (!rango) {
+    return res.status(400).json({ error: "Faltan desde/hasta (formato YYYY-MM-DD)." });
+  }
+  const medicoId = typeof req.query.medicoId === "string" && req.query.medicoId ? req.query.medicoId : undefined;
+
+  try {
+    const datos = await obtenerDatosReporteAtenciones(req.db!, rango, medicoId);
+
+    const tenantResult = await req.db!.query(
+      `SELECT t.nombre, t.nombre_fiscal, t.numero_identificacion, ti.etiqueta AS tipo_identificacion_etiqueta
+       FROM tenants t
+       LEFT JOIN tipos_identificacion ti ON ti.id = t.tipo_identificacion_id
+       WHERE t.id = $1`,
+      [req.auth!.tenantId]
+    );
+    const clinica = tenantResult.rows[0];
+
+    const generadorResult = await req.db!.query(`SELECT nombre FROM personas WHERE id = $1`, [req.auth!.userId]);
+    const generadoPor = generadorResult.rows[0]?.nombre ?? "—";
+
+    const { generarPdfReporteAtenciones } = await import("../reporteAtencionesPdf");
+    const buffer = await generarPdfReporteAtenciones({
+      clinica,
+      rango,
+      generadoPor,
+      generadoEn: new Date(),
+      ...datos,
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="reporte-atenciones_${rango.desde}_${rango.hasta}.pdf"`
+    );
+    res.send(buffer);
+  } catch (err) {
+    console.error("GET /admin/reporte-atenciones/pdf", err);
+    res.status(500).json({ error: "Error al generar el PDF del reporte." });
+  }
+});
+
 adminRouter.get("/casos/:id", async (req, res) => {
   try {
     const casoResult = await req.db!.query(
       `SELECT c.id, c.motivo, c.estado, c.severidad, c.confianza_diagnostica, c.creado_en, c.numero_expediente,
               c.medico_id, c.agente_id,
-              p.nombre AS paciente_nombre, p.especie, r.nombre AS raza, p.sexo, p.edad_anios,
+              p.nombre AS paciente_nombre, p.especie, r.nombre AS raza, p.sexo, p.edad_anios, p.fecha_nacimiento,
               per.nombre AS medico_nombre, a.nombre AS agente_nombre
        FROM casos c
        JOIN pacientes p ON p.id = c.paciente_id
@@ -1625,6 +1780,7 @@ adminRouter.get("/casos/:id", async (req, res) => {
       return res.status(404).json({ error: "Caso no encontrado." });
     }
     const caso = casoResult.rows[0];
+    caso.edad_anios = calcularEdadEfectiva(caso.fecha_nacimiento, caso.edad_anios);
 
     // tipo incluido sin filtrar — la vista de admin muestra el expediente
     // completo, información registrada incluida (con su propio tratamiento

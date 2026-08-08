@@ -1,0 +1,1088 @@
+# Predisposiciones Raciales a Enfermedades — Perros y Gatos
+
+## Metodología y fuentes
+
+Este documento compila predisposiciones raciales a enfermedades reconocidas de forma consistente en la literatura veterinaria (medicina interna, genética clínica y textos de referencia como *Breed Predispositions to Disease in Dogs and Cats* de Gough, Thomas y O'Neill; *Small Animal Internal Medicine* de Nelson y Couto; guías de razas de WSAVA/OFA; y publicaciones en revistas indexadas). No es una transcripción literal de ninguna fuente única, sino una síntesis organizada para consulta clínica rápida.
+
+**Advertencia de uso:** las predisposiciones raciales indican una *mayor probabilidad estadística*, no un diagnóstico ni una certeza individual. Un paciente de una raza predispuesta puede no desarrollar nunca la condición, y un paciente de raza no listada puede presentarla igualmente. Esta información debe usarse como apoyo para ampliar diagnósticos diferenciales, no como sustituto del examen clínico, la anamnesis y los estudios complementarios. Se recomienda una revisión periódica de este documento contra literatura actualizada, ya que el conocimiento en genética clínica veterinaria evoluciona.
+
+## Cómo está estructurado
+
+Cada raza incluye:
+- **Datos generales**: grupo/origen, tamaño, esperanza de vida aproximada — información de contexto útil para el razonamiento clínico (ej. tamaño influye en anestesia, dosis, y en qué enfermedades son más probables).
+- **Predisposiciones por sistema**: solo se listan los sistemas con predisposiciones documentadas relevantes para esa raza; los sistemas no mencionados no tienen predisposiciones notables descritas.
+
+Las categorías de sistema usadas son: Gastrointestinal/Hepático/Pancreático, Endocrino, Cardiovascular, Musculoesquelético/Neurológico, Dermatológico, Oftalmológico, Oncológico, Renal/Urinario/Reproductivo, Respiratorio, Hematológico/Inmune.
+
+---
+
+# PERROS
+
+## Labrador Retriever
+**Datos generales:** Raza grande, deportiva/de cobro, esperanza de vida 10-12 años. Una de las razas más populares a nivel mundial.
+**Predisposiciones:**
+- Gastrointestinal: dilatación-vuelco gástrico (menor riesgo que razas de tórax profundo pero descrito), enteropatías, pancreatitis, obesidad con predisposición genética (mutación POMC) que agrava el riesgo de enfermedades metabólicas y ortopédicas.
+- Endocrino: hipotiroidismo, diabetes mellitus.
+- Musculoesquelético: displasia de cadera y de codo, osteocondrosis, ruptura de ligamento cruzado craneal, miopatía por deficiencia de centronuclear (miopatía hereditaria del Labrador).
+- Oftalmológico: atrofia progresiva de retina, cataratas hereditarias, displasia retiniana.
+- Oncológico: hemangiosarcoma, mastocitoma, linfoma, osteosarcoma.
+- Otros: laringoparálisis (a menudo parte del síndrome polineuropatía-laringoparálisis).
+
+## Golden Retriever
+**Datos generales:** Raza grande, de cobro, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Oncológico: altísima incidencia de hemangiosarcoma y linfoma; también osteosarcoma y tumores de células mastocitarias. Es una de las razas con mayor riesgo global de cáncer.
+- Cardiovascular: estenosis subaórtica congénita, cardiomiopatía dilatada.
+- Musculoesquelético: displasia de cadera y codo, osteocondrosis.
+- Oftalmológico: atrofia progresiva de retina, cataratas, displasia retiniana, distiquiasis.
+- Dermatológico: alergias atópicas, hipotiroidismo asociado a piel/pelo.
+- Endocrino: hipotiroidismo.
+
+## Pastor Alemán (German Shepherd)
+**Datos generales:** Raza grande, de trabajo/guardia, esperanza de vida 9-13 años.
+**Predisposiciones:**
+- Gastrointestinal: insuficiencia pancreática exocrina (predisposición muy marcada), sobrecrecimiento bacteriano del intestino delgado, enteropatía sensible a antibióticos, colitis crónica, dilatación-vuelco gástrico, megaesófago idiopático en cachorros, fístulas perianales (asociadas a colitis con infiltrado linfoplasmocítico).
+- Musculoesquelético/Neurológico: displasia de cadera y codo, mielopatía degenerativa, síndrome de cauda equina (estenosis lumbosacra), discopatía.
+- Endocrino: hipoadrenocorticismo (Addison), diabetes mellitus.
+- Renal: amiloidosis renal, glomerulonefritis.
+- Oncológico: hemangiosarcoma esplénico y cardiaco.
+- Dermatológico: dermatitis atópica, foliculitis/furunculosis (pioderma profunda), fístulas perianales.
+
+## Boxer
+**Datos generales:** Raza mediana-grande, braquicéfala moderada, esperanza de vida 9-11 años.
+**Predisposiciones:**
+- Gastrointestinal: colitis granulomatosa/histiocítica ulcerativa (predisposición marcada), gastritis.
+- Cardiovascular: cardiomiopatía arritmogénica del ventrículo derecho ("Boxer cardiomyopathy"), estenosis subaórtica.
+- Oncológico: muy alta incidencia general de neoplasias — mastocitoma, linfoma, tumores de células gliales (gliomas), hemangiosarcoma.
+- Neurológico: predisposición a tumores cerebrales primarios.
+- Respiratorio: síndrome braquicefálico moderado, estenosis de narinas.
+- Endocrino: hipotiroidismo.
+
+## Bulldog Francés
+**Datos generales:** Raza pequeña, braquicéfala, esperanza de vida 10-12 años (menor por comorbilidades respiratorias).
+**Predisposiciones:**
+- Respiratorio: síndrome obstructivo de las vías respiratorias braquicefálicas (estenosis de narinas, paladar blando elongado, hipoplasia traqueal).
+- Gastrointestinal: síndrome digestivo del braquicéfalo (reflujo gastroesofágico, hernia hiatal secundaria al esfuerzo respiratorio), colitis granulomatosa, gastritis folicular.
+- Musculoesquelético: hemivértebras, discopatía intervertebral (condrodistrofia), displasia de cadera.
+- Dermatológico: pliegues cutáneos con dermatitis, alergias atópicas.
+- Oftalmológico: úlceras corneales (por exoftalmos relativo), prolapso de la glándula del tercer párpado ("cereza").
+- Reproductivo: distocia frecuente por desproporción cefalopélvica (mayoría requiere cesárea).
+
+## Bulldog Inglés
+**Datos generales:** Raza mediana, braquicéfala extrema, esperanza de vida 8-10 años.
+**Predisposiciones:** similar al Bulldog Francés pero con mayor severidad general.
+- Respiratorio: síndrome braquicefálico severo.
+- Musculoesquelético: displasia de cadera muy prevalente, problemas de columna (hemivértebras).
+- Dermatológico: dermatitis de pliegues, alergias.
+- Reproductivo: distocia casi universal (cesárea programada habitual).
+- Cardiovascular: estenosis pulmonar.
+
+## Caniche (Poodle) — Toy, Miniatura y Estándar
+**Datos generales:** Raza de tamaño variable según variedad, esperanza de vida 12-15 años (toy/mini) a 10-13 (estándar).
+**Predisposiciones:**
+- Gastrointestinal/Hepático: hepatopatía crónica, hepatitis nodular difusa; el Estándar tiene predisposición marcada a dilatación-vuelco gástrico.
+- Endocrino: enfermedad de Addison (especialmente Estándar), diabetes mellitus, hipotiroidismo.
+- Musculoesquelético/Neurológico: luxación de rótula (toy/mini), enfermedad de Legg-Calvé-Perthes (toy/mini), mielopatía degenerativa (estándar).
+- Oftalmológico: atrofia progresiva de retina, cataratas.
+- Oncológico: mastocitoma, tumores de piel.
+- Hematológico: enfermedad de von Willebrand.
+
+## Yorkshire Terrier
+**Datos generales:** Raza toy, esperanza de vida 13-16 años.
+**Predisposiciones:**
+- Gastrointestinal: enteropatía perdedora de proteínas, linfangiectasia intestinal, colapso traqueal asociado a tos que puede confundirse con signos respiratorios de origen digestivo.
+- Musculoesquelético: luxación de rótula, enfermedad de Legg-Calvé-Perthes, colapso traqueal.
+- Hepático: shunt portosistémico congénito.
+- Oftalmológico: queratoconjuntivitis seca, distiquiasis.
+- Endocrino: hipoglucemia en cachorros toy (por baja masa muscular/reserva).
+- Dental: enfermedad periodontal severa por hacinamiento dental.
+
+## Chihuahua
+**Datos generales:** Raza toy, esperanza de vida 14-16 años.
+**Predisposiciones:**
+- Cardiovascular: persistencia del conducto arterioso, colapso de válvula mitral.
+- Neurológico: hidrocefalia congénita, malformación de Chiari-like, siringomielia.
+- Musculoesquelético: luxación de rótula, fontanela persistente ("molera abierta").
+- Ocular: hidrocefalia asociada a globo ocular prominente, luxación de cristalino.
+- Endocrino: hipoglucemia en cachorros.
+- Dental: enfermedad periodontal por hacinamiento.
+
+## Dachshund (Teckel/Salchicha)
+**Datos generales:** Raza pequeña, condrodistrófica, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Musculoesquelético/Neurológico: enfermedad del disco intervertebral (predisposición extrema por condrodistrofia), es la raza con mayor incidencia de hernia discal.
+- Endocrino: diabetes mellitus, hipotiroidismo, síndrome de Cushing.
+- Gastrointestinal: pancreatitis.
+- Oftalmológico: atrofia progresiva de retina, distrofia corneal.
+- Oncológico: tumores testiculares (Sertoli) en machos criptórquidos.
+- Dermatológico: dermatitis atópica.
+
+## Cocker Spaniel (Americano e Inglés)
+**Datos generales:** Raza mediana, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Gastrointestinal/Hepático: acalasia cricofaríngea y disfagia faríngea en cachorros, hepatopatía crónica.
+- Dermatológico: otitis externa crónica (orejas caídas y conducto estrecho), seborrea, alergias atópicas.
+- Oftalmológico: glaucoma primario, cataratas, atrofia progresiva de retina, queratoconjuntivitis seca.
+- Cardiovascular: cardiomiopatía dilatada.
+- Renal: nefropatía asociada a IgA.
+- Hematológico: anemia hemolítica inmunomediada, trombocitopenia inmunomediada.
+- Endocrino: hipotiroidismo.
+
+## Rottweiler
+**Datos generales:** Raza grande, esperanza de vida 8-10 años.
+**Predisposiciones:**
+- Gastrointestinal: enteropatía perdedora de proteínas, linfangiectasia intestinal, parvovirosis (mayor severidad descrita en la raza), dilatación-vuelco gástrico.
+- Oncológico: osteosarcoma (predisposición muy marcada), linfoma.
+- Musculoesquelético: displasia de cadera y codo, osteocondrosis.
+- Cardiovascular: estenosis subaórtica.
+- Neurológico: polineuropatía hereditaria juvenile-onset (rara).
+
+## Dóberman Pinscher
+**Datos generales:** Raza grande, esperanza de vida 10-13 años.
+**Predisposiciones:**
+- Hepático: hepatitis crónica por acumulación anormal de cobre (junto con el West Highland White Terrier, es la raza canina de referencia para esta condición).
+- Cardiovascular: cardiomiopatía dilatada (altísima prevalencia, causa principal de muerte en la raza).
+- Hematológico: enfermedad de von Willebrand tipo I.
+- Neurológico: síndrome de inestabilidad vertebral cervical ("wobbler syndrome"), narcolepsia hereditaria (rara).
+- Endocrino: hipotiroidismo.
+- Dermatológico: displasia folicular color-dilución (alopecia de color azul/fawn).
+
+## Gran Danés (Great Dane)
+**Datos generales:** Raza gigante, esperanza de vida 7-10 años.
+**Predisposiciones:**
+- Gastrointestinal: dilatación-vuelco gástrico (una de las razas de mayor riesgo, se recomienda gastropexia profiláctica).
+- Musculoesquelético: síndrome de inestabilidad vertebral cervical, osteocondrosis, displasia de cadera, panosteítis.
+- Cardiovascular: cardiomiopatía dilatada.
+- Oncológico: osteosarcoma.
+- Endocrino: hipotiroidismo.
+
+## Beagle
+**Datos generales:** Raza mediana, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Endocrino: hipotiroidismo, síndrome de Cushing (hiperadrenocorticismo pituitario-dependiente).
+- Gastrointestinal: obesidad marcada (tendencia conductual a la polifagia), pancreatitis.
+- Oftalmológico: glaucoma primario, distrofia corneal.
+- Hematológico: factor VII deficiente (trastorno de coagulación hereditario).
+- Musculoesquelético: enfermedad del disco intervertebral.
+- Neurológico: epilepsia idiopática.
+
+## Shih Tzu
+**Datos generales:** Raza pequeña, braquicéfala, esperanza de vida 10-16 años.
+**Predisposiciones:**
+- Respiratorio: síndrome braquicefálico.
+- Gastrointestinal: hernia hiatal, reflujo gastroesofágico.
+- Renal: nefropatía hereditaria.
+- Oftalmológico: úlceras corneales, proptosis, queratoconjuntivitis seca.
+- Musculoesquelético: luxación de rótula, hemivértebras.
+- Dermatológico: dermatitis de pliegues faciales.
+
+## West Highland White Terrier (Westie)
+**Datos generales:** Raza pequeña, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Hepático: hepatitis crónica por acumulación anormal de cobre.
+- Dermatológico: dermatitis atópica marcada, hiperplasia epidermoide/"Westie armadillo syndrome".
+- Respiratorio: fibrosis pulmonar idiopática canina (característica de la raza en edad avanzada).
+- Musculoesquelude: enfermedad de Legg-Calvé-Perthes, craneomandibular osteopatía (cachorros).
+- Oftalmológico: queratoconjuntivitis seca.
+
+## Cavalier King Charles Spaniel
+**Datos generales:** Raza pequeña, esperanza de vida 9-14 años.
+**Predisposiciones:**
+- Cardiovascular: enfermedad valvular mitral degenerativa (predisposición extrema, se presenta a edades tempranas y es la principal causa de muerte en la raza).
+- Neurológico: malformación de Chiari-like y siringomielia (predisposición muy característica de la raza).
+- Oftalmológico: displasia retiniana, cataratas, queratoconjuntivitis seca.
+- Musculoesquelético: luxación de rótula.
+- Hematológico: trombocitopenia asintomática hereditaria (macroplaquetas).
+
+## Border Collie
+**Datos generales:** Raza mediana, de trabajo/pastoreo, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Neurológico: ceroidolipofuscinosis neuronal (enfermedad de depósito hereditaria), epilepsia idiopática, colapso inducido por el ejercicio (sensibilidad al estrés/trastorno paroxístico).
+- Oftalmológico: anomalía del ojo del Collie, atrofia progresiva de retina.
+- Endocrino: hipotiroidismo.
+- Musculoesquelético: displasia de cadera.
+
+## Pastor Australiano (Australian Shepherd)
+**Datos generales:** Raza mediana, de trabajo/pastoreo, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Farmacogenética: mutación MDR1/ABCB1 (sensibilidad grave a ivermectina y otros fármacos, muy relevante para prescripción de antiparasitarios y quimioterápicos).
+- Oftalmológico: anomalía del ojo del Collie, cataratas hereditarias, coloboma.
+- Auditivo: sordera congénita asociada al patrón de capa mirlo (merle).
+- Musculoesquelético: displasia de cadera.
+
+## Husky Siberiano
+**Datos generales:** Raza mediana, de trabajo/tiro, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Oftalmológico: cataratas hereditarias, distrofia corneal, glaucoma, uveodermatológico (síndrome tipo Vogt-Koyanagi-Harada).
+- Endocrino: hipoadrenocorticismo, diabetes mellitus poco frecuente.
+- Dermatológico: zinc-responsive dermatosis (dermatosis sensible al zinc).
+- Gastrointestinal: enteropatía perdedora de proteínas ocasional.
+
+## Akita
+**Datos generales:** Raza grande, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Endocrino: hipotiroidismo.
+- Inmune: síndrome uveodermatológico, polimiositis inmunomediada.
+- Musculoesquelético: displasia de cadera.
+- Hematológico: microcitosis hereditaria (rasgo racial normal, no confundir con anemia ferropénica).
+- Gastrointestinal: dilatación-vuelco gástrico.
+
+## Shar Pei
+**Datos generales:** Raza mediana, esperanza de vida 8-12 años.
+**Predisposiciones:**
+- Gastrointestinal: deficiencia de cobalamina, diarrea crónica de intestino delgado que no responde bien al tratamiento estándar.
+- Sistémico: fiebre familiar del Shar Pei (episodios de fiebre e inflamación recurrente), amiloidosis renal secundaria (complicación grave de la fiebre familiar).
+- Dermatológico: mucinosis cutánea, dermatitis de pliegues, alergias atópicas, otitis por conducto estrecho.
+- Oftalmológico: entropión (muy prevalente, requiere corrección quirúrgica frecuente).
+- Endocrino: hipotiroidismo.
+
+## Basenji
+**Datos generales:** Raza mediana, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Gastrointestinal: enfermedad inmunoproliferativa del intestino delgado (linfangiectasia y enteropatía perdedora de proteínas asociada a la raza).
+- Renal: nefropatía de Fanconi (síndrome de Fanconi hereditario).
+- Endocrino/Hematológico: deficiencia de piruvato-quinasa (anemia hemolítica hereditaria).
+- Oftalmológico: atrofia progresiva de retina, coloboma.
+
+## Setter Irlandés
+**Datos generales:** Raza grande, esperanza de vida 11-13 años.
+**Predisposiciones:**
+- Gastrointestinal: enteropatía sensible al gluten (predisposición característica de la raza), dilatación-vuelco gástrico.
+- Neurológico: neuropatía sensorial hereditaria (rara).
+- Oftalmológico: atrofia progresiva de retina.
+- Musculoesquelético: displasia de cadera.
+
+## Bernés de la Montaña (Bernese Mountain Dog)
+**Datos generales:** Raza grande, esperanza de vida 7-10 años.
+**Predisposiciones:**
+- Oncológico: histiocitosis maligna (predisposición muy marcada y característica de la raza), osteosarcoma, linfoma. El cáncer es la principal causa de muerte en la raza.
+- Musculoesquelético: displasia de cadera y codo.
+- Renal: glomerulonefritis hereditaria.
+- Neurológico: encefalitis necrotizante (rara).
+
+## Weimaraner
+**Datos generales:** Raza grande, esperanza de vida 10-13 años.
+**Predisposiciones:**
+- Gastrointestinal: dilatación-vuelco gástrico, intolerancia alimentaria.
+- Musculoesquelético: hiperostosis esquelética hipertrófica juvenil ("Weimaraner disease"), displasia de cadera.
+- Inmune: inmunodeficiencia hereditaria (déficit de IgA), vasculopatía inmunomediada.
+- Endocrino: hipoadrenocorticismo.
+
+## Dálmata
+**Datos generales:** Raza mediana-grande, esperanza de vida 11-13 años.
+**Predisposiciones:**
+- Renal/Urinario: hiperuricosuria hereditaria y urolitiasis por urato (predisposición extrema y característica de la raza).
+- Auditivo: sordera congénita.
+- Dermatológico: dermatitis atópica.
+
+## Schnauzer Miniatura
+**Datos generales:** Raza pequeña, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Gastrointestinal/Metabólico: hiperlipidemia idiopática (predisposición muy marcada), pancreatitis recurrente, síndrome de intestino irritable, gastroenteritis hemorrágica aguda.
+- Renal/Urinario: urolitiasis (estruvita).
+- Oftalmológico: cataratas hereditarias.
+- Endocrino: hipotiroidismo.
+
+## Pug (Carlino)
+**Datos generales:** Raza pequeña, braquicéfala, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Respiratorio: síndrome braquicefálico severo.
+- Neurológico: encefalitis necrotizante del Pug (meningoencefalitis idiopática con alta letalidad, característica de la raza).
+- Oftalmológico: úlceras corneales, proptosis, pliegue nasal que roza la córnea.
+- Musculoesquelético: hemivértebras.
+- Dermatológico: dermatitis de pliegues, demodicosis.
+
+## Maltés
+**Datos generales:** Raza toy, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Hepático: shunt portosistémico congénito.
+- Neurológico: encefalitis del perro faldero blanco ("white shaker dog syndrome"), hidrocefalia.
+- Musculoesquelético: luxación de rótula, colapso traqueal.
+- Oftalmológico: atrofia progresiva de retina.
+
+## Pomerania (Pomeranian)
+**Datos generales:** Raza toy, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Endocrino: hipotiroidismo, alopecia X (endocrinopatía dermatológica característica de la raza).
+- Musculoesquelético: luxación de rótula, colapso traqueal.
+- Cardiovascular: colapso de válvula mitral.
+- Dental: enfermedad periodontal severa.
+
+## Collie (Barbudo y de Pelo Largo/Corto)
+**Datos generales:** Raza grande, de pastoreo, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Farmacogenética: mutación MDR1/ABCB1 (igual que el Pastor Australiano).
+- Oftalmológico: anomalía del ojo del Collie (predisposición definitoria de la raza).
+- Dermatológico: dermatomiositis hereditaria.
+- Auditivo: sordera asociada a capa merle.
+
+## Old English Sheepdog (Pastor Inglés Antiguo)
+**Datos generales:** Raza grande, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Endocrino: hipotiroidismo.
+- Hematológico: trombocitopenia inmunomediada.
+- Musculoesquelético: displasia de cadera.
+- Neurológico: ataxia cerebelosa hereditaria (rara).
+
+## Terranova (Newfoundland)
+**Datos generales:** Raza gigante, esperanza de vida 8-10 años.
+**Predisposiciones:**
+- Cardiovascular: estenosis subaórtica (predisposición muy marcada y característica de la raza).
+- Musculoesquelético: displasia de cadera y codo.
+- Renal: cistinuria hereditaria.
+- Gastrointestinal: dilatación-vuelco gástrico.
+
+## San Bernardo (Saint Bernard)
+**Datos generales:** Raza gigante, esperanza de vida 8-10 años.
+**Predisposiciones:**
+- Musculoesquelético: displasia de cadera y codo, osteosarcoma.
+- Gastrointestinal: dilatación-vuelco gástrico.
+- Oftalmológico: entropión/ectropión, cherry eye.
+- Neurológico: epilepsia idiopática.
+
+## Bull Terrier
+**Datos generales:** Raza mediana, esperanza de vida 10-14 años.
+**Predisposiciones:**
+- Renal: nefropatía hereditaria (displasia renal juvenil).
+- Cardiovascular: estenosis mitral y aórtica congénitas.
+- Dermatológico: acrodermatitis letal (rara, forma hereditaria grave).
+- Conductual/Neurológico: síndrome de persecución de la cola (tail-chasing), asociado a trastorno compulsivo.
+
+## Staffordshire Bull Terrier
+**Datos generales:** Raza mediana, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Oftalmológico: cataratas hereditarias juveniles, distrofia corneal.
+- Musculoesquelético: distrofia muscular hereditaria (rara).
+- Neurológico: ataxia hereditaria (rara).
+
+## Galgo/Whippet/Greyhound
+**Datos generales:** Raza grande (Greyhound) o mediana (Whippet), de carreras, esperanza de vida 10-14 años.
+**Predisposiciones:**
+- Hematológico: valores hematológicos basales distintos a otras razas (mayor hematocrito basal, menor plaquetas — importante no sobreinterpretar como patológico).
+- Musculoesquelético: lesiones traumáticas por su actividad atlética, osteosarcoma.
+- Farmacológico: mayor sensibilidad a barbitúricos y anestésicos por bajo porcentaje de grasa corporal.
+- Cardiovascular: cardiomiopatía dilatada (Whippet).
+
+## Soft Coated Wheaten Terrier
+**Datos generales:** Raza mediana, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Gastrointestinal/Renal: enteropatía perdedora de proteínas y nefropatía perdedora de proteínas (predisposición conjunta muy característica de la raza — "PLE/PLN").
+- Endocrino: enfermedad de Addison.
+
+## Lundehund (Perro Lundehund Noruego)
+**Datos generales:** Raza pequeña, esperanza de vida 12 años. Raza rara con anatomía particular (poliactilismo).
+**Predisposiciones:**
+- Gastrointestinal: enteropatía perdedora de proteínas, linfangiectasia intestinal, carcinoma gástrico — conjunto conocido como "síndrome gastroentérico del Lundehund", muy característico y grave en la raza.
+
+## Bichón Frisé
+**Datos generales:** Raza pequeña, pelo rizado blanco, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Renal/Urinario: urolitiasis (oxalato de calcio y estruvita), incontinencia urinaria.
+- Endocrino: diabetes mellitus, síndrome de Cushing.
+- Hematológico: trombocitopenia inmunomediada, anemia hemolítica inmunomediada.
+- Oftalmológico: cataratas hereditarias.
+- Musculoesquelético: luxación de rótula.
+
+## Shiba Inu
+**Datos generales:** Raza pequeña-mediana, origen japonés, esperanza de vida 13-16 años.
+**Predisposiciones:**
+- Endocrino: hipoadrenocorticismo, hipotiroidismo.
+- Oftalmológico: glaucoma primario, luxación de cristalino.
+- Musculoesquelético: luxación de rótula.
+- Dermatológico: alergias atópicas.
+
+## Jack Russell Terrier / Parson Russell Terrier
+**Datos generales:** Raza pequeña, muy activa, esperanza de vida 13-16 años.
+**Predisposiciones:**
+- Oftalmológico: luxación de cristalino primaria, atrofia progresiva de retina, cataratas congénitas.
+- Neurológico: ataxia cerebelosa hereditaria, mielopatía necrotizante.
+- Musculoesquelético: enfermedad de Legg-Calvé-Perthes, luxación de rótula.
+- Auditivo: sordera congénita.
+
+## American Pit Bull Terrier / Staffordshire Terrier Americano
+**Datos generales:** Raza mediana, musculosa, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Dermatológico: demodicosis generalizada, alergias atópicas.
+- Cardiovascular: estenosis aórtica congénita.
+- Musculoesquelético: displasia de cadera.
+- Hematológico: trombopatía hereditaria (rara).
+
+## Cane Corso
+**Datos generales:** Raza grande, molosoide, esperanza de vida 9-12 años.
+**Predisposiciones:**
+- Musculoesquelético: displasia de cadera y codo.
+- Gastrointestinal: dilatación-vuelco gástrico.
+- Oftalmológico: ectropión/entropión, cherry eye.
+- Neurológico: epilepsia idiopática.
+
+## Mastín Napolitano
+**Datos generales:** Raza gigante, molosoide, esperanza de vida 7-9 años.
+**Predisposiciones:**
+- Musculoesquelético: displasia de cadera y codo severas.
+- Gastrointestinal: dilatación-vuelco gástrico.
+- Dermatológico: dermatitis de pliegues cutáneos, demodicosis.
+- Cardiovascular: cardiomiopatía dilatada.
+- Oftalmológico: ectropión marcado, cherry eye.
+
+## Bullmastiff
+**Datos generales:** Raza grande, molosoide, esperanza de vida 7-9 años.
+**Predisposiciones:**
+- Oncológico: linfoma, mastocitoma, osteosarcoma; alta incidencia general de cáncer.
+- Gastrointestinal: dilatación-vuelco gástrico.
+- Musculoesquelético: displasia de cadera.
+- Neurológico: epilepsia idiopática.
+
+## Chow Chow
+**Datos generales:** Raza mediana, pelaje denso, esperanza de vida 9-12 años.
+**Predisposiciones:**
+- Oftalmológico: entropión (muy prevalente, casi definitorio de la raza), glaucoma primario.
+- Musculoesquelético: displasia de cadera y codo, ruptura de ligamento cruzado.
+- Endocrino: hipotiroidismo.
+- Inmune: síndrome uveodermatológico, pénfigo foliáceo.
+- Gastrointestinal: estenosis pilórica congénita.
+
+## Samoyedo
+**Datos generales:** Raza mediana-grande, pelaje blanco denso, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Renal: glomerulopatía hereditaria ligada al cromosoma X (nefropatía hereditaria del Samoyedo).
+- Endocrino: diabetes mellitus.
+- Cardiovascular: estenosis pulmonar.
+- Oftalmológico: cataratas hereditarias.
+
+## Pekinés
+**Datos generales:** Raza pequeña, braquicéfala, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Respiratorio: síndrome braquicefálico severo.
+- Musculoesquelético: hemivértebras, enfermedad del disco intervertebral.
+- Oftalmológico: úlceras corneales, proptosis.
+- Cardiovascular: colapso de válvula mitral.
+- Reproductivo: distocia frecuente.
+
+## Papillón
+**Datos generales:** Raza toy, orejas erguidas grandes, esperanza de vida 14-17 años.
+**Predisposiciones:**
+- Neurológico: luxación atlantoaxial (en individuos con fontanela persistente).
+- Musculoesquelético: luxación de rótula.
+- Endocrino: hipoglucemia en cachorros.
+- Cardiovascular: colapso de válvula mitral.
+
+## Basset Hound
+**Datos generales:** Raza mediana, condrodistrófica, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Musculoesquelético: enfermedad del disco intervertebral, displasia de cadera y codo.
+- Gastrointestinal: dilatación-vuelco gástrico.
+- Hematológico: trombopatía hereditaria (trombopatía del Basset Hound).
+- Oftalmológico: glaucoma primario, entropión/ectropión.
+- Dermatológico: otitis externa crónica (orejas caídas).
+
+## Bloodhound (Sabueso de San Huberto)
+**Datos generales:** Raza grande, gran olfato, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Gastrointestinal: dilatación-vuelco gástrico (alto riesgo).
+- Musculoesquelético: displasia de cadera y codo.
+- Oftalmológico: ectropión, cherry eye.
+- Dermatológico: dermatitis de pliegues faciales, otitis crónica.
+
+## Dogo Argentino
+**Datos generales:** Raza grande, molosoide, esperanza de vida 9-11 años.
+**Predisposiciones:**
+- Auditivo: sordera congénita (asociada al gen de capa blanca).
+- Musculoesquelético: displasia de cadera.
+- Dermatológico: sensibilidad cutánea al sol (por pelaje blanco corto), mayor riesgo de carcinoma de células escamosas actínico.
+
+## Rhodesian Ridgeback
+**Datos generales:** Raza grande, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Dermatológico: seno dermoide (defecto congénito de la línea dorsal, asociado a la característica "cresta" de la raza).
+- Musculoesquelético: displasia de cadera.
+- Oncológico: mastocitoma.
+
+## Vizsla
+**Datos generales:** Raza mediana, de caza/cobro, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Oncológico: mastocitoma, linfoma, hemangiosarcoma; alta incidencia general de cáncer.
+- Endocrino: hipotiroidismo, hipoadrenocorticismo.
+- Neurológico: epilepsia idiopática.
+- Musculoesquelético: displasia de cadera.
+- Inmune: poliartritis inmunomediada.
+
+## Braco Alemán de Pelo Corto (German Shorthaired Pointer)
+**Datos generales:** Raza grande, de caza, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Gastrointestinal: dilatación-vuelco gástrico.
+- Endocrino: hipotiroidismo.
+- Oftalmológico: atrofia progresiva de retina.
+- Hematológico: enfermedad de von Willebrand tipo I.
+
+## Setter Inglés
+**Datos generales:** Raza grande, de caza, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Auditivo: sordera congénita (asociada a capa moteada).
+- Endocrino: hipotiroidismo.
+- Oncológico: linfoma.
+- Musculoesquelético: displasia de cadera.
+
+## Spaniel Bretón (Brittany)
+**Datos generales:** Raza mediana, de caza, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Renal: nefropatía hereditaria juvenil.
+- Neurológico: neutropenia episódica hereditaria (canine cyclic hematopoiesis descrita en algunas líneas).
+- Musculoesquelético: displasia de cadera.
+
+## Fox Terrier (Pelo de Alambre y Liso)
+**Datos generales:** Raza pequeña-mediana, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Neurológico: ataxia hereditaria, miastenia gravis congénita (rara).
+- Oftalmológico: luxación de cristalino, cataratas.
+- Musculoesquelético: luxación de rótula.
+
+## Schnauzer Gigante y Estándar
+**Datos generales:** Raza mediana-grande según variedad, esperanza de vida 10-14 años.
+**Predisposiciones:**
+- Endocrino: hipotiroidismo (Gigante), diabetes mellitus.
+- Oftalmológico: cataratas hereditarias, distrofia retiniana (Gigante).
+- Hematológico: neutropenia hereditaria cíclica (rara, descrita en Gigante).
+- Musculoesquelético: displasia de cadera.
+
+## Perro de Agua Español / Portugués
+**Datos generales:** Raza mediana, pelo rizado, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Renal: displasia renal juvenil (Perro de Agua Español).
+- Musculoesquelético: displasia de cadera.
+- Oftalmológico: atrofia progresiva de retina, distrofia de almacenamiento (storage disease, rara).
+- Endocrino: enfermedad de Addison (Portugués).
+
+## Cairn Terrier
+**Datos generales:** Raza pequeña, esperanza de vida 13-15 años.
+**Predisposiciones:**
+- Hepático: shunt portosistémico congénito, hiperplasia nodular hepática.
+- Neurológico: ceroidolipofuscinosis neuronal (rara).
+- Musculoesquelético: enfermedad de Legg-Calvé-Perthes, luxación de rótula.
+- Craneomandibular: osteopatía craneomandibular en cachorros.
+
+## Scottish Terrier
+**Datos generales:** Raza pequeña, esperanza de vida 11-13 años.
+**Predisposiciones:**
+- Oncológico: carcinoma de células transicionales de vejiga (predisposición muy marcada, hasta 18-20 veces mayor riesgo que la población general), linfoma, mastocitoma.
+- Hepático: hepatopatía asociada a vacuolización (síndrome de Scottish Terrier).
+- Musculoesquelético: calambre del Scottie (episodios de hipertonía muscular inducidos por ejercicio/estrés).
+- Hematológico: trombopatía hereditaria.
+
+## Boston Terrier
+**Datos generales:** Raza pequeña, braquicéfala, esperanza de vida 11-13 años.
+**Predisposiciones:**
+- Respiratorio: síndrome braquicefálico.
+- Oftalmológico: úlceras corneales, cataratas hereditarias, proptosis.
+- Neurológico: hemivértebras, encefalitis (predisposición descrita, similar a otras razas braquicéfalas).
+- Reproductivo: distocia frecuente.
+
+## Lhasa Apso
+**Datos generales:** Raza pequeña, braquicéfala moderada, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Renal: nefropatía hereditaria (displasia renal familiar).
+- Oftalmológico: queratoconjuntivitis seca, distiquiasis.
+- Musculoesquelético: luxación de rótula.
+- Dermatológico: alergias atópicas.
+
+## Alaskan Malamute
+**Datos generales:** Raza grande, de tiro, esperanza de vida 10-14 años.
+**Predisposiciones:**
+- Hematológico: anemia hemolítica hereditaria por deficiencia de piruvato-quinasa, condrodisplasia (enanismo hereditario).
+- Oftalmológico: cataratas hereditarias, distrofia corneal, atrofia progresiva de retina.
+- Endocrino: hipotiroidismo, hipoadrenocorticismo.
+- Dermatológico: dermatosis sensible al zinc.
+
+## Keeshond
+**Datos generales:** Raza mediana, tipo spitz, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Cardiovascular: persistencia del conducto arterioso, estenosis pulmonar/tetralogía de Fallot (predisposición relativamente marcada en la raza).
+- Endocrino: hipoadrenocorticismo, diabetes mellitus.
+- Dermatológico: alopecia X.
+
+## Leonberger
+**Datos generales:** Raza gigante, esperanza de vida 8-10 años.
+**Predisposiciones:**
+- Neurológico: polineuropatía hereditaria (predisposición característica y bien documentada de la raza), laringoparálisis.
+- Musculoesquelético: displasia de cadera y codo, osteosarcoma.
+- Gastrointestinal: dilatación-vuelco gástrico.
+
+## Xoloitzcuintle / Perro sin Pelo Peruano
+**Datos generales:** Razas sin pelo (variantes con pelo también existen), esperanza de vida 13-18 años.
+**Predisposiciones:**
+- Dental: oligodoncia/anodoncia (ausencia parcial o total de piezas dentales, ligada genéticamente al gen de ausencia de pelo).
+- Dermatológico: acné, comedones, mayor susceptibilidad a quemaduras solares y a lesiones cutáneas por exposición directa.
+
+## Perro Lobo Checoslovaco
+**Datos generales:** Raza mediana-grande, tipo lobo, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Sin predisposiciones hereditarias mayores consistentemente documentadas por su relativa juventud como raza reconocida; se recomienda cautela al extrapolar predisposiciones de razas parentales (Pastor Alemán, perro lobo europeo).
+
+## Gran Pirineo (Great Pyrenees)
+**Datos generales:** Raza gigante, guardián de rebaño, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Musculoesquelético: displasia de cadera y codo, osteosarcoma.
+- Neurológico: luxación rotuliana con predisposición a lesión de ligamento cruzado.
+- Cardiovascular: estenosis subaórtica.
+- Oftalmológico: entropión.
+
+## Pastor Belga Malinois
+**Datos generales:** Raza mediana-grande, de trabajo/policial, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Musculoesquelético: displasia de cadera y codo.
+- Oftalmológico: atrofia progresiva de retina, cataratas hereditarias.
+- Neurológico: epilepsia idiopática.
+- Cardiovascular: cardiomiopatía dilatada (descrita en líneas europeas).
+
+## Pastor Belga (Tervueren / Groenendael)
+**Datos generales:** Raza mediana-grande, de pastoreo, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Neurológico: epilepsia idiopática.
+- Endocrino: hipotiroidismo.
+- Musculoesquelético: displasia de cadera.
+- Auditivo/Ocular: microftalmia congénita descrita en algunas líneas.
+
+## Bearded Collie
+**Datos generales:** Raza mediana, de pastoreo, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Endocrino: hipoadrenocorticismo, hipotiroidismo.
+- Hematológico: deficiencia del factor XI de coagulación (rara).
+- Musculoesquelético: displasia de cadera.
+
+## Shetland Sheepdog (Sheltie)
+**Datos generales:** Raza pequeña-mediana, de pastoreo, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Farmacogenética: mutación MDR1/ABCB1 (igual que Collie y Pastor Australiano).
+- Oftalmológico: anomalía del ojo del Collie, distrofia corneal.
+- Dermatológico: dermatomiositis hereditaria.
+- Auditivo: sordera asociada a capa merle.
+- Endocrino: hipotiroidismo.
+
+## Welsh Corgi Pembroke
+**Datos generales:** Raza pequeña, condrodistrófica, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Musculoesquelético/Neurológico: enfermedad del disco intervertebral, mielopatía degenerativa (predisposición muy marcada, raza de referencia para esta enfermedad).
+- Oftalmológico: atrofia progresiva de retina.
+- Endocrino: obesidad con tendencia genética marcada.
+
+## Welsh Corgi Cardigan
+**Datos generales:** Raza pequeña, condrodistrófica, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Musculoesquelético: enfermedad del disco intervertebral.
+- Oftalmológico: atrofia progresiva de retina, anomalía ocular del Collie descrita en algunas líneas.
+
+## Australian Cattle Dog (Blue Heeler)
+**Datos generales:** Raza mediana, de trabajo/pastoreo de ganado, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Auditivo: sordera congénita (asociada a patrón moteado).
+- Oftalmológico: atrofia progresiva de retina.
+- Musculoesquelético: displasia de cadera.
+- Neurológico: ceroidolipofuscinosis neuronal (rara).
+
+## Bouvier des Flandres
+**Datos generales:** Raza grande, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Musculoesquelético: displasia de cadera y codo.
+- Neurológico: miastenia gravis hereditaria (rara), glaucoma.
+- Cardiovascular: cardiomiopatía dilatada.
+- Endocrino: hipotiroidismo.
+
+## Briard
+**Datos generales:** Raza grande, de pastoreo, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Oftalmológico: distrofia retiniana congénita hereditaria (ceguera nocturna congénita estacionaria, predisposición característica y bien documentada de la raza).
+- Musculoesquelético: displasia de cadera.
+- Endocrino: hipotiroidismo.
+
+## Airedale Terrier
+**Datos generales:** Raza mediana-grande, esperanza de vida 10-13 años.
+**Predisposiciones:**
+- Oncológico: mayor incidencia general de neoplasias, incluyendo carcinoma de células transicionales de vejiga.
+- Musculoesquelético: displasia de cadera.
+- Dermatológico: dermatitis atópica.
+
+## Kerry Blue Terrier
+**Datos generales:** Raza mediana, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Endocrino: hipotiroidismo.
+- Neurológico: hiperqueratosis y neuropatía asociada a errores congénitos del metabolismo (rara, factor IX/hemofilia B descrita en la raza).
+- Musculoesquelético: luxación de rótula.
+- Oftalmológico: cataratas hereditarias.
+
+## Norwich Terrier y Norfolk Terrier
+**Datos generales:** Razas pequeñas, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Musculoesquelético: enfermedad del disco intervertebral (Norwich, por mutación específica descrita), luxación de rótula.
+- Respiratorio: colapso traqueal.
+- Cardiovascular: estenosis mitral.
+
+## Silky Terrier
+**Datos generales:** Raza toy, esperanza de vida 13-15 años.
+**Predisposiciones:**
+- Endocrino: diabetes mellitus, enfermedad de Cushing.
+- Musculoesquelético: luxación de rótula, colapso traqueal.
+- Hepático: shunt portosistémico congénito.
+
+## Habanero (Havanese)
+**Datos generales:** Raza toy, esperanza de vida 14-16 años.
+**Predisposiciones:**
+- Oftalmológico: cataratas hereditarias, displasia retiniana.
+- Musculoesquelético: luxación de rótula, displasia de cadera (poco común en toys pero descrita).
+- Neurológico: sordera/vestibulopatía congénita (rara).
+
+## Crestado Chino (Chinese Crested)
+**Datos generales:** Raza toy sin pelo (variante con pelo también existe), esperanza de vida 13-15 años.
+**Predisposiciones:**
+- Dental: oligodoncia (ausencia de piezas dentales, ligada al gen de ausencia de pelo, igual que en el Xoloitzcuintle).
+- Oftalmológico: luxación de cristalino, atrofia progresiva de retina.
+- Dermatológico: acné, comedones, fotosensibilidad cutánea.
+
+## Japanese Chin
+**Datos generales:** Raza toy, braquicéfala, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Respiratorio: síndrome braquicefálico moderado.
+- Cardiovascular: colapso de válvula mitral.
+- Neurológico: luxación atlantoaxial.
+- Oftalmológico: úlceras corneales, proptosis.
+
+## Tibetan Terrier
+**Datos generales:** Raza mediana, pelo largo, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Oftalmológico: atrofia progresiva de retina, distrofia corneal lipídica, luxación de cristalino primaria.
+- Neurológico: ceroidolipofuscinosis neuronal (rara).
+- Musculoesquelético: luxación de rótula.
+
+## Dogo del Tíbet (Tibetan Mastiff)
+**Datos generales:** Raza gigante, guardián, esperanza de vida 10-14 años.
+**Predisposiciones:**
+- Endocrino: hipotiroidismo.
+- Musculoesquelético: displasia de cadera.
+- Neurológico: leucodistrofia hereditaria descrita en cachorros (rara y grave).
+
+## Puli
+**Datos generales:** Raza mediana, pelo en cordones ("dreadlocks"), esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Musculoesquelético: displasia de cadera.
+- Oftalmológico: atrofia progresiva de retina, cataratas hereditarias.
+- Endocrino: hipotiroidismo.
+
+## Saluki
+**Datos generales:** Raza grande, lebrel de carreras, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Farmacológico: mayor sensibilidad a anestésicos y barbitúricos por bajo porcentaje de grasa corporal (igual que otros lebreles/galgos).
+- Cardiovascular: cardiomiopatía dilatada, arritmias hereditarias.
+- Hematológico: valores hematológicos basales distintos a otras razas (hematocrito elevado basal).
+
+## Podenco Ibicenco (Ibizan Hound)
+**Datos generales:** Raza mediana-grande, de caza, esperanza de vida 11-14 años.
+**Predisposiciones:**
+- Oftalmológico: atrofia progresiva de retina.
+- Auditivo: sordera congénita (asociada a capa blanca).
+- Farmacológico: sensibilidad a anestésicos por bajo porcentaje de grasa corporal.
+
+## Lebrel Irlandés (Irish Wolfhound)
+**Datos generales:** Raza gigante, esperanza de vida 6-8 años (una de las más cortas).
+**Predisposiciones:**
+- Cardiovascular: cardiomiopatía dilatada (predisposición muy marcada, principal causa de muerte en la raza).
+- Gastrointestinal: dilatación-vuelco gástrico.
+- Oncológico: osteosarcoma.
+- Musculoesquelético: displasia de cadera y codo.
+
+## Galgo Italiano (Italian Greyhound)
+**Datos generales:** Raza toy-pequeña, tipo lebrel, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Musculoesquelético: fracturas de huesos largos (patas finas y frágiles, predisposición traumática marcada), luxación de rótula.
+- Endocrino: hipotiroidismo.
+- Oftalmológico: atrofia progresiva de retina.
+- Dental: enfermedad periodontal severa.
+
+## English Springer Spaniel
+**Datos generales:** Raza mediana, de caza/cobro, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Inmune: síndrome de agresión por rabia asociada a furia (rage syndrome, trastorno de conducta con base neurológica descrita en la raza), enfermedad autoinmune sistémica (síndrome de "Springer rage" y trastornos inmunomediados combinados descritos en algunas líneas).
+- Hematológico: fucosidosis (enfermedad de depósito lisosomal hereditaria).
+- Oftalmológico: glaucoma primario, atrofia progresiva de retina.
+- Dermatológico: seborrea primaria idiopática.
+
+## Clumber Spaniel
+**Datos generales:** Raza mediana-grande, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Musculoesquelético: displasia de cadera y codo (alta prevalencia en la raza).
+- Neurológico: mielopatía degenerativa.
+- Oftalmológico: entropión, ectropión.
+
+## Flat-Coated Retriever
+**Datos generales:** Raza grande, de cobro, esperanza de vida 8-10 años.
+**Predisposiciones:**
+- Oncológico: altísima incidencia de neoplasias, especialmente histiocitosis maligna, tumores de células gliales y osteosarcoma; el cáncer es la principal causa de muerte en la raza.
+- Musculoesquelético: displasia de cadera.
+
+## Curly-Coated Retriever
+**Datos generales:** Raza grande, de cobro, esperanza de vida 9-14 años.
+**Predisposiciones:**
+- Gastrointestinal: dilatación-vuelco gástrico.
+- Oftalmológico: atrofia progresiva de retina, distrofia/degeneración retiniana exudativa.
+- Musculoesquelético: displasia de cadera.
+
+## Gordon Setter
+**Datos generales:** Raza grande, de caza, esperanza de vida 10-12 años.
+**Predisposiciones:**
+- Endocrino: hipotiroidismo.
+- Neurológico: cerebeloso hereditario (ataxia progresiva rara), narcolepsia hereditaria descrita.
+- Musculoesquelético: displasia de cadera.
+- Gastrointestinal: dilatación-vuelco gástrico.
+
+## Pinscher Alemán (German Pinscher)
+**Datos generales:** Raza mediana, esperanza de vida 12-14 años.
+**Predisposiciones:**
+- Hematológico: enfermedad de von Willebrand.
+- Musculoesquelético: luxación de rótula.
+- Cardiovascular: cardiomiopatía dilatada descrita en algunas líneas.
+
+---
+
+# GATOS
+
+## Persa
+**Datos generales:** Raza braquicéfala, pelo largo, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Renal: enfermedad renal poliquística (predisposición muy marcada y hereditaria — se recomienda tamizaje genético o ecográfico en reproductores).
+- Respiratorio: síndrome braquicefálico felino.
+- Oftalmológico: epífora crónica por conformación facial, entropión.
+- Dermatológico: dermatitis facial idiopática ("dirty face syndrome"), seborrea.
+- Cardiovascular: cardiomiopatía hipertrófica.
+
+## Maine Coon
+**Datos generales:** Raza grande, pelo semilargo, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Cardiovascular: cardiomiopatía hipertrófica (mutación identificada en la raza, predisposición muy marcada).
+- Musculoesquelético: displasia de cadera (poco común en gatos en general, pero descrita en esta raza), atrofia muscular espinal hereditaria.
+- Oncológico: mayor tamaño corporal asociado a mayor riesgo de ciertos tumores óseos.
+
+## Siamés
+**Datos generales:** Raza de pelo corto, esperanza de vida 12-15 años, entre las más longevas.
+**Predisposiciones:**
+- Oncológico: mastocitoma, tumores mamarios, linfoma del tracto respiratorio/mediastínico.
+- Gastrointestinal: amiloidosis hepática, enfermedad inflamatoria intestinal.
+- Neurológico: hidrocefalia congénita, ataxia cerebelosa hereditaria.
+- Oftalmológico: estrabismo convergente, atrofia progresiva de retina.
+- Respiratorio: asma felino (predisposición descrita).
+
+## Británico de Pelo Corto (British Shorthair)
+**Datos generales:** Raza mediana-grande, corpulenta, esperanza de vida 12-17 años.
+**Predisposiciones:**
+- Cardiovascular: cardiomiopatía hipertrófica.
+- Renal: enfermedad renal poliquística (menos frecuente que en Persa, pero descrita por cruces históricos con la raza).
+- Gastrointestinal: tendencia a la obesidad.
+
+## Abisinio
+**Datos generales:** Raza de pelo corto, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Renal: amiloidosis renal familiar (predisposición muy característica de la raza).
+- Hematológico: deficiencia de piruvato-quinasa (anemia hemolítica hereditaria).
+- Oftalmológico: atrofia progresiva de retina hereditaria (rod-cone dysplasia).
+- Dental: reabsorción dental felina con mayor prevalencia descrita.
+
+## Sphynx (Esfinge)
+**Datos generales:** Raza sin pelo, esperanza de vida 8-14 años.
+**Predisposiciones:**
+- Cardiovascular: cardiomiopatía hipertrófica (alta prevalencia en la raza).
+- Dermatológico: dermatitis seborreica, necesidad de cuidado cutáneo especial por ausencia de pelo (acumulación de sebo).
+- Metabólico: mayor requerimiento calórico y sensibilidad a hipotermia por ausencia de pelaje.
+- Musculoesquelético: miopatía hereditaria (rara).
+
+## Scottish Fold
+**Datos generales:** Raza de pelo corto o largo, orejas plegadas, esperanza de vida 11-14 años.
+**Predisposiciones:**
+- Musculoesquelético: osteocondrodisplasia (la misma mutación responsable del pliegue auricular causa una enfermedad articular degenerativa progresiva y dolorosa — predisposición severa y definitoria de la raza, motivo de controversia en su cría).
+- Cardiovascular: cardiomiopatía hipertrófica.
+
+## Ragdoll
+**Datos generales:** Raza de pelo semilargo, gran tamaño, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Cardiovascular: cardiomiopatía hipertrófica (mutación identificada, predisposición marcada).
+- Renal: enfermedad renal poliquística (menor frecuencia que en Persa).
+
+## Burmés (Burmese)
+**Datos generales:** Raza de pelo corto, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Endocrino: diabetes mellitus (predisposición muy marcada, mayor que en la población felina general).
+- Musculoesquelético: hipocalemia hereditaria (miopatía episódica).
+- Craneofacial: defectos craneofaciales congénitos (síndrome de Burmese head defect, en líneas contráctidas).
+- Oftalmológico: glaucoma primario.
+
+## Devon Rex
+**Datos generales:** Raza de pelo rizado corto, esperanza de vida 9-15 años.
+**Predisposiciones:**
+- Musculoesquelético: miopatía hereditaria (Devon Rex myopathy), luxación patelar, malformación de la unión miotendinosa.
+- Cardiovascular: cardiomiopatía hipertrófica.
+- Dermatológico: fragilidad cutánea, mayor susceptibilidad a dermatofitosis y a reacciones cutáneas por el tipo de pelo.
+- Hematológico: deficiencia de piruvato-quinasa descrita.
+
+## Bengalí (Bengal)
+**Datos generales:** Raza de pelo corto, híbrida con gato leopardo asiático en su origen, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Cardiovascular: cardiomiopatía hipertrófica.
+- Oftalmológico: atrofia progresiva de retina hereditaria.
+- Neurológico: ataxia hereditaria descrita en líneas específicas.
+- Gastrointestinal: mayor prevalencia reportada de enfermedad inflamatoria intestinal en algunas poblaciones.
+
+## Bosque de Noruega (Norwegian Forest Cat)
+**Datos generales:** Raza de pelo semilargo, gran tamaño, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Metabólico: glucogenosis tipo IV (enfermedad de depósito de glucógeno hereditaria, predisposición característica de la raza, generalmente letal en cachorros afectados homocigotos).
+- Cardiovascular: cardiomiopatía hipertrófica.
+- Renal: enfermedad renal poliquística descrita.
+
+## Himalayo
+**Datos generales:** Cruce Persa-Siamés, pelo largo, esperanza de vida 12-15 años.
+**Predisposiciones:** comparte predisposiciones con ambas razas fundadoras.
+- Renal: enfermedad renal poliquística.
+- Respiratorio: síndrome braquicefálico felino.
+- Oftalmológico: epífora, entropión.
+- Cardiovascular: cardiomiopatía hipertrófica.
+
+## Manx
+**Datos generales:** Raza sin cola (anuria) o cola corta, esperanza de vida 8-14 años.
+**Predisposiciones:**
+- Neurológico/Musculoesquelético: síndrome de Manx (espina bífida, malformaciones sacrocaudales asociadas al gen de ausencia de cola, con incontinencia urinaria/fecal y trastornos de la marcha en casos severos — predisposición definitoria de la raza).
+- Gastrointestinal: megacolon secundario a las alteraciones neurológicas sacras.
+
+## Azul Ruso (Russian Blue)
+**Datos generales:** Raza de pelo corto, esperanza de vida 15-20 años, considerada robusta.
+**Predisposiciones:** pocas predisposiciones hereditarias documentadas de forma consistente; tendencia a la obesidad por apetito marcado.
+
+## Birmano (Birman)
+**Datos generales:** Raza de pelo semilargo, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Renal: enfermedad renal poliquística descrita en algunas líneas.
+- Hematológico: deficiencia congénita del complejo del complemento C3 (rara, predisposición descrita en la raza).
+- Cardiovascular: cardiomiopatía hipertrófica.
+
+## Exótico de Pelo Corto (Exotic Shorthair)
+**Datos generales:** Variante de pelo corto del Persa, esperanza de vida 12-15 años.
+**Predisposiciones:** comparte las predisposiciones del Persa.
+- Renal: enfermedad renal poliquística.
+- Respiratorio: síndrome braquicefálico felino.
+- Oftalmológico: epífora crónica.
+- Cardiovascular: cardiomiopatía hipertrófica.
+
+## Cornish Rex
+**Datos generales:** Raza de pelo rizado corto, esperanza de vida 11-15 años.
+**Predisposiciones:**
+- Musculoesquelético: luxación de rótula.
+- Cardiovascular: cardiomiopatía hipertrófica.
+- Metabólico: mayor tasa metabólica y requerimiento calórico, sensibilidad a hipotermia.
+- Dermatológico: fragilidad del pelo, alopecia.
+
+## Oriental de Pelo Corto
+**Datos generales:** Raza de tipo corporal similar al Siamés, esperanza de vida 12-15 años.
+**Predisposiciones:** comparte predisposiciones con el Siamés.
+- Oncológico: mastocitoma, tumores mamarios.
+- Gastrointestinal: amiloidosis hepática, enfermedad inflamatoria intestinal.
+- Respiratorio: asma felino.
+
+## American Shorthair
+**Datos generales:** Raza de pelo corto, robusta, esperanza de vida 15-20 años.
+**Predisposiciones:**
+- Cardiovascular: cardiomiopatía hipertrófica.
+- Metabólico: tendencia a la obesidad.
+- Pocas predisposiciones hereditarias mayores documentadas de forma consistente; considerada raza genéticamente robusta.
+
+## Turco Van / Turco Angora
+**Datos generales:** Razas de pelo semilargo, origen turco, esperanza de vida 12-16 años.
+**Predisposiciones:**
+- Auditivo: sordera congénita asociada a capa blanca y ojos azules (especialmente Van).
+- Cardiovascular: cardiomiopatía hipertrófica descrita en Angora.
+
+## Somalí
+**Datos generales:** Variante de pelo semilargo del Abisinio, esperanza de vida 12-16 años.
+**Predisposiciones:** comparte predisposiciones con el Abisinio.
+- Renal: amiloidosis renal familiar.
+- Hematológico: deficiencia de piruvato-quinasa.
+- Oftalmológico: atrofia progresiva de retina hereditaria.
+
+## Korat
+**Datos generales:** Raza de pelo corto azul, origen tailandés, esperanza de vida 15-20 años.
+**Predisposiciones:**
+- Neurológico/Metabólico: gangliosidosis GM1 y GM2 (enfermedades de depósito lisosomal hereditarias, predisposición característica y grave de la raza).
+
+## Siberiano (Siberian Cat)
+**Datos generales:** Raza de pelo semilargo, origen ruso, esperanza de vida 12-15 años.
+**Predisposiciones:**
+- Cardiovascular: cardiomiopatía hipertrófica.
+- Considerada de menor alergenicidad relativa (menor producción de la proteína Fel d1), dato relevante para propietarios con sensibilidad alérgica, aunque no elimina el riesgo por completo.
+
+## Doméstico de Pelo Corto / Europeo Común (DSH — Domestic Shorthair)
+**Datos generales:** No es una raza reconocida formalmente sino la población felina más numerosa en consulta clínica (gatos de pedigrí mixto o sin pedigrí), esperanza de vida muy variable, 12-18 años en gatos de interior bien cuidados.
+**Predisposiciones:** al no tener un pool genético cerrado, no presenta las predisposiciones hereditarias marcadas de las razas puras, pero sí concentra, por pura frecuencia poblacional, la mayoría de los casos vistos de:
+- Endocrino: hipertiroidismo felino (más frecuente en gatos senior en general, sin predilección racial marcada), diabetes mellitus (asociada más a obesidad y sedentarismo que a la genética racial).
+- Renal: enfermedad renal crónica en gatos geriátricos (la causa más común no es hereditaria sino degenerativa/multifactorial en esta población).
+- Gastrointestinal: enfermedad inflamatoria intestinal, linfoma alimentario, pancreatitis — el trío conocido como "tríada felina" es más frecuente por volumen poblacional que por predisposición racial específica.
+- Dermatológico/Traumatológico: mayor prevalencia de abscesos, heridas por mordedura y traumatismos, reflejo de su frecuente acceso al exterior (gatos "de la calle" o con salida libre) más que de una predisposición biológica.
+**Nota para el agente:** cuando el paciente sea un gato doméstico de pelo corto/común sin pedigrí conocido, no aplicar las predisposiciones raciales de esta lista — razonar en cambio por edad, estilo de vida (interior/exterior), y prevalencia poblacional general felina.
+
+---
+
+# PERROS Y GATOS MESTIZOS: GUÍA DE RAZONAMIENTO POR FENOTIPO
+
+Gran parte de los pacientes en consulta, especialmente en la región, no son de raza pura. Este documento no puede tener una entrada por cada combinación posible, así que en su lugar se ofrece un marco de razonamiento para que el agente aplique predisposiciones de forma prudente cuando el paciente es mestizo.
+
+## Principio general: el mestizaje no elimina el riesgo, lo redistribuye
+
+Existe la creencia popular de que los perros y gatos mestizos son "genéticamente más sanos" por el vigor híbrido. Esto es cierto solo parcialmente, y hay que matizarlo para no subestimar riesgos reales:
+
+- **Enfermedades monogénicas recesivas** (ej. deficiencia de piruvato-quinasa, atrofia progresiva de retina de herencia simple, mutación MDR1): el mestizaje sí reduce su probabilidad, porque requieren que ambos progenitores porten el mismo alelo recesivo específico de una línea o raza — algo menos probable cuanto más heterogéneo es el árbol genealógico.
+- **Enfermedades poligénicas o multifactoriales** (displasia de cadera, alergias atópicas, muchos tipos de cáncer, enfermedad periodontal, obesidad): el mestizaje **no** las elimina de forma confiable. Dependen de múltiples genes y de factores ambientales, y pueden heredarse igual en un mestizo si los progenitores de razas predispuestas aportan varios de esos genes de riesgo.
+- **Enfermedades derivadas de la conformación anatómica** (síndrome braquicefálico, IVDD por condrodistrofia, dilatación-vuelco gástrico por tórax profundo): estas **dependen del fenotipo resultante, no del porcentaje de ascendencia**. Un mestizo con cráneo braquicéfalo marcado tiene el mismo riesgo respiratorio que un Bulldog, independientemente de qué otras razas tenga en su árbol genealógico.
+
+## Marco de razonamiento en dos categorías
+
+Para aplicar predisposiciones a un paciente mestizo, el agente debe distinguir entre:
+
+**A) Predisposiciones "por fenotipo" (se aplican con solo observar al paciente):**
+Todo lo relacionado con conformación corporal visible: cráneo braquicéfalo → riesgo respiratorio y digestivo asociado; cuerpo condrodistrófico (patas cortas, tronco largo) → riesgo de enfermedad discal; tórax profundo y estrecho en razas grandes → riesgo de dilatación-vuelco gástrico; orejas caídas → riesgo de otitis; pliegues cutáneos → riesgo de dermatitis de pliegues; pelaje doble denso → riesgo de golpe de calor. Estas se pueden y deben aplicar en un mestizo tal como se aplicarían en la raza pura de fenotipo equivalente.
+
+**B) Predisposiciones "por ascendencia genética específica" (requieren mayor cautela):**
+Mutaciones puntuales conocidas de una raza concreta (MDR1 en Collies/Pastores Australianos, acumulación de cobre en Westie/Dóberman, factor VII en Beagle, etc.). Estas **no deben inferirse solo por parecido físico superficial**. Si el paciente tiene aspecto de Border Collie pero no hay certeza de ascendencia, no se debe asumir automáticamente la mutación MDR1; lo correcto es recomendar un test genético específico antes de decisiones de alto riesgo (ej. protocolos con ivermectina a dosis altas, loperamida, quimioterápicos).
+
+## Tabla de mapeo rápido: fenotipo → riesgo aplicable
+
+**Tamaño corporal (estimado en adultez):**
+- Toy/pequeño (<10 kg): luxación de rótula, colapso traqueal, enfermedad periodontal, hipoglucemia en cachorros, mayor longevidad relativa.
+- Mediano (10-25 kg): riesgo intermedio general, menor incidencia relativa de displasia de cadera que razas grandes.
+- Grande (25-40 kg): displasia de cadera/codo, osteosarcoma, mayor riesgo si además hay tórax profundo (dilatación-vuelco gástrico).
+- Gigante (>40 kg): todo lo anterior con mayor severidad, esperanza de vida más corta, mayor riesgo cardiovascular (cardiomiopatía dilatada).
+
+**Conformación craneal:**
+- Dolicocéfalo (hocico largo, tipo lebrel/collie): menor riesgo respiratorio, mayor riesgo traumático en razas atléticas/veloces, sensibilidad anestésica si hay bajo porcentaje de grasa corporal.
+- Mesocéfalo (proporción intermedia, tipo Labrador/mestizo típico): sin riesgo craneofacial particular.
+- Braquicéfalo (hocico corto/aplanado): síndrome de vías respiratorias braquicefálicas, reflujo gastroesofágico y hernia hiatal secundarios al esfuerzo respiratorio, mayor riesgo anestésico, intolerancia al calor, distocia si la pelvis también es estrecha.
+
+**Conformación corporal:**
+- Condrodistrófico (patas cortas, tronco alargado tipo Dachshund/Corgi): riesgo alto de enfermedad del disco intervertebral.
+- Tórax profundo y abdomen retraído (tipo galgo/Dóberman): mayor riesgo de dilatación-vuelco gástrico si además es de talla grande.
+
+**Orejas y piel:**
+- Orejas caídas: mayor riesgo de otitis externa crónica.
+- Pliegues cutáneos marcados (cara, cuello, cola en tirabuzón): dermatitis de pliegues, mayor riesgo de infecciones cutáneas recurrentes.
+- Pelaje ausente o muy escaso: mayor sensibilidad térmica, dermatitis, requerimiento calórico más alto.
+
+**Color de capa:**
+- Capa moteada/mirlo (merle) o predominantemente blanca alrededor de las orejas: mayor riesgo de sordera congénita, vale la pena evaluar respuesta auditiva en el paciente pediátrico.
+
+## Recomendaciones para el registro clínico del agente
+
+1. **No asignar porcentajes de raza sin un test genético real.** Es preferible que el agente registre "fenotipo compatible con rasgos de [tamaño/conformación]" en vez de "mestizo de Labrador y Pastor Alemán" cuando esto es una apariencia visual y no un dato confirmado.
+2. **Etiquetar el origen de cada predisposición aplicada** como "por fenotipo/conformación" o "por ascendencia genética confirmada", para que quede trazable por qué se sugirió cada diferencial.
+3. **Cuando haya duda razonable y la decisión clínica sea de alto riesgo** (dosis de ivermectina, protocolos anestésicos, quimioterapia), recomendar un test de ADN racial antes de asumir cualquier mutación específica de raza.
+4. **Los gatos mestizos/domésticos comunes** deben tratarse, por defecto, según la entrada "Doméstico de Pelo Corto / Europeo Común" de este documento, salvo que presenten rasgos fenotípicos claramente asociados a una raza concreta (ej. pliegue auricular de Scottish Fold, ausencia total de pelo tipo Sphynx), en cuyo caso sí aplican las predisposiciones "por fenotipo" de esa raza —por ejemplo, un gato con orejas plegadas visibles debe evaluarse por la osteocondrodisplasia del Scottish Fold independientemente de si el resto de su ascendencia es desconocida.
+
+---
+
+## Notas finales para el uso de este documento como base de conocimiento
+
+- Cuando el agente reciba un caso de una raza no incluida aquí, debe indicarlo explícitamente en vez de inferir predisposiciones no documentadas.
+- Las predisposiciones aquí listadas son puntos de partida para el diagnóstico diferencial, no diagnósticos automáticos: el peso de cada predisposición debe ponderarse junto con edad, sexo, signos clínicos y hallazgos del examen físico del paciente real.
+- Se recomienda mantener este documento versionado (con fecha de última actualización) y revisarlo al menos anualmente contra literatura veterinaria reciente, dado que la genética clínica es un área activa de investigación.
+
+*Última actualización de este compilado: julio de 2026.*

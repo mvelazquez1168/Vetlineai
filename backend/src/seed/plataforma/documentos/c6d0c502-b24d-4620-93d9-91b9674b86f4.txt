@@ -1,0 +1,103 @@
+SÍNDROME VESTIBULAR EN PERROS Y GATOS — LOCALIZACIÓN PERIFÉRICA, CENTRAL Y PARADÓJICA
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: los componentes de neurolocalización de NCIS, CC-240 (Diagnostic Correlation Engine), CC-220 (Imaging Intelligence), CC-101/104 (historia y examen físico).
+
+---
+
+1. LA DECISIÓN QUE ORGANIZA TODO EL CASO
+
+El sistema vestibular mantiene la orientación del cuerpo, la cabeza y los ojos respecto de la gravedad y del movimiento. Su disfunción es frecuente en perros y gatos, y se manifiesta con ataxia vestibular, inclinación de la cabeza, nistagmo y estrabismo.
+
+Reconocer que el paciente tiene disfunción vestibular es el primer paso; el segundo, y el que determina todo lo que sigue, es establecer si la localización es periférica o central. Ambas localizaciones se asocian a causas subyacentes distintas y a abordajes diagnósticos muy distintos —aunque no necesariamente a pronósticos distintos—.
+
+2. CRITERIOS DE LOCALIZACIÓN
+
+Sugieren localización periférica
+
+Estado mental normal, aunque el animal pueda estar ansioso. Ausencia de déficits de nervios craneales, con la excepción frecuente del nervio facial (VII). Reacciones posturales normales. Ocasionalmente, síndrome de Horner.
+
+Sugieren localización central
+
+Estado mental más deprimido u obnubilado. Déficits de propiocepción consciente. Déficits en uno o más nervios craneales, siendo los del V al XII los más probables.
+
+El indicador de mayor peso: los déficits de reacciones posturales son el indicador más importante de enfermedad central.
+
+Localización paradójica
+
+Corresponde a una localización cerebelosa específica —el pedúnculo cerebeloso caudal o el lóbulo floculonodular— y produce signos algo distintos: estado mental normal, hipermetría ipsilateral y ataxia cerebelosa. Es la localización que más se confunde, porque el estado mental normal empuja hacia la lectura periférica.
+
+3. LA ASIMETRÍA DIAGNÓSTICA QUE HAY QUE INTERNALIZAR
+
+Este es el punto más importante del documento y el que más cambia la conducta.
+
+La presencia de los signos centrales descritos es sugestiva o diagnóstica de síndrome vestibular central, pero su ausencia no excluye una causa central. En términos operativos: **una localización central puede confirmarse, pero no descartarse.**
+
+La evidencia lo respalda con números. En un estudio que comparó examen neurológico contra resonancia magnética, de 62 perros localizados como centrales por examen, 61 fueron correctamente identificados (98.4%). En cambio, de 31 perros localizados como periféricos por examen, solo 24 tuvieron una lesión consistente en la RM (77.4%).
+
+Es decir, el examen neurológico es eficiente para identificar lesiones centrales y menos eficiente para las periféricas. Aproximadamente uno de cada cuatro diagnósticos de localización periférica resulta ser central.
+
+Recomendación derivada, y regla operativa para NCIS: ante un paciente con signos de síndrome vestibular periférico que no responde con rapidez al tratamiento, corresponde recomendar estudio de imagen. La ausencia de respuesta es el disparador.
+
+En un estudio, ningún hallazgo aislado del examen neurológico guardó relación fuerte con la localización de la lesión, aunque el examen en su conjunto permitió una localización confiable entre distintos intérpretes. Consecuencia: la localización se sostiene en el examen completo, no en un signo suelto.
+
+4. DIFERENCIALES
+
+Periféricos. Otitis media e interna. Hipotiroidismo canino. Infecciones. Neuritis. Eventos vasculares. Trauma. Neoplasia. En el gato debe agregarse el pólipo auricular.
+
+Síndrome vestibular idiopático. Los especialistas coinciden en definirlo, tanto para perro como para gato, como una condición de inicio agudo o hiperagudo, con localización neuroanatómica periférica o sin compromiso central, y que mejora con el tiempo. Es un diagnóstico frecuente: en una serie de perros con enfermedad vestibular periférica confirmada por RM, fue el diagnóstico más prevalente, seguido de otitis media e interna. En otra serie, la mayoría de los perros con localización periférica presentó características de síndrome idiopático.
+
+Nota de riesgo: por definición, el síndrome idiopático se confirma retrospectivamente por su mejoría. Un cuadro etiquetado como idiopático que no mejora debe reabrirse, no sostenerse.
+
+Centrales. Corresponden a trastornos que afectan cerebelo o tronco encefálico, de modo que el animal puede mostrar además otros signos de esas estructuras. Aquí entran, entre otras, las enfermedades inflamatorias no infecciosas del SNC —ver el documento de MUO—, la neoplasia y los eventos vasculares.
+
+5. ABORDAJE DIAGNÓSTICO
+
+Los estudios que los especialistas mencionan con mayor frecuencia, coincidiendo con la literatura, son: examen neurológico, resonancia magnética, análisis sanguíneo, hemograma completo, otoscopia y medición de presión arterial.
+
+Estudios más específicos, de uso menos extendido: respuestas auditivas evocadas del tronco encefálico (BAER) para detectar pérdida auditiva, miringotomía, y tomografía computarizada.
+
+El examen otoscópico completo es parte del examen físico en todo paciente vestibular, no un estudio complementario opcional: la otitis media e interna es uno de los diferenciales periféricos más frecuentes.
+
+Historia clínica. Debe recogerse velocidad y duración del inicio, si los signos progresaron desde su aparición, medicaciones administradas, dieta, historial de viajes, y comorbilidades existentes.
+
+6. FRECUENCIA
+
+Se ha reportado una prevalencia de disfunción vestibular de 0.08% en atención veterinaria primaria en el Reino Unido. Es un cuadro que llega con regularidad a la clínica general, lo que hace que la derivación correcta desde ICIS dependa de reconocer los signos centrales.
+
+7. ERRORES FRECUENTES
+
+Descartar localización central por ausencia de signos centrales. Puede confirmarse, no descartarse.
+
+Sostener un diagnóstico de síndrome idiopático en un paciente que no mejora.
+
+Leer una localización paradójica como periférica por tener el estado mental conservado.
+
+Omitir la otoscopia.
+
+Basar la localización en un solo hallazgo del examen en vez de en el examen completo.
+
+No indicar imagen ante un cuadro periférico sin respuesta rápida al tratamiento.
+
+Interpretar la parálisis facial como signo de centralidad: el nervio VII se afecta con frecuencia en enfermedad periférica.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Tratamiento del síndrome vestibular idiopático y manejo sintomático. Otitis media e interna: diagnóstico y tratamiento detallado. Técnica e interpretación del BAER. Miringotomía. Enfermedad vestibular felina en profundidad. Neoplasia del ángulo pontocerebeloso. Eventos vasculares encefálicos. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+FUENTES
+
+Bongartz U y col. Vestibular disease in dogs: association between neurological examination, MRI lesion localisation and outcome. J Small Anim Pract 2020;61. Fuente principal de la sección 3.
+
+Head Tilt in Dogs: A Clinical Approach. Today's Veterinary Practice 2022. Fuente de la sección 2.
+
+Vestibular Dysfunction — Central or Peripheral? WSAVA Congress 2016.
+
+Current definition, diagnosis, and treatment of canine and feline idiopathic vestibular syndrome. Front Vet Sci 2023;10:1263976. Fuente de la sección 4.
+
+Clinical signs, MRI findings and outcome in dogs with peripheral vestibular disease: a retrospective study. BMC Vet Res 2020.
+
+Boudreau CE y col. Reliability of interpretation of neurologic examination findings for the localization of vestibular dysfunction in dogs. J Am Vet Med Assoc 2018;252(7):830–838.
+
+Troxel MT, Drobatz KJ, Vite CH. Signs of neurologic dysfunction in dogs with central versus peripheral vestibular disease. J Am Vet Med Assoc 2005;227(4):570–574.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -83,11 +83,15 @@ export async function ejecutarConversionPrueba(
   );
   const cobroId = cobroResult.rows[0].id;
 
+  // 'espera_pago', no 'programado' — ver migración 056 / cambios.ts:
+  // solicitarDowngrade solo toca filas 'programado', así que un cambio a
+  // la espera de que confirme el cobro nunca puede quedar en riesgo de
+  // que otro flujo lo cancele por error.
   const cambioResult = await db.query(
     `INSERT INTO cambios_suscripcion
        (suscripcion_id, tipo, plan_destino_id, agentes_destino, medicos_destino, estado, efectivo_en,
         cobro_id, monto_prorrateado_usd, credito_prorrateado_usd, solicitado_por)
-     VALUES ($1, 'conversion_prueba', $2, $3, $4, 'programado', now(), $5, $6, $7, $8)
+     VALUES ($1, 'conversion_prueba', $2, $3, $4, 'espera_pago', now(), $5, $6, $7, $8)
      RETURNING id`,
     [
       susc.id,
@@ -142,14 +146,18 @@ export async function ejecutarConversionPrueba(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function confirmarConversionExitosa(client: PoolClient, cobro: any): Promise<void> {
+  // AND estado = 'espera_pago' — mismo motivo que confirmarUpgradeExitoso:
+  // un callback repetido no debe reaplicar la conversión sobre una fila
+  // que ya se resolvió.
   const cambioResult = await client.query(
-    `UPDATE cambios_suscripcion SET estado = 'ejecutado', ejecutado_en = now() WHERE cobro_id = $1
+    `UPDATE cambios_suscripcion SET estado = 'ejecutado', ejecutado_en = now()
+     WHERE cobro_id = $1 AND estado = 'espera_pago'
      RETURNING id, suscripcion_id, plan_destino_id, monto_prorrateado_usd, credito_prorrateado_usd`,
     [cobro.id]
   );
   const cambio = cambioResult.rows[0];
   if (!cambio) {
-    console.error(`[conversionPrueba] Cobro ${cobro.id} exitoso pero no hay cambios_suscripcion asociado.`);
+    console.error(`[conversionPrueba] Cobro ${cobro.id} exitoso pero no hay cambios_suscripcion en espera_pago asociado (¿callback duplicado?).`);
     return;
   }
 
@@ -238,5 +246,7 @@ export async function confirmarConversionExitosa(client: PoolClient, cobro: any)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function confirmarConversionFallida(client: PoolClient, cobro: any): Promise<void> {
-  await client.query(`UPDATE cambios_suscripcion SET estado = 'fallido' WHERE cobro_id = $1`, [cobro.id]);
+  await client.query(`UPDATE cambios_suscripcion SET estado = 'fallido' WHERE cobro_id = $1 AND estado = 'espera_pago'`, [
+    cobro.id,
+  ]);
 }

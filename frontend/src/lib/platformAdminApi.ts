@@ -188,10 +188,9 @@ export interface TarifaModelo {
   tarifas: TarifaFila[];
 }
 
-export interface AlertaTarifa {
-  modelo: string;
-  motivo: "sin_tarifa_vigente" | "tarifa_en_cero";
-}
+export type AlertaTarifa =
+  | { modelo: string; motivo: "sin_tarifa_vigente" | "tarifa_en_cero" }
+  | { modelo: null; motivo: "credito_agotado"; detectadoEn: string | null };
 
 export interface ParametroPlataforma {
   clave: string;
@@ -530,9 +529,6 @@ export const platformAdminApi = {
     if (filtros.pagina) params.set("pagina", String(filtros.pagina));
     return authedFetch<NuevasClinicasRespuesta>(`/platform-admin/facturacion/nuevas-clinicas?${params.toString()}`);
   },
-
-  ejecutarJobExcedente: () =>
-    authedFetch<{ ok: true }>("/platform-admin/facturacion/ejecutar-job-excedente", { method: "POST" }),
 
   // -------------------------------------------------------------------
   // Tarifas

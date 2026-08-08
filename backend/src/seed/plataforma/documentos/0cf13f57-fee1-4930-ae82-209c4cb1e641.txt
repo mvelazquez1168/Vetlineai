@@ -1,0 +1,85 @@
+# Consenso ACVIM 2024 — Diagnóstico de la Trombocitopenia Inmunomediada (ITP) en perros y gatos
+
+**Fuente:** LeVine DN, Kidd L, Garden OA, et al. ACVIM consensus statement on the diagnosis of immune thrombocytopenia in dogs and cats. *J Vet Intern Med.* 2024;38(4):1958-1981. Licencia CC BY-NC-ND 4.0.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — trastorno hemostático primario. Se omiten metodología del panel y tablas completas de evidencia por comorbilidad; se conservan el algoritmo diagnóstico, los umbrales clínicos accionables, y las comorbilidades con mayor nivel de evidencia (con énfasis en patógenos vectoriales relevantes para Centroamérica). **Nota**: existe un consenso ACVIM 2024 complementario sobre *tratamiento* de ITP (mismo grupo, misma edición de JVIM) que no está incluido en este resumen — pendiente de carga aparte.
+
+---
+
+## 1. Contexto clínico
+
+- Es el **trastorno hemostático primario adquirido más común en perros**; menos frecuente en gatos pero causa importante de mortalidad y morbilidad asociada al tratamiento en ambas especies.
+- Mortalidad reportada: 10-30%.
+- **Sigue siendo un diagnóstico de exclusión** — no existe una prueba diagnóstica definitiva única.
+- **ITP primaria** (no asociativa): destrucción plaquetaria autoinmune espontánea.
+- **ITP secundaria** (asociativa): surge en respuesta a una enfermedad desencadenante subyacente — el tratamiento debe apuntar a eliminar el desencadenante.
+
+## 2. Confirmación inicial — no dar la trombocitopenia por sentada sin verificarla
+
+- **Toda trombocitopenia debe confirmarse con evaluación de frotis sanguíneo**, no solo con el conteo automatizado — la activación plaquetaria durante la toma/procesamiento de la muestra puede causar trombocitopenia espuria.
+- **La pseudotrombocitopenia es especialmente común en gatos** por el tamaño variable de sus plaquetas y su mayor reactividad relativa.
+- Ante grumos plaquetarios en el frotis, se recomienda re-muestrear si es posible.
+- El punto de corte diagnóstico de partida del algoritmo es **conteo plaquetario confirmado <100,000/μL**.
+
+## 3. Algoritmo diagnóstico — 6 niveles de certeza
+
+Para ITP primaria: *Posible → Posible con evidencia inmunológica → Probable → Probable con evidencia inmunológica → Diagnóstica → Diagnóstica con evidencia inmunológica*.
+
+Para ITP secundaria: *Posible → Probable → Probable con evidencia inmunológica*. La coexistencia de más de un mecanismo de trombocitopenia en un caso secundario impide un diagnóstico definitivo de ITP.
+
+**Puntos clave del algoritmo (perros y gatos):**
+1. Confirmar trombocitopenia <100,000/μL con frotis.
+2. Evaluar si la magnitud es compatible con consumo por hemorragia mayor (considerar también CID, vasculitis, secuestro) — no asumir automáticamente ITP.
+3. Descartar macrotrombocitopenia hereditaria en razas/mestizos sanos sin signos de defecto hemostático primario → considerar test genético temprano.
+4. Excluir otras citopenias con explicación plausible (ej. anemia pre-regenerativa por hemorragia/hemólisis aguda, linfopenia por estrés/enfermedad).
+5. Screening parcial (no exhaustivo) de posibles factores desencadenantes, con resultado negativo, antes de clasificar como ITP primaria.
+
+## 4. Pruebas diagnósticas — qué aporta cada una (y qué no)
+
+### Índices plaquetarios (VPM, plaquetas reticuladas, plaquetocrito, IPF)
+- **No se recomiendan como pruebas diagnósticas de rutina** — evidencia débil y contradictoria.
+- Las plaquetas reticuladas aumentadas pueden apoyar el diagnóstico cuando la medición está disponible, pero no distinguen ITP primaria de secundaria.
+- VPM muestra resultados contradictorios entre estudios (aumentado en algunos, disminuido en otros).
+
+### Severidad de la trombocitopenia
+- **Conteo <20,000/μL apoya el diagnóstico de ITP** (perros y gatos) pero **es insuficiente por sí solo** — hay superposición sustancial con causas no inmunes.
+- El conteo plaquetario al ingreso **no predice de forma confiable** la severidad de sangrado, necesidad de transfusión, ni sobrevida — no debe usarse solo para guiar el tratamiento.
+
+### Examen de médula ósea
+- **No recomendado como prueba de rutina** para ITP primaria — no hay hallazgo de médula ósea diagnóstico de ITP.
+- Considerar solo si hay citopenias adicionales inexplicadas (consistente con guías de la Sociedad Americana de Hematología).
+
+### Anticuerpos asociados a plaquetas/megacariocitos (PSAIG)
+- Un resultado positivo indica **componente inmune contribuyente**, pero **no es diagnóstico de ITP por sí solo** — sensibilidad moderada-alta pero especificidad baja-moderada; muchos perros con trombocitopenia no inmune también son positivos.
+- **No se recomienda medición de rutina.**
+- El panel considera evidencia de soporte, no un requisito para el diagnóstico (consistente con guías humanas).
+
+### Pruebas de hemostasia (coagulación, D-dímero, productos de degradación de fibrina)
+- **Se recomienda realizar TP y TTPa de rutina** en todo paciente trombocitopénico (perros y gatos) — ayuda a diferenciar coagulopatías consuntivas/tóxicas (CID, intoxicación por rodenticida anticoagulante) de ITP primaria.
+- Considerar medición de marcadores de fibrinólisis (D-dímero, PDF).
+
+### Score de severidad de sangrado
+- **Se recomienda aplicar un score de severidad** (ej. herramienta DOGiBAT) — se correlaciona con necesidad de transfusión y duración de hospitalización, a diferencia del conteo plaquetario aislado.
+- La presencia de melena se asoció con peor sobrevida en múltiples estudios.
+
+### Hemograma y perfil bioquímico
+- **Se recomienda realizar de rutina** para evaluar severidad — BUN elevado y hematocrito bajo se asociaron con peor pronóstico en algunos estudios (evidencia moderada).
+
+## 5. Comorbilidades infecciosas con mayor nivel de evidencia como desencadenantes (relevantes para Centroamérica)
+
+| Patógeno | Nivel de evidencia como causa de ITP | Notas clínicas |
+|---|---|---|
+| ***Ehrlichia canis*** | **Alto** | Mecanismo inmunomediado demostrado (PSAIG positivo desde día 7 post-infección experimental); también contribuyen secuestro esplénico, vasculitis, hipercoagulabilidad y mielosupresión |
+| ***Leishmania infantum*** | **Alto** | PSAIG presente en gran proporción de perros infectados con trombocitopenia; también contribuyen vasculitis y afectación de médula ósea |
+| ***Anaplasma phagocytophilum*** | Intermedio-alto | Hasta 86% de perros PCR-positivos cursan trombocitopenia; mecanismo inmunomediado documentado |
+| ***Anaplasma platys*** | Intermedio | Mecanismo antibody-mediado no confirmado con la misma solidez; el efecto es mayor en coinfección con *E. canis* |
+| ***Babesia* spp.** | Bajo-intermedio | Evidencia variable según especie; *B. rossi* puede causar trombocitopenia por consumo de plaquetas en agregados leucocito-plaquetarios (mecanismo no necesariamente inmune) más que por PSAIG |
+| ***Rangelia vitalli*** | Alto | Trombocitopenia marcada documentada con IgM de superficie plaquetaria aumentada |
+
+**Implicación práctica para el algoritmo de ICIS**: en pacientes de zonas endémicas para estos patógenos vectoriales, la investigación de enfermedad vectorial debe formar parte del screening de comorbilidad antes de clasificar un caso como ITP primaria — varias de estas infecciones tienen evidencia alta como desencadenante directo, no solo como diagnóstico diferencial a excluir por descarte.
+
+## 6. Conclusión operativa para el razonamiento clínico
+
+- ITP sigue siendo un diagnóstico de exclusión — ninguna prueba aislada (índices plaquetarios, PSAIG, médula ósea) es suficiente por sí sola.
+- El enfoque correcto es: confirmar trombocitopenia real → descartar consumo/CID con pruebas de coagulación → screening de comorbilidades infecciosas y no infecciosas relevantes según epidemiología local → aplicar el algoritmo de niveles de certeza en vez de buscar una prueba confirmatoria única.
+- El conteo plaquetario aislado, aunque relevante para sospecha inicial, no debe usarse solo para predecir severidad, guiar intensidad de tratamiento, ni pronóstico.

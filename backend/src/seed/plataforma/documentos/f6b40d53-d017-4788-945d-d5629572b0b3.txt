@@ -1,0 +1,67 @@
+# Lesión Renal Aguda (AKI) en perros y gatos — Estadificación IRIS y Guías de Consenso
+
+**Fuentes:**
+- International Renal Interest Society (IRIS). AKI Grading (modificado 2026). Documento oficial, iris-kidney.com.
+- Segev G, Cortellini S, Foster JD, et al. International Renal Interest Society best practice consensus guidelines for the diagnosis and management of acute kidney injury in cats and dogs. *The Veterinary Journal.* 2024;305:106068. Licencia CC BY 4.0.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — sistema renal, complemento directo del resumen ya cargado sobre estadificación/tratamiento de Enfermedad Renal Crónica (ERC/IRIS). La AKI es el "lado agudo" de la enfermedad renal — distinto en mecanismo, urgencia y manejo, aunque ambos usan el marco de estadificación de IRIS.
+
+---
+
+## 1. Definiciones — distinguir AKI de ERC y de "enfermedad renal aguda" (AKD)
+
+- **AKI**: lesión al parénquima renal, con o sin disminución de la función, reflejada por acumulación de toxinas urémicas o alteración de la producción de orina (aumentada o disminuida). Es un síndrome, no un diagnóstico etiológico único.
+- Adoptando la terminología humana como marco de referencia: AKI = deterioro abrupto de función renal en <7 días; enfermedad renal aguda (AKD) = desarrollo en 7-90 días; ERC = >90 días.
+- **Alta mortalidad general** pese a avances en manejo (incluyendo mayor disponibilidad de terapias de reemplazo renal) — la evidencia disponible en medicina veterinaria sobre diagnóstico y manejo sigue siendo limitada, por lo que estas guías se basan en consenso de expertos más que en evidencia de alto nivel.
+- Importante distinguir AKI **adquirida en la comunidad** (más fácil de reconocer, suele presentarse ya severa) de AKI **adquirida en el hospital** (requiere vigilancia activa de factores de riesgo y monitoreo seriado para detectarla tempranamente, antes de que sea clínicamente evidente).
+
+## 2. Factores de riesgo que aumentan el índice de sospecha
+
+- Enfermedad renal preexistente.
+- Enfermedad cardíaca.
+- Sepsis.
+- Administración de fármacos nefrotóxicos conocidos.
+- Anestesia reciente.
+- Cualquier factor que comprometa la perfusión renal.
+
+## 3. Sistema de grados IRIS para AKI (I-V)
+
+La gradación se basa en creatinina sérica en ayunas y parámetros clínicos, principalmente el flujo urinario, más la necesidad de terapia de reemplazo renal:
+
+- **Grado I**: AKI no azotémica, o incrementos progresivos de creatinina dentro de rango de referencia.
+- **Grado II**: azotemia leve, o un incremento medible desde el valor basal del paciente.
+- **Grados III-V**: grados crecientes de daño renal y azotemia progresiva, hasta indicación de terapia de reemplazo renal en los grados más severos.
+
+**Implicación práctica de manejo por grado**:
+- **Grado I (no azotémica)**: no necesariamente requiere hospitalización, pero sí investigación diagnóstica de la etiología subyacente. Suspender cualquier medicación potencialmente nefrotóxica. Monitoreo cercano (diario al inicio), porque estos pacientes pueden progresar a grados más altos.
+- **Grados II-V**: se recomienda hospitalización.
+- En ambos casos (azotémica y no azotémica): descontinuar fármacos con potencial nefrotóxico.
+- La progresión entre grados puede ocurrir en horas a días — de ahí la necesidad de monitoreo frecuente hasta documentar estabilización, con intervalos que se espacian progresivamente una vez confirmada.
+
+## 4. Hipertensión sistémica — complicación frecuente y subestimada en AKI
+
+- Complicación severa y común, **independiente del grado IRIS o de la etiología subyacente**.
+- Prevalencia: hasta ~80% en perros y ~60% en gatos con AKI.
+- Puede estar presente desde el ingreso o desarrollarse/empeorar durante la hospitalización — de origen multifactorial.
+- **La sobrecarga hídrica iatrogénica es un contribuyente clave** — debe evitarse activamente.
+- Manifestaciones más frecuentes de hipertensión severa en este contexto: convulsiones, encefalopatía, y desprendimiento de retina — deben prevenirse activamente por su impacto negativo en el desenlace.
+- **Monitoreo recomendado**: medir presión arterial al menos 2-4 veces al día, con frecuencia ajustada según la evolución clínica.
+
+## 5. Ajuste de fármacos en AKI
+
+- Muchos fármacos dependen de eliminación renal, reabsorción tubular, o biotransformación renal — la enfermedad renal altera todos los aspectos de la farmacocinética (absorción, distribución, metabolismo, eliminación).
+- **Todo medicamento debe evaluarse por su potencial nefrotóxico y su perfil farmacocinético** antes de administrarse en un paciente con AKI.
+- Fármacos de eliminación predominantemente renal tendrán vida media prolongada cuando la TFG está reducida — riesgo de acumulación de concentración plasmática si no se ajusta dosis o intervalo.
+- La mayoría de los fármacos carecen de evaluación farmacocinética específica en pacientes veterinarios con enfermedad renal — en esos casos, las guías humanas pueden consultarse como referencia razonable cuando la farmacocinética es comparable entre especies.
+
+## 6. Conexión directa con el resumen de ERC ya cargado
+
+- Ambos marcos (AKI y ERC) comparten el mismo sistema de creatinina/SDMA de IRIS como base, pero **la estadificación de ERC exige un paciente estable e hidratado** — la estadificación de AKI es explícitamente para el paciente inestable/en evolución activa.
+- Un paciente con AKI que no se resuelve completamente puede evolucionar a ERC — el seguimiento con re-estadificación tras la fase aguda es clave (ver recomendaciones de monitoreo post-alta en el resumen de Leptospirosis ya cargado, que ilustra este mismo principio en un contexto etiológico específico).
+- La causa infecciosa más directamente conectada con AKI en la Base de Conocimiento actual de ICIS es la leptospirosis (ya cargada) — es uno de los ejemplos de etiología de AKI donde el manejo específico (antimicrobiano) y el manejo general de AKI (fluidos, monitoreo, posible terapia de reemplazo renal) deben combinarse.
+
+## 7. Conclusión operativa para ICIS
+
+- Ante cualquier paciente con sospecha de AKI, el primer paso operativo es **asignar un grado IRIS** (no solo reportar "creatinina elevada") — esto determina directamente si amerita hospitalización obligatoria (Grado II en adelante) o si puede manejarse ambulatoriamente con investigación diagnóstica y monitoreo cercano (Grado I).
+- La presión arterial debe monitorearse activamente en todo paciente con AKI, independientemente del grado o causa — no es un hallazgo incidental, es una complicación esperable que requiere vigilancia sistemática.
+- Toda prescripción en un paciente con AKI debe pasar por el filtro de "¿este fármaco requiere ajuste de dosis por función renal reducida?" — esto conecta directamente con el módulo de Prescripción ya construido en la plataforma, donde este tipo de alerta debería poder generarse automáticamente para fármacos de eliminación renal conocida.

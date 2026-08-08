@@ -1,0 +1,219 @@
+INTERPRETACIÓN DE LABORATORIO CLÍNICO — HEMOGRAMA, BIOQUÍMICA Y URIANÁLISIS
+
+Documento compartido de la plataforma. Lo consumen todos los agentes a través de CC-201 (hemograma), CC-202 (bioquímica sérica), CC-203 (equilibrio ácido-base y electrolitos), CC-204 (urianálisis) y CC-240 (Diagnostic Correlation Engine).
+
+Reemplaza a la guía de laboratorio en formato de volcado de PDF.
+
+---
+
+## 1. Cómo usar este documento
+
+**No contiene rangos de referencia.** Los valores normales dependen del laboratorio, del método analítico, de la especie y a veces de la raza. Usar rangos de un documento en vez de los del informe recibido es una fuente de error sistemático.
+
+Lo que sí contiene son **patrones de interpretación**: qué significa una combinación de hallazgos y qué preguntas responde cada panel.
+
+**Un valor aislado no se interpreta.** El laboratorio se lee en conjunto y contra el cuadro clínico. Un resultado fuera de rango en un paciente sin signos compatibles puede ser artefacto, variación individual o hallazgo incidental.
+
+---
+
+## 2. Hemograma
+
+El orden de lectura recomendado es **leucocitos, después eritrocitos, y por último plaquetas**. Cada división se interpreta respondiendo preguntas, no leyendo números sueltos.
+
+La interpretación adecuada integra los datos **cuantitativos** —recuentos, índices— con los **cualitativos**, que es la morfología celular. Ignorar la morfología pierde la mitad de la información.
+
+### 2.1 Leucocitos
+
+Preguntas que responde: ¿hay inflamación? ¿hay estrés? ¿hay necrosis tisular? ¿hay hipersensibilidad sistémica? Si hay inflamación, ¿es aguda, crónica o extrema? ¿hay toxemia?
+
+**El patrón que más se confunde: leucograma de estrés frente a leucograma inflamatorio.**
+
+| | Estrés (corticoide) | Inflamación |
+|---|---|---|
+| Neutrófilos | Aumentados, maduros | Aumentados o disminuidos |
+| Bandas | Ausentes | **Presentes** |
+| Linfocitos | **Disminuidos** | Variables |
+| Eosinófilos | Disminuidos | Variables o aumentados |
+| Monocitos | Aumentados | Aumentados si es crónica |
+
+La presencia de **bandas —neutrófilos inmaduros— es el hallazgo que define la desviación a la izquierda** y señala inflamación. Un aumento de neutrófilos sin bandas, con linfopenia y eosinopenia, es leucograma de estrés y no indica infección.
+
+Esa distinción tiene consecuencia directa: el leucograma de estrés aparece en cualquier paciente enfermo, dolorido o simplemente asustado en la consulta, y no justifica antimicrobianos.
+
+**Otros patrones:**
+
+**Desviación a la izquierda degenerativa** — más bandas que neutrófilos maduros, o neutropenia con bandas. Indica que el consumo tisular excede la producción medular. Es un hallazgo de mal pronóstico y sugiere inflamación severa o sepsis.
+
+**Cambios tóxicos** en la morfología neutrofílica —basofilia citoplasmática, cuerpos de Döhle, vacuolización— indican toxemia sistémica y producción acelerada.
+
+**Linfocitosis** sugiere estimulación antigénica crónica, algunas infecciones, o neoplasia linfoide. En el perro, una linfocitosis marcada y persistente obliga a considerar leucemia linfoide.
+
+**Eosinofilia** apunta a parasitosis o hipersensibilidad, con la salvedad de que no todos los parásitos la producen. También aparece en algunas neoplasias, particularmente el mastocitoma.
+
+**Monocitosis** indica inflamación crónica o necrosis tisular.
+
+**Linfopenia** aparece por corticoides endógenos o exógenos, y en algunas infecciones virales.
+
+### 2.2 Eritrocitos
+
+La pregunta primaria es si hay anemia. La segunda, y la que orienta el diagnóstico, es **si es regenerativa o no regenerativa**.
+
+**La anemia es un signo, no un diagnóstico.** Concluir "anemia" sin clasificarla ni buscar su causa no aporta nada al caso.
+
+**Regenerativa.** El marcador definitivo es la **reticulocitosis**. Los índices apoyan: volumen corpuscular medio aumentado, concentración de hemoglobina corpuscular media disminuida —anemia macrocítica hipocrómica—, con policromasia y anisocitosis en el frotis.
+
+Causas: hemorragia y hemólisis. Ver el documento de anemia hemolítica inmunomediada de ICIS.
+
+**Advertencia temporal que se pasa por alto:** la respuesta regenerativa tarda **de tres a cinco días** en hacerse evidente. Una hemorragia aguda o una hemólisis de instalación reciente se ven como no regenerativas en el hemograma inicial. Repetir el hemograma a los cuatro o cinco días distingue una cosa de la otra.
+
+**No regenerativa.** Sin reticulocitosis. Causas frecuentes: enfermedad renal crónica por déficit de eritropoyetina, enfermedad inflamatoria crónica, endocrinopatías, y enfermedad medular primaria.
+
+**Microcítica hipocrómica** —volumen corpuscular medio y hemoglobina corpuscular media bajos— sugiere **deficiencia de hierro**, que en el paciente adulto significa pérdida crónica de sangre hasta demostrar lo contrario. El origen digestivo es el más frecuente y suele ser oculto.
+
+**Policitemia.** Distinguir la relativa, por deshidratación, de la absoluta. La primera se corrige con hidratación y es mucho más común.
+
+### 2.3 Plaquetas
+
+**Antes de interpretar una trombocitopenia, descartar que sea artefacto.** Los agregados plaquetarios en el frotis producen recuentos falsamente bajos, y son especialmente frecuentes en el gato. Un recuento bajo sin revisión del frotis no es un resultado.
+
+Existe además **macrotrombocitopenia hereditaria** en algunas razas, notablemente el Cavalier King Charles Spaniel, donde el recuento es bajo sin significado clínico.
+
+**Trombocitopenia real.** Cuatro mecanismos: destrucción inmunomediada, consumo, secuestro y falla de producción. Ver los documentos de trombocitopenia inmunomediada de ICIS.
+
+El riesgo de sangrado espontáneo aparece con recuentos muy bajos; por encima de ese umbral, una trombocitopenia moderada rara vez sangra sola y su valor es diagnóstico más que pronóstico.
+
+**Trombocitosis.** Reactiva en la mayoría de los casos: inflamación, hemorragia, ferropenia, posesplenectomía. La esencial es rara.
+
+**Volumen plaquetario medio aumentado** indica plaquetas grandes y jóvenes, o sea producción medular activa. En una trombocitopenia, orienta a destrucción o consumo periférico más que a falla de producción.
+
+---
+
+## 3. Bioquímica sérica
+
+### 3.1 Patrón hepático
+
+**Distinguir daño hepatocelular de colestasis** es la primera lectura.
+
+**Daño hepatocelular:** aumento de alanina aminotransferasa y aspartato aminotransferasa. La magnitud del aumento refleja la cantidad de hepatocitos dañados, **no la función hepática ni el pronóstico**.
+
+**Colestasis:** aumento de fosfatasa alcalina y gamma-glutamil transferasa.
+
+**Función hepática:** albúmina, glucosa, urea, colesterol y factores de coagulación. Los **ácidos biliares** pre y posprandiales son la prueba funcional más accesible.
+
+Ese es el punto que más se confunde: **enzimas elevadas indican daño, no insuficiencia.** Un hígado puede tener enzimas muy altas con función conservada, y a la inversa, un hígado cirrótico terminal puede tener enzimas normales porque queda poco parénquima que dañar.
+
+**Salvedades por especie y contexto:**
+
+En el **perro**, la fosfatasa alcalina tiene isoenzima inducible por corticoides, endógenos o exógenos. Una elevación aislada puede ser inducción y no colestasis.
+
+En el **gato**, la fosfatasa alcalina tiene vida media corta y no tiene isoenzima corticoidea, de modo que **cualquier elevación es significativa** y merece investigación. La gamma-glutamil transferasa ayuda a diferenciar lipidosis hepática de colangitis.
+
+Ver el documento de hepatitis crónica de GCIS.
+
+### 3.2 Patrón renal
+
+**La azotemia se clasifica en prerrenal, renal y posrenal**, y **la densidad urinaria es lo que las separa.**
+
+| | Densidad urinaria | Interpretación |
+|---|---|---|
+| Prerrenal | Concentrada | El riñón responde: hipoperfusión |
+| Renal | Isostenuria | Pérdida de capacidad de concentrar |
+| Posrenal | Variable | Obstrucción o ruptura |
+
+**Regla operativa que cambia el caso:** la muestra de orina debe obtenerse **antes de administrar fluidos**. Una vez iniciada la fluidoterapia, la densidad urinaria deja de ser interpretable y la distinción entre azotemia prerrenal y renal se pierde para siempre en ese paciente.
+
+**Creatinina y urea.** La creatinina es más específica de función renal. La urea se eleva además por deshidratación, dieta alta en proteína y hemorragia digestiva alta, y desciende en insuficiencia hepática.
+
+**SDMA** se eleva antes que la creatinina y detecta pérdida funcional más temprana.
+
+**Fósforo** se eleva en enfermedad renal avanzada y participa del hiperparatiroidismo secundario renal.
+
+### 3.3 Proteínas
+
+**La relación entre albúmina y globulinas orienta el mecanismo:**
+
+**Hipoalbuminemia con hipoglobulinemia** — pérdida de sangre entera o de proteínas por vía digestiva. Es el patrón de la enteropatía perdedora de proteínas.
+
+**Hipoalbuminemia con globulinas normales o altas** — pérdida renal, insuficiencia de producción hepática, o inflamación crónica, donde la albúmina se comporta como reactante de fase aguda negativo.
+
+**Hiperglobulinemia** — inflamación crónica, enfermedad infecciosa, o gammapatía. Una hiperglobulinemia marcada obliga a considerar mieloma múltiple y, en el gato, peritonitis infecciosa felina.
+
+Ante hipoalbuminemia, la relación proteína/creatinina urinaria distingue la pérdida renal.
+
+### 3.4 Electrolitos y glucosa
+
+**Relación sodio/potasio disminuida** — sugiere hipoadrenocorticismo, aunque no es específica. Ver el documento correspondiente de ECIS.
+
+**Hiperkalemia** — Addison, enfermedad renal oligúrica, obstrucción o ruptura urinaria, acidosis. Es una urgencia por su efecto cardíaco.
+
+**Hipokalemia** — pérdidas digestivas, diuréticos de asa, enfermedad renal crónica felina.
+
+**Calcio** — el calcio total no es medida confiable; se interpreta el ionizado. Ver el documento de hipercalcemia de ECIS.
+
+**Glucosa** — en el gato, la hiperglucemia por estrés es frecuente y puede alcanzar valores que sugieren diabetes. La fructosamina distingue una cosa de la otra, porque refleja las últimas dos o tres semanas.
+
+---
+
+## 4. Urianálisis
+
+Tiene tres partes y las tres se leen juntas: físico-química, densidad y sedimento.
+
+**Densidad urinaria.** Ya cubierta arriba, y es el dato que más se pierde por mal momento de muestreo. Debe interpretarse siempre junto al estado de hidratación y a la azotemia.
+
+**Proteinuria.** La tira reactiva da falsos positivos con orina alcalina o concentrada. La cuantificación es la relación proteína/creatinina urinaria, y solo se interpreta **con sedimento inactivo**: una proteinuria con piuria o hematuria puede ser posrenal y no glomerular.
+
+**Sedimento.** Cilindros indican origen renal. Cristales requieren interpretarse con el pH y con el tiempo transcurrido desde la micción, porque algunos precipitan en la muestra. Bacteriuria con piuria orienta a infección; bacteriuria sin piuria puede ser contaminación.
+
+**Método de obtención.** La cistocentesis es el método de elección para cultivo. La muestra de micción espontánea no permite interpretar un cultivo positivo con certeza.
+
+---
+
+## 5. Reglas de integración
+
+**Ningún valor se interpreta solo.** El laboratorio confirma, descarta o reorienta una hipótesis clínica; no la reemplaza.
+
+**Un resultado que no encaja con el cuadro clínico se repite antes de actuar.** Los errores preanalíticos —hemólisis, lipemia, muestra mal conservada, tubo equivocado, ayuno inadecuado— son más frecuentes que las presentaciones atípicas.
+
+**Comparar contra el laboratorio propio y no cambiar de laboratorio en un seguimiento.** Los métodos difieren y una diferencia entre controles puede ser del método y no del paciente.
+
+**El ayuno afecta varios analitos**, incluidos cobalamina, folato, inmunorreactividad similar a tripsina, lipasa pancreática, glucosa y triglicéridos.
+
+**La tendencia vale más que el valor único** en el seguimiento de enfermedad crónica.
+
+---
+
+## 6. Errores frecuentes
+
+Leer neutrofilia como infección sin mirar si hay bandas.
+
+Concluir "anemia no regenerativa" en las primeras 72 horas de una hemorragia o hemólisis.
+
+Informar una trombocitopenia sin revisar el frotis en busca de agregados, especialmente en el gato.
+
+Interpretar enzimas hepáticas elevadas como insuficiencia hepática.
+
+Tomar la muestra de orina después de iniciar la fluidoterapia y perder la clasificación de la azotemia.
+
+Cuantificar proteinuria con sedimento activo.
+
+Razonar sobre calcio total en vez de ionizado.
+
+Diagnosticar diabetes en un gato por una glucemia única.
+
+Cambiar de laboratorio entre controles de un mismo paciente.
+
+---
+
+## 7. Lo que este documento no cubre
+
+Rangos de referencia, que son propios de cada laboratorio y método. Interpretación de coagulación y hemostasia. Gasometría y equilibrio ácido-base en profundidad. Pruebas endocrinas específicas y sus protocolos de estimulación o supresión. Citología e histopatología. Pruebas de enfermedades infecciosas específicas. Perfil lipídico. Marcadores cardíacos. Estos temas quedan como vacíos declarados, y los que corresponden a un dominio están cubiertos en la Base de Conocimiento del agente respectivo.
+
+---
+
+FUENTES
+
+Rebar AH, MacWilliams PS, Feldman BF, Metzger FL, Pollock RVH, Roche J. Interpretación del hemograma: introducción, leucocitos, eritrocitos, plaquetas. Fuente del enfoque sistemático y del orden de lectura de la sección 2.
+
+El resto del documento sintetiza principios establecidos de patología clínica veterinaria y remite, donde corresponde, a los documentos específicos de la Base de Conocimiento de cada agente: anemia hemolítica inmunomediada y trombocitopenia inmunomediada en ICIS, hepatitis crónica e insuficiencia pancreática exocrina en GCIS, hipercalcemia e hipoadrenocorticismo en ECIS.
+
+Documento de síntesis elaborado para Vetline Ai. Reemplaza al volcado de PDF previo de 104.772 caracteres.

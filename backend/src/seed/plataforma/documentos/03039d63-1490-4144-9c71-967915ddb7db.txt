@@ -1,0 +1,87 @@
+EXTENSIÓN DERMATOLÓGICA — FAMILIA CC-3xx FARMACOTERAPIA (DCIS)
+
+**Relación con el documento base:** este documento no reemplaza la especificación genérica de CC-301 a CC-304 construida para ICIS — la extiende. DCIS hereda el núcleo completo tal cual, y este documento agrega profundidad específica de dermatología dentro de cada uno de esos cuatro componentes.
+
+**Misma regla que en ICIS y GCIS, sin excepción: ningún componente de esta familia calcula ni sugiere dosis.**
+
+Particularidad de esta extensión: en dermatología, **la vía de administración es una decisión terapéutica de primer orden**, no un detalle. El registro debe distinguir tópico de sistémico en todas las clases donde ambas existan.
+
+---
+
+## Extensión de CC-301 (Medication Registry) — Clases terapéuticas dermatológicas
+
+CC-301 en DCIS reconocerá específicamente las siguientes clases:
+
+- **Antisépticos y antifúngicos tópicos** (clorhexidina, miconazol, climbazol)
+- **Antifúngicos sistémicos** (azoles orales)
+- **Antimicrobianos tópicos** para piodermia superficial
+- **Antimicrobianos sistémicos** con indicación dermatológica
+- **Antiparasitarios isoxazolinas** (afoxolaner, fluralaner, lotilaner, sarolaner)
+- **Lactonas macrocíclicas** — con distinción obligatoria entre tópicas y sistémicas
+- **Amitraz**
+- **Antipruriginosos e inmunomoduladores para dermatitis atópica** (ciclosporina, inhibidores de Janus quinasa, anticuerpos monoclonales anti-IL-31)
+- **Corticoides** — tópicos, óticos y sistémicos, registrados por separado
+- **Preparaciones óticas** (antifúngicas, antimicrobianas, antiinflamatorias, limpiadores)
+- **Champús y tópicos de soporte** (azufre de cal y demás)
+
+## Extensión de CC-302 (Drug Interaction Engine) — Patrones específicos de dermatología
+
+**Patrón D-1 — Corticoides en demodicosis.** Los corticoides locales y sistémicos **están contraindicados en todo paciente diagnosticado con demodicosis**. Interpretación: alerta de alta relevancia. Es el patrón de mayor consecuencia de esta extensión, porque el paciente con demodicosis se presenta con prurito y lesiones que invitan al corticoide, y porque la sarna sarcóptica —que se confunde con ella y comparte fármacos— sí admite manejo del prurito.
+
+**Patrón D-2 — Sensibilidad ABCB1 y lactonas macrocíclicas sistémicas.** La variante ABCB1 altera la glicoproteína P y permite que ciertos fármacos se acumulen o crucen al cerebro. Las lactonas macrocíclicas sistémicas a dosis alta —las que se usan en demodicosis, no las de prevención de dirofilariasis— son el escenario de riesgo. La ciclosporina figura también entre los sustratos descritos. Más común en razas de pastoreo, pero posible en cualquier perro, incluidos mestizos, y con una variante análoga menos común en el gato. Interpretación: alerta de sensibilidad racial al registrar cualquiera de esos fármacos.
+
+Matiz obligatorio: **a las dosis bajas de prevención de dirofilariasis, la ivermectina es segura incluso en pacientes con la variante.** La alerta debe declarar la dosis-dependencia.
+
+**Patrón D-3 — Escalado gradual de lactonas macrocíclicas sistémicas.** El consenso de la World Association for Veterinary Dermatology recomienda un incremento gradual inicial de la dosis para moxidectina e ivermectina sistémicas, con el fin de identificar perros sensibles a las toxicosis inducidas por esos fármacos. Interpretación: alerta de secuencia — no es una alerta de contraindicación sino de forma de inicio.
+
+**Patrón D-4 — Ivermectina oral a dosis alta en sarna sarcóptica.** No se recomienda; se asocia a fallo terapéutico y a toxicidad en perros sensibles. Interpretación: alerta que redirige hacia isoxazolinas o hacia oxima de milbemicina a dosis de etiqueta.
+
+**Patrón D-5 — Antimicrobianos sistémicos en otitis externa.** Son **inefectivos** salvo que el epitelio del conducto esté severamente ulcerado, porque la terapia tópica alcanza concentraciones muy superiores. Interpretación: alerta informativa cuando se considere un antimicrobiano sistémico como tratamiento principal de una otitis.
+
+**Patrón D-6 — Antifúngico sistémico como primera línea.** Los antifúngicos orales están indicados **solo en enfermedad severa o refractaria**; la terapia tópica es el pilar. Interpretación: alerta que solicita justificar la vía sistémica.
+
+**Patrón D-7 — Cultivo del conducto auditivo externo.** El consenso general entre dermatólogos es que no es necesario ni muy útil de rutina, porque el antibiograma evalúa concentración sanguínea y no tópica, que es significativamente mayor. Interpretación: alerta informativa que evita el estudio de rutina, señalando la otitis media como excepción principal.
+
+**Patrón D-8 — Disponibilidad y registro locales.** El consenso sobre demodicosis establece explícitamente que la selección terapéutica debe guiarse por la legislación farmacéutica local, la disponibilidad de medicamentos y los parámetros del caso individual. En la mayoría de los países, los únicos productos registrados para demodicosis generalizada se basan en amitraz o en imidacloprid-moxidectina; el uso de isoxazolinas para esta indicación es extraetiqueta salvo donde estén aprobadas. Interpretación: alerta que obliga a declarar el estatus regulatorio y a no asumir el escenario europeo o norteamericano.
+
+**Patrón D-9 — Infección bacteriana concurrente.** En demodicosis, las infecciones bacterianas secundarias deben tratarse de forma agresiva. En dermatitis por Malassezia con piodermia superficial o sobrecrecimiento bacteriano concurrente, la antibioterapia va simultáneamente. Interpretación: alerta que evita tratar un solo componente de un cuadro mixto.
+
+## Extensión de CC-303 (Therapeutic Class Reasoning) — Racionales dermatológicos
+
+| Diagnóstico o síndrome presuntivo | Clases habitualmente consideradas | Nota de racional |
+|---|---|---|
+| Dermatitis atópica | Antipruriginosos e inmunomoduladores, tópicos de barrera, control de infección secundaria | El manejo es de largo plazo; ver los documentos de diagnóstico y tratamiento de la Base de Conocimiento |
+| Dermatitis por Malassezia | Antisépticos y antifúngicos tópicos azólicos | Sistémico solo en severo o refractario; **el tratamiento debe enfocarse en resolver la causa subyacente** |
+| Piodermia superficial | Antimicrobianos tópicos, sistémicos según extensión | Considerar el sobrecrecimiento como secundario y buscar la causa primaria |
+| Demodicosis generalizada | Isoxazolinas, lactonas macrocíclicas, amitraz | **Corticoides contraindicados**; selección según legislación y disponibilidad locales |
+| Sarna sarcóptica | Isoxazolinas a dosis de etiqueta, oxima de milbemicina | Duración basada en el ciclo del ácaro, no en la resolución clínica |
+| Otitis externa | Tópicos que aborden infección, inflamación y detritos | Elección basada en citología; **sistémicos inefectivos salvo ulceración severa**; tratar el factor primario |
+| Dermatofitosis | Antifúngicos tópicos y sistémicos, manejo ambiental | Ver el documento correspondiente de la Base de Conocimiento |
+
+## Extensión de CC-304 (Response Tracking) — Ventanas de reevaluación específicas
+
+- **Demodicosis:** continuar la terapia antiparasitaria no solo hasta que remitan los signos, sino **hasta obtener al menos dos raspados cutáneos negativos consecutivos con un mes de intervalo**. Suspender por mejoría clínica es la causa evitable más común de recaída.
+- **Sarna sarcóptica:** mantener la mayoría de los productos durante 30 a 60 días, por el ciclo de tres semanas del ácaro; alta con dos raspados negativos separados por 2 a 4 semanas.
+- **Otitis:** dos semanas de tratamiento tópico, **con recitología para evaluar respuesta**. La citología requiere un sistema de graduación usado de forma consistente, porque el valor está en la comparación entre visitas.
+- **Dermatitis por Malassezia:** el diagnóstico se confirma por respuesta a la terapia de prueba; la reevaluación es parte del proceso diagnóstico, no solo del seguimiento.
+- **Dermatitis atópica:** reevaluación periódica del control del prurito y de las infecciones secundarias recurrentes.
+
+Estas ventanas no son reglas rígidas — son puntos de referencia para que el componente sepa cuándo preguntar por la evolución.
+
+---
+
+## Nota final sobre la relación entre documentos
+
+Si se actualiza la especificación base CC-301 a CC-304 en ICIS, esta extensión debe revisarse en paralelo. El Patrón D-2 comparte alcance con el Patrón N-2 de NCIS y conviene resolverlo a nivel de plataforma.
+
+FUENTES DEL CONTENIDO CLÍNICO
+
+Los racionales de CC-303 y las ventanas de CC-304 provienen de los documentos clínicos ya cargados en la Base de Conocimiento de DCIS: dermatitis atópica (diagnóstico y tratamiento), piodermia, dermatofitosis, otitis externa, demodicosis y sarna sarcóptica, y dermatitis por Malassezia.
+
+Para los patrones D-1, D-3, D-4 y D-8: Mueller RS y col. Diagnosis and treatment of demodicosis in dogs and cats: clinical consensus guidelines of the World Association for Veterinary Dermatology. Vet Dermatol 2020.
+
+Para los patrones D-6 y D-9: Bond R y col. Biology, diagnosis and treatment of Malassezia dermatitis in dogs and cats: clinical consensus guidelines of the World Association for Veterinary Dermatology. Vet Dermatol 2020.
+
+Para el Patrón D-2: Orthopedic Foundation for Animals — Multiple Drug Sensitivity (MDR1); Cornell University College of Veterinary Medicine — Drug sensitivity: MDR1.
+
+Documento de arquitectura elaborado para Vetline Ai.

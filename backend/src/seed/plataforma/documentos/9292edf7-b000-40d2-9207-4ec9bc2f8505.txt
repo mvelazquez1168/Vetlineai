@@ -1,0 +1,210 @@
+Banderas Rojas Oncológicas — Guía de Derivación para Medicina General
+
+Propósito de este documento
+
+Este extracto está pensado para el agente de medicina general/internista
+(ICIS). Su objetivo no es enseñar oncología clínica, sino ayudar a
+reconocer patrones sospechosos de neoplasia a tiempo, calibrar la
+urgencia de la derivación, y usar el contexto racial y de edad con más
+peso que en cualquier otro sistema — porque en oncología, a diferencia
+de cardio o dermato, casi nunca hay un signo único y definitorio: la
+sospecha se construye combinando varios hallazgos moderados, no un
+hallazgo aislado contundente.
+
+Principio rector: el error más costoso en este sistema no es
+sobrederivar (una masa que resulta benigna, derivada de más, tiene bajo
+costo) sino subestimar una combinación de signos inespecíficos porque,
+tomados uno por uno, ninguno grita "cáncer". Este documento existe
+justamente para ayudar a reconocer esas combinaciones.
+
+1. Señales de alarma que ameritan derivación con prioridad
+
+-   Masa palpable de crecimiento rápido (cambio notorio en semanas, no
+    meses), especialmente si es firme, irregular, o adherida a planos
+    profundos.
+
+-   Masa que ulcera, sangra, o se infecta recurrentemente.
+
+-   Linfadenopatía generalizada o de un ganglio marcadamente aumentado,
+    sin causa infecciosa/inflamatoria evidente que la explique.
+
+-   Pérdida de peso progresiva no explicada, sobre todo con apetito
+    conservado o incluso aumentado (esto último descarta la explicación
+    más simple de "come menos" y obliga a buscar más allá).
+
+-   Hematoquecia o melena persistente en paciente geriátrico,
+    especialmente si se acompaña de pérdida de peso — recordar el pearl
+    ya documentado en las banderas rojas gastrointestinales: "el
+    intestino grueso nunca genera pérdida de peso" por sí solo, así que
+    esta combinación sugiere afectación más allá del colon.
+
+-   Distensión abdominal progresiva en paciente geriátrico, con o sin
+    efusión palpable — sospechar masa abdominal u organomegalia
+    neoplásica hasta evaluar lo contrario.
+
+-   Epistaxis unilateral persistente o crónica.
+
+-   Cojera o dolor óseo localizado, de curso progresivo, sin antecedente
+    traumático, en un paciente de raza grande o gigante — sospechar
+    osteosarcoma hasta descartarlo, especialmente en las localizaciones
+    típicas (metáfisis de huesos largos).
+
+-   Tos crónica o disnea de instauración progresiva en paciente
+    geriátrico, sin respuesta al manejo respiratorio/cardíaco habitual.
+
+-   Hemorragia espontánea inexplicada (epistaxis, hematuria, equimosis)
+    en ausencia de trauma o trastorno de coagulación conocido — puede
+    ser manifestación paraneoplásica.
+
+2. Cuándo un hallazgo "leve" pasa a ser candidato a derivación
+
+Estos son los criterios que elevan la sospecha de un hallazgo aislado y
+aparentemente menor:
+
+-   Cualquier masa nueva en un paciente geriátrico, incluso pequeña y de
+    crecimiento lento — la conducta correcta no es "esperar a ver si
+    crece", sino documentar tamaño/consistencia y planificar una
+    evaluación (citología por aspiración con aguja fina, accesible en la
+    mayoría de las consultas de atención primaria) en el corto plazo, no
+    diferirla indefinidamente.
+
+-   Adelgazamiento progresivo sostenido durante más de 4-6 semanas,
+    incluso sin otro signo acompañante.
+
+-   Cualquier signo inespecífico persistente en un paciente de raza con
+    riesgo oncológico alto documentado (letargia, hiporexia leve,
+    cambios sutiles de comportamiento) que no se resuelve con el manejo
+    habitual en el plazo esperado.
+
+-   Recurrencia de un signo ya evaluado previamente como benigno, sin
+    explicación clara del porqué reaparece.
+
+Regla práctica: en oncología, la pregunta que debe guiar la decisión no
+es "¿este hallazgo es alarmante por sí solo?" sino "¿este paciente, por
+edad y raza, tiene un umbral de sospecha que ya debería estar más bajo?"
+— ver Sección 4.
+
+3. La combinación importa más que el hallazgo aislado
+
+A diferencia de cardiología (donde un signo aislado como la disnea ya es
+suficiente) o de gastroenterología (donde ciertos signos localizan con
+bastante precisión), en oncología la fuerza de la sospecha crece con el
+número de hallazgos concurrentes, aunque cada uno por separado sea
+inespecífico:
+
+  -----------------------------------------------------------------------
+  Combinación de hallazgos              Nivel de sospecha
+  ------------------------------------- ---------------------------------
+  Un solo hallazgo inespecífico (p. ej. Baja — manejar y reevaluar en
+  solo hiporexia leve)                  plazo corto
+
+  Dos hallazgos concurrentes (p. ej.    Moderada — ampliar estudios
+  pérdida de peso + letargia)           básicos (hemograma, bioquímica,
+                                        palpación completa, ganglios)
+
+  Tres o más hallazgos concurrentes, o  Alta — derivar
+  cualquier masa/organomegalia palpable 
+
+  Cualquier combinación en paciente de  El umbral baja un escalón
+  raza con riesgo oncológico alto/muy   completo respecto a la tabla
+  alto documentado                      anterior
+  -----------------------------------------------------------------------
+
+Este es el sistema donde el ajuste de umbral por riesgo racial (definido
+en el Referral Engine Specification, Sección 4.2) tiene el efecto más
+marcado de todos los que hemos documentado hasta ahora — porque la
+prevalencia de base varía enormemente entre razas.
+
+4. Pearls de contexto racial y de edad
+
+-   Golden Retriever, Bóxer, Bernés de la Montaña, Bullmastiff,
+    Flat-Coated Retriever, Rottweiler — razas con incidencia oncológica
+    general marcadamente alta (linfoma, hemangiosarcoma, histiocitosis
+    maligna, osteosarcoma según la raza). En estas razas, cualquier
+    signo inespecífico persistente en la edad media-avanzada amerita un
+    umbral de sospecha más bajo que en razas sin esa carga.
+
+-   Bóxer, Bulldog, razas braquicéfalas en general — mayor incidencia de
+    mastocitoma; cualquier masa cutánea de aparición reciente en estas
+    razas debe evaluarse antes que en otras, incluso si parece "solo un
+    lipoma".
+
+-   Scottish Terrier — riesgo marcadamente elevado de carcinoma de
+    células transicionales de vejiga; signos urinarios bajos
+    persistentes en esta raza (hematuria, disuria, polaquiuria sin
+    respuesta a manejo antibiótico estándar) ameritan sospecha
+    oncológica antes que en otras razas.
+
+-   Rottweiler, Gran Danés, San Bernardo, razas grandes/gigantes de
+    huesos largos — osteosarcoma; cojera progresiva sin trauma en estas
+    razas, sobre todo si se localiza en metáfisis distal de radio o
+    proximal de húmero/tibia, amerita evaluación radiográfica pronta.
+
+-   Perros braquicéfalos y de piel clara/poco pigmentada expuestos al
+    sol (Dogo Argentino, razas de pelaje blanco corto) — mayor riesgo de
+    carcinoma de células escamosas actínico en zonas de baja
+    pigmentación.
+
+-   Gatos senior, en general — el hipertiroidismo puede simular varios
+    signos de sospecha oncológica (pérdida de peso con apetito
+    conservado o aumentado); conviene descartarlo antes de escalar
+    directamente a sospecha neoplásica, ya que es mucho más prevalente y
+    tiene manejo distinto.
+
+-   Pacientes geriátricos de cualquier raza — la edad avanzada por sí
+    sola ya es un modificador de probabilidad previa relevante; un mismo
+    signo inespecífico merece más consideración en un paciente
+    geriátrico que en uno joven.
+
+5. Qué NO debe hacer el agente de medicina general
+
+-   No debe descartar un signo inespecífico solo por no tener "un
+    hallazgo contundente" — en oncología eso rara vez existe hasta
+    etapas avanzadas.
+
+-   No debe diferir indefinidamente la evaluación de una masa nueva en
+    un paciente geriátrico esperando a ver si crece.
+
+-   No debe asumir automáticamente que la pérdida de peso se debe a la
+    edad o a que "come menos" sin investigar, especialmente si el
+    apetito está conservado.
+
+-   No debe tratar la sospecha oncológica como un diagnóstico — la
+    derivación es para confirmar o descartar, no para anticipar un
+    pronóstico que solo corresponde establecer tras estudios (citología,
+    biopsia, estadificación).
+
+-   No debe subestimar la relevancia de la raza y la edad como parte
+    activa del razonamiento, tratándolas como datos demográficos pasivos
+    en vez de modificadores reales de probabilidad previa.
+
+Resumen para uso rápido
+
+  -----------------------------------------------------------------------
+  Si el paciente presenta...         Acción del agente de medicina
+                                     general
+  ---------------------------------- ------------------------------------
+  Masa de crecimiento rápido,        Derivar con prioridad
+  ulcerada, o que sangra             
+
+  Linfadenopatía sin causa           Derivar
+  infecciosa/inflamatoria evidente   
+
+  Pérdida de peso progresiva con     Ampliar estudios básicos; derivar si
+  apetito conservado o aumentado     persiste >4-6 semanas
+
+  Masa nueva, pequeña, en paciente   Evaluar pronto (citología por
+  geriátrico                         aspiración si es posible) — no
+                                     esperar a que crezca
+
+  Cojera progresiva sin trauma en    Sospechar causa ósea — evaluación
+  raza grande/gigante                radiográfica pronta
+
+  Combinación de ≥2 signos           Sospecha moderada — ampliar
+  inespecíficos concurrentes         estudios; alta si hay ≥3 o hallazgo
+                                     palpable
+
+  Raza con riesgo oncológico         Reducir el umbral de derivación un
+  alto/muy alto documentado          escalón completo respecto al
+                                     criterio general
+  -----------------------------------------------------------------------

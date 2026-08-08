@@ -22,7 +22,27 @@ import { emitirNotificacion, enviarNotificacionPorCorreo } from "../notificacion
 // explícitamente donde corresponde (join a tenants + estado_suscripcion).
 // ---------------------------------------------------------------------
 
-const TENANTS_ACTIVOS = ["trial", "activa"];
+// Bug real encontrado al verificar este prompt, no pedido pero corregido
+// porque bloquea en producción el disparador de los 10 avisos: la
+// migración 024 renombró 'trial' → 'prueba' en tenants.estado_suscripcion
+// (y actualizó el CHECK constraint para no aceptar 'trial' nunca más),
+// pero este archivo seguía filtrando por el nombre viejo. Desde esa
+// migración, NINGÚN tenant en estado de prueba recibía ningún aviso de
+// este job — la condición `t.estado_suscripcion = ANY($1)` nunca hacía
+// match. usoIa.ts y platform-admin.routes.ts tienen el mismo literal
+// stale 'trial' en otro contexto (cálculo de ciclo de uso, conteo para
+// platform-admin) — señalado, no corregido acá: es un cambio de
+// comportamiento distinto al de este prompt y no está verificado.
+const TENANTS_ACTIVOS = ["prueba", "activa"];
+
+// prompt_code_paciente_nacimiento_estado.md, Parte B2 — las 6 consultas de
+// este archivo (los 6 avisos que dependen de un job periódico, de los 9
+// existentes al momento de este prompt) exigen `p.estado = 'activo'`. Un
+// paciente fallecido no puede recibir NINGÚN aviso, no solo el de
+// cumpleaños — confirmado explícitamente, incluye los 2 dirigidos al
+// médico (seguimiento_faltante, agenda_dia_siguiente). Los otros 3 avisos
+// (disparados por hecho, no por este job) llevan el mismo filtro en su
+// punto de emisión — ver citas.routes.ts y casos.routes.ts.
 
 function formatoFechaCorta(fecha: Date | string): string {
   const d = typeof fecha === "string" ? new Date(fecha) : fecha;
@@ -50,6 +70,7 @@ async function procesarRecordatoriosCita() {
      JOIN tenants t ON t.id = c.tenant_id
      LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = c.tenant_id
      WHERE c.estado IN ('programada', 'confirmada')
+       AND p.estado = 'activo'
        AND t.estado_suscripcion = ANY($1)
        AND COALESCE(cn.recordatorio_cita_activo, true) = true
        AND (c.fecha + c.hora_inicio) AT TIME ZONE t.zona_horaria
@@ -102,6 +123,7 @@ async function procesarDesparasitacionesProximas() {
      JOIN tenants t ON t.id = cp.tenant_id
      LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = cp.tenant_id
      WHERE cp.tipo = 'desparasitacion'
+       AND p.estado = 'activo'
        AND t.estado_suscripcion = ANY($1)
        AND COALESCE(cn.desparasitacion_activo, true) = true
        AND cp.fecha_proxima_recomendada <= CURRENT_DATE + COALESCE(cn.dias_aviso_desparasitacion, 7)`,
@@ -152,6 +174,7 @@ async function procesarVacunacionesProximas() {
      JOIN tenants t ON t.id = cp.tenant_id
      LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = cp.tenant_id
      WHERE cp.tipo = 'vacunacion'
+       AND p.estado = 'activo'
        AND t.estado_suscripcion = ANY($1)
        AND COALESCE(cn.vacunacion_activo, true) = true
        AND cp.fecha_proxima_recomendada <= CURRENT_DATE + COALESCE(cn.dias_aviso_vacunacion, 7)`,
@@ -206,6 +229,7 @@ async function procesarSeguimientosFaltantes() {
      JOIN tenants t ON t.id = c.tenant_id
      LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = c.tenant_id
      WHERE t.estado_suscripcion = ANY($1)
+       AND p.estado = 'activo'
        AND COALESCE(cn.seguimiento_faltante_activo, true) = true
        AND c.dashboard_cache->'clinical_state'->>'estado' IN ('empeorando', 'critico')
        AND NOT EXISTS (
@@ -261,6 +285,7 @@ async function procesarSeguimientosPosteriores() {
      JOIN tenants t ON t.id = c.tenant_id
      LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = c.tenant_id
      WHERE t.estado_suscripcion = ANY($1)
+       AND p.estado = 'activo'
        AND COALESCE(cn.seguimiento_posterior_activo, true) = true
        AND c.actualizado_en <= now() - (COALESCE(cn.dias_seguimiento_posterior, 3) || ' days')::interval
        AND NOT EXISTS (
@@ -302,6 +327,7 @@ async function procesarAgendaDiaSiguiente() {
      LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = c.tenant_id
      WHERE c.fecha = CURRENT_DATE + 1
        AND c.estado IN ('programada', 'confirmada')
+       AND p.estado = 'activo'
        AND t.estado_suscripcion = ANY($1)
        AND COALESCE(cn.agenda_dia_siguiente_activo, true) = true
      ORDER BY c.medico_id, c.hora_inicio`,
@@ -345,6 +371,58 @@ async function procesarAgendaDiaSiguiente() {
   if (creadas > 0) console.log(`[jobs:notificaciones] ${creadas} agenda(s) del día siguiente creada(s).`);
 }
 
+// ---------------------------------------------------------------------
+// B3 — Cumpleaños del paciente. Al propietario, único aviso puramente
+// comercial de los diez (ver correos.ts). Requiere fecha_nacimiento
+// (muchos pacientes no la tienen — no hay nada que festejar sin ella) y
+// estado='activo' (no felicitar el cumpleaños de un animal fallecido, el
+// motivo por el que existe el estado del paciente). Coincidencia de
+// mes/día en SQL directo, sin restar años — la edad no importa acá.
+// Dedupe: una sola vez por año calendario, comparando contra el mismo
+// mes/día del envío anterior (no "hace 365 días", para tolerar que el job
+// se salte un día por algún motivo sin perder el aviso del año).
+// ---------------------------------------------------------------------
+async function procesarAvisoCumpleanos() {
+  const candidatos = await pool.query(
+    `SELECT p.id AS paciente_id, p.tenant_id, p.nombre AS paciente_nombre, p.propietario_id
+     FROM pacientes p
+     JOIN tenants t ON t.id = p.tenant_id
+     LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = p.tenant_id
+     WHERE p.estado = 'activo'
+       AND p.fecha_nacimiento IS NOT NULL
+       AND EXTRACT(MONTH FROM p.fecha_nacimiento) = EXTRACT(MONTH FROM CURRENT_DATE)
+       AND EXTRACT(DAY FROM p.fecha_nacimiento) = EXTRACT(DAY FROM CURRENT_DATE)
+       AND t.estado_suscripcion = ANY($1)
+       AND COALESCE(cn.cumpleanos_activo, true) = true`,
+    [TENANTS_ACTIVOS]
+  );
+
+  let creadas = 0;
+  for (const c of candidatos.rows) {
+    const yaAvisado = await pool.query(
+      `SELECT 1 FROM notificaciones
+       WHERE paciente_id = $1 AND tipo = 'cumpleanos'
+         AND EXTRACT(YEAR FROM creado_en) = EXTRACT(YEAR FROM CURRENT_DATE)
+       LIMIT 1`,
+      [c.paciente_id]
+    );
+    if (yaAvisado.rows.length > 0) continue;
+
+    await emitirNotificacion(pool, {
+      tenantId: c.tenant_id,
+      tipo: "cumpleanos",
+      destinatarioTipo: "propietario",
+      destinatarioId: c.propietario_id,
+      pacienteId: c.paciente_id,
+      asunto: `¡Feliz cumpleaños, ${c.paciente_nombre}!`,
+      contenido: `¡Feliz cumpleaños, ${c.paciente_nombre}! Todo el equipo te manda un saludo muy cariñoso.`,
+      datosCorreo: { nombrePaciente: c.paciente_nombre },
+    });
+    creadas++;
+  }
+  if (creadas > 0) console.log(`[jobs:notificaciones] ${creadas} saludo(s) de cumpleaños creado(s).`);
+}
+
 export async function ejecutarJobNotificaciones() {
   try {
     await procesarRecordatoriosCita();
@@ -353,6 +431,7 @@ export async function ejecutarJobNotificaciones() {
     await procesarSeguimientosFaltantes();
     await procesarSeguimientosPosteriores();
     await procesarAgendaDiaSiguiente();
+    await procesarAvisoCumpleanos();
   } catch (err) {
     console.error("[jobs:notificaciones] Error al ejecutar el job de notificaciones", err);
   }

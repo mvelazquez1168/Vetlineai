@@ -1,0 +1,83 @@
+CARDIOMIOPATÍA DILATADA CANINA — PREDISPOSICIÓN RACIAL, FORMAS SECUNDARIAS Y LA CONTROVERSIA DIETARIA
+
+Resumen clínico de referencia para CCIS. Componentes que lo consumen: CC-220 (Imaging Intelligence, ecocardiografía), CC-240 (Diagnostic Correlation Engine), CC-101 (historia clínica, incluida la dietaria), y los componentes de estadificación cardíaca de CCIS.
+
+---
+
+1. PERFIL DEL PACIENTE
+
+La cardiomiopatía dilatada (DCM) se asocia comúnmente a predisposición genética en determinadas razas caninas, y también puede ocurrir de forma secundaria a otras enfermedades y a deficiencias nutricionales.
+
+Razas. Se reconoce como condición genética típicamente en razas grandes o gigantes, entre ellas Doberman Pinscher, Gran Danés e Irish Wolfhound. Fuentes europeas reportan además mayor incidencia en Airedale Terrier, Doberman Pinscher, Terranova, Scottish Deerhound y Cocker Spaniel Inglés.
+
+Sexo. Es más prevalente en machos que en hembras. En Doberman Pinscher se ha reportado una incidencia de 50% en machos y 33% en hembras. El Irish Wolfhound presenta una incidencia racial global reportada del 25%.
+
+Edad. Es una enfermedad de perros de mediana edad a mayores. Existen casos reportados de DCM juvenil en cachorros de Perro de Agua Portugués.
+
+Regla para CCIS: en las razas con incidencia racial alta, la enfermedad subclínica es esperable en una proporción sustancial de la población, de modo que un hallazgo ecocardiográfico en un Doberman asintomático no es incidental.
+
+2. FORMAS SECUNDARIAS — EL PUNTO QUE CONECTA CON OTRAS ESPECIALIDADES
+
+La DCM puede desarrollarse de forma secundaria a otros estados patológicos, entre ellos **hipotiroidismo, miocarditis y taquicardia crónica**. La incidencia de DCM resultante de estas causas está poco comprendida.
+
+Consecuencia operativa: ante un fenotipo dilatado, especialmente en una raza sin predisposición conocida, las causas secundarias deben evaluarse antes de asumir enfermedad primaria. El hipotiroidismo abre una conexión con ECIS, y la taquicardia crónica plantea la pregunta de si la arritmia es causa o consecuencia — una distinción con consecuencia terapéutica directa.
+
+Nota de prevención: la prevención de los casos no hereditarios es difícil en la mayoría de los casos, dado que arritmias, enfermedad infecciosa e hipotiroidismo no son prevenibles. En las razas con predisposición hereditaria conocida, la cría selectiva puede ser una medida de prevención, y las recomendaciones de cría suelen provenir de organizaciones específicas de cada raza.
+
+3. TAURINA
+
+Se ha descrito DCM relacionada con concentraciones bajas de taurina en Cocker Spaniel, Golden Retriever y en zorros, aunque la incidencia es desconocida.
+
+Un dato relevante para la conducta: se reportó que cinco Golden Retriever emparentados diagnosticados con DCM mostraron mejoría dentro de los 3 a 6 meses posteriores al inicio de la suplementación con taurina.
+
+Matiz importante sobre el Golden Retriever: no se considera raza de riesgo para DCM en general, pero sí está en riesgo de deficiencia de taurina. Es decir, el mecanismo es nutricional, no la predisposición estructural de las razas gigantes.
+
+Regla para CCIS: ante DCM en Cocker Spaniel o Golden Retriever, la determinación de taurina forma parte del abordaje, porque identifica una forma potencialmente reversible.
+
+4. LA CONTROVERSIA DIETARIA — CÓMO DEBE PRESENTARSE
+
+Este es el punto donde CCIS debe ser especialmente cuidadoso, porque es un área activamente disputada y el paciente suele llegar con el propietario ya informado por medios no técnicos.
+
+Los hechos
+
+En 2018 la FDA reportó casos de DCM en perros, incluidas razas sin predisposición genética conocida, alimentados con dietas que contenían una proporción alta de legumbres o papas, muchas de ellas etiquetadas como libres de grano.
+
+Una revisión narrativa reciente resume que perros de diversas razas alimentados con dietas no tradicionales, libres de grano y ricas en legumbres, mostraron diámetros ventriculares izquierdos mayores, función sistólica reducida y aumento de complejos ventriculares prematuros, en comparación con perros alimentados con dietas tradicionales bajas en legumbres. Esos hallazgos sugieren un vínculo entre dieta y DCM, particularmente en lo referido a legumbres.
+
+La posición contraria
+
+Otra revisión de la literatura sostiene que no existe asociación definitiva entre dietas con características específicas —libres de grano, con legumbres, de proteína novel, o producidas por fabricantes pequeños— y la DCM canina. Señala que las comunicaciones que plantearon la relación se apoyaron en un aumento subjetivo de casos, y advierte sobre sesgo de muestreo en los reportes a la FDA: propone que la comunidad veterinaria informe todos los casos de DCM del mismo período, con independencia de la etiología que el clínico proponga. Concluye que hacen falta estudios que evalúen una variable a la vez y minimicen variables de confusión.
+
+Estado actual. La FDA anunció que no publicaría más actualizaciones sobre DCM salvo que surgiera nueva información.
+
+Regla para CCIS: este tema se presenta como **controversia con evidencia en ambas direcciones**, no como hecho establecido ni como mito desacreditado. La historia dietaria debe recogerse siempre en un caso de DCM —forma parte de CC-101— y el cambio de dieta puede considerarse, pero el agente no debe afirmar causalidad que la literatura no sostiene.
+
+5. ERRORES FRECUENTES
+
+Asumir enfermedad primaria en un fenotipo dilatado sin evaluar hipotiroidismo, miocarditis ni taquicardia crónica.
+
+No determinar taurina en Cocker Spaniel o Golden Retriever, perdiendo una forma potencialmente reversible.
+
+Presentar la relación entre dietas libres de grano y DCM como establecida, o como descartada.
+
+Omitir la historia dietaria en la anamnesis de un caso de DCM.
+
+Tratar un hallazgo ecocardiográfico en un Doberman asintomático como incidental.
+
+Asumir que el riesgo del Golden Retriever es estructural, cuando el mecanismo descrito es la deficiencia de taurina.
+
+6. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Criterios ecocardiográficos diagnósticos y valores de corte por raza. Estadificación de la DCM y cribado de la fase oculta. Tratamiento farmacológico específico: ver el documento de insuficiencia cardíaca congestiva aguda para el manejo de la descompensación. Arritmias asociadas a DCM, en particular la fibrilación auricular y las arritmias ventriculares del Doberman. Muerte súbita y su predicción. Holter y su interpretación. Dosis de suplementación de taurina y L-carnitina. Cribado genético racial. DCM felina. Estos temas quedan como vacíos declarados de la Base de Conocimiento de CCIS.
+
+FUENTES
+
+McCauley SR, Clark SD, Quest BW, Streeter RM, Oxford EM. Review of canine dilated cardiomyopathy in the wake of diet-associated concerns. J Anim Sci 2020;98(6):skaa155. DOI 10.1093/jas/skaa155. Fuente de las secciones 1, 2, 3 y de la posición crítica en la sección 4.
+
+Role of Diet as a Predisposing Factor for Dilated Cardiomyopathy in Dogs: A Narrative Review. Veterinary Sciences 2025;12(11):1106. Fuente de los hallazgos de la sección 4.
+
+FDA — Investigation into Potential Link between Certain Diets and Canine Dilated Cardiomyopathy.
+
+Preliminary Data on Echocardiographic Evaluation and Serum Taurine Concentration in Healthy Dogs of Two Breeds. PMC9658598.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

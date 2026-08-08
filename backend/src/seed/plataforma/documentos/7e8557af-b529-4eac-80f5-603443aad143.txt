@@ -1,0 +1,48 @@
+Dashboard Functional Specification — ECIS
+
+Documento: ECIS-DASH-001
+Versión: 1.0
+Estado: Draft
+
+1. Filosofía del Dashboard
+
+Un veterinario que abre el Dashboard de un caso endocrino debe poder responder en menos de 10 segundos: ¿el diagnóstico está confirmado o es presuntivo?, ¿el tratamiento está bien titulado?, ¿hay riesgo de crisis aguda? La pregunta central de ECIS ocupa el lugar prioritario del header, igual que el estadio en OCIS/CCIS.
+
+2. Principios de Diseño
+
+Heredados de ECIS-DESIGN-001, con particular relevancia: Diagnostic Confirmation Clarity, Minimal Cognitive Load, Progressive Disclosure, Explainable AI.
+
+3. Layout del Dashboard
+
+Zona 1 — Header: Logo institucional + Executive Summary Card + Clinical State Card + Diagnostic Confirmation Card + Clinical Confidence Meter.
+
+Zona 2 — Signos vitales del caso: Confidence Meter + Active Problems Panel + Alertas (signos de crisis addisoniana o DKA descompensada, si los hay).
+
+Zona 3 — Evolución y evidencia: Clinical Timeline, Weight Trend, Therapeutic Monitoring Card, Metabolic Status Card (solo en casos de DKA activa), CBC/Chemistry Trend.
+
+Zona 4 — Razonamiento y conocimiento (colapsado): Diagnostic Correlation Panel, detalle de confirmación diagnóstica (CC-234), Knowledge Match Panel, Clinical Reasoning Journal.
+
+4. Reglas de aparición condicional
+
+| Condición | Componente que se activa |
+|---|---|
+| Siempre | Executive Summary Card, Clinical State Card, Diagnostic Confirmation Card, Confidence Meter, Active Problems Panel |
+| Existe prueba de estimulación (CC-234) | Detalle de confirmación diagnóstica |
+| Existe tratamiento crónico activo (CC-235/CC-307) | Therapeutic Monitoring Card |
+| Caso de DKA activa | Metabolic Status Card |
+| Diagnóstico presuntivo, sin confirmación | La Diagnostic Confirmation Card se muestra en ámbar, sin colapsar, hasta que se confirme o descarte |
+
+5. La Diagnostic Confirmation Card en el Dashboard
+
+- Estado confirmado: muestra la prueba usada y el resultado, en verde.
+- Estado presuntivo: muestra qué prueba falta para confirmar, en ámbar, sin colapsar.
+- Estado crisis activa: en rojo, con prioridad visual máxima sobre cualquier otro componente del header.
+
+6. Resto de secciones
+
+Interactividad, Reglas de actualización, Dashboard States (sin "Referred"), Accesibilidad — heredadas sin cambios del patrón establecido en OCIS-DASH-001/CCIS-DASH-001.
+
+7. Architecture Decisions
+
+AD-ECIS-DASH-01 — Dashboard as a View, not a Store.
+AD-ECIS-DASH-02 — Confirmation-First Layout, análoga a Staging-First de OCIS/CCIS.

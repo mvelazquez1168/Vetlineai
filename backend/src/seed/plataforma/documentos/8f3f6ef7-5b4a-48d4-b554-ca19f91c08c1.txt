@@ -1,0 +1,242 @@
+Banderas rojas endocrino medicina general · MD
+
+Banderas Rojas Endocrinas — Guía de Derivación para Medicina General
+
+Propósito de este documento
+
+Este extracto está pensado para el agente de medicina general/internista
+(ICIS). Su objetivo no es enseñar endocrinología clínica, sino ayudar
+a reconocer un cuadro endocrino detrás de signos que casi siempre se
+presentan disfrazados de otro sistema, y a decidir con qué prioridad
+derivar según el riesgo de descompensación aguda.
+
+Principio rector de este documento: este es, de los seis sistemas que
+llevamos documentados, el que menos tiene un signo propio y exclusivo.
+Casi todo lo que hace sospechar una endocrinopatía —poliuria/polidipsia,
+alopecia, letargia, cambios de peso, intolerancia al ejercicio— ya
+apareció como bandera roja de otro sistema en alguno de los documentos
+anteriores. El valor real de este documento no está en signos nuevos,
+sino en enseñar al agente a reconocer el patrón cuando la misma
+combinación de signos "promiscuos" se repite a través de varios sistemas
+a la vez — que es, precisamente, la firma característica de una
+enfermedad endocrina.
+
+1. Señales de alarma que ameritan derivación urgente o manejo de
+emergencia
+
+-   Debilidad aguda, colapso, vómito y diarrea profusa en un paciente
+    con antecedente de suspensión reciente de corticoides, o sin
+    antecedente conocido pero con hiperkalemia/hiponatremia
+    documentada — sospechar crisis addisoniana (hipoadrenocorticismo
+    agudo), una urgencia real con riesgo vital.
+
+-   Poliuria/polidipsia marcada + letargia + vómito + aliento con olor
+    característico (cetónico), sobre todo en paciente con diabetes
+    mellitus ya conocida o sospechada — sospechar cetoacidosis
+    diabética.
+
+-   Convulsiones o alteración aguda del estado mental en paciente con
+    antecedente de insulinoterapia — sospechar hipoglucemia grave,
+    urgencia inmediata con manejo distinto (y más simple) al resto de
+    este documento.
+
+-   Taquicardia marcada, intolerancia al calor, pérdida de peso severa
+    con apetito muy aumentado, en paciente felino geriátrico —
+    hipertiroidismo con descompensación; aunque rara vez es una
+    emergencia inmediata, la pérdida de masa muscular y el compromiso
+    cardíaco secundario (ver Banderas Rojas Cardiovasculares) ameritan
+    prioridad.
+
+-   Debilidad muscular grave con episodios de colapso intermitente, en
+    paciente con signos de hiperadrenocorticismo ya sospechado —
+    descartar complicaciones tromboembólicas, conocidas en esta
+    enfermedad.
+
+-   Deterioro agudo del estado general en paciente diabético conocido,
+    con cualquier cambio del patrón habitual de apetito, sed o
+    comportamiento — el margen de descompensación en diabéticos ya
+    diagnosticados es más estrecho que en un paciente sin esa carga
+    metabólica previa.
+
+2. Cuándo un patrón "de rutina" amerita derivación no urgente
+
+-   Poliuria/polidipsia gradual y sostenida, una vez descartado el
+    origen renal (ver Banderas Rojas Renales) — candidata a estudio
+    endocrino específico.
+
+-   Alopecia simétrica bilateral progresiva, sin prurito, especialmente
+    si se acompaña de letargia, intolerancia al frío, o ganancia de peso
+    — patrón compatible con hipotiroidismo, distinto del patrón
+    alérgico/pruriginoso ya cubierto en las Banderas Rojas
+    Dermatológicas.
+
+-   Abdomen péndulo + piel fina + alopecia truncal +
+    poliuria/polidipsia, en paciente geriátrico — patrón clásico de
+    hiperadrenocorticismo; ninguno de estos signos por separado es
+    concluyente, pero la combinación sí amerita estudio.
+
+-   Pérdida de peso progresiva con apetito conservado o aumentado, en
+    paciente felino geriátrico, una vez que se consideró y no se
+    confirmó la sospecha oncológica (ver Banderas Rojas Oncológicas) —
+    recordar que el hipertiroidismo felino puede simular varios signos
+    de sospecha oncológica y es más prevalente en esta población.
+
+-   Poliuria/polidipsia + polifagia + pérdida de peso, sobre todo con
+    glucosuria detectada en un uroanálisis de rutina — sospecha de
+    diabetes mellitus, amerita confirmación y manejo estructurado (no
+    necesariamente urgente si el paciente está estable, pero sí requiere
+    inicio de manejo especializado pronto).
+
+-   Vómito y diarrea crónicos intermitentes, con letargia inexplicada,
+    en paciente que no mejora con el manejo gastrointestinal habitual —
+    recordar que el hipoadrenocorticismo puede presentarse primariamente
+    como un cuadro digestivo ("el gran simulador"); si un caso
+    gastrointestinal crónico no encaja bien con los patrones ya
+    documentados en las Banderas Rojas Gastrointestinales, vale la pena
+    reconsiderar el origen endocrino antes de seguir escalando estudios
+    digestivos.
+
+Regla práctica: cuando dos o más signos "promiscuos" de sistemas
+distintos coexisten sin que ninguno de los diferenciales de esos
+sistemas individuales encaje del todo bien, es el momento de preguntarse
+si hay una causa endocrina común detrás de todos ellos.
+
+3. El patrón transversal: por qué este documento se apoya en los otros
+cinco
+
+A diferencia de los documentos anteriores, la tabla central de este
+documento no es "signo → sospecha", sino "qué sistema reportó este mismo
+signo antes, y qué lo distingue de una causa endocrina":
+
+  --------------------------------------------------------------------------
+  Signo                  Ya documentado en... Lo que distingue el origen
+                                              endocrino
+  ---------------------- -------------------- ------------------------------
+  Poliuria/polidipsia    Banderas Rojas       Función renal normal o solo
+                         Renales              secundariamente afectada;
+                                              suele acompañarse de otros
+                                              signos sistémicos (piel, peso,
+                                              apetito)
+
+  Alopecia simétrica sin Banderas Rojas       Ausencia de prurito es la
+  prurito                Dermatológicas       clave — la alopecia alérgica
+                                              casi siempre pica, la
+                                              endocrina casi nunca
+
+  Pérdida de peso con    Banderas Rojas       En gato geriátrico, descartar
+  apetito                Oncológicas          hipertiroidismo antes de
+  conservado/aumentado                        escalar a sospecha oncológica,
+                                              por mayor prevalencia y manejo
+                                              distinto
+
+  Letargia + signos      Banderas Rojas       El hipoadrenocorticismo es
+  digestivos crónicos    Gastrointestinales   célebre por simular enfermedad
+  que no encajan                              digestiva primaria —
+                                              reconsiderar si el caso "no
+                                              cierra" con los diferenciales
+                                              digestivos habituales
+
+  Intolerancia al        Banderas Rojas       El hipertiroidismo felino y el
+  ejercicio, taquicardia Cardiovasculares     hipotiroidismo canino pueden
+                                              generar o agravar cambios
+                                              cardíacos secundarios — vale
+                                              la pena, ante sospecha
+                                              endocrina, revisar también el
+                                              estado cardiovascular
+  --------------------------------------------------------------------------
+
+El mensaje para el agente: cuando un caso ya fue evaluado contra las
+banderas rojas de un sistema y "casi encaja pero no del todo", antes de
+escalar aún más estudios de ese mismo sistema, vale la pena cruzar
+contra esta tabla — la explicación puede estar en un sistema
+completamente distinto al que se venía investigando.
+
+4. Pearls de contexto racial y de especie
+
+-   Gatos geriátricos, cualquier raza — el hipertiroidismo es, en
+    términos de prevalencia poblacional, la endocrinopatía felina más
+    común; ante pérdida de peso inexplicada en un gato senior, debe
+    estar temprano en la lista de diferenciales, no al final.
+
+-   Doberman, Golden Retriever, Cocker Spaniel, razas medianas-grandes
+    de edad media — mayor predisposición a hipotiroidismo; letargia y
+    cambios de peso en estas razas ameritan considerarlo.
+
+-   Caniche, Dachshund, Beagle, terriers pequeños de edad
+    media-avanzada — mayor predisposición a hiperadrenocorticismo
+    (Cushing) de origen pituitario.
+
+-   Setter Irlandés, Wheaten Terrier, Pastor Alemán, Rottweiler,
+    Standard Poodle — razas con predisposición documentada a
+    hipoadrenocorticismo (Addison); en estas razas, un cuadro digestivo
+    crónico atípico amerita considerar esta entidad con más peso que en
+    razas sin esa predisposición.
+
+-   Schnauzer Miniatura, Beagle — mayor riesgo de hiperlipidemia
+    idiopática, que puede confundirse o coexistir con endocrinopatías
+    metabólicas y complicar el cuadro con pancreatitis asociada (ver
+    conexión con Banderas Rojas Gastrointestinales).
+
+-   Perros de razas grandes esterilizados a edad temprana — cierta
+    asociación descrita con alteraciones metabólicas a largo plazo; dato
+    de contexto más que un criterio de derivación por sí solo.
+
+-   Basenji — síndrome de Fanconi, con glucosuria sin hiperglicemia (ver
+    Banderas Rojas Renales); no debe confundirse con diabetes mellitus
+    en esta raza específica.
+
+5. Qué NO debe hacer el agente de medicina general
+
+-   No debe anclarse en el primer sistema que "parece" explicar un signo
+    promiscuo (poliuria/polidipsia, pérdida de peso, letargia) sin
+    considerar la posibilidad endocrina cuando el cuadro cruza varios
+    sistemas a la vez.
+
+-   No debe descartar hipoadrenocorticismo solo porque el paciente se
+    presenta con signos digestivos — es precisamente su forma de
+    presentación más traicionera.
+
+-   No debe demorar la derivación ante sospecha de crisis addisoniana o
+    cetoacidosis diabética esperando a completar un estudio ambulatorio
+    completo — estabilizar y derivar.
+
+-   No debe asumir que un paciente diabético "estable" no puede
+    descompensar rápido — cualquier cambio de patrón en un diabético
+    conocido amerita atención pronta, no la misma paciencia que en un
+    paciente sin esa carga metabólica.
+
+-   No debe tratar la alopecia simétrica sin prurito como un problema
+    puramente estético o dermatológico sin investigar causa endocrina.
+
+Resumen para uso rápido
+
+  -----------------------------------------------------------------------
+  Si el paciente presenta...         Acción del agente de medicina
+                                     general
+  ---------------------------------- ------------------------------------
+  Debilidad aguda + vómito/diarrea + Sospechar crisis addisoniana —
+  electrolitos alterados, sin causa  derivar/estabilizar con urgencia
+  clara                              
+
+  Poliuria/polidipsia + letargia +   Sospechar cetoacidosis diabética —
+  vómito + aliento cetónico          urgencia
+
+  Convulsión o alteración mental en  Sospechar hipoglucemia — manejo
+  paciente con insulinoterapia       inmediato
+
+  Alopecia simétrica sin prurito +   Sospecha endocrina — descartar antes
+  letargia/cambios de peso           de tratar como dermatológico
+                                     primario
+
+  Pérdida de peso con apetito        Descartar hipertiroidismo antes de
+  conservado/aumentado en gato       escalar a sospecha oncológica
+  senior                             
+
+  Cuadro digestivo crónico que "no   Reconsiderar hipoadrenocorticismo,
+  encaja" con los diferenciales      sobre todo en razas predispuestas
+  habituales                         
+
+  Combinación de signos de ≥2        Cruzar contra este documento antes
+  sistemas distintos sin diagnóstico de seguir escalando estudios de un
+  claro                              solo sistema
+  -----------------------------------------------------------------------

@@ -101,6 +101,10 @@ export interface CasoDetalle {
   raza: string;
   sexo: string;
   edad_anios: number | null;
+  fecha_nacimiento: string | null;
+  paciente_estado: "activo" | "fallecido";
+  propietario_id: string;
+  propietario_nombre: string;
   // true si el agente del caso tiene system_prompt cargado — mismo
   // criterio de branching que usa el backend en todos lados. Solo esos
   // casos pueblan dashboard_cache (migración 015); se usa para no mostrar
@@ -448,6 +452,8 @@ export interface CuidadoPreventivo {
   registrado_por_nombre: string;
   vacuna: string | null;
   lote: string | null;
+  subtipo_desparasitacion: "interna" | "externa" | null;
+  producto_desparasitacion: string | null;
 }
 
 export type TipoNotificacion =
@@ -525,12 +531,32 @@ export const workspaceApi = {
   // diferencia del POST /workspace/casos original (que sigue existiendo
   // sin usarse desde acá), este resuelve y persiste medico_agente_id en
   // el backend.
-  crearCaso: (data: { pacienteId: string; agenteId: string; motivoConsulta: string }) =>
-    apiFetch<{ caso: CasoResumen }>("/casos", {
+  // prompt: vincular caso↔cita — citaId opcional (rama "elegir cita de
+  // hoy" del wizard). citaVinculada solo viene en la respuesta cuando se
+  // mandó citaId: false es la señal de que el vínculo no prendió (p.ej.
+  // la cita se vinculó a otra cosa mientras tanto) sin que eso bloquee la
+  // creación del caso, que ya sucedió igual.
+  crearCaso: (data: { pacienteId: string; agenteId: string; motivoConsulta: string; citaId?: string }) =>
+    apiFetch<{ caso: CasoResumen; citaVinculada?: boolean }>("/casos", {
       method: "POST",
       token: getStoredToken(),
       body: JSON.stringify(data),
     }),
+
+  // Citas de hoy de este paciente, agendadas con este médico, que todavía
+  // no tienen caso vinculado — para la rama "elegir cita de hoy" del
+  // wizard "Nuevo Caso". Filtra client-side por estado (no cancelada/
+  // no_show) y caso_id nulo: son pocos registros por día, no vale la pena
+  // un endpoint dedicado para esto solo.
+  listarCitasDeHoyDelPaciente: async (pacienteId: string, medicoId: string) => {
+    const hoy = new Date().toISOString().slice(0, 10);
+    const data = await authedFetch<{
+      citas: { id: string; hora_inicio: string; hora_fin: string; estado: string; caso_id: string | null }[];
+    }>(`/citas?desde=${hoy}&hasta=${hoy}&medico_id=${medicoId}&paciente_id=${pacienteId}`);
+    return data.citas.filter(
+      (c) => c.caso_id === null && c.estado !== "cancelada" && c.estado !== "no_show"
+    );
+  },
 
   buscarPropietarios: (q: string) =>
     authedFetch<{ propietarios: Propietario[] }>(`/propietarios/buscar?q=${encodeURIComponent(q)}`),
@@ -561,11 +587,29 @@ export const workspaceApi = {
   listarTiposIdentificacion: () =>
     authedFetch<{ tipos: TipoIdentificacion[] }>("/propietarios/tipos-identificacion"),
 
-  crearPaciente: (data: { propietarioId: string; nombre: string; especie: string; razaId?: string }) =>
+  crearPaciente: (data: {
+    propietarioId: string;
+    nombre: string;
+    especie: string;
+    razaId?: string;
+    fechaNacimiento?: string;
+  }) =>
     authedFetch<{ paciente: PacienteDePropietario }>("/pacientes", {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  // prompt_code_paciente_nacimiento_estado.md, Parte B2 — único camino
+  // para registrar un fallecimiento. La confirmación vive en el frontend
+  // (modal dedicado), no acá.
+  marcarPacienteFallecido: (pacienteId: string, fechaFallecimiento: string) =>
+    authedFetch<{ paciente: { id: string; nombre: string; estado: string; fecha_fallecimiento: string } }>(
+      `/pacientes/${pacienteId}/estado`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ estado: "fallecido", fechaFallecimiento }),
+      }
+    ),
 
   // "Analizar el caso" — contenido puede venir vacío si hay información
   // pendiente sin analizar (el backend arma el disparador él solo); nunca
@@ -704,6 +748,8 @@ export const workspaceApi = {
       fechaProximaRecomendada: string;
       vacuna?: string;
       lote?: string;
+      subtipoDesparasitacion?: "interna" | "externa";
+      productoDesparasitacion?: string;
     }
   ) =>
     authedFetch<{ cuidadoPreventivo: CuidadoPreventivo }>(`/pacientes/${pacienteId}/cuidados-preventivos`, {

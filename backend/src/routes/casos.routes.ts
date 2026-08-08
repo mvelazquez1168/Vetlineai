@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { PoolClient } from "pg";
-import * as fs from "fs";
 import * as path from "path";
+import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import {
   Document,
   Packer,
@@ -28,9 +28,11 @@ import {
   suscripcionBloqueaGeneracionIa,
 } from "../purga";
 import { construirBloqueContextoCaso } from "../contextoCaso";
+import { calcularEdadEfectiva } from "../edadPaciente";
 import { avisoActivo, emitirNotificacion } from "../notificaciones";
 import { construirBloqueRazaDocumento, NOMBRE_DOCUMENTO_PREDISPOSICIONES } from "../razaDocumento";
 import { asignarNumeroExpediente } from "../expediente";
+import { registrarResultadoAnthropic, registrarExitoAnthropic } from "../proveedorIaEstado";
 
 export const casosRouter = Router();
 
@@ -96,11 +98,20 @@ export async function obtenerDocumentosParaContexto(
 // "caso recién creado, todavía sin investigar", así que se usa ese valor
 // en vez de agregar 'abierto' al CHECK constraint.
 // ---------------------------------------------------------------------
+// prompt: vincular caso↔cita para el reporte de atenciones — citaId
+// opcional, viene del wizard "Nuevo Caso" cuando el médico elige una cita
+// de hoy ya agendada para vincular. El vínculo se hace acá, no en un
+// segundo request aparte, para que quede atómico con la creación del
+// caso (misma transacción implícita de req.db). Nunca falla la creación
+// del caso si el vínculo no prende (condición de carrera poco probable,
+// p.ej. la cita se vinculó a otra cosa entre que el wizard la mostró y
+// el submit) — se informa citaVinculada: false en la respuesta.
 casosRouter.post("/", async (req, res) => {
-  const { pacienteId, agenteId, motivoConsulta } = req.body as {
+  const { pacienteId, agenteId, motivoConsulta, citaId } = req.body as {
     pacienteId?: string;
     agenteId?: string;
     motivoConsulta?: string;
+    citaId?: string;
   };
 
   if (!pacienteId || !agenteId || !motivoConsulta || !motivoConsulta.trim()) {
@@ -170,6 +181,17 @@ casosRouter.post("/", async (req, res) => {
       return res.status(404).json({ error: "Paciente no encontrado." });
     }
 
+    let citaVinculada: boolean | undefined;
+    if (citaId) {
+      const vinculoResult = await req.db!.query(
+        `UPDATE citas SET caso_id = $1, actualizado_en = now()
+         WHERE id = $2 AND tenant_id = $3 AND caso_id IS NULL
+         RETURNING id`,
+        [caso.id, citaId, req.auth!.tenantId]
+      );
+      citaVinculada = vinculoResult.rows.length > 0;
+    }
+
     res.status(201).json({
       caso: {
         ...caso,
@@ -177,6 +199,7 @@ casosRouter.post("/", async (req, res) => {
         especie: pacienteResult.rows[0].especie,
         raza: pacienteResult.rows[0].raza,
       },
+      ...(citaVinculada !== undefined ? { citaVinculada } : {}),
     });
   } catch (err) {
     console.error("POST /casos", err);
@@ -1008,8 +1031,10 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
         tools: [DASHBOARD_TOOL as any],
         tool_choice: { type: "tool", name: "generar_dashboard" },
       });
+      await registrarExitoAnthropic();
     } catch (err) {
       console.error("Error al llamar a la API de Claude para el Dashboard", err);
+      await registrarResultadoAnthropic(err);
       return res.status(502).json({ error: "No se pudo generar el Dashboard en este momento." });
     }
 
@@ -2080,7 +2105,8 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
     const casoResult = await req.db!.query(
       `SELECT c.id, c.agente_id, c.estado, c.motivo, c.numero_expediente,
               p.id AS paciente_id, p.nombre AS paciente_nombre, p.especie, r.nombre AS raza,
-              p.sexo AS paciente_sexo, p.edad_anios AS paciente_edad_anios,
+              p.sexo AS paciente_sexo, p.edad_anios AS paciente_edad_anios, p.fecha_nacimiento AS paciente_fecha_nacimiento,
+              p.estado AS paciente_estado,
               pr.id AS propietario_id, pr.nombre AS propietario_nombre,
               a.system_prompt,
               m.nombre AS medico_nombre, m.colegiatura AS medico_colegiatura,
@@ -2099,6 +2125,7 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
       return res.status(404).json({ error: "Caso no encontrado." });
     }
     const caso = casoResult.rows[0];
+    caso.paciente_edad_anios = calcularEdadEfectiva(caso.paciente_fecha_nacimiento, caso.paciente_edad_anios);
 
     if (!caso.system_prompt) {
       return res.status(400).json({
@@ -2116,14 +2143,16 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
         error: "La clínica no tiene un logo cargado. Subilo en Datos de la Clínica antes de generar el informe.",
       });
     }
-    const logoPath = path.join(__dirname, "../..", caso.tenant_logo_url);
-    if (!fs.existsSync(logoPath)) {
+    const logoClave = claveLogoDesdeValorGuardado(caso.tenant_logo_url);
+    let logoBuffer: Buffer;
+    try {
+      logoBuffer = await almacenamientoPublico.leer(logoClave);
+    } catch {
       return res.status(422).json({
         error: "No se encontró el archivo del logo de la clínica en el servidor.",
       });
     }
-    const logoBuffer = fs.readFileSync(logoPath);
-    const logoExt = path.extname(logoPath).toLowerCase();
+    const logoExt = path.extname(logoClave).toLowerCase();
     const logoType: "png" | "jpg" = logoExt === ".png" ? "png" : "jpg";
 
     // -----------------------------------------------------------------
@@ -2287,8 +2316,10 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
         tools: [INFORME_TOOL as any],
         tool_choice: { type: "tool", name: "generar_informe" },
       });
+      await registrarExitoAnthropic();
     } catch (err) {
       console.error("Error al llamar a la API de Claude para el Informe", err);
+      await registrarResultadoAnthropic(err);
       return res.status(502).json({ error: "No se pudo generar el informe en este momento." });
     }
 
@@ -2479,7 +2510,12 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
     // veterinario quien controla cuándo y cómo se comunica el contenido
     // clínico). No debería bloquear la descarga tampoco.
     try {
-      if (await avisoActivo(req.db!, req.auth!.tenantId!, "informe_disponible_activo")) {
+      // prompt_code_paciente_nacimiento_estado.md, Parte B2 — un paciente
+      // fallecido no recibe ningún aviso.
+      if (
+        caso.paciente_estado === "activo" &&
+        (await avisoActivo(req.db!, req.auth!.tenantId!, "informe_disponible_activo"))
+      ) {
         await emitirNotificacion(req.db!, {
           tenantId: req.auth!.tenantId!,
           tipo: "informe_disponible",

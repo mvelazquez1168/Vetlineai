@@ -1,0 +1,58 @@
+Knowledge Base Standard (KBS) — NCIS
+
+Versión: 1.0
+Código: NCIS-KB-001
+
+1. Filosofía
+
+Define las reglas para transformar casos neurológicos/ortopédicos en unidades de conocimiento estructuradas. Cada caso deberá responder: ¿a qué línea clínica perteneció (estructural/funcional/ambas)? ¿qué grado o nivel de control se asignó, y por qué? ¿cómo evolucionó bajo el manejo elegido? ¿la severidad inicial predijo correctamente el curso clínico?
+
+2. Unidad de Conocimiento
+
+Identificador: NCIS-KU-000001. Contiene: Metadata, perfil del paciente, línea clínica, grado/nivel de control asignado con criterios, historia resumida, hallazgos relevantes, tratamiento aplicado, evidencia, evolución, pronóstico estimado vs. observado, lecciones aprendidas, nivel de calidad.
+
+3. Metadata
+
+Código, fecha, línea clínica (estructural/funcional/ambas), diagnóstico, grado o nivel de control, especie, raza, edad, sexo, manejo utilizado.
+
+4. Diagnóstico y Gradación
+
+Para IVDD: grado 1-5, estado de dolor profundo. Para epilepsia: frecuencia de crisis, clasificación de control, niveles séricos de AED cuando disponibles.
+
+5. Tratamientos
+
+Para IVDD: manejo médico vs. quirúrgico, tiempo hasta la intervención cuando aplica. Para epilepsia: esquema de AEDs, ajustes de titulación, interacciones documentadas.
+
+6. Outcome
+
+Categorías propias: para IVDD — Recuperación completa de ambulación, Recuperación parcial, Sin recuperación, Mielomalacia progresiva, Fallecimiento; para epilepsia — Bien controlada, Control parcial, Crisis recurrentes pese a manejo, Fallecimiento relacionado a status epilepticus, En tratamiento activo, Perdido de seguimiento.
+
+7. Similarity Tags
+
+Ejemplo: Perro, Dachshund, IVDD, Grado-4, Dolor-Profundo-Presente, Cirugia; o Perro, Border Collie, Epilepsia-Idiopatica, Bien-Controlada, Fenobarbital.
+
+8. Knowledge Quality Score
+
+Un caso con grado/control documentado con criterios completos y seguimiento prolongado tiene mayor puntaje que uno con evaluación incompleta.
+
+9. Teaching Mode
+
+Pregunta docente central adaptativa: para IVDD, "¿qué grado le asignarías y qué implica el estado de dolor profundo para la urgencia de la decisión?"; para epilepsia, "¿este patrón de crisis amerita ajuste de AED, y qué interacciones farmacocinéticas considerarías?"
+
+10. Architecture Decisions
+
+AD-NCIS-KB-01 a 05 — heredados sin cambios estructurales del resto de agentes especializados, adaptando referencias según la línea clínica del caso.
+
+AD-NCIS-KB-06 — Dual-Track Outcome Correlation, análoga a las decisiones equivalentes del resto de agentes: correlación entre la severidad inicial asignada (por línea clínica) y el desenlace real observado, para calibrar la Base de Conocimiento clínica.
+
+---
+
+ADDENDUM — Línea Ortopédica en la Base de Conocimiento
+
+Metadata se extiende: para casos ortopédicos, estadio COASTeR asignado.
+
+Outcome — categorías propias: Estadio estable/controlado, Progresión de estadio, Manejo quirúrgico exitoso, Manejo quirúrgico con complicaciones, Manejo médico de por vida, Perdido de seguimiento.
+
+Similarity Tags — ejemplo: Perro, Labrador, Osteoartritis, Estadio-COASTeR-3, AINE, Rehabilitacion.
+
+Teaching Mode — pregunta docente: "¿qué estadio COASTeR le asignarías, y qué elementos base/build corresponden?"

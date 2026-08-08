@@ -1,0 +1,76 @@
+# Toxicología de Emergencia Canina — Agentes Comunes, Decontaminación y Antídotos
+
+**Fuentes principales (síntesis de literatura convergente):**
+- Weingart C, et al. Chocolate ingestion in dogs: 156 events (2015-2019). *J Small Anim Pract.* 2021.
+- Eubig PA, et al. Acute renal failure in dogs after ingestion of grapes or raisins: a retrospective evaluation of 43 dogs. *J Vet Intern Med.* 2005.
+- Revisiones y capítulos de referencia en *Veterinary Clinics of North America: Small Animal Practice* sobre rodenticidas y antídotos/agentes reversores en toxicología de pequeños animales.
+- Literatura complementaria sobre toxicosis por xilitol y otros agentes comunes.
+
+**Alcance de este resumen:** primer documento de un área nueva en la Base de Conocimiento de ICIS — toxicología de emergencia. No encaja limpiamente en ninguno de los 9 sistemas ya cubiertos, pero es una de las causas de consulta de emergencia más frecuentes en la práctica de pequeños animales: en una encuesta entre clínicas veterinarias alemanas, la sospecha de intoxicación fue el motivo de consulta en aproximadamente **1 de cada 200 perros**.
+
+---
+
+## 1. Principio general de manejo — por qué la mayoría de los casos tienen buen desenlace
+
+- La mayoría de las exposiciones a agentes tóxicos resultan en signos clínicos nulos o leves — frecuentemente por dosis de exposición baja, o por descontaminación oportuna realizada por el propietario o el veterinario.
+- En una serie de 156 casos de ingestión de chocolate manejados con descontaminación y tratamiento sintomático, la tasa de mortalidad fue **inferior al 3%** — refuerza que con manejo oportuno, el pronóstico general de las toxicosis alimentarias comunes es favorable.
+- **Regla de oro para la ventana de descontaminación**: la inducción de emesis es generalmente más efectiva dentro de las **primeras 1-2 horas** post-ingestión para la mayoría de las sustancias no corrosivas; después de 2 horas, la mayor parte de la sustancia ya transitó el estómago y el rendimiento de la emesis disminuye considerablemente. El carbón activado puede considerarse hasta 4-6 horas post-ingestión para sustancias con recirculación enterohepática.
+- **Nunca inducir emesis** ante: ingestión de sustancias cáusticas/corrosivas (blanqueador, destapacaños), productos derivados de petróleo, objetos punzantes, o si el paciente ya está convulsionando, obnubilado, o ha perdido el reflejo nauseoso.
+
+## 2. Los agentes más frecuentes — perfil clínico por sustancia
+
+### Chocolate (metilxantinas: teobromina y cafeína)
+- El chocolate oscuro y de repostería son los de mayor riesgo (mayor concentración de metilxantinas); el chocolate blanco tiene teobromina negligible pero riesgo de pancreatitis por su alto contenido graso.
+- La vida media de la teobromina en perros es de aproximadamente **17.5 horas** — los signos clínicos pueden persistir 24-72 horas, lo que tiene implicación directa en el tiempo de monitoreo/hospitalización necesario.
+- Signos: vómito, diarrea, hiperactividad, PU/PD, taquicardia, temblores musculares, hipertermia; en dosis altas: convulsiones, arritmias cardíacas.
+- Recirculación enterohepática significativa — el carbón activado en dosis repetidas puede ser beneficioso más allá de la dosis única inicial.
+
+### Uvas y pasas
+- Pueden causar **falla renal aguda** — el mecanismo exacto sigue sin estar completamente esclarecido, y la relación dosis-respuesta **no es predecible** como en otros tóxicos (a diferencia de chocolate o AINEs, donde sí existe una relación dosis-dependiente clara).
+- **Implicación práctica**: cualquier ingestión, independientemente de la cantidad, amerita tratamiento — no debe aplicarse el mismo razonamiento de "dosis segura" que se usa con chocolate o xilitol.
+- Los signos pueden ser más dramáticos en animales con enfermedad concurrente.
+
+### Xilitol
+- Edulcorante presente en chicles sin azúcar, dulces, productos horneados y de cuidado dental — cada vez más frecuente y muchos propietarios desconocen su toxicidad.
+- Mecanismo: liberación masiva de insulina en perros (a diferencia de otras especies) — causa hipoglucemia profunda; en dosis más altas, puede progresar a falla hepática.
+- Se ha descrito asociación con aumento de glucogenólisis, coagulopatía, y estrés oxidativo.
+- N-acetilcisteína puede considerarse como parte del manejo en casos de toxicosis por xilitol, además de su uso clásico en intoxicación por paracetamol.
+
+### AINEs (ibuprofeno, naproxeno, y otros de uso humano)
+- A diferencia de uvas/pasas, sí tienen una **relación dosis-respuesta establecida** — permite calcular si la dosis ingerida supera el umbral tóxico publicado, lo cual ayuda a guiar la decisión de triage.
+- Riesgo principal: ulceración gástrica severa y progresión a falla renal si el tratamiento se retrasa.
+- Con descontaminación temprana el pronóstico es bueno; el retraso en el tratamiento es lo que predispone a daño renal o ulceración GI significativa.
+
+### Rodenticidas — el grupo más heterogéneo, requiere identificar el tipo exacto
+Los rodenticidas no son un grupo único — cada tipo tiene mecanismo, presentación y manejo completamente distintos:
+
+- **Anticoagulantes** (cumarínicos): inhiben factores de coagulación dependientes de vitamina K, generando trastornos hemorrágicos. La vitamina K1 IV normaliza el tiempo de protrombina en aproximadamente 1 hora en perros con esta toxicosis — es el antídoto específico.
+- **Colecalciferol (vitamina D3)**: causa hipercalcemia y daño orgánico por desregulación de calcio/fósforo. El pamidronato es útil para tratar la hipercalcemia/hiperfosfatemia resultante, aunque puede causar azotemia transitoria y requerir dosis múltiples.
+- **Bromethalina**: neurotóxico que afecta la producción de energía celular. **No tiene antídoto específico** — la descontaminación inmediata y agresiva tras ingestión aguda es la única intervención efectiva. Los gatos son más sensibles que otras especies, y existe riesgo de "toxicosis de relevo" (relay toxicosis) al ingerir un animal que murió por bromethalina.
+- **Fosfuro de zinc**: libera gas fosfina, causando distrés respiratorio y gastrointestinal.
+- **Estricnina**: causa excitabilidad neuromuscular severa.
+
+**Implicación práctica crítica**: ante sospecha de exposición a rodenticida, **identificar el tipo exacto (idealmente con el empaque del producto) es esencial** — el manejo y el antídoto (cuando existe) son completamente distintos entre categorías; tratar genéricamente "como si fuera anticoagulante" sin confirmar el tipo puede ser inadecuado o peligroso.
+
+## 3. Antídotos y agentes reversores — referencia rápida
+
+| Antídoto | Indicación principal |
+|---|---|
+| N-acetilcisteína | Sobredosis de paracetamol; también puede considerarse en toxicosis por hongos amanita, palma sago, y xilitol |
+| Flumazenil | Sobredosis de benzodiazepinas — revierte depresión/coma del SNC severo; vida media corta, puede repetirse en 1-3 horas si es necesario |
+| Pamidronato | Colecalciferol, calcipotrieno, calcitriol — trata hipercalcemia/hiperfosfatemia resultante; puede requerir dosis múltiples |
+| Cyproheptadina | Síndrome serotoninérgico por sustancias serotonérgicas (ISRS, tricíclicos) — puede administrarse rectal si el paciente no tolera vía oral |
+| Vitamina K1 | Rodenticidas anticoagulantes — normaliza tiempo de protrombina en ~1 hora |
+
+## 4. Cuándo consultar con un centro de control de intoxicaciones
+
+- Ante duda sobre identificación del tóxico, dosis ingerida, o manejo apropiado — especialmente relevante cuando se ingirieron múltiples medicamentos humanos o una cantidad desconocida de una sustancia.
+- La consulta con un centro de control de intoxicaciones aporta: acceso a un toxicólogo certificado, documentación médico-legal del caso, y orientación específica de manejo — un recurso de apoyo válido incluso cuando el veterinario tratante está seguro de la identificación del tóxico.
+
+## 5. Conclusión operativa para ICIS
+
+- El primer dato de triage siempre debe incluir: **qué sustancia, cuánta cantidad, y cuánto tiempo transcurrió desde la ingestión** — determina directamente si la descontaminación (emesis/carbón activado) sigue siendo una opción viable o si ya se perdió esa ventana.
+- No todos los tóxicos siguen la misma lógica de "dosis segura": AINEs y chocolate tienen relación dosis-respuesta calculable, mientras que uvas/pasas requieren tratamiento independientemente de la cantidad — esta distinción cambia directamente la decisión de observar vs. tratar activamente.
+- Ante sospecha de rodenticida, **el tipo exacto de producto debe identificarse antes de decidir el manejo** — no existe un protocolo único válido para "rodenticida" en general, dado que anticoagulantes, colecalciferol y bromethalina requieren enfoques y antídotos completamente distintos (y bromethalina no tiene antídoto).
+- La vida media prolongada de ciertos tóxicos (ej. teobromina ~17.5h) debe traducirse directamente en la duración de monitoreo/hospitalización recomendada al propietario — un paciente que luce estable a las pocas horas de ingerir chocolate aún puede desarrollar signos cardíacos o neurológicos posteriormente.
+- Esta área complementa transversalmente varios sistemas ya cargados: la falla renal aguda por uvas/pasas se conecta con los resúmenes de AKI ya cargados; la coagulopatía por rodenticidas anticoagulantes se conecta con el sistema hematológico; y las convulsiones por bromethalina o metilxantinas se conectan con el sistema neurológico ya cargado (Status Epilepticus).

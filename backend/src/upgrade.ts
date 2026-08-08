@@ -19,9 +19,15 @@ import { calcularImpuestoPais } from "./pagos/documentoFiscal";
 //
 // Motor de cobros — ejecutarUpgrade YA NO aplica el cambio de plan en la
 // respuesta síncrona: crea el cobro y una fila `cambios_suscripcion` en
-// estado 'programado' (a la espera del callback) y manda el cargo. El
+// estado 'espera_pago' (a la espera del callback) y manda el cargo. El
 // cambio de plan/crédito se aplica SOLO en confirmarUpgradeExitoso, más
 // abajo, llamada exclusivamente desde pagos/callbackCobros.ts.
+//
+// 'espera_pago' (no 'programado') a propósito — ver migración 056: antes
+// compartía 'programado' con downgrade/cancelación, y solicitarDowngrade
+// cancelaba CUALQUIER fila en ese estado para reemplazarla, incluido un
+// upgrade con el cobro ya en tránsito. Con un estado propio,
+// solicitarDowngrade ya no puede tocar esto ni por accidente.
 // ---------------------------------------------------------------------
 
 interface DatosProrrateo {
@@ -209,7 +215,7 @@ export async function ejecutarUpgrade(
     `INSERT INTO cambios_suscripcion
        (suscripcion_id, tipo, plan_destino_id, estado, efectivo_en, cobro_id,
         monto_prorrateado_usd, credito_prorrateado_usd, solicitado_por)
-     VALUES ($1, 'upgrade', $2, 'programado', now(), $3, $4, $5, $6)`,
+     VALUES ($1, 'upgrade', $2, 'espera_pago', now(), $3, $4, $5, $6)`,
     [
       datos.suscripcionId,
       planDestino.id,
@@ -253,14 +259,19 @@ export async function ejecutarUpgrade(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function confirmarUpgradeExitoso(client: PoolClient, cobro: any): Promise<void> {
+  // AND estado = 'espera_pago' — defensivo: un callback duplicado o
+  // fuera de orden (el proveedor reintenta notificaciones) no debe volver
+  // a aplicar el cambio de plan sobre una fila que ya se ejecutó o que
+  // fue marcada 'fallido' por otro camino.
   const cambioResult = await client.query(
-    `UPDATE cambios_suscripcion SET estado = 'ejecutado', ejecutado_en = now() WHERE cobro_id = $1
+    `UPDATE cambios_suscripcion SET estado = 'ejecutado', ejecutado_en = now()
+     WHERE cobro_id = $1 AND estado = 'espera_pago'
      RETURNING suscripcion_id, plan_destino_id, credito_prorrateado_usd, solicitado_por`,
     [cobro.id]
   );
   const cambio = cambioResult.rows[0];
   if (!cambio) {
-    console.error(`[upgrade] Cobro ${cobro.id} exitoso pero no hay cambios_suscripcion asociado.`);
+    console.error(`[upgrade] Cobro ${cobro.id} exitoso pero no hay cambios_suscripcion en espera_pago asociado (¿callback duplicado?).`);
     return;
   }
 
@@ -329,5 +340,7 @@ export async function confirmarUpgradeExitoso(client: PoolClient, cobro: any): P
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function confirmarUpgradeFallido(client: PoolClient, cobro: any): Promise<void> {
-  await client.query(`UPDATE cambios_suscripcion SET estado = 'fallido' WHERE cobro_id = $1`, [cobro.id]);
+  await client.query(`UPDATE cambios_suscripcion SET estado = 'fallido' WHERE cobro_id = $1 AND estado = 'espera_pago'`, [
+    cobro.id,
+  ]);
 }

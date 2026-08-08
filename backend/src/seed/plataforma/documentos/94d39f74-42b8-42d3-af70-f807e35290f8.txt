@@ -1,0 +1,97 @@
+MIOCARDIOPATÍAS FELINAS — CLASIFICACIÓN POR FENOTIPO, ESTADIFICACIÓN Y MANEJO (CONSENSO ACVIM 2020)
+
+Resumen clínico de referencia para CCIS. Componentes que lo consumen: CC-220 (Imaging Intelligence, ecocardiografía), CC-240 (Diagnostic Correlation Engine), CC-201/202 (laboratorio), y los componentes de estadificación cardíaca de CCIS.
+
+Este documento cubre la primera entidad felina de la Base de Conocimiento de CCIS.
+
+---
+
+1. POR QUÉ IMPORTA
+
+Las miocardiopatías son un grupo heterogéneo de trastornos miocárdicos de etiología mayormente desconocida, y ocurren con frecuencia en el gato.
+
+Su rango de comportamiento es amplio y ese es el problema clínico: en algunos gatos son bien toleradas y se asocian a expectativa de vida normal, mientras que en otros derivan en insuficiencia cardíaca congestiva, tromboembolismo arterial o muerte súbita.
+
+La miocardiopatía hipertrófica (HCM) es el fenotipo más común.
+
+Origen del documento. Las guías de consenso de ACVIM de 2020 se elaboraron mediante método Delphi modificado, definiendo consenso como el acuerdo de más de seis de los nueve miembros del comité. Para cada declaración consensuada se determinó un nivel de evidencia —bajo, medio o alto— y una clase, tras revisión de la literatura.
+
+2. CLASIFICACIÓN POR FENOTIPO
+
+El sistema se basa en la estructura y la función cardíacas, es decir, en el fenotipo, no en la etiología.
+
+Se recomienda retener como marco básico las categorías fenotípicas tradicionales de la clasificación de la Sociedad Europea de Cardiología: miocardiopatía hipertrófica (HCM), miocardiopatía restrictiva (RCM), miocardiopatía dilatada (DCM) y miocardiopatía arritmogénica del ventrículo derecho (ARVC) — reconociendo sus limitaciones.
+
+La categoría que se elimina. La miocardiopatía no clasificada (UCM) se descarta como término. Los gatos con enfermedad miocárdica que no encaja bien en ninguna categoría deben describirse como portadores de miocardiopatía con **fenotipo inespecífico**, y ese término debe acompañarse siempre de una descripción de las características morfológicas y funcionales que caractericen el fenotipo con mayor detalle.
+
+Regla para CCIS: "fenotipo inespecífico" sin descripción adjunta no es un diagnóstico, es una etiqueta vacía. El componente debe exigir la caracterización.
+
+El fenotipo no es fijo. En algunos gatos el fenotipo cardíaco cambia con el tiempo, por progresión de la enfermedad, comorbilidades o factores desconocidos. Un fenotipo asignado en un estudio previo no puede asumirse vigente sin reevaluación.
+
+3. LA DISTINCIÓN QUE MÁS SE PASA POR ALTO: FENOTIPO CONTRA ENFERMEDAD
+
+Este es el punto de mayor consecuencia práctica del consenso.
+
+Un gato con hipertrofia del ventrículo izquierdo e hipertiroidismo **no tiene HCM**: tiene un fenotipo HCM en conjunción con hipertiroidismo. La distinción no es semántica — cambia el tratamiento, el pronóstico y la conducta diagnóstica.
+
+Regla para CC-240 y para el razonamiento de CCIS: ante hipertrofia ventricular izquierda en un gato, deben descartarse activamente las causas capaces de producirla antes de emitir un diagnóstico de miocardiopatía primaria. El informe debe declarar si esas causas fueron evaluadas.
+
+Esto además abre una conexión con ECIS: el hipertiroidismo felino es una endocrinopatía frecuente, y un caso derivado a CCIS por hallazgo ecocardiográfico puede necesitar razonamiento endocrino. En esa situación el caso se escala de vuelta a ICIS, no se resuelve lateralmente.
+
+4. ESTADIFICACIÓN
+
+El consenso propone un sistema de estadificación adaptado de los sistemas de estadificación de enfermedad cardíaca de la American Heart Association y de ACVIM, con el objetivo de proveer un marco para el pronóstico y la toma de decisiones terapéuticas.
+
+La subdivisión que aporta valor clínico: el estadio B —gatos con miocardiopatía subclínica— se subdivide en **B1**, gatos con bajo riesgo de complicaciones que amenazan la vida, y **B2**, gatos con riesgo más alto.
+
+Esa distinción es la razón de ser del sistema: separa al gato subclínico que puede vivir con normalidad del que está próximo a desarrollar insuficiencia cardíaca congestiva o tromboembolismo, y por lo tanto define quién requiere intervención antes de tener signos.
+
+Regla para CCIS: un gato "subclínico" no es una categoría única. Reportar estadio B sin especificar B1 o B2 omite exactamente la información que justifica o no tratar.
+
+Se ofrecen recomendaciones para el abordaje diagnóstico y la estadificación de las miocardiopatías, así como para el manejo en cada estadio.
+
+5. LAS TRES COMPLICACIONES QUE DEFINEN EL PRONÓSTICO
+
+Insuficiencia cardíaca congestiva.
+Tromboembolismo arterial.
+Muerte súbita.
+
+Se han estudiado los factores de riesgo asociados a muerte súbita frente a insuficiencia cardíaca congestiva o tromboembolismo arterial en gatos con HCM, lo que significa que no todas las complicaciones comparten los mismos predictores y el riesgo debe evaluarse por separado.
+
+6. DETECCIÓN EN EL GATO APARENTEMENTE SANO
+
+Existe literatura específica sobre la prevalencia de miocardiopatía en gatos aparentemente sanos, sobre la prevalencia de soplos cardíacos en gatos manifiestamente sanos, y sobre la comparación entre hallazgos auscultatorios y ecocardiográficos en gatos adultos sanos.
+
+La implicación operativa: la auscultación y la ecocardiografía no coinciden de forma confiable en esta especie, y la clasificación del consenso se apoya en el fenotipo ecocardiográfico. Un gato sin soplo no está descartado, y un soplo no establece el diagnóstico.
+
+7. ERRORES FRECUENTES
+
+Diagnosticar HCM en un gato con hipertrofia ventricular izquierda sin descartar hipertiroidismo ni hipertensión sistémica.
+
+Usar "miocardiopatía no clasificada", término retirado por el consenso.
+
+Reportar "fenotipo inespecífico" sin la descripción morfológica y funcional obligatoria.
+
+Reportar estadio B sin distinguir B1 de B2.
+
+Asumir vigente un fenotipo asignado en un estudio anterior.
+
+Descartar enfermedad cardíaca por ausencia de soplo.
+
+Evaluar el riesgo de complicaciones como si fuera uno solo, cuando muerte súbita, ICC y tromboembolismo tienen predictores distintos.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Protocolos farmacológicos con dosis para cada estadio. Manejo agudo de la insuficiencia cardíaca congestiva felina. Tromboembolismo arterial: profilaxis antitrombótica y manejo del episodio agudo. Criterios ecocardiográficos cuantitativos: valores de corte de grosor parietal y demás mediciones. Biomarcadores cardíacos: NT-proBNP y troponina. Genética y cribado racial. Miocardiopatías felinas secundarias en detalle. Estos temas quedan como vacíos declarados de la Base de Conocimiento de CCIS.
+
+Nota: este documento no incorpora valores de corte ecocardiográficos de forma deliberada. Deben tomarse del consenso completo o de la referencia que el ecocardiografista utilice.
+
+FUENTES
+
+Luis Fuentes V, Abbott J, Chetboul V, Côté E, Fox PR, Häggström J, Kittleson MD, Schober K, Stern JA. ACVIM consensus statement guidelines for the classification, diagnosis, and management of cardiomyopathies in cats. J Vet Intern Med 2020;34(3):1062–1077. DOI 10.1111/jvim.15745. Fuente principal de todo el documento.
+
+Elliott P y col. Classification of the cardiomyopathies: a position statement from the European Society of Cardiology Working Group on myocardial and pericardial diseases. Eur Heart J 2008;29:270–276.
+
+RCVS Knowledge — resumen crítico del consenso ACVIM 2020 sobre miocardiopatías felinas.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

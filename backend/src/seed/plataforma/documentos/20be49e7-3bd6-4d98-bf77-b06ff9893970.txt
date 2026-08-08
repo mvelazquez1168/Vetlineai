@@ -1,0 +1,225 @@
+Banderas Rojas Dermatológicas — Guía de Derivación para Medicina General
+
+Propósito de este documento
+
+Este extracto está pensado para el agente de medicina general/internista
+(ICIS). Su objetivo no es enseñar dermatología clínica, sino ayudar a
+reconocer cuándo un cuadro cutáneo es manejable en atención primaria,
+cuándo amerita derivación a dermatología, y cuándo en realidad es la
+manifestación de un problema de otro sistema — sobre todo
+gastrointestinal y oncológico, que es donde este documento se conecta
+directo con el resto de la Base de Conocimiento de ICIS.
+
+Principio rector: a diferencia de cardiología, en dermatología casi
+nunca hay una "urgencia inmediata" en el sentido de riesgo vital agudo —
+pero sí hay un umbral claro entre "manejable con lo básico" y "requiere
+trabajo diagnóstico especializado (citología, biopsia, pruebas de
+alergia) que atención primaria no puede resolver por sí sola". El error
+más común en este sistema no es subestimar una urgencia, sino tratar
+empíricamente de forma indefinida un cuadro que necesitaba derivación
+desde la segunda o tercera recaída.
+
+1. Señales de alarma que ameritan derivación con prioridad
+
+Ninguna de estas es una emergencia en el sentido de cardiología o
+hemorragia digestiva, pero todas ameritan evaluación especializada
+relativamente pronta, no manejo empírico prolongado:
+
+-   Lesiones ulcerativas o necróticas de rápida progresión, sobre todo
+    si no hay antecedente traumático claro.
+
+-   Prurito súbito, intenso y generalizado, con automutilación (el
+    paciente se lesiona a sí mismo por el rascado/lamido).
+
+-   Masas cutáneas o subcutáneas de crecimiento rápido, especialmente si
+    son firmes, adheridas a planos profundos, o ulceradas.
+
+-   Lesiones mucocutáneas (unión mucocutánea de labios, párpados, área
+    perianal, almohadillas) — con mayor frecuencia asociadas a
+    enfermedad inmunomediada que las lesiones puramente cutáneas.
+
+-   Despigmentación o costras en la unión mucocutánea o el plano nasal,
+    de aparición progresiva.
+
+-   Fiebre, decaimiento o dolor articular asociados a un cuadro cutáneo
+    — sospechar enfermedad sistémica con manifestación dermatológica, no
+    un problema de piel primario.
+
+-   Edema facial o angioedema de instauración aguda — aunque no suele
+    ser mortal en la mayoría de los casos, amerita evaluación y manejo
+    pronto, y descartar progresión a compromiso respiratorio.
+
+-   Otitis crónica recurrente que no responde a 2-3 ciclos de
+    tratamiento adecuado, especialmente si es bilateral y sin causa
+    mecánica evidente.
+
+2. Cuándo un cuadro cutáneo "de rutina" pasa a ser candidato a
+derivación
+
+Estos son los criterios de cronicidad/recurrencia que indican que ya no
+es manejo de rutina:
+
+-   Prurito o dermatitis recurrente con una frecuencia de brotes
+    creciente, o que ya lleva más de 4-6 semanas sin resolución clara
+    pese al manejo sintomático inicial.
+
+-   Respuesta solo parcial a un ciclo adecuado de manejo empírico
+    (antipruriginosos, tratamiento antimicrobiano si correspondía,
+    cambio de dieta) — una mejoría parcial no es diagnóstico ni motivo
+    para seguir el mismo esquema indefinidamente.
+
+-   Estacionalidad marcada y recurrente (el cuadro reaparece cada año en
+    la misma época) — sugiere atopia y amerita manejo especializado para
+    calidad de vida a largo plazo, no solo control del brote puntual.
+
+-   Otitis recurrente sin causa mecánica identificada.
+
+-   Alopecia simétrica progresiva, sin prurito asociado — patrón más
+    compatible con causa endocrina que con dermatitis primaria, y
+    amerita estudio dirigido en consecuencia (ver Sección 3).
+
+Regla práctica: si el propietario describe "esto le pasa cada tanto,
+desde hace meses/años" o "mejoró con el tratamiento pero volvió apenas
+lo dejamos", ya no es un caso de manejo puntual — es candidato a
+derivación, igual que en el criterio ya establecido para el sistema
+gastrointestinal.
+
+3. Distinguir problema cutáneo primario de manifestación de otro sistema
+
+Esta es la sección más importante de este documento para un agente de
+medicina general, porque es donde un cuadro "dermatológico" en realidad
+pertenece a otra especialidad:
+
+  --------------------------------------------------------------------------
+  Patrón cutáneo            Sospechar               Derivar preferentemente
+                                                    a
+  ------------------------- ----------------------- ------------------------
+  Prurito + signos          Reacción adversa al     Puede iniciarse manejo
+  digestivos (vómito,       alimento (alergia o     dietético en atención
+  diarrea, heces blandas)   intolerancia)           primaria antes de
+  recurrentes en paciente                           derivar; si no resuelve,
+  <5 años                                           gastroenterología y/o
+                                                    dermatología en conjunto
+
+  Alopecia simétrica        Hipotiroidismo          Endocrinología (o el
+  bilateral + letargia +                            propio internista, si
+  intolerancia al frío +                            cuenta con perfil
+  ganancia de peso                                  tiroideo)
+
+  Alopecia + piel fina +    Hiperadrenocorticismo   Endocrinología
+  poliuria/polidipsia +                             
+  abdomen péndulo                                   
+
+  Masa cutánea o subcutánea Neoplasia cutánea       Oncología (con
+  firme, de crecimiento                             biopsia/citología previa
+  rápido, en paciente                               si es factible en
+  geriátrico o de raza con                          atención primaria)
+  riesgo oncológico                                 
+  documentado                                       
+
+  Lesiones                  Enfermedad              Medicina interna
+  ulcerativas/costrosas en  inmunomediada sistémica especializada /
+  mucosas + decaimiento +                           dermatología según
+  dolor articular                                   severidad
+
+  Prurito exclusivamente en Atopia                  Dermatología, para
+  cara, orejas y patas, de                          manejo especializado de
+  curso crónico                                     calidad de vida a largo
+                                                    plazo
+  --------------------------------------------------------------------------
+
+Nota especial de conexión con el sistema gastrointestinal: la fila de
+reacción adversa al alimento no es casual — ya está documentada como
+pearl clínico en el AI Reasoning Standard y en las banderas rojas
+gastrointestinales de este mismo sistema. Un paciente joven con prurito
+Y signos digestivos concurrentes es, en la práctica, el mismo
+diferencial visto desde dos sistemas distintos — el agente debería
+reconocer esta superposición y no tratarlos como dos casos separados.
+
+4. Pearls de contexto racial
+
+-   Razas braquicéfalas y de pliegues cutáneos marcados (Bulldog
+    Francés, Bulldog Inglés, Shar Pei, Pug) — dermatitis de pliegues,
+    mayor susceptibilidad a infecciones cutáneas recurrentes; el umbral
+    de "esto ya es crónico" debe ser más alto que en otras razas, porque
+    cierto grado de dermatitis de pliegue es casi constante en su
+    fenotipo, pero el umbral de derivación debe bajar si hay progresión
+    más allá de lo esperado para la raza.
+
+-   West Highland White Terrier — predisposición marcada a dermatitis
+    atópica de curso severo; también, con menor frecuencia, hiperplasia
+    epidermoide asociada a la raza — considerar dermatología ante
+    cuadros recurrentes que no responden bien al manejo inicial.
+
+-   Golden Retriever, Labrador, Boxer — mayor incidencia general de
+    neoplasias cutáneas (mastocitoma en particular); cualquier masa
+    cutánea nueva en estas razas amerita un umbral de sospecha
+    oncológica más bajo que en razas sin esa predisposición.
+
+-   Shar Pei — mucinosis cutánea y fiebre familiar del Shar Pei; un
+    cuadro cutáneo acompañado de fiebre recurrente en esta raza amerita
+    sospecha de la entidad racial específica, no solo un problema
+    dermatológico aislado.
+
+-   Cocker Spaniel, Basset Hound, razas de orejas caídas — otitis
+    externa crónica muy prevalente por conformación; ante recurrencia,
+    buscar causa subyacente (alergia, cuerpo extraño, endocrinopatía) en
+    vez de repetir el mismo tratamiento tópico indefinidamente.
+
+-   Doberman, Pastor Alemán — displasia folicular color-dilución y otras
+    alopecias hereditarias — patrón de alopecia sin prurito en estas
+    razas orienta más a causa genética/folicular que a causa alérgica o
+    endocrina.
+
+5. Qué NO debe hacer el agente de medicina general
+
+-   No debe tratar un cuadro cutáneo recurrente indefinidamente con el
+    mismo esquema empírico sin replantear el diagnóstico tras 2-3 ciclos
+    sin resolución completa.
+
+-   No debe asumir automáticamente que todo prurito es alérgico —
+    descartar causas parasitarias, infecciosas y endocrinas antes de
+    etiquetarlo como atopia.
+
+-   No debe ignorar signos sistémicos acompañantes (fiebre, decaimiento,
+    dolor articular) tratando el cuadro como "solo de piel".
+
+-   No debe demorar la derivación de una masa cutánea de crecimiento
+    rápido esperando a ver si "se resuelve sola".
+
+-   No debe interpretar una mejoría parcial con manejo sintomático como
+    confirmación diagnóstica — una mejoría parcial no descarta otras
+    causas concurrentes.
+
+Resumen para uso rápido
+
+  -----------------------------------------------------------------------
+  Si el paciente presenta...         Acción del agente de medicina
+                                     general
+  ---------------------------------- ------------------------------------
+  Lesión ulcerativa/necrótica de     Derivar con prioridad — no esperar
+  rápida progresión, o masa de       evolución espontánea
+  crecimiento rápido                 
+
+  Lesiones en unión mucocutánea +    Sospechar enfermedad inmunomediada —
+  signos sistémicos                  derivar
+
+  Prurito o dermatitis               Derivar — ya no es manejo de rutina
+  recurrente >4-6 semanas o con      
+  recaídas repetidas                 
+
+  Prurito + signos digestivos        Considerar reacción adversa al
+  concurrentes en paciente joven     alimento — iniciar manejo dietético,
+                                     derivar si no resuelve
+
+  Alopecia simétrica sin prurito +   Sospechar causa endocrina — estudiar
+  otros signos sistémicos            antes de asumir causa dermatológica
+                                     primaria
+
+  Otitis recurrente sin causa        Buscar causa subyacente — no repetir
+  mecánica                           el mismo tratamiento tópico
+                                     indefinidamente
+
+  Raza con riesgo oncológico/atópico Reducir el umbral de derivación,
+  alto documentado                   igual que en los demás sistemas
+  -----------------------------------------------------------------------

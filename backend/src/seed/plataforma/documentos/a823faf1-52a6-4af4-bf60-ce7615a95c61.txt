@@ -1,0 +1,56 @@
+Dashboard Functional Specification — CCIS
+
+Documento: CCIS-DASH-001
+Versión: 1.0
+Estado: Draft
+Owner: CCIS
+
+1. Introducción
+
+Define la estructura funcional, reglas de composición y comportamiento del Dashboard clínico de CCIS — derivado de ICIS-DASH-001, con la capa de Derivación removida y la Cardiac Staging Card en el lugar prioritario del header.
+
+2. Filosofía del Dashboard
+
+Un veterinario que abre el Dashboard de un caso cardiológico debe poder responder en menos de 10 segundos: ¿en qué estadio ACVIM está este paciente, cómo está su función cardíaca, y cómo va el tratamiento? La pregunta central de CCIS ("¿qué tan avanzada está la enfermedad cardíaca?") ocupa el mismo lugar prioritario que en OCIS ocupa el grado/estadio tumoral.
+
+3. Principios de Diseño
+
+Heredados del Clinical Design System (CCIS-DESIGN-001), con particular relevancia: Hemodynamic Clarity, Minimal Cognitive Load, Progressive Disclosure, Explainable AI.
+
+4. Layout del Dashboard
+
+Zona 1 — Header: Logo institucional + Executive Summary Card + Clinical State Card + Cardiac Staging Card + Clinical Confidence Meter.
+
+Zona 2 — Signos vitales del caso: Clinical Confidence Meter + Active Problems Panel + Alertas (signos de descompensación aguda, si los hay).
+
+Zona 3 — Evolución y evidencia: Clinical Timeline, Weight Trend, Echocardiogram Card (con comparación seriada), Imaging Comparison (radiografía torácica), Treatment Protocol Card, gráfico de Progresión de Estadio.
+
+Zona 4 — Razonamiento y conocimiento (colapsado por defecto): Diagnostic Correlation Panel, Cardiac Staging Detail (criterios evaluados y pendientes de CC-233), Knowledge Match Panel, Clinical Reasoning Journal.
+
+5. Reglas de aparición condicional
+
+| Condición | Componente que se activa |
+|---|---|
+| Siempre | Executive Summary Card, Clinical State Card, Cardiac Staging Card, Confidence Meter, Active Problems Panel |
+| Existe ecocardiograma (CC-221) | Echocardiogram Card, Cardiac Staging Detail |
+| Existe ECG (CC-222) | ECG Rhythm Card |
+| Existe protocolo de tratamiento activo (CC-306) | Treatment Protocol Card |
+| Existen ≥2 estudios de imagen seriados | Imaging Comparison |
+| Existen ≥2 consultas | Clinical Timeline |
+| El estadio se asignó con datos incompletos (CC-233) | La Cardiac Staging Card se muestra con indicador de "provisional" y no se colapsa |
+
+6. La Cardiac Staging Card en el Dashboard
+
+- Estado completo: muestra el estadio en la nomenclatura exacta del consenso (ej. "Estadio B2", "Estadio C"), con color funcional según Estado por Estadio ACVIM.
+- Estado provisional: muestra el estadio tentativo con indicador visual explícito y el listado de qué criterio falta.
+- Botón de expansión directa al Cardiac Staging Detail (Zona 4).
+
+7. Interactividad, Reglas de actualización, Dashboard States, Accesibilidad
+
+Heredados sin cambios de ICIS-DASH-001/OCIS-DASH-001, con la misma remoción del estado "Referred".
+
+8. Architecture Decisions
+
+AD-CCIS-DASH-01 — Dashboard as a View, not a Store (heredado sin cambios).
+
+AD-CCIS-DASH-02 — Staging-First Layout. Igual que en OCIS, el estadio ACVIM comparte el lugar prioritario del header desde el diseño mismo, no como un componente agregado al final.

@@ -1,0 +1,109 @@
+REPRODUCCIÓN DE LA GATA — CICLO ESTRAL, OVULACIÓN INDUCIDA Y MANEJO REPRODUCTIVO
+
+Resumen clínico de referencia para RCIS. Componentes que lo consumen: CC-231 (Reproductive Cytology & Endocrine Intelligence), CC-232 (Ovulation Timing Engine), CC-233 (Gestational Monitoring Intelligence), CC-004 (Clinical Timeline).
+
+Este documento cierra el vacío de especie declarado en RCIS-KB-001: los nueve documentos clínicos previos de RCIS son de contenido canino.
+
+---
+
+1. POR QUÉ LA GATA NO ES UNA PERRA PEQUEÑA
+
+Dos diferencias fundamentales invalidan buena parte del marco canino y obligan a un documento propio.
+
+**La gata es poliéstrica estacional.** Cicla cuando el fotoperíodo es largo, con un anestro estacional definido por la duración del día. Puede inducirse a ciclar todo el año con 14 horas de iluminación artificial continua; otra fuente describe 12 horas continuas diarias, con posible aumento de fertilidad.
+
+**La gata es ovuladora inducida.** Ovula en respuesta a múltiples montas naturales. No existe el pico preovulatorio de progesterona que en la perra permite datar la ovulación: en la gata la progesterona sube *después* del apareamiento.
+
+Consecuencia directa para CC-232: **el motor de timing ovulatorio canino, basado en progesterona seriada, no aplica a la gata.** El componente no debe intentar predecir una ventana fértil por progesterona en esta especie. La pregunta relevante cambia de "cuándo ovula" a "¿ovuló?".
+
+2. FASES DEL CICLO
+
+Proestro, estro, interestro y —si ocurre ovulación— diestro. La gata atraviesa además una fase que la perra no tiene: el intervalo interestro o no estral.
+
+Proestro. Difícil de detectar, mucho más que en la perra. Puede durar apenas un día y los signos son sutiles, por lo que a menudo pasa inadvertido. En una serie se documentó proestro en solo 27 de 168 ciclos seguidos, un 16,1%. El macho puede sentirse atraído pero la hembra no es receptiva.
+
+Estro. Definido por receptividad conductual. Dura de 1 a 21 días, con promedio de unos 7. Conductas características: vocalización monótona, mayor afecto, lordosis —elevación del tren posterior con desviación lateral de la cola— y rodamiento.
+
+En un estudio con registro en video, la duración media del estro no difirió estadísticamente entre gatas que no ovularon (5,8 días, rango 2 a 22) y las que ovularon (6,5 días, rango 2 a 15). El impacto del apareamiento sobre la duración del estro está debatido.
+
+Interestro. Período entre un estro y el siguiente en gatas que no ovularon.
+
+3. LA MECÁNICA DE LA OVULACIÓN — Y EL NÚMERO QUE MÁS IMPORTA
+
+El apareamiento provoca liberación refleja de hormona luteinizante desde la hipófisis anterior, dentro de las 2 a 4 horas. La liberación suficiente de LH induce ovulación, que ocurre 1 a 3 días después. Las concentraciones de LH son más altas 2 horas después del coito en gatas con pico en el día 1.
+
+La cantidad de LH liberada depende del **número de cópulas** y del momento del ciclo en que ocurren.
+
+Los datos que definen el manejo reproductivo:
+
+La ovulación ocurre en aproximadamente **50% de las gatas tras una monta**, y se aproxima al **100% en las que se permiten 4 o más montas**. Las gatas montadas una sola vez exhiben gran variabilidad en LH sérica y menos del 50% ovula. Se demostró que se requieren más de 4 cópulas para asegurar liberación de LH adecuada.
+
+En una colonia universitaria, 14 gatas fueron montadas en 23 ciclos con un promedio de 5,6 montas por ciclo (rango 4 a 8), obteniendo 73,9% de preñez.
+
+Regla para RCIS: ante una gata que no concibe, **el número de montas por ciclo es la primera variable a interrogar**, antes de cualquier estudio. Un manejo de una sola monta explica hasta la mitad de los fallos de ovulación sin que exista patología alguna.
+
+Ovulación espontánea. Ocurre sin coito en aproximadamente un tercio de las gatas. Su incidencia aumenta con el peso corporal, y se observa con mayor frecuencia en gatas alojadas dentro del alcance visual, olfativo y auditivo de un macho entero. En un estudio, la incidencia previa a la introducción del macho fue de 0 a 22%.
+
+Inducción de la ovulación. Puede lograrse por estimulación física —inserción de un hisopo vaginal— como opción manual en una hembra entera que no puede ser servida y muestra conducta de estro. También médicamente, con gonadotropina coriónica equina, gonadotropina coriónica humana o gonadorelina, sin estimulación cervical por el macho.
+
+4. EL DIAGNÓSTICO MÁS SIMPLE Y MÁS ÚTIL
+
+**La duración del período no receptivo permite determinar si la gata ovuló.** Si el intervalo entre conductas de celo es de unos 10 días, la gata no ovuló.
+
+Una vez que ocurre ovulación, la gata no muestra otro estro durante 40 a 50 días.
+
+Regla para CC-004 y CC-231: en la gata, el intervalo entre celos es un dato diagnóstico de primera línea, obtenible sin laboratorio. RCIS debe solicitarlo siempre en un caso reproductivo felino.
+
+5. PSEUDOGESTACIÓN Y LA TRAMPA DEL MACHO SUBFÉRTIL
+
+En la pseudogestación la progesterona aumenta y alcanza su pico igual que en gatas gestantes, pero desciende de forma sostenida después del día 30 hasta llegar a valores basales alrededor de los días 40 a 41 desde la primera monta. El tiempo promedio hasta el siguiente estro tras ese descenso es de 17 ± 4 días.
+
+El escenario que conviene reconocer: el apareamiento con un macho estéril o subfértil produce exposición prolongada a progesterona, porque el macho monta e induce ovulación y la gata entra en fase lútea sin quedar gestante. La fase lútea no gestacional dura 45 a 60 días.
+
+Doble consecuencia negativa para un programa de cría: la gata no muestra otro estro durante 40 a 50 días, y **la exposición prolongada a progesterona puede llevar a patología uterina**, lo que afecta aún más la fertilidad.
+
+Regla para RCIS: un intervalo interestro prolongado con ausencia de preñez apunta al macho, no solo a la hembra. Y cada ciclo perdido de esa forma incrementa el riesgo uterino.
+
+6. INFERTILIDAD DE LA GATA
+
+Ante infertilidad con ciclo estral normal, las causas descritas son: anormalidades uterinas, infertilidad del macho, problemas de manejo reproductivo, fallo de ovulación, y el complejo hiperplasia endometrial quística / piometra, señalado como importante y común.
+
+El énfasis de la literatura es explícito y merece conservarse: **el manejo inadecuado puede ser la única causa de infertilidad.** El éxito reproductivo en un criadero requiere conocimiento del ciclo, la conducta y el manejo de la hembra.
+
+Ese enunciado reordena el abordaje: antes de estudiar al animal, se estudia el manejo.
+
+7. ERRORES FRECUENTES
+
+Aplicar el marco de progesterona seriada canino a una gata.
+
+No interrogar el número de montas por ciclo ante fallo reproductivo.
+
+Interpretar la ausencia de proestro detectable como ausencia de ciclo.
+
+Atribuir a la hembra un intervalo interestro prolongado sin evaluar al macho.
+
+Descartar ovulación espontánea en una gata alojada cerca de un macho entero.
+
+No usar el intervalo entre celos como dato diagnóstico de ovulación.
+
+Iniciar estudios de infertilidad antes de auditar el manejo del criadero y el fotoperíodo.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Gestación, parto y distocia felinas. Piometra en la gata y sus protocolos de tratamiento. Neonatología felina. Andrología del macho felino y evaluación seminal. Inseminación artificial en la especie. Anticoncepción y control reproductivo felino. Interrupción de la gestación. Hiperplasia endometrial quística: diagnóstico y manejo. Cesárea en la gata. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS, y constituyen la continuación natural de la línea felina iniciada por este documento.
+
+FUENTES
+
+Johnson AK. Normal feline reproduction: the queen. J Feline Med Surg 2022;24(3). PMC10845401. PubMed 35209768. Fuente principal de las secciones 1, 2, 3, 4 y 5.
+
+Feline reproduction: an overview. dvm360. Fuente de las secciones 2, 3 y 5.
+
+The Feline Estrous Cycle and Investigating Infertility in the Queen. Tufts Animal Expo, VIN. Fuente de las secciones 2, 5 y 6.
+
+Feline Reproduction. Veterian Key. Fuente de la sección 2.
+
+Concannon PW y col., sobre número de cópulas requeridas para liberación adecuada de LH.
+
+Shille VM y col., sobre detección de proestro en el ciclo felino.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

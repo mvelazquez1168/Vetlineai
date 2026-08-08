@@ -1,0 +1,31 @@
+# Proxy inverso de producción — certificados TLS automáticos (Let's
+# Encrypt) sin configuración adicional: Caddy los provisiona y renueva
+# solo para cualquier dominio real que no sea localhost.
+#
+# {$VAR} lo sustituye Caddy con la variable de entorno del contenedor en
+# el arranque (ver docker-compose.prod.yml, servicio caddy) — mismo
+# mecanismo que envsubst en el frontend, pero nativo de Caddy.
+
+{
+	email {$TLS_EMAIL}
+}
+
+{$APP_DOMAIN} {
+	# /api y /uploads van al backend; todo lo demás (la SPA) al frontend.
+	# /uploads solo sirve algo real con el proveedor de almacenamiento
+	# local (dev) — en producción (S3) esa ruta ya no está montada (ver
+	# index.ts), así que reenviarla acá no reabre nada.
+	handle /api/* {
+		reverse_proxy backend:4000
+	}
+	handle /uploads/* {
+		reverse_proxy backend:4000
+	}
+	handle {
+		reverse_proxy frontend:80
+	}
+}
+
+{$KEYCLOAK_DOMAIN} {
+	reverse_proxy keycloak:8080
+}

@@ -1,0 +1,88 @@
+EXTENSIÓN ENDOCRINA — FAMILIA CC-3xx FARMACOTERAPIA (ECIS)
+
+**Relación con el documento base:** este documento no reemplaza la especificación genérica de CC-301 a CC-304 construida para ICIS — la extiende. ECIS hereda el núcleo completo tal cual, y este documento agrega profundidad específica de endocrinología dentro de cada uno de esos cuatro componentes.
+
+**Misma regla que en ICIS y GCIS, sin excepción: ningún componente de esta familia calcula ni sugiere dosis.**
+
+Particularidad de esta extensión: en endocrinología, **la mayoría de los tratamientos son de por vida y su ajuste es el tratamiento en sí**. El Response Tracking de CC-304 no es un accesorio del manejo — es el manejo.
+
+---
+
+## Extensión de CC-301 (Medication Registry) — Clases terapéuticas endocrinas
+
+CC-301 en ECIS reconocerá específicamente las siguientes clases:
+
+- **Insulinas**, registradas por tipo y por especie de destino
+- **Inhibidores de SGLT2** — disponibles para el gato
+- **Antitiroideos** (metimazol oral y transdérmico)
+- **Hormona tiroidea de reemplazo** (levotiroxina)
+- **Inhibidores de la esteroidogénesis adrenal** (trilostano, mitotano)
+- **Glucocorticoides de reemplazo** y **mineralocorticoides**
+- **Glucocorticoides a dosis farmacológica** — registrados aparte del reemplazo, porque su efecto sobre el eje y sobre la glucemia es opuesto al del reemplazo fisiológico
+- **Yodo radiactivo** y **terapia dietaria antitiroidea**, registrados como intervención aunque no sean fármacos convencionales
+- **Agentes de manejo de la hipercalcemia** (fluidoterapia, diuréticos de asa, bisfosfonatos)
+
+## Extensión de CC-302 (Drug Interaction Engine) — Patrones específicos de endocrinología
+
+**Patrón E-1 — Glucocorticoides y control glucémico.** El efecto adverso de mayor preocupación de la corticoterapia en el paciente endocrino es la resistencia insulínica periférica y el riesgo de diabetes mellitus. Interpretación: alerta de alta relevancia cuando se registre un glucocorticoide a dosis farmacológica en un paciente diabético o prediabético, o cuando se considere en uno con hiperglucemia previa.
+
+**Patrón E-2 — Escalada de insulina sin límite.** No se recomienda continuar aumentando la dosis de insulina más de dos o tres veces, por la posible presencia de efecto Somogyi o de resistencia insulínica. Interpretación: alerta que se dispara al tercer incremento registrado y solicita revisar dieta, desviaciones dietarias, hiperglucemia por estrés y efecto placebo antes de seguir subiendo.
+
+**Patrón E-3 — Sobretratamiento del hipertiroidismo felino.** El hipotiroidismo iatrogénico se ha asociado con azotemia y con tiempo de supervivencia reducido en gatos tratados por hipertiroidismo. Interpretación: alerta que solicita monitoreo dirigido a detectarlo, no solo a confirmar eficacia. Recomendación adicional de AAHA para las categorías 4 y 6 de AAFP: considerar TSH previa al yodo radiactivo y postergarlo si resulta medible.
+
+**Patrón E-4 — Prednisona frente a prednisolona ante disfunción hepática.** Se prefiere prednisolona porque es el metabolito activo y la conversión de prednisona puede estar comprometida en pacientes con disfunción hepática sustancial. Interpretación: alerta de función orgánica que sugiere sustitución de molécula dentro de la misma clase.
+
+**Patrón E-5 — Glucocorticoides antes de completar el estudio de hipercalcemia.** Su administración puede dificultar el diagnóstico de linfoma. Interpretación: alerta de secuencia — no contraindica el fármaco, sino que señala que su administración antes de completar el estudio compromete la identificación de la causa.
+
+**Patrón E-6 — Fármacos que alteran las pruebas tiroideas.** Interpretación: alerta que solicita registrar la medicación activa antes de interpretar un panel tiroideo, y que declare cuando el resultado pueda estar afectado.
+
+**Patrón E-7 — Cambio de laboratorio entre controles.** No es una interacción farmacológica, pero se implementa en el mismo motor porque invalida el seguimiento igual que una interacción. Las guías recomiendan usar laboratorio de referencia y, por consistencia, **el mismo laboratorio a lo largo del tratamiento**. Interpretación: alerta cuando la fuente del resultado cambie entre controles.
+
+**Patrón E-8 — Hipoglucemia como evento adverso mayor.** La hipoglucemia puede amenazar la vida y la diabetes es una enfermedad dinámica. **En el gato la remisión puede instalarse de forma bastante súbita**, y en el perro la glucemia puede caer a niveles peligrosos por ejercicio esporádico y extenuante o por cambios en la administración. Interpretación: alerta que se dispara ante mejoría marcada reportada en un gato en tratamiento, o ante cambio de rutina de ejercicio en un perro.
+
+## Extensión de CC-303 (Therapeutic Class Reasoning) — Racionales endocrinos
+
+| Diagnóstico o síndrome presuntivo | Clases habitualmente consideradas | Nota de racional |
+|---|---|---|
+| Diabetes mellitus canina | Insulina, manejo dietario, control de peso | La remisión no es objetivo razonable en esta especie; las estrategias divergen del gato |
+| Diabetes mellitus felina | Insulina, inhibidores de SGLT2, manejo dietario y de obesidad | **La remisión sí es objetivo razonable**; el cuidado domiciliario excelente puede llevar a que el gato deje de necesitar insulina |
+| Cetoacidosis diabética | Ver documento propio de la Base de Conocimiento | Descompensación aguda, marco distinto al manejo crónico |
+| Hipertiroidismo felino | Antitiroideo oral o transdérmico, yodo radiactivo, tiroidectomía, dieta | **Deben tratarse todos los gatos hipertiroideos con independencia de las comorbilidades**, manejando estas en paralelo |
+| Hipotiroidismo canino | Hormona tiroidea de reemplazo | Ver el algoritmo escalonado de las guías AAHA; conexiones con DCM secundaria y con otitis |
+| Hipercortisolismo canino | Inhibidores de la esteroidogénesis adrenal | Ver documento propio |
+| Hipoadrenocorticismo | Glucocorticoide y mineralocorticoide de reemplazo | Diferencial obligado ante hipercalcemia, presente hasta en el 30% de estos pacientes |
+| Hipercalcemia persistente | Fluidoterapia, diurético de asa, y en algunos casos glucocorticoides y bisfosfonatos | La terapia se dicta por bienestar sistémico, velocidad de aumento y severidad, **no solo por el valor absoluto**; y los glucocorticoides van después del estudio |
+
+## Extensión de CC-304 (Response Tracking) — Ventanas de reevaluación específicas
+
+Este es el componente central de la extensión, por la naturaleza crónica de las entidades.
+
+**Principio rector del seguimiento diabético: los signos clínicos prevalecen sobre todo lo demás.** Cuando el paciente no presenta signos y el peso corporal está estable, esa es la información de mayor jerarquía. Un ajuste de dosis basado únicamente en un valor de glucemia, en un paciente asintomático con peso estable, es una decisión mal fundada.
+
+- **Tras ajuste de insulina:** control a los 5 a 7 días.
+- **Tras establecer la dosis correcta:** recontrol a las 4 a 6 semanas, evaluando impresiones del propietario, signos clínicos, controles domiciliarios de glucosa y orina, y fructosamina.
+- **Gatos con potencial de remisión:** controles breves cada 3 meses para detectar tempranamente tendencias descendentes de la glucemia.
+- **Controles completos de rutina:** cada 6 a 12 meses, con examen físico e historia, hemograma, perfil bioquímico, T4 total, urianálisis y fructosamina.
+- **Tras la remisión diabética:** examen físico con monitoreo de signos, peso y evaluación laboratorial cada 6 meses, para detectar recaída.
+- **Ante duda sobre el control glucémico o preocupación por hipoglucemia:** colocar un monitor continuo de glucosa.
+- **Peso en el paciente obeso:** pérdida de 1 a 2% por semana para que la insulina actúe con mayor eficacia.
+- **Hipertiroidismo felino en tratamiento:** monitoreo regular no solo para evaluar eficacia, sino **para detectar hipotiroidismo iatrogénico y para confirmar comorbilidades que se hacen evidentes al resolverse el estado hipertiroideo**.
+- **Hipercalcemia con ionizado normal y total elevado:** recontrol del ionizado en 2 a 3 meses.
+
+Nota de método que aplica a todo el seguimiento endocrino: en el gato **las curvas de glucosa sanguínea realizadas en el hospital no están recomendadas**, porque el estrés hospitalario produce hiperglucemia que distorsiona la interpretación.
+
+---
+
+## Nota final sobre la relación entre documentos
+
+Si se actualiza la especificación base CC-301 a CC-304 en ICIS, esta extensión debe revisarse en paralelo. Los patrones E-4 y E-5 tienen alcance compartido con GCIS y OCIS respectivamente.
+
+Nota sobre el alcance de esta extensión: a diferencia de las de GCIS, NCIS, CCIS y DCIS, buena parte del valor de esta reside en CC-304 y no en CC-302. La razón es que en endocrinología el error frecuente no es la interacción entre fármacos sino el ajuste mal fundado de uno solo.
+
+FUENTES DEL CONTENIDO CLÍNICO
+
+Los racionales de CC-303 y las ventanas de CC-304 provienen de los documentos clínicos ya cargados en la Base de Conocimiento de ECIS: diabetes mellitus, enfermedad tiroidea, hipercortisolismo, hipoadrenocorticismo, cetoacidosis diabética e hipercalcemia.
+
+Referencias principales de esos documentos: AAHA Diabetes Management Guidelines; 2016 AAFP Guidelines for the Management of Feline Hyperthyroidism; 2023 AAHA Selected Endocrinopathies of Dogs and Cats Guidelines; Williams T, Elliott J, Syme H, sobre hipotiroidismo iatrogénico, azotemia y supervivencia reducida.
+
+Documento de arquitectura elaborado para Vetline Ai.

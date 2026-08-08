@@ -1,0 +1,261 @@
+Report Composer Engine Specification — ICIS
+
+Versión: 1.0
+Estado: Draft
+Código: ICIS-ENGINE-001
+
+1. Introducción
+
+Objetivo
+
+El Report Composer Engine (RCE) es el motor responsable de construir automáticamente todos los informes clínicos del Internal Medicine Clinical Intelligence System (ICIS).
+
+Su función no consiste en "escribir un documento", sino en ensamblar información clínica estructurada proveniente de los distintos componentes del sistema, garantizando consistencia, trazabilidad y calidad.
+
+El motor permitirá generar informes completos, reproducibles y clínicamente auditables sin necesidad de intervención manual.
+
+2. Filosofía del Motor
+
+El RCE se basa en un principio fundamental:
+
+El informe nunca se redacta desde cero. El informe se compone a partir del conocimiento estructurado del caso.
+
+Cada Clinical Component produce una salida estandarizada. El RCE únicamente decide:
+
+-   qué componentes utilizar,
+
+-   en qué orden,
+
+-   con qué nivel de detalle,
+
+-   para qué audiencia,
+
+-   y hacia dónde se dirige el caso (atención primaria continuada, o derivación — y a qué especialidad).
+
+3. Arquitectura General
+
+Historia Clínica
+↓
+Clinical Components (CC-001 … CC-999)
+↓
+Clinical Intelligence Engines
+↓
+Referral Engine
+↓
+Knowledge Base
+↓
+Report Composer Engine
+↓
+Word · PDF · HTML · Markdown · Teaching Case · Knowledge Base Case · Referral Package
+
+El Referral Engine se inserta como una etapa propia entre los motores de inteligencia clínica y la Base de Conocimiento, porque su salida (especialidad de destino, nivel de manejo, urgencia) condiciona qué plantilla y qué profundidad usará el Composer más adelante — ver AD-025.
+
+4. Objetivos
+
+El motor deberá: reutilizar información ya procesada, evitar duplicidad, mantener consistencia, generar informes profesionales, generar múltiples versiones del mismo informe, mantener trazabilidad completa, y determinar de forma explícita y documentada si el caso amerita derivación antes de fijar el nivel de profundidad del informe.
+
+5. Entradas
+
+El RCE podrá consumir información de:
+
+Expediente clínico: Historia, Consultas, Notas.
+
+Laboratorio: Hemogramas, Bioquímica, Electrolitos, Perfil tiroideo, Uroanálisis, Marcadores específicos según sistema sospechado (los marcadores gastrointestinales del GCIS original son un caso particular de esta categoría, no la regla general).
+
+Imagen: Ecografía, Radiología, Estudios cardíacos, Endoscopia, Biopsias.
+
+Tratamientos: Medicamentos, Dietas, Hospitalizaciones, Seguimiento.
+
+Inteligencia Clínica: Diagnósticos, Matriz de evidencia, Confidence Score, Clinical State, Reasoning Journal, Casos similares, Knowledge Base, Nivel de manejo asignado, Especialidad de destino recomendada, Documento de banderas rojas utilizado (si aplica).
+
+6. Pipeline del Motor
+
+Etapa 1 — Clinical Data Collection: reunir toda la información disponible.
+
+Etapa 2 — Data Validation: buscar datos faltantes, duplicados, fechas inconsistentes, valores imposibles.
+
+Etapa 3 — Clinical Correlation: relacionar laboratorios, tratamientos, consultas, imagen.
+
+Etapa 4 — Reasoning Assembly: construir automáticamente resumen, diagnóstico, razonamiento, evolución, pronóstico, y decisión de derivación (nivel de manejo + especialidad de destino, con su justificación).
+
+Etapa 5 — Component Assembly: seleccionar los Clinical Components necesarios, incluyendo el Referral Recommendation Panel siempre que se haya evaluado el caso (aunque el resultado sea "no amerita derivación").
+
+Etapa 6 — Narrative Generation: generar narrativa médica. El nivel de tecnicismo y la audiencia asumida en esta etapa dependen del resultado de la Etapa 4 — si el caso deriva a un especialista, la narrativa se orienta a ese destinatario (ver AD-017).
+
+Etapa 7 — Formatting: aplicar identidad visual ICIS, incorporando el logo oficial (Logo_ICIS_MedicaVet.jpeg) en el encabezado según CRS-001. Si el archivo no fue adjuntado en la conversación, esta etapa se detiene y solicita el archivo antes de continuar — no avanza a la Etapa 8 (Quality Review) con un informe sin logo.
+
+Etapa 8 — Quality Review: validación automática.
+
+Etapa 9 — Export: Word, PDF, Markdown, HTML.
+
+7. Report Templates
+
+Plantilla — Consulta Inicial: Executive Summary → Historia → Laboratorio → Diagnóstico → Recomendación de derivación → Recomendaciones.
+
+Plantilla — Seguimiento: Cambios desde consulta anterior → Tratamiento → Evolución → Reevaluación de la necesidad de derivación → Estado actual.
+
+Plantilla — Cierre: Historia completa → Diagnóstico final → Respuesta terapéutica → Pronóstico → Lecciones aprendidas.
+
+Plantilla — Segunda Opinión: Toda la evidencia → Razonamiento → Alternativas → Recomendaciones.
+
+Plantilla — Derivación (nueva, no existe en la versión de gastroenterología):
+Executive Summary → Hallazgos relevantes → Diagnósticos diferenciales/sospecha → Recomendación de derivación (especialidad de destino, pregunta clínica específica, urgencia) → Laboratorio (tabla con valores crudos) → Imagen (insertada directamente) → Historial de manejo en atención primaria → Anexos.
+
+Esta plantilla se activa automáticamente cuando el Referral Engine clasifica el caso como "requiere derivación no urgente" o "requiere derivación urgente" — no depende de que el usuario recuerde pedirla explícitamente.
+
+8. Reglas de Ensamblado
+
+  ------------------------------------------------------------------------------------------------------------------------------
+  Componente                Condición
+  ------------------------- ----------------------------------------------------------------------------------------------------
+  Executive Summary         Siempre
+
+  Laboratorio               Solo si existe
+
+  Ecografía                 Solo si existe
+
+  Histopatología            Solo si existe
+
+  Reasoning Journal         Siempre
+
+  Knowledge Cases           Solo si existen
+
+  Referral Recommendation   Siempre (nuevo — se evalúa y se muestra incluso cuando la conclusión es que no amerita derivación)
+  ------------------------------------------------------------------------------------------------------------------------------
+
+9. Narrative Engine
+
+El motor nunca copiará notas clínicas. Deberá sintetizar. Ejemplo: Consulta 1 → Consulta 2 → Consulta 3 → Narrativa longitudinal. Excepción: los valores de laboratorio y las imágenes que formen parte de una Plantilla de Derivación no se sintetizan ni se parafrasean — se presentan como datos crudos (ver Clinical Report Specification, CRS-008 y CRS-009).
+
+10. Visual Composer
+
+Aplicará automáticamente: Logo, Tipografía, Colores, Tablas, Cards, Timeline, Gráficos, identidad visual ICIS.
+
+11. Smart Charts
+
+El motor decidirá automáticamente qué gráficos incluir. Ejemplo: si existen 3 hemogramas → generar gráfico; si existen 5 pesos → generar tendencia; si existe seguimiento de albúmina → generar curva.
+
+12. Dynamic Appendices
+
+Solo incluir información disponible. Ejemplo: no hay biopsia → no crear sección.
+
+13. AI Summary Generator
+
+Este componente generará automáticamente: Executive Summary, Clinical Summary, Teaching Summary, Knowledge Summary, Owner Summary, y Referral Summary (nuevo — resumen de una sola página pensado para que el especialista de destino entienda el caso en menos de un minuto antes de leer el detalle completo).
+
+14. Quality Assurance Engine
+
+Antes de exportar, Claude responderá:
+
+-   ¿El caso tiene motivo de consulta? Sí.
+
+-   ¿Existe diagnóstico o sospecha diagnóstica? Sí.
+
+-   ¿Existe evidencia? Sí.
+
+-   ¿Existe evolución? Sí.
+
+-   ¿Existen contradicciones? No.
+
+-   ¿Se evaluó explícitamente el nivel de manejo y la necesidad de derivación? Sí. (nuevo)
+
+-   Si el caso amerita derivación, ¿se identificó la especialidad y la pregunta clínica específica? Sí. (nuevo)
+
+Si falla, el reporte no podrá marcarse como Final.
+
+15. Version Control
+
+Todo reporte tendrá: Versión, Fecha, Autor, Caso, Consulta, Motor utilizado. Ejemplo: v1.0 Consulta inicial → v1.1 Nuevo laboratorio → v1.2 Nueva ecografía → v1.3 Derivación generada → v2.0 Caso cerrado.
+
+16. Report Metadata
+
+Cada reporte almacenará: Fecha, Hash, Versión, Caso, Tipo, Especialidad, Idioma, Audiencia. Cuando el tipo de reporte sea Derivación, el campo "Especialidad" es obligatorio y corresponde a la especialidad de destino, no a la del sistema que genera el informe.
+
+17. Export Engine
+
+El mismo documento podrá producir: DOCX, PDF, HTML, Markdown, JSON, Teaching, Knowledge Base, Presentation, Referral Package (nuevo — paquete de exportación que agrupa el informe de derivación junto con los anexos de laboratorio e imagen en un solo archivo listo para enviar).
+
+18. Clinical Consistency Engine
+
+Antes de generar el informe verificará automáticamente:
+✔ El diagnóstico (o sospecha diagnóstica) coincide con la evolución.
+✔ Los laboratorios sustentan el diagnóstico.
+✔ La imagen es consistente.
+✔ Las fechas coinciden.
+✔ No existen tratamientos antes del diagnóstico.
+✔ No existen consultas fuera de secuencia.
+✔ No existen contradicciones clínicas.
+✔ La especialidad recomendada es coherente con los diagnósticos diferenciales listados. (nuevo)
+✔ El nivel de manejo asignado (atención primaria / derivación no urgente / derivación urgente) es coherente con las señales de alarma presentes en el caso. (nuevo)
+
+19. Explainable Report Engine
+
+Cada conclusión importante deberá responder automáticamente: ¿Por qué se llegó a esta conclusión? ¿Qué evidencia la respalda? ¿Qué evidencia la limita? ¿Qué incertidumbre permanece?
+
+Esto incluye explícitamente la decisión de derivación: ¿por qué se asignó este nivel de manejo? ¿qué banderas rojas, si las hay, lo sustentan? ¿por qué esta especialidad y no otra, si hay más de un sistema comprometido?
+
+Nunca habrá conclusiones sin explicación — tampoco decisiones de derivación sin explicación.
+
+20. Architecture Decisions
+
+AD-013 — Modular Report Assembly: cada sección del informe será independiente y reutilizable.
+
+AD-014 — Progressive Clinical Narrative: la narrativa evolucionará automáticamente con cada nueva consulta, preservando el contexto histórico.
+
+AD-015 — Evidence Traceability: cada afirmación clínica del informe deberá poder rastrearse hasta su origen (consulta, laboratorio, imagen, biopsia o nota clínica).
+
+AD-016 — Multi-Format Consistency: el contenido será único; únicamente cambiará la presentación según el formato de salida.
+
+AD-017 — Intelligent Report Depth ⭐⭐⭐⭐⭐
+
+El Report Composer ajustará automáticamente el nivel de profundidad del informe según el destinatario.
+
+  -------------------------------------------------------------------------------------------------------------------------------------------
+  Audiencia                                                                                                                Nivel de detalle
+  ------------------------------------------------------------------------------------------------------------------------ ------------------
+  Propietario                                                                                                              Bajo
+
+  Veterinario General (mismo agente, distinto colega)                                                                      Medio
+
+  Especialista de destino (según lo determine el Referral Engine — gastroenterología, cardiología, dermatología, u otra)   Alto
+
+  Hospital de Referencia                                                                                                   Muy Alto
+
+  Base de Conocimiento ICIS                                                                                                Completo
+
+  Publicación Científica (futuro)                                                                                          Máximo
+  -------------------------------------------------------------------------------------------------------------------------------------------
+
+No se trata simplemente de ocultar secciones. El motor adaptará el lenguaje, el nivel de detalle, la interpretación y el razonamiento clínico al perfil del lector. La fila "Especialista en Gastroenterología" de la versión original se generalizó, porque ICIS puede derivar a cualquier especialidad — el nivel de detalle "Alto" aplica al especialista que corresponda en cada caso, no a uno fijo.
+
+AD-024 — Visual Component Reuse
+
+Principio: el Report Composer Engine deberá reutilizar los Clinical Components definidos en el Clinical Components Specification siempre que estos aporten valor clínico a la interpretación del caso. El objetivo es que el reporte no sea únicamente un documento textual, sino una representación visual de la evolución clínica del paciente. Los componentes deberán generarse automáticamente cuando exista información suficiente. No deberán insertarse elementos decorativos; cada componente gráfico deberá aportar información clínica relevante.
+
+Reglas de selección automática:
+
+-   Si existen múltiples hemogramas → CBC Trend Chart, CBC Comparison Table, variación porcentual entre controles, indicadores visuales de normalización o deterioro.
+
+-   Si existen múltiples perfiles bioquímicos → Clinical Chemistry Trend, Protein Evolution, Albumin Trend, ALT/AST Trend, BUN/Creatinine Trend.
+
+-   Si existen múltiples pesos → Weight Evolution Chart.
+
+-   Si existen múltiples BCS → Body Condition Score Trend.
+
+-   Si existen estudios de imagen seriados → Imaging Comparison Panel.
+
+-   Si existen múltiples consultas → Clinical Timeline.
+
+-   Si existen modificaciones terapéuticas → Treatment Timeline.
+
+-   Si existen cambios diagnósticos → Diagnostic Evolution.
+
+-   Si existen varios diagnósticos diferenciales → Differential Diagnosis Matrix.
+
+-   Si el nivel de manejo es "requiere derivación" (urgente o no urgente) → Referral Recommendation Panel, con los laboratorios en formato de tabla cruda (no resumidos) y las imágenes insertadas directamente, nunca solo referenciadas. (nuevo)
+
+Siempre incluir: Executive Summary Card, Clinical State Card, Clinical Confidence Meter, Active Problems Panel, Referral Recommendation Panel (nuevo — se muestra en todo informe, incluso cuando su contenido es "no amerita derivación en este momento").
+
+AD-025 — Referral-First Composition (nueva)
+
+El Referral Engine debe ejecutarse antes de que el Composer decida la profundidad del informe (AD-017) y la plantilla a usar (Sección 7). La razón: la audiencia y el nivel de detalle apropiados dependen de si el documento final lo va a leer el propio usuario, otro colega de atención primaria, o un especialista — y esa decisión no puede tomarse recién al final del pipeline sin arriesgar tener que rehacer la narrativa completa. Esta es la diferencia estructural más importante respecto al motor original de GCIS, donde el destinatario técnico era casi siempre el mismo tipo de lector (otro gastroenterólogo).

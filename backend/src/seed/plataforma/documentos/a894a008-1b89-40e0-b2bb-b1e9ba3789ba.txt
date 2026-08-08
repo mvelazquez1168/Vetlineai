@@ -1,0 +1,55 @@
+ECIS-ARCH-001
+
+Clinical Components Catalog v1.0 (adaptado de ICIS-ARCH-001)
+
+NOTA DE ALCANCE
+
+Adaptación especializada para ECIS (endocrinología). Se excluye la capa de Derivación (CC-260 a CC-263).
+
+Componentes heredados sin cambios: CC-001 a CC-005, CC-101, CC-102, CC-104, CC-201 a CC-204, CC-240.
+
+Componentes nuevos, sin equivalente en ICIS: CC-234 (Endocrine Diagnostic Confirmation Engine), CC-235 (Therapeutic Monitoring Engine), CC-307 (Endocrine Pharmacotherapy).
+
+---
+
+CC-001 a CC-005, CC-101/102/104, CC-201 a CC-204, CC-240 — Heredados sin cambios
+
+El Executive Case Summary de ECIS debe priorizar el estado de confirmación diagnóstica (confirmado/presuntivo/crisis activa) como dato de mayor jerarquía, consistente con Diagnostic Confirmation Clarity.
+
+CC-234 — Endocrine Diagnostic Confirmation Engine (nuevo, propio de ECIS)
+
+Propósito: interpretar los resultados de pruebas de estimulación endocrina (ACTH, LDDST, razón Na:K, TLI, cortisol basal, ACTH endógeno) y determinar si confirman, descartan, o dejan indeterminado el diagnóstico sospechado.
+
+Entradas: CC-201, CC-202, resultado específico de la prueba de estimulación realizada.
+
+Salidas: estado de confirmación ("Confirmado", "Presuntivo — pendiente de X", "Descartado"), con el listado de criterios diagnósticos evaluados.
+
+Regla: nunca confirma un diagnóstico endocrino sin la prueba de estimulación correspondiente completada — un cuadro clínico compatible sin confirmación bioquímica se presenta siempre como "presuntivo", nunca como confirmado.
+
+Este componente alimenta directamente la Diagnostic Confirmation Card de ECIS-DESIGN-001.
+
+CC-235 — Therapeutic Monitoring Engine (nuevo, propio de ECIS)
+
+Propósito: gestionar el ciclo de titulación de dosis en tratamientos endocrinos crónicos (trilostano, insulina) — fase actual de titulación, resultado del último retesteo (ej. ACTH post-trilostano), y fecha del próximo control necesario.
+
+Entradas: CC-307, resultados de retesteo periódico.
+
+Regla: ante un paciente con tratamiento activo y sin retesteo reciente dentro del intervalo esperado, el componente debe señalarlo explícitamente como pendiente, no asumir que la dosis actual sigue siendo apropiada.
+
+Este componente alimenta directamente la Therapeutic Monitoring Card.
+
+CC-307 — Endocrine Pharmacotherapy (nuevo, propio de ECIS)
+
+Propósito: gestionar clases farmacológicas endocrinas activas — trilostano, DOCP/fludrocortisona, prednisona a dosis de reemplazo, insulina — objetivo terapéutico de cada una, y parámetros de monitoreo requeridos (electrolitos, ACTH post-estimulación, curva de glucosa).
+
+Regla: nunca indica dosis específicas — solo clases, objetivos, y qué monitoreo requiere cada una.
+
+---
+
+Contrato de Consumo y Architecture Decisions
+
+Idénticos en estructura a OCIS-ARCH-001/CCIS-ARCH-001: todo motor debe referenciar componentes por código, nunca reimplementar lógica localmente.
+
+AD-ECIS-01 — No Referral Layer.
+
+AD-ECIS-02 — Diagnostic Confirmation as a First-Class Component. CC-234 no es una extensión opcional — ningún otro componente puede confirmar un diagnóstico endocrino por su cuenta.

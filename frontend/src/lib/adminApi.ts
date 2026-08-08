@@ -2,6 +2,32 @@ import { getStoredToken } from "../hooks/useAuth";
 import { apiFetch, apiFetchFile } from "./api";
 import { Derivacion, Mensaje } from "./workspaceApi";
 
+// prompt: vincular caso↔cita — 5 columnas exactas (fecha de atención,
+// hora de inicio, hora de fin, número de expediente, número de
+// colegiado). Sin médico_nombre ni paciente_nombre en la fila.
+export interface AtencionReporte {
+  id: string;
+  fecha: string;
+  hora_inicio: string;
+  hora_fin: string;
+  numero_expediente: number | null;
+  colegiatura: string | null;
+}
+
+// Ya no es una fila de tabla — solo el expediente de referencia para la
+// nota de "no omitidos" en la pantalla.
+export interface CasoSinCitaReporte {
+  id: string;
+  numero_expediente: number | null;
+}
+
+export interface ReporteAtenciones {
+  atenciones: AtencionReporte[];
+  casosSinCita: CasoSinCitaReporte[];
+  totalAtenciones: number;
+  totalesPorMedico: { medicoNombre: string; total: number }[];
+}
+
 export interface Especialidad {
   agente: string;
   rol: "general" | "especialista";
@@ -99,6 +125,7 @@ export interface ConfiguracionNotificaciones {
   confirmacionCitaActivo: boolean;
   cancelacionCitaActivo: boolean;
   informeDisponibleActivo: boolean;
+  cumpleanosActivo: boolean;
 }
 
 export type EstadoSuscripcion = "trial" | "activa" | "trial_expirado" | "suspendida" | "cancelada";
@@ -520,6 +547,18 @@ export const adminApi = {
 
   marcarTodasLeidas: () =>
     authedFetch<{ ok: true }>("/admin/notificaciones/marcar-todas-leidas", { method: "PATCH" }),
+
+  obtenerReporteAtenciones: (desde: string, hasta: string, medicoId?: string) => {
+    const params = new URLSearchParams({ desde, hasta });
+    if (medicoId) params.set("medicoId", medicoId);
+    return authedFetch<ReporteAtenciones>(`/admin/reporte-atenciones?${params.toString()}`);
+  },
+
+  descargarReporteAtencionesPdf: (desde: string, hasta: string, medicoId?: string) => {
+    const params = new URLSearchParams({ desde, hasta });
+    if (medicoId) params.set("medicoId", medicoId);
+    return apiFetchFile(`/admin/reporte-atenciones/pdf?${params.toString()}`, { token: getStoredToken() });
+  },
 
   listarCasos: (filtros: {
     medicoId?: string;

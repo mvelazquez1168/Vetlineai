@@ -1,0 +1,118 @@
+# Consenso ACVIM 2015 — Manejo Crónico de Convulsiones (Epilepsia) en Perros
+
+**Fuente:** Podell M, Volk HA, Berendt M, Löscher W, Muñana K, Patterson EE, Platt SR. 2015 ACVIM Small Animal Consensus Statement on Seizure Management in Dogs. *J Vet Intern Med.* 2016;30(2):477-490. Licencia CC BY-NC.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — sistema neurológico, complemento directo del consenso de emergencias convulsivas (Status Epilepticus/Crisis en Racimo) ya cargado. Este documento cubre el manejo **crónico** de la epilepsia — selección de fármaco de mantenimiento, monitoreo, y calidad de vida — no el diagnóstico inicial ni las emergencias agudas.
+
+---
+
+## 1. Cuándo iniciar tratamiento antiepiléptico crónico
+
+El panel recomienda iniciar tratamiento cuando existe alguno de los siguientes:
+
+1. Lesión estructural identificable, o historia previa de enfermedad/lesión cerebral.
+2. Convulsiones repetitivas agudas o status epilepticus (evento ictal ≥5 minutos, o ≥3 convulsiones generalizadas en 24 horas).
+3. **≥2 eventos convulsivos en un período de 6 meses.**
+4. Períodos posictales prolongados, severos o inusuales.
+
+No existe evidencia de beneficio en iniciar tratamiento tras un único evento no provocado (extrapolado de medicina humana) — pero cuanto antes se inicie el tratamiento tras cumplirse los criterios anteriores, mejor el pronóstico potencial de control.
+
+## 2. Tabla comparativa de fármacos — recomendación en monoterapia y como fármaco adicional
+
+| Fármaco | Monoterapia (nivel/grado) | Monitoreo de niveles | Fármaco adicional (nivel/grado) |
+|---|---|---|---|
+| **Fenobarbital** | I / A (alta recomendación) | Sí | IV / B |
+| **Bromuro de potasio** | I / B | Sí | II / B |
+| **Primidona** | II / D (no recomendado) | Sí | II / D |
+| **Imepitoína** | I / A | No | III / C |
+| **Levetiracetam** | IV / C | No (excepto con fenobarbital concurrente) | Ib / B |
+| **Zonisamida** | III / C | Sí | III / B |
+
+*(Grado A = alta recomendación, probablemente efectivo; B = moderada; C = baja, puede no ser efectivo; D = no recomendado, puede ser inefectivo/peligroso)*
+
+## 3. Perfil de cada fármaco — lo esencial para decisión clínica
+
+### Fenobarbital — primera línea histórica, la más estudiada
+- Dosis inicial: **2.5 mg/kg VO c/12h**.
+- Tasa de éxito combinada (>50% reducción de convulsiones) en estudios: **82%**; libre de convulsiones: 31%.
+- Es auto-inductor de enzimas hepáticas — la vida media de eliminación puede disminuir progresivamente con el uso crónico (tolerancia metabólica).
+- **Riesgos**: anemia/neutropenia/trombocitopenia inmunomediada idiosincrática (prevalencia 4.2%, típicamente en los primeros 6 meses, reversible al suspender); hepatotoxicidad aguda idiosincrática rara; dermatitis necrolítica superficial; PU/PD crónica; **T4 total/libre puede estar bajo sin hipotiroidismo real** (no confundir diagnósticos).
+- Concentración >35 μg/mL tiene la correlación más alta con hepatotoxicidad — bioquímica sérica cada 6 meses para monitoreo hepático crónico.
+- **No altera** la prueba de ACTH ni la supresión con dexametasona a dosis baja — puede usarse con confianza en un perro bajo evaluación adrenal.
+
+### Bromuro de potasio
+- Dosis inicial: 40 mg/kg/día.
+- Vida media de eliminación larga (mediana 15.2 días) — tarda en alcanzar estado estable.
+- **No tiene metabolismo hepático** — atractivo en perros con riesgo/enfermedad hepática, y permite reducir la dosis de fenobarbital (fármacos metabolizados por hígado) cuando se combina.
+- **Riesgos**: irritante mucoso (pancreatitis, intolerancia GI reportada); a concentraciones >3000 mg/L, ataxia pélvica, debilidad, cambios de comportamiento. Precaución en insuficiencia renal (eliminación renal reducida).
+- Dietas con alto contenido de cloruro reducen la concentración sérica (aumentan excreción renal) — relevante si se cambia de dieta durante el tratamiento.
+
+### Primidona — no recomendado como elección
+- Se metaboliza a fenobarbital (>85% de la actividad anticonvulsivante proviene del metabolito).
+- **Sin ventaja de eficacia sobre fenobarbital, pero con mayor riesgo de hepatotoxicidad** (necrosis, fibrosis, cirrosis con uso crónico) — el panel no lo recomienda como fármaco de elección ni de adición.
+
+### Imepitoína — alternativa de primera línea con mejor perfil de tolerabilidad
+- Dosis: 10-30 mg/kg VO c/12h (dosis inicial habitual 15 mg/kg c/12h).
+- Mecanismo distinto: agonista parcial de baja afinidad en el sitio de benzodiazepinas del receptor GABA-A.
+- En ensayo comparativo directo con fenobarbital: **eficacia similar, pero significativamente menos efectos adversos** (somnolencia, ataxia, PU/PD, apetito aumentado) — aunque hiperactividad fue más frecuente con imepitoína.
+- **No requiere monitoreo de niveles séricos** (vida media corta ~2h, sin acumulación clínicamente relevante, índice terapéutico alto).
+- No es genotóxica, teratogénica ni inmunotóxica en estudios de seguridad.
+- **No disponible en EE.UU.** al momento de este consenso — verificar disponibilidad regional (relevante para Costa Rica/Centroamérica, donde puede o no estar registrada).
+
+### Levetiracetam — favorable perfil farmacocinético, sobre todo como adyuvante
+- Dosis: 20 mg/kg VO c/8h.
+- Absorción rápida y completa, mínima unión a proteínas, **sin metabolismo hepático** (excreción renal sin cambios) — atractivo en enfermedad hepática, precaución en enfermedad renal.
+- **No hay estudios publicados que evalúen su uso como monoterapia de primera línea** — toda la evidencia disponible es como fármaco adyuvante en perros refractarios.
+- **Interacción importante**: el fenobarbital concurrente acelera su eliminación (menor concentración pico, eliminación más rápida) — considerar monitoreo de niveles cuando se combinan, y posible necesidad de aumentar dosis de levetiracetam.
+- Efectos adversos predecibles y dosis-dependientes únicamente (sedación, ataxia, inquietud, vómito, apetito disminuido) — sin reacciones idiosincráticas ni tipo III/IV reportadas.
+
+### Zonisamida
+- Dosis: 5 mg/kg c/12h en monoterapia; 7-10 mg/kg c/12h si se combina con fenobarbital (por interacción que acelera su eliminación).
+- Eficacia como adyuvante: 58-80% de reducción ≥50% en estudios pequeños no controlados.
+- **Riesgos más serios de la lista**: hepatopatía tóxica aguda idiosincrática (2 casos reportados, 1 fatal) y acidosis tubular renal (1 caso) — monitorear enzimas hepáticas, electrolitos, gasometría y hemograma antes de iniciar y periódicamente. Aumento de cloruro sérico + disminución de bicarbonato/TCO2 debe hacer sospechar acidosis tubular renal.
+- Mayor riesgo de reacción idiosincrática en perros con antecedente de alergia a sulfonamidas (zonisamida es una sulfonamida).
+
+## 4. Monitoreo de niveles séricos — cuándo y cómo
+
+| Fármaco | Primer control | Controles posteriores | Rango terapéutico |
+|---|---|---|---|
+| Fenobarbital | 2 y 6 semanas | c/6 meses, o 2 semanas tras cambio de dosis | 15-35 μg/mL |
+| Bromuro | 6-12 semanas | Anual, o si >3 convulsiones antes del control programado | 1000-3000 μg/mL (mono) / 800-2500 μg/mL (con fenobarbital) |
+| Zonisamida | 2-3 meses | c/6 meses y 2 semanas tras cambio de dosis | 10-40 μg/mL |
+| Imepitoína | No requiere | — | No establecido / no necesario |
+| Levetiracetam | No de rutina | Considerar si se combina con fenobarbital | No establecido en perros (se extrapola rango humano 12-46 μg/mL) |
+
+**Técnica de muestreo**: idealmente en ayunas, temprano en la mañana, antes de la dosis (nivel valle) — para consistencia comparativa entre controles.
+
+## 5. Cuándo agregar un segundo fármaco
+
+- Decisión basada en frecuencia, severidad (duración, tendencia a agruparse, efectos posictales) y calidad de vida — no existe un criterio numérico único y estricto en veterinaria.
+- Factores de riesgo asociados a peor control: sexo macho, antecedente de crisis en racimo.
+- Consideraciones al elegir el segundo fármaco: mecanismo de acción distinto al primero, minimizar interacciones fármaco-fármaco, evitar toxicidad aditiva, sopesar riesgo-beneficio de polifarmacia vs. calidad de vida.
+- **Combinación bromuro+fenobarbital**: puede reducir convulsiones en la mayoría de los perros (21-72% libres de convulsiones según estudios), y al permitir reducir la dosis de fenobarbital, puede disminuir el riesgo de hepatotoxicidad.
+- **Primidona no debe agregarse** como segundo fármaco tras fallo de fenobarbital u otro de primera línea — mismo mecanismo activo, mayor riesgo, sin ventaja.
+
+## 6. Tratamientos no farmacológicos — qué tiene evidencia y qué no
+
+- **Estimulación del nervio vago**: dispositivo implantado quirúrgicamente — en el único ensayo controlado en perros (n=10), no hubo diferencia significativa en frecuencia/severidad/duración durante 12 semanas, aunque se observó una reducción del 34% en las últimas 4 semanas.
+- **Dieta cetogénica** (alta grasa, baja proteína/carbohidrato): un ensayo controlado **no encontró diferencia** en frecuencia de convulsiones, y **3 de 9 perros desarrollaron pancreatitis** — no se recomienda basándose en esta evidencia.
+- **Dieta con triglicéridos de cadena media (TCM)**: ensayo cruzado, aleatorizado, doble ciego mostró **reducción significativa** en frecuencia y días de convulsión con la dieta de prueba vs. placebo — la opción dietética con mejor evidencia disponible.
+- **Ácidos grasos omega-3**: sin diferencia significativa encontrada en un ensayo controlado.
+- **Acupuntura/implantes de oro**: evidencia de baja calidad, resultados inconsistentes entre estudios pequeños no controlados — no hay base sólida para recomendar.
+- **Homeopatía**: sin evidencia que respalde su uso.
+
+## 7. Calidad de vida — el desenlace que realmente determina el pronóstico
+
+- La supervivencia de un perro epiléptico depende más de la calidad de vida percibida por el propietario y la carga (emocional, económica) sobre el hogar que de la severidad objetiva de la enfermedad — los propietarios eligen la eutanasia cuando esa carga supera sus expectativas.
+- **Epilepsia idiopática**: la esperanza de vida mediana **no está reducida** comparada con la población canina general.
+- **Epilepsia estructural** (con lesión cerebral identificable): esperanza de vida mediana **significativamente reducida** — refleja la patología subyacente, no la epilepsia en sí.
+- Variación por raza: Labrador Retriever y Pastor Belga tienden a cursos más leves con buen desenlace; **Border Collie y Pastor Australiano** tienden a formas más agresivas con desenlace más desfavorable.
+- La tendencia a desarrollar crisis en racimo o status epilepticus empeora el pronóstico de forma consistente.
+
+## 8. Conclusión operativa para ICIS
+
+- El criterio de **≥2 convulsiones en 6 meses** es el umbral más accionable y objetivo para decidir iniciar tratamiento crónico — más útil en la práctica que esperar "suficientes" eventos de forma subjetiva.
+- Fenobarbital e imepitoína son ambos de primera línea con buena evidencia — la elección entre ellos debería considerar tolerabilidad esperada (imepitoína tiene menos efectos adversos reportados) y disponibilidad regional (imepitoína puede no estar accesible en todos los mercados).
+- Levetiracetam y zonisamida son opciones sólidas como **adyuvantes**, no como primera línea aislada — la evidencia de monoterapia de levetiracetam es prácticamente inexistente.
+- Ante cualquier combinación con fenobarbital, recordar que este acelera la eliminación de levetiracetam y zonisamida — ajustar expectativas de dosis y considerar monitoreo cuando el control no es el esperado.
+- Este documento se conecta directamente con el ya cargado de Status Epilepticus/Crisis en Racimo: un perro que llega a triage en crisis aguda, una vez estabilizado, necesita este marco para decidir si amerita iniciar o ajustar tratamiento crónico.

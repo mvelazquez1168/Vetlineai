@@ -1,0 +1,46 @@
+Knowledge Base Standard (KBS) — ECIS
+
+Versión: 1.0
+Código: ECIS-KB-001
+
+1. Filosofía
+
+Define las reglas para transformar casos endocrinos en unidades de conocimiento estructuradas. Cada caso deberá responder: ¿qué enfermedad endocrina fue, y cómo se confirmó? ¿Qué tratamiento funcionó y cómo se tituló? ¿El diagnóstico presuntivo inicial se confirmó o se descartó, y por qué?
+
+2. Unidad de Conocimiento
+
+Identificador: ECIS-KU-000001. Contiene: Metadata, perfil del paciente, enfermedad endocrina identificada, estado de confirmación diagnóstica con criterios, historia resumida, hallazgos relevantes, tratamiento y su titulación, evidencia, evolución, lecciones aprendidas, nivel de calidad.
+
+3. Metadata
+
+Código, fecha, enfermedad endocrina (tipo), estado de confirmación, especie, raza, edad, sexo, esquema terapéutico utilizado.
+
+4. Diagnóstico y Confirmación
+
+La Base almacenará diagnóstico principal, prueba de estimulación usada, resultado, y estado de confirmación (confirmado/presuntivo/descartado).
+
+5. Tratamientos
+
+Cada esquema registrará: clase farmacológica, objetivo, fecha de inicio, resultados de retesteos sucesivos, ajustes de titulación y su justificación, complicaciones.
+
+6. Outcome
+
+Categorías propias: Bien controlado, En fase de titulación, Crisis resuelta, Crisis recurrente, Fallecimiento por causa endocrina, Fallecimiento por causa no relacionada, En tratamiento activo, Perdido de seguimiento.
+
+7. Similarity Tags
+
+Ejemplo: Perro, Poodle, Hiperadrenocorticismo, Confirmado-LDDST, Trilostano, En-Titulación.
+
+8. Knowledge Quality Score
+
+Un caso con diagnóstico confirmado por prueba de estimulación y seguimiento de titulación documentado tiene mayor puntaje que uno presuntivo sin confirmación.
+
+9. Teaching Mode
+
+Pregunta docente central: "¿qué prueba de estimulación pedirías para confirmar este diagnóstico, y cómo interpretarías el resultado?"
+
+10. Architecture Decisions
+
+AD-ECIS-KB-01 a 05 — heredados sin cambios estructurales de OCIS-KB-01 a 05, adaptando referencias a "estado de confirmación diagnóstica/fase de titulación".
+
+AD-ECIS-KB-06 — Confirmation Outcome Correlation, análoga a AD-OCIS-KB-06/AD-CCIS-KB-06: correlación entre el estado de confirmación inicial y el desenlace real observado, para calibrar la Base de Conocimiento clínica.

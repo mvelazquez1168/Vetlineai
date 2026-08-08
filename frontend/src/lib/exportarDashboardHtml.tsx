@@ -68,7 +68,8 @@ export async function exportarDashboardHtml({
 async function obtenerLogoBase64(tenantLogoUrl: string | null): Promise<string | null> {
   if (!tenantLogoUrl) return null;
   try {
-    const response = await fetch(`${API_ORIGIN}${tenantLogoUrl}`);
+    const url = tenantLogoUrl.startsWith("http") ? tenantLogoUrl : `${API_ORIGIN}${tenantLogoUrl}`;
+    const response = await fetch(url);
     if (!response.ok) return null;
     const blob = await response.blob();
     return await new Promise<string>((resolve, reject) => {

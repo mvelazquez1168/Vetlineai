@@ -1,0 +1,61 @@
+# Imagen de PRODUCCIÓN del backend. Distinta del Dockerfile de desarrollo
+# (que sigue existiendo tal cual, sin tocar): acá no hay ts-node-dev, no
+# hay código montado desde el disco, y el resultado es exactamente lo que
+# `npm run build` produce en dist/ — nada más.
+#
+# Build en dos etapas: "builder" instala TODAS las dependencias (necesita
+# los devDependencies para compilar con tsc) y compila; la etapa final
+# arranca de una imagen limpia y solo copia dist/ + node_modules de
+# producción — las devDependencies (typescript, ts-node-dev, etc.) nunca
+# llegan a la imagen que corre.
+
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+COPY tsconfig.json tsconfig.build.json ./
+COPY src ./src
+RUN npm run build
+
+# ---------------------------------------------------------------------
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Solo las dependencias de producción — sin typescript, ts-node-dev, etc.
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+COPY --from=builder /app/dist ./dist
+# Los .sql de las migraciones no se compilan — package.json#migrate los
+# lee directo de src/migrations en tiempo de ejecución (ver el script
+# "migrate"), así que viajan como archivos planos, no como parte de dist/.
+COPY src/migrations ./src/migrations
+# El sembrado de plataforma (países/planes/parámetros/tarifas/agentes/
+# documentos — ver src/seed/seedPlataforma.ts) lee estos .json/.txt en
+# tiempo de ejecución con path.join(__dirname, "plataforma"); tsc no copia
+# archivos que no son .ts, así que hace falta este COPY explícito, en el
+# mismo lugar donde va a quedar dist/seed/seedPlataforma.js una vez
+# compilado. Se corre en un servidor nuevo con:
+#   node dist/seed/seedPlataforma.js
+COPY src/seed/plataforma ./dist/seed/plataforma
+
+# Usuario sin privilegios de administrador dentro del contenedor — node:20-alpine
+# ya trae "node" (uid 1000) creado, no hace falta declarar uno nuevo.
+RUN chown -R node:node /app
+USER node
+
+EXPOSE 4000
+
+# El orquestador puede consultar esto para saber si el contenedor está
+# listo para recibir tráfico — ver GET /api/health en index.ts (chequea
+# también la base de datos, no solo que el proceso esté vivo).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4000/api/health || exit 1
+
+# Forma exec (no shell): así el proceso node es PID 1 y recibe SIGTERM
+# directo del orquestador, sin un shell intermedio que se lo trague — el
+# apagado ordenado de index.ts depende de esto.
+CMD ["node", "dist/index.js"]

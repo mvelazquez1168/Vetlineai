@@ -1,0 +1,88 @@
+# Guías ICADA 2015 — Tratamiento de la Dermatitis Atópica Canina
+
+**Fuente:** Olivry T, DeBoer DJ, Favrot C, Jackson HA, Mueller RS, Nuttall T, Prélaud P. Treatment of canine atopic dermatitis: 2015 updated guidelines from the International Committee on Allergic Diseases of Animals (ICADA). *BMC Vet Res.* 2015;11:210. Acceso abierto.
+
+**Alcance de este resumen:** primer documento del sistema dermatológico para el agente de medicina interna/triage (ICIS). Cubre exclusivamente **tratamiento** de la dermatitis atópica canina (DA) ya diagnosticada — no diagnóstico ni identificación de alérgenos (documento separado del mismo comité, ICADA 2015 "detailed guidelines for diagnosis and allergen identification", no cargado aún). Existe traducción oficial al español publicada por ICADA — este resumen es una síntesis clínica propia, no una reproducción de esa traducción.
+
+**Nota sobre el sistema de evidencia**: usa la escala SORT (Strength of Recommendation Taxonomy) — **A** = recomendación consistente y de buena calidad orientada al paciente; **B** = evidencia inconsistente o de calidad limitada; **C** = consenso, práctica habitual, opinión de expertos, sin evidencia de calidad. No confundir con el sistema de grados A-D usado en los documentos de ACVIM ya cargados.
+
+---
+
+## 1. Marco general — la dermatitis atópica es multifacética por diseño
+
+- El tratamiento de la DA **casi siempre requiere combinar intervenciones**, no una sola — los ensayos clínicos individuales tienden a subestimar el beneficio sinérgico de combinar tratamientos.
+- El plan de tratamiento varía entre perros, y para el mismo perro, entre distintas etapas de la enfermedad — no existe un protocolo único aplicable a todos los casos.
+- Estructura de las guías: (A) manejo de brotes agudos, (B) tratamiento de la enfermedad crónica, (C) prevención de recaídas.
+
+## 2. A. Manejo de brotes agudos
+
+### A.1. Identificación y eliminación de factores desencadenantes
+- Causas alergénicas reconocidas de brotes agudos: exposición ambiental aumentada reciente (ácaros del polvo, polen), ingesta de ingredientes alimentarios, picaduras de pulgas u otros insectos.
+- Infecciones bacterianas/por levaduras son causa común de brotes — tratar con antimicrobianos tópicos y/o sistémicos siguiendo guías de uso racional de antimicrobianos vigentes en la región.
+- **Precaución**: los champús/antimicrobianos tópicos pueden tener efecto secante/irritante que puede inducir un brote — vigilar esta posibilidad.
+
+### A.2. Higiene y cuidado de piel/pelaje
+- Baño con champú emoliente no irritante — la intensidad y frecuencia del baño puede ser el factor más importante para aliviar el prurito (evidencia grado B).
+
+### A.3. Reducción farmacológica de prurito y lesiones
+- **Glucocorticoides tópicos** (spray) — efectivos para lesiones localizadas y de corta duración (grado A con formulaciones específicas estudiadas). Cuidado con atrofia cutánea inducida por aplicación diaria prolongada en el mismo sitio.
+- **Glucocorticoides orales** (prednisolona, prednisona o metilprednisolona) 0.5-1.0 mg/kg/día, en una o dos dosis — mejoran signos en DA severa/extensa (grado A).
+- **Oclacitinib** 0.4-0.6 mg/kg VO c/12h hasta 14 días — reduce rápidamente lesiones y prurito (grado A), perfil de seguridad a corto plazo aceptable.
+- **No recomendado**: glucocorticoides inyectables de acción prolongada para brotes agudos (grado C, en contra).
+- **Uso combinado de oclacitinib + glucocorticoides orales probablemente contraindicado** (riesgo teórico de inmunosupresión dosis-dependiente, especialmente con infecciones concurrentes) — no evaluado formalmente pero desaconsejado por el panel.
+- **Señal de alarma diagnóstica**: si no hay respuesta rápida a glucocorticoides orales u oclacitinib, reconsiderar diagnósticos alternativos o complicaciones secundarias (infecciones cutáneas, ectoparásitos, reacciones adversas a alimentos no atópicas) — la falta de respuesta a estos fármacos es en sí un dato clínico relevante.
+
+### Intervenciones de poco o ningún beneficio en brotes agudos
+- **Antihistaminas orales de tipo 1**: beneficio pequeño y limitado, mejor si se dan de forma preventiva antes del brote, no durante/después de establecido.
+- **Ácidos grasos esenciales orales**: no útiles para brotes agudos (por el tiempo requerido para cualquier efecto).
+- **Inhibidores de calcineurina** (tacrolimus tópico, ciclosporina oral): inicio de acción demasiado lento para brotes agudos.
+
+## 3. B. Tratamiento de la enfermedad crónica
+
+### B.1. Identificación y evitación de factores desencadenantes
+- **Pruebas de restricción-provocación dietaria** siguen siendo el estándar de oro para diagnosticar alergia alimentaria — prueba de restricción de 8 semanas con dieta novedosa/hidrolizada, seguida de provocación con el alimento original (grado A para la duración de 8 semanas).
+- Repetir la prueba dietaria en perros con DA previamente bien controlada que ahora recae, especialmente si hay prurito perianal y/o signos GI asociados (dos tercios de los perros con alergia alimentaria + DA concurrente presentan prurito perianal).
+- Las pruebas serológicas de IgE/IgG para alérgenos alimentarios **no son confiables** como método diagnóstico — alta variabilidad entre laboratorios comerciales.
+- Control de pulgas todo el año con esquema efectivo — insecticidas de efecto prolongado y velocidad de acción residual rápida son teóricamente más efectivos.
+- **Terbinafina o itraconazol** — considerar cuando los brotes son provocados/exacerbados por infección por *Malassezia* (grado B), esquemas diarios o pulso (2 días consecutivos/semana × 3 semanas) con resultados comparables.
+
+### B.2. Higiene y cuidado de piel
+- Baño al menos semanal con champú suave, agua tibia — factor más importante para aliviar prurito.
+- **Suplementación oral con ácidos grasos esenciales**: beneficio pequeño, improbable como monoterapia — el beneficio (si existe) puede tardar ≥2 meses en manifestarse.
+- Formulaciones tópicas con lípidos: evidencia insuficiente para recomendarlas como monoterapia — considerar como adyuvante.
+
+### B.3. Reducción farmacológica de prurito y lesiones — el núcleo del manejo crónico
+
+| Fármaco | Dosis | Notas clave |
+|---|---|---|
+| **Glucocorticoides tópicos/tacrolimus** | Según formulación | Aplicación intermitente tras fase de inducción diaria, para minimizar atrofia cutánea (grado A) |
+| **Glucocorticoides orales** | 0.5 mg/kg VO 1-2×/día para inducir remisión, luego reducir a la dosis mínima efectiva | Efectivos (grado A), pero requieren monitoreo urinario periódico (urianálisis + cultivo) por mayor riesgo de infección urinaria con uso prolongado |
+| **Ciclosporina oral** | 5 mg/kg VO c/24h hasta control satisfactorio (4-6 semanas), luego reducir frecuencia o dosis | Efectiva (grado A) pero de inicio más lento que glucocorticoides/oclacitinib — puede combinarse con prednisolona las primeras 3 semanas para acelerar respuesta (grado A) |
+| **Oclacitinib** | 0.4-0.6 mg/kg VO c/12h × 14 días, luego c/24h | Efectivo (grado A) — **no aprobado en perros <12 meses de edad**; seguridad a largo plazo con dosis única diaria parece aceptable, no así con otros esquemas |
+
+**Regla crítica de seguridad**: **no combinar glucocorticoides, ciclosporina u oclacitinib entre sí a largo plazo** — mayor riesgo teórico de inmunosupresión predisponiendo a infecciones oportunistas cutáneas o de otros órganos.
+
+### Inmunomoduladores biológicos
+- **Interferón gamma canino recombinante**: 5,000-10,000 U/kg SC 3×/semana × 4 semanas, luego 1×/semana — efectivo (grado A), efectos adversos mínimos.
+- **Interferón omega felino recombinante**: beneficio inconsistente (grado B).
+
+### Intervenciones de poco/ningún beneficio en enfermedad crónica
+- **Antihistaminas tipo 1**: eficacia modesta, variable entre individuos — mejor uso preventivo continuo, no durante el brote.
+- **Masitinib**: cierto beneficio (grado A) pero **riesgo de nefropatía perdedora de proteínas potencialmente fatal** — requiere urianálisis periódico para detectar proteinuria en desarrollo. Alternativa para perros sin respuesta a fármacos aprobados estándar.
+- **Fluoxetina oral y terapia láser de bajo nivel**: eficacia mínima demostrada (grado B, en contra).
+- Pentoxifilina oral en dosis alta, metotrexato semanal en dosis baja, vitamina E adyuvante: evidencia preliminar prometedora pero insuficiente para recomendación de rutina — requieren más estudios.
+
+## 4. C. Prevención de recaídas
+
+- **Evitar factores desencadenantes conocidos** sigue siendo la mejor estrategia.
+- **Terapia tópica proactiva**: aplicar spray de glucocorticoide tópico (ej. hidrocortisona aceponato) en zonas previamente afectadas, 2 días consecutivos por semana — retrasa la recurrencia de lesiones (tiempo hasta recaída casi 4 veces mayor que placebo en el estudio de referencia) sin atrofia cutánea visible con este esquema intermitente (grado B).
+- **Inmunoterapia alérgeno-específica (ASIT)**: eficacia moderada respaldada por estudios mayormente no controlados (grado B) — vía sublingual y protocolos acelerados ("rush") parecen seguros y efectivos (grado C). La mayoría de los pacientes requiere años de tratamiento; intentar reducir frecuencia o suspender en remisión completa prolongada.
+- **Advertencia sobre pruebas alergénicas**: sin estandarización entre laboratorios para pruebas intradérmicas o serología IgE — las recomendaciones de inmunoterapia derivadas de estas pruebas pueden variar sustancialmente según el laboratorio consultado.
+- **Probióticos orales** como inmunoterapia inespecífica: evidencia insuficiente para recomendar su uso en prevención/tratamiento.
+
+## 5. Conclusión operativa para ICIS
+
+- La primera decisión clínica práctica ante un caso de DA crónica es elegir entre **glucocorticoides orales, ciclosporina, u oclacitinib** como base del tratamiento — los tres tienen grado A de evidencia, y la elección depende de velocidad de respuesta necesaria (glucocorticoides/oclacitinib más rápidos), tolerancia esperada, edad del paciente (oclacitinib no aprobado <12 meses), y necesidad de monitoreo.
+- **Nunca combinar estos tres fármacos entre sí a largo plazo** — es la regla de seguridad más importante de todo el documento.
+- Ante falta de respuesta rápida a tratamiento de brote agudo, la conclusión correcta no es "aumentar dosis" sino **reconsiderar el diagnóstico** — infección secundaria, ectoparásitos, o reacción alimentaria no atópica concurrente.
+- La dermatitis atópica raramente se resuelve con un solo tratamiento — el manejo exitoso combina control de brotes + identificación de desencadenantes + estrategia de mantenimiento a largo plazo, ajustada a la etapa de la enfermedad en cada consulta.

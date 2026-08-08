@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import mammoth from "mammoth";
 import { PDFParse } from "pdf-parse";
 
@@ -10,31 +8,35 @@ import { PDFParse } from "pdf-parse";
 // Despacho por extensión; cualquier tipo no soportado (imágenes, etc.)
 // devuelve null en vez de lanzar, para que el llamador no necesite un
 // try/catch por cada tipo distinto.
+//
+// Recibe el contenido ya en memoria (Buffer), no una ruta de disco: con
+// multer en memoryStorage y el almacenamiento de objetos detrás de la
+// abstracción (ver almacenamiento/), no hay una ruta local garantizada en
+// el camino de producción.
 // ---------------------------------------------------------------------
-export async function extraerTexto(rutaArchivo: string): Promise<string | null> {
-  const ext = path.extname(rutaArchivo).toLowerCase();
+export async function extraerTexto(datos: Buffer, extension: string): Promise<string | null> {
+  const ext = extension.toLowerCase();
 
   try {
     switch (ext) {
       case ".pdf":
-        return await extraerDePdf(rutaArchivo);
+        return await extraerDePdf(datos);
       case ".docx":
-        return await extraerDeDocx(rutaArchivo);
+        return await extraerDeDocx(datos);
       case ".txt":
       case ".md":
-        return await fs.promises.readFile(rutaArchivo, "utf-8");
+        return datos.toString("utf-8");
       default:
         return null;
     }
   } catch (err) {
-    console.error(`extraerTexto: fallo al extraer texto de ${rutaArchivo}`, err);
+    console.error(`extraerTexto: fallo al extraer texto (${ext})`, err);
     return null;
   }
 }
 
-async function extraerDePdf(rutaArchivo: string): Promise<string> {
-  const buffer = await fs.promises.readFile(rutaArchivo);
-  const parser = new PDFParse({ data: buffer });
+async function extraerDePdf(datos: Buffer): Promise<string> {
+  const parser = new PDFParse({ data: datos });
   try {
     const resultado = await parser.getText();
     return resultado.text;
@@ -43,7 +45,7 @@ async function extraerDePdf(rutaArchivo: string): Promise<string> {
   }
 }
 
-async function extraerDeDocx(rutaArchivo: string): Promise<string> {
-  const resultado = await mammoth.extractRawText({ path: rutaArchivo });
+async function extraerDeDocx(datos: Buffer): Promise<string> {
+  const resultado = await mammoth.extractRawText({ buffer: datos });
   return resultado.value;
 }

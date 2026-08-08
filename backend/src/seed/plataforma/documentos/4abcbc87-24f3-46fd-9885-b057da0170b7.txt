@@ -1,0 +1,47 @@
+Dashboard Functional Specification — DCIS
+
+Documento: DCIS-DASH-001
+Versión: 1.0
+Estado: Draft
+
+1. Filosofía del Dashboard
+
+Un veterinario que abre el Dashboard de un caso dermatológico debe poder responder en menos de 10 segundos: ¿qué diferenciales ya se descartaron?, ¿el diagnóstico de DA es aplicable o sigue presuntivo?, ¿hay piodermia activa y de qué profundidad? La pregunta central de DCIS ocupa el lugar prioritario del header, igual que el estadio/confirmación en OCIS/CCIS/ECIS.
+
+2. Principios de Diseño
+
+Heredados de DCIS-DESIGN-001, con particular relevancia: Diagnostic Rule-Out Clarity, Minimal Cognitive Load, Progressive Disclosure, Explainable AI.
+
+3. Layout del Dashboard
+
+Zona 1 — Header: Logo institucional + Executive Summary Card + Clinical State Card + Rule-Out Checklist Card + Clinical Confidence Meter.
+
+Zona 2 — Signos vitales del caso: Confidence Meter + Active Problems Panel + Alertas (signos de piodermia profunda o enfermedad sistémica no descartada).
+
+Zona 3 — Evolución y evidencia: Clinical Timeline, Pyoderma Depth Card (cuando aplique), Treatment Duration Card, comparación de lesiones (fotográfica cuando disponible).
+
+Zona 4 — Razonamiento y conocimiento (colapsado): Diagnostic Correlation Panel, detalle de descarte diagnóstico (CC-236), Knowledge Match Panel, Clinical Reasoning Journal.
+
+4. Reglas de aparición condicional
+
+| Condición | Componente que se activa |
+|---|---|
+| Siempre | Executive Summary Card, Clinical State Card, Rule-Out Checklist Card, Confidence Meter, Active Problems Panel |
+| Existe sospecha de piodermia (CC-237) | Pyoderma Depth Card, Treatment Duration Card |
+| Descarte incompleto (CC-236) | La Rule-Out Checklist Card se muestra en ámbar, sin colapsar, listando qué diferencial falta |
+| Existe tratamiento antimicrobiano activo (CC-308) | Treatment Duration Card con fecha de reevaluación |
+
+5. La Rule-Out Checklist Card en el Dashboard
+
+- Estado completo: los 4 diferenciales de la secuencia obligatoria marcados como descartados o no aplicables, en verde, diagnóstico de DA presentado como aplicable.
+- Estado parcial: muestra explícitamente qué diferencial(es) faltan, en ámbar, sin colapsar hasta completar la secuencia.
+- Piodermia profunda activa: en rojo, con prioridad visual máxima.
+
+6. Resto de secciones
+
+Interactividad, Reglas de actualización, Dashboard States (sin "Referred"), Accesibilidad — heredadas sin cambios del patrón establecido en OCIS/CCIS/ECIS.
+
+7. Architecture Decisions
+
+AD-DCIS-DASH-01 — Dashboard as a View, not a Store.
+AD-DCIS-DASH-02 — Rule-Out-First Layout, análoga a Staging-First de OCIS/CCIS y Confirmation-First de ECIS.

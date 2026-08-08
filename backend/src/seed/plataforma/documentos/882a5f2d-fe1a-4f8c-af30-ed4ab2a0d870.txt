@@ -1,0 +1,100 @@
+# Diagnóstico del Hipoadrenocorticismo Canino Espontáneo (Enfermedad de Addison)
+
+**Fuente:** Guzmán Ramos PJ, Bennaim M, Shiel RE, Mooney CT. Diagnosis of canine spontaneous hypoadrenocorticism. *Canine Medicine and Genetics.* 2022;9:6. Acceso abierto (BMC/Springer).
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de medicina interna/triage (ICIS) — sistema endocrino, complemento directo del resumen ya cargado sobre hiperadrenocorticismo (Cushing's). Addison's y Cushing's comparten presentaciones iniciales inespecíficas (letargo, signos GI) y deben figurar como diferenciales cruzados cuando hay sospecha de disfunción adrenal.
+
+---
+
+## 1. Por qué importa para triage — "el gran simulador"
+
+- Enfermedad poco común (prevalencia 0.06-0.28%), pero **de alta mortalidad si no se reconoce**, por hiperkalemia severa, hiponatremia, deshidratación y shock hipovolémico.
+- **Alta sospecha requerida**: la mayoría de los signos son inespecíficos y se confunden con enfermedad GI o renal primaria.
+- Señal de alarma clave: **cuadro GI crónico, ondulante ("waxing and waning")**, que responde rápido a fluidoterapia sintomática o glucocorticoides, o que empeora con situaciones de estrés — debe elevar la sospecha antes de proceder a endoscopía/biopsia.
+- Un estudio encontró 4% de prevalencia de hipoadrenocorticismo en perros con signos GI crónicos — más alto que en la población general, y el estrés de procedimientos invasivos puede precipitar una crisis en un paciente no reconocido.
+
+## 2. Clasificación — términos que hay que distinguir bien
+
+| Término | Qué significa |
+|---|---|
+| **Primario "típico" (Addison's clásico)** | Déficit de glucocorticoides + hiponatremia/hiperkalemia (o ambas) por déficit mineralocorticoide concurrente |
+| **Primario "atípico" / déficit glucocorticoide aislado** | Déficit de cortisol sin las alteraciones electrolíticas esperadas — puede deberse a destrucción selectiva de zona fasciculada/reticular con relativa preservación de zona glomerular, o a que algunos perros mantienen electrolitos normales pese a déficit mineralocorticoide demostrable por mecanismo aún no esclarecido |
+| **Secundario/central** | Déficit de ACTH hipofisario (o CRH hipotalámico, indistinguible en la práctica) — sin déficit mineralocorticoide esperado |
+
+**Importante**: electrolitos normales **no descartan** déficit mineralocorticoide — algunos perros lo mantienen enmascarado hasta progresar más adelante a hiponatremia/hiperkalemia. Y la fluidoterapia sintomática previa a la consulta puede normalizar electrolitos que estaban alterados.
+
+## 3. Perfil del paciente
+
+- Edad: 2 meses a 14 años, mediana 3-4 años. Los que tienen **solo déficit glucocorticoide** suelen ser más viejos (6-8 años).
+- Fuerte componente hereditario en: Standard Poodle, Portuguese Water Dog, Nova Scotia Duck Tolling Retriever, Soft Coated Wheaten Terrier, Bearded Collie (también reportado en Leonberger y Pomerania, en líneas específicas).
+- Razas con riesgo aumentado: Great Dane, Pyrenean Mountain Dog, West Highland White Terrier, Rottweiler. Riesgo disminuido: Golden Retriever, Yorkshire Terrier, Lhasa Apso.
+- Hembras: 1.85-2.6 veces más riesgo que machos en la población general (no consistente en todos los estudios raza-específicos).
+
+## 4. Hallazgos clínicos
+
+- **Historia más común**: letargo + signos GI (anorexia, regurgitación, vómito, diarrea, pérdida de peso) — hematemesis/melena menos frecuentes.
+- **PU/PD**: frecuente, por pérdida de sodio (pérdida de gradiente medular renal) e hiponatremia (interfiere con liberación de ADH).
+- **Examen físico**: pulsos débiles, deshidratación, hipovolemia, hipotensión, debilidad muscular, mal estado corporal, dolor abdominal; en casos severos, shock hipovolémico.
+- **Señal de alarma específica**: en un perro hipovolémico, la **ausencia de taquicardia compensatoria** (por la hiperkalemia) — e incluso bradicardia — debe elevar sospecha de hipoadrenocorticismo. Un estudio encontró PA sistólica mediana de 90 mmHg en perros con hipoadrenocorticismo vs. 140 mmHg en otras enfermedades.
+- Signos menos frecuentes: debilidad marcada/convulsiones por hipoglucemia (puede ser severa); megaesófago (mecanismo no esclarecido, puede confundirse con distensión esofágica transitoria en animales colapsados).
+
+## 5. Hallazgos de laboratorio
+
+### Hematología
+- Anemia no regenerativa normocítica-normocrómica (~30% de casos, hasta 60% en déficit glucocorticoide aislado por la cronicidad) — puede enmascararse por hemoconcentración, evidenciándose solo tras rehidratar.
+- Eritrocitosis relativa (~17%, casi exclusiva de Addison's clásico, refleja depleción de volumen).
+- **Leucograma "de estrés invertido"**: eosinofilia (~20% de casos) y linfocitosis (~10-20%) — presentes en minoría de casos, así que su ausencia NO descarta. Lo más útil: **ausencia de leucograma de estrés** (neutrofilia, linfopenia, monocitosis, eosinopenia) en un paciente con enfermedad sistémica activa es inapropiada y debe elevar sospecha.
+- Razón neutrófilos:linfocitos mejora sensibilidad vs. conteo de linfocitos aislado, a costa de especificidad.
+
+### Bioquímica
+- **>80% de casos**: hiperkalemia, hiponatremia, hipocloremia.
+- **Razón Na:K** es una herramienta diagnóstica útil — a menor razón, mayor especificidad para hipoadrenocorticismo (diferenciándolo de otras causas de electrolitos similares: enfermedad GI/renal/hepática severa, ICC, efusión pleural, acidosis).
+- Combinar razón Na:K + conteo de linfocitos aporta más información que cualquiera solo.
+- **Hipercalcemia** hasta en 30% de casos — mecanismo no claro (↓TFG, acidosis metabólica, ↓calciuresis). Ante hipercalcemia inexplicada, considerar función adrenal, especialmente sin causa neoplásica evidente.
+- Azotemia prerrenal (urea hasta 82%, creatinina hasta 66%) por deshidratación/hipovolemia — la diferenciación de causa renal se complica porque la densidad urinaria también suele estar baja (por pérdida de sodio).
+- Hipocolesterolemia más común en déficit glucocorticoide aislado (~75% vs. 15-20% en clásico) — es de hecho la 3ª-4ª causa más común de hipocolesterolemia moderada-severa en perros, después de enfermedad hepática y GI.
+- Hipoglucemia hasta en 1/3 de casos (por menor gluconeogénesis hepática y mayor sensibilidad periférica a insulina).
+- Hipoalbuminemia (multifactorial: síntesis alterada, anorexia, malabsorción, pérdida/hemorragia GI) — más común en déficit glucocorticoide aislado.
+- Acidosis metabólica en ~2/3 de casos — atribuible principalmente a pérdida de agua libre secundaria a hiponatremia (hallazgo más reciente que la explicación clásica de acidosis láctica).
+- Hipotiroidismo concurrente reportado en varios casos — **atención**: T4 total puede estar reducida por enfermedad no tiroidea, y TSH puede estar elevada en ~30% de casos de hipoadrenocorticismo primario sin hipotiroidismo real — mejor evaluar tiroides después de estabilizar (los cambios pueden tardar hasta 4 meses en revertir tras iniciar glucocorticoides).
+
+### Imagen
+- Radiografía: megaesófago, microcardia, arteria pulmonar craneal pequeña, vena cava posterior estrecha, microhepatica — reflejan hipovolemia, no son específicos de Addison's.
+- Ecografía adrenal: reducción de tamaño en la mayoría — la glándula (especialmente la derecha) puede no visualizarse en >24% de casos con hipoadrenocorticismo. El **espesor máximo de la adrenal izquierda <2.8 mm es altamente sugestivo**, aunque el peso corporal afecta este valor (no hay un único punto de corte válido para todos los tamaños).
+
+### ECG
+- Cambios de hiperkalemia (bradicardia, ausencia de onda P, QRS ancho, onda T alta) — pero la severidad de hiperkalemia NO se correlaciona de forma confiable con los cambios de ECG (hiponatremia/acidosis potencian el efecto; hipercalcemia lo atenúa) — **ausencia de cambios en ECG no descarta hiperkalemia severa**.
+
+## 6. Pruebas de función adrenocortical
+
+### Test de estimulación con ACTH — prueba de elección
+- Dosis típica 5 μg/kg (dosis tan bajas como 1 μg/kg pueden ser suficientes); muestra basal y a los 60 min.
+- Vía IV preferida (absorción SC/IM puede retrasarse en pacientes muy deshidratados).
+- **Cortisol post-ACTH <55 nmol/L** tradicionalmente compatible con hipoadrenocorticismo; **>55 pero <220 nmol/L es equívoco** — un estudio mostró que perros con resultado equívoco raramente desarrollaron la enfermedad en seguimiento de 2 años.
+- Si hubo administración previa de corticosteroides necesaria clínicamente, usar dexametasona (único que no interfiere con el ensayo de cortisol) — pero dosis única no suele suprimir completamente la respuesta; tratamiento prolongado sí puede generar falso positivo.
+- Limitación: no distingue primario/central/iatrogénico, y no detecta déficit mineralocorticoide aislado.
+
+### Cortisol basal — buena prueba de screening/descarte
+- **≤55 nmol/L: sensibilidad 99.4-100%** — muy útil para descartar rápidamente, incluso en muestra residual de otro estudio.
+- Especificidad baja (63.3-78.2%) — **no sirve para confirmar diagnóstico**, solo para descartar.
+- Bajar el punto de corte a ≤5.5 nmol/L mejora especificidad a 99.1% pero reduce sensibilidad a 81.6% (y queda por debajo del límite de cuantificación de muchos ensayos comerciales).
+
+### ACTH endógeno y razón cortisol:ACTH
+- Permite diferenciar déficit primario aislado de glucocorticoides vs. central — no es parte de la evaluación estándar, pero útil cuando el ACTH sintético es costoso o no disponible.
+- Razón cortisol:ACTH ≤0.01: sensibilidad 100%, especificidad 99% en un estudio (23 hipoadrenales, 79 con enfermedades que lo imitan, 30 sanos).
+- Requiere manejo de muestra cuidadoso (ACTH lábil) y tomarse antes de cualquier corticosteroide.
+
+### Aldosterona pre/post-ACTH
+- Relevante cuando los electrolitos son normales pero hay sospecha clínica — evalúa capacidad secretora mineralocorticoide para decidir si hace falta suplementación mineralocorticoide además de glucocorticoide.
+- Hay superposición entre grupos, pero valores bajos (basal y post-ACTH) apoyan déficit mineralocorticoide.
+
+### Razón aldosterona:renina
+- Reservada para sospecha de déficit mineralocorticoide aislado — evidencia limitada (un solo estudio), acceso limitado al ensayo de renina en la práctica clínica.
+
+## 7. Conclusión operativa para ICIS
+
+- Sospechar hipoadrenocorticismo en: cualquier perro con enfermedad severa + electrolitos típicos, **y también** en cuadros GI crónicos ondulantes con electrolitos normales.
+- El test de ACTH estimulación es la prueba de elección y debe realizarse ante cualquier sospecha clínica razonable.
+- Evaluar reserva mineralocorticoide simultáneamente ayuda a identificar déficit mineralocorticoide oculto (sin alteración electrolítica típica).
+- Si la producción mineralocorticoide es suficiente, medir ACTH endógeno ayuda a distinguir enfermedad primaria de central.
+- **Diferencial cruzado obligatorio con hiperadrenocorticismo** (documento ya cargado): ambos son endocrinopatías adrenales pero con presentaciones y manejo opuestos — la distinción temprana es crítica dado que el tratamiento de una condición (glucocorticoides) puede ser peligroso si el diagnóstico real es el opuesto sin confirmarse primero.

@@ -93,10 +93,24 @@ export function Tarifas() {
       {alertas.length > 0 && (
         <div className="mt-6 space-y-2">
           {alertas.map((a) => (
-            <div key={`${a.modelo}-${a.motivo}`} className="rounded-xl border border-error/40 bg-error/10 p-4 text-sm font-semibold text-error">
-              {a.motivo === "tarifa_en_cero"
-                ? `${a.modelo} tiene tarifa $0.00 siendo facturable — el consumo no se cobra y ningún aviso se dispara.`
-                : `${a.modelo} no tiene las 4 tarifas vigentes cargadas — el consumo se registra con costo cero y no facturable.`}
+            <div
+              key={a.motivo === "credito_agotado" ? "credito_agotado" : `${a.modelo}-${a.motivo}`}
+              className="rounded-xl border border-error/40 bg-error/10 p-4 text-sm font-semibold text-error"
+            >
+              {a.motivo === "credito_agotado"
+                ? `La cuenta de Anthropic se quedó sin crédito — ningún agente puede responder (chat, Dashboard, Informe ni validación de recetas). Detectado ${
+                    a.detectadoEn
+                      ? formatearFecha(a.detectadoEn, undefined, {
+                          day: "2-digit",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "recién"
+                  } — se resuelve solo apenas se recarga crédito y vuelve a andar una llamada real.`
+                : a.motivo === "tarifa_en_cero"
+                  ? `${a.modelo} tiene tarifa $0.00 siendo facturable — el consumo no se cobra y ningún aviso se dispara.`
+                  : `${a.modelo} no tiene las 4 tarifas vigentes cargadas — el consumo se registra con costo cero y no facturable.`}
             </div>
           ))}
         </div>

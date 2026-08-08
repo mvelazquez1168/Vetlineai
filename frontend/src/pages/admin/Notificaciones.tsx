@@ -91,6 +91,7 @@ export function Notificaciones() {
     "vacunacionActivo",
     "seguimientoPosteriorActivo",
     "informeDisponibleActivo",
+    "cumpleanosActivo",
   ];
   const avisosMedicos: (keyof ConfiguracionNotificaciones)[] = ["seguimientoFaltanteActivo", "agendaDiaSiguienteActivo"];
   const activosClientes = avisosClientes.filter((k) => config[k]).length;
@@ -281,6 +282,29 @@ export function Notificaciones() {
               <ToggleDestinatario
                 activo={config.informeDisponibleActivo}
                 onChange={(v) => actualizarCampo("informeDisponibleActivo", v)}
+              />
+            </div>
+          </Card>
+
+          {/* prompt_code_paciente_nacimiento_estado.md, Parte B3 — el único
+              aviso puramente comercial de los diez: la clínica lo apaga sin
+              pensarlo dos veces, por eso no lleva ningún parámetro extra ni
+              justificación adicional en el texto. */}
+          <Card>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <CardTitle>Cumpleaños del paciente</CardTitle>
+                  <Badge variant="info">a tus clientes</Badge>
+                </div>
+                <CardDescription className="mt-1">
+                  Saludo breve y cálido en la fecha de nacimiento, solo para pacientes activos con fecha
+                  registrada. Sin promociones ni invitación a agendar.
+                </CardDescription>
+              </div>
+              <ToggleDestinatario
+                activo={config.cumpleanosActivo}
+                onChange={(v) => actualizarCampo("cumpleanosActivo", v)}
               />
             </div>
           </Card>

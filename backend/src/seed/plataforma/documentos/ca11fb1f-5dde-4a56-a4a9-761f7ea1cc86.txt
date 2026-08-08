@@ -1,0 +1,95 @@
+CESÁREA EN LA PERRA — INDICACIÓN, MOMENTO Y FACTORES QUE DETERMINAN EL RESULTADO NEONATAL
+
+Resumen clínico de referencia para RCIS. Componentes que lo consumen: CC-234 (Dystocia & Delivery Decision Engine), CC-233 (Gestational Monitoring Intelligence), CC-235 (Neonatal Viability Assessment).
+
+Alcance: indicación, determinación del momento, y las variables perioperatorias que influyen sobre el resultado neonatal. La técnica quirúrgica detallada y los protocolos anestésicos con dosis quedan fuera; ver sección 7.
+
+---
+
+1. DOS CESÁREAS DISTINTAS
+
+La cesárea electiva se programa antes del inicio del trabajo de parto, sobre una gestación cuya madurez fetal se ha confirmado. La cesárea terapéutica se realiza ante una distocia establecida.
+
+No son la misma operación desde el punto de vista del resultado. En la electiva, el margen de decisión es amplio y el determinante del éxito es haber elegido bien el día. En la terapéutica, el día ya está decidido por el cuadro, y el determinante pasa a ser el tiempo transcurrido y el estado fetal al momento de la intervención.
+
+Un hallazgo que conviene conocer sin sobreinterpretar: al comparar el cortisol en líquido amniótico entre ambos tipos, se encontraron concentraciones más altas en los cachorros de cesárea electiva que en los de cesárea terapéutica.
+
+2. DETERMINACIÓN DEL MOMENTO EN LA CESÁREA ELECTIVA
+
+Este es el punto de mayor consecuencia y se apoya enteramente en el documento de monitoreo gestacional. Los dos errores opuestos que hay que evitar son intervenir con fetos inmaduros e intervenir tarde en una gestación ya vencida.
+
+Elementos que sostienen la decisión:
+
+Datación desde la ovulación cuando esté disponible, que es el método más preciso.
+
+Marcadores ecográficos de madurez fetal, en particular la motilidad gastrointestinal fetal, que es hoy el más aplicable.
+
+Progesterona preparto, que discrimina qué hembras están a término. Su uso apropiado es confirmar proximidad, no fijar la hora.
+
+Conteo fetal radiográfico, obligatorio antes de la intervención.
+
+Regla que ya está en el documento gestacional y se repite aquí por su peso: el diámetro biparietal no debe usarse en la última semana para programar la cesárea, porque su exactitud cae justo cuando más se necesita.
+
+En la práctica reportada, la programación suele combinar la fecha de monta con variables de maduración fetal evaluadas por ecografía y radiografía, precisamente porque la fecha de monta sola no alcanza.
+
+Evaluación preoperatoria de la madre. Se documentan hemograma completo y bioquímica —creatinina y ALT como mínimo— para establecer el estado de salud antes del procedimiento.
+
+3. EL FACTOR QUE MÁS INFLUYE EN EL RESULTADO NEONATAL
+
+El tiempo que los fetos permanecen bajo anestesia —el intervalo entre la inducción de la anestesia general y la extracción de cada cachorro, conocido como tiempo inducción-extracción (IDT)— es el factor con mayor influencia demostrada sobre el resultado.
+
+Evidencia. En un estudio que comparó protocolos, en el grupo con anestesia inhalatoria se encontraron diferencias significativas en pH, pCO2 y puntaje Apgar entre cachorros extraídos antes y después de los 30 minutos desde la inducción. Una concentración más alta de isoflurano combinada con mayor tiempo de exposición tuvo efecto negativo tanto sobre la vitalidad inicial del recién nacido como sobre los gases en sangre de cordón umbilical.
+
+Particularidad de la especie. Las gestaciones caninas son habitualmente múltiples, de modo que existe una diferencia sustancial de tiempo entre la extracción del primer cachorro y la del último. Los cachorros de una misma camada no se enfrentan a la misma exposición anestésica, y esa asimetría es inherente al procedimiento.
+
+Consecuencia operativa para CC-235: el orden de extracción debe registrarse junto con el puntaje de viabilidad. Un Apgar bajo en el último cachorro extraído de una camada numerosa no significa lo mismo que uno bajo en el primero.
+
+4. PROTOCOLOS ANESTÉSICOS — LO QUE MUESTRA LA EVIDENCIA
+
+Las opciones habituales son anestesia inhalatoria sola, inhalatoria suplementada con bloqueo neuroaxial (epidural), o anestesia intravenosa total. El propofol en bolo intravenoso es uno de los agentes de inducción más utilizados para facilitar la intubación.
+
+Ventaja documentada de la combinación. Las hembras del grupo con componente epidural requirieron concentraciones menores de isoflurano. Existen múltiples reportes que muestran superioridad de la anestesia combinada sobre la inhalatoria sola o la intravenosa total.
+
+Recomendación derivada: al realizar cesárea en razas gigantes o ante camadas numerosas previstas, conviene considerar el componente epidural, que permite concentraciones menores de agente inhalatorio y puede contribuir a una mejor condición clínica de los recién nacidos.
+
+Un matiz importante sobre la magnitud del efecto. En un estudio con tres protocolos, los puntajes de Apgar inmediatamente tras la extracción difirieron significativamente entre grupos, pero a los 60 minutos más del 94% de los cachorros ya estaban clasificados como de viabilidad normal, sin diferencias entre protocolos. Es decir: el efecto del protocolo se expresa sobre todo en la vitalidad inmediata, no necesariamente en el resultado a la hora.
+
+Esto tiene una lectura clínica precisa: la ventaja del protocolo se juega en la ventana donde el neonato es más vulnerable, que es exactamente cuando la asistencia importa.
+
+5. FACTOR RACIAL
+
+En un estudio sobre cuatro razas sometidas a cesárea, las hembras y los cachorros de bulldog francés requirieron más cuidados clínicos que los de las otras razas, con independencia del protocolo anestésico empleado. Los defectos congénitos se detectaron en 3.1% de los neonatos, con incidencia significativamente mayor en cachorros de bulldog francés.
+
+Este es material que corresponde aportar a la arquitectura de Breed Intelligence, no a una base racial propia de RCIS.
+
+6. ERRORES FRECUENTES
+
+Programar sobre fecha de monta sin marcadores de madurez fetal.
+
+Usar diámetro biparietal en la última semana para fijar el día.
+
+Operar sin conteo fetal radiográfico previo y no poder confirmar que la camada está completa.
+
+No registrar el orden y el tiempo de extracción de cada cachorro, y después interpretar los Apgar como si fueran comparables entre sí.
+
+Prolongar el tiempo entre inducción y extracción por preparación incompleta del equipo o del personal de recepción neonatal.
+
+Evaluar la viabilidad solo al nacimiento y no repetirla, cuando la evolución a los 60 minutos es la que define la conducta.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnica quirúrgica: abordaje, histerotomía, cierre uterino, ovariohisterectomía concurrente. Dosis y protocolos anestésicos completos, incluidos los agentes del bloqueo epidural. Manejo del dolor posoperatorio de la madre. Reanimación neonatal paso a paso. Complicaciones posquirúrgicas. Manejo anestésico de la hembra comprometida por distocia prolongada. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS, y varios de ellos corresponden a cirugía y anestesia más que a reproducción.
+
+FUENTES
+
+Comparison of 2 anesthetic protocols and surgical timing during cesarean section on neonatal vitality and umbilical cord blood parameters. PMC9923906. Fuente principal de las secciones 3 y 4.
+
+Comparison of 3 anesthetic protocols for the elective cesarean-section in the dog: Effects on the bitch and the newborn puppies. PubMed 29395686. Fuente de las secciones 4 y 5.
+
+Analysis of anesthetic protocols during cesarean section in dogs: a systematic review.
+
+Impact of Delivery Method on Serum Cortisol Levels and Neonatal Outcomes in Canine Cesarean Sections. PMC12189658.
+
+Siena G, Milani C. Usefulness of Maternal and Fetal Parameters for the Prediction of Parturition Date in Dogs. Animals 2021;11(3):878. Licencia CC BY.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

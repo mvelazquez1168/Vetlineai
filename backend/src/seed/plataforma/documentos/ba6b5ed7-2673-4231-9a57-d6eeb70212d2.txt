@@ -1,0 +1,271 @@
+Banderas rojas neuro ortopedico medicina general · MD
+
+Banderas Rojas Neurológicas y Ortopédicas — Guía de Derivación para
+Medicina General
+
+Propósito de este documento
+
+Este extracto está pensado para el agente de medicina general/internista
+(ICIS). Cubre dos sistemas distintos que se agrupan por practicidad
+—comparten con frecuencia la misma queja inicial del propietario ("no
+camina bien", "cojea", "no se puede parar")— pero que tienen lógicas de
+urgencia casi opuestas. Su objetivo es ayudar a separar rápidamente cuál
+de los dos está en juego, porque el manejo inicial y la ventana de
+derivación son muy distintos entre ambos.
+
+Principio rector de este documento: lo ortopédico, en general, tolera
+"esperar y ver" razonablemente bien — un paciente con cojera leve puede
+reevaluarse en días sin gran riesgo. Lo neurológico, en cambio, es uno
+de los sistemas donde el tiempo hasta la derivación puede determinar
+directamente si un déficit es reversible o permanente — especialmente en
+compresión medular aguda. Confundir un cuadro neurológico con uno "solo
+ortopédico" y manejarlo con la misma paciencia es el error más costoso
+que puede cometer este sistema.
+
+1. Señales de alarma neurológicas que ameritan derivación urgente
+
+-   Pérdida de la capacidad de caminar de instauración aguda (horas),
+    especialmente si progresa mientras se observa al paciente —
+    sospechar compresión medular aguda (extrusión discal, entre otras
+    causas); en estos casos, el tiempo hasta la descompresión quirúrgica
+    se correlaciona con la probabilidad de recuperación.
+
+-   Pérdida de la sensibilidad profunda (el paciente no retira la pata
+    ni muestra respuesta consciente al pellizco fuerte de un dedo) — es
+    el signo de peor pronóstico neurológico y el que más urgencia
+    genera; su ausencia no descarta gravedad, pero su presencia
+    confirmada es una señal de alarma máxima.
+
+-   Convulsiones activas o en racimo (más de una convulsión en 24 horas,
+    o una convulsión que no cede) — urgencia inmediata, con riesgo de
+    daño cerebral por hipertermia y actividad eléctrica sostenida.
+
+-   Primera convulsión en paciente mayor de 5-6 años — a diferencia de
+    la epilepsia idiopática (que típicamente debuta entre 1 y 5 años),
+    una primera convulsión en un paciente geriátrico obliga a descartar
+    causa estructural (neoplasia, enfermedad vascular) o metabólica
+    antes de asumir un origen idiopático.
+
+-   Alteración aguda y progresiva del estado mental (desorientación,
+    cambios de comportamiento súbitos, letargia marcada sin causa
+    sistémica evidente) — sospechar proceso intracraneal.
+
+-   Cabeza inclinada de aparición aguda, con o sin nistagmo, ataxia o
+    caída hacia un lado — sospechar síndrome vestibular; distinguir
+    entre origen periférico (más benigno, frecuentemente mejora
+    espontáneamente) y central (más grave) es tarea del especialista,
+    pero la instauración aguda amerita evaluación pronta en ambos casos.
+
+-   Dolor espinal severo con renuencia a moverse, incluso sin déficit
+    neurológico evidente — el dolor puede preceder al déficit motor en
+    horas; no esperar a que aparezca la debilidad para derivar.
+
+-   Debilidad progresiva y simétrica de las cuatro extremidades, de
+    curso subagudo — sospechar polineuropatía o polimiopatía, requiere
+    estudio especializado para diferenciar causas.
+
+-   Incontinencia urinaria/fecal de aparición aguda, junto con cualquier
+    otro signo neurológico — sugiere compromiso de la médula espinal
+    caudal o de los nervios periféricos asociados.
+
+2. Señales de alarma ortopédicas que ameritan derivación urgente o
+prioritaria
+
+-   Incapacidad total de apoyo de un miembro tras traumatismo evidente,
+    con deformidad visible o crepitación — sospechar fractura; la
+    urgencia es más por manejo del dolor y estabilización que por riesgo
+    vital inmediato, salvo fracturas abiertas o con compromiso
+    vascular/neurológico asociado.
+
+-   Cojera aguda y progresiva sin trauma evidente en raza
+    grande/gigante, sobre todo si hay dolor localizado en metáfisis de
+    hueso largo — recordar la conexión ya documentada en las Banderas
+    Rojas Oncológicas: sospechar osteosarcoma antes de asumir causa
+    puramente ortopédica benigna en estas razas.
+
+-   Distensión abdominal aguda con intento de vómito improductivo e
+    inquietud, en un paciente que además presenta debilidad — aunque el
+    signo principal parezca digestivo, esta combinación en razas de
+    tórax profundo obliga a descartar dilatación-vuelco gástrico como
+    urgencia paralela, no puramente ortopédica ni neurológica.
+
+-   Fiebre + dolor articular en múltiples articulaciones + decaimiento,
+    sin antecedente traumático — sospechar poliartritis (séptica o
+    inmunomediada), amerita estudio antes que manejo puramente
+    sintomático del dolor.
+
+3. Cuándo un hallazgo "de rutina" amerita derivación no urgente
+
+-   Cojera intermitente o de curso lento, sin déficit neurológico
+    asociado, que no mejora tras un período razonable de reposo y manejo
+    analgésico básico — candidata a evaluación ortopédica formal
+    (radiografías, evaluación articular).
+
+-   Episodios convulsivos aislados y espaciados, en paciente joven, sin
+    otro signo neurológico entre episodios — puede manejarse
+    inicialmente con observación y estudio básico (descartar causas
+    metabólicas simples) antes de derivar, pero la recurrencia o el
+    aumento de frecuencia sí amerita derivación.
+
+-   Rigidez o dificultad para levantarse progresiva en paciente
+    geriátrico, sin dolor agudo evidente — sospechar enfermedad
+    articular degenerativa crónica; manejable inicialmente en atención
+    primaria, con derivación si no hay respuesta al manejo conservador.
+
+-   Ataxia leve y estable, sin progresión, en paciente de raza con
+    predisposición neurológica documentada — vigilar; la progresión (no
+    la sola presencia) es lo que cambia la urgencia.
+
+-   Debilidad leve e inespecífica sin otros signos, en un paciente por
+    lo demás estable — ampliar historia y examen antes de derivar; puede
+    tratarse de causas no neurológicas ni ortopédicas (ver conexión con
+    Banderas Rojas Cardiovasculares y Endocrinas).
+
+Regla práctica: la pregunta clave para diferenciar urgente de no urgente
+en este sistema no es "¿cuánto duele?" sino "¿está progresando mientras
+lo observo, y hay compromiso de la función (caminar, sensibilidad,
+control de esfínteres)?" — el dolor solo, sin progresión ni déficit
+funcional, tolera más tiempo de manejo conservador que la progresión
+activa.
+
+4. Distinguir origen neurológico de origen ortopédico ante la misma
+queja
+
+  -------------------------------------------------------------------------
+  Presentación                 Más compatible Nota
+                               con            
+  ---------------------------- -------------- -----------------------------
+  Cojera con dolor a la        Ortopédico     Buscar causa
+  palpación articular                         mecánica/articular específica
+  localizada, sin déficit de                  
+  otras extremidades                          
+
+  Debilidad de ambos miembros  Neurológico    Evaluar propiocepción y
+  posteriores, con o sin dolor                reflejos antes de asumir
+  espinal, reflejos alterados                 causa puramente articular
+
+  Renuencia a moverse, postura Neurológico    El dolor espinal puede
+  encorvada, dolor difuso a lo (espinal)      preceder al déficit motor —
+  largo de la columna                         no esperar a que aparezca la
+                                              debilidad
+
+  Claudicación que mejora con  Ortopédico     Patrón mecánico clásico
+  el reposo y empeora con el                  
+  ejercicio                                   
+
+  Debilidad que empeora        Neurológico —  No es un patrón ortopédico
+  progresivamente en           urgente        típico
+  minutos/horas, o pérdida de                 
+  control de esfínteres                       
+
+  Caída hacia un lado, cabeza  Neurológico    Distinto del patrón de
+  inclinada, sin debilidad de  (vestibular)   debilidad espinal
+  las extremidades                            
+  -------------------------------------------------------------------------
+
+5. Pearls de contexto racial
+
+-   Dachshund, Corgi, Basset Hound, Beagle, razas condrodistróficas —
+    predisposición extrema a enfermedad del disco intervertebral (ver
+    Breed Intelligence Knowledge Base Specification); en estas razas,
+    dolor espinal agudo con renuencia a moverse debe tratarse con alta
+    sospecha de compresión discal, aun sin déficit motor evidente
+    todavía.
+
+-   Doberman, Gran Danés — síndrome de inestabilidad vertebral cervical
+    ("wobbler"); ataxia de tren posterior progresiva en estas razas,
+    sobre todo de talla grande y edad media, amerita esta sospecha
+    específica.
+
+-   Border Collie — ceroidolipofuscinosis neuronal, epilepsia
+    idiopática, colapso inducido por el ejercicio; considerar en cuadros
+    neurológicos progresivos de inicio joven en esta raza.
+
+-   Pastor Australiano, Collie, Sheltie (mutación MDR1) — recordar la
+    conexión ya establecida en el Referral Engine y en CC-302: la
+    sensibilidad a determinados fármacos en estas razas puede
+    manifestarse con signos neurológicos (ataxia, temblores, depresión
+    del sensorio) tras la exposición a un fármaco con sensibilidad
+    conocida en la mutación — no asumir automáticamente una causa
+    neurológica primaria sin revisar la medicación reciente.
+
+-   Labrador, Rottweiler, razas grandes — displasia de cadera y de codo,
+    con alta prevalencia; cojera crónica progresiva en estas razas
+    orienta primero a causa articular degenerativa.
+
+-   Gran Danés, Rottweiler, San Bernardo, razas grandes/gigantes de
+    huesos largos — osteosarcoma, ya documentado en las Banderas Rojas
+    Oncológicas; cojera progresiva sin trauma en metáfisis de hueso
+    largo en estas razas no debe tratarse como puramente ortopédica sin
+    considerar este diferencial.
+
+-   Pug, Boston Terrier, Bulldog Francés — hemivértebras congénitas;
+    signos neurológicos de origen espinal en cachorros de estas razas
+    pueden tener base congénita, distinta de la causa degenerativa del
+    adulto.
+
+-   Akita, Chow Chow — síndrome uveodermatológico con compromiso
+    neurológico ocasional; considerar en combinación con signos oculares
+    o dermatológicos concurrentes.
+
+6. Qué NO debe hacer el agente de medicina general
+
+-   No debe tratar un cuadro de "no puede caminar" genéricamente como
+    ortopédico sin evaluar sensibilidad profunda, reflejos y progresión
+    — son estos datos los que diferencian una urgencia neurológica real
+    de una cojera severa.
+
+-   No debe esperar a que aparezca déficit motor franco en un paciente
+    con dolor espinal agudo antes de considerar derivación — el dolor
+    solo, en razas condrodistróficas, ya amerita sospecha alta.
+
+-   No debe manejar convulsiones en racimo o status epiléptico con la
+    misma paciencia que un episodio aislado — es una urgencia inmediata.
+
+-   No debe asumir causa idiopática ante una primera convulsión en un
+    paciente geriátrico sin descartar causa estructural o metabólica.
+
+-   No debe atribuir automáticamente signos neurológicos a causa
+    primaria sin revisar la medicación reciente, especialmente en razas
+    con sensibilidad MDR1 documentada.
+
+-   No debe subestimar la fiebre asociada a dolor articular como "solo
+    dolor" — la poliartritis séptica o inmunomediada requiere un
+    abordaje diagnóstico distinto al manejo puramente analgésico.
+
+Resumen para uso rápido
+
+  -----------------------------------------------------------------------
+  Si el paciente presenta...       Acción del agente de medicina general
+  -------------------------------- --------------------------------------
+  Pérdida aguda de la capacidad de Derivar con urgencia — sospechar
+  caminar, progresiva              compresión medular
+
+  Pérdida de sensibilidad profunda Derivar con máxima urgencia — peor
+  confirmada                       signo pronóstico
+
+  Convulsiones en racimo o status  Manejo de emergencia inmediato
+  epiléptico                       
+
+  Primera convulsión en paciente   Derivar — descartar causa
+  geriátrico                       estructural/metabólica antes de asumir
+                                   idiopática
+
+  Dolor espinal agudo en raza      Sospecha alta — no esperar a que
+  condrodistrófica, sin déficit    aparezca debilidad
+  todavía                          
+
+  Cojera crónica sin progresión ni Manejo conservador inicial; derivar si
+  signos neurológicos              no responde
+
+  Cojera progresiva en metáfisis   Sospechar causa oncológica — ver
+  de hueso largo, raza             Banderas Rojas Oncológicas
+  grande/gigante                   
+
+  Signos neurológicos tras         Revisar medicación antes de asumir
+  exposición a fármaco, en raza    causa neurológica primaria
+  con MDR1                         
+
+  Fiebre + dolor poliarticular sin Sospechar poliartritis — estudiar
+  trauma                           antes de manejo puramente analgésico
+  -----------------------------------------------------------------------

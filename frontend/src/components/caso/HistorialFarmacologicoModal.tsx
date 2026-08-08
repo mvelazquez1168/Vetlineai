@@ -15,6 +15,15 @@ interface HistorialFarmacologicoModalProps {
   pacienteNombre: string;
   zonaHoraria: string | null | undefined;
   onClose: () => void;
+  // Opcional — solo CasoWorkspace lo pasa hoy (tiene el propietarioId a
+  // mano). Sin esto el botón simplemente no aparece, en vez de fallar.
+  onVerPropietario?: () => void;
+  // prompt_code_paciente_nacimiento_estado.md, Parte B2 — el registro del
+  // fallecimiento vive acá (la única "ficha del paciente" que existe).
+  // Ambos opcionales: si el caller no los pasa, el bloque simplemente no
+  // se muestra, en vez de asumir 'activo' en silencio.
+  pacienteEstado?: "activo" | "fallecido";
+  onMarcadoFallecido?: () => void;
 }
 
 type Pestania = "farmacologico" | "preventivos";
@@ -29,11 +38,15 @@ export function HistorialFarmacologicoModal({
   pacienteNombre,
   zonaHoraria,
   onClose,
+  onVerPropietario,
+  pacienteEstado,
+  onMarcadoFallecido,
 }: HistorialFarmacologicoModalProps) {
   const [pestania, setPestania] = useState<Pestania>("farmacologico");
   const [recetas, setRecetas] = useState<RecetaHistorialItem[] | null>(null);
   const [repetidos, setRepetidos] = useState<MedicamentoRepetido[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [confirmandoFallecimiento, setConfirmandoFallecimiento] = useState(false);
 
   useEffect(() => {
     workspaceApi
@@ -62,10 +75,36 @@ export function HistorialFarmacologicoModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-black/5 px-6 py-4">
-          <h2 className="text-lg font-bold text-primary">{pacienteNombre}</h2>
-          <button type="button" onClick={onClose} className="text-text-muted hover:text-error" aria-label="Cerrar">
-            ✕
-          </button>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-primary">{pacienteNombre}</h2>
+            {pacienteEstado === "fallecido" && <Badge variant="neutral">Fallecido</Badge>}
+          </div>
+          <div className="flex items-center gap-4">
+            {/* prompt_code_paciente_nacimiento_estado.md, Parte B2 — acción
+                sensible, nunca a un clic de distancia: siempre pasa por el
+                modal de confirmación de abajo, nunca se ejecuta directo. */}
+            {pacienteEstado === "activo" && (
+              <button
+                type="button"
+                onClick={() => setConfirmandoFallecimiento(true)}
+                className="text-sm font-semibold text-error hover:underline"
+              >
+                Marcar como fallecido
+              </button>
+            )}
+            {onVerPropietario && (
+              <button
+                type="button"
+                onClick={onVerPropietario}
+                className="text-sm font-semibold text-accent hover:underline"
+              >
+                Ficha del propietario
+              </button>
+            )}
+            <button type="button" onClick={onClose} className="text-text-muted hover:text-error" aria-label="Cerrar">
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-1 border-b border-black/5 px-6 pt-3">
@@ -164,6 +203,92 @@ export function HistorialFarmacologicoModal({
           )}
         </div>
       </div>
+
+      {confirmandoFallecimiento && (
+        <ConfirmarFallecimientoModal
+          pacienteId={pacienteId}
+          pacienteNombre={pacienteNombre}
+          onCancelar={() => setConfirmandoFallecimiento(false)}
+          onConfirmado={() => {
+            setConfirmandoFallecimiento(false);
+            onMarcadoFallecido?.();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// prompt_code_paciente_nacimiento_estado.md, Parte B2 — "es una acción
+// sensible y no debe quedar a un clic de distancia por accidente": modal
+// propio, separado del botón que lo abre, con la fecha obligatoria y un
+// segundo clic explícito de confirmación.
+function ConfirmarFallecimientoModal({
+  pacienteId,
+  pacienteNombre,
+  onCancelar,
+  onConfirmado,
+}: {
+  pacienteId: string;
+  pacienteNombre: string;
+  onCancelar: () => void;
+  onConfirmado: () => void;
+}) {
+  const [fechaFallecimiento, setFechaFallecimiento] = useState("");
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const confirmar = async () => {
+    if (!fechaFallecimiento) {
+      setError("Indicá la fecha de fallecimiento.");
+      return;
+    }
+    setError(null);
+    setGuardando(true);
+    try {
+      await workspaceApi.marcarPacienteFallecido(pacienteId, fechaFallecimiento);
+      onConfirmado();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No pudimos registrar el fallecimiento.");
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-primary/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      onClick={onCancelar}
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-base font-bold text-primary">Marcar a {pacienteNombre} como fallecido</h3>
+        <p className="mt-2 text-sm text-text-muted">
+          Esta acción no se puede deshacer desde acá. {pacienteNombre} dejará de recibir cualquier aviso
+          (citas, vacunación, desparasitación, cumpleaños).
+        </p>
+        <div className="mt-4">
+          <Input
+            type="date"
+            label="Fecha de fallecimiento"
+            value={fechaFallecimiento}
+            onChange={(e) => setFechaFallecimiento(e.target.value)}
+          />
+        </div>
+        {error && <p className="mt-2 text-xs text-error">{error}</p>}
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="secondary" onClick={onCancelar}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={confirmar} disabled={guardando}>
+            {guardando ? "Guardando…" : "Confirmar fallecimiento"}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -230,6 +355,8 @@ function CuidadosPreventivosSeccion({
   const [fechaProximaRecomendada, setFechaProximaRecomendada] = useState("");
   const [vacuna, setVacuna] = useState("");
   const [lote, setLote] = useState("");
+  const [subtipoDesparasitacion, setSubtipoDesparasitacion] = useState<"interna" | "externa" | "">("");
+  const [productoDesparasitacion, setProductoDesparasitacion] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [errorFormulario, setErrorFormulario] = useState<string | null>(null);
 
@@ -255,6 +382,10 @@ function CuidadosPreventivosSeccion({
       setErrorFormulario("Indicá qué vacuna se aplicó.");
       return;
     }
+    if (tipo === "desparasitacion" && !subtipoDesparasitacion) {
+      setErrorFormulario("Indicá si la desparasitación es interna o externa.");
+      return;
+    }
     setErrorFormulario(null);
     setGuardando(true);
     try {
@@ -263,11 +394,19 @@ function CuidadosPreventivosSeccion({
         fechaAplicacion,
         fechaProximaRecomendada,
         ...(tipo === "vacunacion" ? { vacuna: vacuna.trim(), lote: lote.trim() || undefined } : {}),
+        ...(tipo === "desparasitacion"
+          ? {
+              subtipoDesparasitacion: subtipoDesparasitacion as "interna" | "externa",
+              productoDesparasitacion: productoDesparasitacion.trim() || undefined,
+            }
+          : {}),
       });
       setFechaAplicacion("");
       setFechaProximaRecomendada("");
       setVacuna("");
       setLote("");
+      setSubtipoDesparasitacion("");
+      setProductoDesparasitacion("");
       setFormAbierto(false);
       cargar();
     } catch (err) {
@@ -321,6 +460,42 @@ function CuidadosPreventivosSeccion({
             </div>
           )}
 
+          {/* prompt_code_paciente_nacimiento_estado.md, Parte A — interna y
+              externa son clínicamente distintas (parásitos digestivos vs.
+              pulgas/garrapatas), por eso el subtipo es obligatorio y no un
+              detalle opcional más. Producto en texto libre, mismo criterio
+              que vacuna: los nombres comerciales varían mucho. */}
+          {tipo === "desparasitacion" && (
+            <div className="mt-3 space-y-3">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSubtipoDesparasitacion("interna")}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                    subtipoDesparasitacion === "interna" ? "bg-primary text-white" : "bg-black/5 text-text-muted"
+                  }`}
+                >
+                  Interna
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSubtipoDesparasitacion("externa")}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                    subtipoDesparasitacion === "externa" ? "bg-primary text-white" : "bg-black/5 text-text-muted"
+                  }`}
+                >
+                  Externa
+                </button>
+              </div>
+              <Input
+                label="Producto aplicado (opcional)"
+                value={productoDesparasitacion}
+                onChange={(e) => setProductoDesparasitacion(e.target.value)}
+                placeholder="Ej. Drontal, Nexgard"
+              />
+            </div>
+          )}
+
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input
               type="date"
@@ -365,12 +540,26 @@ function CuidadosPreventivosSeccion({
                 <div>
                   <div className="flex items-center gap-2">
                     {/* Distinguibles a simple vista por color, no solo
-                        por texto (pedido del prompt). */}
-                    <Badge variant={c.tipo === "vacunacion" ? "info" : "neutral"}>
-                      {c.tipo === "vacunacion" ? "Vacunación" : "Desparasitación"}
+                        por texto (pedido del prompt) — interna y externa
+                        también, no solo vacunación vs. desparasitación. */}
+                    <Badge
+                      variant={
+                        c.tipo === "vacunacion" ? "info" : c.subtipo_desparasitacion === "externa" ? "warning" : "neutral"
+                      }
+                    >
+                      {c.tipo === "vacunacion"
+                        ? "Vacunación"
+                        : c.subtipo_desparasitacion === "externa"
+                          ? "Desparasitación externa"
+                          : c.subtipo_desparasitacion === "interna"
+                            ? "Desparasitación interna"
+                            : "Desparasitación"}
                     </Badge>
                     {c.tipo === "vacunacion" && c.vacuna && (
                       <span className="font-medium text-text-primary">{c.vacuna}</span>
+                    )}
+                    {c.tipo === "desparasitacion" && c.producto_desparasitacion && (
+                      <span className="font-medium text-text-primary">{c.producto_desparasitacion}</span>
                     )}
                   </div>
                   <p className="mt-1 text-xs text-text-muted">

@@ -1,0 +1,128 @@
+# Consenso ACVIM 2021 — Pancreatitis en gatos
+
+**Fuente:** Forman MA, Steiner JM, Armstrong PJ, et al. ACVIM consensus statement on pancreatitis in cats. *J Vet Intern Med.* 2021;35:703-723.
+
+**Alcance de este resumen:** referencia clínica condensada para el agente de gastroenterología/medicina general veterinaria. Se omiten fisiopatología molecular detallada, imágenes histológicas y referencias bibliográficas completas; se conservan definiciones, hallazgos clínicos, diagnóstico y manejo.
+
+---
+
+## 1. Definición y epidemiología
+
+- Pancreatitis en gatos es **mucho más común de lo que se creía históricamente** — prevalencia histopatológica de necropsia: 66.1% (50.4% crónica sola, 6.1% aguda sola, 9.6% ambas). 45% de gatos "sanos" tenía evidencia histológica de pancreatitis.
+- **Aguda vs. crónica**: diferencia principalmente **histopatológica**, no necesariamente clínica — clínicamente puede ser imposible distinguir una exacerbación de pancreatitis crónica de un episodio agudo.
+- Sin predisposición de edad, sexo o raza. Sin asociación establecida con BCS, indiscreción dietética o fármacos.
+- **>95% de los casos en gatos son idiopáticos** — causa específica raramente identificable.
+- Causas raras identificadas: trauma (caídas, atropellos), ciertos parásitos (*Toxoplasma gondii*, *Eurytrema procyonis*, *Amphimerus pseudofelineus*), fenthion tópico, hipercalcemia, mordeduras de serpiente.
+- Comorbilidades frecuentes (relación causal no establecida): diabetes mellitus, enteropatías crónicas, lipidosis hepática, colangitis, nefritis, anemia hemolítica inmunomediada — el concepto de "triaditis" (pancreatitis + colangitis + enteropatía) es relevante en gatos por la anatomía compartida del conducto biliar y pancreático.
+
+## 2. Signos clínicos (Tabla 1 del original)
+
+| Signo clínico | Incidencia |
+|---|---|
+| Letargo | 51–100% |
+| Anorexia parcial/completa | 62–97% |
+| Vómito | 35–52% |
+| Pérdida de peso | 30–47% |
+| Diarrea | 11–38% |
+| Disnea | 6–20% |
+
+| Hallazgo de examen físico | Incidencia |
+|---|---|
+| Deshidratación | 37–92% |
+| Hipotermia | 39–68% |
+| Ictericia | 6–37% |
+| Dolor abdominal aparente | 10–30% |
+| Hipertermia/fiebre | 7–26% |
+| Masa/organomegalia craneoabdominal | 4–23% |
+
+**Nota clínica importante**: a diferencia de humanos, el dolor abdominal se reporta con poca frecuencia en gatos con pancreatitis — el panel considera que esto probablemente refleja **subreconocimiento** del dolor felino, no ausencia real.
+
+## 3. Diagnóstico
+
+### 3.1 Imagen
+- **Radiografía**: ni sensible ni específica — utilidad limitada (pérdida de detalle peritoneal craneal, efecto de masa).
+- **Ecografía abdominal**: modalidad de elección, parte del mínimo database. Hallazgos en pancreatitis aguda: agrandamiento pancreático, hipoecogenicidad, mesenterio circundante hiperecoico, efusión abdominal focal — sensibilidad 11–67% (dependiente de severidad y operador). Hallazgos en crónica (menos establecidos): páncreas hiperecoico o de ecogenicidad mixta, conducto biliar común dilatado, márgenes irregulares — la ecografía es pobre para diferenciar aguda de crónica.
+- CT y RM: no establecidas como rutina en gatos.
+
+### 3.2 Laboratorio
+- Hemograma/bioquímica/urianálisis: no específicos pero útiles para comorbilidades. Leucograma inflamatorio (neutrofilia con desviación a la izquierda o neutropenia) en pancreatitis aguda.
+- Hipertrigliceridemia: **rara en gatos**, sin asociación clara con pancreatitis (a diferencia de otras especies).
+- Electrolitos: hipokalemia, hipocloremia, hiponatremia, hipocalcemia son las alteraciones más comunes en pancreatitis aguda severa. **Hipocalcemia iónica baja = mal pronóstico**.
+- Azotemia: relacionada con progresión de la enfermedad; puede indicar lesión renal aguda secundaria.
+- Hipoglucemia: asociada a mal pronóstico.
+
+### 3.3 Lipasa pancreática — biomarcador principal
+- **Spec fPL / SNAP fPL (Idexx)**: prueba con mayor especificidad y sensibilidad establecida para pancreatitis felina. Sensibilidad mayor en casos severos que en leves.
+  - SNAP fPL: resultado "normal" → pancreatitis improbable; "anormal" → pancreatitis probable o Spec fPL en rango equívoco.
+  - Un valor de Spec fPL positivo sugiere pancreatitis como diagnóstico probable, **pero no descarta** pancreatitis si es negativo (valor predictivo negativo ~76%, positivo ~90% en un estudio).
+- **DGGR-lipasa**: acuerdo moderado con Spec fPL (κ 0.68–0.70); no específica de lipasa pancreática (también mide lipasa hepática, lipoproteica, esterasas).
+- **TLI (trypsin-like immunoreactivity)**: sensibilidad variable (30–86%), inespecífica (también aumenta en enteropatía crónica, linfoma GI, filtración glomerular reducida) — utilidad limitada para diagnóstico de pancreatitis, más útil para insuficiencia pancreática exocrina (TLI baja).
+- Amilasa: mínima utilidad como biomarcador en gatos.
+
+### 3.4 Citología y biopsia
+- **Aspiración con aguja fina guiada por ecografía**: segura, tasa de recuperación diagnóstica ~67%.
+- **Histopatología**: considerado el estándar de oro para diagnóstico antemortem, pero limitado por distribución multifocal de las lesiones — se recomiendan múltiples biopsias; si solo se puede tomar una, preferir el **lóbulo izquierdo**.
+- **Sistema de puntuación histopatológica semicuantitativo** (Tabla 2 del original, modificado de DeCock et al.):
+  - Pancreatitis aguda supurativa: score de infiltración neutrofílica (0–3) + edema/necrosis grasa (0–3) → índice de enfermedad: 1-2 leve, 3-4 moderada, 5-6 severa.
+  - Pancreatitis crónica: inflamación linfocítica/mononuclear (0–3) + fibrosis (0–3) + degeneración quística (0–3) → índice: 1-3 leve, 4-6 moderada, 7-9 severa.
+
+## 4. Manejo de la pancreatitis aguda
+
+Metas: **fluidoterapia, manejo del dolor, control de vómito/náusea, soporte nutricional**.
+
+### 4.1 Fluidoterapia
+- Cristaloides IV (Ringer lactato o similar) para corregir deshidratación e hipovolemia — mejora perfusión pancreática.
+- Monitorear de cerca para evitar sobrehidratación.
+- Coloides (plasma fresco congelado): reservar para gatos con coagulopatía (no hay beneficio de supervivencia demostrado en uso rutinario).
+- Vasopresores (dopamina, norepinefrina, vasopresina, epinefrina) si hipotensión refractaria a cristaloides/coloides.
+
+### 4.2 Antieméticos y procinéticos
+- **Maropitant citrato** (antagonista NK1): antiemético de primera línea, también analgesia visceral y actividad antiinflamatoria.
+- **Ondansetrón** (antagonista 5HT3): puede combinarse con maropitant (mecanismos distintos).
+- **Metoclopramida** en CRI: procinético, aunque hay controversia teórica (antagonismo dopaminérgico) sin confirmación clínica de contraindicación.
+- **Cisaprida** PO: procinético de elección para vaciamiento gástrico retrasado.
+
+### 4.3 Analgesia
+- **Opioides como analgésicos primarios**: buprenorfina (adecuada para la mayoría), metadona o fentanilo para dolor más severo.
+- Buprenorfina o maropitant PO para pacientes ambulatorios.
+- Tramadol, gabapentina o combinación como opciones analgésicas PO adicionales.
+
+### 4.4 Estimulantes del apetito
+- **Mirtazapina**: eficaz pero con efectos adversos dosis-dependientes (vocalización, agitación, vómito, ataxia, temblores, taquicardia). Presentación transdérmica bien tolerada.
+- **Capromorelina** PO: aprobada para gatos con enfermedad renal crónica en EE.UU.; puede considerarse en pancreatitis.
+
+### 4.5 Nutrición
+- **No se recomienda ayuno prolongado ni nutrición parenteral** salvo que la nutrición enteral no sea posible — el ayuno prolongado aumenta el riesgo de **lipidosis hepática**, que incrementa sustancialmente la mortalidad.
+- Iniciar alimentación temprana (PO o por sonda) — casos leves-moderados suelen comer con soporte adecuado.
+- **Colocar sonda de alimentación** si no hay respuesta a estimulantes del apetito en 48h o hay anorexia prolongada previa.
+  - Sonda nasoesofágica: costo-efectiva, colocación con anestesia local, solo dieta líquida, uso a corto plazo.
+  - Sonda de esofagostomía: requiere anestesia general, permite dietas en puré, uso a largo plazo.
+  - Sonda nasogástrica: uso hospitalario a corto plazo, permite succión gástrica.
+- Dietas altamente digestibles ("gastrointestinales"). Gatos tienen alto requerimiento proteico y mayor tolerancia a grasa dietética que los perros — retrasar transición a la dieta definitiva hasta que el gato mejore y esté comiendo en casa.
+
+### 4.6 Otros tratamientos en pancreatitis aguda severa
+- Indicadores de severidad: deshidratación marcada (8–10%), signos persistentes pese a manejo médico, hipotensión, hipoglucemia, hipocalcemia iónica.
+- **Antibióticos**: NO recomendados de rutina (pancreatitis felina es considerada un proceso estéril); reservar para sospecha/confirmación de infección pancreática, ascenso de infección por conducto biliar/pancreático, o hallazgos hemoleucocitarios sugestivos de sepsis.
+- **Corticosteroides**: sin evidencia suficiente para uso rutinario en pancreatitis aguda felina; sí son beneficiosos si hay comorbilidad de enteropatía inflamatoria crónica o colangitis estéril concurrente.
+- Complicaciones respiratorias (efusión pleural, edema pulmonar, SDRA): radiografía torácica + ecocardiografía Doppler para guiar tratamiento; toracocentesis si hay efusión pleural.
+- Cirugía pancreática: rara vez indicada; considerar solo si hay obstrucción biliar extrahepática concomitante o absceso pancreático.
+
+## 5. Manejo de la pancreatitis crónica
+
+- Poca evidencia — recomendaciones basadas mayormente en opinión de expertos.
+- El manejo dirigido de la pancreatitis crónica en sí **rara vez es necesario** salvo que sea condición aislada o complique el pronóstico de comorbilidades (especialmente diabetes mellitus).
+- **Analgesia**: buprenorfina transmucosa en brotes agudos; gabapentina o tramadol para tratamiento a largo plazo; maropitant también aporta analgesia visceral.
+- **Antieméticos/estimulantes de apetito**: igual que en pancreatitis aguda (maropitant, 5HT3, mirtazapina).
+- **Antimicrobianos**: no indicados salvo comorbilidad infecciosa concurrente.
+- **Cobalamina**: suplementar si hay hipocobalaminemia documentada.
+- **Antiinflamatorios/inmunosupresores**:
+  - **Prednisolona**: dosis antiinflamatoria (0.5–1.0 mg/kg PO q24h en reducción gradual) según algunos panelistas; otros recomiendan dosis inmunosupresora (2.0 mg/kg q12h × 5 días, luego 1.0 mg/kg q12h × 6 semanas con reducción), con monitoreo estrecho (reevaluación clínica + fPLI a las 2–3 semanas).
+  - **Ciclosporina** (5 mg/kg PO q24h × 6 semanas) si hay hiperglucemia preexistente o se desarrolla con prednisolona, con el mismo monitoreo.
+  - Suspender tratamiento si no hay mejoría clínica ni reducción de lipasa tras el período de prueba.
+  - **Precaución**: uso de ciclosporina a dosis altas puede desenmascarar toxoplasmosis latente — mayor riesgo en gatos que cazan o consumen carne cruda.
+  - Clorambucilo: posible alternativa, sin estudios específicos en pancreatitis crónica felina.
+
+## 6. Pronóstico
+
+- Mortalidad en pancreatitis aguda: **9–41%** según 4 estudios. Casos leves-moderados: buen pronóstico. Casos severos con complicaciones/comorbilidades: pronóstico reservado a grave.
+- Hipocalcemia iónica baja, hipoglucemia y azotemia: indicadores pronósticos negativos.

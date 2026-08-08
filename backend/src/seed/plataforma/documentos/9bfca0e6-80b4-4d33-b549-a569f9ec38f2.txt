@@ -1,0 +1,117 @@
+CARCINOMA UROTELIAL CANINO (CARCINOMA DE CÉLULAS TRANSICIONALES) — DIAGNÓSTICO, MUTACIÓN BRAF Y TRATAMIENTO
+
+Resumen clínico de referencia para OCIS. Componentes que lo consumen: CC-231 (Histopathology Intelligence), CC-232 (Staging & Grading Engine), CC-220 (Imaging Intelligence), CC-204 (urianálisis), CC-305 (Oncology Pharmacotherapy).
+
+Frontera con UCIS: la neoplasia del tracto urinario pertenece a OCIS. Un paciente con signos urinarios bajos que resulta neoplásico se escala desde UCIS a través de ICIS, no lateralmente.
+
+---
+
+1. PERFIL Y COMPORTAMIENTO
+
+El carcinoma de células transicionales, también llamado carcinoma urotelial, es **la neoplasia maligna más común del tracto urinario canino**, y representa alrededor del 1,5 a 2% de todos los cánceres caninos.
+
+Razas predispuestas: Scottish Terrier, Shetland Sheepdog y West Highland White Terrier.
+
+Comportamiento. Es un tumor agresivo que invade la pared de la vejiga urinaria y con frecuencia metastatiza a linfonodos regionales y órganos distantes; en necropsia se encuentra enfermedad metastásica en más de la mitad de los pacientes. **Sin embargo, la mayoría de los perros se eutanasia por progresión de la enfermedad local o por obstrucción del tracto urinario inferior**, no por la metástasis.
+
+Esa distinción importa para la conversación clínica: el control local es lo que determina la calidad y la duración de vida en la mayoría de los casos.
+
+Histología. Son típicamente carcinomas papilares localmente infiltrativos, y **más del 95% tiene grado histológico intermedio a alto**. Los carcinomas de bajo grado y los in situ son menos comunes.
+
+2. LOS SIGNOS SON INESPECÍFICOS — Y AHÍ ESTÁ EL PROBLEMA
+
+Hematuria, disuria, polaquiuria, estranguria y obstrucción urinaria.
+
+Son indistinguibles de los de una infección del tracto urinario o una urolitiasis, lo que explica que muchos pacientes lleguen tras semanas o meses de tratamientos antimicrobianos con respuesta parcial.
+
+Regla para OCIS y para la derivación desde ICIS: en un perro de raza predispuesta, de edad avanzada, con signos urinarios bajos recurrentes o que responden solo parcialmente a antimicrobianos, el carcinoma urotelial debe estar en el diferencial desde temprano y no como diagnóstico de descarte final.
+
+3. LA HERRAMIENTA QUE CAMBIÓ EL DIAGNÓSTICO: MUTACIÓN BRAF
+
+Entre el 80% y el 85% de los carcinomas de células transicionales caninos presentan una mutación específica en el gen **BRAF —la variante V595E—**, homóloga de la V600E humana.
+
+El punto clave para la práctica: **la mutación puede detectarse en una muestra de orina**, a veces bastante antes de que el tumor sea visible por imagen.
+
+Esto convierte una prueba no invasiva en una herramienta de detección temprana en poblaciones de riesgo, algo que no existe para la mayoría de las neoplasias.
+
+Regla para OCIS: ante sospecha en una raza predispuesta, la prueba de mutación BRAF en orina debe plantearse antes que los métodos invasivos. Y un resultado positivo tiene valor diagnóstico sustantivo, no solo orientador.
+
+Límite a declarar: entre el 15% y el 20% de los tumores no portan la mutación, de modo que un resultado negativo no descarta el diagnóstico.
+
+Además, es una diana terapéutica accionable. Estudios en líneas celulares caninas mostraron que el sorafenib —inhibidor multiquinasa dirigido a RAF y al receptor del factor de crecimiento endotelial vascular— inhibió la vía BRAF/MAPK e indujo apoptosis, con **mayor sensibilidad al sorafenib que al vemurafenib**, que es el inhibidor específico de BRAF en cáncer humano. Las células caninas responden de forma distinta a las humanas con la mutación V600E.
+
+4. LOS DEMÁS MÉTODOS DIAGNÓSTICOS Y SU RIESGO
+
+Cuando se requiere confirmación por técnicas más invasivas, están descritas la cateterización traumática, la biopsia por cistoscopia y la biopsia abierta.
+
+**Advertencia explícita**: los riesgos y beneficios de un aspirado transabdominal de una masa vesical o uretral deben considerarse cuidadosamente en cada paciente, **dado el potencial de siembra abdominal**.
+
+Regla para OCIS: la punción transabdominal, que es la conducta refleja ante una masa, es precisamente lo que debe evitarse aquí. La ruta diagnóstica preferente es orina y cateterización traumática o cistoscopia.
+
+5. TRATAMIENTO
+
+Cirugía. Dado el tamaño y la localización de estos tumores, la intervención quirúrgica con frecuencia no es una opción. Los tumores del ápice son más susceptibles de resección, pero persiste alto riesgo de recurrencia local y de metástasis, de modo que la cirugía no suele ser curativa.
+
+Piroxicam — el pilar del manejo médico. Es un inhibidor de ciclooxigenasa. En un ensayo clínico prospectivo sobre 34 perros con carcinoma de células transicionales vesical: 2 remisiones completas, 4 remisiones parciales, 18 enfermedades estables y 10 progresivas. **Supervivencia mediana de 181 días**, con rango de 28 a más de 720 días. Otra descripción del mismo trabajo cita tasa de respuesta objetiva global del 18%, con muchos pacientes alcanzando enfermedad estable duradera.
+
+El concepto que conviene retener: en este tumor **la enfermedad estable prolongada es un desenlace terapéutico legítimo**, no un fracaso. Medir el éxito solo por reducción tumoral subestima el beneficio.
+
+Toxicidad del piroxicam en esa serie: irritación gastrointestinal en 6 perros y necrosis papilar renal en 2, detectada en necropsia.
+
+Quimioterapia. Los fármacos más usados han sido cisplatino, mitoxantrona, doxorrubicina y carboplatino.
+
+El cisplatino parece el más efectivo como agente único, aunque solo se han reportado respuestas parciales. **La combinación de cisplatino con piroxicam no puede recomendarse** por toxicidad gastrointestinal y renal significativa.
+
+El carboplatino, pese a su similitud con el cisplatino, no parece tener actividad contra este tumor — una excepción que no se deduce de la farmacología.
+
+La mitoxantrona como agente único tiene actividad limitada, pero **combinada con piroxicam alcanza tasa de respuesta del 35% con supervivencia mediana de 12 meses**.
+
+Un ensayo aleatorizado de fase III comparó piroxicam combinado con mitoxantrona o con carboplatino como tratamiento de primera línea.
+
+Piroxicam más vinblastina: el piroxicam potenció significativamente la actividad de la vinblastina.
+
+Ablación láser paliativa. En una serie de perros tratados con ablación láser más piroxicam y mitoxantrona, el intervalo libre de enfermedad mediano fue de 200 días y la supervivencia mediana de 299 días.
+
+Pronóstico general: reservado, con la mayoría de los pacientes sobreviviendo menos de un año pese al tratamiento.
+
+6. ERRORES FRECUENTES
+
+Tratar signos urinarios bajos recurrentes como infección sin considerar neoplasia en razas predispuestas.
+
+Realizar aspirado transabdominal de una masa vesical, con riesgo de siembra.
+
+Descartar el diagnóstico por una prueba BRAF negativa.
+
+Interpretar la enfermedad estable prolongada como fracaso terapéutico.
+
+Sustituir cisplatino por carboplatino asumiendo actividad equivalente.
+
+Combinar cisplatino con piroxicam.
+
+Plantear cirugía con intención curativa en un tumor no apical.
+
+Trasladar la respuesta a inhibidores de BRAF de la medicina humana, donde el perfil de sensibilidad difiere.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis y protocolos de piroxicam, mitoxantrona, cisplatino y vinblastina. Estadificación TNM y protocolo de estudios de extensión. Manejo de la obstrucción uretral: sondas, stents y derivaciones. Técnica de cateterización traumática y de cistoscopia. Carcinoma urotelial prostático y su frontera con RCIS. Carcinoma urotelial felino. Toxicidad renal de los antiinflamatorios no esteroideos en el paciente oncológico. Terapia dirigida con inhibidores de BRAF en la práctica clínica. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+FUENTES
+
+Treatment outcomes of dogs with transitional cell carcinoma. Front Vet Sci 2025;12:1486786. Fuente de las secciones 1 y 2.
+
+An update on diagnosing and treating urinary bladder transitional cell carcinoma in dogs. dvm360. Fuente de las secciones 1 y 5.
+
+Diagnosis, treatment of transitional cell carcinoma (TCC) in dogs. dvm360. Fuente de las secciones 4 y 5.
+
+Knapp DW, Richardson RC, Chan TCK y col. Piroxicam therapy in 34 dogs with transitional cell carcinoma of the urinary bladder. J Vet Intern Med 1994;8:273–278. Fuente de la sección 5.
+
+Establishment of canine transitional cell carcinoma cell lines harboring BRAF V595E mutation as a therapeutic target. PMC8430554. Fuente de la sección 3.
+
+Transitional Cell Carcinoma in Dogs and Cats. VIN. Fuente de las secciones 3 y 5.
+
+Allstadt SD, Rodriguez CO, Boostrom B, Rebhun RB, Skorupski KA. Randomized phase III trial of piroxicam in combination with mitoxantrone or carboplatin for first-line treatment of urogenital tract transitional cell carcinoma in dogs. J Vet Intern Med 2015;29:261–267.
+
+A nonselective cyclooxygenase inhibitor enhances the activity of vinblastine in a naturally-occurring canine model of invasive urothelial carcinoma. PMC4927831.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -1,0 +1,104 @@
+Dashboard Functional Specification — OCIS
+
+Documento: OCIS-DASH-001
+Versión: 1.0
+Estado: Draft
+Owner: OCIS
+
+1. Introducción
+
+Objetivo
+
+Definir la estructura funcional, las reglas de composición y el comportamiento del Dashboard clínico generado por OCIS — derivado directamente de ICIS-DASH-001, con la capa de Derivación removida y una capa de Estadificación/Pronóstico en su lugar.
+
+El Dashboard no es un informe estático: es una representación viva del estado del caso, que se reconstruye cada vez que el usuario lo solicita, usando siempre la información más reciente del expediente clínico longitudinal.
+
+2. Filosofía del Dashboard
+
+El Dashboard responde a una pregunta distinta a la del Clinical Report: el reporte está pensado para leerse; el Dashboard está pensado para entenderse de un vistazo. Un veterinario que abre el Dashboard de un caso oncológico debe poder responder en menos de 10 segundos: ¿qué neoplasia tiene este paciente, en qué grado/estadio, cómo está evolucionando, y cómo va el tratamiento?
+
+A diferencia de ICIS, donde la pregunta central del header es "¿a quién deriva?", en OCIS esa pregunta ya fue resuelta antes de que el caso llegue aquí. La pregunta central de OCIS es "¿qué tan avanzada está la enfermedad y qué tan bien está respondiendo al tratamiento?" — por eso la Staging Card no es un componente más entre muchos: ocupa el lugar fijo y prioritario en el layout que en ICIS ocupaba el Referral Recommendation Card (ver Sección 4).
+
+3. Principios de Diseño
+
+Heredados del Clinical Design System (OCIS-DESIGN-001, Sección 3), con particular relevancia para el Dashboard:
+
+- Prognostic Clarity — el grado/estadio y su implicación pronóstica debe ser visible sin necesidad de hacer scroll ni abrir ningún panel.
+- Minimal Cognitive Load — no todos los componentes se muestran siempre; solo los que tienen información disponible (ver Sección 5.2).
+- Progressive Disclosure — el resumen ejecutivo va primero; el detalle completo (matrices, journal de razonamiento) queda a un clic de distancia.
+- Explainable AI — toda card generada por inferencia de Claude debe distinguirse visualmente de los datos objetivos del expediente (Clinical Design System, Sección 14).
+
+4. Layout del Dashboard
+
+El Dashboard se organiza en cuatro zonas fijas, en este orden:
+
+Zona 1 — Header: Logo institucional + Executive Summary Card + Clinical State Card + Staging Card + Clinical Confidence Meter.
+
+Zona 2 — Signos vitales del caso: Clinical Confidence Meter + Active Problems Panel + Alertas (toxicidad de tratamiento activa, si la hay).
+
+Zona 3 — Evolución y evidencia: Clinical Timeline (incluyendo hitos de "Ciclo de tratamiento"), Weight Trend, BCS Trend, CBC Trend/Comparison, Clinical Chemistry Trend, Imaging Comparison (incluyendo seguimiento de tamaño tumoral), Treatment Protocol Card, Tumor Imaging Card — cada una solo si existe información suficiente (ver Sección 5.2).
+
+Zona 4 — Razonamiento y conocimiento (colapsado por defecto): Diagnostic Correlation Panel, Staging & Grading Detail (detalle de CC-232: criterios evaluados y pendientes), Knowledge Match Panel, Clinical Reasoning Journal.
+
+5. Dashboard Components
+
+5.1 Catálogo de componentes
+
+El Dashboard reutiliza exactamente el catálogo de Clinical Cards definido en el Clinical Design System (OCIS-DESIGN-001, Sección 7) — el Dashboard no define sus propias cards; las consume.
+
+5.2 Reglas de aparición condicional
+
+Un componente solo se genera si aporta valor clínico y existe información suficiente. Nunca se insertan componentes vacíos ni decorativos.
+
+| Condición | Componente que se activa |
+|---|---|
+| Siempre | Executive Summary Card, Clinical State Card, Staging Card, Clinical Confidence Meter, Active Problems Panel |
+| Existe reporte de histopatología/citología (CC-231) | Tumor Imaging Card, Staging & Grading Detail |
+| Existe protocolo de tratamiento activo (CC-305) | Treatment Protocol Card, evento "Ciclo de tratamiento" en Clinical Timeline |
+| Existen ≥3 hemogramas | CBC Trend, CBC Comparison |
+| Existen ≥2 perfiles bioquímicos | Clinical Chemistry Trend |
+| Existen ≥2 pesos registrados | Weight Trend |
+| Existen ≥2 BCS registrados | BCS Trend |
+| Existen estudios de imagen seriados | Imaging Comparison |
+| Existen ≥2 consultas | Clinical Timeline |
+| Siempre | Diagnostic Correlation Panel |
+| Existen casos similares en la Base de Conocimiento | Knowledge Match Panel |
+| El grado/estadio se asignó con datos incompletos (CC-232) | La Staging Card se muestra con indicador visual de "provisional" y no se colapsa — permanece visible hasta que se complete la información faltante |
+
+Logo institucional: el Dashboard incorporará siempre el logo oficial de OCIS en el header, codificado directamente en el widget. Si el archivo no está disponible en la conversación al momento de generar el Dashboard, se solicitará explícitamente antes de renderizar.
+
+Excepción a la regla de datos suficientes: igual que en ICIS, el Diagnostic Correlation Panel nunca se omite por falta de evidencia — cuando la evidencia disponible no permite establecer una correlación, el panel lo declara explícitamente en vez de no aparecer.
+
+6. La Staging Card en el Dashboard
+
+Este componente merece regla propia, dado su rol central en OCIS (equivalente al rol que el Referral Recommendation Card tiene en ICIS):
+
+- Estado completo (grado/estadio confirmado con toda la información necesaria): muestra el grado/estadio en la nomenclatura exacta del sistema correspondiente (ej. "Kiupel: bajo grado", "WHO: estadio III-a"), con color funcional según la escala de Estado Pronóstico por Grado (Design System, Sección 4).
+- Estado provisional (grado/estadio asignado con datos incompletos): muestra el grado/estadio tentativo junto con un indicador visual explícito de "provisional" y el listado de qué dato falta para confirmarlo — nunca se presenta con la misma confianza visual que un estadio completo.
+- Un botón de acción permite expandir directamente al Staging & Grading Detail (Zona 4) sin que el usuario tenga que buscarlo.
+
+7. Interactividad
+
+- Cada card es expandible/colapsable (Progressive Disclosure).
+- Hover sobre cualquier valor de laboratorio, imagen, o dato de histopatología muestra su fuente y fecha (Evidence Traceability).
+- Un botón "Generar informe" en el header dispara el Report Composer Engine con la plantilla correspondiente — si el caso tiene estadificación completa, incluye la sección de estadificación de forma prominente en vez de al final del documento.
+- Los gráficos de tendencia (peso, BCS, hemograma, bioquímica, tamaño tumoral) son interactivos: al pasar el cursor sobre un punto, se muestra el valor, la fecha y la consulta asociada.
+- El Treatment Protocol Card permite ver, sin salir del Dashboard, el ciclo actual del protocolo y la fecha de próxima dosis.
+
+8. Reglas de actualización
+
+El Dashboard nunca se genera una sola vez y queda estático — cada vez que el usuario lo solicita, se reconstruye con el estado más reciente del expediente. No existe una versión "cacheada" del Dashboard que pueda quedar desactualizada respecto al Clinical Reasoning Journal.
+
+9. Dashboard States
+
+Hereda los estados definidos en el Clinical Design System (Sección 16): Loading, No Data, Incomplete, Review Needed, Archived, Critical, Teaching Mode, Presentation Mode. Se remueve el estado "Referred" — no aplica a OCIS.
+
+10. Accesibilidad
+
+Hereda las reglas del Clinical Design System, Sección 18, sin excepciones ni reglas adicionales propias del Dashboard.
+
+11. Architecture Decisions
+
+AD-OCIS-DASH-01 — Dashboard as a View, not a Store. El Dashboard nunca almacena su propio estado independiente del expediente clínico; es una vista generada en el momento a partir del Clinical Reasoning Journal, el expediente y la Base de Conocimiento. Esto evita que el Dashboard y el Reporte puedan mostrar información contradictoria entre sí.
+
+AD-OCIS-DASH-02 — Staging-First Layout. A diferencia de un dashboard genérico, donde el estado clínico (remisión/estable/mejorando/etc.) sería la única información prioritaria del header, en OCIS el grado/estadio comparte ese lugar prioritario desde el primer diseño — no se agrega como un componente más al final de la lista, sino que define la estructura misma de la Zona 1. Refleja, a nivel de interfaz, el mismo principio que AD-OCIS-02 estableció a nivel de catálogo de componentes (OCIS-ARCH-001).

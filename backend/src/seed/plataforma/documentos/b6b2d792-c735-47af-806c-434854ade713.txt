@@ -1,0 +1,101 @@
+CARCINOMA DE CÉLULAS ESCAMOSAS CUTÁNEO FELINO — ENFERMEDAD SOLAR, ESTADIOS Y TRATAMIENTO LOCAL
+
+Resumen clínico de referencia para OCIS. Componentes que lo consumen: CC-231 (Histopathology Intelligence), CC-232 (Staging & Grading Engine), CC-220 (Imaging Intelligence), CC-104 (examen físico).
+
+Nota de relevancia regional: la exposición solar acumulada es el factor predisponente principal, de modo que en latitudes tropicales con radiación ultravioleta alta y sostenida esta entidad pesa más que en las series europeas y norteamericanas de las que provienen la mayoría de los estudios.
+
+---
+
+1. FRECUENCIA Y CAUSA
+
+El carcinoma de células escamosas es uno de los tumores cutáneos más comunes del gato, con cifras reportadas de aproximadamente 10,4% a 15% de los tumores de piel felinos.
+
+La causa principal es la **exposición solar crónica, específicamente radiación ultravioleta B**. Como el daño es acumulativo, el grupo de mayor riesgo son gatos blancos o con áreas blancas, de mediana edad a mayores; se citan gatos mayores de 10 a 12 años. Los gatos de pelo largo tienen probabilidad reducida de desarrollarlo, porque el pelo actúa como barrera física.
+
+Localizaciones de predilección: las áreas glabras y despigmentadas — **plano nasal, pabellones auriculares, párpados y regiones temporales**.
+
+Papilomavirus. Los papilomavirus felinos se consideran un factor contributivo en la etiopatogenia. El ADN de Felis catus papillomavirus tipo 2 se detecta con más frecuencia en estos tumores que en piel sana, y se estima involucrado en aproximadamente **un cuarto a un tercio de los casos**.
+
+2. LA PROGRESIÓN QUE PERMITE INTERVENIR TEMPRANO
+
+La exposición solar crónica está habitualmente involucrada en una progresión definida: **cambios actínicos → carcinoma in situ → carcinoma invasivo**.
+
+Las lesiones precancerosas actínicas pueden persistir durante meses o años, y en algunos gatos se produce la transformación.
+
+Histológicamente, **la invasión de la membrana basal por células escamosas neoplásicas es el rasgo que discrimina el carcinoma establecido de los cambios preneoplásicos**.
+
+Presentación clínica. La mayoría de los gatos llega con lesiones notadas por el propietario, que aparecen como cráteres enrojecidos, costrosos, que no cicatrizan. Clásicamente el propietario percibe cualquier lesión del plano nasal como un arañazo que no cura. En las orejas se observa engrosamiento y enrollamiento del borde antes de la formación de costras y erosión.
+
+El dato que ordena el examen: **toda la cabeza del gato susceptible estuvo expuesta al mismo daño ultravioleta durante el mismo tiempo**, de modo que no es inusual encontrar simultáneamente lesiones precancerosas, carcinoma in situ y carcinoma establecido en distintas áreas del mismo paciente.
+
+Regla para OCIS: ante una lesión de plano nasal en un gato blanco, el examen debe ser sistemático sobre pabellones, párpados y áreas temporales. Y las lesiones halladas pueden estar en estadios distintos, lo que cambia el tratamiento de cada una.
+
+3. POR QUÉ EL DIAGNÓSTICO TEMPRANO IMPORTA MÁS QUE EN OTROS TUMORES
+
+El carcinoma de células escamosas solar necesita identificarse con prontitud para permitir la mejor oportunidad de cura. Esto es particularmente cierto en párpado y plano nasal, donde **las opciones de tratamiento y el resultado cosmético y funcional dependen del estadio del tumor al diagnóstico**.
+
+Con diagnóstico oportuno, este tumor puede tratarse con mucho éxito.
+
+Regla para OCIS: en esta entidad, la demora no solo empeora el pronóstico oncológico sino que elimina opciones terapéuticas y compromete la función. El argumento para actuar temprano es más fuerte que el habitual.
+
+4. TRATAMIENTO — MÚLTIPLES MODALIDADES LOCALES
+
+El carcinoma de células escamosas felino se trata actualmente con cirugía, radioterapia y electroquimioterapia.
+
+Cirugía. La planectomía nasal está descrita para lesiones del plano nasal.
+
+Radioterapia. Un protocolo acelerado hipofraccionado —10 fracciones de 4,8 Gy en una semana— aplicado a 44 gatos con carcinoma de plano nasal logró **respuesta completa en todos**, con intervalo libre de enfermedad mediano de 916 días. La radioterapia con intención curativa se describe como opción valiosa que produce control tumoral prolongado y estable.
+
+Braquiterapia de alta tasa de dosis. Respuesta completa en 72% de los gatos, parcial en 24%, sin respuesta en 2%. Supervivencia libre de progresión mediana de 316 días y supervivencia global de 835 días.
+
+Electroquimioterapia con bleomicina. En un estudio multicéntrico sobre 61 gatos con carcinoma de plano nasal, con tamaño tumoral mediano de 1,5 cm: respuesta completa 65,6%, parcial 31,1%, enfermedad estable 3,3%, con **tasa de respuesta global del 96,7%**. Tasa de recurrencia 22,5%, intervalo libre de enfermedad mediano 136 días y supervivencia libre de progresión mediana 65,5 días. La toxicidad fue de grado 2 o menor en el 51% de los gatos.
+
+Terapia fotodinámica. Con fotosensibilizador sistémico produce excelente control tumoral a largo plazo en la mayoría de los gatos. Pero **los tumores invasivos y grandes tuvieron un resultado claramente inferior, incluso tratados con mayor intensidad de dosis**.
+
+Regla para OCIS al comparar modalidades: las cifras de respuesta no son comparables entre sí porque las poblaciones difieren en tamaño y estadio tumoral. El determinante común de todos los estudios es que el tumor pequeño y no invasivo responde bien a casi cualquier modalidad, y el grande e invasivo responde peor a todas.
+
+5. LA VARIANTE QUE SE COMPORTA DISTINTO
+
+Alrededor del 10% de los carcinomas escamosos cutáneos se presentan de otra forma: aparecen en el cuerpo de gatos de cualquier color como **múltiples lesiones superficiales**, y se denominan carcinoma bowenoide, carcinoma de Bowen o carcinoma escamoso multicéntrico in situ.
+
+Su desenlace es variable: a veces la condición puede curarse, y otros casos requieren manejo a largo plazo conforme aparecen lesiones nuevas.
+
+Regla para OCIS: la presencia de lesiones múltiples en áreas no expuestas y en un gato de pelaje pigmentado no descarta carcinoma escamoso — apunta a esta variante, que no es solar y no se maneja igual.
+
+6. ERRORES FRECUENTES
+
+Interpretar una lesión costrosa persistente del plano nasal como herida traumática.
+
+Examinar solo la lesión que trae el propietario, sin revisar orejas, párpados y áreas temporales.
+
+Asumir que todas las lesiones del mismo paciente están en el mismo estadio.
+
+Postergar el tratamiento en párpado o plano nasal, donde el estadio determina la viabilidad funcional del resultado.
+
+Comparar tasas de respuesta entre modalidades sin considerar el tamaño y la invasividad de las poblaciones tratadas.
+
+Descartar carcinoma escamoso en un gato pigmentado con lesiones múltiples superficiales.
+
+No considerar la variante bowenoide como entidad de manejo crónico.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Estadificación TNM detallada. Técnica de planectomía nasal y reconstrucción. Protocolos de radioterapia, braquiterapia, electroquimioterapia y terapia fotodinámica. Imiquimod tópico en carcinoma multicéntrico in situ. Carcinoma escamoso oral felino, que es entidad distinta y de peor pronóstico. Carcinoma escamoso canino y su forma digital. Carcinoma escamoso de otras localizaciones. Prevención: protección solar y manejo ambiental. Ki-67 y otros marcadores pronósticos. Estos temas quedan como vacíos declarados de la Base de Conocimiento de OCIS.
+
+FUENTES
+
+Murphy S. Cutaneous squamous cell carcinoma in the cat: current understanding and treatment approaches. J Feline Med Surg 2013;15:401–407. Fuente principal de las secciones 2, 3 y 5.
+
+Simčič P, Pierini A, Lubas G y col. A retrospective multicentric study of electrochemotherapy in the treatment of feline nasal planum squamous cell carcinoma. Vet Sci 2021;8(3):53. PMC8004260. Fuente de las secciones 1 y 4.
+
+Retrospective clinical study on outcome in cats with nasal planum squamous cell carcinoma treated with an accelerated radiation protocol. PMC5381142. Fuente de la sección 4.
+
+Evaluation of long-term outcome and prognostic factors of feline squamous cell carcinomas treated with photodynamic therapy. PubMed 29359611. Fuente de la sección 4.
+
+Prognostic factors for cats with squamous cell carcinoma of the nasal planum following high-dose rate brachytherapy. PubMed 30667286. Fuente de la sección 4.
+
+Prognostic factors in cats with squamous cell carcinoma treated with electrochemotherapy. Fuente de la sección 1, incluido el papel del papilomavirus.
+
+Lana SE, Ogilvie GK, Withrow SJ y col. Feline cutaneous squamous cell carcinomas of the nasal planum and the pinnae: 61 cases. J Am Anim Hosp Assoc 1997;33:329–332.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

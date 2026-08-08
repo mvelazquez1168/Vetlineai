@@ -1,0 +1,105 @@
+DILATACIÓN-VÓLVULO GÁSTRICO (GDV) EN EL PERRO — RECONOCIMIENTO, ESTABILIZACIÓN Y PRONÓSTICO
+
+Resumen clínico de referencia para GCIS. Componentes que lo consumen: CC-240 (correlación diagnóstica), CC-220 (imagenología), CC-201/202/203 (laboratorio y equilibrio ácido-base), CC-301 a CC-304 (farmacoterapia).
+
+Es la urgencia gastrointestinal por excelencia y la única entidad de la Base de Conocimiento de GCIS donde el tiempo de respuesta es determinante del desenlace.
+
+---
+
+1. QUÉ ES Y POR QUÉ MATA
+
+El GDV es una emergencia quirúrgica caracterizada por distensión gástrica rápida y rotación del estómago sobre su eje mesentérico, típicamente de 270 a 360 grados. Afecta con mayor frecuencia a perros de raza grande y gigante, particularmente los de tórax profundo y estrecho.
+
+La cadena fisiopatológica explica por qué progresa en horas: la distensión gástrica masiva impide la excursión respiratoria normal y comprime la vasculatura abdominal vital, lo que conduce a choque hipovolémico, arritmia, alteración electrolítica, necrosis visceral, falla orgánica, sepsis y muerte.
+
+El aumento de la presión tisular produce isquemia con lesión y muerte celular local, que puede progresar a necrosis tisular. La hipovolemia por pérdida de fluido al tercer espacio, junto con el choque obstructivo por retorno venoso disminuido, siguen rápidamente y llevan a disfunción orgánica secundaria.
+
+Mortalidad. Las cifras publicadas oscilan entre 10% y 33% pese al tratamiento; algunas series reportan hasta 43%. La necrosis de la pared gástrica se asocia a mortalidad significativamente mayor, con rangos de 25 a 59% en los casos que la presentan, y se describe como el predictor más fuerte de mortalidad.
+
+Regla operativa para GCIS: ante un perro de raza grande con distensión abdominal, arcadas improductivas o inquietud aguda, el GDV encabeza el diferencial y la respuesta correcta es derivación inmediata a urgencia quirúrgica, no la continuación del razonamiento diagnóstico.
+
+2. LA CAUSA SE DESCONOCE
+
+La causa subyacente del GDV permanece desconocida. Parece multifactorial y puede variar entre pacientes, razas y escenarios.
+
+Los factores de riesgo se categorizan en intrínsecos —genética, conformación, personalidad, edad— y extrínsecos —dieta, actividad, ambiente—. La literatura identifica además tamaño, peso, condiciones gastrointestinales preexistentes, hábitos dietarios como la ingesta de alimento seco o de grandes volúmenes de líquido, y la actividad después de comer.
+
+Nota para el razonamiento: ninguno de estos factores confirma ni descarta el cuadro en un paciente concreto. Sirven para identificar poblaciones en riesgo y para la conversación preventiva, no para el diagnóstico.
+
+3. DIAGNÓSTICO
+
+La radiografía es el estudio de confirmación. El hallazgo clásico de "doble burbuja" o compartimentalización distingue el vólvulo verdadero de la dilatación gástrica simple, y esa distinción cambia la conducta.
+
+Estudios complementarios en la estabilización: electrocardiograma para detectar arritmia —complicación común y potencialmente letal—, y análisis sanguíneo para evaluar alteraciones electrolíticas, estado ácido-base, función renal y hepática, y lactato.
+
+4. LACTATO — EL MARCADOR MÁS ÚTIL, BIEN INTERPRETADO
+
+Concentraciones plasmáticas de lactato superiores a 7–9 mmol/L se han asociado a la presencia de necrosis gástrica y pueden ser pronósticas de supervivencia en los estudios iniciales.
+
+Pero el hallazgo que más importa es otro: **la depuración de lactato predice la supervivencia con mayor exactitud que el valor inicial**. Un descenso a menos del 40–50% del valor basal, o una caída de más de 4 mmol/L con la terapia, ha resultado más predictivo que la cifra de ingreso.
+
+Regla para GCIS: un lactato alto al ingreso no condena al paciente, y uno moderado no lo tranquiliza. La medición seriada es la que informa. Un componente que reporte lactato sin la tendencia está reportando la mitad del dato.
+
+Otros marcadores. La lipasa pancreática específica canina puede estar elevada en GDV, sugiriendo lesión pancreática simultánea, y se ha explorado como variable predictiva de desenlace. En una serie, la proteína C reactiva predijo el desenlace mientras que el lactato no. Tiempos de coagulación prolongados, dímero D elevado, fibrinógeno más bajo y menor actividad de proteína C y antitrombina se han descrito en los perros que no sobreviven al posoperatorio.
+
+5. ESTABILIZACIÓN PREOPERATORIA
+
+Se recomienda intervención quirúrgica temprana, pero la estabilización preoperatoria eficiente es descrita como crucial. No son alternativas: son secuencia.
+
+Fluidoterapia agresiva por catéteres intravenosos de gran calibre para restaurar la presión arterial y combatir el choque. La literatura describe la administración de un cuarto del volumen de choque tan rápido como sea posible, correspondiente aproximadamente a 22 mL/kg en el perro.
+
+Descompresión gástrica mediante intubación orogástrica o trocarización, para aliviar la acumulación de presión.
+
+Soporte adicional: manejo del dolor y medicación antiemética.
+
+6. CIRUGÍA Y GASTROPEXIA
+
+Tras el reposicionamiento gástrico se completa la laparotomía exploratoria mientras mejora la perfusión gástrica. Un hallazgo descrito como patognomónico al entrar al abdomen es el omento drapeado sobre el estómago, que confirma el vólvulo.
+
+**La gastropexia es esencial en todo perro afectado por GDV**, después del reposicionamiento gástrico correcto. No es un procedimiento opcional ni diferible: sin ella la recidiva es esperable.
+
+Gastropexia profiláctica. Puede realizarse por cirugía laparoscópica mínimamente invasiva en razas de riesgo. Es la única intervención preventiva con respaldo, y corresponde plantearla en la conversación con propietarios de razas predispuestas.
+
+Factores pronósticos negativos descritos: hiperlactatemia que no responde a la fluidoterapia, perforación gástrica, y necesidad de esplenectomía o resección gástrica.
+
+7. LO QUE GCIS DEBE HACER Y NO HACER
+
+Debe: reconocer el patrón y señalar la urgencia por encima de cualquier otro hallazgo del caso; recordar el electrocardiograma, que se omite con frecuencia; pedir lactato seriado y no un valor único; y consignar si se realizó gastropexia, porque define el riesgo futuro del paciente.
+
+No debe: proponer manejo médico como alternativa a la cirugía; usar los factores de riesgo para descartar el cuadro en un paciente concreto; ni continuar el razonamiento diferencial cuando la sospecha es alta y el tiempo corre.
+
+8. ERRORES FRECUENTES
+
+Confundir dilatación gástrica simple con vólvulo, o no solicitar la radiografía que los distingue.
+
+Reportar lactato de ingreso sin medición seriada.
+
+Omitir el electrocardiograma en la estabilización.
+
+Diferir la descompresión gástrica hasta el quirófano.
+
+No documentar si se realizó gastropexia.
+
+Tratar la ausencia de factores de riesgo como argumento en contra del diagnóstico.
+
+No plantear la gastropexia profiláctica en un paciente de raza predispuesta que se opera por otra causa.
+
+9. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnica quirúrgica en detalle: derotación, evaluación de viabilidad de la pared gástrica, resección, esplenectomía, y técnicas comparadas de gastropexia. Protocolos anestésicos en el paciente en choque. Manejo de las arritmias de reperfusión. Dosis de fluidos, analgésicos y antiarrítmicos. Manejo posoperatorio y de la lesión por reperfusión. Dilatación gástrica sin vólvulo. Vólvulo mesentérico. Estos temas quedan como vacíos declarados de la Base de Conocimiento de GCIS, y varios corresponden a cirugía y cuidados intensivos más que a gastroenterología médica.
+
+FUENTES
+
+Gastric Dilatation-Volvulus in Dogs: Diagnosis & Treatment. Clinician's Brief. Fuente de las secciones 1, 2 y 6.
+
+Gastric Dilatation-Volvulus in Dogs: Analysis of 130 Cases in a Single Institution. Animals 2025. PMC11851494. Fuente de las secciones 1 y 2.
+
+Updated Information on Gastric Dilatation and Volvulus and Gastropexy in Dogs. Vet Clin North Am Small Anim Pract. PubMed 35082096. Fuente de la sección 6.
+
+Gastric dilatation-volvulus: the twisted truth. dvm360. Fuente de las secciones 4 y 5.
+
+Prognostic value of canine pancreatic lipase immunoreactivity and lipase activity in dogs with gastric dilatation-volvulus. PMC6143268. Fuente de la sección 4.
+
+Cell-free DNA, high-mobility group box-1, and procalcitonin concentrations in dogs with gastric dilatation–volvulus syndrome. PMC5900424. Fuente de la fisiopatología de la sección 1.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

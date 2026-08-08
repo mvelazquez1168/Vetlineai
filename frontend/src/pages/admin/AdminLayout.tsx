@@ -8,11 +8,13 @@ import { useAuth } from "../../hooks/useAuth";
 const NAV_ITEMS = [
   { to: "/admin/medicos", label: "Médicos" },
   { to: "/admin/casos", label: "Casos" },
+  { to: "/admin/propietarios", label: "Propietarios" },
   { to: "/agenda", label: "Agenda" },
   { to: "/admin/agentes", label: "Agentes IA" },
   { to: "/admin/plan-consumo", label: "Plan y consumo" },
   { to: "/admin/clinica", label: "Clínica" },
   { to: "/admin/notificaciones", label: "Notificaciones" },
+  { to: "/admin/reporte-atenciones", label: "Reporte de Atenciones" },
   { to: "/admin/facturacion", label: "Facturación" },
 ];
 

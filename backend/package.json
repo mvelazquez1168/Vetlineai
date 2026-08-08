@@ -5,13 +5,15 @@
   "type": "commonjs",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "migrate": "node -e \"require('dotenv').config(); const fs=require('fs'); const path=require('path'); const {Pool}=require('pg'); const pool=new Pool({connectionString:process.env.DATABASE_URL}); const dir='src/migrations'; const archivos=fs.readdirSync(dir).filter(f=>f.endsWith('.sql')).sort(); (async()=>{ try { for (const f of archivos) { console.log('Aplicando '+f+'...'); await pool.query(fs.readFileSync(path.join(dir,f),'utf8')); } console.log('Migraciones aplicadas.'); process.exit(0); } catch (e) { console.error(e); process.exit(1); } })();\"",
-    "seed": "ts-node --transpile-only src/seed/seed.ts"
+    "seed": "ts-node --transpile-only src/seed/seed.ts",
+    "seed:plataforma": "ts-node --transpile-only src/seed/seedPlataforma.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
+    "@aws-sdk/client-s3": "^3.1106.0",
     "@napi-rs/canvas-linux-x64-musl": "^0.1.80",
     "@types/archiver": "^8.0.0",
     "@types/pdfkit": "^0.17.6",

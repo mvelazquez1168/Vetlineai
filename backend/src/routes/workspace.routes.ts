@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import { requerirAnthropic } from "../anthropic";
 import { registrarLecturaSensible } from "../middleware/auditoria";
 import { authenticate, withTenantClient } from "../middleware/auth";
@@ -11,10 +12,12 @@ import {
 import { debeBloquearseMensaje } from "../usoIa";
 import { registrarUsoApi, verificarAntesDeGenerar, mensajeRechazoGeneracion } from "../tarifas";
 import { construirBloqueContextoCaso } from "../contextoCaso";
+import { calcularEdadEfectiva } from "../edadPaciente";
 import { construirBloqueRazaDocumento } from "../razaDocumento";
 import { construirBloqueInformacionRegistrada, TEXTO_DISPARADOR_ANALISIS } from "../informacionRegistrada";
 import { obtenerEstadoSuscripcion, suscripcionBloqueaGeneracionIa } from "../purga";
 import { asignarNumeroExpediente } from "../expediente";
+import { registrarResultadoAnthropic, registrarExitoAnthropic } from "../proveedorIaEstado";
 
 export const workspaceRouter = Router();
 
@@ -56,7 +59,11 @@ workspaceRouter.get("/me", async (req, res) => {
        WHERE p.id = $1`,
       [req.auth!.userId]
     );
-    res.json({ persona: result.rows[0] ?? null });
+    const persona = result.rows[0] ?? null;
+    if (persona?.tenant_logo_url) {
+      persona.tenant_logo_url = almacenamientoPublico.url(claveLogoDesdeValorGuardado(persona.tenant_logo_url));
+    }
+    res.json({ persona });
   } catch (err) {
     console.error("GET /workspace/me", err);
     res.status(500).json({ error: "Error al obtener el perfil." });
@@ -225,10 +232,13 @@ workspaceRouter.get("/casos/:id", async (req, res) => {
   try {
     const casoResult = await req.db!.query(
       `SELECT c.id, c.motivo, c.estado, c.severidad, c.confianza_diagnostica, c.creado_en, c.numero_expediente,
-              p.id AS paciente_id, p.nombre AS paciente_nombre, p.especie, r.nombre AS raza, p.sexo, p.edad_anios,
+              p.id AS paciente_id, p.nombre AS paciente_nombre, p.especie, r.nombre AS raza, p.sexo,
+              p.edad_anios, p.fecha_nacimiento, p.estado AS paciente_estado,
+              pr.id AS propietario_id, pr.nombre AS propietario_nombre,
               (a.system_prompt IS NOT NULL) AS agente_operativo
        FROM casos c
        JOIN pacientes p ON p.id = c.paciente_id
+       JOIN propietarios pr ON pr.id = p.propietario_id
        LEFT JOIN razas r ON r.id = p.raza_id
        JOIN agentes a ON a.id = c.agente_id
        WHERE c.id = $1 AND c.medico_id = $2`,
@@ -238,6 +248,10 @@ workspaceRouter.get("/casos/:id", async (req, res) => {
     if (casoResult.rows.length === 0) {
       return res.status(404).json({ error: "Caso no encontrado." });
     }
+    casoResult.rows[0].edad_anios = calcularEdadEfectiva(
+      casoResult.rows[0].fecha_nacimiento,
+      casoResult.rows[0].edad_anios
+    );
 
     // tipo incluido sin filtrar — el hilo completo se manda al frontend tal
     // cual (información registrada incluida, con su propio tratamiento
@@ -801,11 +815,13 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
         ],
         messages: mensajesConPrescripciones,
       });
+      await registrarExitoAnthropic();
       const bloqueTexto = response.content.find((b) => b.type === "text");
       respuestaTexto = bloqueTexto?.text ?? "";
       usage = response.usage;
     } catch (err) {
       console.error("Error al llamar a la API de Claude (GCIS)", err);
+      await registrarResultadoAnthropic(err);
       // La información pendiente NO se marca incorporada acá: la llamada
       // falló, así que el modelo nunca la vio de verdad. Queda pendiente
       // para el próximo intento (ver informacionRegistrada.ts).

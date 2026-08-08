@@ -1,0 +1,113 @@
+OCIS Clinical Design System
+
+Versión 1.0
+Documento: OCIS-DESIGN-001
+
+Este documento define el lenguaje visual completo del producto OCIS. Es un derivado directo de ICIS-DESIGN-001 (que a su vez extiende el sistema base de GCIS-DESIGN-001) — se conservan todos los elementos comunes de plataforma, se remueven los elementos específicos de triage/derivación (no aplicables a OCIS como especialidad receptora), y se agregan los elementos propios del dominio oncológico.
+
+Relación entre documentos
+
+Manual de Identidad Visual (GastroCare Vet / MedicaVet)
+↓
+GCIS-DESIGN-001 — sistema base
+↓
+ICIS-DESIGN-001 — agrega capa de triage/derivación
+↓
+OCIS-DESIGN-001 — hereda el sistema base, remueve la capa de triage, agrega capa oncológica
+↓
+Dashboard → Artifacts → Reportes PDF → Reportes Word → Presentaciones
+
+Todo el ecosistema comparte la misma identidad visual de marca; cada agente especializado agrega o remueve únicamente los componentes funcionales que su rol clínico requiere.
+
+Índice del documento
+
+1. Introducción — Objetivo, Alcance, Relación con el Manual de Marca, Principios de diseño.
+
+2. Brand Identity Integration
+
+Se hereda sin cambios de ICIS-DESIGN-001: tipografía (Playwrite CC Deutschland Grundschrift para wordmark, Montserrat para texto), paleta cromática compartida (turquesa #23B3B1, coral #F47676, violeta #8012FF, azul oscuro #102F59, marfil #FCF9F6).
+
+El imagotipo de OCIS se referencia por su propio asset (isotipo circular de la clínica, sin la simbología gastrointestinal de GCIS ni ícono de derivación de ICIS) — pendiente de definir el asset gráfico específico junto con el resto de agentes especializados nuevos (NCIS, CCIS, DCIS, ECIS, RCIS, UCIS comparten esta misma pendiente).
+
+3. Clinical Design Principles
+
+Se heredan de ICIS-DESIGN-001: Clinical First, Evidence First, Minimal Cognitive Load, Progressive Disclosure, Consistency, Explainable AI, Visual Hierarchy, Accessibility, Longitudinal Thinking.
+
+Se remueve: "Triage Clarity" — principio específico de ICIS como sistema que decide si derivar; no aplica a OCIS, que ya recibe el caso derivado.
+
+Se agrega: "Prognostic Clarity" (nuevo, propio de OCIS) — el diseño debe hacer inmediatamente obvio el estadio/grado de la neoplasia y su implicación pronóstica, sin que el usuario deba leer el informe completo para entender la severidad relativa del caso. Es la razón de ser de la Staging Card (ver sección 7).
+
+4. Color System
+
+Se heredan los colores funcionales base: Estado Normal, Estado Advertencia, Estado Crítico, Estado Pendiente, Estado IA, Estado Diagnóstico, Estado Tratamiento, Estado Seguimiento.
+
+Se remueve: "Estado Derivación" — específico de ICIS, no aplica a OCIS.
+
+Se agrega: Estado Pronóstico por Grado (nuevo, propio de OCIS) — escala cromática específica para comunicar grado/estadio tumoral, distinta de la escala genérica de Advertencia/Crítico porque un grado alto no es necesariamente una alerta aguda, es una clasificación pronóstica: verde (bajo grado/estadio temprano), ámbar (grado intermedio), rojo (alto grado/estadio avanzado) — mapea directamente a los sistemas de gradación ya documentados en la Base de Conocimiento (Patnaik/Kiupel para MCT, estadios I-V de linfoma).
+
+5. Typography — Heredado sin cambios de ICIS-DESIGN-001 (H1, H2, H3, Card Title, Clinical Text, Table Text, Small Text, Footnote).
+
+6. Grid System — Heredado sin cambios (12 columnas, márgenes, espaciado, cards, breakpoints).
+
+7. Clinical Cards
+
+Se heredan: Executive Summary Card, Patient Card, Timeline Card, Medication Card, Hemogram Card, Confidence Card, Knowledge Card.
+
+Se remueve: Referral Recommendation Card — específica de ICIS, no aplica.
+
+Se agregan (propias de OCIS):
+- Staging Card (nuevo) — comunica visualmente el grado/estadio actual de la neoplasia (ej. "Kiupel: Bajo grado", "WHO: Estadio III-a") como dato de mayor jerarquía visual que el resto del resumen, dado el principio de Prognostic Clarity.
+- Tumor Imaging Card (nuevo) — despliega imágenes de citología/histopatología asociadas al caso, con anotación de hallazgos relevantes superpuesta cuando aplique.
+- Treatment Protocol Card (nuevo) — muestra el protocolo terapéutico activo (ej. ciclo de quimioterapia, dosis de TKI) con progreso visual (ciclo 3 de 6, próxima dosis programada).
+
+8. Dashboard Components — Heredado sin cambios; aplica igual a las tres cards nuevas de la sección 7.
+
+9. Charts
+
+Se heredan: Comparación Hemogramas, Comparación Bioquímica, Peso, BCS, Timeline, Respuesta Clínica, Confidence Meter.
+
+Se agrega: Gráfico de Sobrevida/Progresión (nuevo, propio de OCIS) — visualización simple de tiempo transcurrido vs. hitos esperados de sobrevida según el pronóstico documentado en la Base de Conocimiento para esa neoplasia/estadio específicos, útil para conversaciones de seguimiento con el propietario.
+
+10. Tables — Heredado sin cambios; una sola especificación de tabla para todo el sistema.
+
+11. Icons
+
+Se heredan: Paciente, Consulta, Laboratorio, Ecografía, Tratamiento, Diagnóstico, IA, Reporte, PDF, Word, Conocimiento, Seguimiento.
+
+Se remueve: ícono de Derivación — no aplica a OCIS.
+
+Se agregan (propios de OCIS): Citología, Histopatología, Quimioterapia, Estadificación.
+
+12. Clinical Badges
+
+Se heredan: 🟢 Remisión · 🔵 Estable · 🟡 Mejorando · 🟠 Respuesta Parcial · 🔴 Empeorando · ⚫ Crítico · ⚪ Información Insuficiente.
+
+Se remueve: 🔁 Derivado / en seguimiento por especialista — no aplica a OCIS.
+
+Se agrega: badge de Grado/Estadio (nuevo) — debe coincidir exactamente con la terminología de cada sistema de gradación documentado en la Base de Conocimiento (ej. "Kiupel Bajo", "Kiupel Alto", "Patnaik I/II/III", "WHO I" a "WHO V"), no una escala genérica inventada.
+
+13. Clinical Timeline
+
+Heredado sin cambios en estructura (Colores, Eventos, Jerarquía, Filtros, Zoom).
+
+Se agrega evento tipo "Ciclo de tratamiento" (nuevo) como hito propio de la línea de tiempo oncológica, distinto de "Consulta" o "Cambio terapéutico" genéricos — con su propio color e ícono (ver sección 11).
+
+14. AI Components — Heredado sin cambios (tarjeta "Insight" con fondo violeta #DCD4FF, borde #8012FF, símbolo ◆). Aplica igual a inferencias oncológicas (ej. "◆ Insight — Prognostic Estimate Based on Stage").
+
+15. Clinical Confidence Meter™ — Heredado sin cambios.
+
+16. Dashboard States
+
+Se heredan: Loading, No Data, Incomplete, Review Needed, Archived, Critical, Teaching Mode, Presentation Mode.
+
+Se remueve: "Referred" — específico de ICIS, no aplica.
+
+17. Report Components
+
+Heredado sin cambios en estructura general (Word, PDF, caso docente). Se remueve la variante de Referral Package (no aplica). Se agrega: cómo luce un informe de estadificación completo, con la Staging Card siempre visible en la primera página junto al Executive Summary.
+
+18. Accessibility — Heredado sin cambios.
+
+19. Motion System — Heredado sin cambios.
+
+20. Future Design — Heredado sin cambios (Responsive, Tablet, Teaching Mode, Research Mode, Presentation Mode, AI Workspace).

@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { PoolClient } from "pg";
-import * as fs from "fs";
-import * as path from "path";
 import PDFDocument from "pdfkit";
+import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import { requerirAnthropic } from "../anthropic";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { registrarUsoApi, verificarAntesDeGenerar, mensajeRechazoGeneracion } from "../tarifas";
@@ -14,6 +13,8 @@ import {
   insertarBloquePrescripciones,
 } from "./casos.routes";
 import { construirBloqueRazaDocumento } from "../razaDocumento";
+import { registrarResultadoAnthropic, registrarExitoAnthropic } from "../proveedorIaEstado";
+import { calcularEdadEfectiva } from "../edadPaciente";
 
 // =====================================================================
 // Módulo de Prescripción Médica — transversal a cualquier agente clínico
@@ -430,8 +431,10 @@ recetasRouter.post("/:id/validar", async (req, res) => {
         tools: [VALIDAR_RECETA_TOOL as any],
         tool_choice: { type: "tool", name: "validar_receta" },
       });
+      await registrarExitoAnthropic();
     } catch (err) {
       console.error("Error al llamar a la API de Claude para validar la receta", err);
+      await registrarResultadoAnthropic(err);
       return res.status(502).json({ error: "No se pudo validar la receta en este momento." });
     }
 
@@ -489,7 +492,7 @@ recetasRouter.post("/:id/emitir", async (req, res) => {
   try {
     const recetaResult = await req.db!.query(
       `SELECT r.id, r.estado, r.instrucciones_generales, r.instrucciones_propietario,
-              p.nombre AS paciente_nombre, p.especie, ra.nombre AS raza, p.sexo, p.edad_anios,
+              p.nombre AS paciente_nombre, p.especie, ra.nombre AS raza, p.sexo, p.edad_anios, p.fecha_nacimiento,
               prop.nombre AS propietario_nombre,
               m.nombre AS medico_nombre, m.colegiatura AS medico_colegiatura,
               t.logo_url AS tenant_logo_url, t.zona_horaria
@@ -506,6 +509,7 @@ recetasRouter.post("/:id/emitir", async (req, res) => {
       return res.status(404).json({ error: "Receta no encontrada." });
     }
     const receta = recetaResult.rows[0];
+    receta.edad_anios = calcularEdadEfectiva(receta.fecha_nacimiento, receta.edad_anios);
 
     // La validación clínica es opcional (decisión del médico, igual que
     // ya lo es emitir pese a las alertas) — se puede emitir directo
@@ -521,11 +525,12 @@ recetasRouter.post("/:id/emitir", async (req, res) => {
         error: "La clínica no tiene un logo cargado. Subilo en Datos de la Clínica antes de emitir la receta.",
       });
     }
-    const logoPath = path.join(__dirname, "../..", receta.tenant_logo_url);
-    if (!fs.existsSync(logoPath)) {
+    let logoBuffer: Buffer;
+    try {
+      logoBuffer = await almacenamientoPublico.leer(claveLogoDesdeValorGuardado(receta.tenant_logo_url));
+    } catch {
       return res.status(422).json({ error: "No se encontró el archivo del logo de la clínica en el servidor." });
     }
-    const logoBuffer = fs.readFileSync(logoPath);
 
     const itemsResult = await req.db!.query(
       `SELECT ri.*, med.nombre AS medicamento_nombre

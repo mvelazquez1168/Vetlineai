@@ -1,0 +1,119 @@
+DIABETES MELLITUS EN PERROS Y GATOS — DIAGNÓSTICO, MONITOREO Y REMISIÓN
+
+Resumen clínico de referencia para ECIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-202 (bioquímica sérica), CC-204 (urianálisis), CC-101 (historia clínica).
+
+Documento complementario del de cetoacidosis diabética, que cubre la descompensación aguda. Este cubre el manejo crónico.
+
+---
+
+1. LA IDEA CENTRAL: SON DOS ENFERMEDADES DISTINTAS
+
+El manejo de la diabetes en el gato requiere un abordaje diferente al del perro, y las estrategias terapéuticas entre ambas especies continúan divergiendo.
+
+La diferencia con mayor consecuencia clínica: **en el gato la remisión diabética es un objetivo razonable**; en el perro no lo es. Esa asimetría cambia el objetivo del tratamiento, la intensidad del monitoreo y lo que se le explica al propietario.
+
+Regla para ECIS: toda recomendación sobre diabetes debe declarar la especie sobre la que razona. Aplicar el marco canino a un gato pierde la posibilidad de remisión; aplicar el felino a un perro genera expectativas que no se cumplirán.
+
+2. DIAGNÓSTICO
+
+El diagnóstico requiere evidencia de hiperglucemia sostenida, lo que incluye uno o más de los siguientes: fructosamina o hemoglobina A1C aumentadas, o hiperglucemia o glucosuria documentadas en más de una ocasión en un entorno no estresante o domiciliario.
+
+La advertencia específica del gato: **las curvas de glucosa sanguínea realizadas en el hospital no están recomendadas para gatos.** El estrés hospitalario produce hiperglucemia que distorsiona la interpretación.
+
+Regla para ECIS: ante una hiperglucemia aislada medida en consulta en un gato, la conclusión correcta no es diabetes sino la necesidad de documentar hiperglucemia sostenida fuera del entorno estresante. Iniciar insulina sobre ese dato es un error prevenible.
+
+Las guías revisan además la identificación y el monitoreo de pacientes en riesgo de desarrollar diabetes, precisamente para evitar terapia insulínica innecesaria en pacientes con hiperglucemia transitoria o elevación leve de la glucosa.
+
+3. EL PRINCIPIO DE MONITOREO
+
+En lo que respecta al monitoreo, **los signos clínicos prevalecen sobre todo lo demás**. Cuando el paciente no presenta signos clínicos y el peso corporal está estable, esa es la información de mayor jerarquía.
+
+Formulado para el gato: monitorizar al gato, no solamente los números. Con frecuencia la resolución de los signos clínicos y un gato que se siente bien constituyen un buen indicador de regulación diabética.
+
+Regla para ECIS: un ajuste de dosis basado únicamente en un valor de glucemia, en un paciente asintomático y con peso estable, es una decisión mal fundada.
+
+4. AJUSTE DE DOSIS Y SUS LÍMITES
+
+Ante control insuficiente, las guías describen incrementos escalonados con reevaluación —por ejemplo, aumentar la insulina y controlar en 5 a 7 días—.
+
+El límite que evita daño: **no se recomienda continuar aumentando la dosis de insulina más de dos o tres veces**, por la posible presencia de efecto Somogyi o de resistencia insulínica. Seguir subiendo la dosis ante falta de respuesta puede empeorar el cuadro en vez de corregirlo.
+
+Ante necesidad de reducir, las guías describen disminuciones de 10 a 50% en perros y de 0.5 unidades en gatos — otra manifestación de que las dos especies no se manejan igual.
+
+Antes de atribuir el descontrol a la dosis, corresponde considerar cambios o desviaciones dietarias, la posibilidad de hiperglucemia por estrés, y el efecto placebo.
+
+Si el peso es estable, las guías contemplan dejar la dosis sin cambios y recontrolar en un intervalo de 1 a 3 meses.
+
+5. SEGUIMIENTO ESTRUCTURADO
+
+Tras establecer la dosis correcta, se recontrola a las 4 a 6 semanas, evaluando las impresiones del propietario, los signos clínicos generales del paciente, y los datos disponibles como controles domiciliarios de glucosa en sangre y orina y el valor de fructosamina.
+
+Ante cualquier duda sobre el estado de control glucémico, incluida la preocupación por hipoglucemia, corresponde colocar un monitor continuo de glucosa.
+
+En gatos con potencial de remisión, controles breves cada 3 meses pueden ayudar a detectar tempranamente tendencias descendentes de la glucemia.
+
+Controles completos de rutina cada 6 a 12 meses, como en cualquier paciente con enfermedad crónica, incluyendo examen físico completo e historia, hemograma, perfil bioquímico, T4 total, urianálisis y fructosamina.
+
+Tras la remisión, el examen físico con monitoreo continuado de signos clínicos, peso y evaluación laboratorial apropiada cada 6 meses puede permitir la detección temprana de una posible recaída diabética.
+
+6. MANEJO DOMICILIARIO Y DIETA
+
+El cuidado domiciliario es parte del tratamiento, no un complemento. Comprende administración de insulina una o dos veces al día, monitoreo regular de glucemia, y controles frecuentes en el hospital.
+
+La terapia dietaria es un componente clave: se construye un plan para optimizar el peso corporal con niveles apropiados de proteína y carbohidratos, restricción de grasa y control calórico. Los pacientes obesos, perros y gatos, deben perder inicialmente entre 1 y 2% de su peso por semana para que la insulina actúe con mayor eficacia.
+
+En el gato, el cuidado domiciliario excelente con manejo dietario, tratamiento de la obesidad y monitoreo puede llevar a que el animal deje de necesitar terapia insulínica.
+
+7. HIPOGLUCEMIA — EL RIESGO QUE DEFINE EL MONITOREO DOMICILIARIO
+
+La hipoglucemia puede amenazar la vida, y la diabetes es una enfermedad dinámica.
+
+En el gato, la remisión puede instalarse de forma bastante súbita, de modo que el monitoreo domiciliario de la glucemia es clave para prevenir hipoglucemia.
+
+En el perro, la glucemia puede caer a niveles peligrosos por ejercicio esporádico y extenuante o por cambios en la administración de insulina.
+
+Regla para ECIS: en un gato en tratamiento cuyo propietario reporta mejoría marcada y menor apetito de insulina aparente, la posibilidad de remisión en curso debe evaluarse antes que asumirse estabilidad.
+
+8. LA DIMENSIÓN QUE NO ES CLÍNICA
+
+Sin tratamiento apropiado, el paciente diabético muere. Algunos propietarios eligen la eutanasia por el compromiso que requiere el manejo, mientras que muchos otros encuentran el esfuerzo valioso y el animal puede llevar una vida de alta calidad como diabético controlado.
+
+Es natural que el propietario se sienta abrumado al inicio. Las guías destacan explícitamente la comunicación y la educación del equipo veterinario como componentes del tratamiento.
+
+Implicación para el informe de ECIS: un plan de manejo diabético que no contemple la capacidad real del propietario de ejecutarlo no es un plan viable. Corresponde declararlo en el informe, no asumirlo.
+
+9. ERRORES FRECUENTES
+
+Diagnosticar diabetes en un gato sobre una hiperglucemia medida en consulta.
+
+Realizar curvas de glucosa hospitalarias en gatos.
+
+Ajustar dosis por un valor de glucemia en un paciente asintomático con peso estable.
+
+Continuar aumentando la insulina más de dos o tres veces ante falta de respuesta.
+
+Aplicar los criterios de ajuste caninos a un gato, o viceversa.
+
+Asumir estabilidad en un gato que mejora marcadamente, sin considerar remisión en curso.
+
+Omitir el manejo dietario y el tratamiento de la obesidad.
+
+No reevaluar periódicamente al paciente en remisión.
+
+Diseñar un plan sin evaluar la capacidad del propietario de sostenerlo.
+
+10. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis iniciales y formulaciones de insulina, y sus recomendaciones de uso por especie. Inhibidores de SGLT2 en el gato: indicaciones, selección de candidatos y riesgos. Interpretación detallada de monitores continuos de glucosa. Manejo de la crisis hipoglucémica. Cetoacidosis diabética, cubierta en su propio documento. Diabetes secundaria a hipercortisolismo, diestro y otras causas. Resistencia insulínica: diagnóstico diferencial completo. Diabetes gestacional. Estos temas quedan como vacíos declarados de la Base de Conocimiento de ECIS.
+
+FUENTES
+
+2026 AAHA Diabetes Management Guidelines for Cats. Fuente de las secciones 1, 2, 3, 5 y 7.
+
+2018 AAHA Diabetes Management Guidelines for Dogs and Cats, con actualizaciones de 2022. J Am Anim Hosp Assoc 2018;54:1–19. DOI 10.5326/JAAHA-MS-6822. Fuente de las secciones 2, 3 y 4.
+
+AAHA — Diabetes Management for Pets, sobre manejo domiciliario, dieta e hipoglucemia. Fuente de las secciones 6, 7 y 8.
+
+Gostelow R, Hazuchova K. Pathophysiology of prediabetes, diabetes, and diabetic remission in cats. Vet Clin North Am Small Anim Pract 2023;53(3):511–529.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -104,6 +104,25 @@ export const config = {
   // ella el endpoint acepta cualquier notificación — se loguea fuerte cada
   // vez que eso pasa.
   pagosCallbackSecret: process.env.PAGOS_CALLBACK_SECRET,
+  // Almacenamiento de objetos (adjuntos de casos, documentos de la Base de
+  // Conocimiento, exportaciones, logos de clínica — ver almacenamiento/).
+  // "local" (default) usa el filesystem del contenedor, solo para dev: en
+  // un contenedor descartable esos archivos se pierden al reiniciar. "s3"
+  // usa cualquier almacenamiento compatible con la API de S3 — ver
+  // almacenamiento/s3.ts sobre qué proveedores sirven. Las credenciales de
+  // abajo solo son obligatorias cuando ALMACENAMIENTO_PROVEEDOR=s3 (se
+  // valida en almacenamiento/index.ts, no acá, con el mismo criterio que
+  // Stripe/Tilopay: el proceso no se cae al boot por esto).
+  almacenamientoProveedor: (process.env.ALMACENAMIENTO_PROVEEDOR ?? "local") as "local" | "s3",
+  s3Endpoint: process.env.S3_ENDPOINT,
+  s3Region: process.env.S3_REGION ?? "us-east-1",
+  s3AccessKeyId: process.env.S3_ACCESS_KEY_ID,
+  s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  s3BucketPrivado: process.env.S3_BUCKET_PRIVADO,
+  s3BucketPublico: process.env.S3_BUCKET_PUBLICO,
+  // Dominio público desde el que se sirve el bucket público (URL directa a
+  // un logo) — el endpoint del bucket, o un CDN delante de él si hay uno.
+  s3UrlPublicaBase: process.env.S3_URL_PUBLICA_BASE,
 };
 
 // Mismo patrón que validarCredencialesPaisesHabilitados (pagos/credencialesPasarela.ts)

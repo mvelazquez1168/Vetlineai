@@ -1,0 +1,127 @@
+RCIS-DESIGN-001
+
+Clinical Design System v1.0 (adaptado de ICIS-DESIGN-001)
+
+NOTA DE ALCANCE DE ESTA ADAPTACIÓN (RCIS-DESIGN-001)
+
+Este documento define el lenguaje visual de RCIS (Reproducción y Andrología Veterinaria) para su dashboard clínico y sus informes. Hereda la base compartida de ICIS-DESIGN-001 y remueve los componentes visuales de triage y derivación, que no aplican a una especialidad receptora.
+
+No redefine la paleta ni la tipografía de la plataforma: RCIS usa la paleta institucional vigente sin variantes propias. Lo que este documento define son los roles semánticos que RCIS asigna a esa paleta, las cards propias de la especialidad, y las tres convenciones visuales que RCIS necesita y ningún otro agente tiene: representación de fechas proyectadas, declaración del método de cálculo, y escala de urgencia obstétrica.
+
+NOTA DE NUMERACIÓN: las secciones 7 (cards propias) y 13 (Clinical Timeline) mantienen la posición que ocupan en OCIS-DESIGN-001, porque RCIS-ARCH-001 las referencia por número. Las secciones intermedias siguen el orden lógico del documento y deben cotejarse contra ICIS-DESIGN-001 antes de dar la numeración por definitiva.
+
+---
+
+1. Propósito
+
+Definir cómo se ve y se comporta la información clínica de RCIS, de forma que un caso reproductivo sea legible de un vistazo en su dimensión temporal. Este documento gobierna el Dashboard (RCIS-DASH-001) y el Informe Clínico (RCIS-REP-001); ninguno de los dos define estilo propio.
+
+2. Herencia desde ICIS-DESIGN-001
+
+Se heredan sin modificación: paleta institucional, escala tipográfica, grilla y espaciado, estructura de card base, tratamiento de tablas de laboratorio, y los componentes visuales del núcleo de caso (Executive Case Summary, Patient Profile, Active Problems Registry).
+
+Se remueven: Referral Recommendation Card y todo componente asociado a la decisión de derivar hacia una especialidad. RCIS recibe casos derivados; no los emite. Cuando un caso debe salir de RCIS, se escala de vuelta a ICIS mediante el mecanismo de plataforma, sin representación visual propia dentro de RCIS.
+
+3. Principios de diseño propios de RCIS
+
+Temporal Clarity. En reproducción, el dato de mayor jerarquía no es un hallazgo sino una posición en el tiempo. Toda vista de RCIS debe responder, antes que nada, dónde está el paciente en su eje reproductivo: día del ciclo, día de gestación, día posparto, o sin evento activo. Ese dato ocupa la posición de mayor jerarquía visual en el Executive Case Summary.
+
+Method Transparency. Una fecha probable de parto derivada de progesterona seriada y una derivada de fecha de monta pueden diferir en varios días. Ninguna fecha estimada se muestra sin su método de cálculo adyacente y su margen. Este principio no admite excepción por razones de espacio: si no cabe el método, no se muestra la fecha.
+
+Urgencia sin inflación. RCIS tiene un único componente con escala de urgencia real (CC-234, distocia). Si el resto de la interfaz usa lenguaje visual de alarma para hallazgos ordinarios, la urgencia obstétrica pierde su capacidad de distinguirse. El rojo de la paleta queda reservado para la escala de la sección 9.
+
+4. Roles semánticos del color
+
+Sobre la paleta institucional, RCIS asigna: color primario para datos confirmados y eventos ocurridos; color secundario atenuado para datos proyectados y estimaciones; color de advertencia para valores fuera de rango o ventanas próximas a cerrarse; color de error, exclusivamente, para la escala de urgencia obstétrica de la sección 9.
+
+Regla: ningún estado de RCIS puede comunicarse solo por color. Todo estado lleva además texto o forma —badge, ícono, patrón de borde— porque la distinción entre confirmado y proyectado es demasiado consecuente para depender de la percepción cromática.
+
+5. Jerarquía tipográfica
+
+Sin variantes respecto a la escala heredada. Uso propio de RCIS: el dato temporal del principio de Temporal Clarity se compone en el nivel de mayor peso disponible en el resumen del caso, por encima del motivo de consulta.
+
+6. Badges y estados
+
+RCIS define cinco familias de badge:
+
+Fase del ciclo. Estado reproductivo actual de la hembra según CC-231. Composición: nombre de la fase más el grado de certeza cuando la serie es incompleta.
+
+Estado gestacional. Confirmada, no confirmada, o descartada, según CC-233. Nunca se muestra "gestante" sin el método de confirmación.
+
+Método de cálculo. Acompaña obligatoriamente a toda fecha estimada e indica de dónde salió: progesterona seriada, ecografía, radiografía, o fecha de monta. Los métodos se distinguen visualmente entre sí por su precisión relativa, no todos con el mismo tratamiento.
+
+Provisional. Marca cualquier salida emitida con datos insuficientes. Aplica en especial a CC-232 con serie de progesterona incompleta y a CC-236 con espermiograma único.
+
+Estado reproductivo del macho. Entero o castrado, visible de forma permanente en los casos de CC-237, porque cambia por completo la interpretación del hallazgo prostático.
+
+7. Cards propias de RCIS
+
+Timing Card (CC-232). Card de mayor jerarquía cuando hay un servicio en planificación. Muestra: día estimado de ovulación con margen, ventana de servicio recomendada con fecha y hora, tipo de servicio previsto, fecha probable de parto derivada, y la serie de progesterona que sustenta el cálculo en forma de tabla compacta. Lleva badge de método siempre, y badge provisional cuando la serie tiene menos puntos de los necesarios.
+
+Gestational Status Card (CC-233). Día de gestación, método de datación, conteo fetal con su fecha de obtención, viabilidad fetal del último control, y fecha probable de parto. Si el conteo fetal radiográfico no se realizó, la card muestra ese vacío de forma explícita y no como campo en blanco: es el dato del que depende CC-234 para saber si el parto está completo.
+
+Obstetric Urgency Card (CC-234). Solo aparece cuando hay trabajo de parto en curso. Se rige por la escala de la sección 9. Muestra tiempo transcurrido contra el límite de referencia, número de fetos nacidos contra el conteo esperado, estado fetal del último control, y la recomendación de conducta. Ocupa la posición superior del dashboard mientras esté activa, desplazando todo lo demás.
+
+Neonatal Litter Card (CC-235). Tabla de la camada: identificación, peso al nacer, peso actual, curva de ganancia, temperatura y glucemia del último control. Las crías con pérdida de peso o sin ganancia sostenida se distinguen visualmente dentro de la tabla. Nota de arquitectura: esta card representa datos que hoy viven en el caso materno, según AD-RCIS-04.
+
+Andrology Summary Card (CC-236). Resultados del espermiograma con sus valores de referencia adyacentes, evaluación testicular, y aptitud reproductiva. Cuando hay un único estudio, lleva badge provisional y muestra la fecha recomendada de repetición.
+
+Prostatic Assessment Card (CC-237). Hallazgos prostáticos, correlación con el estado reproductivo del macho, y los signos asociados en los tres dominios que este cuadro suele comprometer: urinario, digestivo y reproductivo. Si el hallazgo sugiere neoplasia, la card lo señala como motivo de escalamiento a ICIS, sin proponer conducta oncológica.
+
+Reproductive Treatment Card (CC-305). Fármacos activos, y —de forma obligatoria y visible— la fase reproductiva sobre la que se está razonando. Si esa fase no está confirmada, la card no muestra recomendación: muestra el dato que falta.
+
+8. Representación de la incertidumbre
+
+Toda estimación de RCIS se compone de tres elementos inseparables: el valor, su margen, y su método. La interfaz no permite mostrar uno sin los otros dos.
+
+Los datos proyectados se distinguen de los ocurridos por tratamiento de borde y atenuación, además del badge correspondiente. Una fecha futura nunca se compone igual que una fecha registrada.
+
+Regla de degradación: cuando el espacio disponible obliga a recortar, el orden de sacrificio es margen primero, método nunca. Antes de mostrar una fecha sin método, se muestra el rango sin la fecha puntual.
+
+9. Escala de urgencia obstétrica
+
+Exclusiva de CC-234. Es la única escala de RCIS que usa el color de error de la paleta, y no se reutiliza en ningún otro componente.
+
+Su diferencia con las escalas de severidad de otros agentes es de naturaleza: no clasifica la gravedad de un hallazgo, sino el tiempo restante. Se compone como cuenta regresiva contra el límite de referencia aplicable, no como etiqueta estática. Un caso que lleva noventa minutos y uno que lleva doscientos no comparten badge aunque ambos sean "distocia".
+
+Ante ausencia de datos suficientes para clasificar, la escala muestra el tiempo disponible para obtenerlos. No existe estado de reposo en esta card: mientras el trabajo de parto está activo, la escala corre.
+
+10. Tablas de datos seriados
+
+Progesterona, peso neonatal, biometría fetal y mediciones ecográficas comparten un mismo componente de tabla seriada: fecha y hora de cada punto, valor, y delta contra el punto anterior. La hora es obligatoria en progesterona, donde una diferencia de horas cambia la interpretación.
+
+11. Estados vacíos y datos faltantes
+
+RCIS distingue tres vacíos y los compone distinto: no solicitado, solicitado y pendiente, y no aplicable a la fase actual. Un campo vacío sin esa distinción es inaceptable en este agente, porque en reproducción la ausencia de un dato suele ser en sí misma un hallazgo — un conteo fetal no realizado antes del parto es un problema, no un espacio en blanco.
+
+12. Iconografía
+
+Se hereda el set institucional. RCIS no introduce íconos propios; los conceptos que no tienen ícono en el set se resuelven con texto antes que con un símbolo nuevo.
+
+13. Clinical Timeline
+
+RCIS es el único agente cuya timeline es bidireccional. Además de los eventos ocurridos, sostiene eventos proyectados con su fecha estimada y margen, según la extensión de CC-004 definida en RCIS-ARCH-001.
+
+Composición: el presente se marca de forma explícita como divisoria. A la izquierda, eventos ocurridos con el tratamiento visual de dato confirmado. A la derecha, eventos proyectados con atenuación, badge de método y su margen representado como extensión, no como punto.
+
+Eventos ocurridos que RCIS registra: celo detectado, valores de progesterona, servicio o inseminación, diagnóstico gestacional, controles gestacionales, inicio de trabajo de parto, nacimientos individuales, cesárea, controles neonatales.
+
+Eventos proyectados: ventana fértil estimada, fecha probable de parto, próximo control de progesterona, fecha de radiografía para conteo fetal, límite de puerperio normal.
+
+Regla: cuando un evento proyectado se cumple, no se reemplaza — se conserva junto al ocurrido, de forma que quede visible la diferencia entre lo estimado y lo real. Esa diferencia es información clínica útil para el caso siguiente del mismo paciente.
+
+14. Aplicación en el informe clínico
+
+RCIS-REP-001 hereda este lenguaje sin redefinirlo. Las tres reglas que se trasladan íntegras al informe impreso: toda fecha estimada lleva método y margen; los eventos proyectados se distinguen de los ocurridos; y el estado provisional de una recomendación se conserva en el documento generado, nunca se limpia al exportar.
+
+---
+
+Design Decisions
+
+DD-RCIS-01 — Sin paleta propia. RCIS no introduce colores nuevos. La especialización se expresa en la asignación semántica de la paleta existente, no en su ampliación. Cualquier necesidad de un color nuevo se resuelve a nivel de plataforma o no se resuelve.
+
+DD-RCIS-02 — El método es irrenunciable. Ninguna fecha estimada se muestra sin su método de cálculo, en ninguna vista, en ninguna densidad, en ningún formato de exportación. Es la única regla de este documento que no admite excepción por espacio.
+
+DD-RCIS-03 — Rojo reservado. El color de error queda exclusivamente para la escala de urgencia obstétrica. Ningún otro componente de RCIS puede usarlo, aunque el hallazgo sea grave — la gravedad no obstétrica se comunica con el color de advertencia.
+
+DD-RCIS-04 — Numeración de secciones a cotejar. Las secciones 7 y 13 están fijadas por las referencias de RCIS-ARCH-001. El resto de la numeración debe verificarse contra ICIS-DESIGN-001 y OCIS-DESIGN-001 antes de considerar este documento cerrado en v1.0.

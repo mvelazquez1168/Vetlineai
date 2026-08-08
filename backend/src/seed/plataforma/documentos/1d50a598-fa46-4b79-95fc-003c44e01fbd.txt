@@ -1,0 +1,62 @@
+# Cetoacidosis Diabética Canina — Diagnóstico y Manejo
+
+**Fuentes principales (síntesis de literatura convergente):**
+- Gallagher B, et al. Comparison of insulin infusion protocols for management of canine and feline diabetic ketoacidosis. *J Vet Emerg Crit Care.* 2024.
+- Scudder C, et al. Diagnosing and treating diabetic ketoacidosis in dogs and cats. *In Practice.* 2023.
+- Revisión general sobre cetoacidosis diabética y estado hiperosmolar hiperglucémico en pequeños animales (literatura complementaria, 2023).
+
+**Alcance de este resumen:** tercer documento del sistema endocrino para el agente de medicina interna/triage (ICIS) — complementa los resúmenes ya cargados de Cushing's y Addison's, cubriendo la emergencia metabólica endocrina de mayor relevancia para triage.
+
+---
+
+## 1. Por qué importa — la complicación potencialmente fatal de la diabetes mellitus
+
+- La diabetes mellitus es una endocrinopatía común en perros; la cetoacidosis diabética (DKA) y el estado hiperosmolar hiperglucémico (HHS) son sus **complicaciones potencialmente fatales**, resultado de un desequilibrio entre insulina y las hormonas contrarreguladoras (glucagón, cortisol, catecolaminas, hormona del crecimiento).
+- Formas menos frecuentes pero clínicamente relevantes: **DKA euglucémica** y **DKA hiperosmolar** — recordar que la ausencia de hiperglucemia marcada **no descarta** cetoacidosis.
+- Contrario a la percepción histórica de mal pronóstico generalizado, con manejo adecuado (y recursos económicos suficientes por parte del propietario) la mayoría de los pacientes pueden tratarse exitosamente con un enfoque individualizado.
+- En una serie de 127 perros tratados por cetoacidosis, **70% sobrevivió y fue dado de alta**, con una estadía hospitalaria promedio de 6 días — dato útil para calibrar la conversación pronóstica inicial con el propietario.
+
+## 2. Presentación clínica — señales de alarma
+
+- Signos de alarma: letargia, depresión, pérdida de peso, vómito, diarrea, PU/PD aumentada, y pelaje deslucido/desordenado — **especialmente relevantes cuando hay diagnóstico previo de diabetes mellitus** conocido por el propietario.
+- No todos los perros con hiperglucemia + cetonas positivas en sangre/orina requieren hospitalización — en etapas tempranas y leves, la insulinoterapia puede iniciarse ambulatoriamente bajo supervisión veterinaria.
+- **Criterios que sí ameritan manejo hospitalario agresivo**: deshidratación, anormalidades electrolíticas, vómito, debilidad, hiperglucemia muy marcada, y/o cantidades importantes de cetonas circulantes.
+
+## 3. Diagnóstico — más allá de "glucosa alta + cetonas positivas"
+
+- Base diagnóstica: glucosa sérica, electrolitos, equilibrio ácido-base, y cetonemia/cetonuria — estos cuatro elementos son igualmente cruciales, no solo la glucosa.
+- **Alta prevalencia de enfermedad concurrente en pacientes con DKA** — tras la estabilización inicial, es esencial buscar activamente patologías concomitantes (infección urinaria, pancreatitis, hiperadrenocorticismo, entre otras) que pueden estar precipitando o complicando el cuadro.
+- Trabajo diagnóstico adicional recomendado: hemograma, perfil renal/hepático, urianálisis (glucosa, cetonas, e investigación de infección urinaria activa), y según el caso, radiografía torácica, ecografía abdominal, y monitoreo de presión arterial — para investigar comorbilidades que puedan estar exacerbando el estado cetoacidótico.
+- Existen medidores portátiles de cetonemia capilar como alternativa/complemento a la cetonuria — de utilidad práctica para monitoreo seriado sin depender exclusivamente de muestras de orina.
+- **No existe aún una definición de consenso estandarizada** entre veterinarios para diagnóstico de DKA ni para criterios de resolución de la cetosis — esto genera variabilidad entre protocolos y estudios, y es señalado explícitamente como una brecha en la literatura actual.
+
+## 4. Tratamiento — los tres pilares dinámicos
+
+### Fluidoterapia y corrección electrolítica
+- Los requerimientos de fluidos, suplementación de electrolitos, y la insulinoterapia **cambian dinámicamente** a lo largo del tratamiento — no es un protocolo estático de "una sola prescripción".
+- Monitoreo estricto de glucosa, electrolitos, y balance ácido-base es esencial durante todo el curso del tratamiento.
+
+### Insulinoterapia — el debate entre protocolos
+- **Infusión IV a tasa variable (VRI)**: protocolo históricamente más recomendado en medicina veterinaria — insulina de acción corta en infusión IV, con tasa ajustada según glucosa sérica seriada. Desventaja: mayor riesgo de error humano en el ajuste de tasa.
+- **Infusión IV a tasa fija (FRI)**: enfoque hacia el que ha migrado el consenso en medicina humana — mantiene una tasa de infusión inicial más alta y constante, combinada con infusión de dextrosa para mantener la glucosa en un rango objetivo (aproximadamente 180-270 mg/dL), evitando así la necesidad de ajustes frecuentes de la tasa de insulina.
+- **Aún no existe consenso establecido en medicina veterinaria** sobre qué protocolo es superior — la elección depende actualmente del criterio del veterinario tratante y los recursos disponibles en cada práctica.
+- **Momento de inicio de insulina**: estudios sugieren que iniciar insulina dentro de las primeras 6 horas de la admisión hospitalaria **reduce el tiempo hasta la resolución de la DKA** (medido por cetonuria), **sin aumentar la tasa de complicaciones** — argumento en contra de retrasar el inicio de insulinoterapia mientras se completa el resto del trabajo diagnóstico.
+- Meta del tratamiento con insulina: la **resolución de la cetoacidosis** (no solo normalizar la glucosa) — una vez que la cetosis y la acidemia se normalizan, puede planificarse la transición a insulina subcutánea de manejo a largo plazo.
+
+### Manejo de comorbilidades
+- Comorbilidades específicas que empeoran el pronóstico si están presentes: acidosis severa, pancreatitis, e hiperadrenocorticismo concurrente — su identificación activa (ver sección 3) no es opcional, ya que modifican directamente el desenlace esperado.
+
+## 5. Complicaciones del tratamiento a vigilar activamente
+
+- Hipoglucemia (por sobrecorrección de insulina).
+- Hipokalemia (consecuencia esperable del tratamiento con insulina, que desplaza potasio hacia el espacio intracelular — requiere suplementación proactiva, no solo reactiva).
+- Hiperglucemia de rebote.
+- Edema cerebral — complicación rara pero grave, más reconocida en el contexto de corrección demasiado rápida de la osmolaridad.
+
+## 6. Conclusión operativa para ICIS
+
+- Ante un perro con diagnóstico previo o nuevo de diabetes mellitus que presenta letargia, vómito, PU/PD y pelaje deslucido, la sospecha de DKA debe ser activa incluso sin hiperglucemia extrema — recordar la existencia de formas euglucémicas.
+- La decisión de hospitalizar vs. manejo ambulatorio depende de la presencia de deshidratación, alteraciones electrolíticas, vómito activo, debilidad, o cetonemia significativa — no únicamente del valor de glucosa en sí.
+- El trabajo diagnóstico de un paciente con DKA confirmada debe incluir activamente la búsqueda de comorbilidades precipitantes (infección urinaria, pancreatitis, hiperadrenocorticismo) — tratar solo la cetoacidosis sin identificar y abordar el desencadenante subyacente predispone a recaída o mala respuesta.
+- Iniciar insulinoterapia tempranamente (dentro de las primeras 6 horas) es una decisión respaldada por evidencia, y no debe demorarse innecesariamente en espera de completar todo el trabajo diagnóstico secundario.
+- Este documento conecta directamente con los resúmenes ya cargados de Cushing's (hiperadrenocorticismo como comorbilidad que empeora el pronóstico de la DKA) y de Addison's (diagnóstico diferencial de otras causas de descompensación metabólica aguda) — juntos forman el núcleo de emergencias endocrinas de la Base de Conocimiento de ICIS.

@@ -1,0 +1,101 @@
+NEONATOLOGÍA CANINA — VIABILIDAD AL NACIMIENTO, TRÍADA NEONATAL Y SEGUIMIENTO DE LA CAMADA
+
+Resumen clínico de referencia para RCIS. Componentes que lo consumen: CC-235 (Neonatal Viability Assessment), CC-234 (Dystocia & Delivery Decision Engine, para el desenlace fetal), CC-004 (Clinical Timeline).
+
+---
+
+1. POR QUÉ ES UN PERÍODO CRÍTICO
+
+La mortalidad perinatal canina es alta y se concentra en un intervalo estrecho: alrededor del parto y durante la primera semana de vida. Las cifras publicadas sitúan la mortalidad perinatal cerca del 20%, y algunas series de mortalidad perinatal en contextos de distocia y cesárea reportan rangos que alcanzan 20–40%.
+
+La causa de fondo es fisiológica. El neonato canino nace con inmadurez de varios sistemas homeostáticos y debe realizar en minutos una transición de la vida intrauterina a la extrauterina: eliminar el líquido pulmonar fetal, establecer respiración sostenida, y reorganizar el flujo sanguíneo y el metabolismo energético. El fallo en cualquiera de esas adaptaciones puede ser letal.
+
+Consecuencia operativa: la asistencia neonatal temprana no es opcional. Y el conocimiento y la capacidad técnica en neonatología canina son notoriamente menores que en neonatología humana, lo que hace que un método simple y aplicable en cualquier condición tenga más valor que uno sofisticado.
+
+2. EVALUACIÓN DE VIABILIDAD — PUNTUACIÓN APGAR ADAPTADA
+
+El puntaje de Apgar, adaptado a la especie canina por diversos estudios, es el método más simple, no invasivo y reproducible para reconocer con rapidez qué neonatos requieren asistencia.
+
+Estructura. Cinco parámetros, cada uno puntuado de 0 a 2, para un total entre 0 y 10. En su versión humana original los parámetros son apariencia, pulso, respuesta refleja, tono y respiración; las adaptaciones caninas mantienen esa estructura de cinco ejes.
+
+Momento de evaluación. Se realiza a los pocos minutos del nacimiento —habitualmente a los 5 minutos— y se repite en los neonatos con puntaje bajo.
+
+Clases de viabilidad:
+
+0 a 3: distrés grave. Condición crítica, requiere asistencia médica inmediata.
+4 a 6: distrés moderado.
+7 a 10: neonato normal, sin distrés, con las tasas de supervivencia más altas.
+
+Valor predictivo. El puntaje se asocia significativamente con la viabilidad de los cachorros nacidos vivos y con la mortalidad. En un estudio prospectivo, una versión modificada y simplificada aplicada por criadores a los 5 minutos del nacimiento mostró asociación con la mortalidad, lo que sugiere que el instrumento tolera cierta simplificación sin perder utilidad.
+
+3. LA TRÍADA NEONATAL
+
+Las consecuencias principales de la inmadurez fisiológica se agrupan en tres condiciones interrelacionadas: hipotermia, hipoglucemia y deshidratación. Rara vez aparecen de forma aislada, y cada una agrava a las otras.
+
+Hipoglucemia
+
+El neonato canino presenta insuficiencia hepática relativa, con reservas limitadas de glucógeno y capacidad reducida de glucogenólisis y gluconeogénesis. Esto lo hace particularmente susceptible al ayuno, incluso de corta duración.
+
+Umbrales de referencia. La hipoglucemia clínica se sitúa por debajo de 30–40 mg/dL. Un estudio sobre 54 madres y 284 neonatos estableció un punto de corte de 79.50 mg/dL asociado a viabilidad óptima, y documentó mayor prevalencia de hipoglucemia en neonatos de bajo peso al nacer y en camadas pequeñas.
+
+Nota de interpretación: esos dos valores no son contradictorios; describen umbrales distintos. El primero marca el punto en que se instaura tratamiento; el segundo, el nivel por debajo del cual la viabilidad se compromete. Un neonato entre ambos merece vigilancia, no necesariamente intervención.
+
+Manejo. La hipoglucemia clínica se corrige con solución de dextrosa. Una administración parenteral única es suficiente si el cachorro puede después alimentarse o mamar. Si está demasiado débil para succionar, se puede administrar por sonda dextrosa al 5% templada en volúmenes pequeños repetidos cada 15 a 30 minutos hasta que recupere la capacidad de succión. Si se dispone de calostro o leche de la madre, se administra por la misma vía repitiendo cada 2 horas hasta que el neonato mame por sí solo.
+
+Aportar energía durante o inmediatamente después de una reanimación prolongada es crítico.
+
+Hipotermia y deshidratación
+
+Los neonatos de bajo peso al nacer presentan de forma simultánea menor puntaje de Apgar, menor glucemia y menor temperatura rectal — los tres factores de riesgo de mortalidad convergen en la misma población.
+
+4. PESO AL NACER Y CURVA PONDERAL
+
+El peso al nacer es un predictor independiente: los neonatos de bajo peso constituyen una población de riesgo para mortalidad neonatal. La explicación propuesta es que la restricción de crecimiento intrauterino los priva de oxigenación y nutrición adecuadas durante la vida fetal, de modo que no pueden reducir más su demanda metabólica durante el parto, quedando expuestos a asfixia perinatal e hipoglucemia.
+
+La viabilidad se relaciona significativamente con el peso relativo al nacer y con el tiempo de expulsión de cada cachorro.
+
+Seguimiento. El registro de peso diario es la herramienta de vigilancia más accesible del período neonatal. Un dato matizado que conviene conocer: en un estudio, los cachorros con tasa de crecimiento negativa en los dos primeros días no presentaron riesgo significativamente mayor de mortalidad, de modo que la pérdida inicial no debe interpretarse aisladamente sino en el contexto de la tendencia posterior.
+
+5. CAUSAS PRINCIPALES DE MORTALIDAD NEONATAL
+
+Las causas descritas de forma consistente en la literatura son hipoxia perinatal, hipoglucemia e hipotermia, con frecuencia complicadas por enfermedad infecciosa. Se suman factores maternos, malformaciones, y la propia distocia, que es la mayor causa individual de mortalidad perinatal canina.
+
+Este último punto conecta directamente con CC-234: la calidad de la decisión obstétrica es determinante del resultado neonatal, y ambas cosas deben evaluarse juntas.
+
+6. ERRORES FRECUENTES
+
+No evaluar la viabilidad de forma sistemática, y asistir solo a los cachorros que llaman la atención por su aspecto.
+
+Interpretar la glucemia neonatal con los umbrales del adulto.
+
+Registrar el peso al nacer y no continuar la curva.
+
+Tratar la pérdida de peso de los dos primeros días como emergencia sin observar la tendencia.
+
+Evaluar al neonato sin registrar el tiempo de expulsión, que se asocia con la viabilidad.
+
+No considerar la sepsis en un neonato que se deteriora con tríada completa.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Técnicas de reanimación neonatal paso a paso. Sepsis neonatal: diagnóstico y protocolos antimicrobianos. Malformaciones congénitas. Lactancia artificial y fórmulas de reemplazo. Manejo de la agalactia materna. Síndrome del cachorro desvanecido. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS.
+
+Nota de arquitectura: los datos de la camada se registran hoy dentro del caso materno, dado que el modelo de datos no representa al neonato como paciente propio. Ver AD-RCIS-04.
+
+FUENTES
+
+Veronesi MC. Assessment of canine neonatal viability — the Apgar score. Reprod Domest Anim 2016;51(Suppl 1). PubMed 27670940.
+
+Veronesi MC, Panzani S, Faustini M, Rota A. An Apgar scoring system for routine assessment of newborn puppy viability and short-term survival prognosis. Theriogenology 2009;72:401–407.
+
+Evaluation of Canine Neonatal Health by Breeders: A Prospective Questionnaire Study on the Association between Neonatal Scores (Modified APGAR), Parturition, Birth Weight, Growth, and Puppy Mortality. PMC10705106. Licencia CC BY.
+
+Neonatal hypoglycemia in dogs — pathophysiology, risk factors, diagnosis and treatment. PMC11096582.
+
+Neonatology: Topics on Puppies and Kittens Neonatal Management to Improve Neonatal Outcome. PMC9739440.
+
+Mila H y col. sobre monitoreo del neonato canino y predicción de mortalidad neonatal. Prev Vet Med 2017.
+
+Merck Veterinary Manual — Management of the Neonate in Dogs and Cats.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

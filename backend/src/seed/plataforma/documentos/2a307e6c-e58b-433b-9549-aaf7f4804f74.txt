@@ -1,0 +1,105 @@
+PROTECTORES GASTROINTESTINALES EN PERROS Y GATOS — CONSENSO ACVIM SOBRE SU ADMINISTRACIÓN RACIONAL
+
+Resumen clínico de referencia para GCIS. Componentes que lo consumen: CC-301 a CC-304 (extensión gastroenterológica de farmacoterapia), CC-303 (Therapeutic Class Reasoning), CC-240 (correlación diagnóstica).
+
+Fuente principal: Marks SL, Kook PH, Papich MG, Tolbert MK, Willard MD. ACVIM consensus statement: support for rational administration of gastrointestinal protectants to dogs and cats. J Vet Intern Med 2018;32(6):1823–1840.
+
+Este documento respalda los patrones GI-1 y GI-3 de la extensión de farmacoterapia de GCIS, que hasta ahora razonaban sobre sucralfato y AINEs sin fuente cargada.
+
+---
+
+1. LO QUE EL CONSENSO SE PROPONE
+
+El propio documento se describe como un desafío al dogma y a la práctica clínica: **cuestiona la administración de protectores gastrointestinales para el manejo rutinario de gastritis, pancreatitis, enfermedad hepática y enfermedad renal en perros y gatos que carecen de factores de riesgo adicionales de ulceración o de preocupación por sangrado gastrointestinal.**
+
+Esa frase es el eje del documento. La conducta que corrige no es un error de elección de fármaco sino la prescripción por defecto.
+
+Regla para GCIS: ante una indicación de protector gastrointestinal, la primera pregunta no es cuál sino **si hay factor de riesgo de ulceración o sangrado**. Sin él, el consenso no respalda la prescripción.
+
+Contexto de sobreuso: los gastroprotectores son de las medicaciones más comúnmente usadas —y sobreusadas— en medicina felina. Aunque muchos son relativamente benignos, los efectos adversos son comunes y pueden incluir hemólisis, densidad ósea reducida y empeoramiento de la azotemia, según la clase.
+
+2. JERARQUÍA DE LAS CUATRO CLASES
+
+**Inhibidores de la bomba de protones (IBP)** — la opción más efectiva para disminuir la acidez gástrica. Son superiores a los antagonistas H2, al sucralfato y al misoprostol para la mayoría de las causas de ulceración y erosión gastroduodenal en humanos, y **deben considerarse estándar de cuidado para el tratamiento médico de la ulceración y erosión gastroduodenal en perros y gatos**.
+
+Deben dosificarse dos veces al día. Deben reducirse gradualmente tras uso prolongado. No hay evidencia de que uno sea superior a otro.
+
+**Antagonistas del receptor H2 de histamina** —famotidina, ranitidina—. **Sin beneficio con uso una vez al día.** El uso dos veces al día es inferior a un IBP. Son inferiores a los IBP tanto para aumentar el pH intragástrico como para prevenir la gastritis inducida por ejercicio.
+
+Un dato adicional relevante: la administración repetida de famotidina produce un efecto disminuido sobre el pH intragástrico —desarrollo de tolerancia—, y la frecuencia de administración determina el desarrollo de esa tolerancia en el gato.
+
+**Sucralfato** — evidencia débil para su uso en lesión esofágica. **Los IBP son superiores para tratar la ulceración.**
+
+**Misoprostol** — sin evidencia para su uso como preventivo de úlcera. Puede disminuir la formación de úlcera con aspirina; su efecto con otros AINEs es incierto. Su utilidad está limitada por efectos adversos gastrointestinales —dolor abdominal y diarrea—. El panel concuerda en que **debe considerarse principalmente como profilaxis en terapia con AINEs solo si los IBP fallan o no pueden usarse**.
+
+3. LA REGLA DE COMBINACIÓN QUE MÁS SE VIOLA
+
+Muchos animales reciben IBP, antagonistas H2 y sucralfato de forma concurrente. Sin embargo, **hay evidencia creciente de que esta práctica atenúa la eficacia de los IBP y del sucralfato, salvo que la dosificación se separe por al menos 2 horas.**
+
+Además: **no hay beneficio en combinar un antagonista H2 con un IBP**, y no hay beneficio en combinar sucralfato con un IBP o con un antagonista H2.
+
+Regla dura para CC-302 y CC-303: la combinación de gastroprotectores es la conducta que el consenso desaconseja con mayor claridad. Ante un expediente con dos o tres de estas clases activas simultáneamente, GCIS debe señalarlo, y si la combinación se mantiene, indicar la separación mínima de 2 horas.
+
+Esto **confirma y extiende el Patrón GI-1** de la extensión de farmacoterapia de GCIS, que ya alertaba sobre la secuencia de administración de sucralfato y antiácido: la fuente ahora existe, y el intervalo mínimo está publicado.
+
+4. LAS SITUACIONES DONDE EL CONSENSO DICE QUE NO
+
+Gastritis. Los supresores de ácido gástrico se administran con frecuencia en casos sospechados y confirmados histológicamente. **El beneficio de ese régimen está en gran medida extrapolado de la medicina humana**, donde la supresión ácida trata la gastritis por *H. pylori*, una infección distinta no reconocida en perros y gatos. El beneficio en gastritis idiopática no ha sido explorado.
+
+Dato concreto: la supresión ácida con famotidina no afectó la eficacia del tratamiento ni la frecuencia de signos clínicos en 23 perros con evidencia histológica de gastritis y bacterias espirales en biopsias de mucosa gástrica.
+
+**El vómito puede ser el signo primario de gastritis, pero los supresores de ácido no deben usarse como antieméticos.** Esa confusión es frecuente y el consenso la corrige explícitamente.
+
+Corticoides a dosis alta. **Ninguna evidencia, ni de reportes clínicos ni de estudios, muestra que los gastroprotectores sean beneficiosos para prevenir o disminuir las complicaciones gastrointestinales de dosis altas de corticoides.** Los agentes evaluados fueron sucralfato, misoprostol y antagonistas H2; un estudio más reciente tampoco mostró beneficio con misoprostol ni con omeprazol.
+
+Nota derivada con implicación para NCIS: las complicaciones gastrointestinales asociadas a enfermedad medular y cirugía espinal son más probablemente causadas por la administración de dosis altas de glucocorticoides que por otros factores.
+
+Manejo rutinario de pancreatitis, enfermedad hepática y enfermedad renal sin factores de riesgo adicionales — ver sección 1.
+
+5. LAS SITUACIONES DONDE SÍ
+
+Ulceración y erosión gastroduodenal establecidas: los IBP son estándar de cuidado.
+
+Enfermedad hepática con riesgo demostrado. La enfermedad hepática puede llevar a ulceración gastrointestinal por alteración del flujo sanguíneo mucosal debida a hipertensión portal, o por hiperacidez por menor depuración hepática de gastrina. Un estudio en perros tratados por shunts intrahepáticos demostró **reducción sustancial de muertes por sangrado gastrointestinal en los que recibieron terapia con IBP peri y posquirúrgica de por vida**. Los IBP pueden detener indirectamente el sangrado gástrico al elevar el pH y estabilizar los coágulos.
+
+Enfermedad de la mucosa relacionada al estrés. Documentada en perros de trineo: el 48% desarrolla erosiones o úlceras gástricas tras completar la carrera Iditarod. También documentada en Labradores en entrenamiento de detección de explosivos. **El omeprazol fue significativamente superior a la famotidina a dosis alta** en reducirla.
+
+Reflujo gastroesofágico y enfermedad esofágica.
+
+6. ERRORES FRECUENTES
+
+Prescribir gastroprotector por rutina en pancreatitis, hepatopatía o enfermedad renal sin factor de riesgo de ulceración.
+
+Combinar IBP con antagonista H2, o cualquiera de ellos con sucralfato, sin separación de al menos 2 horas.
+
+Usar antagonistas H2 una vez al día.
+
+Usar supresores de ácido como antieméticos.
+
+Prescribir gastroprotector para prevenir complicaciones de corticoides a dosis alta.
+
+Suspender abruptamente un IBP tras uso prolongado, sin reducción gradual.
+
+Elegir sucralfato o misoprostol como primera línea ante ulceración establecida.
+
+Extrapolar el beneficio de la supresión ácida en gastritis desde la medicina humana.
+
+7. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis completas de omeprazol, pantoprazol, famotidina, sucralfato y misoprostol. Protocolos de reducción gradual de IBP. Efectos adversos del uso prolongado de IBP en detalle, incluidos los efectos sobre calcio, magnesio, cobalamina, gastrina y hueso. Interacción entre IBP y microbiota, y la enteropatía por AINEs. Úlcera gástrica y duodenal: diagnóstico y manejo integral. Reflujo gastroesofágico y esofagitis. Erradicación de *Helicobacter*. Estos temas quedan como vacíos declarados de la Base de Conocimiento de GCIS.
+
+FUENTES
+
+Marks SL, Kook PH, Papich MG, Tolbert MK, Willard MD. ACVIM consensus statement: support for rational administration of gastrointestinal protectants to dogs and cats. J Vet Intern Med 2018;32(6):1823–1840. Fuente principal de todo el documento.
+
+A review of the rational administration of gastric protectants to dogs and cats — ACVIM consensus statement. MSPCA-Angell. Fuente de las secciones 2, 3 y 5.
+
+ACVIM consensus statement: support for rational administration of gastrointestinal protectants. EveryCat Health Foundation. Fuente de la jerarquía de la sección 2.
+
+Tolbert K, Bissett S, King A y col. Efficacy of oral famotidine and 2 omeprazole formulations for the control of intragastric pH in dogs. J Vet Intern Med 2011;25:47–54.
+
+Tolbert MK, Graham A, Odunayo A y col., sobre la tolerancia a la famotidina con administración repetida.
+
+Rohrer CR, Hill RC, Fischer A y col. Efficacy of misoprostol in prevention of gastric hemorrhage in dogs treated with high doses of methylprednisolone sodium succinate. Am J Vet Res 1999;60:982–985.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

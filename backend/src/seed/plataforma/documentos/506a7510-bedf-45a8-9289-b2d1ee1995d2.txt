@@ -1,0 +1,117 @@
+ANDROLOGÍA CANINA — EVALUACIÓN REPRODUCTIVA DEL MACHO Y ESPERMIOGRAMA
+
+Resumen clínico de referencia para RCIS. Componentes que lo consumen: CC-236 (Andrology & Semen Analysis Intelligence), CC-237 (Prostatic Assessment Intelligence), CC-220 (Imaging Intelligence, ecografía testicular), CC-305 (Reproductive Pharmacotherapy).
+
+---
+
+1. QUÉ ES Y QUÉ NO ES UNA EVALUACIÓN REPRODUCTIVA
+
+La evaluación reproductiva del macho (breeding soundness evaluation, BSE) es la valoración sistemática y completa del potencial reproductivo de un individuo. Comprende historia clínica detallada, examen físico general, inspección y palpación de los órganos genitales, evaluación de libido y capacidad de monta, y análisis de la producción y calidad espermática.
+
+El límite conceptual es importante y define cómo debe razonar CC-236: **la BSE no es una evaluación directa de la fertilidad**. La fertilidad solo puede confirmarse por la producción efectiva de crías tras servir a una hembra de fertilidad probada. Ningún parámetro aislado predice de forma confiable la fertilidad, motivo por el cual se evalúan varios criterios en conjunto.
+
+Clasificación resultante. Al concluir la evaluación, el macho se clasifica como reproductor prospectivo satisfactorio, cuestionable o insatisfactorio. Un animal con defectos físicos potencialmente hereditarios —incluida la criptorquidia— se declara insatisfactorio.
+
+2. LA ADVERTENCIA METODOLÓGICA QUE ATRAVIESA TODO EL CAMPO
+
+En andrología canina no existen procedimientos estandarizados para varios exámenes, y se han publicado rangos de referencia distintos para algunos parámetros. La consecuencia práctica es que los resultados obtenidos en instalaciones diferentes son difíciles de comparar, y que las conclusiones sobre salud y fertilidad no siempre son sólidas.
+
+Regla para CC-236: al interpretar un espermiograma, debe declararse la fuente de los valores de referencia empleados. Comparar un resultado contra un rango de otra procedencia, sin señalarlo, produce conclusiones que parecen firmes y no lo son.
+
+El examen seminal convencional sigue siendo útil para identificar desviaciones de la normalidad, especialmente si se consideran los factores de confusión y si se repite ante hallazgos no concluyentes.
+
+3. LO PRIMERO A DESCARTAR ANTES DE ESTUDIAR AL MACHO
+
+Un dato con peso clínico desproporcionado: la causa número uno de infertilidad en la hembra es un servicio mal programado.
+
+Consecuencia operativa: ante una pareja que no concibe, antes de someter al macho a un estudio andrológico completo, debe verificarse cómo se determinó el momento del servicio. Si se sirvió por conducta o sobre una serie de progesterona insuficiente, el estudio del macho puede estar respondiendo a la pregunta equivocada. CC-236 debe consultar lo registrado por CC-232 antes de emitir juicio de aptitud.
+
+4. EXAMEN FÍSICO DE LOS ÓRGANOS GENITALES
+
+Escroto y testículos. Debe confirmarse la presencia de dos testículos escrotales normales. Se registran tamaño, simetría y consistencia.
+
+Epidídimos, conductos deferentes y cordones espermáticos. Se palpan buscando anomalías.
+
+Pene y prepucio. Se palpa el pene a través de la vaina en estado no erecto para valorar su normalidad; después se exterioriza para una inspección más detallada, lo que suele ser más sencillo en el momento de la colecta. El hueso peneano se palpa buscando irregularidades como fracturas o anomalías congénitas.
+
+Próstata. La palpación rectal de pelvis, uretra pélvica y próstata debe realizarse al menos una vez al año en todo macho, incluidos los castrados, por el riesgo de lesiones neoplásicas. Ver el documento de patología prostática para el detalle.
+
+Cadena mamaria. Palpación superficial.
+
+Serología. Se recomienda prueba de Brucella canis anualmente en machos reproductores, y antes de cada servicio en las hembras. Panel tiroideo cuando esté indicado.
+
+5. COLECTA DE SEMEN
+
+Se realiza por estimulación manual, recogiendo el eyaculado en un cono estéril de látex o plástico conectado a un tubo de colecta, o bien por manipulación digital sin cono.
+
+Ventajas comparadas. El cono director reduce el riesgo de perder la fracción rica en espermatozoides ante empuje vigoroso del animal. La manipulación digital sin cono requiere menos material y minimiza la contaminación, pero expone a esa pérdida y exige cuidado para no lesionar el glande contra el tubo.
+
+Los tubos cónicos graduados de polipropileno tienen la ventaja de permitir determinar el volumen de inmediato.
+
+Presencia de hembra. Muchos machos pueden colectarse por manipulación digital sin hembra presente, y el eyaculado obtenido así suele ser adecuado para evaluar la aptitud reproductiva. Con cualquiera de los métodos, conviene permitir que el macho olfatee la región genital de la hembra antes y durante la colecta. Si no se dispone de hembra en celo, la administración de prostaglandina F2 alfa a 0.1 mg/kg por vía subcutánea 15 minutos antes de la colecta ha demostrado aumentar el número total de espermatozoides en el eyaculado.
+
+Fracciones. El eyaculado canino tiene tres fracciones; la tercera (F3) es fluido prostático. La colecta de F3 puede detenerse una vez lograda la dilución adecuada de la fracción rica.
+
+6. ANÁLISIS SEMINAL
+
+Volumen. Determinación inmediata en tubo graduado.
+
+Motilidad. Debe medirse lo antes posible tras la colecta. Se coloca una gota en un portaobjetos y se examina a 100–200 aumentos. El uso de cubreobjetos es opcional siempre que el evaluador sea consistente en su técnica. Sirve un microscopio óptico convencional con la iluminación reducida, y la evaluación con contraste de fase da excelentes resultados.
+
+Las muestras muy concentradas pueden requerir dilución para visualizar espermatozoides individuales. Diluyentes utilizables: el propio fluido prostático del animal (F3), solución salina tamponada con fosfato, o citrato de sodio al 2.9%.
+
+Parámetros de motilidad a consignar: motilidad total (porcentaje de espermatozoides en movimiento) y motilidad progresiva (porcentaje que se desplaza en línea recta). Son datos distintos y no deben reportarse como uno solo.
+
+Concentración y recuento total. El recuento total de espermatozoides, la viabilidad y la morfología constituyen el núcleo de la evaluación.
+
+Morfología. Se clasifican las anomalías en primarias y secundarias. Una tinción de tipo Romanowsky permite además evaluar la presencia de eritrocitos (hemospermia) o leucocitos (piospermia) en el eyaculado, hallazgos que orientan hacia inflamación o infección del tracto.
+
+Factor de confusión documentado: tanto la tinción empleada como el evaluador influyen en la valoración morfológica. Es otro motivo para declarar el método junto al resultado.
+
+Pruebas complementarias. Ecografía testicular y epididimaria, y determinaciones hormonales séricas, apoyan el diagnóstico. Existen pruebas adicionales de viabilidad y función espermática que se realizan en centros de congelación o entornos de laboratorio.
+
+7. INTERPRETACIÓN Y CONDUCTA
+
+Un espermiograma único no concluye infertilidad. Ante un resultado anormal, el examen debe repetirse: existen causas transitorias —fiebre, estrés, enfermedad sistémica reciente, medicación— y la producción espermática refleja eventos ocurridos semanas antes de la colecta, de modo que el intervalo de repetición debe corresponder a la duración del ciclo espermatogénico de la especie según la fuente de referencia empleada.
+
+Opciones terapéuticas. En machos subfértiles, tratamientos farmacológicos, suplementos dietéticos y cambios en el manejo pueden mejorar el resultado reproductivo.
+
+Vínculo con la próstata. La patología prostática compromete la calidad seminal, y el tratamiento elegido puede empeorarla: ver el documento prostático para las moléculas compatibles con la preservación de la fertilidad.
+
+8. ERRORES FRECUENTES
+
+Estudiar al macho antes de verificar cómo se programó el servicio.
+
+Concluir infertilidad sobre un único espermiograma.
+
+Reportar motilidad como un solo número sin separar total de progresiva.
+
+Comparar resultados contra rangos de referencia de otra procedencia sin declararlo.
+
+Omitir la palpación prostática en la evaluación del reproductor.
+
+Interpretar la morfología sin registrar la tinción utilizada.
+
+Perder la fracción rica por técnica de colecta y atribuir el bajo recuento al animal.
+
+No repetir la serología de Brucella canis anualmente en un macho en uso reproductivo.
+
+9. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Rangos de referencia numéricos del espermiograma, que deben tomarse de la fuente que el laboratorio o el clínico utilice, dada la falta de estandarización descrita en la sección 2. Criopreservación y manejo de semen congelado. Técnicas de inseminación artificial. Criptorquidia: abordaje quirúrgico. Neoplasia testicular. Brucelosis canina: manejo del caso positivo. Estos temas quedan como vacíos declarados de la Base de Conocimiento de RCIS.
+
+FUENTES
+
+Purswell BJ, Althouse GC, Root MV y col. Guidelines for using the canine breeding soundness evaluation form. Society for Theriogenology. Fuente principal de las secciones 5 y 6.
+
+Evaluation of Canine Sperm and Management of Semen Disorders. PubMed 29678334.
+
+Diagnostic tests in canine andrology — What do they really tell us about fertility? PubMed 36423509. Fuente de la sección 2.
+
+Merck Veterinary Manual — Overview of Breeding Soundness Examination of the Male Animal.
+
+Canine: Breeding soundness examination of the stud. dvm360. Fuente de la sección 4.
+
+Root MV, Johnston SD, Olson PN y col. Effect of stains and investigators on assessment of morphology of canine spermatozoa. J Am Anim Hosp Assoc 1998;34:348–352.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

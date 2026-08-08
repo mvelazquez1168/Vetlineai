@@ -17,6 +17,8 @@ import { ListaEspera as AgendaListaEspera } from "./pages/agenda/ListaEspera";
 import { Notificaciones as AgendaNotificaciones } from "./pages/agenda/Notificaciones";
 import { Agentes } from "./pages/admin/Agentes";
 import { Casos } from "./pages/admin/Casos";
+import { Propietarios } from "./pages/admin/Propietarios";
+import { ReporteAtenciones } from "./pages/admin/ReporteAtenciones";
 import { CasoDetalleAdmin } from "./pages/admin/CasoDetalleAdmin";
 import { Clinica } from "./pages/admin/Clinica";
 import { Notificaciones } from "./pages/admin/Notificaciones";
@@ -106,6 +108,8 @@ export default function App() {
         <Route index element={<Navigate to="medicos" replace />} />
         <Route path="medicos" element={<Medicos />} />
         <Route path="casos" element={<Casos />} />
+        <Route path="propietarios" element={<Propietarios />} />
+        <Route path="reporte-atenciones" element={<ReporteAtenciones />} />
         <Route path="agentes" element={<Agentes />} />
         <Route path="plan-consumo" element={<PlanConsumo />} />
         <Route path="plan-consumo/cambiar-plan" element={<CambiarPlan />} />

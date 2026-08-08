@@ -1,0 +1,57 @@
+# GCIS Operational Manual — Índice General (GCIS-MANUAL-000)
+
+**Propósito de este documento:** mapa de navegación entre las especificaciones que gobiernan a GCIS. No contiene contenido clínico ni de arquitectura por sí mismo — indica qué documento consultar según la tarea en curso, y documenta explícitamente qué piezas todavía no existen para este agente.
+
+**Versión 2.0** — unifica el formato con el del resto de los agentes de la plataforma y actualiza el estado real de las especificaciones y de la Base de Conocimiento.
+
+---
+
+## 1. Cómo usar este manual
+
+Cuando trabajes en GCIS, identificá primero la tarea que estás resolviendo y consultá la especificación correspondiente en la tabla de la sección 2. No dupliques contenido entre documentos — cada especificación es la fuente única de verdad para su dominio.
+
+## 2. Mapa de especificaciones — estado actual
+
+| Código | Documento | Estado | Qué define |
+|---|---|---|---|
+| GCIS-MANUAL-000 | Operational Manual — Índice General | Este documento | Navegación entre el resto de especificaciones |
+| GCIS-AI-001 | AI Reasoning Standard | Construido | Cómo razona el agente: confianza, explicabilidad, jerarquía de fuentes y reglas anti-alucinación que rigen a todos los demás documentos |
+| GCIS-ARCH-001 | Clinical Components Catalog v2.0 | Construido | Catálogo de componentes clínicos de gastroenterología. 176.862 caracteres: candidato a partición por familia |
+| GCIS-ARCH-001 ext. | Pharmacotherapy Components — Extensión Gastroenterológica | Construido | Clases terapéuticas, patrones de interacción, racionales y ventanas de reevaluación del dominio |
+| GCIS-ARCH-004 | Nutrición Terapéutica (CC-306 a CC-309) | Construido | Manejo nutricional, interacciones dieta-fármaco y el Diet-Outcome Correlation Panel. Exclusivo de GCIS |
+| GCIS-DESIGN-001 | Clinical Design System | Construido | Lenguaje visual de tarjetas, badges, gráficos e íconos |
+| GCIS-REP-001 | Clinical Report Specification | Construido | Estructura, contenido y reglas de generación de los informes clínicos |
+| GCIS-DASH-001 | Dashboard Functional Specification | Construido | Estructura funcional y comportamiento del dashboard clínico |
+| GCIS-KB-001 | Knowledge Base Standard | Construido | Reglas para estructurar casos como unidades de conocimiento reutilizables |
+| GCIS-KD-001 | Breed Intelligence Knowledge Base Specification | Construido | Predisposiciones raciales de gastroenterología. 71.083 caracteres: candidato a partición |
+| — | Project Instructions | Construido | System prompt de GCIS, de 14.581 caracteres. Vive en la columna `system_prompt` de la tabla `agentes` |
+| — | Referral Engine Specification | No aplica | La derivación hacia GCIS es responsabilidad de ICIS, mediante las Banderas Rojas Gastrointestinales de su Base de Conocimiento |
+| — | Report Composer Engine Specification | Por decidir | Existe en ICIS. Falta resolver si es motor compartido de plataforma o uno por agente |
+| — | Manual de Identidad Visual | Fuera de alcance del agente | Pasó a ser documento de plataforma |
+## 3. Base de Conocimiento — estado actual
+
+**10 documentos clínicos**: pancreatitis felina (consenso ACVIM 2021), enteropatía inflamatoria crónica canina (consenso ACVIM 2026), pancreatitis aguda canina, dilatación-vólvulo gástrico, diarrea aguda con guías ENOVAT, vómito agudo, cuerpo extraño y obstrucción, hepatitis crónica, protectores gastrointestinales (consenso ACVIM 2018) e insuficiencia pancreática exocrina.
+
+**1 documento de farmacoterapia** y **1 de nutrición terapéutica**, este último exclusivo de GCIS entre todos los agentes.
+
+**1 documento crudo pendiente de curar**: "Medicina Interna Veterinaria", 79.283 caracteres extraídos de PDF sin procesar.
+
+## 4. Diferencias intencionales respecto al patrón general
+
+- **Único agente con nutrición terapéutica propia**: los componentes CC-306 a CC-309 no tienen equivalente en el resto de la plataforma.
+- **Agente más completo de la plataforma**: es el único con AI Reasoning Standard y Breed Intelligence propios además de las seis especificaciones base.
+- **Sin motor de derivación propio**: GCIS recibe casos ya derivados por ICIS. Desde agosto de 2026 esa derivación tiene fuente: las Banderas Rojas Gastrointestinales de ICIS, cuyos criterios de cronicidad son la referencia de los patrones GI-2 y GI-3 de la extensión de farmacoterapia.
+
+## 5. Pendientes explícitos
+
+### Arquitectura
+
+1. **Partición del Clinical Components Catalog y de Breed Intelligence**: entre ambos suman 247.945 caracteres que entran en el contexto de cada caso. Son documentos de consulta puntual y conviene evaluar partirlos por familia.
+2. **Colisión de numeración CC-xxx**: GCIS usa CC-103 como Clinical Signs Registry y CC-105 como Nutritional Assessment, mientras ICIS y los demás agentes usan CC-103 como Signalment Analysis. GCIS es el agente que difiere.
+3. **Decisión sobre el Report Composer Engine**: la especificación existe cargada en ICIS con 14.729 caracteres. Falta decidir si es un motor compartido de plataforma o si cada agente especializado necesita su propia versión. La decisión afecta a todos los agentes y puede resolverse leyendo ese documento.
+4. **Manual de Identidad Visual**: deja de ser una especificación por agente y pasa a ser documento de plataforma. El logo de cada clínica se obtiene de su propia configuración en base de datos.
+
+### Base de Conocimiento
+
+1. **Curar el documento crudo**: "Medicina Interna Veterinaria", 79.283 caracteres de PDF sin procesar que encarecen cada caso del agente.
+2. **Triaditis felina y colitis**: sin cobertura.

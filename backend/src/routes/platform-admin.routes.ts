@@ -1,10 +1,9 @@
 import crypto from "crypto";
-import { Router } from "express";
-import fs from "fs";
+import { Request, Response, Router } from "express";
 import multer from "multer";
 import path from "path";
+import { almacenamientoPrivado } from "../almacenamiento";
 import { registrarEventoFacturacion } from "../facturacion";
-import { procesarExcedentesDeUso } from "../jobs/suscripciones.job";
 import { extraerTexto } from "../lib/extraccion";
 import { registrarLecturaSensible } from "../middleware/auditoria";
 import { authenticate, withTenantClient } from "../middleware/auth";
@@ -13,29 +12,18 @@ import { calcularCicloActual, calcularConsumoCiclo } from "../usoIa";
 
 export const platformAdminRouter = Router();
 
-// Carpeta de subida local (dev). En una fase posterior esto se reemplaza
-// por almacenamiento en S3 u otro object storage — por ahora el filesystem
-// del contenedor alcanza, según lo acordado para esta fase.
+// El archivo queda en memoria (req.file.buffer), no en disco: en un
+// contenedor descartable no hay disco que sobreviva a un reinicio. Va
+// directo al almacenamiento de objetos (ámbito privado — ver
+// almacenamiento/tipos.ts) detrás del mismo control de acceso que ya
+// existe (ver GET /documentos/:id/archivo más abajo).
 //
-// documentos_conocimiento vive en su propia subcarpeta (conocimiento/) —
-// `archivo_ref` en la DB ya incluye ese prefijo (ej. "conocimiento/x.pdf"),
-// así que cualquier código que arme una ruta a partir de `uploadsDir` +
-// archivo_ref (ya guardado) sigue funcionando sin cambios; solo el multer
-// de abajo y las rutas basadas en req.file.filename (archivo recién
-// subido, todavía sin el prefijo) necesitan usar conocimientoUploadsDir
-// explícitamente.
-const uploadsDir = path.join(__dirname, "../../uploads");
-const conocimientoUploadsDir = path.join(uploadsDir, "conocimiento");
-fs.mkdirSync(conocimientoUploadsDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, conocimientoUploadsDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${crypto.randomUUID()}${ext}`);
-  },
-});
-const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
+// 25MB: mismo criterio y mismo valor que archivos.routes.ts (adjuntos de
+// casos) — cubre imágenes/PDF de referencia clínica con margen. El límite
+// se aplica DURANTE la subida (multer corta el stream, no bufferiza el
+// archivo completo antes de rechazarlo).
+const LIMITE_TAMANO_ARCHIVO = 25 * 1024 * 1024;
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: LIMITE_TAMANO_ARCHIVO } });
 
 platformAdminRouter.use(authenticate, withTenantClient);
 
@@ -126,8 +114,10 @@ platformAdminRouter.get("/documentos/:id/archivo", async (req, res) => {
     }
 
     const { nombre, archivo_ref: archivoRef } = result.rows[0];
-    const rutaArchivo = path.join(uploadsDir, archivoRef);
-    if (!fs.existsSync(rutaArchivo)) {
+    let datos: Buffer;
+    try {
+      datos = await almacenamientoPrivado.leer(archivoRef);
+    } catch {
       return res.status(404).json({ error: "El archivo ya no está disponible." });
     }
 
@@ -145,14 +135,29 @@ platformAdminRouter.get("/documentos/:id/archivo", async (req, res) => {
       "Content-Disposition",
       `${disposicion}; filename="${nombreLegible}"; filename*=UTF-8''${encodeURIComponent(nombreLegible)}`
     );
-    res.sendFile(rutaArchivo);
+    res.send(datos);
   } catch (err) {
     console.error("GET /platform-admin/documentos/:id/archivo", err);
     res.status(500).json({ error: "Error al obtener el archivo." });
   }
 });
 
-platformAdminRouter.post("/documentos", upload.single("archivo"), async (req, res) => {
+platformAdminRouter.post("/documentos", (req, res) => {
+  upload.single("archivo")(req, res, async (err: any) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({
+          error: `El archivo supera el máximo de ${LIMITE_TAMANO_ARCHIVO / (1024 * 1024)}MB.`,
+        });
+      }
+      console.error("POST /platform-admin/documentos (upload)", err);
+      return res.status(500).json({ error: "Error al subir el documento." });
+    }
+    await manejarSubidaDocumento(req, res);
+  });
+});
+
+async function manejarSubidaDocumento(req: Request, res: Response) {
   const { nombre, descripcion, tipo, agenteId, version } = req.body as {
     nombre?: string;
     descripcion?: string;
@@ -169,7 +174,10 @@ platformAdminRouter.post("/documentos", upload.single("archivo"), async (req, re
   }
 
   try {
-    const contenidoTexto = await extraerTexto(path.join(conocimientoUploadsDir, req.file.filename));
+    const ext = path.extname(req.file.originalname);
+    const clave = `conocimiento/${crypto.randomUUID()}${ext}`;
+    const contenidoTexto = await extraerTexto(req.file.buffer, ext);
+    await almacenamientoPrivado.guardar(clave, req.file.buffer, req.file.mimetype);
 
     const result = await req.db!.query(
       `INSERT INTO documentos_conocimiento
@@ -182,7 +190,7 @@ platformAdminRouter.post("/documentos", upload.single("archivo"), async (req, re
         descripcion ?? null,
         tipo,
         agenteId || null,
-        `conocimiento/${req.file.filename}`,
+        clave,
         version || "1.0",
         req.auth!.userId,
         contenidoTexto?.trim() || null,
@@ -193,7 +201,7 @@ platformAdminRouter.post("/documentos", upload.single("archivo"), async (req, re
     console.error("POST /platform-admin/documentos", err);
     res.status(500).json({ error: "Error al subir el documento." });
   }
-});
+}
 
 platformAdminRouter.patch("/documentos/:id/archivar", async (req, res) => {
   try {
@@ -213,7 +221,22 @@ platformAdminRouter.patch("/documentos/:id/archivar", async (req, res) => {
   }
 });
 
-platformAdminRouter.patch("/documentos/:id", upload.single("archivo"), async (req, res) => {
+platformAdminRouter.patch("/documentos/:id", (req, res) => {
+  upload.single("archivo")(req, res, async (err: any) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({
+          error: `El archivo supera el máximo de ${LIMITE_TAMANO_ARCHIVO / (1024 * 1024)}MB.`,
+        });
+      }
+      console.error("PATCH /platform-admin/documentos/:id (upload)", err);
+      return res.status(500).json({ error: "Error al editar el documento." });
+    }
+    await manejarEdicionDocumento(req, res);
+  });
+});
+
+async function manejarEdicionDocumento(req: Request, res: Response) {
   const { nombre, descripcion, tipo, agenteId, paisCodigo, version } = req.body as {
     nombre?: string;
     descripcion?: string;
@@ -224,7 +247,6 @@ platformAdminRouter.patch("/documentos/:id", upload.single("archivo"), async (re
   };
 
   if (!nombre || !tipo) {
-    if (req.file) fs.unlink(path.join(conocimientoUploadsDir, req.file.filename), () => {});
     return res.status(400).json({ error: "Faltan nombre o tipo." });
   }
 
@@ -234,18 +256,22 @@ platformAdminRouter.patch("/documentos/:id", upload.single("archivo"), async (re
       [req.params.id]
     );
     if (actual.rows.length === 0) {
-      if (req.file) fs.unlink(path.join(conocimientoUploadsDir, req.file.filename), () => {});
       return res.status(404).json({ error: "Documento no encontrado." });
     }
 
-    const nuevoArchivoRef = req.file ? `conocimiento/${req.file.filename}` : actual.rows[0].archivo_ref;
+    const nuevaExt = req.file ? path.extname(req.file.originalname) : null;
+    const nuevoArchivoRef = req.file ? `conocimiento/${crypto.randomUUID()}${nuevaExt}` : actual.rows[0].archivo_ref;
 
     // Si se reemplazó el archivo, el texto extraído del archivo anterior ya
     // no corresponde a nada — se vuelve a extraer del nuevo. Si no se tocó
     // el archivo, se preserva el contenido_texto existente tal cual.
     const nuevoContenidoTexto = req.file
-      ? (await extraerTexto(path.join(conocimientoUploadsDir, req.file.filename)))?.trim() || null
+      ? (await extraerTexto(req.file.buffer, nuevaExt!))?.trim() || null
       : actual.rows[0].contenido_texto;
+
+    if (req.file) {
+      await almacenamientoPrivado.guardar(nuevoArchivoRef, req.file.buffer, req.file.mimetype);
+    }
 
     // El modal de edición de esta fase no expone un selector de país, así
     // que si no viene en el body se preserva el valor existente en vez de
@@ -272,20 +298,19 @@ platformAdminRouter.patch("/documentos/:id", upload.single("archivo"), async (re
       ]
     );
 
-    // Si se reemplazó el archivo, el anterior queda huérfano en /uploads —
-    // se borra recién después del UPDATE, para no perder el archivo viejo
-    // si la consulta hubiera fallado.
+    // Si se reemplazó el archivo, el anterior queda huérfano — se borra
+    // recién después del UPDATE, para no perder el archivo viejo si la
+    // consulta hubiera fallado.
     if (req.file && actual.rows[0].archivo_ref) {
-      fs.unlink(path.join(uploadsDir, actual.rows[0].archivo_ref), () => {});
+      almacenamientoPrivado.eliminar(actual.rows[0].archivo_ref).catch(() => {});
     }
 
     res.json({ documento: result.rows[0] });
   } catch (err) {
     console.error("PATCH /platform-admin/documentos/:id", err);
-    if (req.file) fs.unlink(path.join(conocimientoUploadsDir, req.file.filename), () => {});
     res.status(500).json({ error: "Error al editar el documento." });
   }
-});
+}
 
 platformAdminRouter.delete("/documentos/:id", async (req, res) => {
   try {
@@ -299,7 +324,7 @@ platformAdminRouter.delete("/documentos/:id", async (req, res) => {
 
     const { archivo_ref } = result.rows[0];
     if (archivo_ref) {
-      fs.unlink(path.join(uploadsDir, archivo_ref), () => {});
+      almacenamientoPrivado.eliminar(archivo_ref).catch(() => {});
     }
 
     res.status(204).send();
@@ -1105,20 +1130,5 @@ platformAdminRouter.get("/facturacion/nuevas-clinicas", async (req, res) => {
   } catch (err) {
     console.error("GET /platform-admin/facturacion/nuevas-clinicas", err);
     res.status(500).json({ error: "Error al listar las nuevas clínicas." });
-  }
-});
-
-// ---------------------------------------------------------------------
-// Disparo manual del job diario de excedente — para poder probarlo sin
-// esperar a que el ciclo de algún tenant cierre mañana de verdad.
-// ---------------------------------------------------------------------
-platformAdminRouter.post("/facturacion/ejecutar-job-excedente", async (req, res) => {
-  if (!requiereSuperAdmin(req, res)) return;
-  try {
-    await procesarExcedentesDeUso();
-    res.json({ ok: true });
-  } catch (err) {
-    console.error("POST /platform-admin/facturacion/ejecutar-job-excedente", err);
-    res.status(500).json({ error: "Error al ejecutar el job de excedente." });
   }
 });

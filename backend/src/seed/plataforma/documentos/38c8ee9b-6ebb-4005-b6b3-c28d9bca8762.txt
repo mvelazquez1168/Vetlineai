@@ -1,0 +1,46 @@
+NCIS Clinical Design System
+
+Versión 1.0
+Documento: NCIS-DESIGN-001
+
+Hereda el sistema base compartido de ICIS-DESIGN-001, remueve los elementos de triage/derivación, y agrega los elementos propios de neurología/ortopedia — cubriendo las dos líneas clínicas de NCIS.
+
+1. Clinical Design Principles
+
+Se heredan los principios base. Se remueve "Triage Clarity". Se agrega: "Neurological Severity Clarity" (nuevo, propio de NCIS) — el diseño debe comunicar de inmediato, según la línea clínica del caso, el grado neurológico y estado de dolor profundo (IVDD) o el nivel de control de crisis (epilepsia) — sin que el usuario deba interpretar el examen neurológico completo para saberlo.
+
+2. Color System
+
+Se remueve "Estado Derivación". Se agrega: Estado por Severidad Neurológica (nuevo) — para IVDD: verde (grados 1-2), ámbar (grados 3-4), rojo (grado 5, sin dolor profundo — máxima prioridad de decisión temprana); para epilepsia: verde (bien controlada), ámbar (control parcial/ajuste en curso), rojo (crisis en racimo o status activo).
+
+3. Clinical Cards
+
+Se heredan las cards base. Se remueve Referral Recommendation Card. Se agregan (propias de NCIS):
+
+- Neurological Grade Card (nuevo, línea IVDD) — muestra el grado 1-5 y el estado de percepción de dolor profundo, con indicador de urgencia quirúrgica cuando corresponde.
+- Seizure Control Card (nuevo, línea epilepsia) — muestra frecuencia de crisis reciente vs. histórica, fecha de la última crisis/episodio en racimo, y estado de control.
+- AED Monitoring Card (nuevo) — muestra fármaco(s) antiepiléptico(s) activos, niveles séricos si están disponibles, e interacciones farmacocinéticas relevantes activas (ej. fenobarbital acelerando eliminación de zonisamida).
+
+4. Icons
+
+Se agregan: Examen Neurológico, Percepción de Dolor Profundo, Registro de Crisis, Nivel Sérico de AED. Se remueve ícono de Derivación.
+
+5. Clinical Badges
+
+Se agrega: badge de Línea Clínica ("Estructural — IVDD" / "Funcional — Epilepsia" / "Ambas") y badge de Severidad (grado 1-5 para IVDD; "Bien controlada"/"Control parcial"/"Crisis activa" para epilepsia). Se remueve badge de Derivación.
+
+6. Resto de secciones (Typography, Grid System, Dashboard Components, Tables, Charts, AI Components, Confidence Meter, Dashboard States, Report Components, Accessibility, Motion System, Future Design) — heredadas sin cambios de ICIS-DESIGN-001, con la misma remoción del estado "Referred" y del Referral Package en Report Components.
+
+---
+
+ADDENDUM — Línea Ortopédica (agregado tras revisión de alcance)
+
+Se agrega, junto a Neurological Grade Card (línea IVDD) y Seizure Control Card (línea epilepsia):
+
+- Orthopedic Staging Card (nuevo, línea ortopédica) — muestra el estadio COASTeR (0-4) de osteoartritis, con color funcional según severidad (verde estadios 0-1, ámbar estadio 2, rojo estadios 3-4), y fecha de próxima reevaluación programada.
+
+Se agrega al Color System: Estado por Estadio COASTeR, análogo al Estado por Estadio ACVIM de CCIS.
+
+Se agrega al Badge system: badge de Estadio COASTeR (0-4), con la misma nomenclatura exacta del consenso.
+
+Nota de alcance: NCIS cubre ahora tres líneas clínicas (estructural/IVDD, funcional/epilepsia, ortopédica/OA), no dos.

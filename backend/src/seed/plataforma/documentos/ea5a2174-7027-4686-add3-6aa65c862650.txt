@@ -1,0 +1,101 @@
+EPILEPSIA Y CONVULSIONES EN EL GATO — CLASIFICACIÓN, NECROSIS HIPOCAMPAL Y MANEJO
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-220 (Imaging Intelligence, resonancia magnética), CC-101/104 (historia y examen), CC-201/202 (laboratorio).
+
+Este documento cierra el vacío de especie de NCIS: sus documentos previos —epilepsia crónica canina, status epilepticus, IVDD, vestibular, MUO, artrosis y ligamento cruzado— son de contenido canino, con la excepción parcial del vestibular.
+
+---
+
+1. FRECUENCIA Y CLASIFICACIÓN
+
+Las convulsiones epilépticas son una de las condiciones neurológicas más comunes que presenta el gato.
+
+La clasificación etiológica sigue la humana e iguala a la canina: **epilepsia estructural**, **epilepsia idiopática**, **epilepsia de causa desconocida**, y **convulsiones epilépticas reactivas**. Las categorías principales asociadas a esta condición en el gato son las convulsiones reactivas y la epilepsia estructural, aunque la epilepsia idiopática también se diagnostica.
+
+Ese orden importa y difiere del perro: en el gato la sospecha de causa estructural o reactiva pesa más de entrada, y aproximadamente el 50% de los gatos con convulsiones epilépticas se diagnostica con epilepsia estructural, con o sin anormalidad hipocampal.
+
+Regla para NCIS: en un gato con convulsiones, asumir epilepsia idiopática por defecto es un error de probabilidad previa. La resonancia magnética tiene mayor rendimiento diagnóstico que en el perro.
+
+Nota de clasificación: la clasificación semiológica no está establecida en medicina felina, a diferencia de la etiológica.
+
+2. LA ENTIDAD QUE DEFINE LA NEUROLOGÍA FELINA: NECROSIS HIPOCAMPAL
+
+La necrosis hipocampal y del lóbulo piriforme felina es una condición epiléptica aguda que se asemeja a la encefalitis límbica autoinmune y a la epilepsia del lóbulo temporal humanas.
+
+Está reconocida en múltiples países y se considera una etiología importante de convulsiones en el gato, particularmente en las crisis parciales complejas con automatismo orofacial asociadas a necrosis hipocampal.
+
+Semiología característica — el patrón que debe reconocerse
+
+Convulsiones típicamente focales, con: contracciones orofaciales o de la cabeza uni o bilaterales, hipersalivación, chasquido de labios, midriasis, vocalización y mirada fija inmóvil. Otras descripciones añaden masticación, lamido y deglución.
+
+**Cambios conductuales interictales**, que son parte del cuadro y no una complicación: agresión no provocada y carrera rápida. Se observan con regularidad además de las convulsiones.
+
+Regla para NCIS: un gato con contracciones orofaciales, hipersalivación y episodios de agresión no provocada entre crisis tiene un patrón reconocible que orienta a este síndrome. Ese conjunto no debe interpretarse como problema conductual primario.
+
+Etiología — deliberadamente incierta
+
+La etiología aparece diversa. Los reportes tempranos sospecharon causa ambiental o tóxica. Reportes posteriores describieron la necrosis hipocampal como consecuencia de inflamación autoinmune (encefalitis límbica), junto con neoplasia —la llamada patología dual— y se ha sugerido etiología vascular. Recientemente se ha hipotetizado la necrosis hipocampal **como consecuencia de las convulsiones**, no como su causa.
+
+La evidencia emergente apoya una etiología autoinmune, aunque también se ha reconocido la alteración de la arquitectura hipocampal secundaria a neoplasia encefálica. **En la mayoría de los casos, sin embargo, la causa subyacente permanece desconocida.**
+
+Regla para NCIS: la relación causal entre necrosis hipocampal y convulsiones está sin resolver y puede ser bidireccional. El componente debe presentar el hallazgo como asociación reconocida, no como causa establecida.
+
+3. DIAGNÓSTICO
+
+El diagnóstico presuntivo se realiza clínicamente y con resonancia magnética encefálica in vivo, caracterizada por lesiones bilaterales en hipocampo y ocasionalmente en lóbulo piriforme. El diagnóstico final se confirma por histopatología, con lesiones de degeneración neuronal aguda que evolucionan a necrosis completa, principalmente en la capa piramidal y ocasionalmente en el giro dentado.
+
+En investigación: electroencefalografía y anticuerpos contra el complejo de canales de potasio dependientes de voltaje son actualmente objeto de estudio, no herramientas diagnósticas establecidas.
+
+En casos descritos, hematología, bioquímica sérica y líquido cefalorraquídeo resultaron normales, y el electroencefalograma no mostró actividad epiléptica. Esa normalidad no descarta el cuadro.
+
+Neoplasia encefálica. Los tumores cerebrales, especialmente los meningiomas, causan con frecuencia epilepsia estructural en el gato. Es un diferencial obligado ante convulsiones de inicio en el adulto.
+
+4. TRATAMIENTO
+
+La epilepsia felina se trata con medicación antiepiléptica, con la que se logra control de convulsiones de razonable a bueno en la mayoría de los pacientes.
+
+Momento de inicio: **no existe consenso sobre cuándo iniciar la terapia antiepiléptica.** La literatura reciente apoya la intervención temprana con fenobarbital, ya que puede llevar a mejores desenlaces, pero la decisión debe considerarse caso por caso.
+
+Refractariedad. Los gatos afectados por necrosis hipocampal son **frecuentemente refractarios a los antiepilépticos convencionales**. Un subconjunto pequeño de pacientes felinos con epilepsia farmacorresistente requiere terapias alternativas.
+
+Opciones quirúrgicas. Aproximadamente la mitad de los gatos con epilepsia estructural, con o sin anormalidad hipocampal, puede responder a intervención quirúrgica. Están descritas la lobectomía temporal con hipocampectomía y la callosotomía del cuerpo calloso. La resección cortical o lesionectomía requiere evidencia electroencefalográfica.
+
+Regla para NCIS: la refractariedad en un gato con semiología orofacial no es fallo de manejo farmacológico sino una característica esperable del síndrome, y debe orientar hacia reevaluación por imagen y consideración de opciones alternativas en vez de escalada indefinida de dosis.
+
+5. ERRORES FRECUENTES
+
+Asumir epilepsia idiopática por defecto en un gato con convulsiones.
+
+Interpretar la agresión no provocada y la carrera interictal como problema conductual primario.
+
+Descartar necrosis hipocampal por laboratorio, líquido cefalorraquídeo o electroencefalograma normales.
+
+Presentar la necrosis hipocampal como causa establecida de las convulsiones cuando la relación puede ser inversa.
+
+No considerar meningioma en un gato adulto con convulsiones de inicio reciente.
+
+Escalar dosis de forma indefinida ante refractariedad sin reevaluar por imagen.
+
+Trasladar al gato los criterios de inicio de tratamiento del perro, donde el consenso existe y aquí no.
+
+6. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis y protocolos de fenobarbital, levetiracetam, imepitoína y zonisamida en el gato. Status epilepticus felino y su manejo de urgencia; el documento de status epilepticus de NCIS es canino. Convulsiones reactivas: causas metabólicas y tóxicas específicas, incluidas encefalopatía hepática, hipoglucemia y toxicidad por permetrina. Meningioma felino como entidad propia. Deficiencia de tiamina. Encefalopatía isquémica felina. Peritonitis infecciosa felina en su forma neurológica. Protocolos de resonancia magnética. Técnica quirúrgica de las opciones descritas. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+FUENTES
+
+Scalia B, Caine A, Pittaway R, Cherubini GB. Feline temporal lobe epilepsy: seven cases of hippocampal and piriform lobe necrosis in England and literature review. J Feline Med Surg 2022. PMC11104249. Fuente principal de la sección 2.
+
+Feline hippocampal and piriform lobe necrosis as a consequence of severe cluster seizures in two cats in Finland. PMC4515920. Fuente de las secciones 2 y 3.
+
+Naturally occurring temporal lobe epilepsy in cats. Fuente de las secciones 1 y 2.
+
+Neurosurgery in feline epilepsy, including clinicopathology of feline epilepsy syndromes. J Vet Cardiol / Elsevier 2022. Fuente de las secciones 1 y 4.
+
+Journal Scan: Current understanding of feline epilepsy, diagnostic testing, and treatment. dvm360. Fuente de la sección 4.
+
+Quantitative and qualitative evaluation of the hippocampal cytoarchitecture in adult cats with regard to the pathological diagnosis of hippocampal sclerosis. PMC9106214. Fuente de la sección 1.
+
+Feline Epilepsy: Understanding and Managing Seizures. Southfields Veterinary Specialists.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

@@ -1,0 +1,107 @@
+ARRITMIAS EN EL PERRO — FIBRILACIÓN AURICULAR Y ARRITMIAS VENTRICULARES
+
+Resumen clínico de referencia para CCIS. Componentes que lo consumen: CC-240 (correlación diagnóstica), CC-220 (Imaging Intelligence, ecocardiografía), CC-202 (bioquímica sérica), y los componentes de estadificación cardíaca de CCIS.
+
+Documento complementario de los de MMVD, cardiomiopatía dilatada e insuficiencia cardíaca congestiva aguda: las arritmias aparecen sobre esas enfermedades más que de forma aislada.
+
+---
+
+1. FIBRILACIÓN AURICULAR — LA MÁS FRECUENTE
+
+Es la taquiarritmia supraventricular diagnosticada con mayor frecuencia en el perro, y la arritmia no fisiológica más común en centros de referencia. Es rara en el gato.
+
+Se desarrolla típicamente cuando ocurre agrandamiento auricular secundario a enfermedad cardiovascular subyacente, habitualmente con dilatación auricular izquierda severa. También puede presentarse con el corazón estructural y funcionalmente dentro de rango normal, forma asociada a razas gigantes.
+
+Reconocimiento en el examen físico. Ritmo cardíaco generalmente rápido e irregularmente irregular, asociado a fuerza de pulso variable y déficits de pulso marcados. Ese conjunto debe disparar la sospecha antes del electrocardiograma.
+
+Electrocardiográficamente: actividad eléctrica auricular desorganizada, con **ausencia de ondas P** y ritmo ventricular rápido e irregular.
+
+Consecuencias hemodinámicas: gasto cardíaco disminuido y desarrollo de signos clínicos de insuficiencia cardíaca. Si no se reconoce y maneja apropiadamente, la fibrilación auricular puede aumentar sustancialmente el riesgo de insuficiencia cardíaca congestiva y de muerte súbita.
+
+2. CONTROL DE FRECUENCIA — LA META NUMÉRICA
+
+El manejo terapéutico se enfoca en controlar la frecuencia ventricular, o en restaurar y mantener el ritmo sinusal mediante medicación antiarrítmica y, en algunos casos, cardioversión eléctrica transtorácica bifásica.
+
+El control de frecuencia es la estrategia más empleada; el control del ritmo se considera en pocos casos específicos.
+
+**La meta que define el manejo**: la evidencia indica que la terapia farmacológica optimizada dirigida a mantener una frecuencia cardíaca media igual o menor a 125 latidos por minuto prolonga significativamente la supervivencia en perros afectados.
+
+Regla para CCIS: al evaluar un paciente con fibrilación auricular, la pregunta relevante no es si recibe antiarrítmico sino si la frecuencia cardíaca media está en meta. Y esa media se obtiene por Holter, no por auscultación en consulta.
+
+Terapia combinada. Un estudio aleatorizado cruzado en 18 perros mostró que **la combinación de digoxina y diltiazem controla la frecuencia ventricular en fibrilación auricular crónica mejor que cualquiera de los dos en monoterapia**. Trabajos posteriores respaldan considerar diltiazem de liberación prolongada más digoxina como tratamiento antiarrítmico de primera línea en perros con fibrilación auricular secundaria.
+
+3. EL HALLAZGO QUE CAMBIA EL SEGUIMIENTO
+
+Pese al control de frecuencia apropiado, una proporción notable de perros con fibrilación auricular sigue experimentando muerte súbita. Eso llevó a investigar qué otros factores contribuyen.
+
+La respuesta, en un estudio sobre 59 perros con fibrilación auricular secundaria: el monitoreo Holter detectó arritmias ventriculares asociadas en **58 de 59 perros, el 98,3%**. Entre los que presentaban complejos ventriculares prematuros, la mediana fue de 265, y el 54,2% tenía 100 o más por Holter. El 57,6% exhibió complejidad de grado Lown-Wolf 4 o superior.
+
+La población del estudio: 59,3% con enfermedad valvular mixomatosa mitral, 28,8% con cardiomiopatía dilatada, 11,9% con cardiopatía congénita; 83,1% con enfermedad cardíaca descompensada.
+
+Consecuencia operativa para CCIS: **la fibrilación auricular casi nunca viene sola.** Un paciente con fibrilación auricular y control de frecuencia adecuado que igualmente muere de forma súbita probablemente tenía arritmia ventricular concurrente no caracterizada. El Holter no es un estudio opcional en este paciente, y su ausencia debe declararse como dato faltante relevante.
+
+4. ARRITMIAS VENTRICULARES
+
+Los complejos ventriculares prematuros por sí mismos no suelen ser un problema mayor, pero pueden requerir tratamiento si son muy frecuentes o si el paciente está en riesgo de otras arritmias, como fibrilación auricular o taquicardia ventricular.
+
+La taquicardia ventricular rápida y severa aumenta el riesgo de muerte súbita cardíaca y puede amenazar la vida. Los pacientes pueden desarrollarla con o sin cardiopatía estructural. Signos asociados: jadeo excesivo o inapropiado, dificultad respiratoria, colapso o síncope.
+
+Tratamiento. El sotalol —clase III oral con actividad antagonista beta-adrenérgica no selectiva— es el tratamiento de largo plazo más comúnmente empleado para arritmias ventriculares hemodinámicamente consecuentes en perros y gatos.
+
+Para arritmias ventriculares que amenazan la vida, la procainamida se emplea con frecuencia por vía parenteral en combinación con lidocaína.
+
+Nota sobre quinidina: su indicación principal en medicina veterinaria es la fibrilación auricular, donde se usa para facilitar la cardioversión sincronizada. No se administra típicamente para control de frecuencia en fibrilación auricular crónica ni para arritmias ventriculares. **Debe evitarse en perros con falla miocárdica severa o con insuficiencia cardíaca actual o previa.**
+
+5. CAUSAS PARTICULARES A RECONOCER
+
+Arritmia ventricular hereditaria del Pastor Alemán. Afecta a perros jóvenes, entre los 3 y los 24 meses de edad. Algunos mueren súbitamente, con mayor frecuencia entre los 5 y los 9 meses. El diagnóstico habitualmente requiere Holter para capturar la arritmia peligrosa. Después de los 24 meses las arritmias desaparecen y el perro deja de estar en riesgo, **pero si se usa para cría transmite la afección** al cruzarse con un perro con el trasfondo genético de riesgo.
+
+Regla para CCIS: un Pastor Alemán joven con síncope o con antecedente familiar de muerte súbita requiere Holter, aunque la auscultación sea normal. Y la desaparición de la arritmia a los 24 meses no cancela la implicación reproductiva.
+
+Miocarditis. Algunos perros con arritmias ventriculares o bloqueo cardíaco tienen inflamación miocárdica subyacente. La evaluación requiere monitoreo de la arritmia más ecocardiografía, troponina I y proteína C reactiva. Con frecuencia la causa no se identifica, y el cuadro debe manejarse con cuidado porque los perros afectados mueren súbitamente con relativa frecuencia. El tratamiento incluye antiarrítmicos y antiinflamatorios como corticoides.
+
+Razas con predisposición a fibrilación auricular asociada a cardiomiopatía: Gran Danés, Doberman Pinscher, Terranova, Irish Wolfhound, Bóxer y otras razas grandes. Conecta con el documento de cardiomiopatía dilatada.
+
+6. EL PAPEL DEL HOLTER
+
+Para el mejor cuidado, el monitoreo electrocardiográfico ambulatorio de 24 horas es necesario para comprender plenamente el trastorno del ritmo. Un electrocardiograma de consulta captura un momento; el Holter captura el comportamiento.
+
+En este documento el Holter aparece como requisito en cuatro situaciones distintas: verificar la frecuencia cardíaca media en fibrilación auricular, detectar arritmia ventricular concurrente, diagnosticar la arritmia hereditaria del Pastor Alemán, y decidir si una arritmia ventricular requiere tratamiento. Esa recurrencia no es casual: es el estudio que define la conducta en arritmología.
+
+7. ERRORES FRECUENTES
+
+Evaluar el control de frecuencia por auscultación en consulta en vez de por frecuencia media en Holter.
+
+Usar digoxina o diltiazem en monoterapia cuando la combinación demostró superioridad.
+
+Asumir que un paciente con fibrilación auricular controlada no tiene arritmia ventricular concurrente.
+
+No realizar Holter en un Pastor Alemán joven con síncope.
+
+Considerar resuelta la arritmia hereditaria del Pastor Alemán a los 24 meses sin advertir la implicación reproductiva.
+
+Usar quinidina en un perro con falla miocárdica severa o insuficiencia cardíaca.
+
+No considerar miocarditis ante arritmia ventricular o bloqueo sin cardiopatía estructural evidente.
+
+Tratar complejos ventriculares prematuros aislados sin evaluar frecuencia ni complejidad.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Dosis completas de sotalol, diltiazem, digoxina, lidocaína, procainamida, mexiletina y amiodarona. Interpretación electrocardiográfica detallada y criterios de medición. Cardioversión eléctrica: técnica, protocolo y selección de candidatos. Bradiarritmias, bloqueos auriculoventriculares y marcapasos. Cardiomiopatía arritmogénica del ventrículo derecho del Bóxer como entidad propia. Arritmias felinas. Síncope: abordaje diferencial completo. Arritmias secundarias a enfermedad extracardíaca —dilatación-vólvulo gástrico, hemangiosarcoma esplénico, alteraciones electrolíticas—. Estos temas quedan como vacíos declarados de la Base de Conocimiento de CCIS.
+
+FUENTES
+
+Canine atrial fibrillation. PubMed 20180218. Fuente de las secciones 1 y 2.
+
+Diagnosis and management of canine atrial fibrillation. J Vet Cardiol 2020. Fuente de las secciones 1 y 2.
+
+Gelzer AR, Kraus MS, Rishniw M, Moïse NS, Pariaut R, Jesty SA y col. Combination therapy with digoxin and diltiazem controls ventricular rate in chronic atrial fibrillation in dogs better than digoxin or diltiazem monotherapy: a randomized crossover study in 18 dogs. J Vet Intern Med 2009;23(3):499–508.
+
+Signalment, clinical characteristics, and echocardiographic findings in dogs affected by secondary atrial fibrillation with and without concomitant frequent and complex ventricular arrhythmias. PMC12883385. Fuente de la sección 3.
+
+Merck Veterinary Manual — Antiarrhythmics for Use in Animals. Fuente de la sección 4.
+
+Cornell University College of Veterinary Medicine — Arrhythmias (Abnormal Rhythms) in Dogs. Fuente de la sección 5.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

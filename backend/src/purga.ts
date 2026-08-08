@@ -1,7 +1,7 @@
 import { Pool, PoolClient } from "pg";
-import * as fs from "fs";
-import * as path from "path";
+import { PassThrough } from "stream";
 import { ZipArchive } from "archiver";
+import { almacenamientoPrivado } from "./almacenamiento";
 import { enviarCorreoTransaccional, urlExportar, urlPlanes, urlDatosClinica, urlMedioPago } from "./correos";
 
 // ---------------------------------------------------------------------
@@ -11,9 +11,6 @@ import { enviarCorreoTransaccional, urlExportar, urlPlanes, urlDatosClinica, url
 // ---------------------------------------------------------------------
 
 type EjecutorSql = Pool | PoolClient;
-
-const UPLOADS_DIR = path.join(__dirname, "..", "uploads");
-const EXPORTACIONES_DIR = path.join(UPLOADS_DIR, "exportaciones");
 
 async function leerParametro(db: EjecutorSql, clave: string, porDefecto: number): Promise<number> {
   const result = await db.query(`SELECT valor FROM parametros_plataforma WHERE clave = $1`, [clave]);
@@ -511,9 +508,8 @@ export async function generarPaqueteExportacion(db: EjecutorSql, tenantId: strin
   const exportacionId = exportacionResult.rows[0].id;
 
   try {
-    fs.mkdirSync(EXPORTACIONES_DIR, { recursive: true });
     const nombreArchivo = `${exportacionId}.zip`;
-    const rutaArchivo = path.join(EXPORTACIONES_DIR, nombreArchivo);
+    const clave = `exportaciones/${nombreArchivo}`;
 
     const casosResult = await db.query(
       `SELECT c.id, c.motivo, c.estado, c.severidad, c.confianza_diagnostica, c.creado_en,
@@ -527,12 +523,21 @@ export async function generarPaqueteExportacion(db: EjecutorSql, tenantId: strin
       [tenantId]
     );
 
-    await new Promise<void>((resolve, reject) => {
-      const output = fs.createWriteStream(rutaArchivo);
+    // El zip se arma en memoria (no en disco): un contenedor descartable
+    // no garantiza que sobreviva hasta que termine de escribirse. El
+    // PassThrough colecciona los chunks que archiver produce y se
+    // concatenan en un Buffer al terminar, que es lo que va al
+    // almacenamiento de objetos.
+    const zipBuffer = await new Promise<Buffer>((resolve, reject) => {
+      const salida = new PassThrough();
+      const chunks: Buffer[] = [];
+      salida.on("data", (chunk) => chunks.push(chunk));
+      salida.on("end", () => resolve(Buffer.concat(chunks)));
+      salida.on("error", reject);
+
       const archive = new ZipArchive({ zlib: { level: 9 } });
-      output.on("close", resolve);
       archive.on("error", reject);
-      archive.pipe(output);
+      archive.pipe(salida);
 
       (async () => {
         for (const caso of casosResult.rows) {
@@ -561,9 +566,12 @@ export async function generarPaqueteExportacion(db: EjecutorSql, tenantId: strin
             [caso.id]
           );
           for (const arch of archivosResult.rows) {
-            const rutaFisica = path.join(UPLOADS_DIR, arch.url.replace(/^\/uploads\//, ""));
-            if (fs.existsSync(rutaFisica)) {
-              archive.file(rutaFisica, { name: `${carpeta}/archivos/${arch.nombre_archivo}` });
+            try {
+              const datosArchivo = await almacenamientoPrivado.leer(arch.url.replace(/^\/uploads\//, ""));
+              archive.append(datosArchivo, { name: `${carpeta}/archivos/${arch.nombre_archivo}` });
+            } catch {
+              // El archivo ya no está disponible en el almacenamiento —
+              // se omite del paquete en vez de fallar toda la exportación.
             }
           }
 
@@ -582,11 +590,13 @@ export async function generarPaqueteExportacion(db: EjecutorSql, tenantId: strin
       })().catch(reject);
     });
 
+    await almacenamientoPrivado.guardar(clave, zipBuffer, "application/zip");
+
     await db.query(
       `UPDATE exportaciones
        SET estado = 'lista', archivo_ref = $1, casos_incluidos = $2, lista_en = now(), expira_en = now() + interval '30 days'
        WHERE id = $3`,
-      [`/uploads/exportaciones/${nombreArchivo}`, casosResult.rows.length, exportacionId]
+      [clave, casosResult.rows.length, exportacionId]
     );
   } catch (err) {
     console.error(`[purga] Error al generar la exportación ${exportacionId}`, err);

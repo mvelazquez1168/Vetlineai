@@ -1,0 +1,131 @@
+TRAUMA CRANEOENCEFÁLICO EN PERROS Y GATOS — ESCALA DE COMA DE GLASGOW MODIFICADA Y MANEJO DE URGENCIA
+
+Resumen clínico de referencia para NCIS. Componentes que lo consumen: CC-240 (Diagnostic Correlation Engine), CC-104 (examen físico), CC-201/202/203 (laboratorio y equilibrio ácido-base), CC-220 (Imaging Intelligence).
+
+Es la urgencia neurológica por excelencia y la única entidad de NCIS donde la conducta se decide en minutos.
+
+---
+
+1. LOS TRES OBJETIVOS DEL TRATAMIENTO
+
+Reducir la presión intracraneal, mantener la presión arterial, y asegurar una ventilación adecuada.
+
+Todo lo demás se subordina a esos tres. Y el orden importa menos que la simultaneidad: son objetivos concurrentes, no una secuencia.
+
+Un mensaje pronóstico que conviene tener presente desde el inicio: **perros y gatos tienen una capacidad extraordinaria de compensar y mejorar tras sufrir daño encefálico**. Muchos pacientes pueden recuperarse si las anormalidades sistémicas y neurológicas se identifican y tratan temprano.
+
+La formulación funcional que ayuda a decidir con el propietario: en el paciente veterinario la función cognitiva superior no es necesaria para vivir. Si el animal puede comer, beber, eliminar, interactuar apropiadamente y dormir, y el propietario está dispuesto a acompañarlo, **el tiempo puede ser todo lo que se necesite** para una recuperación completa con efectos residuales mínimos.
+
+Precaución práctica derivada: muchos pacientes con trauma craneal siguen comiendo y bebiendo pese a estar obnubilados. Es indispensable confirmar el reflejo de deglución antes de ofrecer alimento o agua.
+
+2. LA ESCALA DE COMA DE GLASGOW MODIFICADA
+
+Es la única medida cuantitativa mostrada como asociada a la supervivencia en perros con trauma craneoencefálico, y **predice la probabilidad de supervivencia en las primeras 48 horas**.
+
+Estructura. Incorpora tres categorías del examen: **nivel de consciencia, actividad motora y reflejos de tronco encefálico**. A cada una se le asigna un puntaje de 1 a 6, para un total de **3 a 18**. A mayor puntaje, mejor pronóstico.
+
+Interpretación pronóstica descrita: puntaje de 3 a 8, grave; de 9 a 14, reservado; de 15 a 18, bueno.
+
+Doble uso. Es más útil para la evaluación inicial del paciente, pero **también sirve como medida objetiva para monitorizar la progresión de forma seriada**. Los puntajes seriados permiten seguir mejoría o deterioro en un mismo paciente.
+
+Regla para NCIS: ante un paciente con trauma craneal, el puntaje de la escala debe registrarse al ingreso y repetirse. Un valor único informa el pronóstico inicial; la serie informa la respuesta al tratamiento, que es lo que realmente decide la conducta.
+
+Pronóstico en el paciente estuporoso o comatoso: reservado a pobre, y el tratamiento agresivo es crucial para aumentar la posibilidad de un resultado exitoso.
+
+3. TERAPIA HIPEROSMOLAR
+
+Reduce el edema cerebral. Tanto el manitol como la solución salina hipertónica aumentan el gradiente osmótico a través de la barrera hematoencefálica y mejoran el flujo sanguíneo por los vasos cerebrales.
+
+Manitol. Considerado tratamiento de primera línea para reducir la presión intracraneal. Se describe administración de 0,5 a 2 g/kg en bolo intravenoso durante 20 minutos, cada 6 a 8 horas, con efecto beneficioso demostrado sobre el desenlace neurológico en pacientes humanos y veterinarios.
+
+**Debe administrarse como bolo en un período de unos 15 minutos, no como infusión**, para obtener el efecto expansor plasmático. Su efecto sobre la reducción del edema cerebral tarda aproximadamente 15 a 30 minutos en establecerse y dura entre 2 y 5 horas.
+
+Punto que se cita como contraindicación y no lo es: **no hay evidencia clínica que pruebe la teoría de que el manitol esté contraindicado en presencia de hemorragia intracraneal.**
+
+Contraindicación real: la hipovolemia es una contraindicación relativa para el manitol.
+
+Solución salina hipertónica. De 3 a 5 mL/kg, con efectos similares al manitol, y con la ventaja adicional de expandir rápidamente el volumen intravascular.
+
+**Es preferida ante hipotensión con presión intracraneal aumentada**, y está contraindicada ante alteraciones severas de sodio y ante deshidratación.
+
+Una discrepancia entre fuentes que debe declararse: una fuente sostiene que la salina hipertónica sola no ha demostrado ser útil en pacientes con trauma craneal y que de hecho podría empeorar el desenlace. Esa afirmación convive con las recomendaciones anteriores y con estudios que comparan dosis isoosmolares de ambos agentes.
+
+Regla para NCIS: la elección entre manitol y salina hipertónica depende del estado volémico y del sodio, no de una superioridad general de uno sobre otro. El componente debe declarar el estado hemodinámico sobre el que razona.
+
+4. EL RESTO DEL MANEJO
+
+Resucitación con fluidos intravenosos y restauración de la presión arterial normal. Se describe como objetivo de resucitación una presión arterial media de 80 mmHg.
+
+Oxigenación: ambiente enriquecido en oxígeno para prevenir hipoxia, con monitoreo estrecho de la ventilación para prevenir hipercapnia.
+
+**Control de la glucemia: la hiperglucemia exacerba la necrosis neuronal.**
+
+Manejo del dolor.
+
+Elevación de la cabeza.
+
+Anticonvulsivantes si están indicados.
+
+Normotermia: mantenerla y evitar la hipertermia. La inducción de hipotermia se ha reportado en la literatura pero no se ha estudiado extensamente en medicina veterinaria.
+
+5. LA CONTRAINDICACIÓN CATEGÓRICA
+
+**Los corticoides están contraindicados en pacientes con trauma craneoencefálico.**
+
+Es una de las pocas afirmaciones sin matices de este documento, y merece énfasis porque el reflejo de usar corticoides ante inflamación del sistema nervioso central proviene de otras entidades de NCIS —como la meningoencefalitis de origen desconocido— donde sí están indicados.
+
+Regla para NCIS: ante trauma craneal, el componente debe señalar activamente esta contraindicación si el expediente muestra corticoides administrados o considerados.
+
+6. SECUELA A LARGO PLAZO
+
+La epilepsia postraumática se reporta en un pequeño porcentaje de pacientes con trauma craneal. En un estudio retrospectivo de perros con epilepsia, **el 15% tenía antecedente de lesión craneal previa**.
+
+Consecuencia: un paciente que se recupera de un trauma craneal requiere seguimiento, y la aparición de convulsiones meses o años después debe interpretarse a la luz de ese antecedente y no como epilepsia idiopática.
+
+Sobre el pronóstico en general: existe información escasa que sea predictiva de pronóstico en medicina veterinaria. En última instancia, **la respuesta del paciente y el grado de mejoría al tratamiento a lo largo del tiempo son lo que determina el desenlace**.
+
+7. ERRORES FRECUENTES
+
+Administrar corticoides.
+
+Registrar la escala de Glasgow modificada una sola vez, sin serie.
+
+Ofrecer alimento o agua sin confirmar el reflejo de deglución en un paciente obnubilado.
+
+Elegir manitol en un paciente hipovolémico, o salina hipertónica ante alteración severa de sodio o deshidratación.
+
+Administrar manitol en infusión en vez de bolo, perdiendo el efecto expansor.
+
+Considerar la hemorragia intracraneal como contraindicación del manitol.
+
+No controlar la glucemia.
+
+Emitir pronóstico definitivo en las primeras horas, cuando la respuesta al tratamiento en el tiempo es lo que lo determina.
+
+Interpretar convulsiones tardías en un paciente con antecedente traumático como epilepsia idiopática.
+
+8. LO QUE ESTE DOCUMENTO NO CUBRE
+
+Tabla completa de puntuación de la escala de Glasgow modificada con sus criterios por categoría. Protocolos anticonvulsivantes en el paciente traumático. Indicaciones y protocolos de imagen avanzada en trauma craneal. Trauma medular y vertebral, que es entidad complementaria y queda como vacío. Fracturas craneales y su manejo quirúrgico. Monitoreo de presión intracraneal. Ventilación mecánica. Manejo del politraumatizado y triage sistémico. Trauma craneal felino en particular. Estos temas quedan como vacíos declarados de la Base de Conocimiento de NCIS.
+
+Nota: las dosis citadas provienen de las fuentes indicadas y deben verificarse antes de aplicarse.
+
+FUENTES
+
+Platt SR, Radaelli ST, McDonnell JJ. The prognostic value of the modified Glasgow coma scale in head trauma in dogs. J Vet Intern Med 2001;15(6):581–584. Fuente principal de la sección 2.
+
+Head trauma in veterinary medicine. VetBloom / Bush Veterinary Neurology Service. Fuente de las secciones 2, 3 y 6.
+
+Clinical Suite: Traumatic Brain Injury. Clinician's Brief. Fuente de las secciones 3 y 4.
+
+Platt S. Head Trauma: Assessment & Management. WSAVA 2005. Fuente de la sección 3, incluida la administración en bolo y la aclaración sobre hemorragia intracraneal.
+
+Approach to head trauma. dvm360. Fuente de las secciones 1, 2 y de la discrepancia sobre salina hipertónica.
+
+Kuo KW, Bacek LM, Taylor AR. Head trauma. Vet Clin North Am Small Anim Pract 2018;48(1):111–128.
+
+Head Trauma Management in Small Animals. Today's Veterinary Practice.
+
+Ballocco I y col. A pilot study evaluating the effect of mannitol and hypertonic saline solution in the treatment of increased intracranial pressure in 2 cats and 1 dog naturally affected by traumatic brain injury. J Vet Emerg Crit Care 2019. PubMed 31448527.
+
+Documento de síntesis elaborado para Vetline Ai. No reproduce texto de las fuentes citadas.

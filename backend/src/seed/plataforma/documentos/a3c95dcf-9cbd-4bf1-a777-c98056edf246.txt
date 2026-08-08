@@ -1,0 +1,34 @@
+# Distocia Canina — Prevalencia, Factores de Riesgo y Manejo en Práctica de Emergencia
+
+**Fuentes:**
+- O'Neill DG, O'Sullivan AM, Manson EA, et al. Canine dystocia in 50 UK first-opinion emergency-care veterinary practices: prevalence and risk factors. *Vet Rec.* 2017;181(4). DOI: 10.1136/vr.104108.
+- O'Neill DG, O'Sullivan AM, Manson EA, et al. Canine dystocia in 50 UK first-opinion emergency care veterinary practices: clinical management and outcomes. *Vet Rec.* 2019;184:409. Acceso abierto (CC BY-NC 4.0).
+
+**Alcance de este resumen:** segundo documento del sistema reproductivo para el agente de medicina interna/triage (ICIS). A diferencia de la piometra, la distocia no cuenta con un consenso formal de sociedad especializada — estos son dos estudios poblacionales de campo (programa VetCompass, Reino Unido) sobre la misma cohorte de 701 casos de distocia, uno enfocado en prevalencia/factores de riesgo y el otro en manejo clínico/desenlaces. Son datos reales de práctica de emergencia de primera opinión, altamente relevantes para el contexto de triage de ICIS.
+
+---
+
+## 1. Magnitud del problema
+
+- Prevalencia de distocia en hembras enteras: **3.7%** (701 casos entre 18,758 hembras enteras evaluadas).
+- Mortalidad durante la atención de emergencia: **1.7%** (12 de 701 casos) — cifra de referencia útil para conversar con propietarios sobre el riesgo real del procedimiento reproductivo.
+
+## 2. Factores de riesgo — qué razas y edades elevan más la sospecha clínica
+
+- **Razas con mayor probabilidad de distocia** comparadas con mestizos: Bulldog Francés (OR 15.9), Boston Terrier (OR 12.9), Pug (OR 11.3), Chihuahua (OR 10.4) — todas razas braquicefálicas o de cabeza relativamente grande respecto al canal de parto.
+- **Edad**: hembras entre 3.0 y 5.9 años tienen **3.1 veces más riesgo** de distocia que hembras menores de 3 años — dato relevante porque contradice la intuición de que el riesgo aumenta linealmente solo con la edad avanzada; el pico de riesgo aparece relativamente temprano en la vida reproductiva.
+
+## 3. Manejo clínico observado en la práctica real
+
+- **Cesárea (CS)** fue el manejo definitivo en **48.6%** de todos los casos de distocia atendidos — es decir, prácticamente la mitad de los casos que llegan a emergencia terminan en cirugía, no en manejo médico exclusivo.
+- **Razas con mayor probabilidad de requerir cesárea** entre las hembras que ya presentaban distocia: Bulldog (OR 7.60), Terrier Border (OR 4.89), Golden Retriever (OR 4.07).
+- **Hembras braquicefálicas con distocia tuvieron 1.54 veces más probabilidad de cesárea** que las no braquicefálicas — la conformación craneal no solo predispone a la distocia en sí, sino que reduce las chances de que el manejo médico sea suficiente una vez que la distocia ya está establecida.
+- **Oxitocina** fue administrada en **54.2%** de los casos.
+- **Gluconato de calcio** fue administrado en **11.7%** de los casos.
+
+## 4. Conclusión operativa para ICIS
+
+- La combinación **raza braquicefálica + hembra en trabajo de parto prolongado o con contracciones sin expulsión fetal** debe elevar de inmediato la sospecha de necesidad quirúrgica — los datos de campo muestran que en esta población, el manejo médico solo no es suficiente en la mayoría de los casos.
+- El rango etario de mayor riesgo (3-5.9 años) es un dato útil para la anamnesis de triage: una hembra joven-adulta con historia reproductiva y signos de trabajo de parto anómalo no debe descartarse de la sospecha de distocia solo por no ser "de edad avanzada".
+- Con una tasa de cesárea de casi 1 en 2 casos de distocia en la práctica real de emergencia, la conversación inicial con el propietario debería anticipar razonablemente la posibilidad quirúrgica desde el primer contacto, en vez de presentarla como un desenlace infrecuente.
+- Este documento se conecta directamente con el ya cargado de piometra: ambos son las dos emergencias reproductivas de mayor relevancia para el triage en hembras caninas enteras, con mecanismos y manejo completamente distintos (piometra = infección uterina post-estro; distocia = obstrucción/inercia durante el parto activo) que requieren diferenciarse rápidamente según el momento del ciclo reproductivo de la paciente.

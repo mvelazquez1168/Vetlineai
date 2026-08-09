@@ -222,56 +222,9 @@ UPDATE tenant_agentes ta
 
 COMMIT;
 
-
--- =====================================================================
--- VERIFICACIÓN
--- =====================================================================
-
-\echo '=== Catálogo de planes ==='
-SELECT codigo, nombre, agentes_incluidos, medicos_incluidos,
-       credito_ia_usd, precio_mensual_usd, precio_anual_usd
-  FROM planes WHERE activo = true ORDER BY orden;
-
-\echo '=== Suscripciones creadas ==='
-SELECT t.nombre AS clinica, p.codigo AS plan, s.estado,
-       s.precio_pactado_usd, s.credito_pactado_usd,
-       s.agentes_contratados, s.medicos_contratados,
-       s.periodo_fin::date
-  FROM suscripciones s
-  JOIN tenants t ON t.id = s.tenant_id
-  JOIN planes  p ON p.id = s.plan_id
- ORDER BY p.orden, t.nombre;
-
-\echo '=== Saldos iniciales ==='
-SELECT t.nombre, sa.credito_plan_usd, sa.credito_comprado_usd
-  FROM saldos_ia sa JOIN tenants t ON t.id = sa.tenant_id
- ORDER BY t.nombre;
-
-\echo '=== Tenants que exceden el cupo de agentes de su plan ==='
-SELECT t.nombre, p.codigo AS plan, s.agentes_contratados AS permitidos,
-       count(ta.id) AS habilitados
-  FROM tenants t
-  JOIN suscripciones s ON s.tenant_id = t.id AND s.estado = 'activa'
-  JOIN planes p ON p.id = s.plan_id
-  LEFT JOIN tenant_agentes ta ON ta.tenant_id = t.id AND ta.estado = 'habilitado'
- GROUP BY t.nombre, p.codigo, s.agentes_contratados
-HAVING s.agentes_contratados IS NOT NULL
-   AND count(ta.id) > s.agentes_contratados
- ORDER BY t.nombre;
-
-\echo '=== Tenants que exceden el cupo de medicos de su plan ==='
-SELECT t.nombre, p.codigo AS plan, s.medicos_contratados AS permitidos,
-       count(pe.id) AS activos
-  FROM tenants t
-  JOIN suscripciones s ON s.tenant_id = t.id AND s.estado = 'activa'
-  JOIN planes p ON p.id = s.plan_id
-  LEFT JOIN personas pe ON pe.tenant_id = t.id AND pe.estado = 'activo' AND pe.es_medico = true
- GROUP BY t.nombre, p.codigo, s.medicos_contratados
-HAVING count(pe.id) > s.medicos_contratados
- ORDER BY t.nombre;
-
-\echo '=== Tarifas por token pendientes de precio ==='
-SELECT modelo, tipo_token, precio_usd_por_millon
-  FROM tarifas_modelo
- WHERE vigente_hasta IS NULL AND precio_usd_por_millon = 0
- ORDER BY modelo, tipo_token;
+-- El bloque de verificación que vivía acá (SELECTs con \echo) se sacó del
+-- archivo: \echo es un meta-comando de psql, no SQL — el ejecutor real de
+-- migraciones (backend/src/migrate.ts) manda el archivo completo con
+-- pool.query(), que solo entiende SQL y fallaba acá. Ver el hallazgo real
+-- del primer despliegue a AWS (docs/inventario-stack-configuracion.md).
+-- Las mismas consultas, para revisión manual, quedan documentadas ahí.

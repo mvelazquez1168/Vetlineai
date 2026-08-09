@@ -7,9 +7,11 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
-    "migrate": "node -e \"require('dotenv').config(); const fs=require('fs'); const path=require('path'); const {Pool}=require('pg'); const pool=new Pool({connectionString:process.env.DATABASE_URL}); const dir='src/migrations'; const archivos=fs.readdirSync(dir).filter(f=>f.endsWith('.sql')).sort(); (async()=>{ try { for (const f of archivos) { console.log('Aplicando '+f+'...'); await pool.query(fs.readFileSync(path.join(dir,f),'utf8')); } console.log('Migraciones aplicadas.'); process.exit(0); } catch (e) { console.error(e); process.exit(1); } })();\"",
+    "migrate": "ts-node --transpile-only src/migrate.ts",
+    "migrate:prod": "node dist/migrate.js",
     "seed": "ts-node --transpile-only src/seed/seed.ts",
-    "seed:plataforma": "ts-node --transpile-only src/seed/seedPlataforma.ts"
+    "seed:plataforma": "ts-node --transpile-only src/seed/seedPlataforma.ts",
+    "seed:plataforma:prod": "node dist/seed/seedPlataforma.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

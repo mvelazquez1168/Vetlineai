@@ -138,8 +138,10 @@ Si se retoma en una red sin este aislamiento, dos pasos adicionales necesarios (
 | `npm run dev` | `ts-node-dev --respawn --transpile-only src/index.ts` — desarrollo, hot reload. Usado por el `Dockerfile` de desarrollo (`docker-compose.yml`). |
 | `npm run build` | `tsc -p tsconfig.build.json` — compila a `dist/`, **excluyendo `src/scripts/`** (configuración de compilación propia para producción, separada de `tsconfig.json` que sigue usando dev). Usado por `backend/Dockerfile.prod`. |
 | `npm run start` | `node dist/index.js` — asume que `build` ya corrió. Es el `CMD` de `backend/Dockerfile.prod`. |
-| `npm run migrate` | Aplica **todas** las migraciones de `src/migrations/` en orden, siempre desde la 001. **No es incremental** — reintenta migraciones ya aplicadas, lo que falla contra cualquiera que no sea idempotente (la mayoría no lo son). En la práctica, las migraciones nuevas de esta sesión se aplicaron a mano, una por una, con scripts descartables en `src/scripts/` — ver el relevamiento de reproducibilidad del ambiente (memoria de proyecto, fuera de este inventario) para el detalle completo de esta brecha. |
+| `npm run migrate` | `ts-node --transpile-only src/migrate.ts` (dev). Reescrito 2026-08-09 tras el primer despliegue real a AWS — el ejecutor viejo (`node -e` inline) no era incremental (reintentaba desde 001 y chocaba con lo existente) y mandaba cada archivo entero por `pool.query()`, que solo entiende SQL (la migración 025 traía un bloque de verificación con `\echo`, meta-comando de psql, y fallaba ahí). El nuevo `src/migrate.ts` lleva una tabla `schema_migrations` (la crea él mismo si no existe) y solo aplica lo que todavía no está registrada — correrlo de nuevo no reintenta nada. Ver la sección de abajo sobre el backfill que hace falta en cualquier base que ya haya sido migrada con el ejecutor viejo. |
+| `npm run migrate:prod` | `node dist/migrate.js` — mismo ejecutor, compilado. Es lo que corre contra el servidor real (`ts-node` no está en la imagen de producción, ver `Dockerfile.prod`). |
 | `npm run seed` | `ts-node --transpile-only src/seed/seed.ts` — datos de ejemplo de desarrollo (tenant, agentes, usuarios, casos). No toca `system_prompt` de agentes ni contenido real de la Base de Conocimiento — eso vive solo en la base viva (mismo relevamiento). |
+| `npm run seed:plataforma:prod` | `node dist/seed/seedPlataforma.js` — el sembrado de plataforma (tarifas/agentes/documentos/alias de raza, ver `backend/src/seed/seedPlataforma.ts`), compilado. Mismo motivo que `migrate:prod`: `ts-node` no está en la imagen de producción — `npm run seed:plataforma` (con ts-node) solo sirve en dev. Los archivos `.json`/`.txt` que lee siguen siendo accesibles desde `dist/seed/seedPlataforma.js` porque `Dockerfile.prod` los copia a `dist/seed/plataforma` en el mismo lugar donde `path.join(__dirname, "plataforma")` los busca una vez compilado. |
 
 ### Frontend (`frontend/package.json`)
 
@@ -174,7 +176,50 @@ Preparado 2026-08-08. Los `Dockerfile` de desarrollo (`backend/Dockerfile`, `fro
 
 **Variables que desaparecen en producción**: las tres `STRIPE_*` del backend (ver nota en la tabla) y las dependencias/variable de Stripe del frontend, ya eliminadas del código.
 
-**No corrido todavía** — construido y verificado por partes (cada imagen compila y arranca sola, `docker compose ... config` valida la composición completa sin levantar contenedores) pero la composición completa contra Postgres/Keycloak/S3 reales queda pendiente de una verificación explícita, a pedido del usuario, antes de correrla.
+**Primer despliegue real a AWS: 2026-08-09** (Virginia del Norte, `app.vetlineai.com`, una instancia administrada con dos bases — app y Keycloak — más un bucket de almacenamiento). Las 60 migraciones y las 62 tablas resultantes llegaron bien; el sembrado de plataforma y la conexión cifrada a la base no, por 4 brechas reales que no aparecían en dev (todas corregidas el mismo día — ver los cambios en `backend/src/migrate.ts`, `backend/package.json`, `backend/Dockerfile.prod` y esta sección):
+
+1. **`npm run seed:plataforma` invocaba `ts-node`**, que no está en la imagen de producción (`npm ci --omit=dev`). Usar `npm run seed:plataforma:prod` (`node dist/seed/seedPlataforma.js`) — ver la tabla de comandos más arriba.
+2. **El ejecutor de migraciones mandaba cada archivo con `pool.query()`**, que solo entiende SQL — la migración 025 traía un bloque de verificación con `\echo` (meta-comando de psql, no SQL) y fallaba ahí. Se sacó ese bloque del archivo, y el ejecutor nuevo (`src/migrate.ts`) rechaza de entrada cualquier migración que vuelva a traer algo así, señalando el archivo exacto en vez de fallar a mitad de camino.
+3. **No llevaba registro de lo aplicado** — reintentaba todo desde 001 en cada corrida. `src/migrate.ts` crea y usa una tabla `schema_migrations` (filename + fecha) para aplicar solo lo pendiente. **Backfill necesario en cualquier base que ya haya sido migrada con el ejecutor viejo** (la de este despliegue, por ejemplo) — antes de volver a correr `migrate:prod` ahí, hay que registrar como ya aplicadas las migraciones que efectivamente ya corrieron, si no el ejecutor nuevo va a intentar reaplicarlas y va a chocar con lo que ya existe:
+   ```sql
+   CREATE TABLE IF NOT EXISTS schema_migrations (
+     filename    text PRIMARY KEY,
+     applied_at  timestamptz NOT NULL DEFAULT now()
+   );
+   INSERT INTO schema_migrations (filename)
+   SELECT unnest(ARRAY[
+     '001_init.sql','002_accesos_paises_conocimiento.sql','003_i18n_paises_zona_horaria.sql',
+     '004_cancelacion_suscripcion.sql','005_planes_stripe_uso_api.sql','006_documentos_legales.sql',
+     '007_agentes_especialidad.sql','008_casos_medico_agente.sql','009_razas.sql',
+     '010_limite_uso_notificaciones.sql','011_keycloak_auth.sql','012_facturacion_eventos.sql',
+     '013_agentes_system_prompt.sql','014_archivos_file_id_anthropic.sql','015_dashboard_cache.sql',
+     '016_receta_medica.sql','017_agenda_citas.sql','018_informes_generados.sql',
+     '019_notificaciones.sql','020_notificaciones_leida.sql','021_rename_vetline_ai.sql',
+     '022_pagos_tilopay.sql','023_eventos_facturacion_referencia_generica.sql','024_facturacion_estructura.sql',
+     '025_facturacion_datos.sql','026_tarifas_modelo_facturable.sql','027_flujos_suscripcion_purga.sql',
+     '028_ajuste_admin_saldo.sql','029_registro_prueba.sql','030_invitaciones_medico.sql',
+     '031_colegiatura_medico_obligatoria.sql','032_regla_contexto_caso_agentes.sql','033_tarifa_cache_escritura_1h.sql',
+     '034_mensajes_tipo.sql','035_mensajes_incorporada.sql','036_correos_transaccionales.sql',
+     '037_motor_cobros.sql','038_invitacion_medico_nombre.sql','039_verificacion_correo.sql',
+     '040_trial_medicos_incluidos.sql','041_estados_agentes_paises.sql','042_correos_cobro.sql',
+     '043_raza_no_coincidente_log.sql','044_razas_alias_documento.sql','045_rls_correos_purga_razas_log.sql',
+     '046_consumo_agregado_purga.sql','047_expediente_y_propietario.sql','048_drop_tabla_informes_muerta.sql',
+     '049_notificaciones_completar.sql','050_correos_enviados_tipo_notificaciones.sql','051_suspension_bloqueo_cierre.sql',
+     '052_suspension_manual_no_autoreactiva.sql','053_notificaciones_uso_cierre_por_impago.sql','054_correos_enviados_tipo_suspension_bloqueo.sql',
+     '055_notificaciones_pendientes.sql','056_espera_pago_cambios_suscripcion.sql','057_desparasitacion_paciente_estado_cumpleanos.sql',
+     '058_indice_citas_caso.sql','059_documentos_conocimiento_contenido_contexto.sql','060_proveedor_ia_estado.sql'
+   ])
+   ON CONFLICT (filename) DO NOTHING;
+   ```
+   Ajustar la lista si en el momento de correrlo ya existen migraciones más nuevas que 060 — solo deben quedar registradas las que **realmente** ya se aplicaron en esa base, nunca de más (eso las saltearía sin haberlas corrido).
+4. **El backend no cifraba la conexión a la base** — sin manejo de SSL en `db.ts`/`config.ts`, sorteado al momento con `sslmode=require&uselibpqcompat=true` en las cadenas de conexión (funciona porque `pg` ≥ 8.16 soporta parseo de parámetros al estilo libpq bajo ese flag — confirmado contra la versión real instalada, `pg` 8.22.0 / `pg-connection-string` 2.14.0). Sin `sslrootcert`, `require` cifra pero **no valida la autoridad certificadora** — protege contra un espionaje pasivo del tráfico, no contra que algo se haga pasar por la base (un MITM activo dentro de la red). Cerrado agregando el paquete de certificados raíz de RDS a la imagen (`Dockerfile.prod` lo descarga en cada build, no se versiona — es público y AWS rota sus CAs de tanto en tanto) y pasando a `sslmode=verify-full` (valida cadena de confianza *y* que el hostname del certificado coincide con el endpoint real):
+   ```
+   DATABASE_URL=postgres://usuario:pass@host:5432/vetplatform?uselibpqcompat=true&sslmode=verify-full&sslrootcert=/etc/vetplatform/rds-global-bundle.pem
+   TENANT_DATABASE_URL=postgres://vetplatform_app:pass@host:5432/vetplatform?uselibpqcompat=true&sslmode=verify-full&sslrootcert=/etc/vetplatform/rds-global-bundle.pem
+   ```
+   No hace falta tocar `db.ts`/`config.ts`/`seedPlataforma.ts`/`migrate.ts`: `pg-connection-string` lee `sslrootcert` del disco por su cuenta al parsear la cadena de conexión (confirmado en su código fuente real, no en la documentación), así que alcanza con que el archivo exista en la imagen en esa ruta. Aplica igual a la base de Keycloak (`KC_DB_URL`) si la instancia administrada exige TLS ahí también — Keycloak tiene su propio mecanismo de trust store, fuera del alcance de este inventario.
+
+**Composición completa verificada contra Postgres/Keycloak/S3 reales**: sí, en este mismo despliegue — los 4 puntos de arriba son justamente lo que apareció al hacerlo por primera vez contra servicios administrados reales en vez de contenedores locales.
 
 ## Keycloak — secretos, respaldo y restauración
 

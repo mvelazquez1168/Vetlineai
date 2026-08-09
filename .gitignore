@@ -22,3 +22,10 @@ frontend/dev-dist/
 *.tsbuildinfo
 
 docs/CONTRATO*
+
+*.pem
+
+*.pem
+
+Par claves AWS/
+awscliv2.zip

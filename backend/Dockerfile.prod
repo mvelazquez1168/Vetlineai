@@ -28,6 +28,20 @@ ENV NODE_ENV=production
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev && npm cache clean --force
 
+# Paquete de certificados raíz de RDS — para validar la cadena de
+# confianza al conectar por TLS a la base administrada (sslmode=verify-full
+# + sslrootcert en DATABASE_URL/TENANT_DATABASE_URL — pg-connection-string
+# lo lee del disco él mismo en tiempo de arranque, no hace falta tocar
+# db.ts/config.ts, ver docs/inventario-stack-configuracion.md). Se
+# descarga en cada build en vez de versionarse en el repo: es un archivo
+# público de AWS que rota sus CAs de tanto en tanto — así la imagen
+# siempre lleva el bundle vigente al momento de construirse, sin depender
+# de que alguien se acuerde de refrescar un archivo commiteado. wget ya
+# está en la imagen base (lo usa el HEALTHCHECK de más abajo).
+RUN mkdir -p /etc/vetplatform && \
+    wget -q -O /etc/vetplatform/rds-global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem && \
+    chmod 644 /etc/vetplatform/rds-global-bundle.pem
+
 COPY --from=builder /app/dist ./dist
 # Los .sql de las migraciones no se compilan — package.json#migrate los
 # lee directo de src/migrations en tiempo de ejecución (ver el script

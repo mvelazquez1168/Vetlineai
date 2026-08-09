@@ -142,6 +142,7 @@ Si se retoma en una red sin este aislamiento, dos pasos adicionales necesarios (
 | `npm run migrate:prod` | `node dist/migrate.js` — mismo ejecutor, compilado. Es lo que corre contra el servidor real (`ts-node` no está en la imagen de producción, ver `Dockerfile.prod`). |
 | `npm run seed` | `ts-node --transpile-only src/seed/seed.ts` — datos de ejemplo de desarrollo (tenant, agentes, usuarios, casos). No toca `system_prompt` de agentes ni contenido real de la Base de Conocimiento — eso vive solo en la base viva (mismo relevamiento). |
 | `npm run seed:plataforma:prod` | `node dist/seed/seedPlataforma.js` — el sembrado de plataforma (tarifas/agentes/documentos/alias de raza, ver `backend/src/seed/seedPlataforma.ts`), compilado. Mismo motivo que `migrate:prod`: `ts-node` no está en la imagen de producción — `npm run seed:plataforma` (con ts-node) solo sirve en dev. Los archivos `.json`/`.txt` que lee siguen siendo accesibles desde `dist/seed/seedPlataforma.js` porque `Dockerfile.prod` los copia a `dist/seed/plataforma` en el mismo lugar donde `path.join(__dirname, "plataforma")` los busca una vez compilado. |
+| `npm run crear-admin-plataforma[:prod]` | Crea el primer `super_admin` de plataforma (Keycloak + fila en `staff_plataforma`, vinculados). Ver la sección "Primer administrador de plataforma" más abajo — no existía ningún procedimiento documentado para esto hasta el primer despliegue real a AWS. |
 
 ### Frontend (`frontend/package.json`)
 
@@ -278,6 +279,36 @@ La solución adoptada: **derivarla con un script versionado**, no escribirla a m
 1. `kc.sh import --file /ruta/Vetplatform-realm-produccion.json` (sin `--override` — es un reino nuevo, no una restauración sobre uno existente) o vía `--import-realm` al arrancar con el archivo en el directorio de importación automática.
 2. Consola → reino `Vetplatform` → Clients → `vetplatform-backend-service` → Credentials: confirmar que hay un secreto generado (si por algún motivo no lo hay, "Regenerate secret" desde ahí — mismo procedimiento ya documentado arriba). Copiar ese valor a `KEYCLOAK_SERVICE_CLIENT_SECRET` en `.env.prod`.
 3. Confirmar que las claves de firma son nuevas, no las de dev: Consola → Realm settings → Keys — deberían tener `kid` distintos a los del reino de dev.
-4. Crear el usuario `SUPER_ADMIN` inicial de la plataforma (no viene en el export — el primer acceso a Platform Admin se crea a mano, una vez, igual que cualquier bootstrap de reino nuevo).
+4. Crear el primer `super_admin` de plataforma — no viene en el export de Keycloak (0 usuarios, a propósito) ni en ninguna semilla de base (`staff_plataforma` arranca vacía). Ver la sección siguiente para el procedimiento completo.
+
+## Primer administrador de plataforma (`staff_plataforma`)
+
+Encontrado real 2026-08-09: producción arrancó con `staff_plataforma` vacía y sin ninguna forma de llenarla — el autoservicio (`POST /api/registro-publico`) solo da de alta clínicas, y no existe ningún endpoint que inserte una fila nueva en `staff_plataforma` (ni siquiera para que un `super_admin` ya logueado invite a otro — ver `docs/inventario-endpoints.md`). Hasta ahora esto se resolvía a mano, una sola vez, dentro de scripts de verificación descartables de esta sesión (`backend/src/scripts/verificar_agentes_paises_v2.ts`, escenario 6) — nunca quedó documentado como procedimiento real.
+
+**Qué hace falta, conceptualmente:** dos partes vinculadas por `keycloak_user_id`, ninguna sirve sola.
+- **En Keycloak** (reino `Vetplatform`): un usuario con el rol de **realm** `SUPER_ADMIN`. Sin este rol en el token, el frontend rechaza el login con "Tu usuario no tiene un rol reconocido en Vetline Ai" ANTES de llegar a pedirle nada al backend (`useAuth.tsx` lee `realm_access.roles` del token).
+- **En la base de la app**: una fila en `staff_plataforma` con `rol = 'super_admin'` y `keycloak_user_id` apuntando al `sub` de ese usuario. Esto es lo que efectivamente autoriza cada request — `middleware/auth.ts::resolverPrincipal` resuelve `SELECT id, rol FROM staff_plataforma WHERE keycloak_user_id = $1` con el `sub` del token ya validado; sin fila, el backend no reconoce al usuario aunque el login en Keycloak haya funcionado.
+
+`password_hash` (`NOT NULL`, heredada de antes de Keycloak — migración 011) no participa de nada de esto: nunca se lee para autenticar. Cualquier valor la satisface.
+
+**Comando** (agregado esta sesión, ver más abajo por qué convenía): `backend/src/crearAdminPlataforma.ts`, con 3 variables de entorno puestas SOLO para esa corrida (no son variables del servidor, no viven en `.env.prod`):
+```bash
+ADMIN_PLATAFORMA_EMAIL=admin@vetlineai.com \
+ADMIN_PLATAFORMA_NOMBRE="Nombre Apellido" \
+ADMIN_PLATAFORMA_PASSWORD='una contraseña real, elegida acá' \
+node dist/crearAdminPlataforma.js
+```
+(`npm run crear-admin-plataforma` con `ts-node` en dev.) Hace exactamente las dos partes de arriba en orden — crea el usuario en Keycloak con `crearUsuarioKeycloak(..., rol: "SUPER_ADMIN")` (mismo helper que ya usan el registro público y la invitación de médicos, sin `tenantId` porque staff no pertenece a ninguna clínica) y después inserta la fila en `staff_plataforma` con ese `keycloak_user_id` — revirtiendo la creación en Keycloak si el `INSERT` llega a fallar, para no dejar un usuario huérfano. Es **idempotente por email**: si ya existe una fila con ese email, no hace nada y lo dice.
+
+**Si hiciera falta a mano en vez de con el comando** (SQL exacto, una vez que el usuario ya existe en Keycloak — Consola → Users → Add user, con el rol de realm `SUPER_ADMIN` asignado en la pestaña Role mapping):
+```sql
+INSERT INTO staff_plataforma (nombre, email, password_hash, rol, keycloak_user_id)
+VALUES ('Nombre Apellido', 'admin@vetlineai.com', 'no-usado-keycloak', 'super_admin', '<sub del usuario en Keycloak>');
+```
+El `sub` es el `id` que muestra la consola de Keycloak en Users → (el usuario) → arriba del todo, o el último segmento de la URL de esa pantalla.
+
+**¿Conviene que sea un comando versionado en vez de un procedimiento manual?** Sí, y ya quedó así (`backend/src/crearAdminPlataforma.ts` + `npm run crear-admin-plataforma[:prod]`) — por lo mismo que ya se aplicó a migraciones y sembrado en este mismo despliegue: un paso que solo se hace "a mano, una vez" en la práctica se hace distinto cada vez (el propio hallazgo de esta sesión viene de que no había ningún registro de cómo se había hecho antes), y en un incidente real (perder acceso al único `super_admin`) es exactamente el momento en que menos conviene estar reconstruyendo el procedimiento de memoria. Con el comando, además, correrlo dos veces por error no crea un segundo admin ni dos usuarios de Keycloak sueltos.
+
+**Fuera de alcance, anotado a propósito:** esto resuelve el primer `super_admin`. Seguís sin tener forma de agregar un segundo miembro de staff (`soporte` o un `super_admin` adicional) más que repitiendo este mismo comando a mano — no hay ningún endpoint autenticado tipo "invitar staff" (el mismo patrón que ya existe para médicos, `invitaciones_medico`, no tiene equivalente acá). Vale la pena si el equipo de plataforma crece más allá de una persona, pero no se construyó ahora sin que se pida explícitamente.
 
 **El `README.md` del repo está desactualizado** — describe una "Fase 1" sin Keycloak ("JWT propio, NO Keycloak todavía"), sin motor de crédito, sin motor de cobros, sin la mayoría de los módulos que hoy son el grueso del sistema. Las instrucciones de arranque que sí describe (crear la base a mano, aplicar `001_init.sql`) tampoco reflejan que Postgres y Keycloak hoy son contenedores externos en una red compartida, ni que hay 40 migraciones más después de la 001. Vale la pena reescribirlo — hoy induce a error a cualquiera que lo siga literalmente.

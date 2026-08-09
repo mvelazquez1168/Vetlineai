@@ -11,7 +11,9 @@
     "migrate:prod": "node dist/migrate.js",
     "seed": "ts-node --transpile-only src/seed/seed.ts",
     "seed:plataforma": "ts-node --transpile-only src/seed/seedPlataforma.ts",
-    "seed:plataforma:prod": "node dist/seed/seedPlataforma.js"
+    "seed:plataforma:prod": "node dist/seed/seedPlataforma.js",
+    "crear-admin-plataforma": "ts-node --transpile-only src/crearAdminPlataforma.ts",
+    "crear-admin-plataforma:prod": "node dist/crearAdminPlataforma.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

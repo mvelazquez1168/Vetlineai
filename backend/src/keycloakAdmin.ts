@@ -253,6 +253,41 @@ export async function marcarEmailVerificadoKeycloak(keycloakUserId: string, veri
   }
 }
 
+/**
+ * Cambia la contraseña de un usuario YA existente — a diferencia del
+ * reset-password inline dentro de crearUsuarioKeycloak (que solo corre
+ * una vez, al alta), este es el que usa restablecerContrasena.ts para un
+ * usuario real pidiendo "olvidé mi contraseña". temporary:false, mismo
+ * criterio que el alta: no forzamos un cambio en el próximo login porque
+ * el usuario ya la acaba de elegir a propósito.
+ */
+export async function restablecerContrasenaUsuarioKeycloak(keycloakUserId: string, nuevaContrasena: string): Promise<void> {
+  const response = await adminFetch(`/users/${keycloakUserId}/reset-password`, {
+    method: "PUT",
+    body: JSON.stringify({ type: "password", value: nuevaContrasena, temporary: false }),
+  });
+  if (!response.ok) {
+    const detalle = await response.text().catch(() => "");
+    throw new Error(`No se pudo restablecer la contraseña en Keycloak (HTTP ${response.status}): ${detalle}`);
+  }
+}
+
+/**
+ * Invalida todas las sesiones activas del usuario — decisión de
+ * seguridad del prompt de restablecimiento: si alguien restablece la
+ * contraseña porque sospecha que le entraron a la cuenta, dejar viva la
+ * sesión del intruso vacía el sentido del cambio. Se llama siempre
+ * después de restablecerContrasenaUsuarioKeycloak, nunca antes (no tiene
+ * sentido cerrar sesiones de una contraseña que todavía no cambió).
+ */
+export async function cerrarSesionesUsuarioKeycloak(keycloakUserId: string): Promise<void> {
+  const response = await adminFetch(`/users/${keycloakUserId}/logout`, { method: "POST" });
+  if (!response.ok) {
+    const detalle = await response.text().catch(() => "");
+    throw new Error(`No se pudieron cerrar las sesiones en Keycloak (HTTP ${response.status}): ${detalle}`);
+  }
+}
+
 export interface TokenUsuarioKeycloak {
   access_token: string;
   refresh_token: string;

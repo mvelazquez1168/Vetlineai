@@ -30,7 +30,7 @@ export function AdminLayout() {
       {abierto && <BackdropMenuMovil onClick={cerrar} />}
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-shrink-0 flex-col justify-between bg-primary p-6 text-white transition-transform duration-200",
+          "fixed inset-y-0 left-0 z-40 flex w-64 flex-shrink-0 flex-col justify-between overflow-y-auto bg-primary p-6 text-white transition-transform duration-200",
           abierto ? "translate-x-0" : "-translate-x-full",
           "md:static md:translate-x-0",
         ].join(" ")}

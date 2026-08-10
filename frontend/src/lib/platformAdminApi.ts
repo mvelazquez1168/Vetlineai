@@ -22,6 +22,8 @@ export interface DocumentoConocimiento {
   fecha_carga: string;
   cargado_por_nombre: string | null;
   tiene_texto: boolean;
+  caracteres_texto: number | null;
+  incluir_en_contexto: boolean;
 }
 
 export type EstadoAgente = "activo" | "discontinuado" | "mantenimiento";

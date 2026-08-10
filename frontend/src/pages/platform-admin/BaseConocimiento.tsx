@@ -331,10 +331,20 @@ export function BaseConocimiento() {
     {
       key: "nombre",
       header: "Nombre",
+      // min-width, no width/max-width: en una tabla con table-layout auto
+      // (el default), un width fijo en una celda es solo una sugerencia
+      // que el navegador puede achicar bajo presión de espacio — min-width
+      // es lo único que realmente lo garantiza, dejando que el contenedor
+      // (que ya tiene overflow-x-auto) scrollee si hace falta.
+      className: "min-w-[380px]",
       render: (d) => (
         <div>
           <p className="font-semibold text-primary">{d.nombre}</p>
-          {d.descripcion && <p className="text-xs text-text-muted">{d.descripcion}</p>}
+          {d.descripcion && (
+            <p className="line-clamp-2 text-xs text-text-muted" title={d.descripcion}>
+              {d.descripcion}
+            </p>
+          )}
           {!d.tiene_texto && (
             <Badge variant="warning" dot className="mt-1">
               Sin texto extraído — el agente no lo puede leer
@@ -357,6 +367,27 @@ export function BaseConocimiento() {
         ) : (
           <span className="text-sm text-text-muted">Compartido</span>
         ),
+    },
+    {
+      key: "caracteres",
+      header: "Caracteres",
+      // Lo que realmente importa acá no es el peso del archivo, sino
+      // cuánto entra al contexto del modelo — y por lo tanto cuánto
+      // cuesta cada llamada que lo incluye.
+      render: (d) => (
+        <span className="text-sm text-text-primary">
+          {d.caracteres_texto != null ? d.caracteres_texto.toLocaleString("es") : "—"}
+        </span>
+      ),
+    },
+    {
+      key: "en_contexto",
+      header: "En contexto",
+      render: (d) => (
+        <Badge variant={d.incluir_en_contexto ? "success" : "neutral"} dot>
+          {d.incluir_en_contexto ? "Sí" : "No"}
+        </Badge>
+      ),
     },
     { key: "version", header: "Versión", render: (d) => d.version },
     {

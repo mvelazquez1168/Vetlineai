@@ -43,7 +43,7 @@ export function PlatformAdminLayout() {
         {abierto && <BackdropMenuMovil onClick={cerrar} claseTop="top-8" />}
         <aside
           className={[
-            "fixed left-0 top-8 bottom-0 z-40 flex h-[calc(100vh-32px)] w-64 flex-shrink-0 flex-col justify-between bg-primary p-6 text-white transition-transform duration-200",
+            "fixed left-0 top-8 bottom-0 z-40 flex h-[calc(100vh-32px)] w-64 flex-shrink-0 flex-col justify-between overflow-y-auto bg-primary p-6 text-white transition-transform duration-200",
             abierto ? "translate-x-0" : "-translate-x-full",
             "md:static md:translate-x-0",
           ].join(" ")}

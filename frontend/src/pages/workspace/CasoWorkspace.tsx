@@ -991,7 +991,7 @@ export function CasoWorkspace() {
         {/* Sidebar: lista de casos */}
         <aside
           className={[
-            "fixed inset-y-0 left-0 z-40 flex w-[85vw] max-w-xs min-h-0 flex-col border-r border-black/5 bg-surface transition-transform duration-200",
+            "fixed inset-y-0 left-0 z-40 flex w-[85vw] max-w-xs min-h-0 flex-col overflow-y-auto border-r border-black/5 bg-surface transition-transform duration-200",
             menuAbierto ? "translate-x-0" : "-translate-x-full",
             "md:static md:z-auto md:w-auto md:max-w-none md:translate-x-0",
           ].join(" ")}

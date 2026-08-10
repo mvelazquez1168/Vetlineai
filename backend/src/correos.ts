@@ -44,7 +44,9 @@ export type TipoCorreo =
   | "cita_cancelada_o_reprogramada"
   | "informe_disponible"
   | "cumpleanos"
-  | "saldo_proveedor_bajo";
+  | "saldo_proveedor_bajo"
+  | "restablecimiento_contrasena"
+  | "contrasena_cambiada";
 
 export interface DatosPlantilla {
   invitacion_medico: { nombreClinica: string; enlace: string; vigenciaDias: number; nombreMedico?: string | null };
@@ -91,6 +93,8 @@ export interface DatosPlantilla {
   informe_disponible: { nombrePaciente: string };
   cumpleanos: { nombrePaciente: string };
   saldo_proveedor_bajo: { saldoUsd: number; umbralUsd: number };
+  restablecimiento_contrasena: { nombre: string | null; enlace: string; vigenciaMinutos: number };
+  contrasena_cambiada: { nombre: string | null; fecha: string };
 }
 
 // Layout compartido — español neutro, una sola acción principal por
@@ -515,6 +519,44 @@ function construirCorreo<T extends TipoCorreo>(
         html: envolverLayoutInformativo("Saldo estimado del proveedor de IA bajo", cuerpo),
       };
     }
+    // prompt_code_restablecer_contrasena, Paso 3 — un solo uso, vigencia
+    // corta (1h, mucho menos que las 72h de verificación de correo). El
+    // párrafo "si no fuiste vos" es obligatorio: sin él, alguien que no
+    // pidió esto no sabe que puede ignorarlo con tranquilidad.
+    case "restablecimiento_contrasena": {
+      const d = datos as DatosPlantilla["restablecimiento_contrasena"];
+      const saludo = d.nombre ? `Hola ${d.nombre},` : "¡Hola!";
+      const cuerpo =
+        `<p>${saludo}</p>` +
+        `<p>Recibimos un pedido para restablecer tu contraseña en Vetline Ai. El enlace es válido por ${d.vigenciaMinutos} minutos.</p>` +
+        `<p>Si no fuiste vos quien lo pidió, no hace falta que hagas nada: tu contraseña no cambió y el enlace vence solo.</p>`;
+      return {
+        asunto: "Restablecé tu contraseña en Vetline Ai",
+        texto:
+          `${saludo} Recibimos un pedido para restablecer tu contraseña en Vetline Ai. ` +
+          `El enlace es válido por ${d.vigenciaMinutos} minutos: ${d.enlace} ` +
+          `Si no fuiste vos, no hace falta que hagas nada: tu contraseña no cambió y el enlace vence solo.`,
+        html: envolverLayout("Restablecé tu contraseña", cuerpo, "Elegir una contraseña nueva", d.enlace),
+      };
+    }
+    // Paso 5 — la única señal que tiene alguien cuya cuenta fue tomada:
+    // si le llega este aviso sin haberlo pedido, sabe que algo pasó. Sin
+    // botón/enlace a propósito: es una notificación, no una acción.
+    case "contrasena_cambiada": {
+      const d = datos as DatosPlantilla["contrasena_cambiada"];
+      const saludo = d.nombre ? `Hola ${d.nombre},` : "¡Hola!";
+      const cuerpo =
+        `<p>${saludo}</p>` +
+        `<p>Tu contraseña en Vetline Ai cambió el <strong>${d.fecha}</strong>.</p>` +
+        `<p>Si fuiste vos, no hace falta que hagas nada más. Si no reconocés este cambio, contactá a nuestro equipo de soporte de inmediato: ${urlSoporte()}</p>`;
+      return {
+        asunto: "Tu contraseña en Vetline Ai cambió",
+        texto:
+          `${saludo} Tu contraseña en Vetline Ai cambió el ${d.fecha}. ` +
+          `Si fuiste vos, no hace falta que hagas nada más. Si no reconocés este cambio, contactá a soporte de inmediato: ${urlSoporte()}`,
+        html: envolverLayoutInformativo("Tu contraseña cambió", cuerpo),
+      };
+    }
   }
 }
 
@@ -528,6 +570,10 @@ export function urlExportar(): string {
 
 export function urlVerificarCorreo(token: string): string {
   return `${config.frontendUrl}/verificar-correo/${token}`;
+}
+
+export function urlRestablecerContrasena(token: string): string {
+  return `${config.frontendUrl}/restablecer-contrasena/${token}`;
 }
 
 export function urlDatosClinica(): string {

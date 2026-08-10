@@ -71,7 +71,9 @@ platformAdminRouter.get("/documentos", async (req, res) => {
       `SELECT d.id, d.nombre, d.descripcion, d.tipo, d.agente_id,
               a.nombre AS agente_nombre, d.pais_codigo, d.archivo_ref, d.version, d.estado,
               d.fecha_carga, sp.nombre AS cargado_por_nombre,
-              (d.contenido_texto IS NOT NULL) AS tiene_texto
+              (d.contenido_texto IS NOT NULL) AS tiene_texto,
+              char_length(d.contenido_texto) AS caracteres_texto,
+              d.incluir_en_contexto
        FROM documentos_conocimiento d
        LEFT JOIN agentes a ON a.id = d.agente_id
        LEFT JOIN staff_plataforma sp ON sp.id = d.cargado_por

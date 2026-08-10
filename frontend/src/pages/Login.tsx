@@ -135,7 +135,7 @@ export function Login() {
           */}
 
           <p className="mt-6 text-center text-sm text-accent">
-            <a href="#">¿Olvidaste tu contraseña?</a>
+            <Link to="/restablecer-contrasena">¿Olvidaste tu contraseña?</Link>
           </p>
           <p className="mt-3 text-center text-sm text-text-muted">
             ¿No tenés cuenta todavía? <Link to="/registro" className="text-accent">Registrá tu clínica</Link>

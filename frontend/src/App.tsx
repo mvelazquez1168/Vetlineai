@@ -5,6 +5,8 @@ import { Login } from "./pages/Login";
 import { Registro } from "./pages/Registro";
 import { InvitacionMedico } from "./pages/InvitacionMedico";
 import { VerificarCorreo } from "./pages/VerificarCorreo";
+import { RestablecerContrasena } from "./pages/RestablecerContrasena";
+import { EstablecerContrasenaNueva } from "./pages/EstablecerContrasenaNueva";
 import { Unauthorized } from "./pages/Unauthorized";
 import { ClinicaBloqueada } from "./pages/ClinicaBloqueada";
 import { AdminLayout } from "./pages/admin/AdminLayout";
@@ -70,6 +72,8 @@ export default function App() {
       <Route path="/registro" element={<Registro />} />
       <Route path="/invitacion/:token" element={<InvitacionMedico />} />
       <Route path="/verificar-correo/:token" element={<VerificarCorreo />} />
+      <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
+      <Route path="/restablecer-contrasena/:token" element={<EstablecerContrasenaNueva />} />
       <Route path="/legal" element={<Legal />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="/bloqueada" element={<ClinicaBloqueada />} />

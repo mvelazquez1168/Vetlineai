@@ -43,7 +43,8 @@ export type TipoCorreo =
   | "confirmacion_cita"
   | "cita_cancelada_o_reprogramada"
   | "informe_disponible"
-  | "cumpleanos";
+  | "cumpleanos"
+  | "saldo_proveedor_bajo";
 
 export interface DatosPlantilla {
   invitacion_medico: { nombreClinica: string; enlace: string; vigenciaDias: number; nombreMedico?: string | null };
@@ -89,6 +90,7 @@ export interface DatosPlantilla {
   };
   informe_disponible: { nombrePaciente: string };
   cumpleanos: { nombrePaciente: string };
+  saldo_proveedor_bajo: { saldoUsd: number; umbralUsd: number };
 }
 
 // Layout compartido — español neutro, una sola acción principal por
@@ -491,6 +493,26 @@ function construirCorreo<T extends TipoCorreo>(
           `Ningún usuario de tu clínica puede acceder mientras dure el bloqueo. Tus datos no fueron eliminados. ` +
           `Contactá a soporte si querés apelar: ${d.enlaceSoporte}`,
         html: envolverLayout("Tu cuenta fue bloqueada", cuerpo, "Contactar a soporte", d.enlaceSoporte),
+      };
+    }
+    // prompt_code_panel_consumo_sin_api — aviso interno (destinatario es
+    // el correo configurado en saldo_proveedor.correo_destino, no un
+    // cliente). El saldo es una ESTIMACIÓN derivada (recargas menos
+    // costo de uso_api), no el número real del proveedor — el correo lo
+    // dice explícitamente para que no se tome como definitivo.
+    case "saldo_proveedor_bajo": {
+      const d = datos as DatosPlantilla["saldo_proveedor_bajo"];
+      const cuerpo =
+        `<p>El saldo <strong>estimado</strong> de la cuenta de Anthropic bajó de USD ${d.umbralUsd.toFixed(2)}: ` +
+        `ahora está en USD ${d.saldoUsd.toFixed(2)}.</p>` +
+        `<p>Este número es una derivación (recargas registradas menos el consumo ya calculado en la plataforma), ` +
+        `no el saldo real del proveedor. <strong>Verificalo en la consola de Anthropic antes de decidir una recarga.</strong></p>`;
+      return {
+        asunto: `Saldo estimado del proveedor de IA por debajo de USD ${d.umbralUsd.toFixed(2)}`,
+        texto:
+          `El saldo estimado de la cuenta de Anthropic bajó de USD ${d.umbralUsd.toFixed(2)} (ahora USD ${d.saldoUsd.toFixed(2)}). ` +
+          `Es una derivación, no el número real del proveedor — verificalo en la consola de Anthropic antes de decidir una recarga.`,
+        html: envolverLayoutInformativo("Saldo estimado del proveedor de IA bajo", cuerpo),
       };
     }
   }

@@ -1,9 +1,12 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
+import { BackdropMenuMovil } from "../../components/BackdropMenuMovil";
 import { BarraVentanaPurga } from "../../components/BarraVentanaPurga";
 import { BarraVerificacionCorreo } from "../../components/BarraVerificacionCorreo";
+import { BotonMenuMovil } from "../../components/BotonMenuMovil";
 import { NotificacionBell } from "../../components/NotificacionBell";
 import { NotificacionesPersonalesBell } from "../../components/NotificacionesPersonalesBell";
 import { useAuth } from "../../hooks/useAuth";
+import { useMenuColapsable } from "../../hooks/useMenuColapsable";
 
 const NAV_ITEMS = [
   { to: "/admin/medicos", label: "Médicos" },
@@ -20,10 +23,18 @@ const NAV_ITEMS = [
 
 export function AdminLayout() {
   const { logout, esMedico } = useAuth();
+  const { abierto, alternar, cerrar } = useMenuColapsable();
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="flex w-64 flex-shrink-0 flex-col justify-between bg-primary p-6 text-white">
+      {abierto && <BackdropMenuMovil onClick={cerrar} />}
+      <aside
+        className={[
+          "fixed inset-y-0 left-0 z-40 flex w-64 flex-shrink-0 flex-col justify-between bg-primary p-6 text-white transition-transform duration-200",
+          abierto ? "translate-x-0" : "-translate-x-full",
+          "md:static md:translate-x-0",
+        ].join(" ")}
+      >
         <div>
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent">
@@ -35,7 +46,7 @@ export function AdminLayout() {
             </div>
           </div>
 
-          <nav className="mt-10 flex flex-col gap-1">
+          <nav className="mt-10 flex flex-col gap-1" onClick={cerrar}>
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
@@ -78,6 +89,10 @@ export function AdminLayout() {
       </aside>
 
       <main className="flex-1 overflow-y-auto p-10">
+        <div className="mb-4 flex items-center gap-3 md:hidden">
+          <BotonMenuMovil onClick={alternar} />
+          <span className="text-sm font-semibold text-primary">Vetline Ai</span>
+        </div>
         <div className="mb-6 flex items-center justify-between gap-4">
           <div className="flex-1 space-y-3">
             <BarraVerificacionCorreo />

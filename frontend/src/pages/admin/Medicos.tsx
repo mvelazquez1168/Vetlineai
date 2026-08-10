@@ -20,6 +20,7 @@ import {
 export function Medicos() {
   const { zonaHoraria } = useAuth();
   const [medicos, setMedicos] = useState<Medico[]>([]);
+  const [nombreClinica, setNombreClinica] = useState("");
   const [cupos, setCupos] = useState<ConteoCuposMedicos | null>(null);
   const [estadoSuscripcion, setEstadoSuscripcion] = useState<EstadoSuscripcionResumen | null>(null);
   const [invitaciones, setInvitaciones] = useState<InvitacionMedico[]>([]);
@@ -53,12 +54,14 @@ export function Medicos() {
       adminApi.obtenerCuposMedicos(),
       adminApi.listarInvitacionesMedicos(),
       adminApi.obtenerEstadoSuscripcion(),
+      adminApi.obtenerClinica(),
     ])
-      .then(([medicosData, cuposData, invitacionesData, estadoSuscripcionData]) => {
+      .then(([medicosData, cuposData, invitacionesData, estadoSuscripcionData, clinicaData]) => {
         setMedicos(medicosData.medicos);
         setCupos(cuposData.cupos);
         setInvitaciones(invitacionesData.invitaciones);
         setEstadoSuscripcion(estadoSuscripcionData);
+        setNombreClinica(clinicaData.tenant.nombre);
       })
       .finally(() => setIsLoading(false));
   };
@@ -292,7 +295,7 @@ export function Medicos() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary">Gestión de Médicos</h1>
-          <p className="text-text-muted">Clínica Veterinaria San Martín</p>
+          <p className="text-text-muted">{nombreClinica}</p>
         </div>
         <Button onClick={() => setModalAbierto(true)}>+ Invitar médico</Button>
       </div>

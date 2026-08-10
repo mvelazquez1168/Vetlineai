@@ -1,0 +1,19 @@
+Conectar al servidor
+$PEM = "C:\ai-vet-credenciales\Par claves AWS\vetline-prod.pem"
+ssh -i $PEM ubuntu@44.197.21.104
+
+setear pwd
+read -s -p "Contrasena maestra: " PGPW; echo
+
+
+docker run --rm -e PGPASSWORD="$PGPW" postgres:17 psql -h vetline-prod.cgx6kmu4ai0j.us-east-1.rds.amazonaws.com -U postgres -d vetplatform -c "
+SELECT t.id, t.nombre, t.creado_en::date,
+       (SELECT string_agg(p.email, ', ') FROM personas p WHERE p.tenant_id = t.id) AS correos
+  FROM tenants t ORDER BY t.creado_en DESC;"
+
+docker run --rm -e PGPASSWORD="$PGPW" postgres:17 psql -h vetline-prod.cgx6kmu4ai0j.us-east-1.rds.amazonaws.com -U postgres -d vetplatform -c "
+DELETE FROM uso_api WHERE tenant_id = 'ID_AQUI';
+DELETE FROM notificaciones_uso WHERE tenant_id = 'ID_AQUI';
+DELETE FROM eventos_facturacion WHERE tenant_id = 'ID_AQUI';
+DELETE FROM documentos_fiscales WHERE tenant_id = 'ID_AQUI';
+DELETE FROM tenants WHERE id = 'ID_AQUI';"

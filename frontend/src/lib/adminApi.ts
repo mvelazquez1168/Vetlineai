@@ -423,6 +423,12 @@ export const adminApi = {
       body: JSON.stringify({ email }),
     }),
 
+  // prompt_code_reenvio_verificacion — reenvía sin tocar la dirección. En
+  // el límite (429), el backend manda `disponibleEn` en err.data (ver
+  // ApiError) — el llamador lo formatea con formatearHora, nunca a mano.
+  reenviarVerificacionCorreo: () =>
+    authedFetch<{ ok: true }>("/admin/mi-correo/reenviar-verificacion", { method: "POST" }),
+
   actualizarClinica: (data: Partial<TenantInfo>) =>
     authedFetch<{ tenant: TenantInfo }>("/admin/clinica", {
       method: "PATCH",

@@ -9,6 +9,7 @@ import { ConsumoPruebas, ParametroPlataforma, platformAdminApi } from "../../lib
 const GRUPOS: { prefijo: string; titulo: string }[] = [
   { prefijo: "trial.", titulo: "Prueba gratuita y consumo global" },
   { prefijo: "saldo.", titulo: "Límites de saldo de clientes" },
+  { prefijo: "saldo_proveedor.", titulo: "Aviso de saldo bajo del proveedor de IA" },
   { prefijo: "recarga.", titulo: "Configuración de recargas" },
   { prefijo: "purga.", titulo: "Políticas de purga e historial" },
   { prefijo: "agentes.", titulo: "Políticas de configuración de agentes IA" },
@@ -84,7 +85,7 @@ export function Parametros() {
                     </div>
                     <div className="flex items-center gap-2">
                       <input
-                        type="number"
+                        type={p.tipo === "numero" ? "number" : "text"}
                         value={valores[p.clave] ?? ""}
                         onChange={(e) => setValores((prev) => ({ ...prev, [p.clave]: e.target.value }))}
                         className="w-32 rounded-lg border border-black/10 bg-background px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"

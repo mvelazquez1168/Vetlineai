@@ -1,5 +1,8 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { BackdropMenuMovil } from "../../components/BackdropMenuMovil";
+import { BotonMenuMovil } from "../../components/BotonMenuMovil";
 import { useAuth } from "../../hooks/useAuth";
+import { useMenuColapsable } from "../../hooks/useMenuColapsable";
 
 const NAV_ITEMS = [
   { to: "/platform-admin/dashboard", label: "Dashboard" },
@@ -11,12 +14,15 @@ const NAV_ITEMS = [
   { to: "/platform-admin/legal", label: "Legal", soloSuperAdmin: true },
   { to: "/platform-admin/tarifas", label: "Tarifas por token", soloSuperAdmin: true },
   { to: "/platform-admin/parametros", label: "Parámetros", soloSuperAdmin: true },
+  { to: "/platform-admin/recargas-proveedor-ia", label: "Recargas del proveedor de IA", soloSuperAdmin: true },
+  { to: "/platform-admin/saldo-proveedor-ia", label: "Saldo del proveedor de IA", soloSuperAdmin: true },
   { to: "/platform-admin/paises", label: "Directorio de países", soloSuperAdmin: true },
   { to: "/platform-admin/consumo-clinicas", label: "Consumo por clínica", soloSuperAdmin: true },
 ];
 
 export function PlatformAdminLayout() {
   const { logout, rol } = useAuth();
+  const { abierto, alternar, cerrar } = useMenuColapsable();
 
   // 'soporte' básico no ve Base de Conocimiento; Legal es todavía más
   // restrictivo (ni siquiera soporte_senior) — oculto del sidebar en ambos
@@ -34,7 +40,14 @@ export function PlatformAdminLayout() {
       </div>
 
       <div className="flex">
-        <aside className="flex h-[calc(100vh-32px)] w-64 flex-shrink-0 flex-col justify-between bg-primary p-6 text-white">
+        {abierto && <BackdropMenuMovil onClick={cerrar} claseTop="top-8" />}
+        <aside
+          className={[
+            "fixed left-0 top-8 bottom-0 z-40 flex h-[calc(100vh-32px)] w-64 flex-shrink-0 flex-col justify-between bg-primary p-6 text-white transition-transform duration-200",
+            abierto ? "translate-x-0" : "-translate-x-full",
+            "md:static md:translate-x-0",
+          ].join(" ")}
+        >
           <div>
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent">
@@ -46,7 +59,7 @@ export function PlatformAdminLayout() {
               </div>
             </div>
 
-            <nav className="mt-10 flex flex-col gap-1">
+            <nav className="mt-10 flex flex-col gap-1" onClick={cerrar}>
               {navItems.map((item) => (
                 <NavLink
                   key={item.to}
@@ -73,6 +86,10 @@ export function PlatformAdminLayout() {
         </aside>
 
         <main className="flex-1 overflow-y-auto p-10">
+          <div className="mb-4 flex items-center gap-3 md:hidden">
+            <BotonMenuMovil onClick={alternar} />
+            <span className="text-sm font-semibold text-primary">Vetline Ai</span>
+          </div>
           <Outlet />
         </main>
       </div>

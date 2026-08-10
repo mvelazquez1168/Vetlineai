@@ -111,6 +111,95 @@ platformConsumoClinicasRouter.get("/clinicas/resumen", async (req, res) => {
   }
 });
 
+// GET /clinicas/rentabilidad — prompt_code_panel_consumo_sin_api, Bloque 3
+// ("¿Qué clínica me conviene?"). Período fijo de 30 días, consistente con
+// el gráfico y el desglose de bolsas del panel de saldo del proveedor.
+// DEBE registrarse antes de "/clinicas/:tenantId" — si no, Express la
+// matchea como tenantId="rentabilidad".
+//
+// La comisión de pasarela (cobros.comision_pasarela) está NULL en todos
+// los cobros existentes (062) — nunca se trata como cero: si algún cobro
+// del período no tiene el dato, comisionConocida queda en false y el
+// margen se calcula SIN comisión, marcado como tal para que el panel lo
+// muestre explícitamente.
+platformConsumoClinicasRouter.get("/clinicas/rentabilidad", async (req, res) => {
+  try {
+    const result = await req.db!.query(
+      `SELECT t.id AS tenant_id, t.nombre, s.estado, p.credito_ia_usd,
+              COALESCE(ingreso.monto, 0) AS ingreso_usd,
+              COALESCE(consumo.monto, 0) AS costo_ia_usd,
+              COALESCE(bonif.monto, 0) AS bonificacion_usd,
+              comision.suma AS comision_suma_usd,
+              COALESCE(comision.faltantes, 0) AS comision_faltantes
+       FROM tenants t
+       JOIN suscripciones s ON s.id = t.suscripcion_id
+       JOIN planes p ON p.id = s.plan_id
+       LEFT JOIN LATERAL (
+         SELECT SUM(monto) AS monto FROM cobros
+         WHERE tenant_id = t.id AND estado = 'exitoso' AND tipo IN ('suscripcion', 'recarga')
+           AND creado_en >= now() - interval '30 days'
+       ) ingreso ON true
+       LEFT JOIN LATERAL (
+         SELECT SUM(costo_usd_calculado) AS monto FROM uso_api
+         WHERE tenant_id = t.id AND "timestamp" >= now() - interval '30 days'
+       ) consumo ON true
+       LEFT JOIN LATERAL (
+         SELECT SUM(credito_acreditado_usd - monto_pagado_usd) AS monto FROM recargas
+         WHERE tenant_id = t.id AND estado = 'acreditada' AND creada_en >= now() - interval '30 days'
+       ) bonif ON true
+       LEFT JOIN LATERAL (
+         SELECT SUM(comision_pasarela) AS suma, COUNT(*) FILTER (WHERE comision_pasarela IS NULL) AS faltantes
+         FROM cobros
+         WHERE tenant_id = t.id AND estado = 'exitoso' AND creado_en >= now() - interval '30 days'
+       ) comision ON true
+       WHERE s.estado NOT IN ('cancelada', 'finalizada')
+       ORDER BY t.nombre`
+    );
+
+    const UMBRAL_CONSUMO_CERCA_DE_INGRESO = 0.8; // señal 1
+    const UMBRAL_BAJO_CONSUMO_RELATIVO = 0.2; // señal 2
+
+    const clinicas = result.rows.map((r) => {
+      const ingresoUsd = Number(r.ingreso_usd);
+      const costoIaUsd = Number(r.costo_ia_usd);
+      const bonificacionUsd = Number(r.bonificacion_usd);
+      const comisionFaltantes = Number(r.comision_faltantes);
+      const comisionConocida = comisionFaltantes === 0;
+      const comisionUsd = comisionConocida ? Number(r.comision_suma_usd ?? 0) : 0;
+
+      const costoTotalUsd = costoIaUsd + bonificacionUsd + comisionUsd;
+      const margenUsd = ingresoUsd - costoTotalUsd;
+      const proporcionIaSobreIngreso = ingresoUsd > 0 ? costoIaUsd / ingresoUsd : null;
+
+      const creditoIaUsd = Number(r.credito_ia_usd);
+      const proporcionConsumoSobreCredito = creditoIaUsd > 0 ? costoIaUsd / creditoIaUsd : null;
+
+      return {
+        tenantId: r.tenant_id,
+        nombre: r.nombre,
+        estado: r.estado,
+        ingresoUsd,
+        costoIaUsd,
+        bonificacionUsd,
+        comisionUsd,
+        comisionConocida,
+        margenUsd,
+        margenSinComision: !comisionConocida,
+        proporcionIaSobreIngreso,
+        senalConsumoCercaDeIngreso:
+          proporcionIaSobreIngreso !== null && proporcionIaSobreIngreso >= UMBRAL_CONSUMO_CERCA_DE_INGRESO,
+        senalBajoConsumoRelativo:
+          proporcionConsumoSobreCredito !== null && proporcionConsumoSobreCredito < UMBRAL_BAJO_CONSUMO_RELATIVO,
+      };
+    });
+
+    res.json({ periodoDias: 30, clinicas });
+  } catch (err) {
+    console.error("GET /platform-admin/clinicas/rentabilidad", err);
+    res.status(500).json({ error: "Error al calcular la rentabilidad por clínica." });
+  }
+});
+
 // GET /clinicas/:tenantId — detalle: desglose de consumo del período por
 // tipo + historial de movimientos de crédito.
 platformConsumoClinicasRouter.get("/clinicas/:tenantId", async (req, res) => {

@@ -8,6 +8,7 @@ import { iniciarJobCiclo } from "./jobs/ciclo.job";
 import { iniciarJobCicloCobro } from "./jobs/cicloCobro.job";
 import { iniciarJobTarjetaPorVencer } from "./jobs/tarjetaPorVencer.job";
 import { iniciarJobAuditoriaRls } from "./jobs/auditoriaRls.job";
+import { iniciarJobSaldoProveedorIa } from "./jobs/saldoProveedorIa.job";
 import { validarCredencialesPaisesHabilitados } from "./pagos/credencialesPasarela";
 import { pool } from "./db";
 import { authRouter } from "./routes/auth.routes";
@@ -34,6 +35,8 @@ import { platformParametrosRouter } from "./routes/platformParametros.routes";
 import { platformPaisesRouter } from "./routes/platformPaises.routes";
 import { platformConsumoClinicasRouter } from "./routes/platformConsumoClinicas.routes";
 import { platformCobrosRouter } from "./routes/platformCobros.routes";
+import { platformRecargasProveedorRouter } from "./routes/platformRecargasProveedor.routes";
+import { platformSaldoProveedorRouter } from "./routes/platformSaldoProveedor.routes";
 import { propietariosRouter } from "./routes/propietarios.routes";
 import { razasRouter } from "./routes/razas.routes";
 import { recetasRouter } from "./routes/recetas.routes";
@@ -97,6 +100,8 @@ app.use("/api/platform", platformRouter);
 app.use("/api/platform-admin", platformAdminRouter);
 app.use("/api/platform-admin", platformTarifasRouter);
 app.use("/api/platform-admin", platformParametrosRouter);
+app.use("/api/platform-admin", platformRecargasProveedorRouter);
+app.use("/api/platform-admin", platformSaldoProveedorRouter);
 app.use("/api/platform-admin", platformPaisesRouter);
 app.use("/api/platform-admin", platformConsumoClinicasRouter);
 app.use("/api/platform-admin/cobros", platformCobrosRouter);
@@ -136,6 +141,7 @@ const server = app.listen(config.port, () => {
   iniciarJobCicloCobro();
   iniciarJobTarjetaPorVencer();
   iniciarJobAuditoriaRls();
+  iniciarJobSaldoProveedorIa();
   validarFrontendUrlConfigurada();
   validarCredencialesPaisesHabilitados(pool).catch((err) =>
     console.error("[pagos] No se pudo validar las credenciales de pasarela por país al arrancar", err)

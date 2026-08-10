@@ -201,9 +201,90 @@ export interface ParametroPlataforma {
   actualizadoPorNombre: string | null;
 }
 
+export interface RecargaProveedorIa {
+  id: string;
+  fecha: string;
+  montoUsd: number;
+  nota: string | null;
+  creadoEn: string;
+  cargadoPorNombre?: string;
+}
+
 export interface ConsumoPruebas {
   consumoUsd: number;
   topeUsd: number;
+}
+
+// ---------------------------------------------------------------------
+// prompt_code_panel_consumo_sin_api — el saldo del proveedor de IA es
+// una ESTIMACIÓN derivada (recargas menos consumo ya calculado en
+// uso_api), nunca el número real del proveedor. Todo lo que viene de
+// /saldo-proveedor-ia debe presentarse como tal.
+// ---------------------------------------------------------------------
+export interface ConsumoDiario {
+  fecha: string;
+  costoUsd: number;
+}
+
+export interface DesgloseBolsas {
+  plan: number;
+  comprado: number;
+  prueba: number;
+  colchon: number;
+  otro: number;
+}
+
+export interface UltimaRecargaProveedor {
+  fecha: string;
+  montoUsd: number;
+}
+
+export interface UltimoControlSaldo {
+  id: string;
+  fecha: string;
+  saldoObservadoUsd: number;
+  diferenciaUsd: number;
+  nota: string | null;
+  registradoPorNombre: string | null;
+  creadoEn: string;
+}
+
+export interface SaldoProveedorIa {
+  saldoDerivadoUsd: number;
+  origenDerivacion: "control" | "primera_recarga" | "sin_datos";
+  desdeFecha: string | null;
+  ritmoDiarioUsd: number;
+  diasProyeccion: number | null;
+  consumoDiario: ConsumoDiario[];
+  desgloseBolsas: DesgloseBolsas;
+  ultimaRecarga: UltimaRecargaProveedor | null;
+  ultimoControl: UltimoControlSaldo | null;
+}
+
+export interface ControlSaldoProveedor {
+  id: string;
+  fecha: string;
+  saldoObservadoUsd: number;
+  diferenciaUsd: number;
+  nota: string | null;
+  registradoPorNombre: string | null;
+  creadoEn: string;
+}
+
+export interface RentabilidadClinica {
+  tenantId: string;
+  nombre: string;
+  estado: string;
+  ingresoUsd: number;
+  costoIaUsd: number;
+  bonificacionUsd: number;
+  comisionUsd: number;
+  comisionConocida: boolean;
+  margenUsd: number;
+  margenSinComision: boolean;
+  proporcionIaSobreIngreso: number | null;
+  senalConsumoCercaDeIngreso: boolean;
+  senalBajoConsumoRelativo: boolean;
 }
 
 export interface ImpuestoPais {
@@ -558,6 +639,37 @@ export const platformAdminApi = {
     }),
 
   obtenerConsumoPruebas: () => authedFetch<ConsumoPruebas>("/platform-admin/parametros/consumo-pruebas"),
+
+  // -------------------------------------------------------------------
+  // prompt_code_panel_consumo_plataforma, Paso 1 — recargas de la cuenta
+  // de Anthropic (entrada manual, el saldo no se puede consultar por API).
+  // -------------------------------------------------------------------
+  listarRecargasProveedorIa: () =>
+    authedFetch<{ recargas: RecargaProveedorIa[] }>("/platform-admin/recargas-proveedor-ia"),
+
+  registrarRecargaProveedorIa: (data: { fecha: string; montoUsd: number; nota?: string }) =>
+    authedFetch<RecargaProveedorIa>("/platform-admin/recargas-proveedor-ia", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  // -------------------------------------------------------------------
+  // prompt_code_panel_consumo_sin_api — saldo derivado, control manual y
+  // rentabilidad por clínica (sin API de administración de Anthropic).
+  // -------------------------------------------------------------------
+  obtenerSaldoProveedorIa: () => authedFetch<SaldoProveedorIa>("/platform-admin/saldo-proveedor-ia"),
+
+  listarControlesSaldoProveedorIa: () =>
+    authedFetch<{ controles: ControlSaldoProveedor[] }>("/platform-admin/saldo-proveedor-ia/controles"),
+
+  registrarControlSaldoProveedorIa: (data: { fecha: string; saldoObservadoUsd: number; nota?: string }) =>
+    authedFetch<ControlSaldoProveedor>("/platform-admin/saldo-proveedor-ia/controles", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  obtenerRentabilidadClinicas: () =>
+    authedFetch<{ periodoDias: number; clinicas: RentabilidadClinica[] }>("/platform-admin/clinicas/rentabilidad"),
 
   // -------------------------------------------------------------------
   // Directorio de países

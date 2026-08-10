@@ -210,7 +210,17 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   let payload: TokenKeycloak;
   try {
     payload = await verificarFirma(header.slice("Bearer ".length));
-  } catch {
+  } catch (err) {
+    // Antes se descartaba el motivo real acá — un 401 sin rastro en el log
+    // obliga a diagnosticar a ciegas desde afuera (firma inválida, issuer
+    // que no matchea, token vencido, kid no resuelto en el JWKS, o un
+    // fallo de red al pedir las claves, son todos "Token inválido o
+    // expirado" para el cliente, pero errores completamente distintos acá
+    // adentro). El mensaje al cliente no cambia — sigue sin exponer detalle.
+    console.error(
+      `[auth] Token rechazado: ${err instanceof Error ? `${err.name}: ${err.message}` : String(err)} ` +
+        `(issuers aceptados: ${ISSUERS_ACEPTADOS.join(", ")})`
+    );
     return res.status(401).json({ error: "Token inválido o expirado." });
   }
 

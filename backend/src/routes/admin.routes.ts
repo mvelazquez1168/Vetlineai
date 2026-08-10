@@ -33,7 +33,7 @@ import {
   obtenerConteoCuposMedicos,
 } from "../invitaciones";
 import { listarAccesosMedico, actualizarAccesosMedico, contarCuposConsumidos } from "../medicoAgente";
-import { cambiarCorreoAdmin } from "../verificacionCorreo";
+import { cambiarCorreoAdmin, generarYEnviarVerificacion } from "../verificacionCorreo";
 import { configurarInicioExpediente } from "../expediente";
 
 export const adminRouter = Router();
@@ -486,6 +486,63 @@ adminRouter.put("/mi-correo", async (req, res) => {
   } catch (err) {
     console.error("PUT /admin/mi-correo", err);
     res.status(500).json({ error: "No se pudo cambiar el correo." });
+  }
+});
+
+// prompt_code_reenvio_verificacion — hasta acá la ÚNICA forma de pedir un
+// enlace nuevo era "Corregir mi correo" (PUT de arriba), que exige cambiar
+// la dirección para habilitarse. Con una dirección correcta y un enlace
+// que falla, eso dejaba al usuario sin salida — y de paso es la causa real
+// del reporte de "el token no coincide": la única vía de recuperación
+// disponible reescribía el token silenciosamente ("cualquier reenvío
+// invalida el anterior", ver generarYEnviarVerificacion) apenas alguien
+// intentaba usarla para reintentar, no para corregir un error real.
+// Este endpoint SÍ reenvía sin tocar la dirección.
+const LIMITE_REENVIOS_VERIFICACION = 3;
+const VENTANA_REENVIOS_MINUTOS = 30;
+
+adminRouter.post("/mi-correo/reenviar-verificacion", async (req, res) => {
+  try {
+    const personaResult = await req.db!.query(
+      `SELECT email, correo_verificado_en FROM personas WHERE id = $1`,
+      [req.auth!.userId]
+    );
+    const persona = personaResult.rows[0];
+    if (!persona) return res.status(404).json({ error: "No se encontró tu usuario." });
+    if (persona.correo_verificado_en) {
+      return res.status(400).json({ error: "Tu correo ya está verificado." });
+    }
+
+    // Límite deslizante sobre correos_enviados — ya es el registro real de
+    // cada envío (éste incluido), así que sirve de contador sin agregar
+    // una tabla ni una columna nueva. "primero" es el más viejo dentro de
+    // la ventana: sumarle la ventana da el momento exacto en que vuelve a
+    // haber lugar, no un "esperá N minutos" que se recalcula distinto cada
+    // vez que alguien reintenta.
+    const limiteResult = await req.db!.query(
+      `SELECT count(*)::int AS cantidad, min(enviado_en) AS primero
+         FROM correos_enviados
+        WHERE destinatario = $1 AND tipo = 'verificacion_correo'
+          AND enviado_en > now() - ($2 || ' minutes')::interval`,
+      [persona.email, VENTANA_REENVIOS_MINUTOS]
+    );
+    const { cantidad, primero } = limiteResult.rows[0];
+    if (cantidad >= LIMITE_REENVIOS_VERIFICACION) {
+      const disponibleEn = new Date(new Date(primero).getTime() + VENTANA_REENVIOS_MINUTOS * 60_000);
+      return res.status(429).json({
+        error: "Ya pediste el máximo de reenvíos por ahora.",
+        disponibleEn: disponibleEn.toISOString(),
+      });
+    }
+
+    const tenantResult = await req.db!.query(`SELECT nombre FROM tenants WHERE id = $1`, [req.auth!.tenantId]);
+    const nombreClinica = tenantResult.rows[0]?.nombre ?? "tu clínica";
+
+    await generarYEnviarVerificacion(req.db!, req.auth!.userId, req.auth!.tenantId!, persona.email, nombreClinica);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("POST /admin/mi-correo/reenviar-verificacion", err);
+    res.status(500).json({ error: "No se pudo reenviar la verificación." });
   }
 });
 

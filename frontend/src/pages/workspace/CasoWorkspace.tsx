@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { BackdropMenuMovil } from "../../components/BackdropMenuMovil";
+import { BotonMenuMovil } from "../../components/BotonMenuMovil";
+import { useMenuColapsable } from "../../hooks/useMenuColapsable";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
 import { BreedCombobox } from "../../components/ui/BreedCombobox";
 import { Button } from "../../components/ui/Button";
@@ -82,6 +85,7 @@ export function CasoWorkspace() {
   const { agenteId, casoId } = useParams<{ agenteId: string; casoId?: string }>();
   const navigate = useNavigate();
   const { user, zonaHoraria } = useAuth();
+  const { abierto: menuAbierto, alternar: alternarMenu, cerrar: cerrarMenu } = useMenuColapsable();
 
   const [casos, setCasos] = useState<CasoResumen[]>([]);
   // Búsqueda del sidebar — client-side, sobre la lista ya cargada
@@ -966,14 +970,32 @@ export function CasoWorkspace() {
   };
 
   return (
-    <div
-      className={[
-        "grid h-screen bg-background",
-        detalle ? "grid-cols-[320px_1fr_0.9fr]" : "grid-cols-[320px_1fr]",
-      ].join(" ")}
-    >
-      {/* Sidebar: lista de casos */}
-      <aside className="flex min-h-0 flex-col border-r border-black/5 bg-surface">
+    <div className="flex h-screen flex-col bg-background">
+      {/* prompt_code_menu_colapsable — la lista de casos cumple el mismo rol
+          de "menú que se come la pantalla" que los NavLink de los otros dos
+          paneles, aunque acá el contenido sea otro (búsqueda + casos). */}
+      <div className="flex items-center gap-3 border-b border-black/5 p-3 md:hidden">
+        <BotonMenuMovil onClick={alternarMenu} />
+        <span className="text-sm font-semibold text-primary">Vetline Ai</span>
+      </div>
+
+      {menuAbierto && <BackdropMenuMovil onClick={cerrarMenu} />}
+
+      <div
+        className={[
+          "grid min-h-0 flex-1 bg-background",
+          "grid-cols-1",
+          detalle ? "md:grid-cols-[320px_1fr_0.9fr]" : "md:grid-cols-[320px_1fr]",
+        ].join(" ")}
+      >
+        {/* Sidebar: lista de casos */}
+        <aside
+          className={[
+            "fixed inset-y-0 left-0 z-40 flex w-[85vw] max-w-xs min-h-0 flex-col border-r border-black/5 bg-surface transition-transform duration-200",
+            menuAbierto ? "translate-x-0" : "-translate-x-full",
+            "md:static md:z-auto md:w-auto md:max-w-none md:translate-x-0",
+          ].join(" ")}
+        >
         <div className="flex items-center justify-between border-b border-black/5 p-4">
           <Link to="/workspace" className="text-sm font-semibold text-primary hover:underline">
             ← Vetline Ai
@@ -992,6 +1014,7 @@ export function CasoWorkspace() {
               key={caso.id}
               to={`/workspace/agentes/${agenteId}/casos/${caso.id}`}
               onClick={(e) => {
+                cerrarMenu();
                 if (caso.id === casoId) return;
                 if (adjuntos.length > 0) {
                   e.preventDefault();
@@ -1532,6 +1555,7 @@ export function CasoWorkspace() {
           {errorInforme && <RechazoGeneracionAviso error={errorInforme} motivo={informeMotivo} />}
         </CasoDashboardPanel>
       )}
+      </div>
 
       {/* prompt_code_informes_anteriores, Paso 2 — panel con el
           historial versionado completo (migración 018): cada informe

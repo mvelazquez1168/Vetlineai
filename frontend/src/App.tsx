@@ -40,6 +40,8 @@ import { Legal as PlatformLegal } from "./pages/platform-admin/Legal";
 import { PlatformAdminLayout } from "./pages/platform-admin/PlatformAdminLayout";
 import { Tarifas as PlatformTarifas } from "./pages/platform-admin/Tarifas";
 import { Parametros as PlatformParametros } from "./pages/platform-admin/Parametros";
+import { RecargasProveedorIa } from "./pages/platform-admin/RecargasProveedorIa";
+import { SaldoProveedorIa } from "./pages/platform-admin/SaldoProveedorIa";
 import { DirectorioPaises } from "./pages/platform-admin/DirectorioPaises";
 import { DetallePais } from "./pages/platform-admin/DetallePais";
 import { ListaEsperaPaises } from "./pages/platform-admin/ListaEsperaPaises";
@@ -203,6 +205,22 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["super_admin"]}>
               <PlatformParametros />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="recargas-proveedor-ia"
+          element={
+            <ProtectedRoute allowedRoles={["super_admin"]}>
+              <RecargasProveedorIa />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="saldo-proveedor-ia"
+          element={
+            <ProtectedRoute allowedRoles={["super_admin"]}>
+              <SaldoProveedorIa />
             </ProtectedRoute>
           }
         />

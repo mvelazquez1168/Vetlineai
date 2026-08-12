@@ -9,7 +9,7 @@ import {
   construirBloquePrescripciones,
   insertarBloquePrescripciones,
 } from "./casos.routes";
-import { debeBloquearseMensaje } from "../usoIa";
+import { debeBloquearseMensaje, verificarUmbralesYNotificar } from "../usoIa";
 import { registrarUsoApi, verificarAntesDeGenerar, mensajeRechazoGeneracion } from "../tarifas";
 import { construirBloqueContextoCaso } from "../contextoCaso";
 import { calcularEdadEfectiva } from "../edadPaciente";
@@ -80,9 +80,21 @@ workspaceRouter.get("/me", async (req, res) => {
 // consulta al entrar al workspace y después de cada generación — nunca
 // calcula umbrales ni compone mensajes acá adentro, todo eso ya lo
 // resolvió el motor de crédito (usoIa.ts) al escribir notificaciones_uso.
+//
+// Reconciliación antes de leer: notificaciones_uso registra "esto pasó",
+// no "esto es cierto ahora" — un aviso queda sin leer hasta que alguien
+// lo marca a mano o el ciclo avanza. Si se lee tal cual, un aviso puede
+// seguir mostrándose después de que la condición que lo causó (colchón
+// consumido, saldo bajo) ya se resolvió. Por eso se llama acá también a
+// verificarUmbralesYNotificar — que además de insertar avisos nuevos,
+// marca leídos los que ya dejaron de cumplirse — y no solo después de
+// generar: el médico puede ver el banner con solo abrir el caso, sin
+// haber mandado ningún mensaje todavía.
 // ---------------------------------------------------------------------
 workspaceRouter.get("/consumo", async (req, res) => {
   try {
+    await verificarUmbralesYNotificar(req.db!, req.auth!.tenantId!);
+
     const suscripcionResult = await req.db!.query(
       `SELECT s.estado, s.periodo_inicio, s.periodo_fin
        FROM tenants t JOIN suscripciones s ON s.id = t.suscripcion_id

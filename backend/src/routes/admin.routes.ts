@@ -15,7 +15,7 @@ import {
 import { resolverFechaCorte } from "../casosSinActividad";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { requerirStripe } from "../stripe";
-import { calcularCicloActual, calcularConsumoCiclo } from "../usoIa";
+import { calcularCicloActual, calcularConsumoCiclo, verificarUmbralesYNotificar } from "../usoIa";
 import {
   obtenerConteoCupos,
   habilitarAgente,
@@ -882,9 +882,14 @@ adminRouter.get("/plan-consumo", async (req, res) => {
   try {
     const tenantId = req.auth!.tenantId!;
 
+    // Mismo criterio que GET /workspace/consumo: reconciliar antes de
+    // leer, para no devolver un aviso que ya dejó de ser cierto (ver
+    // verificarUmbralesYNotificar en usoIa.ts).
+    await verificarUmbralesYNotificar(req.db!, tenantId);
+
     const suscripcionResult = await req.db!.query(
       `SELECT p.id AS plan_id, p.codigo AS plan_codigo, p.orden AS plan_orden, p.nombre AS plan_nombre,
-              s.precio_pactado_usd, s.periodicidad, s.periodo_fin, s.credito_pactado_usd
+              s.precio_pactado_usd, s.periodicidad, s.periodo_inicio, s.periodo_fin, s.credito_pactado_usd
        FROM tenants t
        JOIN suscripciones s ON s.id = t.suscripcion_id
        JOIN planes p ON p.id = s.plan_id
@@ -906,13 +911,18 @@ adminRouter.get("/plan-consumo", async (req, res) => {
     const cupos = await obtenerConteoCupos(req.db!, tenantId);
 
     // Mismo criterio de gravedad que workspace/consumo (bloque 4/flujo A
-    // del médico) — un solo aviso, el más severo, no una lista.
+    // del médico) — un solo aviso, el más severo, no una lista. El filtro
+    // por periodo_inicio (agregado junto con la reconciliación de arriba)
+    // faltaba acá — sin él, un aviso de un ciclo anterior que nunca se
+    // marcó leído podía seguir apareciendo como vigente aunque el ciclo
+    // ya hubiera avanzado.
     const avisoResult = await req.db!.query(
       `SELECT umbral, mensaje
        FROM notificaciones_uso
        WHERE tenant_id = $1
          AND umbral IN ('colchon_agotado', 'saldo_agotado', 'saldo_bajo', 'trial_agotado', 'trial_80')
          AND leida = false
+         AND fecha >= $2
        ORDER BY CASE umbral
                   WHEN 'colchon_agotado' THEN 1
                   WHEN 'saldo_agotado' THEN 2
@@ -921,7 +931,7 @@ adminRouter.get("/plan-consumo", async (req, res) => {
                   WHEN 'saldo_bajo' THEN 5
                 END
        LIMIT 1`,
-      [tenantId]
+      [tenantId, suscripcion.periodo_inicio]
     );
 
     const cambioPendiente = await obtenerCambioPendiente(req.db!, tenantId);

@@ -142,13 +142,25 @@ export async function obtenerEstadoUso(db: PoolClient, tenantId: string): Promis
 // motor de cobros, que todavía no dispara nada (ver CHECK de
 // notificaciones_uso, que ya contempla los 7 valores).
 //
-// No repetición: un umbral se emite una sola vez por ciclo de
-// facturación — se resuelve consultando si ya existe una notificación de
-// ese umbral con fecha posterior a suscripciones.periodo_inicio de la
+// No repetición: un umbral se emite una sola vez MIENTRAS siga vigente —
+// se resuelve consultando si ya existe una notificación NO LEÍDA de ese
+// umbral con fecha posterior a suscripciones.periodo_inicio de la
 // suscripción vigente del tenant (la tabla no tiene columna de ciclo
 // propia). Es el mecanismo que el propio prompt de este bloque sugirió
-// como default.
+// como default, con un ajuste posterior: el filtro de "ya existe" exige
+// leida = false. Antes exigía solo "dentro del ciclo", lo que producía
+// dos bugs simétricos, encontrados en producción con VetGlobal — el
+// aviso de colchón seguía mostrándose como "detenida" después de que el
+// colchón volviera a 0, y a la inversa, un aviso de saldo bajo que se
+// resolvía (recarga) y volvía a cumplirse en el mismo ciclo no se
+// re-emitía nunca, porque ya "existía" uno del ciclo. Ver resolución más
+// abajo: cuando un umbral deja de cumplirse, esta función marca leida =
+// true los avisos vigentes de ese umbral — así notificaciones_uso deja
+// de mezclar "esto pasó" (registro histórico) con "esto es cierto ahora"
+// (estado leído por GET /workspace/consumo y el gate de generación).
 // ---------------------------------------------------------------------
+const UMBRALES_RASTREABLES = ["trial_agotado", "trial_80", "saldo_agotado", "saldo_bajo", "colchon_agotado"];
+
 export async function verificarUmbralesYNotificar(db: PoolClient, tenantId: string): Promise<void> {
   const suscripcionResult = await db.query(
     `SELECT s.estado, s.periodo_inicio, s.periodo_fin, s.credito_pactado_usd
@@ -235,10 +247,27 @@ export async function verificarUmbralesYNotificar(db: PoolClient, tenantId: stri
     });
   }
 
+  // Resolución — cualquier umbral rastreable que NO está entre los
+  // candidatos de ahora ya dejó de cumplirse (saldo recargado, colchón
+  // saldado, prueba convertida a plan pago, etc.). Se marca leída
+  // cualquier notificación vigente de ese umbral, para que deje de
+  // presentarse como estado actual. Correr esto en cada llamada (no solo
+  // cuando cambia algo) es barato — la mayoría de las veces no hay filas
+  // que tocar y el UPDATE no afecta ninguna.
+  const umbralesVigentes = new Set(candidatos.map((c) => c.umbral));
+  const umbralesASuperar = UMBRALES_RASTREABLES.filter((u) => !umbralesVigentes.has(u));
+  if (umbralesASuperar.length > 0) {
+    await db.query(
+      `UPDATE notificaciones_uso SET leida = true
+       WHERE tenant_id = $1 AND umbral = ANY($2) AND leida = false AND fecha >= $3`,
+      [tenantId, umbralesASuperar, new Date(suscripcion.periodo_inicio).toISOString()]
+    );
+  }
+
   for (const { umbral, mensaje } of candidatos) {
     const existe = await db.query(
       `SELECT 1 FROM notificaciones_uso
-       WHERE tenant_id = $1 AND umbral = $2 AND fecha >= $3 LIMIT 1`,
+       WHERE tenant_id = $1 AND umbral = $2 AND leida = false AND fecha >= $3 LIMIT 1`,
       [tenantId, umbral, new Date(suscripcion.periodo_inicio).toISOString()]
     );
     if (existe.rows.length > 0) continue;

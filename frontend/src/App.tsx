@@ -19,6 +19,7 @@ import { ListaEspera as AgendaListaEspera } from "./pages/agenda/ListaEspera";
 import { Notificaciones as AgendaNotificaciones } from "./pages/agenda/Notificaciones";
 import { Agentes } from "./pages/admin/Agentes";
 import { Casos } from "./pages/admin/Casos";
+import { CasosSinActividad } from "./pages/admin/CasosSinActividad";
 import { Propietarios } from "./pages/admin/Propietarios";
 import { ReporteAtenciones } from "./pages/admin/ReporteAtenciones";
 import { CasoDetalleAdmin } from "./pages/admin/CasoDetalleAdmin";
@@ -51,6 +52,7 @@ import { ConsumoClinicas } from "./pages/platform-admin/ConsumoClinicas";
 import { DetalleClinicaConsumo } from "./pages/platform-admin/DetalleClinicaConsumo";
 import { AgentSelector } from "./pages/workspace/AgentSelector";
 import { CasoWorkspace } from "./pages/workspace/CasoWorkspace";
+import { CasosSinActividad as WorkspaceCasosSinActividad } from "./pages/workspace/CasosSinActividad";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 function IndexRedirect() {
@@ -102,6 +104,14 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/workspace/casos-sin-actividad"
+        element={
+          <ProtectedRoute allowedRoles={["medico"]}>
+            <WorkspaceCasosSinActividad />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/admin"
@@ -114,6 +124,7 @@ export default function App() {
         <Route index element={<Navigate to="medicos" replace />} />
         <Route path="medicos" element={<Medicos />} />
         <Route path="casos" element={<Casos />} />
+        <Route path="casos-sin-actividad" element={<CasosSinActividad />} />
         <Route path="propietarios" element={<Propietarios />} />
         <Route path="reporte-atenciones" element={<ReporteAtenciones />} />
         <Route path="agentes" element={<Agentes />} />

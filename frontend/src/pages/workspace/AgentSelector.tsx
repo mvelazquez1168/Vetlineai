@@ -73,6 +73,9 @@ export function AgentSelector() {
           <Link to="/agenda" className="text-sm font-semibold text-accent hover:underline">
             Agenda
           </Link>
+          <Link to="/workspace/casos-sin-actividad" className="text-sm font-semibold text-accent hover:underline">
+            Casos sin actividad
+          </Link>
           <NotificacionesPersonalesBell />
           <button onClick={logout} className="text-sm text-text-muted hover:text-primary">
             Cerrar sesión

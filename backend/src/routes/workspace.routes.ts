@@ -17,6 +17,7 @@ import { construirBloqueRazaDocumento } from "../razaDocumento";
 import { construirBloqueInformacionRegistrada, TEXTO_DISPARADOR_ANALISIS } from "../informacionRegistrada";
 import { obtenerEstadoSuscripcion, suscripcionBloqueaGeneracionIa } from "../purga";
 import { asignarNumeroExpediente } from "../expediente";
+import { fechaHoyEnZona } from "../fecha";
 import { registrarResultadoAnthropic, registrarExitoAnthropic } from "../proveedorIaEstado";
 
 export const workspaceRouter = Router();
@@ -232,6 +233,9 @@ workspaceRouter.get("/casos/:id", async (req, res) => {
   try {
     const casoResult = await req.db!.query(
       `SELECT c.id, c.motivo, c.estado, c.severidad, c.confianza_diagnostica, c.creado_en, c.numero_expediente,
+              c.diagnostico_final, c.tratamiento_activo, c.tratamiento_activo_detalle, c.desenlace,
+              c.cerrado_en, cerrador.nombre AS cerrado_por_nombre,
+              c.motivo_reapertura, c.reabierto_en, reabridor.nombre AS reabierto_por_nombre,
               p.id AS paciente_id, p.nombre AS paciente_nombre, p.especie, r.nombre AS raza, p.sexo,
               p.edad_anios, p.fecha_nacimiento, p.estado AS paciente_estado,
               pr.id AS propietario_id, pr.nombre AS propietario_nombre,
@@ -241,6 +245,8 @@ workspaceRouter.get("/casos/:id", async (req, res) => {
        JOIN propietarios pr ON pr.id = p.propietario_id
        LEFT JOIN razas r ON r.id = p.raza_id
        JOIN agentes a ON a.id = c.agente_id
+       LEFT JOIN personas cerrador ON cerrador.id = c.cerrado_por
+       LEFT JOIN personas reabridor ON reabridor.id = c.reabierto_por
        WHERE c.id = $1 AND c.medico_id = $2`,
       [req.params.id, req.auth!.userId]
     );
@@ -388,19 +394,25 @@ workspaceRouter.post("/casos/:id/informacion", async (req, res) => {
   }
 
   try {
-    const casoResult = await req.db!.query(`SELECT id FROM casos WHERE id = $1 AND medico_id = $2`, [
-      req.params.id,
-      req.auth!.userId,
-    ]);
+    const casoResult = await req.db!.query(
+      `SELECT id, paciente_id, estado FROM casos WHERE id = $1 AND medico_id = $2`,
+      [req.params.id, req.auth!.userId]
+    );
     if (casoResult.rows.length === 0) {
       return res.status(404).json({ error: "Caso no encontrado." });
     }
+    const caso = casoResult.rows[0];
+    // prompt_code_cierre_caso.md, Paso 2 — un caso cerrado es de solo
+    // lectura: no se le agrega información nueva.
+    if (caso.estado === "completado") {
+      return res.status(409).json({ error: "El caso está cerrado — no se puede agregar información nueva." });
+    }
 
     const mensajeResult = await req.db!.query(
-      `INSERT INTO mensajes (caso_id, remitente, contenido, tipo)
-       VALUES ($1, 'medico', $2, 'informacion')
+      `INSERT INTO mensajes (caso_id, remitente, contenido, tipo, autor_persona_id)
+       VALUES ($1, 'medico', $2, 'informacion', $3)
        RETURNING id, remitente, contenido, tipo, creado_en`,
-      [req.params.id, contenidoLimpio]
+      [req.params.id, contenidoLimpio, req.auth!.userId]
     );
     const mensaje = mensajeResult.rows[0];
 
@@ -419,9 +431,30 @@ workspaceRouter.post("/casos/:id/informacion", async (req, res) => {
       archivosVinculados = archivosResult.rows;
     }
 
+    // Cronología de seguimiento, Paso 2 — vínculo automático con la cita
+    // del día. A propósito conservador: solo si hay EXACTAMENTE una cita
+    // de este paciente hoy sin caso asociado. Ninguna candidata, o más de
+    // una, o la única ya vinculada a otro caso (que por eso no aparece en
+    // el WHERE caso_id IS NULL) → no se adivina, queda sin vincular. Este
+    // vínculo alimenta el reporte de atenciones que se presenta ante el
+    // colegio — una asociación equivocada ahí es peor que ninguna.
+    const hoy = fechaHoyEnZona(req.auth!.zonaHoraria);
+    const candidatas = await req.db!.query(
+      `SELECT id FROM citas WHERE paciente_id = $1 AND fecha = $2 AND caso_id IS NULL`,
+      [caso.paciente_id, hoy]
+    );
+    let citaVinculada = false;
+    if (candidatas.rows.length === 1) {
+      const vinculo = await req.db!.query(
+        `UPDATE citas SET caso_id = $1 WHERE id = $2 AND caso_id IS NULL RETURNING id`,
+        [req.params.id, candidatas.rows[0].id]
+      );
+      citaVinculada = vinculo.rows.length > 0;
+    }
+
     await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [req.params.id]);
 
-    res.status(201).json({ mensaje: { ...mensaje, archivos: archivosVinculados } });
+    res.status(201).json({ mensaje: { ...mensaje, archivos: archivosVinculados }, citaVinculada });
   } catch (err) {
     console.error("POST /workspace/casos/:id/informacion", err);
     res.status(500).json({ error: "Error al registrar la información." });
@@ -460,7 +493,7 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
     // y la zona horaria de la clínica (para las marcas de hora del bloque
     // de información — un seguimiento normal abarca varios días).
     const casoResult = await req.db!.query(
-      `SELECT c.id, c.agente_id, a.system_prompt, t.zona_horaria
+      `SELECT c.id, c.agente_id, c.estado, a.system_prompt, t.zona_horaria
        FROM casos c
        JOIN agentes a ON a.id = c.agente_id
        JOIN tenants t ON t.id = c.tenant_id
@@ -471,6 +504,11 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
       return res.status(404).json({ error: "Caso no encontrado." });
     }
     const caso = casoResult.rows[0];
+    // prompt_code_cierre_caso.md, Paso 2 — un caso cerrado es de solo
+    // lectura: no se le pide análisis nuevo.
+    if (caso.estado === "completado") {
+      return res.status(409).json({ error: "El caso está cerrado — no se puede analizar de nuevo." });
+    }
 
     // Pendientes de incorporar — se consultan ANTES de decidir si hay algo
     // para analizar, y su lista de IDs se captura acá mismo (no se vuelve
@@ -500,10 +538,10 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
       null;
     if (contenidoLimpio) {
       const mensajeResult = await req.db!.query(
-        `INSERT INTO mensajes (caso_id, remitente, contenido, tipo)
-         VALUES ($1, 'medico', $2, 'consulta')
+        `INSERT INTO mensajes (caso_id, remitente, contenido, tipo, autor_persona_id)
+         VALUES ($1, 'medico', $2, 'consulta', $3)
          RETURNING id, remitente, contenido, tipo, creado_en`,
-        [req.params.id, contenidoLimpio]
+        [req.params.id, contenidoLimpio, req.auth!.userId]
       );
       mensaje = mensajeResult.rows[0];
     }
@@ -576,6 +614,18 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
     );
     const medicoAgenteId = medicoAgenteResult.rows[0]?.id ?? null;
 
+    // prompt_code_cierre_caso.md, Paso 2 — "en_curso" recién significa algo
+    // (recién creado vs. en trabajo vs. cerrado) si se marca en el primer
+    // análisis real, no en la creación del caso. WHERE estado='triage' lo
+    // hace un no-op inofensivo en cualquier análisis posterior. Se llama
+    // desde las dos ramas (mock y real), solo cuando cada una ya tuvo
+    // éxito — nunca si el análisis fue bloqueado o falló antes de esto.
+    async function marcarEnCursoSiTriage() {
+      await req.db!.query(`UPDATE casos SET estado = 'en_curso' WHERE id = $1 AND estado = 'triage'`, [
+        req.params.id,
+      ]);
+    }
+
     const idsPendientes = pendientes.map((p) => p.id);
     async function marcarPendientesIncorporadas() {
       if (idsPendientes.length === 0) return;
@@ -605,6 +655,7 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
       );
 
       await marcarPendientesIncorporadas();
+      await marcarEnCursoSiTriage();
 
       // Misma estimación que ya se usaba. El costo lo resuelve el servicio
       // de tarifas: claude-sonnet-5-mock tiene tarifa vigente marcada
@@ -842,6 +893,7 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
     // capturaron en `pendientes` antes de llamar a Claude, ni una más (ver
     // el comentario sobre la ventana de carrera en informacionRegistrada.ts).
     await marcarPendientesIncorporadas();
+    await marcarEnCursoSiTriage();
 
     const tokensCacheEscritura = usage.cache_creation_input_tokens ?? 0;
     const tokensCacheLectura = usage.cache_read_input_tokens ?? 0;

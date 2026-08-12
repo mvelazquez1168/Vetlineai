@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
+import { useAuth } from "../../hooks/useAuth";
 import { propietariosApi } from "../../lib/propietariosApi";
 import { PacienteDePropietario, Propietario, workspaceApi } from "../../lib/workspaceApi";
+import { RegistroAtencionModal } from "./RegistroAtencionModal";
+import { ResolverCitaModal } from "./ResolverCitaModal";
 
 interface FichaPropietarioModalProps {
   propietarioId: string;
@@ -12,15 +15,21 @@ interface FichaPropietarioModalProps {
 
 // Sin pantalla de "ficha del paciente" tampoco existe una del propietario
 // todavía — este modal cubre el pedido explícito: datos + mascotas,
-// accesible desde el caso (CasoWorkspace) y desde la ficha del paciente
-// (HistorialFarmacologicoModal). La identificación se muestra pero nunca
-// se edita acá — ver propietarios.routes.ts, PATCH la ignora aunque venga
-// en el body.
+// accesible desde el caso (CasoWorkspace), desde el Registro de Atención
+// (RegistroAtencionModal) y desde el listado de propietarios (admin). La
+// identificación se muestra pero nunca se edita acá — ver
+// propietarios.routes.ts, PATCH la ignora aunque venga en el body.
 export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: FichaPropietarioModalProps) {
+  const { esMedico, user, zonaHoraria } = useAuth();
   const [propietario, setPropietario] = useState<Propietario | null>(null);
   const [pacientes, setPacientes] = useState<PacienteDePropietario[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // prompt_code_registro_atencion.md, Paso 6 — "desde el paciente". Se
+  // resuelve la cita primero (elegir/crear) y recién entonces se abre el
+  // registro — mismo flujo de dos pasos que la puerta del caso.
+  const [pacienteParaAtencion, setPacienteParaAtencion] = useState<PacienteDePropietario | null>(null);
+  const [registroAtencionCitaId, setRegistroAtencionCitaId] = useState<string | null>(null);
 
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -130,13 +139,24 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
                 ) : (
                   <ul className="mt-2 divide-y divide-black/5">
                     {pacientes.map((p) => (
-                      <li key={p.id} className="py-2 text-sm text-text-primary">
-                        {p.nombre}
-                        <span className="text-text-muted">
-                          {" "}
-                          — {p.especie}
-                          {p.raza ? `, ${p.raza}` : ""}
+                      <li key={p.id} className="flex items-center justify-between gap-2 py-2 text-sm text-text-primary">
+                        <span>
+                          {p.nombre}
+                          <span className="text-text-muted">
+                            {" "}
+                            — {p.especie}
+                            {p.raza ? `, ${p.raza}` : ""}
+                          </span>
                         </span>
+                        {esMedico && (
+                          <button
+                            type="button"
+                            onClick={() => setPacienteParaAtencion(p)}
+                            className="shrink-0 text-xs font-semibold text-accent hover:underline"
+                          >
+                            Registrar atención
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -146,6 +166,32 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
           )}
         </div>
       </div>
+
+      {pacienteParaAtencion && !registroAtencionCitaId && user?.userId && (
+        <ResolverCitaModal
+          pacienteId={pacienteParaAtencion.id}
+          medicoId={user.userId}
+          zonaHoraria={zonaHoraria}
+          onClose={() => setPacienteParaAtencion(null)}
+          onResuelto={(citaId) => {
+            setRegistroAtencionCitaId(citaId);
+          }}
+        />
+      )}
+
+      {registroAtencionCitaId && pacienteParaAtencion && (
+        <RegistroAtencionModal
+          citaId={registroAtencionCitaId}
+          pacienteId={pacienteParaAtencion.id}
+          pacienteNombre={pacienteParaAtencion.nombre}
+          especie={pacienteParaAtencion.especie}
+          zonaHoraria={zonaHoraria}
+          onClose={() => {
+            setRegistroAtencionCitaId(null);
+            setPacienteParaAtencion(null);
+          }}
+        />
+      )}
     </div>
   );
 }

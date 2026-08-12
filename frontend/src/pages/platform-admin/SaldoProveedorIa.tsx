@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
-import { formatearFecha } from "../../lib/formatFecha";
+import { fechaHoyEnZona, formatearFecha, ZONA_HORARIA_PLATAFORMA } from "../../lib/formatFecha";
 import { platformAdminApi, RentabilidadClinica, SaldoProveedorIa as SaldoProveedorIaTipo } from "../../lib/platformAdminApi";
 
 // prompt_code_panel_consumo_sin_api — la cuenta de Anthropic es individual,
@@ -11,7 +11,9 @@ import { platformAdminApi, RentabilidadClinica, SaldoProveedorIa as SaldoProveed
 // propios (recargas registradas menos consumo ya calculado en uso_api),
 // nunca el número real de la consola del proveedor — de ahí el badge en
 // cada cifra y el control manual del Bloque 1 para contrastarla.
-const hoyISO = () => new Date().toISOString().slice(0, 10);
+// Pantalla de plataforma, sin tenant — zona de referencia de plataforma,
+// nunca la del navegador (mismo bug de fondo que el reporte de atenciones).
+const hoyISO = () => fechaHoyEnZona(ZONA_HORARIA_PLATAFORMA);
 
 function Estimacion({ children }: { children: React.ReactNode }) {
   return (

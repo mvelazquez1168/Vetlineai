@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
+import { RegistroAtencionModal } from "../../components/caso/RegistroAtencionModal";
+import { useAuth } from "../../hooks/useAuth";
 import { Cita, citasApi, EstadoCita, etiquetaEstadoCita, PrioridadCita, transicionesValidas } from "../../lib/agendaApi";
 
 export interface CitaDetallePanelProps {
@@ -31,10 +33,12 @@ const PRIORIDAD_BADGE: Record<PrioridadCita, BadgeVariant> = {
 // Slide-over propio — mismo patrón que RecetaPanel.tsx (fixed a la
 // derecha, no el Modal centrado genérico) para el detalle de una cita.
 export function CitaDetallePanel({ cita, onClose, onEditar, onActualizada, permitirEditar = true }: CitaDetallePanelProps) {
+  const { esMedico, zonaHoraria } = useAuth();
   const [cambiando, setCambiando] = useState<EstadoCita | null>(null);
   const [pidiendoMotivo, setPidiendoMotivo] = useState(false);
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [registroAtencionAbierto, setRegistroAtencionAbierto] = useState(false);
 
   if (!cita) return null;
 
@@ -172,7 +176,26 @@ export function CitaDetallePanel({ cita, onClose, onEditar, onActualizada, permi
             Editar
           </Button>
         )}
+        {/* prompt_code_registro_atencion.md, Paso 6 — "desde la agenda,
+            sobre la cita del día". La cita ya existe acá, no hace falta
+            resolverla: se abre el registro directo. */}
+        {esMedico && cita.estado !== "cancelada" && cita.estado !== "no_show" && (
+          <Button onClick={() => setRegistroAtencionAbierto(true)} className="flex-1">
+            Registrar atención
+          </Button>
+        )}
       </div>
+
+      {registroAtencionAbierto && (
+        <RegistroAtencionModal
+          citaId={cita.id}
+          pacienteId={cita.paciente_id}
+          pacienteNombre={cita.paciente_nombre ?? "Paciente"}
+          especie={cita.especie ?? "Canino"}
+          zonaHoraria={zonaHoraria}
+          onClose={() => setRegistroAtencionAbierto(false)}
+        />
+      )}
     </div>
   );
 }

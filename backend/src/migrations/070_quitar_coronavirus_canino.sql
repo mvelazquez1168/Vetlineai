@@ -1,0 +1,13 @@
+-- =====================================================================
+-- VetPlatform — Migración 070
+-- prompt_code_registro_atencion.md — corrección posterior a la 069.
+--
+-- "Coronavirus canino" se agregó en la 069 con el criterio del propio
+-- asistente (vacunas óctuple/décuple regionales), no de una guía
+-- verificada. El usuario señaló que las guías principales (WSAVA) no la
+-- recomiendan de rutina por evidencia clínica limitada, y pidió sacarla
+-- del catálogo. No había filas de cuidado_preventivo_enfermedades
+-- referenciándola todavía (catálogo recién sembrado), así que no hace
+-- falta migrar datos, solo borrar la fila.
+-- =====================================================================
+DELETE FROM enfermedades_vacuna WHERE especie = 'canino' AND nombre = 'Coronavirus canino';

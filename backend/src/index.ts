@@ -17,6 +17,7 @@ import { agendaRouter } from "./routes/agenda.routes";
 import { archivosRouter } from "./routes/archivos.routes";
 import { casosRouter } from "./routes/casos.routes";
 import { citasRouter } from "./routes/citas.routes";
+import { atencionesRouter } from "./routes/atenciones.routes";
 import { farmacosRouter } from "./routes/farmacos.routes";
 import { horariosRouter } from "./routes/horarios.routes";
 import { informesRouter } from "./routes/informes.routes";
@@ -133,6 +134,7 @@ app.use("/api/pagos", pagosRouter);
 app.use("/api/salas", salasRouter);
 app.use("/api/horarios", horariosRouter);
 app.use("/api/citas", citasRouter);
+app.use("/api/atenciones", atencionesRouter);
 app.use("/api/lista-espera", listaEsperaRouter);
 app.use("/api", agendaRouter);
 

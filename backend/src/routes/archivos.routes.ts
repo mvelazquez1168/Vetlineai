@@ -105,11 +105,16 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
 
   try {
     const casoResult = await req.db!.query(
-      `SELECT id FROM casos WHERE id = $1 AND medico_id = $2`,
+      `SELECT id, estado FROM casos WHERE id = $1 AND medico_id = $2`,
       [casoId, req.auth!.userId]
     );
     if (casoResult.rows.length === 0) {
       return res.status(404).json({ error: "Caso no encontrado." });
+    }
+    // prompt_code_cierre_caso.md, Paso 2 — un caso cerrado es de solo
+    // lectura: no se le adjuntan estudios nuevos.
+    if (casoResult.rows[0].estado === "completado") {
+      return res.status(409).json({ error: "El caso está cerrado — no se pueden adjuntar archivos nuevos." });
     }
 
     const tipo = inferirTipo(req.file.originalname);
@@ -141,6 +146,9 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
        RETURNING id, nombre_archivo, tipo, url, creado_en, file_id_anthropic`,
       [casoId, req.file.originalname, tipo, `/uploads/${clave}`, fileIdAnthropic]
     );
+    // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
+    // actividad tocan actualizado_en, no solo informacion/mensajes.
+    await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [casoId]);
 
     res.status(201).json({ archivo: result.rows[0] });
   } catch (err) {

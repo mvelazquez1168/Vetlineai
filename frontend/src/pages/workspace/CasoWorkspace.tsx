@@ -17,16 +17,20 @@ import {
   RechazoGeneracionAviso,
 } from "../../components/caso/ConsumoBanner";
 import { CasoDashboardPanel } from "../../components/caso/CasoDashboardPanel";
+import { CerrarCasoModal } from "../../components/caso/CerrarCasoModal";
+import { CronologiaModal } from "../../components/caso/CronologiaModal";
+import { ReabrirCasoModal } from "../../components/caso/ReabrirCasoModal";
 import { DashboardGcisPanel } from "../../components/caso/DashboardGcisPanel";
 import { FichaPropietarioModal } from "../../components/caso/FichaPropietarioModal";
-import { HistorialFarmacologicoModal } from "../../components/caso/HistorialFarmacologicoModal";
+import { RegistroAtencionModal } from "../../components/caso/RegistroAtencionModal";
+import { ResolverCitaModal } from "../../components/caso/ResolverCitaModal";
 import { MensajesLista } from "../../components/caso/MensajesLista";
 import { RecetaPanel } from "../../components/caso/RecetaPanel";
 import { useAuth } from "../../hooks/useAuth";
 import { ApiError } from "../../lib/api";
 import { citasApi } from "../../lib/agendaApi";
 import { exportarDashboardHtml } from "../../lib/exportarDashboardHtml";
-import { formatearFecha } from "../../lib/formatFecha";
+import { fechaHoyEnZona, formatearFecha, formatearFechaCorta } from "../../lib/formatFecha";
 import {
   Archivo,
   CasoDetalle,
@@ -114,8 +118,15 @@ export function CasoWorkspace() {
   const [panelInformesAbierto, setPanelInformesAbierto] = useState(false);
   const [descargandoInformeId, setDescargandoInformeId] = useState<string | null>(null);
   const [recetaPanelAbierto, setRecetaPanelAbierto] = useState(false);
-  const [historialFarmacologicoAbierto, setHistorialFarmacologicoAbierto] = useState(false);
+  // prompt_code_registro_atencion.md — reemplaza historialFarmacologicoAbierto.
+  // Primero se resuelve la cita (elegir la de hoy / crear una nueva), y
+  // solo entonces se abre el registro propiamente dicho.
+  const [resolverCitaAbierto, setResolverCitaAbierto] = useState(false);
+  const [registroAtencionCitaId, setRegistroAtencionCitaId] = useState<string | null>(null);
   const [fichaPropietarioAbierta, setFichaPropietarioAbierta] = useState(false);
+  const [cronologiaAbierta, setCronologiaAbierta] = useState(false);
+  const [cerrarCasoAbierto, setCerrarCasoAbierto] = useState(false);
+  const [reabrirCasoAbierto, setReabrirCasoAbierto] = useState(false);
 
   const [nuevoMensaje, setNuevoMensaje] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -268,6 +279,10 @@ export function CasoWorkspace() {
   }, []);
   const suficienciaClinica = calcularSuficienciaClinica(detalle, mensajes.length);
   const generacionDetenida = generacionDetenidaPorSaldo(consumo);
+  // prompt_code_cierre_caso.md, Paso 2 — un caso cerrado es de solo
+  // lectura: la caja de mensaje, adjuntar, "Agregar información",
+  // "Analizar el caso" y "Nueva receta" se deshabilitan acá abajo.
+  const casoCerrado = detalle?.estado === "completado";
 
   // Carga la lista de casos cada vez que cambia el agente activo.
   useEffect(() => {
@@ -288,7 +303,8 @@ export function CasoWorkspace() {
     setInformesAnteriores([]);
     setPanelInformesAbierto(false);
     setRecetaPanelAbierto(false);
-    setHistorialFarmacologicoAbierto(false);
+    setResolverCitaAbierto(false);
+    setRegistroAtencionCitaId(null);
     setHayInformacionPosteriorDashboard(false);
     if (!casoId) {
       setDetalle(null);
@@ -536,10 +552,10 @@ export function CasoWorkspace() {
       return;
     }
     workspaceApi
-      .listarCitasDeHoyDelPaciente(pacienteSeleccionado.id, user.userId)
+      .listarCitasDeHoyDelPaciente(pacienteSeleccionado.id, user.userId, zonaHoraria)
       .then(setCitasDeHoyDisponibles)
       .catch(() => setCitasDeHoyDisponibles([]));
-  }, [paso, pacienteSeleccionado, user?.userId]);
+  }, [paso, pacienteSeleccionado, user?.userId, zonaHoraria]);
 
   // Catálogo de tipos de identificación del país de la propia clínica —
   // se carga una sola vez por apertura del modal, no en cada tecla.
@@ -689,7 +705,7 @@ export function CasoWorkspace() {
           await citasApi.crear({
             pacienteId: pacienteSeleccionado.id,
             medicoId: user.userId,
-            fecha: new Date().toISOString().slice(0, 10),
+            fecha: fechaHoyEnZona(zonaHoraria),
             horaInicio: nuevaCitaHoraInicio,
             duracionMinutos: nuevaCitaDuracion,
             motivoConsulta: motivoNuevoCaso.trim(),
@@ -1076,9 +1092,30 @@ export function CasoWorkspace() {
                   {detalle.paciente_nombre} — {detalle.especie} ({detalle.sexo}
                   {detalle.edad_anios ? `, ${detalle.edad_anios}a` : ""})
                   {detalle.paciente_estado === "fallecido" && <Badge variant="neutral">Fallecido</Badge>}
+                  <Badge variant={ESTADO_BADGE[detalle.estado] ?? "neutral"}>
+                    {detalle.estado.replace("_", " ")}
+                  </Badge>
                 </h2>
                 <p className="text-xs text-text-muted">Expediente N.º {detalle.numero_expediente}</p>
                 <p className="text-sm text-text-muted">{detalle.motivo}</p>
+                {casoCerrado && (
+                  <p className="mt-1 text-xs text-text-muted">
+                    Cerrado el {formatearFechaCorta(detalle.cerrado_en!, zonaHoraria)}
+                    {detalle.cerrado_por_nombre ? ` por ${detalle.cerrado_por_nombre}` : ""} · Desenlace:{" "}
+                    {detalle.desenlace}
+                  </p>
+                )}
+                {/* prompt_code_cierre_caso.md, Paso 3 — solo aparece si el
+                    caso se reabrió alguna vez; convive con la línea de
+                    arriba, que sigue mostrando el ÚLTIMO cierre (ver la
+                    nota en workspaceApi.CasoDetalle). */}
+                {detalle.reabierto_en && (
+                  <p className="mt-1 text-xs text-text-muted">
+                    Reabierto el {formatearFechaCorta(detalle.reabierto_en, zonaHoraria)}
+                    {detalle.reabierto_por_nombre ? ` por ${detalle.reabierto_por_nombre}` : ""}
+                    {detalle.motivo_reapertura ? ` — Motivo: ${detalle.motivo_reapertura}` : ""}
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-col items-end gap-2">
@@ -1171,17 +1208,33 @@ export function CasoWorkspace() {
                 <Button
                   variant="secondary"
                   onClick={() => setRecetaPanelAbierto(true)}
+                  disabled={casoCerrado}
                   className="px-3 py-2 text-xs"
                 >
                   Nueva receta
                 </Button>
 
+                {/* prompt_code_registro_atencion.md — "desde el caso, que
+                    es donde el médico ya está trabajando". Nunca gateado
+                    por casoCerrado: una atención pertenece a la cita y al
+                    paciente, no al episodio. */}
                 <Button
                   variant="secondary"
-                  onClick={() => setHistorialFarmacologicoAbierto(true)}
+                  onClick={() => setResolverCitaAbierto(true)}
                   className="px-3 py-2 text-xs"
                 >
-                  Historial farmacológico
+                  Registrar atención
+                </Button>
+
+                {/* prompt_code_cronologia_seguimiento — vista de solo
+                    lectura, no depende de que haya Dashboard/informe
+                    generado: alcanza con que el caso exista. */}
+                <Button
+                  variant="secondary"
+                  onClick={() => setCronologiaAbierta(true)}
+                  className="px-3 py-2 text-xs"
+                >
+                  Cronología
                 </Button>
 
                 <Button
@@ -1191,6 +1244,28 @@ export function CasoWorkspace() {
                 >
                   Ficha del propietario
                 </Button>
+
+                {/* prompt_code_cierre_caso.md, Paso 2 — no aparece un
+                    botón "Reabrir" acá: Paso 3 (Reabrir) no está
+                    construido todavía, queda fuera de este alcance. */}
+                {!casoCerrado && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setCerrarCasoAbierto(true)}
+                    className="px-3 py-2 text-xs"
+                  >
+                    Cerrar caso
+                  </Button>
+                )}
+                {casoCerrado && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setReabrirCasoAbierto(true)}
+                    className="px-3 py-2 text-xs"
+                  >
+                    Reabrir caso
+                  </Button>
+                )}
                 </div>
 
                 {/* Paso 4 — misma explicación al lado de los dos botones
@@ -1342,7 +1417,8 @@ export function CasoWorkspace() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center justify-center rounded-lg border border-black/10 bg-background px-3 text-text-muted hover:text-accent"
+                  disabled={casoCerrado}
+                  className="flex items-center justify-center rounded-lg border border-black/10 bg-background px-3 text-text-muted hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
                   title="Adjuntar archivo"
                   aria-label="Adjuntar archivo"
                 >
@@ -1405,9 +1481,9 @@ export function CasoWorkspace() {
                   ref={textareaRef}
                   rows={3}
                   className="max-h-48 min-h-[4.5rem] flex-1 resize-none overflow-y-auto rounded-lg border border-black/10 bg-background px-4 py-2.5 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 disabled:cursor-not-allowed disabled:opacity-60"
-                  placeholder="Escribí tu mensaje…"
+                  placeholder={casoCerrado ? "El caso está cerrado — es de solo lectura." : "Escribí tu mensaje…"}
                   value={nuevoMensaje}
-                  disabled={enviando || agregando}
+                  disabled={enviando || agregando || casoCerrado}
                   onChange={(e) => setNuevoMensaje(e.target.value)}
                   onKeyDown={(e) => {
                     // Anotar vs consultar, Capa 1 — Enter ahora salta de
@@ -1434,6 +1510,7 @@ export function CasoWorkspace() {
                     disabled={
                       enviando ||
                       agregando ||
+                      casoCerrado ||
                       !nuevoMensaje.trim() ||
                       adjuntos.some((a) => a.estado === "subiendo")
                     }
@@ -1454,6 +1531,7 @@ export function CasoWorkspace() {
                     disabled={
                       enviando ||
                       agregando ||
+                      casoCerrado ||
                       (!nuevoMensaje.trim() && pendientesInformacion === 0) ||
                       adjuntos.some((a) => a.estado === "subiendo")
                     }
@@ -1614,26 +1692,73 @@ export function CasoWorkspace() {
           gateado por estado del Dashboard. */}
       {recetaPanelAbierto && casoId && detalle && (
         <RecetaPanel
-          casoId={casoId}
+          origen={{ tipo: "caso", casoId }}
           pacienteNombre={detalle.paciente_nombre}
           onClose={() => setRecetaPanelAbierto(false)}
         />
       )}
 
-      {historialFarmacologicoAbierto && detalle && (
-        <HistorialFarmacologicoModal
+      {resolverCitaAbierto && detalle && user?.userId && (
+        <ResolverCitaModal
+          pacienteId={detalle.paciente_id}
+          medicoId={user.userId}
+          casoId={casoId}
+          zonaHoraria={zonaHoraria}
+          motivoSugerido={detalle.motivo}
+          onClose={() => setResolverCitaAbierto(false)}
+          onResuelto={(citaId) => {
+            setResolverCitaAbierto(false);
+            setRegistroAtencionCitaId(citaId);
+          }}
+        />
+      )}
+
+      {registroAtencionCitaId && detalle && (
+        <RegistroAtencionModal
+          citaId={registroAtencionCitaId}
           pacienteId={detalle.paciente_id}
           pacienteNombre={detalle.paciente_nombre}
+          especie={detalle.especie}
           zonaHoraria={zonaHoraria}
-          onClose={() => setHistorialFarmacologicoAbierto(false)}
+          onClose={() => setRegistroAtencionCitaId(null)}
           onVerPropietario={() => {
-            setHistorialFarmacologicoAbierto(false);
+            setRegistroAtencionCitaId(null);
             setFichaPropietarioAbierta(true);
           }}
           pacienteEstado={detalle.paciente_estado}
           onMarcadoFallecido={() =>
             setDetalle((prev) => (prev ? { ...prev, paciente_estado: "fallecido" } : prev))
           }
+        />
+      )}
+
+      {cronologiaAbierta && casoId && (
+        <CronologiaModal casoId={casoId} zonaHoraria={zonaHoraria} onClose={() => setCronologiaAbierta(false)} />
+      )}
+
+      {cerrarCasoAbierto && casoId && detalle && (
+        <CerrarCasoModal
+          pacienteNombre={detalle.paciente_nombre}
+          pacienteEstado={detalle.paciente_estado}
+          onClose={() => setCerrarCasoAbierto(false)}
+          cerrar={(data) => workspaceApi.cerrarCaso(casoId, data)}
+          onCerrado={(caso) => {
+            setDetalle((prev) => (prev ? { ...prev, ...caso } : prev));
+            setCasos((prev) => prev.map((c) => (c.id === casoId ? { ...c, estado: "completado" as const } : c)));
+            setCerrarCasoAbierto(false);
+          }}
+        />
+      )}
+
+      {reabrirCasoAbierto && casoId && (
+        <ReabrirCasoModal
+          onClose={() => setReabrirCasoAbierto(false)}
+          reabrir={(motivo) => workspaceApi.reabrirCaso(casoId, motivo)}
+          onReabierto={(caso) => {
+            setDetalle((prev) => (prev ? { ...prev, ...caso } : prev));
+            setCasos((prev) => prev.map((c) => (c.id === casoId ? { ...c, estado: "en_curso" as const } : c)));
+            setReabrirCasoAbierto(false);
+          }}
         />
       )}
 

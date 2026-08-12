@@ -1,6 +1,6 @@
 import { getStoredToken } from "../hooks/useAuth";
 import { apiFetch, apiFetchFile } from "./api";
-import { Derivacion, Mensaje } from "./workspaceApi";
+import { CasoSinActividad, CerrarCasoInput, Derivacion, Desenlace, Mensaje } from "./workspaceApi";
 
 // prompt: vincular caso↔cita — 5 columnas exactas (fecha de atención,
 // hora de inicio, hora de fin, número de expediente, número de
@@ -335,13 +335,26 @@ export interface CasoAdminDetalle {
   numero_expediente: number;
   medico_id: string;
   agente_id: string;
+  paciente_id: string;
   paciente_nombre: string;
   especie: string;
   raza: string | null;
   sexo: string;
   edad_anios: number | null;
+  paciente_estado: "activo" | "fallecido";
   medico_nombre: string;
   agente_nombre: string;
+  // prompt_code_cierre_caso.md, Paso 2 — presentes solo si estado==='completado'.
+  diagnostico_final: string | null;
+  tratamiento_activo: boolean | null;
+  tratamiento_activo_detalle: string | null;
+  desenlace: Desenlace | null;
+  cerrado_en: string | null;
+  cerrado_por_nombre: string | null;
+  // Paso 3 — ver la misma nota en workspaceApi.CasoDetalle.
+  motivo_reapertura: string | null;
+  reabierto_en: string | null;
+  reabierto_por_nombre: string | null;
 }
 
 export interface MedicoDisponible {
@@ -599,4 +612,26 @@ export const adminApi = {
       method: "PUT",
       body: JSON.stringify(data),
     }),
+
+  // prompt_code_cierre_caso.md, Paso 2 — endpoint gemelo del médico
+  // (workspaceApi.cerrarCaso), mismo body, WHERE de pertenencia distinto
+  // del lado del backend (ver admin.routes.ts).
+  cerrarCaso: (casoId: string, data: CerrarCasoInput) =>
+    authedFetch<{ caso: CasoAdminDetalle; pacienteMarcadoFallecido: boolean }>(`/admin/casos/${casoId}/cerrar`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  reabrirCaso: (casoId: string, motivo: string) =>
+    authedFetch<{ caso: CasoAdminDetalle }>(`/admin/casos/${casoId}/reabrir`, {
+      method: "POST",
+      body: JSON.stringify({ motivo }),
+    }),
+
+  casosSinActividad: (params: { meses?: number; fechaCorte?: string }) => {
+    const query = new URLSearchParams();
+    if (params.meses != null) query.set("meses", String(params.meses));
+    if (params.fechaCorte) query.set("fechaCorte", params.fechaCorte);
+    return authedFetch<{ casos: CasoSinActividad[] }>(`/admin/casos/sin-actividad?${query.toString()}`);
+  },
 };

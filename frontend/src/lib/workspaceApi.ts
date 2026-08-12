@@ -1,5 +1,6 @@
 import { apiFetch, apiFetchBlob, apiFetchFile } from "./api";
 import { getStoredToken } from "../hooks/useAuth";
+import { fechaHoyEnZona } from "./formatFecha";
 
 export interface AgenteResumen {
   id: string;
@@ -115,6 +116,42 @@ export interface CasoDetalle {
   // (Gastroenterología) que nunca existió — es solo "¿este agente tiene
   // integración real con Claude?", verdadero para casi todos los agentes.
   agente_operativo: boolean;
+  // prompt_code_cierre_caso.md, Paso 2 — presentes solo si estado==='completado'.
+  diagnostico_final: string | null;
+  tratamiento_activo: boolean | null;
+  tratamiento_activo_detalle: string | null;
+  desenlace: Desenlace | null;
+  cerrado_en: string | null;
+  cerrado_por_nombre: string | null;
+  // Paso 3 — presentes solo si el caso se reabrió alguna vez; conviven con
+  // los campos de cierre de arriba, que siguen mostrando el ÚLTIMO cierre
+  // (se limpian recién si el caso se vuelve a cerrar, ver cierreCaso.ts).
+  motivo_reapertura: string | null;
+  reabierto_en: string | null;
+  reabierto_por_nombre: string | null;
+}
+
+export type Desenlace = "resuelto" | "derivado" | "en_control" | "fallecido";
+
+export interface CasoSinActividad {
+  id: string;
+  numero_expediente: number;
+  motivo: string;
+  agente_id: string;
+  agente_nombre: string;
+  paciente_nombre: string;
+  medico_nombre: string;
+  creado_en: string;
+  actualizado_en: string;
+}
+
+export interface CerrarCasoInput {
+  diagnosticoFinal: string;
+  tratamientoActivo: boolean;
+  tratamientoActivoDetalle?: string;
+  desenlace: Desenlace;
+  marcarPacienteFallecido?: boolean;
+  fechaFallecimiento?: string;
 }
 
 export interface Derivacion {
@@ -337,6 +374,58 @@ export interface InformeGenerado {
   es_cortesia: boolean;
 }
 
+// prompt_code_cronologia_seguimiento, Paso 3 — un evento por fila, ya
+// ordenados por fecha. Unión discriminada por `tipo` en vez de un shape
+// único con campos opcionales: cada tipo de evento tiene datos propios
+// (una receta no tiene "contenido", una consulta no tiene "recetaId") y
+// forzar un solo shape hubiera dejado la mayoría de los campos undefined
+// según el caso — el switch en el componente ya necesita discriminar por
+// tipo para elegir el ícono/texto, así que el tipo TS debería reflejar
+// exactamente eso.
+export type EventoCronologia =
+  | { tipo: "apertura"; fecha: string; motivo: string }
+  | {
+      tipo: "consulta_seguimiento";
+      fecha: string;
+      mensajeId: string;
+      medicoNombre: string | null;
+      contenido: string;
+    }
+  | {
+      tipo: "estudio_adjuntado";
+      fecha: string;
+      archivoId: string;
+      nombreArchivo: string;
+      tipoArchivo: string | null;
+    }
+  | {
+      tipo: "informe_generado";
+      fecha: string;
+      informeId: string;
+      medicoNombre: string;
+      nombreArchivo: string;
+    }
+  | { tipo: "receta_emitida"; fecha: string; recetaId: string; medicoNombre: string }
+  | {
+      tipo: "cuidado_preventivo";
+      fecha: string;
+      cuidadoId: string;
+      cuidadoTipo: "desparasitacion" | "vacunacion";
+      vacuna: string | null;
+      subtipoDesparasitacion: string | null;
+      productoDesparasitacion: string | null;
+      registradoPorNombre: string;
+    }
+  | {
+      tipo: "atencion";
+      fecha: string;
+      atencionId: string;
+      medicoNombre: string;
+      notaMedica: string | null;
+      peso: string | null;
+      temperatura: string | null;
+    };
+
 // =====================================================================
 // Módulo de Prescripción Médica — común a cualquier agente clínico
 // (GCIS, ICIS, u otros a futuro). El backend ya resuelve el agente
@@ -374,7 +463,12 @@ export interface RecetaItem {
 
 export interface Receta {
   id: string;
-  caso_id: string;
+  // prompt_code_registro_atencion.md, Paso 3 — el caso es opcional: una
+  // receta sin caso viene de una atención (atencion_id sí obligatorio
+  // conceptualmente, aunque técnicamente también nullable en la fila —
+  // toda receta nueva trae uno de los dos).
+  caso_id: string | null;
+  atencion_id: string | null;
   paciente_id: string;
   medico_id: string;
   tenant_id: string;
@@ -430,6 +524,12 @@ export interface RecetaHistorialItem {
   // — ver prompt_receta_validacion_opcional.md). Deriva de
   // validacion_ia IS NOT NULL, sin columna nueva.
   fue_validada: boolean;
+  // prompt_code_registro_atencion.md, respuesta del usuario — true si
+  // nació de una atención (paciente presente), false si fue un ajuste
+  // sin visita (receta directa sobre el caso). Deriva de atencion_id IS
+  // NOT NULL. Se muestra siempre — si no se distingue, el médico usa el
+  // camino que tenga más cerca y el registro queda inconsistente.
+  con_visita: boolean;
   items: { medicamento_id: string; medicamento_nombre: string; dosis: string; frecuencia: string; duracion: string }[];
 }
 
@@ -454,6 +554,31 @@ export interface CuidadoPreventivo {
   lote: string | null;
   subtipo_desparasitacion: "interna" | "externa" | null;
   producto_desparasitacion: string | null;
+  enfermedades_cubiertas: string[];
+}
+
+// =====================================================================
+// Registro de Atención — prompt_code_registro_atencion.md. Siempre
+// cuelga de una cita; el caso (vía citas.caso_id) es incidental.
+// =====================================================================
+
+export interface Atencion {
+  id: string;
+  tenant_id: string;
+  cita_id: string;
+  paciente_id: string;
+  medico_id: string;
+  nota_medica: string | null;
+  peso: string | null;
+  temperatura: string | null;
+  creado_en: string;
+  actualizado_en: string;
+}
+
+export interface EnfermedadVacuna {
+  id: string;
+  especie: "canino" | "felino";
+  nombre: string;
 }
 
 export type TipoNotificacion =
@@ -543,19 +668,63 @@ export const workspaceApi = {
       body: JSON.stringify(data),
     }),
 
+  // prompt_code_cierre_caso.md, Paso 2 — mismo router que crearCaso (/casos,
+  // no /workspace/casos). pacienteMarcadoFallecido refleja si el UPDATE de
+  // pacientes.estado realmente prendió (siempre true salvo condición de
+  // carrera: alguien ya lo había marcado fallecido por otro lado).
+  cerrarCaso: (casoId: string, data: CerrarCasoInput) =>
+    apiFetch<{ caso: CasoDetalle; pacienteMarcadoFallecido: boolean }>(`/casos/${casoId}/cerrar`, {
+      method: "POST",
+      token: getStoredToken(),
+      body: JSON.stringify(data),
+    }),
+
+  // prompt_code_cierre_caso.md, Paso 3 — motivo obligatorio, ver
+  // cierreCaso.ts para qué se conserva del cierre anterior.
+  reabrirCaso: (casoId: string, motivo: string) =>
+    apiFetch<{ caso: CasoDetalle }>(`/casos/${casoId}/reabrir`, {
+      method: "POST",
+      token: getStoredToken(),
+      body: JSON.stringify({ motivo }),
+    }),
+
+  // Paso 4 — exactamente uno de los dos parámetros, ver resolverFechaCorte
+  // en el backend (casosSinActividad.ts).
+  casosSinActividad: (params: { meses?: number; fechaCorte?: string }) => {
+    const query = new URLSearchParams();
+    if (params.meses != null) query.set("meses", String(params.meses));
+    if (params.fechaCorte) query.set("fechaCorte", params.fechaCorte);
+    return apiFetch<{ casos: CasoSinActividad[] }>(`/casos/sin-actividad?${query.toString()}`, {
+      token: getStoredToken(),
+    });
+  },
+
   // Citas de hoy de este paciente, agendadas con este médico, que todavía
   // no tienen caso vinculado — para la rama "elegir cita de hoy" del
   // wizard "Nuevo Caso". Filtra client-side por estado (no cancelada/
   // no_show) y caso_id nulo: son pocos registros por día, no vale la pena
   // un endpoint dedicado para esto solo.
-  listarCitasDeHoyDelPaciente: async (pacienteId: string, medicoId: string) => {
-    const hoy = new Date().toISOString().slice(0, 10);
+  listarCitasDeHoyDelPaciente: async (pacienteId: string, medicoId: string, zonaHoraria: string | null) => {
+    const hoy = fechaHoyEnZona(zonaHoraria);
     const data = await authedFetch<{
       citas: { id: string; hora_inicio: string; hora_fin: string; estado: string; caso_id: string | null }[];
     }>(`/citas?desde=${hoy}&hasta=${hoy}&medico_id=${medicoId}&paciente_id=${pacienteId}`);
     return data.citas.filter(
       (c) => c.caso_id === null && c.estado !== "cancelada" && c.estado !== "no_show"
     );
+  },
+
+  // prompt_code_registro_atencion.md, Paso 6 — sin filtrar por caso_id
+  // (a diferencia de la de arriba): el resolvedor de cita para el
+  // Registro de Atención necesita ver TODAS las citas de hoy, incluida
+  // una que ya esté ligada a este caso puntual (para reusarla directo,
+  // sin volver a preguntar).
+  listarTodasCitasDeHoy: async (pacienteId: string, medicoId: string, zonaHoraria: string | null) => {
+    const hoy = fechaHoyEnZona(zonaHoraria);
+    const data = await authedFetch<{
+      citas: { id: string; hora_inicio: string; hora_fin: string; estado: string; caso_id: string | null }[];
+    }>(`/citas?desde=${hoy}&hasta=${hoy}&medico_id=${medicoId}&paciente_id=${pacienteId}`);
+    return data.citas.filter((c) => c.estado !== "cancelada" && c.estado !== "no_show");
   },
 
   buscarPropietarios: (q: string) =>
@@ -690,6 +859,13 @@ export const workspaceApi = {
   descargarInforme: (informeId: string) =>
     apiFetchFile(`/informes/${informeId}/descargar`, { token: getStoredToken() }),
 
+  // prompt_code_cronologia_seguimiento, Paso 3 — ya viene ordenada por
+  // fecha desde el backend (apertura, consultas de seguimiento, estudios,
+  // informes, recetas emitidas y cuidados preventivos, mezclados en orden
+  // cronológico, sin respuestas del agente y sin resúmenes de IA).
+  obtenerCronologia: (casoId: string) =>
+    authedFetch<{ eventos: EventoCronologia[] }>(`/casos/${casoId}/cronologia`),
+
   obtenerTiposReporte: () => authedFetch<{ grupos: GrupoTiposReporte[] }>("/reportes/tipos"),
 
   // Nota: estos NO viven bajo /workspace — el backend los monta en
@@ -703,6 +879,19 @@ export const workspaceApi = {
     data: { instruccionesGenerales?: string; instruccionesPropietario?: string; items: ItemRecetaInput[] }
   ) =>
     apiFetch<{ receta: Receta; items: RecetaItem[] }>(`/casos/${casoId}/recetas`, {
+      method: "POST",
+      token: getStoredToken(),
+      body: JSON.stringify(data),
+    }),
+
+  // prompt_code_registro_atencion.md, Paso 3 — receta desde una atención,
+  // sin caso obligatorio. El backend resuelve caso_id transitivamente
+  // (vía la cita de la atención) si corresponde.
+  crearRecetaDesdeAtencion: (
+    atencionId: string,
+    data: { instruccionesGenerales?: string; instruccionesPropietario?: string; items: ItemRecetaInput[] }
+  ) =>
+    apiFetch<{ receta: Receta; items: RecetaItem[] }>(`/atenciones/${atencionId}/recetas`, {
       method: "POST",
       token: getStoredToken(),
       body: JSON.stringify(data),
@@ -750,12 +939,42 @@ export const workspaceApi = {
       lote?: string;
       subtipoDesparasitacion?: "interna" | "externa";
       productoDesparasitacion?: string;
+      atencionId?: string;
+      enfermedadIds?: string[];
     }
   ) =>
     authedFetch<{ cuidadoPreventivo: CuidadoPreventivo }>(`/pacientes/${pacienteId}/cuidados-preventivos`, {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  // ---------------------------------------------------------------------
+  // Registro de Atención — prompt_code_registro_atencion.md.
+  // ---------------------------------------------------------------------
+  obtenerOCrearAtencion: (citaId: string) =>
+    authedFetch<{ atencion: Atencion; cita: { id: string; caso_id: string | null } }>("/atenciones", {
+      method: "POST",
+      body: JSON.stringify({ citaId }),
+    }),
+
+  obtenerAtencion: (atencionId: string) =>
+    authedFetch<{ atencion: Atencion & { caso_id: string | null }; recetas: Receta[]; cuidados: CuidadoPreventivo[] }>(
+      `/atenciones/${atencionId}`
+    ),
+
+  guardarAtencion: (
+    atencionId: string,
+    data: { notaMedica?: string | null; peso?: number | null; temperatura?: number | null }
+  ) =>
+    authedFetch<{ atencion: Atencion }>(`/atenciones/${atencionId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  listarEnfermedadesVacuna: (especie: "canino" | "felino") =>
+    authedFetch<{ enfermedades: EnfermedadVacuna[] }>(
+      `/atenciones/catalogo-enfermedades?especie=${especie}`
+    ),
 };
 
 export const notificacionesApi = {

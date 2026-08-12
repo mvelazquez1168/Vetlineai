@@ -6,6 +6,13 @@ import { PoolClient } from "pg";
 import { almacenamientoPrivado, almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import { eliminarUsuarioKeycloak } from "../keycloakAdmin";
 import { registrarEventoDetallado, registrarLecturaSensible } from "../middleware/auditoria";
+import {
+  validarCerrarCasoInput,
+  ejecutarCierreCaso,
+  validarReabrirCasoInput,
+  ejecutarReaperturaCaso,
+} from "../cierreCaso";
+import { resolverFechaCorte } from "../casosSinActividad";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { requerirStripe } from "../stripe";
 import { calcularCicloActual, calcularConsumoCiclo } from "../usoIa";
@@ -1818,18 +1825,58 @@ adminRouter.get("/reporte-atenciones/pdf", async (req, res) => {
   }
 });
 
+// ---------------------------------------------------------------------
+// GET /api/admin/casos/sin-actividad
+// prompt_code_cierre_caso.md, Paso 4 — mismo criterio que el endpoint
+// gemelo del médico (casos.routes.ts), tenant-wide en vez de por médico.
+// Va ANTES de GET /casos/:id a propósito: Express toma la primera ruta
+// que matchea, y "/casos/:id" también matchea "/casos/sin-actividad" con
+// id="sin-actividad" si quedara registrada primero.
+// ---------------------------------------------------------------------
+adminRouter.get("/casos/sin-actividad", async (req, res) => {
+  const resolucion = resolverFechaCorte(req.query as Record<string, unknown>);
+  if (!resolucion.valido) {
+    return res.status(400).json({ error: resolucion.error });
+  }
+
+  try {
+    const result = await req.db!.query(
+      `SELECT c.id, c.numero_expediente, c.motivo, c.agente_id, a.nombre AS agente_nombre,
+              p.nombre AS paciente_nombre, per.nombre AS medico_nombre,
+              c.creado_en, c.actualizado_en
+       FROM casos c
+       JOIN pacientes p ON p.id = c.paciente_id
+       JOIN agentes a ON a.id = c.agente_id
+       JOIN personas per ON per.id = c.medico_id
+       WHERE c.tenant_id = $1 AND c.estado <> 'completado' AND c.actualizado_en <= $2
+       ORDER BY c.actualizado_en ASC`,
+      [req.auth!.tenantId, resolucion.fechaCorte]
+    );
+    res.json({ casos: result.rows });
+  } catch (err) {
+    console.error("GET /admin/casos/sin-actividad", err);
+    res.status(500).json({ error: "Error al obtener los casos sin actividad." });
+  }
+});
+
 adminRouter.get("/casos/:id", async (req, res) => {
   try {
     const casoResult = await req.db!.query(
       `SELECT c.id, c.motivo, c.estado, c.severidad, c.confianza_diagnostica, c.creado_en, c.numero_expediente,
               c.medico_id, c.agente_id,
-              p.nombre AS paciente_nombre, p.especie, r.nombre AS raza, p.sexo, p.edad_anios, p.fecha_nacimiento,
+              c.diagnostico_final, c.tratamiento_activo, c.tratamiento_activo_detalle, c.desenlace,
+              c.cerrado_en, cerrador.nombre AS cerrado_por_nombre,
+              c.motivo_reapertura, c.reabierto_en, reabridor.nombre AS reabierto_por_nombre,
+              p.id AS paciente_id, p.nombre AS paciente_nombre, p.especie, r.nombre AS raza, p.sexo, p.edad_anios, p.fecha_nacimiento,
+              p.estado AS paciente_estado,
               per.nombre AS medico_nombre, a.nombre AS agente_nombre
        FROM casos c
        JOIN pacientes p ON p.id = c.paciente_id
        LEFT JOIN razas r ON r.id = p.raza_id
        JOIN personas per ON per.id = c.medico_id
        JOIN agentes a ON a.id = c.agente_id
+       LEFT JOIN personas cerrador ON cerrador.id = c.cerrado_por
+       LEFT JOIN personas reabridor ON reabridor.id = c.reabierto_por
        WHERE c.id = $1 AND c.tenant_id = $2`,
       [req.params.id, req.auth!.tenantId]
     );
@@ -1984,5 +2031,77 @@ adminRouter.put("/casos/:id/reasignar", async (req, res) => {
   } catch (err) {
     console.error("PUT /admin/casos/:id/reasignar", err);
     res.status(500).json({ error: "Error al reasignar el caso." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// POST /api/admin/casos/:id/cerrar
+// prompt_code_cierre_caso.md, Paso 2 — endpoint gemelo de
+// casosRouter.post("/:id/cerrar") (casos.routes.ts) para el administrador
+// de clínica: mismo módulo backend/src/cierreCaso.ts, WHERE de pertenencia
+// por tenant_id en vez de medico_id porque adminRouter sirve cualquier
+// caso de la clínica, no solo los propios.
+// ---------------------------------------------------------------------
+adminRouter.post("/casos/:id/cerrar", async (req, res) => {
+  const validacion = validarCerrarCasoInput(req.body);
+  if (!validacion.valido) {
+    return res.status(400).json({ error: validacion.error });
+  }
+
+  try {
+    const casoResult = await req.db!.query(
+      `SELECT id, estado, paciente_id FROM casos WHERE id = $1 AND tenant_id = $2`,
+      [req.params.id, req.auth!.tenantId]
+    );
+    if (casoResult.rows.length === 0) {
+      return res.status(404).json({ error: "Caso no encontrado." });
+    }
+    if (casoResult.rows[0].estado === "completado") {
+      return res.status(409).json({ error: "El caso ya está cerrado." });
+    }
+
+    const { caso, pacienteMarcadoFallecido } = await ejecutarCierreCaso(
+      req.db!,
+      req.params.id,
+      casoResult.rows[0].paciente_id,
+      validacion.input,
+      req.auth!.userId
+    );
+
+    res.json({ caso, pacienteMarcadoFallecido });
+  } catch (err) {
+    console.error("POST /admin/casos/:id/cerrar", err);
+    res.status(500).json({ error: "Error al cerrar el caso." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// POST /api/admin/casos/:id/reabrir
+// prompt_code_cierre_caso.md, Paso 3 — endpoint gemelo del médico
+// (casosRouter.post("/:id/reabrir")). Ver cierreCaso.ts.
+// ---------------------------------------------------------------------
+adminRouter.post("/casos/:id/reabrir", async (req, res) => {
+  const validacion = validarReabrirCasoInput(req.body);
+  if (!validacion.valido) {
+    return res.status(400).json({ error: validacion.error });
+  }
+
+  try {
+    const casoResult = await req.db!.query(
+      `SELECT id, estado FROM casos WHERE id = $1 AND tenant_id = $2`,
+      [req.params.id, req.auth!.tenantId]
+    );
+    if (casoResult.rows.length === 0) {
+      return res.status(404).json({ error: "Caso no encontrado." });
+    }
+    if (casoResult.rows[0].estado !== "completado") {
+      return res.status(409).json({ error: "El caso no está cerrado." });
+    }
+
+    const caso = await ejecutarReaperturaCaso(req.db!, req.params.id, validacion.motivo, req.auth!.userId);
+    res.json({ caso });
+  } catch (err) {
+    console.error("POST /admin/casos/:id/reabrir", err);
+    res.status(500).json({ error: "Error al reabrir el caso." });
   }
 });

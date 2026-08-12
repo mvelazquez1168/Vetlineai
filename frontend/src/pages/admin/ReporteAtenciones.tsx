@@ -4,19 +4,27 @@ import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { Table, TableColumn } from "../../components/ui/Table";
 import { AtencionReporte, Medico, ReporteAtenciones as ReporteAtencionesData, adminApi } from "../../lib/adminApi";
+import { fechaHoyEnZona } from "../../lib/formatFecha";
+import { useAuth } from "../../hooks/useAuth";
 
 function formatoFechaISO(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-function primerDiaDelMes(offsetMeses: number): Date {
-  const hoy = new Date();
-  return new Date(Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth() + offsetMeses, 1));
+// El año/mes de referencia se ancla al día de HOY en la zona horaria de la
+// clínica (no la del navegador/UTC) — bug real: cerca de medianoche UTC
+// (6pm en Costa Rica) el mes en curso calculado en UTC ya había rodado al
+// mes siguiente, mostrando el reporte de "mes en curso" vacío. La
+// aritmética de Date.UTC de acá adentro es segura porque año/mes ya vienen
+// anclados correctamente — nunca se vuelve a tocar la hora actual.
+function primerDiaDelMes(offsetMeses: number, zonaHoraria: string | null): Date {
+  const [anio, mes] = fechaHoyEnZona(zonaHoraria).split("-").map(Number);
+  return new Date(Date.UTC(anio, mes - 1 + offsetMeses, 1));
 }
 
-function ultimoDiaDelMes(offsetMeses: number): Date {
-  const hoy = new Date();
-  return new Date(Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth() + offsetMeses + 1, 0));
+function ultimoDiaDelMes(offsetMeses: number, zonaHoraria: string | null): Date {
+  const [anio, mes] = fechaHoyEnZona(zonaHoraria).split("-").map(Number);
+  return new Date(Date.UTC(anio, mes + offsetMeses, 0));
 }
 
 function formatearFechaCorta(iso: string): string {
@@ -43,8 +51,9 @@ function formatearHora(hora: string): string {
 // cinco (fecha de atención, hora de inicio, hora de fin, N.º expediente,
 // N.º colegiado) — sin nombre de médico ni de paciente.
 export function ReporteAtenciones() {
-  const [desde, setDesde] = useState(formatoFechaISO(primerDiaDelMes(0)));
-  const [hasta, setHasta] = useState(formatoFechaISO(ultimoDiaDelMes(0)));
+  const { zonaHoraria } = useAuth();
+  const [desde, setDesde] = useState(formatoFechaISO(primerDiaDelMes(0, zonaHoraria)));
+  const [hasta, setHasta] = useState(formatoFechaISO(ultimoDiaDelMes(0, zonaHoraria)));
   const [medicoId, setMedicoId] = useState("");
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [datos, setDatos] = useState<ReporteAtencionesData | null>(null);
@@ -72,8 +81,8 @@ export function ReporteAtenciones() {
   }, [desde, hasta, medicoId]);
 
   const aplicarAtajo = (offsetMeses: number) => {
-    setDesde(formatoFechaISO(primerDiaDelMes(offsetMeses)));
-    setHasta(formatoFechaISO(ultimoDiaDelMes(offsetMeses)));
+    setDesde(formatoFechaISO(primerDiaDelMes(offsetMeses, zonaHoraria)));
+    setHasta(formatoFechaISO(ultimoDiaDelMes(offsetMeses, zonaHoraria)));
   };
 
   const descargarPdf = async () => {

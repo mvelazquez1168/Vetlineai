@@ -33,6 +33,13 @@ import { avisoActivo, emitirNotificacion } from "../notificaciones";
 import { construirBloqueRazaDocumento, NOMBRE_DOCUMENTO_PREDISPOSICIONES } from "../razaDocumento";
 import { asignarNumeroExpediente } from "../expediente";
 import { registrarResultadoAnthropic, registrarExitoAnthropic } from "../proveedorIaEstado";
+import {
+  validarCerrarCasoInput,
+  ejecutarCierreCaso,
+  validarReabrirCasoInput,
+  ejecutarReaperturaCaso,
+} from "../cierreCaso";
+import { resolverFechaCorte } from "../casosSinActividad";
 
 export const casosRouter = Router();
 
@@ -208,6 +215,125 @@ casosRouter.post("/", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------
+// GET /api/casos/sin-actividad
+// prompt_code_cierre_caso.md, Paso 4 — casos abiertos (no completados) del
+// médico, filtrados por tiempo sin actividad. "Sin actividad" es
+// literalmente actualizado_en, que ya refleja mensaje/adjunto/informe/
+// receta (ver los puntos de escritura tocados en el Paso 2).
+// ---------------------------------------------------------------------
+casosRouter.get("/sin-actividad", async (req, res) => {
+  const resolucion = resolverFechaCorte(req.query as Record<string, unknown>);
+  if (!resolucion.valido) {
+    return res.status(400).json({ error: resolucion.error });
+  }
+
+  try {
+    const result = await req.db!.query(
+      `SELECT c.id, c.numero_expediente, c.motivo, c.agente_id, a.nombre AS agente_nombre,
+              p.nombre AS paciente_nombre, per.nombre AS medico_nombre,
+              c.creado_en, c.actualizado_en
+       FROM casos c
+       JOIN pacientes p ON p.id = c.paciente_id
+       JOIN agentes a ON a.id = c.agente_id
+       JOIN personas per ON per.id = c.medico_id
+       WHERE c.medico_id = $1 AND c.estado <> 'completado' AND c.actualizado_en <= $2
+       ORDER BY c.actualizado_en ASC`,
+      [req.auth!.userId, resolucion.fechaCorte]
+    );
+    res.json({ casos: result.rows });
+  } catch (err) {
+    console.error("GET /casos/sin-actividad", err);
+    res.status(500).json({ error: "Error al obtener los casos sin actividad." });
+  }
+});
+
+export interface ItemRecetaInput {
+  medicamentoId: string;
+  dosis: string;
+  frecuencia: string;
+  duracion: string;
+  viaAdministracion: string;
+  observaciones?: string;
+}
+
+// Núcleo compartido de creación de receta — usado por POST
+// /casos/:id/recetas (abajo) y por POST /atenciones/:id/recetas
+// (prompt_code_registro_atencion.md, Paso 3: "una receta es un acto del
+// médico sobre un paciente; el caso es opcional"). casoId es nullable a
+// propósito: una receta desde una atención sin caso no lo lleva.
+//
+// Comparten el INSERT, pero NO son la misma cosa clínicamente — a
+// propósito no se unifican los dos caminos de entrada (respuesta del
+// usuario a este prompt):
+//   - POST /casos/:id/recetas → un AJUSTE SIN VISITA. Llegó un resultado
+//     de laboratorio, el propietario contó algo por teléfono, se
+//     modifica una dosis — el paciente no está presente.
+//   - POST /atenciones/:id/recetas → lo que se PRESCRIBIÓ CON EL
+//     PACIENTE PRESENTE, en la misma visita que generó nota/peso/vacuna.
+// atencion_id es la señal de cuál fue: no nulo = con visita. Esto
+// determina qué badge muestra RecetaPanel.tsx y el historial
+// farmacológico — si no se distingue, el médico usa la que tenga más
+// cerca y el registro queda inconsistente (razón dada por el usuario).
+export async function crearRecetaConItems(
+  db: PoolClient,
+  params: {
+    tenantId: string;
+    casoId: string | null;
+    atencionId: string | null;
+    pacienteId: string;
+    medicoId: string;
+    instruccionesGenerales?: string | null;
+    instruccionesPropietario?: string | null;
+    items: ItemRecetaInput[];
+  }
+) {
+  const recetaResult = await db.query(
+    `INSERT INTO recetas
+       (tenant_id, caso_id, atencion_id, paciente_id, medico_id, instrucciones_generales, instrucciones_propietario)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [
+      params.tenantId,
+      params.casoId,
+      params.atencionId,
+      params.pacienteId,
+      params.medicoId,
+      params.instruccionesGenerales ?? null,
+      params.instruccionesPropietario ?? null,
+    ]
+  );
+  const receta = recetaResult.rows[0];
+
+  let orden = 0;
+  for (const item of params.items) {
+    await db.query(
+      `INSERT INTO receta_items (receta_id, medicamento_id, dosis, frecuencia, duracion, via_administracion, observaciones, orden)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        receta.id,
+        item.medicamentoId,
+        item.dosis,
+        item.frecuencia,
+        item.duracion,
+        item.viaAdministracion,
+        item.observaciones ?? null,
+        orden++,
+      ]
+    );
+  }
+
+  const itemsResult = await db.query(
+    `SELECT ri.*, m.nombre AS medicamento_nombre, m.presentacion, m.concentracion
+     FROM receta_items ri
+     JOIN medicamentos m ON m.id = ri.medicamento_id
+     WHERE ri.receta_id = $1
+     ORDER BY ri.orden ASC`,
+    [receta.id]
+  );
+  return { receta, items: itemsResult.rows };
+}
+
+// ---------------------------------------------------------------------
 // POST /api/casos/:id/recetas
 // Crea una receta en estado 'borrador' — módulo transversal a cualquier
 // agente, ver recetas.routes.ts. Vive acá (no en ese archivo) solo
@@ -218,14 +344,7 @@ casosRouter.post("/:id/recetas", async (req, res) => {
   const { instruccionesGenerales, instruccionesPropietario, items } = req.body as {
     instruccionesGenerales?: string;
     instruccionesPropietario?: string;
-    items?: {
-      medicamentoId: string;
-      dosis: string;
-      frecuencia: string;
-      duracion: string;
-      viaAdministracion: string;
-      observaciones?: string;
-    }[];
+    items?: ItemRecetaInput[];
   };
 
   if (!items || items.length === 0) {
@@ -234,57 +353,36 @@ casosRouter.post("/:id/recetas", async (req, res) => {
 
   try {
     const casoResult = await req.db!.query(
-      `SELECT id, paciente_id FROM casos WHERE id = $1 AND medico_id = $2`,
+      `SELECT id, paciente_id, estado FROM casos WHERE id = $1 AND medico_id = $2`,
       [req.params.id, req.auth!.userId]
     );
     if (casoResult.rows.length === 0) {
       return res.status(404).json({ error: "Caso no encontrado." });
     }
     const caso = casoResult.rows[0];
-
-    const recetaResult = await req.db!.query(
-      `INSERT INTO recetas (tenant_id, caso_id, paciente_id, medico_id, instrucciones_generales, instrucciones_propietario)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [
-        req.auth!.tenantId,
-        req.params.id,
-        caso.paciente_id,
-        req.auth!.userId,
-        instruccionesGenerales ?? null,
-        instruccionesPropietario ?? null,
-      ]
-    );
-    const receta = recetaResult.rows[0];
-
-    let orden = 0;
-    for (const item of items) {
-      await req.db!.query(
-        `INSERT INTO receta_items (receta_id, medicamento_id, dosis, frecuencia, duracion, via_administracion, observaciones, orden)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [
-          receta.id,
-          item.medicamentoId,
-          item.dosis,
-          item.frecuencia,
-          item.duracion,
-          item.viaAdministracion,
-          item.observaciones ?? null,
-          orden++,
-        ]
-      );
+    // Un caso cerrado es de solo lectura — no se le agrega información ni
+    // se le pide análisis (prompt_code_cierre_caso.md, Paso 2). Prescribir
+    // sobre un caso ya cerrado es exactamente eso: información nueva.
+    if (caso.estado === "completado") {
+      return res.status(409).json({ error: "El caso está cerrado — no se pueden agregar recetas nuevas." });
     }
 
-    const itemsResult = await req.db!.query(
-      `SELECT ri.*, m.nombre AS medicamento_nombre, m.presentacion, m.concentracion
-       FROM receta_items ri
-       JOIN medicamentos m ON m.id = ri.medicamento_id
-       WHERE ri.receta_id = $1
-       ORDER BY ri.orden ASC`,
-      [receta.id]
-    );
+    const { receta, items: itemsGuardados } = await crearRecetaConItems(req.db!, {
+      tenantId: req.auth!.tenantId!,
+      casoId: req.params.id,
+      atencionId: null,
+      pacienteId: caso.paciente_id,
+      medicoId: req.auth!.userId,
+      instruccionesGenerales,
+      instruccionesPropietario,
+      items,
+    });
 
-    res.status(201).json({ receta, items: itemsResult.rows });
+    // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
+    // actividad tocan actualizado_en, no solo informacion/mensajes.
+    await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [req.params.id]);
+
+    res.status(201).json({ receta, items: itemsGuardados });
   } catch (err) {
     console.error("POST /casos/:id/recetas", err);
     res.status(500).json({ error: "Error al crear la receta." });
@@ -833,6 +931,15 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
       return res.status(404).json({ error: "Caso no encontrado." });
     }
 
+    // Un caso cerrado es de solo lectura — regenerar el Dashboard es
+    // pedirle un análisis nuevo al agente, exactamente lo que
+    // prompt_code_cierre_caso.md excluye. El dashboard_cache ya generado
+    // sigue visible vía GET /:id/dashboard, solo se corta acá la
+    // generación de uno nuevo.
+    if (casoResult.rows[0].estado === "completado") {
+      return res.status(409).json({ error: "El caso está cerrado — no se puede regenerar el Dashboard." });
+    }
+
     // Pantallas faltantes, Prompt B, Paso 2 — generar/regenerar el
     // Dashboard es una operación con IA, se bloquea igual que la creación
     // de casos y el chat. AD-DASH-01 dice que el resultado nunca se
@@ -1142,6 +1249,221 @@ casosRouter.get("/:id/dashboard", async (req, res) => {
   } catch (err) {
     console.error("GET /casos/:id/dashboard", err);
     res.status(500).json({ error: "Error al obtener el dashboard." });
+  }
+});
+
+// =====================================================================
+// CRONOLOGÍA DEL CASO — prompt_code_cronologia_seguimiento, Paso 3.
+//
+// Lista fiel de lo que le pasó al paciente dentro de este caso, en orden
+// cronológico: apertura, cada consulta de seguimiento, estudios
+// adjuntados, informes generados, recetas EMITIDAS (nunca borradores) y
+// cuidados preventivos del paciente desde que se abrió el caso.
+//
+// A propósito NO incluye las respuestas del agente (tipo='respuesta') —
+// son razonamiento sobre lo ocurrido, no eventos clínicos; mezclarlas
+// reconstruiría la conversación, que es justo lo que esta vista evita. Y
+// a propósito NO genera resúmenes con IA: el contenido de cada consulta
+// de seguimiento es el texto tal cual lo escribió el médico, sin tocar
+// (el recorte visual es cosa del frontend).
+//
+// "Cuidados preventivos... en ese período" se acota por paciente_id +
+// creado_en >= la apertura del caso — no hay una fecha de cierre
+// explícita en `casos`, así que un caso abierto sigue sumando cuidados
+// nuevos a su cronología mientras siga así (comportamiento esperado: la
+// cronología de un caso en curso no es un snapshot fijo).
+// ---------------------------------------------------------------------
+casosRouter.get("/:id/cronologia", async (req, res) => {
+  try {
+    const casoResult = await req.db!.query(
+      `SELECT id, paciente_id, motivo, creado_en FROM casos WHERE id = $1 AND medico_id = $2`,
+      [req.params.id, req.auth!.userId]
+    );
+    if (casoResult.rows.length === 0) {
+      return res.status(404).json({ error: "Caso no encontrado." });
+    }
+    const caso = casoResult.rows[0];
+
+    const [consultas, estudios, informes, recetas, cuidados, atenciones] = await Promise.all([
+      req.db!.query(
+        `SELECT m.id, m.contenido, m.creado_en, per.nombre AS medico_nombre
+         FROM mensajes m
+         LEFT JOIN personas per ON per.id = m.autor_persona_id
+         WHERE m.caso_id = $1 AND m.tipo = 'informacion'
+         ORDER BY m.creado_en`,
+        [req.params.id]
+      ),
+      req.db!.query(
+        `SELECT id, nombre_archivo, tipo, creado_en FROM archivos WHERE caso_id = $1 ORDER BY creado_en`,
+        [req.params.id]
+      ),
+      req.db!.query(
+        `SELECT ig.id, ig.nombre_archivo, ig.generado_en, per.nombre AS medico_nombre
+         FROM informes_generados ig
+         JOIN personas per ON per.id = ig.medico_id
+         WHERE ig.caso_id = $1
+         ORDER BY ig.generado_en`,
+        [req.params.id]
+      ),
+      req.db!.query(
+        `SELECT r.id, r.emitido_en, per.nombre AS medico_nombre
+         FROM recetas r
+         JOIN personas per ON per.id = r.medico_id
+         WHERE r.caso_id = $1 AND r.estado = 'emitida' AND r.emitido_en IS NOT NULL
+         ORDER BY r.emitido_en`,
+        [req.params.id]
+      ),
+      req.db!.query(
+        `SELECT cp.id, cp.tipo, cp.fecha_aplicacion, cp.vacuna, cp.subtipo_desparasitacion,
+                cp.producto_desparasitacion, per.nombre AS registrado_por_nombre
+         FROM cuidados_preventivos cp
+         JOIN personas per ON per.id = cp.registrado_por
+         WHERE cp.paciente_id = $1 AND cp.creado_en >= $2
+         ORDER BY cp.fecha_aplicacion`,
+        [caso.paciente_id, caso.creado_en]
+      ),
+      // prompt_code_registro_atencion.md, Paso 7 — una atención pertenece a
+      // la cita, no al caso; se resuelve vía citas.caso_id de este caso.
+      // "Si la cita está ligada a un caso, la atención aparece igual en la
+      // cronología de ese caso."
+      req.db!.query(
+        `SELECT a.id, a.nota_medica, a.peso, a.temperatura, a.actualizado_en, per.nombre AS medico_nombre
+         FROM atenciones a
+         JOIN citas c ON c.id = a.cita_id
+         JOIN personas per ON per.id = a.medico_id
+         WHERE c.caso_id = $1
+         ORDER BY a.actualizado_en`,
+        [req.params.id]
+      ),
+    ]);
+
+    const eventos = [
+      { tipo: "apertura" as const, fecha: caso.creado_en, motivo: caso.motivo as string },
+      ...consultas.rows.map((m) => ({
+        tipo: "consulta_seguimiento" as const,
+        fecha: m.creado_en,
+        mensajeId: m.id as string,
+        medicoNombre: m.medico_nombre as string | null,
+        contenido: m.contenido as string,
+      })),
+      ...estudios.rows.map((a) => ({
+        tipo: "estudio_adjuntado" as const,
+        fecha: a.creado_en,
+        archivoId: a.id as string,
+        nombreArchivo: a.nombre_archivo as string,
+        tipoArchivo: a.tipo as string | null,
+      })),
+      ...informes.rows.map((i) => ({
+        tipo: "informe_generado" as const,
+        fecha: i.generado_en,
+        informeId: i.id as string,
+        medicoNombre: i.medico_nombre as string,
+        nombreArchivo: i.nombre_archivo as string,
+      })),
+      ...recetas.rows.map((r) => ({
+        tipo: "receta_emitida" as const,
+        fecha: r.emitido_en,
+        recetaId: r.id as string,
+        medicoNombre: r.medico_nombre as string,
+      })),
+      ...cuidados.rows.map((c) => ({
+        tipo: "cuidado_preventivo" as const,
+        fecha: c.fecha_aplicacion,
+        cuidadoId: c.id as string,
+        cuidadoTipo: c.tipo as "desparasitacion" | "vacunacion",
+        vacuna: c.vacuna as string | null,
+        subtipoDesparasitacion: c.subtipo_desparasitacion as string | null,
+        productoDesparasitacion: c.producto_desparasitacion as string | null,
+        registradoPorNombre: c.registrado_por_nombre as string,
+      })),
+      ...atenciones.rows.map((a) => ({
+        tipo: "atencion" as const,
+        fecha: a.actualizado_en,
+        atencionId: a.id as string,
+        medicoNombre: a.medico_nombre as string,
+        notaMedica: a.nota_medica as string | null,
+        peso: a.peso as string | null,
+        temperatura: a.temperatura as string | null,
+      })),
+    ].sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+
+    res.json({ eventos });
+  } catch (err) {
+    console.error("GET /casos/:id/cronologia", err);
+    res.status(500).json({ error: "Error al obtener la cronología del caso." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// POST /api/casos/:id/cerrar
+// prompt_code_cierre_caso.md, Paso 2 — el médico dueño del caso. Ver
+// backend/src/cierreCaso.ts para la lógica compartida con el endpoint
+// gemelo de administrador (adminRouter, admin.routes.ts): mismo cuerpo,
+// mismo módulo, WHERE de pertenencia distinto porque casosRouter exige
+// esMedico (línea ~41) y no puede servir también a admin_clinica.
+// ---------------------------------------------------------------------
+casosRouter.post("/:id/cerrar", async (req, res) => {
+  const validacion = validarCerrarCasoInput(req.body);
+  if (!validacion.valido) {
+    return res.status(400).json({ error: validacion.error });
+  }
+
+  try {
+    const casoResult = await req.db!.query(
+      `SELECT id, estado, paciente_id FROM casos WHERE id = $1 AND medico_id = $2`,
+      [req.params.id, req.auth!.userId]
+    );
+    if (casoResult.rows.length === 0) {
+      return res.status(404).json({ error: "Caso no encontrado." });
+    }
+    if (casoResult.rows[0].estado === "completado") {
+      return res.status(409).json({ error: "El caso ya está cerrado." });
+    }
+
+    const { caso, pacienteMarcadoFallecido } = await ejecutarCierreCaso(
+      req.db!,
+      req.params.id,
+      casoResult.rows[0].paciente_id,
+      validacion.input,
+      req.auth!.userId
+    );
+
+    res.json({ caso, pacienteMarcadoFallecido });
+  } catch (err) {
+    console.error("POST /casos/:id/cerrar", err);
+    res.status(500).json({ error: "Error al cerrar el caso." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// POST /api/casos/:id/reabrir
+// prompt_code_cierre_caso.md, Paso 3 — el médico dueño del caso. Endpoint
+// gemelo del de admin (admin.routes.ts) — mismo módulo cierreCaso.ts, WHERE
+// de pertenencia distinto, igual que el par cerrar/cerrar.
+// ---------------------------------------------------------------------
+casosRouter.post("/:id/reabrir", async (req, res) => {
+  const validacion = validarReabrirCasoInput(req.body);
+  if (!validacion.valido) {
+    return res.status(400).json({ error: validacion.error });
+  }
+
+  try {
+    const casoResult = await req.db!.query(
+      `SELECT id, estado FROM casos WHERE id = $1 AND medico_id = $2`,
+      [req.params.id, req.auth!.userId]
+    );
+    if (casoResult.rows.length === 0) {
+      return res.status(404).json({ error: "Caso no encontrado." });
+    }
+    if (casoResult.rows[0].estado !== "completado") {
+      return res.status(409).json({ error: "El caso no está cerrado." });
+    }
+
+    const caso = await ejecutarReaperturaCaso(req.db!, req.params.id, validacion.motivo, req.auth!.userId);
+    res.json({ caso });
+  } catch (err) {
+    console.error("POST /casos/:id/reabrir", err);
+    res.status(500).json({ error: "Error al reabrir el caso." });
   }
 });
 
@@ -1599,6 +1921,24 @@ const ESTADO_CASO_LABEL: Record<string, string> = {
   completado: "Completado",
 };
 
+const DESENLACE_LABEL: Record<string, string> = {
+  resuelto: "Resuelto",
+  derivado: "Derivado",
+  en_control: "En control",
+  fallecido: "Fallecido",
+};
+
+function filasCierreParaInforme(caso: Record<string, any>): string[][] {
+  const filas: string[][] = [
+    ["Desenlace", DESENLACE_LABEL[caso.desenlace] ?? caso.desenlace],
+    ["Diagnóstico final", caso.diagnostico_final ?? "No registrado"],
+  ];
+  if (caso.tratamiento_activo) {
+    filas.push(["Tratamiento activo", caso.tratamiento_activo_detalle ?? "No especificado"]);
+  }
+  return filas;
+}
+
 const ESTADO_CLINICO_LABEL: Record<string, string> = {
   remision: "Remisión",
   estable: "Estable",
@@ -1775,6 +2115,14 @@ function parrafoLibre(texto: string | null | undefined): (Paragraph | Table)[] {
   return bloques;
 }
 
+// Bug real encontrado en verificación (prompt_code_cierre_caso.md): Claude
+// a veces devuelve null en un campo de informacion_paciente (ej. raza o
+// edad sin dato claro en el hilo) — TextRun de la librería docx no tolera
+// null/undefined y hace caer TODA la generación del informe, no solo esa
+// celda. `texto` viene tipado como string desde los call sites, pero en
+// la práctica puede llegar null en runtime (el JSON de Claude no se valida
+// campo por campo antes de esto), de ahí el `?? "No registrado"` acá y no
+// en cada call site.
 function celda(
   texto: string,
   opts: { bold?: boolean; color?: string; shadingFill?: string } = {}
@@ -1784,7 +2132,9 @@ function celda(
     margins: { top: 80, bottom: 80, left: 100, right: 100 },
     children: [
       new Paragraph({
-        children: [new TextRun({ text: texto, bold: opts.bold, color: opts.color, size: 20 })],
+        children: [
+          new TextRun({ text: texto ?? "No registrado", bold: opts.bold, color: opts.color, size: 20 }),
+        ],
       }),
     ],
   });
@@ -2104,6 +2454,7 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
   try {
     const casoResult = await req.db!.query(
       `SELECT c.id, c.agente_id, c.estado, c.motivo, c.numero_expediente,
+              c.diagnostico_final, c.tratamiento_activo, c.tratamiento_activo_detalle, c.desenlace,
               p.id AS paciente_id, p.nombre AS paciente_nombre, p.especie, r.nombre AS raza,
               p.sexo AS paciente_sexo, p.edad_anios AS paciente_edad_anios, p.fecha_nacimiento AS paciente_fecha_nacimiento,
               p.estado AS paciente_estado,
@@ -2423,6 +2774,10 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
           ["Colegiado N.º", caso.medico_colegiatura ?? "No registrado"],
           ["Versión", "1.0"],
           ["Estado del caso", ESTADO_CASO_LABEL[caso.estado] ?? caso.estado],
+          // prompt_code_cierre_caso.md — si el caso está cerrado, el informe
+          // final lo refleja: desenlace, diagnóstico final, y tratamiento
+          // activo solo si quedó alguno (no una fila vacía si no aplica).
+          ...(caso.estado === "completado" ? filasCierreParaInforme(caso) : []),
         ]
       ),
       new Paragraph({ pageBreakBefore: true, children: [] }),
@@ -2504,6 +2859,9 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
     } catch (err) {
       console.error("Error al persistir el informe en informes_generados (no bloquea la descarga)", err);
     }
+    // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
+    // actividad tocan actualizado_en, no solo informacion/mensajes.
+    await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [req.params.id]);
 
     // prompt_code_notificaciones_pendientes.md, C3 — avisa que el informe
     // está disponible, sin adjuntarlo (decisión confirmada: es el

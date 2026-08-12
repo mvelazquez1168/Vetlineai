@@ -139,6 +139,7 @@ pacientesRouter.get("/:id/historial-farmacologico", async (req, res) => {
     const filasResult = await req.db!.query(
       `SELECT r.id AS receta_id, r.emitido_en, m.nombre AS medico_nombre,
               (r.validacion_ia IS NOT NULL) AS fue_validada,
+              (r.atencion_id IS NOT NULL) AS con_visita,
               ri.medicamento_id, med.nombre AS medicamento_nombre,
               ri.dosis, ri.frecuencia, ri.duracion, ri.orden
        FROM recetas r
@@ -157,6 +158,11 @@ pacientesRouter.get("/:id/historial-farmacologico", async (req, res) => {
         emitido_en: string;
         medico_nombre: string;
         fue_validada: boolean;
+        // prompt_code_registro_atencion.md, respuesta del usuario — hace
+        // visible en el historial cuál de los dos caminos generó cada
+        // receta: con_visita=true vino de una atención (paciente
+        // presente), false es un ajuste sin visita (POST /casos/:id/recetas).
+        con_visita: boolean;
         items: { medicamento_id: string; medicamento_nombre: string; dosis: string; frecuencia: string; duracion: string }[];
       }
     >();
@@ -169,6 +175,7 @@ pacientesRouter.get("/:id/historial-farmacologico", async (req, res) => {
           emitido_en: fila.emitido_en,
           medico_nombre: fila.medico_nombre,
           fue_validada: fila.fue_validada,
+          con_visita: fila.con_visita,
           items: [],
         });
       }
@@ -217,17 +224,34 @@ pacientesRouter.get("/:id/historial-farmacologico", async (req, res) => {
 // necesitó cambios — ya procesa cada fila de cuidados_preventivos por
 // separado, así que dos desparasitaciones vigentes con fechas distintas
 // ya disparaban cada una por su cuenta antes de este cambio.
+// prompt_code_registro_atencion.md, Paso 4 — atencionId opcional (este
+// endpoint ya funcionaba sin caso; ahora también se llama desde el
+// Registro de Atención, que sí quiere el vínculo). enfermedadIds solo
+// aplica a tipo='vacunacion': selección múltiple del catálogo de
+// plataforma, opcional — sin eso el sistema no puede razonar sobre la
+// vacuna en un caso futuro, pero no bloquea el registro.
 pacientesRouter.post("/:id/cuidados-preventivos", async (req, res) => {
-  const { tipo, fechaAplicacion, fechaProximaRecomendada, vacuna, lote, subtipoDesparasitacion, productoDesparasitacion } =
-    req.body as {
-      tipo?: "desparasitacion" | "vacunacion";
-      fechaAplicacion?: string;
-      fechaProximaRecomendada?: string;
-      vacuna?: string;
-      lote?: string;
-      subtipoDesparasitacion?: "interna" | "externa";
-      productoDesparasitacion?: string;
-    };
+  const {
+    tipo,
+    fechaAplicacion,
+    fechaProximaRecomendada,
+    vacuna,
+    lote,
+    subtipoDesparasitacion,
+    productoDesparasitacion,
+    atencionId,
+    enfermedadIds,
+  } = req.body as {
+    tipo?: "desparasitacion" | "vacunacion";
+    fechaAplicacion?: string;
+    fechaProximaRecomendada?: string;
+    vacuna?: string;
+    lote?: string;
+    subtipoDesparasitacion?: "interna" | "externa";
+    productoDesparasitacion?: string;
+    atencionId?: string;
+    enfermedadIds?: string[];
+  };
 
   if (!tipo || !fechaAplicacion || !fechaProximaRecomendada) {
     return res.status(400).json({ error: "Faltan tipo, fechaAplicacion o fechaProximaRecomendada." });
@@ -246,10 +270,10 @@ pacientesRouter.post("/:id/cuidados-preventivos", async (req, res) => {
     const result = await req.db!.query(
       `INSERT INTO cuidados_preventivos
          (tenant_id, paciente_id, tipo, fecha_aplicacion, fecha_proxima_recomendada, registrado_por, vacuna, lote,
-          subtipo_desparasitacion, producto_desparasitacion)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          subtipo_desparasitacion, producto_desparasitacion, atencion_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING id, tipo, fecha_aplicacion, fecha_proxima_recomendada, registrado_por, creado_en, vacuna, lote,
-                 subtipo_desparasitacion, producto_desparasitacion`,
+                 subtipo_desparasitacion, producto_desparasitacion, atencion_id`,
       [
         req.auth!.tenantId,
         req.params.id,
@@ -261,9 +285,21 @@ pacientesRouter.post("/:id/cuidados-preventivos", async (req, res) => {
         tipo === "vacunacion" ? lote?.trim() || null : null,
         tipo === "desparasitacion" ? subtipoDesparasitacion : null,
         tipo === "desparasitacion" ? productoDesparasitacion?.trim() || null : null,
+        atencionId ?? null,
       ]
     );
-    res.status(201).json({ cuidadoPreventivo: result.rows[0] });
+    const cuidadoPreventivo = result.rows[0];
+
+    if (tipo === "vacunacion" && enfermedadIds && enfermedadIds.length > 0) {
+      for (const enfermedadId of enfermedadIds) {
+        await req.db!.query(
+          `INSERT INTO cuidado_preventivo_enfermedades (cuidado_preventivo_id, enfermedad_id) VALUES ($1, $2)`,
+          [cuidadoPreventivo.id, enfermedadId]
+        );
+      }
+    }
+
+    res.status(201).json({ cuidadoPreventivo });
   } catch (err) {
     console.error("POST /pacientes/:id/cuidados-preventivos", err);
     res.status(500).json({ error: "Error al registrar el cuidado preventivo." });
@@ -275,7 +311,14 @@ pacientesRouter.get("/:id/cuidados-preventivos", async (req, res) => {
     const result = await req.db!.query(
       `SELECT cp.id, cp.tipo, cp.fecha_aplicacion, cp.fecha_proxima_recomendada, cp.creado_en,
               cp.vacuna, cp.lote, cp.subtipo_desparasitacion, cp.producto_desparasitacion,
-              per.nombre AS registrado_por_nombre
+              per.nombre AS registrado_por_nombre,
+              COALESCE(
+                (SELECT array_agg(ev.nombre ORDER BY ev.nombre)
+                 FROM cuidado_preventivo_enfermedades cpe
+                 JOIN enfermedades_vacuna ev ON ev.id = cpe.enfermedad_id
+                 WHERE cpe.cuidado_preventivo_id = cp.id),
+                ARRAY[]::text[]
+              ) AS enfermedades_cubiertas
        FROM cuidados_preventivos cp
        JOIN personas per ON per.id = cp.registrado_por
        WHERE cp.paciente_id = $1

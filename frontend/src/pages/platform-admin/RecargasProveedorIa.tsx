@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
-import { formatearFecha } from "../../lib/formatFecha";
+import { fechaHoyEnZona, formatearFecha, ZONA_HORARIA_PLATAFORMA } from "../../lib/formatFecha";
 import { platformAdminApi, RecargaProveedorIa } from "../../lib/platformAdminApi";
 
 // prompt_code_panel_consumo_plataforma, Paso 1 — recargas de la cuenta de
@@ -10,7 +10,10 @@ import { platformAdminApi, RecargaProveedorIa } from "../../lib/platformAdminApi
 // API (ver docs/inventario-stack-configuracion.md), así que esto es lo
 // único de lo que se puede partir para derivar el saldo (Paso 3, todavía
 // no construido — ver el panel de Dashboard).
-const hoyISO = () => new Date().toISOString().slice(0, 10);
+// Pantalla de plataforma, sin tenant — usa la zona de referencia de
+// plataforma, nunca la del navegador (mismo bug de fondo que el reporte de
+// atenciones: toISOString() da el día en UTC, no el real).
+const hoyISO = () => fechaHoyEnZona(ZONA_HORARIA_PLATAFORMA);
 
 export function RecargasProveedorIa() {
   const [recargas, setRecargas] = useState<RecargaProveedorIa[]>([]);

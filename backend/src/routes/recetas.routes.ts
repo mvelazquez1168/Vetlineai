@@ -142,10 +142,14 @@ function validacionInformacionInsuficiente(resumen: string) {
 }
 
 async function obtenerRecetaConItems(db: PoolClient, recetaId: string, medicoId: string) {
+  // prompt_code_registro_atencion.md, Paso 3 — LEFT JOIN a propósito:
+  // una receta sin caso (caso_id null) no debe desaparecer de GET
+  // /recetas/:id. c.agente_id sale null en ese caso, que es exactamente
+  // la señal que usa el frontend para deshabilitar "Validar con IA".
   const recetaResult = await db.query(
     `SELECT r.*, c.agente_id
      FROM recetas r
-     JOIN casos c ON c.id = r.caso_id
+     LEFT JOIN casos c ON c.id = r.caso_id
      WHERE r.id = $1 AND r.medico_id = $2`,
     [recetaId, medicoId]
   );
@@ -249,6 +253,23 @@ recetasRouter.put("/:id", async (req, res) => {
 // Única fase donde el agente importa, y solo para decidir qué bloque de
 // system prompt cacheado usar. El resto de la lógica es idéntica sin
 // importar el agente del caso.
+//
+// prompt_code_registro_atencion.md, Paso 3 — sin caso no hay agente, así
+// que no hay system_prompt con el que validar. La UI deshabilita el
+// botón con una explicación (no lo oculta), pero este 422 es la
+// verificación de fondo: nunca dependemos únicamente de que el frontend
+// no deje llegar la petición.
+//
+// Anotado, no construido: las recetas sin caso son justamente las más
+// rápidas (una visita de rutina, sin razonamiento clínico de por medio)
+// y son las que hoy se quedan sin validación. Hay una salida natural a
+// futuro que no depende de un agente/especialidad en absoluto: una
+// validación de dosis solo necesita peso + especie + fármaco, no
+// razonamiento de especialidad. El peso ya es un campo estructurado en
+// `atenciones` (este mismo prompt) — cuando se decida construirla, sería
+// una llamada a Claude con un system prompt general (no el del agente
+// del caso), gateada por p.especie + item.dosis + atencion.peso en vez
+// de c.agente_id. No es este prompt.
 // ---------------------------------------------------------------------
 recetasRouter.post("/:id/validar", async (req, res) => {
   try {
@@ -257,8 +278,8 @@ recetasRouter.post("/:id/validar", async (req, res) => {
               c.agente_id, a.system_prompt,
               p.especie, p.edad_anios
        FROM recetas r
-       JOIN casos c ON c.id = r.caso_id
-       JOIN agentes a ON a.id = c.agente_id
+       LEFT JOIN casos c ON c.id = r.caso_id
+       LEFT JOIN agentes a ON a.id = c.agente_id
        JOIN pacientes p ON p.id = r.paciente_id
        WHERE r.id = $1 AND r.medico_id = $2`,
       [req.params.id, req.auth!.userId]
@@ -267,6 +288,11 @@ recetasRouter.post("/:id/validar", async (req, res) => {
       return res.status(404).json({ error: "Receta no encontrada." });
     }
     const fila = casoYPacienteResult.rows[0];
+    if (!fila.caso_id) {
+      return res.status(422).json({
+        error: "Esta receta no está asociada a un caso, así que no se puede validar con IA. Podés emitirla directamente.",
+      });
+    }
 
     const guardarValidacion = async (validacion: Record<string, any>) => {
       await req.db!.query(
@@ -491,7 +517,7 @@ recetasRouter.post("/:id/validar", async (req, res) => {
 recetasRouter.post("/:id/emitir", async (req, res) => {
   try {
     const recetaResult = await req.db!.query(
-      `SELECT r.id, r.estado, r.instrucciones_generales, r.instrucciones_propietario,
+      `SELECT r.id, r.estado, r.caso_id, r.instrucciones_generales, r.instrucciones_propietario,
               p.nombre AS paciente_nombre, p.especie, ra.nombre AS raza, p.sexo, p.edad_anios, p.fecha_nacimiento,
               prop.nombre AS propietario_nombre,
               m.nombre AS medico_nombre, m.colegiatura AS medico_colegiatura,
@@ -560,6 +586,14 @@ recetasRouter.post("/:id/emitir", async (req, res) => {
     await req.db!.query(`UPDATE recetas SET estado = 'emitida', emitido_en = now() WHERE id = $1`, [
       req.params.id,
     ]);
+    // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
+    // actividad tocan actualizado_en, no solo informacion/mensajes.
+    // prompt_code_registro_atencion.md, Paso 3 — receta.caso_id puede ser
+    // null (receta sin caso); explícito en vez de dejar que el WHERE
+    // id = NULL no actualice nada por accidente.
+    if (receta.caso_id) {
+      await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [receta.caso_id]);
+    }
 
     const fechaArchivo = new Intl.DateTimeFormat("en-CA", {
       timeZone: receta.zona_horaria ?? "America/Costa_Rica",

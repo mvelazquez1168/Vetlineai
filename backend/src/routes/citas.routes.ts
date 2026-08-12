@@ -25,11 +25,21 @@ citasRouter.use((req, res, next) => {
 
 // Transiciones de estado válidas — explícitas, sin saltos ilógicos.
 // Estados terminales (completada/cancelada/no_show) no salen a ningún
-// otro estado.
-const TRANSICIONES_VALIDAS: Record<string, string[]> = {
-  programada: ["confirmada", "cancelada", "no_show"],
-  confirmada: ["registrada", "cancelada", "no_show"],
-  registrada: ["en_consulta", "cancelada"],
+// otro estado. Exportada — prompt_code_registro_atencion.md, respuesta
+// del usuario: atencion.ts la reusa para el mismo chequeo, no repite la
+// tabla ni la salta.
+//
+// programada/confirmada/registrada → completada son adiciones de ese
+// mismo prompt: antes solo en_consulta podía completarse, lo que
+// bloqueaba el caso central del Registro de Atención (paciente sin
+// turno, cita recién creada en 'programada'). Registrar la atención es
+// en sí mismo la prueba de que la consulta ocurrió — una vía legítima de
+// cierre, no un salto ilógico; sigue sin poder completarse desde
+// cancelada/no_show (terminales, sin salida a propósito).
+export const TRANSICIONES_VALIDAS: Record<string, string[]> = {
+  programada: ["confirmada", "cancelada", "no_show", "completada"],
+  confirmada: ["registrada", "cancelada", "no_show", "completada"],
+  registrada: ["en_consulta", "cancelada", "completada"],
   en_consulta: ["completada", "cancelada"],
   completada: [],
   cancelada: [],

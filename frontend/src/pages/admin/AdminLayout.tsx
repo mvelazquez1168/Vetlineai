@@ -11,6 +11,7 @@ import { useMenuColapsable } from "../../hooks/useMenuColapsable";
 const NAV_ITEMS = [
   { to: "/admin/medicos", label: "Médicos" },
   { to: "/admin/casos", label: "Casos" },
+  { to: "/admin/casos-sin-actividad", label: "Casos sin actividad" },
   { to: "/admin/propietarios", label: "Propietarios" },
   { to: "/agenda", label: "Agenda" },
   { to: "/admin/agentes", label: "Agentes IA" },

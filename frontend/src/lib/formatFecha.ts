@@ -27,6 +27,19 @@ export function formatearHora(fecha: string, zonaHoraria: string | null | undefi
   return formatearFecha(fecha, zonaHoraria, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 
+// El día calendario de "ahora" en la zona horaria de la clínica — NUNCA
+// `new Date().toISOString().slice(0, 10)`, que da el día en UTC. Bug real:
+// en Costa Rica (UTC-6) eso hace que todo lo posterior a las 6pm locales
+// caiga en el día siguiente (ver bug de reporte de atenciones vacío).
+export function fechaHoyEnZona(zonaHoraria: string | null | undefined): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: zonaHoraria ?? ZONA_HORARIA_PLATAFORMA,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 // "Hoy, 09:30 AM" / "Ayer, 04:15 PM" / fecha completa para cualquier otro
 // día — la comparación de "es hoy/ayer" se hace en la zona horaria del
 // tenant (nunca la del navegador), con locale en-CA como clave yyyy-mm-dd

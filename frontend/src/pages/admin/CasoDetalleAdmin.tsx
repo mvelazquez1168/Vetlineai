@@ -1,10 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Badge, BadgeVariant } from "../../components/ui/Badge";
+import { Button } from "../../components/ui/Button";
 import { CasoDashboardPanel } from "../../components/caso/CasoDashboardPanel";
+import { CerrarCasoModal } from "../../components/caso/CerrarCasoModal";
 import { MensajesLista } from "../../components/caso/MensajesLista";
+import { ReabrirCasoModal } from "../../components/caso/ReabrirCasoModal";
 import { useAuth } from "../../hooks/useAuth";
+import { formatearFechaCorta } from "../../lib/formatFecha";
 import { CasoAdminDetalle, adminApi } from "../../lib/adminApi";
 import { Derivacion, Mensaje, workspaceApi } from "../../lib/workspaceApi";
+
+const ESTADO_BADGE: Record<string, BadgeVariant> = {
+  triage: "neutral",
+  en_curso: "warning",
+  completado: "success",
+};
 
 // Vista de solo lectura para el admin de clínica: mismos componentes de
 // burbujas de mensaje y panel de dashboard que usa CasoWorkspace.tsx, sin
@@ -19,6 +30,8 @@ export function CasoDetalleAdmin() {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [derivacion, setDerivacion] = useState<Derivacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [cerrarCasoAbierto, setCerrarCasoAbierto] = useState(false);
+  const [reabrirCasoAbierto, setReabrirCasoAbierto] = useState(false);
 
   useEffect(() => {
     if (!casoId) return;
@@ -67,12 +80,26 @@ export function CasoDetalleAdmin() {
             <Link to="/admin/casos" className="text-sm font-semibold text-accent hover:underline">
               ← Casos Clínicos
             </Link>
-            <h2 className="mt-1 text-lg font-bold text-primary">
+            <h2 className="mt-1 flex items-center gap-2 text-lg font-bold text-primary">
               {caso.paciente_nombre} — {caso.especie} ({caso.sexo}
               {caso.edad_anios ? `, ${caso.edad_anios}a` : ""})
+              <Badge variant={ESTADO_BADGE[caso.estado] ?? "neutral"}>{caso.estado.replace("_", " ")}</Badge>
             </h2>
             <p className="text-xs text-text-muted">Expediente N.º {caso.numero_expediente}</p>
             <p className="text-sm text-text-muted">{caso.motivo}</p>
+            {caso.estado === "completado" && (
+              <p className="mt-1 text-xs text-text-muted">
+                Cerrado el {formatearFechaCorta(caso.cerrado_en!, zonaHoraria)}
+                {caso.cerrado_por_nombre ? ` por ${caso.cerrado_por_nombre}` : ""} · Desenlace: {caso.desenlace}
+              </p>
+            )}
+            {caso.reabierto_en && (
+              <p className="mt-1 text-xs text-text-muted">
+                Reabierto el {formatearFechaCorta(caso.reabierto_en, zonaHoraria)}
+                {caso.reabierto_por_nombre ? ` por ${caso.reabierto_por_nombre}` : ""}
+                {caso.motivo_reapertura ? ` — Motivo: ${caso.motivo_reapertura}` : ""}
+              </p>
+            )}
           </div>
           <div className="text-right text-sm text-text-muted">
             <p>
@@ -81,6 +108,23 @@ export function CasoDetalleAdmin() {
             <p>
               Agente: <span className="font-semibold text-text-primary">{caso.agente_nombre}</span>
             </p>
+            {caso.estado !== "completado" ? (
+              <Button
+                variant="secondary"
+                onClick={() => setCerrarCasoAbierto(true)}
+                className="mt-2 px-3 py-2 text-xs"
+              >
+                Cerrar caso
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => setReabrirCasoAbierto(true)}
+                className="mt-2 px-3 py-2 text-xs"
+              >
+                Reabrir caso
+              </Button>
+            )}
           </div>
         </header>
 
@@ -90,6 +134,30 @@ export function CasoDetalleAdmin() {
       </main>
 
       <CasoDashboardPanel detalle={caso} derivacion={derivacion} zonaHoraria={zonaHoraria} />
+
+      {cerrarCasoAbierto && casoId && (
+        <CerrarCasoModal
+          pacienteNombre={caso.paciente_nombre}
+          pacienteEstado={caso.paciente_estado}
+          onClose={() => setCerrarCasoAbierto(false)}
+          cerrar={(data) => adminApi.cerrarCaso(casoId, data)}
+          onCerrado={(casoActualizado) => {
+            setCaso((prev) => (prev ? { ...prev, ...casoActualizado } : prev));
+            setCerrarCasoAbierto(false);
+          }}
+        />
+      )}
+
+      {reabrirCasoAbierto && casoId && (
+        <ReabrirCasoModal
+          onClose={() => setReabrirCasoAbierto(false)}
+          reabrir={(motivo) => adminApi.reabrirCaso(casoId, motivo)}
+          onReabierto={(casoActualizado) => {
+            setCaso((prev) => (prev ? { ...prev, ...casoActualizado } : prev));
+            setReabrirCasoAbierto(false);
+          }}
+        />
+      )}
     </div>
   );
 }

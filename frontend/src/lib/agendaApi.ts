@@ -139,11 +139,13 @@ export function etiquetaEstadoCita(estado: EstadoCita): string {
 
 // Transiciones válidas — reflejo exacto de TRANSICIONES_VALIDAS en
 // citas.routes.ts, para no ofrecer en la UI un cambio que el backend va
-// a rechazar igual.
+// a rechazar igual. Los tres "completada" agregados en programada/
+// confirmada/registrada existen para que "Registrar atención" pueda
+// completar la cita de un walk-in sin pasar por cada estado intermedio.
 const TRANSICIONES_VALIDAS: Record<EstadoCita, EstadoCita[]> = {
-  programada: ["confirmada", "cancelada", "no_show"],
-  confirmada: ["registrada", "cancelada", "no_show"],
-  registrada: ["en_consulta", "cancelada"],
+  programada: ["confirmada", "cancelada", "no_show", "completada"],
+  confirmada: ["registrada", "cancelada", "no_show", "completada"],
+  registrada: ["en_consulta", "cancelada", "completada"],
   en_consulta: ["completada", "cancelada"],
   completada: [],
   cancelada: [],
@@ -351,6 +353,14 @@ export const citasApi = {
     return { cita: normalizarCita(r.cita) };
   },
   borrar: (id: string) => authedFetch<void>(`/citas/${id}`, { method: "DELETE" }),
+  // prompt_code_registro_atencion.md, Paso 6 — ligar una cita de hoy ya
+  // agendada (sin caso) al caso desde el que se abrió el Registro de
+  // Atención. Nunca pisa un vínculo existente (ver PATCH /citas/:id/caso).
+  vincularCaso: (id: string, casoId: string) =>
+    authedFetch<{ cita: { id: string; caso_id: string | null } }>(`/citas/${id}/caso`, {
+      method: "PATCH",
+      body: JSON.stringify({ casoId }),
+    }),
 };
 
 export const listaEsperaApi = {

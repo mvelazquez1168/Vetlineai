@@ -17,8 +17,14 @@ const TABS = [
 // layouts existentes (AdminLayout de sidebar, o el chrome sin nav del
 // médico) sirve tal cual para los dos roles a la vez.
 export function AgendaLayout() {
-  const { rol, logout } = useAuth();
-  const volverA = rol === "admin_clinica" ? "/admin/medicos" : "/workspace";
+  const { esMedico, esAdminClinica, logout } = useAuth();
+  // `rol` es la pantalla de aterrizaje (un solo valor, prioriza admin sobre
+  // médico — ver mapearRol en useAuth.tsx), no la lista de roles reales de
+  // la sesión. Alguien admin_clinica Y médico a la vez que entra a la
+  // Agenda desde su área de trabajo debía volver ahí, no al panel de
+  // clínica, así que esto usa esMedico/esAdminClinica (misRoles) en vez de
+  // `rol` — bug real: un médico con doble rol volvía siempre al panel admin.
+  const volverA = esMedico ? "/workspace" : esAdminClinica ? "/admin/medicos" : "/workspace";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

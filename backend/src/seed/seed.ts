@@ -284,8 +284,8 @@ async function main() {
     ];
     for (const m of mensajesToby) {
       await client.query(
-        `INSERT INTO mensajes (caso_id, remitente, contenido) VALUES ($1, $2, $3)`,
-        [casoTobyId, m.remitente, m.contenido]
+        `INSERT INTO mensajes (caso_id, remitente, contenido, autor_persona_id) VALUES ($1, $2, $3, $4)`,
+        [casoTobyId, m.remitente, m.contenido, m.remitente === "medico" ? medicoId : null]
       );
     }
 
@@ -310,10 +310,11 @@ async function main() {
       ]
     );
     await client.query(
-      `INSERT INTO mensajes (caso_id, remitente, contenido) VALUES ($1, 'medico', $2)`,
+      `INSERT INTO mensajes (caso_id, remitente, contenido, autor_persona_id) VALUES ($1, 'medico', $2, $3)`,
       [
         casoLunaResult.rows[0].id,
         "Luna presenta prurito constante hace 5 días, con lesiones cutáneas leves en el dorso.",
+        medicoId,
       ]
     );
 
@@ -332,8 +333,8 @@ async function main() {
       ]
     );
     await client.query(
-      `INSERT INTO mensajes (caso_id, remitente, contenido) VALUES ($1, 'medico', $2)`,
-      [casoSimbaResult.rows[0].id, "Simba cojea del miembro posterior derecho desde hace una semana, sin antecedente traumático claro."]
+      `INSERT INTO mensajes (caso_id, remitente, contenido, autor_persona_id) VALUES ($1, 'medico', $2, $3)`,
+      [casoSimbaResult.rows[0].id, "Simba cojea del miembro posterior derecho desde hace una semana, sin antecedente traumático claro.", medicoId]
     );
 
     const numeroExpedienteRocky = await asignarNumeroExpediente(client, tenantId);

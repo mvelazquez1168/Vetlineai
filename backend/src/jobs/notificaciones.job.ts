@@ -230,6 +230,9 @@ async function procesarSeguimientosFaltantes() {
      LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = c.tenant_id
      WHERE t.estado_suscripcion = ANY($1)
        AND p.estado = 'activo'
+       -- prompt_code_cierre_caso.md, Paso 5 — un caso que el médico ya dio
+       -- por cerrado no debe seguir generando avisos de seguimiento.
+       AND c.estado <> 'completado'
        AND COALESCE(cn.seguimiento_faltante_activo, true) = true
        AND c.dashboard_cache->'clinical_state'->>'estado' IN ('empeorando', 'critico')
        AND NOT EXISTS (
@@ -286,6 +289,15 @@ async function procesarSeguimientosPosteriores() {
      LEFT JOIN configuracion_notificaciones cn ON cn.tenant_id = c.tenant_id
      WHERE t.estado_suscripcion = ANY($1)
        AND p.estado = 'activo'
+       -- prompt_code_cierre_caso.md, Paso 5 (revisado) — a diferencia de
+       -- seguimiento_faltante, este aviso NO excluye los casos cerrados:
+       -- se dispara días después de la última actividad, así que excluir
+       -- los cerrados dejaría afuera justo a los casos bien llevados
+       -- (cerrados a tiempo) y solo llegaría a los que nadie cerró.
+       -- Sí se excluye explícitamente el desenlace fallecido — no alcanza
+       -- con el filtro p.estado = 'activo' de arriba porque ese es un paso
+       -- manual aparte que el médico puede no haber confirmado todavía.
+       AND (c.desenlace IS DISTINCT FROM 'fallecido')
        AND COALESCE(cn.seguimiento_posterior_activo, true) = true
        AND c.actualizado_en <= now() - (COALESCE(cn.dias_seguimiento_posterior, 3) || ' days')::interval
        AND NOT EXISTS (

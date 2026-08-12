@@ -43,8 +43,19 @@ interface ItemEnEdicion {
   observaciones: string;
 }
 
+// prompt_code_registro_atencion.md, Paso 3 — el caso es opcional: una
+// receta puede nacer directo de un caso (puerta vieja, CasoWorkspace,
+// siempre con caso) o de una atención (puerta nueva, con o sin caso
+// detrás — la atención misma cuelga de una cita, que puede o no estar
+// ligada a un caso; el padre ya sabe eso al momento de abrir este panel,
+// así que viaja en el origen y no hace falta esperar al primer guardado
+// para saber si "Validar con IA" va a estar disponible).
+export type OrigenReceta =
+  | { tipo: "caso"; casoId: string }
+  | { tipo: "atencion"; atencionId: string; tieneCaso: boolean };
+
 interface RecetaPanelProps {
-  casoId: string;
+  origen: OrigenReceta;
   pacienteNombre: string;
   onClose: () => void;
 }
@@ -52,8 +63,9 @@ interface RecetaPanelProps {
 // Módulo de Prescripción Médica — común a cualquier agente clínico
 // (GCIS, ICIS, u otros a futuro). Nada acá depende de qué agente lleva
 // el caso; el backend ya resuelve eso dinámicamente en /validar.
-export function RecetaPanel({ casoId, pacienteNombre, onClose }: RecetaPanelProps) {
+export function RecetaPanel({ origen, pacienteNombre, onClose }: RecetaPanelProps) {
   const [recetaId, setRecetaId] = useState<string | null>(null);
+  const validacionDisponible = origen.tipo === "caso" ? true : origen.tieneCaso;
   const [items, setItems] = useState<ItemEnEdicion[]>([]);
   const [instruccionesGenerales, setInstruccionesGenerales] = useState("");
   const [instruccionesPropietario, setInstruccionesPropietario] = useState("");
@@ -153,11 +165,18 @@ export function RecetaPanel({ casoId, pacienteNombre, onClose }: RecetaPanelProp
   const guardarBorrador = async (): Promise<string> => {
     let idActual = recetaId;
     if (!idActual) {
-      const { receta } = await workspaceApi.crearReceta(casoId, {
-        instruccionesGenerales: instruccionesGenerales || undefined,
-        instruccionesPropietario: instruccionesPropietario || undefined,
-        items: itemsParaBackend(),
-      });
+      const { receta } =
+        origen.tipo === "caso"
+          ? await workspaceApi.crearReceta(origen.casoId, {
+              instruccionesGenerales: instruccionesGenerales || undefined,
+              instruccionesPropietario: instruccionesPropietario || undefined,
+              items: itemsParaBackend(),
+            })
+          : await workspaceApi.crearRecetaDesdeAtencion(origen.atencionId, {
+              instruccionesGenerales: instruccionesGenerales || undefined,
+              instruccionesPropietario: instruccionesPropietario || undefined,
+              items: itemsParaBackend(),
+            });
       idActual = receta.id;
       setRecetaId(receta.id);
     } else {
@@ -240,22 +259,33 @@ export function RecetaPanel({ casoId, pacienteNombre, onClose }: RecetaPanelProp
 
   return (
     <div className="fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col border-l border-black/10 bg-surface shadow-2xl">
-      <div className="flex items-center justify-between border-b border-black/5 px-6 py-4">
-        <div className="flex items-center gap-3">
-          <span className="h-6 w-1 rounded-full bg-accent" aria-hidden="true" />
-          <h2 className="text-lg font-bold text-primary">
-            {emitida ? "Receta Emitida" : validacion ? "Validación de Prescripción" : "Nueva Prescripción"}
-          </h2>
-          {!emitida && <Badge variant="info">Borrador</Badge>}
+      <div className="border-b border-black/5 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="h-6 w-1 rounded-full bg-accent" aria-hidden="true" />
+            <h2 className="text-lg font-bold text-primary">
+              {emitida ? "Receta Emitida" : validacion ? "Validación de Prescripción" : "Nueva Prescripción"}
+            </h2>
+            {!emitida && <Badge variant="info">Borrador</Badge>}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-text-muted hover:text-error"
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-text-muted hover:text-error"
-          aria-label="Cerrar"
-        >
-          ✕
-        </button>
+        {/* prompt_code_registro_atencion.md, respuesta del usuario — los
+            dos caminos de receta no se unifican, pero acá se distinguen a
+            simple vista: sin esto el médico usa el que tenga más cerca y
+            el registro queda inconsistente entre "con visita" y "ajuste". */}
+        <p className="mt-1.5 pl-4 text-xs font-medium text-text-muted">
+          {origen.tipo === "atencion"
+            ? "Con el paciente presente — se registra junto con esta atención."
+            : "Ajuste sin visita — el paciente no está presente en esta consulta."}
+        </p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
@@ -545,7 +575,7 @@ export function RecetaPanel({ casoId, pacienteNombre, onClose }: RecetaPanelProp
             <div className="flex gap-3">
               <Button
                 onClick={validarReceta}
-                disabled={validando || emitiendo || items.length === 0}
+                disabled={!validacionDisponible || validando || emitiendo || items.length === 0}
                 className="flex-1"
               >
                 {validando ? "Validando…" : "Validar receta"}
@@ -558,9 +588,20 @@ export function RecetaPanel({ casoId, pacienteNombre, onClose }: RecetaPanelProp
                 {emitiendo ? "Emitiendo…" : "Emitir sin validar"}
               </Button>
             </div>
-            <p className="text-center text-xs text-text-muted">
-              "Emitir sin validar" generará la receta sin revisión de seguridad clínica por IA.
-            </p>
+            {/* prompt_code_registro_atencion.md, Paso 3 — nunca ocultar el
+                botón sin explicar por qué: el médico tiene que saber que
+                esta receta se emite sin verificación, no encontrarse con
+                que "Validar" simplemente no está. */}
+            {!validacionDisponible ? (
+              <p className="text-center text-xs text-warning">
+                Esta atención no está ligada a un caso, así que no hay validación clínica por IA disponible — se
+                emite directo.
+              </p>
+            ) : (
+              <p className="text-center text-xs text-text-muted">
+                "Emitir sin validar" generará la receta sin revisión de seguridad clínica por IA.
+              </p>
+            )}
           </div>
         )}
       </div>

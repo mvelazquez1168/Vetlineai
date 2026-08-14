@@ -56,9 +56,58 @@ export async function construirBloqueContextoCaso(db: EjecutorSql, casoId: strin
   if (edadEfectiva !== null) lineas.push(`- Edad: ${edadEfectiva} años`);
   if (fila.motivo) lineas.push(`- Motivo de consulta: ${fila.motivo}`);
 
-  return (
+  const bloqueSignalment =
     "Contexto del caso — datos que la clínica ya registró. NO se los vuelvas a pedir al médico; " +
     "preguntá únicamente lo que falte de acá:\n" +
-    lineas.join("\n")
+    lineas.join("\n");
+
+  return bloqueSignalment + (await construirBloqueAtencionesVinculadas(db, casoId));
+}
+
+// ---------------------------------------------------------------------
+// Atenciones vinculadas manualmente — el médico elige, desde un caso ya
+// abierto, qué visitas anteriores del paciente (que no tenían caso al
+// momento de registrarse) son relevantes para este caso y las asocia
+// (ver PATCH /citas/:id/caso vía la pantalla "Vincular atención
+// anterior"). El vínculo vive en citas.caso_id, así que estas son
+// exactamente las atenciones cuya cita apunta a este caso — ni más
+// (no se listan TODAS las atenciones del paciente, sería historia
+// ajena al caso) ni menos (no dependen de que el vínculo se haya hecho
+// al crear el caso: puede sumarse en cualquier momento).
+//
+// Va en el mismo bloque sin cache_control que el signalment de arriba
+// — no en el bloque cacheado — porque la lista puede crecer a mitad de
+// caso cada vez que el médico vincula una atención más.
+// ---------------------------------------------------------------------
+async function construirBloqueAtencionesVinculadas(db: EjecutorSql, casoId: string): Promise<string> {
+  const result = await db.query(
+    `SELECT c.fecha, per.nombre AS medico_nombre, a.nota_medica, a.peso, a.temperatura
+     FROM citas c
+     JOIN atenciones a ON a.cita_id = c.id
+     JOIN personas per ON per.id = a.medico_id
+     WHERE c.caso_id = $1
+     ORDER BY c.fecha ASC`,
+    [casoId]
+  );
+  if (result.rows.length === 0) return "";
+
+  const bloques = result.rows.map((fila) => {
+    const fecha = new Date(fila.fecha).toISOString().slice(0, 10);
+    const datos = [
+      fila.peso != null ? `peso ${fila.peso} kg` : null,
+      fila.temperatura != null ? `temperatura ${fila.temperatura} °C` : null,
+    ]
+      .filter((d): d is string => d !== null)
+      .join(", ");
+    const encabezado = `- ${fecha} (${fila.medico_nombre})${datos ? `: ${datos}` : ""}`;
+    return fila.nota_medica ? `${encabezado}\n  ${fila.nota_medica}` : encabezado;
+  });
+
+  return (
+    "\n\nAtenciones anteriores vinculadas a este caso — el médico las asoció manualmente porque " +
+    "las considera relevantes para razonar sobre este caso, aunque se registraron antes de que " +
+    "existiera (ej. una visita de rutina que después resultó tener relación con el motivo de " +
+    "consulta). Tenelas en cuenta igual que el resto del historial del caso:\n" +
+    bloques.join("\n")
   );
 }

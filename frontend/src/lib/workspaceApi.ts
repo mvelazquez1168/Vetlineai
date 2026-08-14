@@ -437,6 +437,13 @@ export interface Medicamento {
   id: string;
   nombre: string;
   principio_activo: string | null;
+  // Migración 071 — catálogo de plataforma. clase agrupa el buscador
+  // (ej. "Antibiótico", "Antiinflamatorio no esteroideo"); tenant_id
+  // null en la fila original significa fármaco de plataforma, visible
+  // para todas las clínicas, pero no se expone acá porque el frontend
+  // nunca necesita distinguirlo — el buscador ya muestra plataforma+propio
+  // mezclado, sin acción de edición disponible sobre los de plataforma.
+  clase: string | null;
   presentacion: string | null;
   concentracion: string | null;
   via_administracion_default: string | null;
@@ -573,6 +580,20 @@ export interface Atencion {
   temperatura: string | null;
   creado_en: string;
   actualizado_en: string;
+}
+
+// Fila de GET /pacientes/:id/atenciones-sin-caso — candidata para
+// "Vincular atención anterior" desde un caso ya abierto.
+export interface AtencionSinCaso {
+  atencion_id: string;
+  cita_id: string;
+  nota_medica: string | null;
+  peso: string | null;
+  temperatura: string | null;
+  fecha: string;
+  hora_inicio: string;
+  hora_fin: string;
+  medico_nombre: string;
 }
 
 export interface EnfermedadVacuna {
@@ -975,6 +996,11 @@ export const workspaceApi = {
     authedFetch<{ enfermedades: EnfermedadVacuna[] }>(
       `/atenciones/catalogo-enfermedades?especie=${especie}`
     ),
+
+  // "Vincular atención anterior" — el vínculo real lo hace citasApi.vincularCaso
+  // (agendaApi.ts) contra atencion.cita_id, esto solo lista candidatas.
+  atencionesSinCaso: (pacienteId: string) =>
+    authedFetch<{ atenciones: AtencionSinCaso[] }>(`/pacientes/${pacienteId}/atenciones-sin-caso`),
 };
 
 export const notificacionesApi = {

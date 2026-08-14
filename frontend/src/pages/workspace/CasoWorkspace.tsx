@@ -19,6 +19,7 @@ import {
 import { CasoDashboardPanel } from "../../components/caso/CasoDashboardPanel";
 import { CerrarCasoModal } from "../../components/caso/CerrarCasoModal";
 import { CronologiaModal } from "../../components/caso/CronologiaModal";
+import { VincularAtencionModal } from "../../components/caso/VincularAtencionModal";
 import { ReabrirCasoModal } from "../../components/caso/ReabrirCasoModal";
 import { DashboardGcisPanel } from "../../components/caso/DashboardGcisPanel";
 import { FichaPropietarioModal } from "../../components/caso/FichaPropietarioModal";
@@ -125,6 +126,7 @@ export function CasoWorkspace() {
   const [registroAtencionCitaId, setRegistroAtencionCitaId] = useState<string | null>(null);
   const [fichaPropietarioAbierta, setFichaPropietarioAbierta] = useState(false);
   const [cronologiaAbierta, setCronologiaAbierta] = useState(false);
+  const [vincularAtencionAbierto, setVincularAtencionAbierto] = useState(false);
   const [cerrarCasoAbierto, setCerrarCasoAbierto] = useState(false);
   const [reabrirCasoAbierto, setReabrirCasoAbierto] = useState(false);
 
@@ -1237,6 +1239,18 @@ export function CasoWorkspace() {
                   Cronología
                 </Button>
 
+                {/* El médico decide, en cualquier momento del caso, qué
+                    atenciones anteriores del paciente (sin caso al
+                    registrarse) son relevantes para este — se suman al
+                    contexto que razona el agente (ver contextoCaso.ts). */}
+                <Button
+                  variant="secondary"
+                  onClick={() => setVincularAtencionAbierto(true)}
+                  className="px-3 py-2 text-xs"
+                >
+                  Vincular atención anterior
+                </Button>
+
                 <Button
                   variant="secondary"
                   onClick={() => setFichaPropietarioAbierta(true)}
@@ -1734,6 +1748,15 @@ export function CasoWorkspace() {
 
       {cronologiaAbierta && casoId && (
         <CronologiaModal casoId={casoId} zonaHoraria={zonaHoraria} onClose={() => setCronologiaAbierta(false)} />
+      )}
+
+      {vincularAtencionAbierto && casoId && detalle && (
+        <VincularAtencionModal
+          casoId={casoId}
+          pacienteId={detalle.paciente_id}
+          zonaHoraria={zonaHoraria}
+          onClose={() => setVincularAtencionAbierto(false)}
+        />
       )}
 
       {cerrarCasoAbierto && casoId && detalle && (

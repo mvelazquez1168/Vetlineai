@@ -1,0 +1,1235 @@
+{
+  "_nota": "Catálogo base de fármacos de plataforma para Vetline Ai. Nombres genéricos y vía de administración habitual. Presentación, concentración y dosis quedan en nulo a propósito: deben completarse desde una fuente clínica confiable, nunca estimarse.",
+  "farmacos": [
+    {
+      "id": "d6923d91-f108-5e48-8150-101d0a90882d",
+      "nombre": "Amoxicilina",
+      "principio_activo": "Amoxicilina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "a2c826e4-11c8-513a-826d-1cb483deaadd",
+      "nombre": "Amoxicilina + ácido clavulánico",
+      "principio_activo": "Amoxicilina + ácido clavulánico",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "282c5338-4ee6-5611-85a4-f35d90b5f997",
+      "nombre": "Ampicilina",
+      "principio_activo": "Ampicilina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "c4c3f5b1-566a-5ece-8df3-20d7b5249a54",
+      "nombre": "Penicilina G benzatínica",
+      "principio_activo": "Penicilina G benzatínica",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "caca6402-a903-505f-9726-2db922af2fba",
+      "nombre": "Cefalexina",
+      "principio_activo": "Cefalexina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "d2a5d765-b60a-534b-9d44-692dde6d4352",
+      "nombre": "Cefovecina",
+      "principio_activo": "Cefovecina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "29960a64-a8f8-5764-8e03-04f030b423e6",
+      "nombre": "Ceftriaxona",
+      "principio_activo": "Ceftriaxona",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "6dd19053-aa93-5bad-9a17-5ce448b90fbc",
+      "nombre": "Enrofloxacina",
+      "principio_activo": "Enrofloxacina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "1d43da32-d948-5914-bbf3-847059c52fdc",
+      "nombre": "Marbofloxacina",
+      "principio_activo": "Marbofloxacina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "e28f7174-bc74-5557-a86b-b3932df6c814",
+      "nombre": "Ciprofloxacina",
+      "principio_activo": "Ciprofloxacina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "276b7538-af51-53c3-ad87-75a31a4f1922",
+      "nombre": "Doxiciclina",
+      "principio_activo": "Doxiciclina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "5189aa67-d7b6-5aab-ad1d-9e5d20336beb",
+      "nombre": "Oxitetraciclina",
+      "principio_activo": "Oxitetraciclina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "54ca6cf9-2b56-55b3-b9aa-db975e480230",
+      "nombre": "Metronidazol",
+      "principio_activo": "Metronidazol",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "87644a80-9a3e-5542-abc4-f2aabce2fcee",
+      "nombre": "Trimetoprima + sulfadiazina",
+      "principio_activo": "Trimetoprima + sulfadiazina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "09c1d075-91b9-55e3-b2f3-df9ff5975fd0",
+      "nombre": "Clindamicina",
+      "principio_activo": "Clindamicina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "af0ee34f-e9b1-5762-842d-065f2bb21c3e",
+      "nombre": "Gentamicina",
+      "principio_activo": "Gentamicina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "b01aa4e2-0b5b-56d8-956c-ab77bf95f0c1",
+      "nombre": "Azitromicina",
+      "principio_activo": "Azitromicina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "112f3a5c-e505-544f-a089-bae9815a7077",
+      "nombre": "Florfenicol",
+      "principio_activo": "Florfenicol",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "4b19c4d8-5b95-5a08-9387-ba0d768acd30",
+      "nombre": "Tilosina",
+      "principio_activo": "Tilosina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "19faaa67-9554-592e-896d-286940f2fe82",
+      "nombre": "Rifampicina",
+      "principio_activo": "Rifampicina",
+      "clase": "Antibiótico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "ac3edc9c-8cd8-5eb7-b3e2-13ba110a0aa4",
+      "nombre": "Meloxicam",
+      "principio_activo": "Meloxicam",
+      "clase": "Antiinflamatorio no esteroideo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "d2618c7b-4f53-549c-b1fd-120327f60676",
+      "nombre": "Carprofeno",
+      "principio_activo": "Carprofeno",
+      "clase": "Antiinflamatorio no esteroideo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "44e61098-e7e4-58d5-8c05-487bd84c31e6",
+      "nombre": "Firocoxib",
+      "principio_activo": "Firocoxib",
+      "clase": "Antiinflamatorio no esteroideo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "f3358d8d-e957-5f3d-87df-f7377999f941",
+      "nombre": "Robenacoxib",
+      "principio_activo": "Robenacoxib",
+      "clase": "Antiinflamatorio no esteroideo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "4219ee5e-029e-5fed-98ba-7771e48bcb4a",
+      "nombre": "Ketoprofeno",
+      "principio_activo": "Ketoprofeno",
+      "clase": "Antiinflamatorio no esteroideo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "8e7a58fe-ad2a-5dd7-a7ee-a505cb19f596",
+      "nombre": "Ácido tolfenámico",
+      "principio_activo": "Ácido tolfenámico",
+      "clase": "Antiinflamatorio no esteroideo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "c429283d-9057-5954-819a-c741e8eb6597",
+      "nombre": "Dipirona (metamizol)",
+      "principio_activo": "Metamizol sódico",
+      "clase": "Analgésico y antipirético",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "7375c1b2-c23e-5054-8937-8b86051dd411",
+      "nombre": "Tramadol",
+      "principio_activo": "Tramadol",
+      "clase": "Analgésico opioide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "340e4b81-b33b-567c-ba8a-05d865f16ad5",
+      "nombre": "Buprenorfina",
+      "principio_activo": "Buprenorfina",
+      "clase": "Analgésico opioide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "f0ea5f46-95b9-5891-aade-975ea29cea10",
+      "nombre": "Butorfanol",
+      "principio_activo": "Butorfanol",
+      "clase": "Analgésico opioide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "3852c2f8-e79e-5354-9cc9-d0a03a7b45a9",
+      "nombre": "Metadona",
+      "principio_activo": "Metadona",
+      "clase": "Analgésico opioide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "cc97d87a-0d70-5455-bc09-59b5b063c761",
+      "nombre": "Morfina",
+      "principio_activo": "Morfina",
+      "clase": "Analgésico opioide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "397024c7-e0c9-5881-b9a0-f7357efe7c9e",
+      "nombre": "Gabapentina",
+      "principio_activo": "Gabapentina",
+      "clase": "Analgésico coadyuvante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "1ec41419-ad1a-5a70-b377-a23ffe060430",
+      "nombre": "Prednisolona",
+      "principio_activo": "Prednisolona",
+      "clase": "Corticoide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "deef1bf4-4206-50c0-8a72-e1dcc5fea8e0",
+      "nombre": "Prednisona",
+      "principio_activo": "Prednisona",
+      "clase": "Corticoide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "efd3d350-884f-5347-8de7-ccab353bc8e8",
+      "nombre": "Dexametasona",
+      "principio_activo": "Dexametasona",
+      "clase": "Corticoide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "1cf9d084-ffe3-5370-bf15-a0ee0c34f8cd",
+      "nombre": "Metilprednisolona",
+      "principio_activo": "Metilprednisolona",
+      "clase": "Corticoide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "e229e483-39a7-55e0-9750-397684169151",
+      "nombre": "Hidrocortisona",
+      "principio_activo": "Hidrocortisona",
+      "clase": "Corticoide",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "19d6c185-74c9-5ea8-b646-ff6aaa4a7b40",
+      "nombre": "Praziquantel",
+      "principio_activo": "Praziquantel",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "26c4f51e-489e-5b95-acb4-818183672b1a",
+      "nombre": "Fenbendazol",
+      "principio_activo": "Fenbendazol",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "d0d534d4-a658-54cf-bc84-dbfd6a12fb8c",
+      "nombre": "Pamoato de pirantel",
+      "principio_activo": "Pamoato de pirantel",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "565d8c60-a322-5b3a-b03b-d467dab567a1",
+      "nombre": "Febantel",
+      "principio_activo": "Febantel",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "8176ba75-7d60-55c5-93d6-48928c20844a",
+      "nombre": "Oxantel",
+      "principio_activo": "Oxantel",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "27ff2013-1b7c-564c-9a20-3c7eccecee6a",
+      "nombre": "Praziquantel + pirantel + febantel",
+      "principio_activo": "Praziquantel + pirantel + febantel",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "37997a35-cb82-51b1-9bc6-83eac39ba54d",
+      "nombre": "Fenbendazol + praziquantel",
+      "principio_activo": "Fenbendazol + praziquantel",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "02a44f3d-cb0b-5d93-a4ab-472db97d8204",
+      "nombre": "Milbemicina oxima",
+      "principio_activo": "Milbemicina oxima",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "cc0048bd-094a-55e4-aff6-31755482419e",
+      "nombre": "Ivermectina",
+      "principio_activo": "Ivermectina",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "d94743c1-911b-5fd6-991d-13e3b311f708",
+      "nombre": "Emodepsida + praziquantel",
+      "principio_activo": "Emodepsida + praziquantel",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "9e407141-f789-5f3c-884c-459fd83e0896",
+      "nombre": "Nitroscanato",
+      "principio_activo": "Nitroscanato",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "0fcda5fc-7761-5fde-9ce7-06e2ef8212a0",
+      "nombre": "Piperazina",
+      "principio_activo": "Piperazina",
+      "clase": "Antiparasitario interno",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "35cf5a43-dc9a-548a-8d00-31de5c382c5a",
+      "nombre": "Toltrazurilo",
+      "principio_activo": "Toltrazurilo",
+      "clase": "Antiprotozoario",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "8e8d819a-0e53-5cb4-8665-2d18cfb93541",
+      "nombre": "Fipronil",
+      "principio_activo": "Fipronil",
+      "clase": "Antiparasitario externo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "570a189b-9ee7-5217-8d39-56918ddbf0ae",
+      "nombre": "Imidacloprid",
+      "principio_activo": "Imidacloprid",
+      "clase": "Antiparasitario externo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "2810fbab-3ad3-5be2-a5fe-f586e62df0cb",
+      "nombre": "Imidacloprid + permetrina",
+      "principio_activo": "Imidacloprid + permetrina",
+      "clase": "Antiparasitario externo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "11305de8-7017-53ce-80b2-4cb3c73d1a75",
+      "nombre": "Selamectina",
+      "principio_activo": "Selamectina",
+      "clase": "Endectocida",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "5bc645a5-5bbe-50ad-a63f-d8853e5d0ee3",
+      "nombre": "Moxidectina + imidacloprid",
+      "principio_activo": "Moxidectina + imidacloprid",
+      "clase": "Endectocida",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "f2e67f77-c405-503f-a3d0-16703df1a6a2",
+      "nombre": "Fluralaner",
+      "principio_activo": "Fluralaner",
+      "clase": "Antiparasitario externo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "aaeb72c5-2a42-5ad0-ae37-63584cbf4548",
+      "nombre": "Afoxolaner",
+      "principio_activo": "Afoxolaner",
+      "clase": "Antiparasitario externo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "8024f333-cf3b-5207-87ee-5430a1c8e8bb",
+      "nombre": "Sarolaner",
+      "principio_activo": "Sarolaner",
+      "clase": "Antiparasitario externo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "b1fb0a8f-b4b1-57c4-a6a8-ab20705d7115",
+      "nombre": "Lotilaner",
+      "principio_activo": "Lotilaner",
+      "clase": "Antiparasitario externo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "342f49e0-8ce3-58f2-8b6f-1b02b6f903bc",
+      "nombre": "Amitraz",
+      "principio_activo": "Amitraz",
+      "clase": "Antiparasitario externo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "946ed305-ce14-5bd2-b45c-ef081114fa06",
+      "nombre": "Oclacitinib",
+      "principio_activo": "Oclacitinib",
+      "clase": "Antialérgico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "b94d3c61-a2e9-5cca-83d8-fcfe4a1b0f50",
+      "nombre": "Ciclosporina",
+      "principio_activo": "Ciclosporina",
+      "clase": "Inmunomodulador",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "5f91466d-7e03-545f-960e-a429b80f583a",
+      "nombre": "Clorfeniramina",
+      "principio_activo": "Maleato de clorfeniramina",
+      "clase": "Antihistamínico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "bfd6c9f8-468c-55e0-ab0b-50cb036193dd",
+      "nombre": "Difenhidramina",
+      "principio_activo": "Difenhidramina",
+      "clase": "Antihistamínico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "10800cb4-5d1e-5ffb-b346-b7f57f8a73d2",
+      "nombre": "Hidroxizina",
+      "principio_activo": "Hidroxizina",
+      "clase": "Antihistamínico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "924f6263-22e4-5339-b5aa-8a1e70245712",
+      "nombre": "Cetirizina",
+      "principio_activo": "Cetirizina",
+      "clase": "Antihistamínico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "449be051-989d-50aa-8960-4bfa103acb80",
+      "nombre": "Ketoconazol",
+      "principio_activo": "Ketoconazol",
+      "clase": "Antifúngico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "12a05c93-65df-58db-85f9-80231cb7d2ca",
+      "nombre": "Itraconazol",
+      "principio_activo": "Itraconazol",
+      "clase": "Antifúngico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "9bc6d28a-d3ee-5f67-a0e0-be0cbfa6fdef",
+      "nombre": "Terbinafina",
+      "principio_activo": "Terbinafina",
+      "clase": "Antifúngico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "176d3573-ddda-58ab-9f87-ae3648a11a84",
+      "nombre": "Clotrimazol",
+      "principio_activo": "Clotrimazol",
+      "clase": "Antifúngico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "5bd478ee-5229-5cfb-ba14-369a4baca224",
+      "nombre": "Miconazol + clorhexidina",
+      "principio_activo": "Miconazol + clorhexidina",
+      "clase": "Antifúngico y antiséptico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    },
+    {
+      "id": "113db8fa-3dab-5753-91c7-326d94ff4303",
+      "nombre": "Pimobendán",
+      "principio_activo": "Pimobendán",
+      "clase": "Cardiológico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "f8178012-2556-51c2-9396-88902eb71bb4",
+      "nombre": "Furosemida",
+      "principio_activo": "Furosemida",
+      "clase": "Diurético",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "ec40e564-7469-5ba9-9e2d-23617a3df480",
+      "nombre": "Torasemida",
+      "principio_activo": "Torasemida",
+      "clase": "Diurético",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "a0e2f3da-b1ef-5490-a7cd-081a55cd237c",
+      "nombre": "Espironolactona",
+      "principio_activo": "Espironolactona",
+      "clase": "Diurético",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "285cac45-7b6b-5aa7-926f-fb001e702d35",
+      "nombre": "Benazepril",
+      "principio_activo": "Benazepril",
+      "clase": "Inhibidor de la enzima convertidora",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "38c65d40-ac07-5a20-86e0-f4d5b9615fd9",
+      "nombre": "Enalapril",
+      "principio_activo": "Enalapril",
+      "clase": "Inhibidor de la enzima convertidora",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "87d587bc-e7f2-5d3f-b264-413ec660d1bd",
+      "nombre": "Amlodipino",
+      "principio_activo": "Amlodipino",
+      "clase": "Antihipertensivo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "ccbaf510-7f21-5e6e-a99f-5199c8de5c84",
+      "nombre": "Digoxina",
+      "principio_activo": "Digoxina",
+      "clase": "Cardiológico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "11765811-65e6-547f-9a74-5904eba26b61",
+      "nombre": "Atenolol",
+      "principio_activo": "Atenolol",
+      "clase": "Betabloqueante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "31862d78-4d51-5194-aa40-607bccdf71ee",
+      "nombre": "Telmisartán",
+      "principio_activo": "Telmisartán",
+      "clase": "Antihipertensivo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "f6a70fd6-4de9-57e8-a5f9-b8fbb4c40b0c",
+      "nombre": "Levotiroxina sódica",
+      "principio_activo": "Levotiroxina sódica",
+      "clase": "Hormonal",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "80a87c0b-1152-5fbd-aabf-7c5adf5cd6f9",
+      "nombre": "Metimazol",
+      "principio_activo": "Metimazol",
+      "clase": "Antitiroideo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "cf806a27-374d-53b6-b0ba-41615793df2e",
+      "nombre": "Trilostano",
+      "principio_activo": "Trilostano",
+      "clase": "Antiadrenal",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "b07f3a02-ccfc-5462-9cbd-4a6811d419ac",
+      "nombre": "Insulina glargina",
+      "principio_activo": "Insulina glargina",
+      "clase": "Hormonal",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "4c8f404f-6dfe-5dae-ad13-c7f5984ba344",
+      "nombre": "Insulina porcina lenta",
+      "principio_activo": "Insulina porcina lenta",
+      "clase": "Hormonal",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "b7af3307-efe3-51d2-8617-033768c0c1e4",
+      "nombre": "Desmopresina",
+      "principio_activo": "Desmopresina",
+      "clase": "Hormonal",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oftálmica",
+      "dosis_especie": []
+    },
+    {
+      "id": "fc776428-c42a-5bf5-a75f-75c494e99e61",
+      "nombre": "Omeprazol",
+      "principio_activo": "Omeprazol",
+      "clase": "Protector gástrico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "7da2d5a9-2cc3-599f-a130-bcc22b1e2c16",
+      "nombre": "Famotidina",
+      "principio_activo": "Famotidina",
+      "clase": "Protector gástrico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "a223d16f-cb77-50fe-b12e-5ca750d04f6f",
+      "nombre": "Sucralfato",
+      "principio_activo": "Sucralfato",
+      "clase": "Protector gástrico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "0987a562-6a03-5a62-aa6f-d906a93804b0",
+      "nombre": "Maropitant",
+      "principio_activo": "Maropitant",
+      "clase": "Antiemético",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "bd85ad49-8897-5d77-956d-afaa2cba7429",
+      "nombre": "Metoclopramida",
+      "principio_activo": "Metoclopramida",
+      "clase": "Antiemético y procinético",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "b70a6240-f307-5932-b999-ff590cf2f4fd",
+      "nombre": "Ondansetrón",
+      "principio_activo": "Ondansetrón",
+      "clase": "Antiemético",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "6ce8e7b4-0d61-5230-8286-2e8b85da1bbf",
+      "nombre": "Cisaprida",
+      "principio_activo": "Cisaprida",
+      "clase": "Procinético",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "d1884b29-46f1-5a2a-a40c-81c9962ceec9",
+      "nombre": "Lactulosa",
+      "principio_activo": "Lactulosa",
+      "clase": "Laxante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "14e5048a-608c-56d0-a93c-365d6c096299",
+      "nombre": "Ácido ursodesoxicólico",
+      "principio_activo": "Ácido ursodesoxicólico",
+      "clase": "Hepatoprotector",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "2c300c9f-34bf-530f-860a-ca64e12f70cd",
+      "nombre": "S-adenosilmetionina",
+      "principio_activo": "S-adenosilmetionina",
+      "clase": "Hepatoprotector",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "991e7f0a-edc8-5e93-852a-39d8207f3090",
+      "nombre": "Silimarina",
+      "principio_activo": "Silimarina",
+      "clase": "Hepatoprotector",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "690fe865-873e-5300-8d1c-1fb70bbb9604",
+      "nombre": "Fenobarbital",
+      "principio_activo": "Fenobarbital",
+      "clase": "Anticonvulsivante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "38d44165-63e3-58af-a8a7-a552f26aac3c",
+      "nombre": "Bromuro de potasio",
+      "principio_activo": "Bromuro de potasio",
+      "clase": "Anticonvulsivante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "95aaccb7-a1c2-5445-95b5-cb712b74cca7",
+      "nombre": "Levetiracetam",
+      "principio_activo": "Levetiracetam",
+      "clase": "Anticonvulsivante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "4f45189b-11ed-57db-9a03-a0a4df5391d4",
+      "nombre": "Zonisamida",
+      "principio_activo": "Zonisamida",
+      "clase": "Anticonvulsivante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "1c16324e-412d-565c-a862-e05f9b9ce426",
+      "nombre": "Imepitoína",
+      "principio_activo": "Imepitoína",
+      "clase": "Anticonvulsivante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "74d1f224-e5f7-5be9-bd80-bdb4a6055b7b",
+      "nombre": "Diazepam",
+      "principio_activo": "Diazepam",
+      "clase": "Ansiolítico y anticonvulsivante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "a15a0416-3730-5fff-9b3e-ed27b378ef79",
+      "nombre": "Midazolam",
+      "principio_activo": "Midazolam",
+      "clase": "Sedante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "c3db164f-ca07-5503-951c-fb8995fd9db0",
+      "nombre": "Propofol",
+      "principio_activo": "Propofol",
+      "clase": "Anestésico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "fa63ef02-f72b-5658-a7c3-6a7ce6215715",
+      "nombre": "Ketamina",
+      "principio_activo": "Ketamina",
+      "clase": "Anestésico disociativo",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "7dbb2c25-b0de-5374-a410-8bacaf1457c2",
+      "nombre": "Dexmedetomidina",
+      "principio_activo": "Dexmedetomidina",
+      "clase": "Sedante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "3f152aec-a137-5d93-98bb-644428e5a064",
+      "nombre": "Acepromacina",
+      "principio_activo": "Maleato de acepromacina",
+      "clase": "Tranquilizante",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "c4221562-3b99-591a-ba2a-3ebe059ee15c",
+      "nombre": "Isoflurano",
+      "principio_activo": "Isoflurano",
+      "clase": "Anestésico inhalatorio",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inhalatoria",
+      "dosis_especie": []
+    },
+    {
+      "id": "7398534c-dccf-5e31-8787-b1c525300866",
+      "nombre": "Lidocaína",
+      "principio_activo": "Lidocaína",
+      "clase": "Anestésico local",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "f80bd373-6377-5f84-bbd8-8476c74e1960",
+      "nombre": "Atropina",
+      "principio_activo": "Sulfato de atropina",
+      "clase": "Anticolinérgico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "cdb8db78-dd9d-578d-9e77-1183a81423c1",
+      "nombre": "Mirtazapina",
+      "principio_activo": "Mirtazapina",
+      "clase": "Estimulante del apetito",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "518181c1-fe45-5a5e-a823-ba2f9928db74",
+      "nombre": "Ciproheptadina",
+      "principio_activo": "Ciproheptadina",
+      "clase": "Estimulante del apetito",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "94f7fcf5-2f24-5c92-886d-d3b4bbedf058",
+      "nombre": "Alopurinol",
+      "principio_activo": "Alopurinol",
+      "clase": "Antileishmania",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oral",
+      "dosis_especie": []
+    },
+    {
+      "id": "dff1303d-562e-518f-9b70-868034b06e05",
+      "nombre": "Antimoniato de meglumina",
+      "principio_activo": "Antimoniato de meglumina",
+      "clase": "Antileishmania",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "f68e2dea-9096-5bdb-985c-394026bdf98f",
+      "nombre": "Vitamina K1",
+      "principio_activo": "Fitomenadiona",
+      "clase": "Antihemorrágico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "5ca05b99-0600-5ed2-9c0c-9468cc6ebb4d",
+      "nombre": "Ácido tranexámico",
+      "principio_activo": "Ácido tranexámico",
+      "clase": "Antifibrinolítico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "inyectable",
+      "dosis_especie": []
+    },
+    {
+      "id": "1b0f4c37-62a8-5248-bef7-c07fba3c0f05",
+      "nombre": "Fluoresceína sódica",
+      "principio_activo": "Fluoresceína sódica",
+      "clase": "Diagnóstico oftálmico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oftálmica",
+      "dosis_especie": []
+    },
+    {
+      "id": "47de8c99-5deb-5bf9-af95-9ad9b8ac09df",
+      "nombre": "Tobramicina",
+      "principio_activo": "Tobramicina",
+      "clase": "Antibiótico oftálmico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oftálmica",
+      "dosis_especie": []
+    },
+    {
+      "id": "d824b29d-60fd-5e1a-84b7-9a9f1eb6a2bd",
+      "nombre": "Ciclosporina oftálmica",
+      "principio_activo": "Ciclosporina",
+      "clase": "Inmunomodulador oftálmico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "oftálmica",
+      "dosis_especie": []
+    },
+    {
+      "id": "1afe12a7-be27-5901-a1a7-733c5663eaa5",
+      "nombre": "Clorhexidina",
+      "principio_activo": "Gluconato de clorhexidina",
+      "clase": "Antiséptico",
+      "presentacion": null,
+      "concentracion": null,
+      "via_administracion_default": "tópica",
+      "dosis_especie": []
+    }
+  ]
+}

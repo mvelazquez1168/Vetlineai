@@ -207,6 +207,36 @@ pacientesRouter.get("/:id/historial-farmacologico", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------
+// GET /api/pacientes/:id/atenciones-sin-caso
+//
+// Atenciones de este paciente cuya cita todavía no tiene caso vinculado
+// — candidatas para que el médico las asocie a un caso ya abierto desde
+// la pantalla "Vincular atención anterior" (PATCH /citas/:id/caso hace
+// el vínculo real). Mismo criterio que historial-farmacologico: no
+// filtra por médico, cualquiera del tenant puede ver y vincular. Una
+// atención cuya cita YA tiene caso_id (este u otro) no aparece acá —
+// nunca se ofrece "robar" un vínculo existente.
+// ---------------------------------------------------------------------
+pacientesRouter.get("/:id/atenciones-sin-caso", async (req, res) => {
+  try {
+    const result = await req.db!.query(
+      `SELECT a.id AS atencion_id, a.cita_id, a.nota_medica, a.peso, a.temperatura,
+              c.fecha, c.hora_inicio, c.hora_fin, per.nombre AS medico_nombre
+       FROM atenciones a
+       JOIN citas c ON c.id = a.cita_id
+       JOIN personas per ON per.id = a.medico_id
+       WHERE a.paciente_id = $1 AND c.caso_id IS NULL
+       ORDER BY c.fecha DESC, c.hora_inicio DESC`,
+      [req.params.id]
+    );
+    res.json({ atenciones: result.rows });
+  } catch (err) {
+    console.error("GET /pacientes/:id/atenciones-sin-caso", err);
+    res.status(500).json({ error: "Error al obtener las atenciones sin caso." });
+  }
+});
+
+// ---------------------------------------------------------------------
 // POST /api/pacientes/:id/cuidados-preventivos
 // GET  /api/pacientes/:id/cuidados-preventivos
 //

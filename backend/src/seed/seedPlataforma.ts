@@ -81,6 +81,24 @@ interface RazaAliasFila {
   nota: string | null;
 }
 
+interface FarmacoDosisEspecie {
+  especie: "canino" | "felino";
+  dosis_min: number | null;
+  dosis_max: number | null;
+  unidad: string | null;
+}
+
+interface Farmaco {
+  id: string;
+  nombre: string;
+  principio_activo: string;
+  clase: string | null;
+  presentacion: string | null;
+  concentracion: string | null;
+  via_administracion_default: string | null;
+  dosis_especie: FarmacoDosisEspecie[];
+}
+
 async function sembrarTarifas(client: PoolClient) {
   const tarifas = leerJson<Tarifa[]>("tarifas.json");
   let insertadas = 0;
@@ -191,6 +209,46 @@ async function sembrarRazasAliasDocumento(client: PoolClient) {
   );
 }
 
+// Catálogo de fármacos de plataforma (prompt_code: cargar catálogo de
+// fármacos, migración 071). id es determinista (derivado del nombre en
+// origen) — ON CONFLICT (id) DO NOTHING es lo que permite agregar filas
+// después sin tocar las existentes. tenant_id NULL a propósito: estas
+// filas son de plataforma, visibles para todas las clínicas.
+// presentacion/concentracion llegan NULL (varían por laboratorio/país,
+// las completa cada clínica); dosis_especie llega vacío en este
+// sembrado — no se inventa ni estima ninguna dosis, si el arreglo no
+// trae filas para un fármaco, simplemente no se inserta nada en
+// medicamento_dosis_especie para ese fármaco.
+async function sembrarFarmacos(client: PoolClient) {
+  const data = leerJson<{ farmacos: Farmaco[] }>("farmacos.json");
+  let insertados = 0;
+  let dosisInsertadas = 0;
+  for (const f of data.farmacos) {
+    const r = await client.query(
+      `INSERT INTO medicamentos (id, tenant_id, nombre, principio_activo, clase, presentacion,
+                                  concentracion, via_administracion_default)
+       VALUES ($1, NULL, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (id) DO NOTHING`,
+      [f.id, f.nombre, f.principio_activo, f.clase, f.presentacion, f.concentracion, f.via_administracion_default]
+    );
+    insertados += r.rowCount ?? 0;
+
+    for (const d of f.dosis_especie) {
+      const rd = await client.query(
+        `INSERT INTO medicamento_dosis_especie (medicamento_id, especie, dosis_min, dosis_max, unidad)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (medicamento_id, especie) DO NOTHING`,
+        [f.id, d.especie, d.dosis_min, d.dosis_max, d.unidad]
+      );
+      dosisInsertadas += rd.rowCount ?? 0;
+    }
+  }
+  console.log(
+    `fármacos: ${insertados} insertados de ${data.farmacos.length} (resto ya existía)` +
+      (dosisInsertadas > 0 ? `, ${dosisInsertadas} rango(s) de dosis por especie insertados` : "")
+  );
+}
+
 async function main() {
   const client = await pool.connect();
   try {
@@ -199,6 +257,7 @@ async function main() {
     await sembrarAgentes(client);
     await sembrarDocumentos(client);
     await sembrarRazasAliasDocumento(client);
+    await sembrarFarmacos(client);
     await client.query("COMMIT");
     console.log("\n✅ Sembrado de plataforma completo.");
   } catch (err) {

@@ -1006,7 +1006,13 @@ export function CasoWorkspace() {
         className={[
           "grid min-h-0 flex-1 bg-background",
           "grid-cols-1",
-          detalle ? "md:grid-cols-[320px_1fr_0.9fr]" : "md:grid-cols-[320px_1fr]",
+          // 320px → 240px: la lista solo tiene que mostrar paciente y
+          // motivo. Los 80px liberados van enteros a la columna central
+          // (el hilo clínico), no repartidos: por eso el centro pasa de
+          // 1fr a 1.25fr contra 1fr de la derecha. A 1366px de ancho, que
+          // es un portátil típico, el centro pasa de 550px a 625px y el
+          // panel de Dashboard queda igual (~500px), no se le saca nada.
+          detalle ? "md:grid-cols-[240px_1.25fr_1fr]" : "md:grid-cols-[240px_1fr]",
         ].join(" ")}
       >
         {/* Sidebar: lista de casos */}
@@ -1017,19 +1023,19 @@ export function CasoWorkspace() {
             "md:static md:z-auto md:w-auto md:max-w-none md:translate-x-0",
           ].join(" ")}
         >
-        <div className="flex items-center justify-between border-b border-black/5 p-4">
+        <div className="flex items-center justify-between border-b border-black/5 px-3 py-2.5">
           <Link to="/workspace" className="text-sm font-semibold text-primary hover:underline">
             ← Vetline Ai
           </Link>
         </div>
-        <div className="border-b border-black/5 p-3">
+        <div className="border-b border-black/5 p-2">
           <Input
             placeholder="Buscar por paciente o N.º de expediente…"
             value={busquedaSidebar}
             onChange={(e) => setBusquedaSidebar(e.target.value)}
           />
         </div>
-        <div className="flex-1 overflow-y-auto p-3">
+        <div className="flex-1 overflow-y-auto p-2">
           {casosFiltrados.map((caso) => (
             <Link
               key={caso.id}
@@ -1043,22 +1049,32 @@ export function CasoWorkspace() {
                 }
               }}
               className={[
-                "mb-2 block rounded-xl border p-4",
+                "mb-1.5 block rounded-lg border p-2.5",
                 caso.id === casoId
                   ? "border-accent bg-accent/5"
                   : "border-black/5 hover:border-black/10",
               ].join(" ")}
             >
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-primary">
-                  {caso.paciente_nombre} — {caso.raza}
+              {/* Paciente y motivo son lo que la lista tiene que dejar
+                  leer; raza, expediente y estado son referencia y van en
+                  una línea chica. El nombre trunca en vez de envolver:
+                  a 240px, "Bartolomeo — Labrador Retriever" partía la
+                  tarjeta en dos líneas antes de llegar al motivo. */}
+              <div className="flex items-baseline justify-between gap-2">
+                {/* min-w-0 es lo que habilita el truncate: un hijo de flex
+                    trae min-width:auto y sin esto el nombre empuja el
+                    badge fuera de la tarjeta en vez de cortarse. */}
+                <span className="min-w-0 truncate text-sm font-semibold text-primary">
+                  {caso.paciente_nombre}
                 </span>
-                <span className="text-xs text-text-muted">N.º {caso.numero_expediente}</span>
+                <Badge variant={ESTADO_BADGE[caso.estado] ?? "neutral"} className="shrink-0">
+                  {caso.estado.replace("_", " ")}
+                </Badge>
               </div>
-              <p className="mt-1 line-clamp-2 text-sm text-text-muted">{caso.motivo}</p>
-              <Badge variant={ESTADO_BADGE[caso.estado] ?? "neutral"} className="mt-2">
-                {caso.estado.replace("_", " ")}
-              </Badge>
+              <p className="mt-0.5 truncate text-[11px] text-text-muted">
+                {caso.raza} · N.º {caso.numero_expediente}
+              </p>
+              <p className="mt-1 line-clamp-2 text-xs text-text-muted">{caso.motivo}</p>
             </Link>
           ))}
           {casos.length === 0 && (
@@ -1072,7 +1088,7 @@ export function CasoWorkspace() {
             </p>
           )}
         </div>
-        <div className="p-4">
+        <div className="p-3">
           <Button fullWidth onClick={abrirModalNuevoCaso}>
             + Nuevo caso
           </Button>
@@ -1091,7 +1107,12 @@ export function CasoWorkspace() {
       <main className="flex min-h-0 min-w-0 flex-col">
         {detalle ? (
           <>
-            <header className="flex flex-wrap items-start justify-between gap-4 border-b border-black/5 bg-surface px-8 py-4">
+            {/* Barra superior: alto reducido para devolverle pantalla al
+                hilo clínico, que es lo que el médico lee. El py-4 + los
+                botones a py-2.5 (el px-3/py-2 que pasaban por className
+                nunca se aplicó, ver Button.tsx) hacían una barra de ~200px
+                de alto en un portátil, con los botones en 3 o 4 filas. */}
+            <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/5 bg-surface px-6 py-2.5">
               <div>
                 <h2 className="flex items-center gap-2 text-lg font-bold text-primary">
                   {detalle.paciente_nombre} — {detalle.especie} ({detalle.sexo}
@@ -1123,15 +1144,15 @@ export function CasoWorkspace() {
                 )}
               </div>
 
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-col items-end gap-1.5">
+                <div className="flex flex-wrap items-center justify-end gap-1.5">
                 {SELECTOR_REPORTES_VISIBLE && (
                   <div className="flex flex-col items-end gap-1">
                     <select
                       value={tipoReporteSeleccionado}
                       onChange={(e) => e.target.value && generarReporte(e.target.value)}
                       disabled={estadoReporte !== "idle"}
-                      className="rounded-lg border border-black/10 bg-background px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
+                      className="rounded-lg border border-black/10 bg-background px-2.5 py-1 text-xs text-text-primary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
                     >
                       <option value="">Generar Reporte ▾</option>
                       {gruposReporte.map((g) => (
@@ -1159,7 +1180,7 @@ export function CasoWorkspace() {
                   variant="secondary"
                   onClick={actualizarDashboard}
                   disabled={dashboardGcisEstado === "generando" || generacionDetenida}
-                  className="px-3 py-2 text-xs"
+                  size="sm"
                 >
                   {dashboardGcisEstado === "generando" ? "Generando…" : "Actualizar Dashboard"}
                 </Button>
@@ -1169,7 +1190,7 @@ export function CasoWorkspace() {
                     variant="secondary"
                     onClick={exportarDashboard}
                     disabled={exportandoDashboard}
-                    className="px-3 py-2 text-xs"
+                    size="sm"
                   >
                     {exportandoDashboard ? "Exportando…" : "Exportar como HTML"}
                   </Button>
@@ -1187,7 +1208,7 @@ export function CasoWorkspace() {
                   variant="secondary"
                   onClick={generarInforme}
                   disabled={generandoInforme || generacionDetenida}
-                  className="px-3 py-2 text-xs"
+                  size="sm"
                   title="Genera un informe nuevo — los anteriores quedan disponibles en Informes anteriores."
                 >
                   {generandoInforme ? "Generando informe…" : "Generar informe nuevo"}
@@ -1203,7 +1224,7 @@ export function CasoWorkspace() {
                   variant="secondary"
                   onClick={() => setPanelInformesAbierto(true)}
                   disabled={informesAnteriores.length === 0}
-                  className="px-3 py-2 text-xs"
+                  size="sm"
                 >
                   Informes anteriores ({informesAnteriores.length})
                 </Button>
@@ -1214,7 +1235,7 @@ export function CasoWorkspace() {
                   variant="secondary"
                   onClick={() => setRecetaPanelAbierto(true)}
                   disabled={casoCerrado}
-                  className="px-3 py-2 text-xs"
+                  size="sm"
                 >
                   Nueva receta
                 </Button>
@@ -1226,7 +1247,7 @@ export function CasoWorkspace() {
                 <Button
                   variant="secondary"
                   onClick={() => setResolverCitaAbierto(true)}
-                  className="px-3 py-2 text-xs"
+                  size="sm"
                 >
                   Registrar atención
                 </Button>
@@ -1237,7 +1258,7 @@ export function CasoWorkspace() {
                 <Button
                   variant="secondary"
                   onClick={() => setCronologiaAbierta(true)}
-                  className="px-3 py-2 text-xs"
+                  size="sm"
                 >
                   Cronología
                 </Button>
@@ -1249,7 +1270,7 @@ export function CasoWorkspace() {
                 <Button
                   variant="secondary"
                   onClick={() => setVincularAtencionAbierto(true)}
-                  className="px-3 py-2 text-xs"
+                  size="sm"
                 >
                   Vincular atención anterior
                 </Button>
@@ -1257,7 +1278,7 @@ export function CasoWorkspace() {
                 <Button
                   variant="secondary"
                   onClick={() => setFichaPropietarioAbierta(true)}
-                  className="px-3 py-2 text-xs"
+                  size="sm"
                 >
                   Ficha del propietario
                 </Button>
@@ -1269,7 +1290,7 @@ export function CasoWorkspace() {
                   <Button
                     variant="secondary"
                     onClick={() => setCerrarCasoAbierto(true)}
-                    className="px-3 py-2 text-xs"
+                    size="sm"
                   >
                     Cerrar caso
                   </Button>
@@ -1278,7 +1299,7 @@ export function CasoWorkspace() {
                   <Button
                     variant="secondary"
                     onClick={() => setReabrirCasoAbierto(true)}
-                    className="px-3 py-2 text-xs"
+                    size="sm"
                   >
                     Reabrir caso
                   </Button>
@@ -1301,12 +1322,12 @@ export function CasoWorkspace() {
               </div>
             </header>
 
-            <div className="border-b border-black/5 bg-surface px-8 py-3">
+            <div className="border-b border-black/5 bg-surface px-6 py-2">
               <ConsumoBanner consumo={consumo} />
             </div>
 
             <div
-              className="relative flex-1 space-y-4 overflow-y-auto px-8 py-6"
+              className="relative flex-1 space-y-4 overflow-y-auto px-6 py-4"
               onDragOver={(e) => {
                 e.preventDefault();
                 setArrastrandoArchivo(true);
@@ -1348,7 +1369,7 @@ export function CasoWorkspace() {
               )}
             </div>
 
-            <div className="border-t border-black/5 bg-surface p-4">
+            <div className="border-t border-black/5 bg-surface px-6 py-3">
               {adjuntos.length > 0 && (
                 <div className="mb-3 flex flex-wrap gap-2">
                   {adjuntos.map((a) => (
@@ -1626,7 +1647,8 @@ export function CasoWorkspace() {
               <Button
                 variant="secondary"
                 onClick={actualizarDashboard}
-                className="mt-3 px-3 py-1.5 text-xs"
+                size="sm"
+                className="mt-3"
               >
                 Reintentar
               </Button>

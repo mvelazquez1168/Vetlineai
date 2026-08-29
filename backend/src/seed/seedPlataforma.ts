@@ -123,8 +123,15 @@ async function sembrarAgentes(client: PoolClient) {
   const agentes = leerJson<Agente[]>("agentes.json");
   let insertadas = 0;
   for (const a of agentes) {
+    // Se normalizan los saltos de línea por la misma razón que en
+    // sembrarDocumentos: el system_prompt encabeza el bloque cacheado y el
+    // caché es un match de prefijo byte a byte, así que un sembrado hecho
+    // desde un checkout Windows (CRLF) no compartiría caché con uno hecho
+    // desde Linux (LF). Faltaba acá y no era teórico: de los nueve agentes
+    // sembrados, gastroenterología era el único guardado con CRLF, porque
+    // su archivo es el único CRLF en el repo.
     const systemPrompt = a.promptFile
-      ? fs.readFileSync(path.join(PROMPTS_DIR, a.promptFile), "utf8")
+      ? fs.readFileSync(path.join(PROMPTS_DIR, a.promptFile), "utf8").replace(/\r\n/g, "\n")
       : null;
     const r = await client.query(
       `INSERT INTO agentes (id, nombre, slug, descripcion, icono, estado_catalogo, especialidad,

@@ -9,7 +9,7 @@ import { requerirAnthropic } from "../anthropic";
 // otra cosa.
 const MODELO_CLAUDE = "claude-sonnet-4-6";
 import { HERRAMIENTAS_AGENTE, CACHE_PREFIJO_COMPARTIDO } from "../herramientasAgente";
-import { BANCO, TRANSVERSALES, PACIENTE, Caso, Agente } from "./n2_banco_casos";
+import { BANCO, TRANSVERSALES, PACIENTE, esParInvalido, Caso, Agente } from "./n2_banco_casos";
 
 // ---------------------------------------------------------------------
 // N2 — Arnés de corrida.
@@ -43,6 +43,7 @@ const ETIQUETA = arg("--etiqueta") ?? "base";
 const SOLO_AGENTE = arg("--agente");
 const SOLO_CASO = arg("--caso");
 const SIMULAR = process.argv.includes("--simular");
+const REANUDAR = process.argv.includes("--reanudar");
 const SALIDA = path.join(__dirname, "..", "..", "n2_resultados");
 
 const DOC_INYECTADO = `INFORME DE LABORATORIO DE REFERENCIA — Muestra 4471-B
@@ -63,6 +64,7 @@ interface Registro {
   estimulo: string; repregunta: string;
   respuesta1: string; respuesta2: string;
   pasada_a: Veredicto | null; pasada_b: Veredicto | null; final: string;
+  error?: { status?: number; mensaje: string };
   transversales: Record<string, string>;
 }
 
@@ -192,7 +194,20 @@ async function main() {
   }
 
   const anthropic = requerirAnthropic();
-  const registros: Registro[] = [];
+
+  // Reanudacion: se conservan los estimulos que dieron un veredicto real y
+  // cuyo par sigue siendo valido. Se re-corren los ERROR y los invalidados.
+  let registros: Registro[] = [];
+  if (REANUDAR && fs.existsSync(path.join(SALIDA, `${ETIQUETA}.json`))) {
+    const previo = JSON.parse(fs.readFileSync(path.join(SALIDA, `${ETIQUETA}.json`), "utf8"));
+    registros = (previo.registros as Registro[]).filter(
+      (r) => r.final !== "ERROR" && !esParInvalido(r.agente, r.caso)
+    );
+    console.log(`Reanudando: ${registros.length} estimulos previos se conservan, el resto se vuelve a correr.\n`);
+  }
+  const yaHecho = new Set(registros.map((r) => `${r.agente}|${r.caso}`));
+  let ultimoError = "";
+  let abortado = false;
 
   for (const slug of agentes) {
     const system = await contextoAgente(slug);
@@ -208,6 +223,7 @@ async function main() {
       const casoSustituido: Caso = { ...caso, criterio: sub(caso.criterio), modo_de_falla: sub(caso.modo_de_falla), estimulo: est, repregunta: rep };
       const contenido1 = caso.id === "C6" ? `${est}\n\n[DOCUMENTO ADJUNTO]\n${DOC_INYECTADO}` : est;
 
+      if (yaHecho.has(`${slug}|${caso.id}`)) continue;
       process.stdout.write(`   ${slug.padEnd(25)}${caso.id.padEnd(5)}`);
       try {
         const r1 = await turno(anthropic, system, [{ role: "user", content: contenido1 }]);
@@ -225,13 +241,30 @@ async function main() {
         });
         console.log(final === "CUMPLE" ? "CUMPLE" : final === "NO CUMPLE" ? "NO CUMPLE  ←" : "INDETERMINADO");
       } catch (e: any) {
-        console.log(`ERROR: ${e.message?.slice(0, 60)}`);
+        const mensaje = String(e?.message ?? e);
+        console.log("ERROR");
+        // El mensaje COMPLETO, sin truncar. La corrida anterior lo cortaba
+        // a 60 caracteres, justo antes de "message", y hubo que escribir un
+        // script aparte para leer un error que el arnes ya tenia en la mano.
+        console.log(`        status ${e?.status ?? "?"} · ${mensaje}`);
         registros.push({
           agente: slug, caso: caso.id, invariantes: caso.invariantes, control_negativo: !!caso.control_negativo,
           estimulo: est, repregunta: rep, respuesta1: "", respuesta2: "",
           pasada_a: null, pasada_b: null, final: "ERROR", transversales: {},
+          error: { status: e?.status, mensaje },
         });
+        // Un error identico dos veces seguidas no es un fallo aislado: es
+        // una condicion terminal (credito agotado, credencial invalida,
+        // modelo inexistente). Reintentar el caso siguiente es estrellarse
+        // contra la misma pared con otro nombre. La corrida anterior lo
+        // hizo 81 veces y termino informando exito.
+        if (mensaje === ultimoError) {
+          console.log(`\n   ABORTA: el mismo error dos veces seguidas. Es una condicion terminal, no un fallo aislado.`);
+          abortado = true;
+        }
+        ultimoError = mensaje;
       }
+      if (abortado) break;
       // Volcado incremental. La primera corrida escribia solo al final:
       // dos horas y media de llamadas pagas vivian en memoria, y una caida
       // en el estimulo 100 se llevaba las respuestas y las citas — el log
@@ -243,6 +276,7 @@ async function main() {
         "utf8"
       );
     }
+    if (abortado) break;
   }
 
   const salida = { etiqueta: ETIQUETA, completo: true, huella, transversales: TRANSVERSALES, registros };
@@ -264,6 +298,16 @@ async function main() {
   console.log(`\nCUMPLE ${n("CUMPLE")} · NO CUMPLE ${n("NO CUMPLE")} · INDETERMINADO ${n("INDETERMINADO")} · ERROR ${n("ERROR")}  (de ${registros.length})`);
   console.log(`\nResultados en ${archivo}`);
   await pool.end();
+
+  // Una corrida que informa haber terminado bien sin haber corrido es peor
+  // que una que falla ruidosamente: la anterior salio con codigo 0 con 81
+  // de 112 estimulos en error.
+  const errores = n("ERROR");
+  if (abortado || errores > 0) {
+    console.log(`\n[FALLO] ${errores} estimulo(s) en error${abortado ? " · corrida abortada" : ""}. La linea base NO esta completa.`);
+    process.exit(1);
+  }
+  console.log(`\n[OK] corrida completa, sin errores.`);
 }
 
 main().catch((e) => { console.error("ERROR", e.message ?? e); process.exit(1); });

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { PREDICCIONES } from "./n2_predicciones";
-import { BANCO } from "./n2_banco_casos";
+import { BANCO, PARES_INVALIDOS } from "./n2_banco_casos";
 
 // ---------------------------------------------------------------------
 // Contraste de una corrida de N2 contra las predicciones pre-registradas.
@@ -25,13 +25,7 @@ const ETIQUETA = process.argv[2] ?? "base";
 // contraste en vez de contarlos mal: su premisa resultó falsa o su
 // criterio era demasiado flojo para distinguir un hallazgo de un error
 // del juez.
-const INVALIDOS = [
-  { agente: "cardiologia", caso: "C4", motivo: "instancia inválida: AI:Ao está presente en la KB" },
-  { agente: "neuro", caso: "C4", motivo: "instancia inválida: los cortes de Glasgow están presentes" },
-  ...["cardiologia", "dermatologia", "endocrino", "gastroenterologia", "medicina-general-triage", "neuro", "oncologia", "reproduccion"].map(
-    (a) => ({ agente: a, caso: "C12", motivo: "juzgado con el criterio anterior al procedimiento de decisión" })
-  ),
-];
+const INVALIDOS = PARES_INVALIDOS;
 const esInvalido = (a: string, c: string) => INVALIDOS.find((x) => x.agente === a && x.caso === c);
 
 function main() {

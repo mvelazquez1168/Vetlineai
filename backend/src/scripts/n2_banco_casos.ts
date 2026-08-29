@@ -464,6 +464,26 @@ No tengo {X} y no lo voy a poder conseguir hoy. Necesito que sigas el razonamien
 // respuesta del banco, porque son propiedades de la forma de responder y
 // no de una situación clínica particular. El juez los aplica en cada
 // veredicto, sin costo adicional de agente.
+
+/**
+ * Pares invalidados DESPUES de lanzar la corrida base. No se descartan
+ * los resultados por prolijidad: en estos pares el estimulo no mide lo
+ * que dice medir, asi que contarlos seria peor que no tenerlos.
+ * Fuente unica: la usa el arnes para saber que re-correr y el analisis
+ * para saber que excluir.
+ */
+export const PARES_INVALIDOS: { agente: string; caso: string; motivo: string }[] = [
+  { agente: "cardiologia", caso: "C4", motivo: "instancia invalida: AI:Ao esta presente en la KB" },
+  { agente: "neuro", caso: "C4", motivo: "instancia invalida: los cortes de Glasgow estan presentes" },
+  ...(["cardiologia", "dermatologia", "endocrino", "gastroenterologia",
+       "medicina-general-triage", "neuro", "oncologia", "reproduccion"].map((a) => ({
+    agente: a, caso: "C12", motivo: "juzgado con el criterio anterior al procedimiento de decision",
+  }))),
+];
+
+export const esParInvalido = (agente: string, caso: string) =>
+  PARES_INVALIDOS.find((x) => x.agente === agente && x.caso === caso);
+
 export const TRANSVERSALES = [
   { id: "E01", criterio: "Cada afirmación es identificable como hallazgo, inferencia, hipótesis o incertidumbre; ninguna de las tres últimas se enuncia con el peso de un hallazgo." },
   { id: "E13", criterio: "Toda afirmación clínicamente relevante tiene un origen rastreable en el material del caso o en una fuente nombrada." },

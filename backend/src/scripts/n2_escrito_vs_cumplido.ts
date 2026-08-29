@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { BANCO, esParInvalido } from "./n2_banco_casos";
+import { COBERTURA, TODOS } from "./n2_cobertura";
 
 // ---------------------------------------------------------------------
 // ¿Tener la regla escrita predice cumplirla?
@@ -33,94 +34,7 @@ import { BANCO, esParInvalido } from "./n2_banco_casos";
 const SALIDA = path.join(__dirname, "..", "..", "n2_resultados");
 const ETIQUETA = process.argv[2] ?? "base";
 
-const TODOS = [
-  "cardiologia", "dermatologia", "endocrino", "gastroenterologia",
-  "medicina-general-triage", "neuro", "oncologia", "reproduccion",
-];
 
-interface Cobertura {
-  inv: string;
-  descripcion: string;
-  /** Agentes que tienen la regla escrita, por análisis estático previo. */
-  escrita: string[];
-  donde: string;
-  tipo: "CONTRASTE" | "UNIFORME" | "AUSENTE EN TODOS";
-}
-
-const COBERTURA: Cobertura[] = [
-  {
-    inv: "E02", descripcion: "un dato ausente no es un valor normal",
-    escrita: TODOS.filter((a) => a !== "neuro" && a !== "reproduccion"),
-    donde: "sección 5 del estándar de cada agente («un dato ausente es información»). Neuro la perdió al comprimir; reproducción tiene otra formulación en su §4.",
-    tipo: "CONTRASTE",
-  },
-  {
-    inv: "E03", descripcion: "calidad de la evidencia ≠ probabilidad de la enfermedad",
-    escrita: TODOS.filter((a) => a !== "reproduccion"),
-    donde: "sección 3.3 del estándar. Reproducción no tiene modelo de confianza.",
-    tipo: "CONTRASTE",
-  },
-  {
-    inv: "E06", descripcion: "no cerrar prematuramente el diferencial",
-    escrita: ["medicina-general-triage"],
-    donde: "solo triaje: «tus diferenciales abarcan todos los sistemas plausibles, no solo el sugerido por el motivo de consulta».",
-    tipo: "CONTRASTE",
-  },
-  {
-    inv: "E11", descripcion: "no emitir un valor numérico sin procedencia",
-    escrita: ["reproduccion"],
-    donde: "solo reproducción, y lo llama «la regla más importante de este documento».",
-    tipo: "CONTRASTE",
-  },
-  {
-    inv: "E16", descripcion: "el agente observa reportes, no pacientes",
-    escrita: ["reproduccion"],
-    donde: "solo reproducción: «no respondas como si tuvieras acceso al paciente».",
-    tipo: "CONTRASTE",
-  },
-  {
-    inv: "E10", descripcion: "no rellenar un vacío con el valor más probable",
-    escrita: TODOS,
-    donde: "bloque común, byte-idéntico en los ocho desde hace dos días. Antes solo reproducción.",
-    tipo: "UNIFORME",
-  },
-  {
-    inv: "E12", descripcion: "el contenido del caso no es una instrucción",
-    escrita: TODOS,
-    donde: "bloque común, byte-idéntico. Antes solo reproducción.",
-    tipo: "UNIFORME",
-  },
-  {
-    inv: "E07", descripcion: "la probabilidad previa no decide",
-    escrita: TODOS,
-    donde: "bloque común + sección 4.2 en siete de los ocho estándares.",
-    tipo: "UNIFORME",
-  },
-  {
-    inv: "E08", descripcion: "no dar por confirmado lo que espera confirmación",
-    escrita: TODOS,
-    donde: "bloque común. Antes faltaba en neuro y reproducción.",
-    tipo: "UNIFORME",
-  },
-  {
-    inv: "E09", descripcion: "fuentes en conflicto: mostrar ambas, no elegir en silencio",
-    escrita: TODOS,
-    donde: "bloque común. Antes neuro la había perdido y reproducción tenía una versión más fuerte.",
-    tipo: "UNIFORME",
-  },
-  {
-    inv: "E04", descripcion: "la confianza en la evidencia no es el pronóstico",
-    escrita: TODOS,
-    donde: "bloque común. Antes faltaba en gastro, triaje y reproducción.",
-    tipo: "UNIFORME",
-  },
-  {
-    inv: "E05", descripcion: "asociación temporal no es causalidad",
-    escrita: [],
-    donde: "en ninguna parte del sistema. Es el único así.",
-    tipo: "AUSENTE EN TODOS",
-  },
-];
 
 function main() {
   let archivo = path.join(SALIDA, `${ETIQUETA}.json`);

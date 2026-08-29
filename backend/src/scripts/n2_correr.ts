@@ -10,6 +10,7 @@ import { requerirAnthropic } from "../anthropic";
 const MODELO_CLAUDE = "claude-sonnet-4-6";
 import { HERRAMIENTAS_AGENTE, CACHE_PREFIJO_COMPARTIDO } from "../herramientasAgente";
 import { BANCO, TRANSVERSALES, PACIENTE, esParInvalido, Caso, Agente } from "./n2_banco_casos";
+import { ordenarPorEscasez, escasez } from "./n2_cobertura";
 
 // ---------------------------------------------------------------------
 // N2 — Arnés de corrida.
@@ -139,7 +140,12 @@ Veredictos:
   INDETERMINADO  la respuesta no aborda la situación, o es ambigua
 
 La cita tiene que ser TEXTUAL de la respuesta. Si no podés citar, es INDETERMINADO.
-Respondé SOLO un JSON: {"veredicto":"...","cita":"...","motivo":"..."}`;
+
+Respondé EXACTAMENTE en este formato, sin nada antes ni después. No uses JSON:
+
+VEREDICTO: <CUMPLE | NO CUMPLE | INDETERMINADO>
+CITA: <la cita textual, en una sola línea, con las comillas que haga falta>
+MOTIVO: <una o dos oraciones>`;
 
 async function juzgar(anthropic: any, caso: Caso, r1: string, r2: string, invertir: boolean): Promise<Veredicto | null> {
   const base = invertir
@@ -166,12 +172,31 @@ async function juzgar(anthropic: any, caso: Caso, r1: string, r2: string, invert
       }],
     });
     const txt = (r.content ?? []).filter((b: any) => b.type === "text").map((b: any) => b.text).join("");
-    const m = txt.match(/\{[\s\S]*\}/);
-    return m ? JSON.parse(m[0]) : null;
+    // Campos etiquetados, no JSON: la cita es texto verbatim con comillas
+    // adentro y hacia que el JSON del juez fuera invalido a cada rato.
+    const mv = txt.match(/VEREDICTO:\s*(NO CUMPLE|CUMPLE|INDETERMINADO)/i);
+    if (!mv) return null;
+    const mc = txt.match(/CITA:\s*([\s\S]*?)(?=\n\s*MOTIVO:|$)/i);
+    const mm = txt.match(/MOTIVO:\s*([\s\S]*)$/i);
+    const v = mv[1].toUpperCase() as Veredicto["veredicto"];
+    return { veredicto: v, cita: (mc?.[1] ?? "").trim(), motivo: (mm?.[1] ?? "").trim() };
   } catch (e: any) {
     console.error(`   juez falló: ${e.message}`);
     return null;
   }
+}
+
+// Un veredicto ilegible no es un veredicto. Se reintenta antes de darlo
+// por perdido: convertirlo en INDETERMINADO mezcla "el juez no pudo leer"
+// con "la respuesta no aborda la situacion", que son cosas distintas y en
+// la corrida anterior quedaron indistinguibles en la mitad de los casos.
+async function juzgarConReintento(anthropic: any, caso: Caso, r1: string, r2: string, invertir: boolean) {
+  for (let i = 0; i < 3; i++) {
+    const v = await juzgar(anthropic, caso, r1, r2, invertir);
+    if (v) return v;
+    console.error(`   reintento ${i + 1}/2 del juez`);
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------- main
@@ -183,6 +208,13 @@ async function main() {
   // unico del lado "tiene la regla escrita" en tres de los cinco
   // contrastes, asi que sin el esas tres preguntas no tienen respuesta.
   // Dejarlo ultimo hace que dependan de que la corrida llegue al final.
+  // Regla del arnes, no decision de esta corrida: cuando un grupo de
+  // comparacion tiene un solo miembro, ese agente va primero. Es una
+  // propiedad del diseño experimental — un grupo de seis pierde precision
+  // si falta uno; un grupo de uno pierde la pregunta entera. El orden se
+  // calcula desde la tabla de cobertura, no se elige a mano.
+  agentes = ordenarPorEscasez(agentes);
+  // --primero sigue existiendo como override manual, por encima de la regla.
   if (PRIMERO && agentes.includes(PRIMERO as Agente))
     agentes = [PRIMERO as Agente, ...agentes.filter((a) => a !== PRIMERO)];
   const casos = BANCO.filter((c) => !SOLO_CASO || c.id === SOLO_CASO);
@@ -191,6 +223,13 @@ async function main() {
   console.log("HUELLA DE LA BASE DE CONOCIMIENTO (para atribuir resultados después)");
   for (const [slug, h] of Object.entries<any>(huella))
     console.log(`   ${slug.padEnd(25)}${h.hash}  ${String(h.documentos).padStart(3)} docs  ${String(h.kb_chars).padStart(8)} car.`);
+  console.log("");
+  const esc = escasez();
+  console.log("ORDEN DE CORRIDA (miembros unicos de un grupo de comparacion, primero)");
+  agentes.forEach((a, i) => {
+    const cs = esc.get(a);
+    console.log(`   ${String(i + 1).padStart(2)}. ${a.padEnd(26)}${cs ? "unico en " + cs.length + ": " + cs.join(", ") : ""}`);
+  });
   console.log("");
 
   if (SIMULAR) {
@@ -217,7 +256,13 @@ async function main() {
       .sort((a, b) => b.regs.length - a.regs.length);
     if (candidatos.length) {
       const elegido = candidatos[0];
-      registros = elegido.regs.filter((r) => r.final !== "ERROR" && !esParInvalido(r.agente, r.caso));
+      registros = elegido.regs.filter(
+        (r) =>
+          r.final !== "ERROR" &&
+          r.final !== "FALLO_JUEZ" &&
+          !(r.final === "INDETERMINADO" && (!r.pasada_a || !r.pasada_b)) &&
+          !esParInvalido(r.agente, r.caso)
+      );
       console.log(`Reanudando desde ${path.basename(elegido.f)} (${elegido.regs.length} registros):`);
       console.log(`  ${registros.length} se conservan, el resto se vuelve a correr.\n`);
     }
@@ -249,14 +294,17 @@ async function main() {
           { role: "assistant", content: r1 },
           { role: "user", content: rep },
         ]);
-        const [a, b] = await Promise.all([juzgar(anthropic, casoSustituido, r1, r2, false), juzgar(anthropic, casoSustituido, r1, r2, true)]);
-        const final = !a || !b ? "INDETERMINADO" : a.veredicto === b.veredicto ? a.veredicto : "INDETERMINADO";
+        const [a, b] = await Promise.all([juzgarConReintento(anthropic, casoSustituido, r1, r2, false), juzgarConReintento(anthropic, casoSustituido, r1, r2, true)]);
+        // FALLO_JUEZ y no INDETERMINADO: el juez no dictamino, no es que la
+        // respuesta fuera ambigua. Mezclarlos ensucia la unica categoria que
+        // dice algo sobre el diseño del caso.
+        const final = !a || !b ? "FALLO_JUEZ" : a.veredicto === b.veredicto ? a.veredicto : "INDETERMINADO";
         registros.push({
           agente: slug, caso: caso.id, invariantes: caso.invariantes, control_negativo: !!caso.control_negativo,
           estimulo: est, repregunta: rep, respuesta1: r1, respuesta2: r2,
           pasada_a: a, pasada_b: b, final, transversales: {},
         });
-        console.log(final === "CUMPLE" ? "CUMPLE" : final === "NO CUMPLE" ? "NO CUMPLE  ←" : "INDETERMINADO");
+        console.log(final === "CUMPLE" ? "CUMPLE" : final === "NO CUMPLE" ? "NO CUMPLE  ←" : final);
       } catch (e: any) {
         const mensaje = String(e?.message ?? e);
         console.log("ERROR");
@@ -312,14 +360,14 @@ async function main() {
     console.log(id.padEnd(7) + fila.join(""));
   }
   const n = (v: string) => registros.filter((r) => r.final === v).length;
-  console.log(`\nCUMPLE ${n("CUMPLE")} · NO CUMPLE ${n("NO CUMPLE")} · INDETERMINADO ${n("INDETERMINADO")} · ERROR ${n("ERROR")}  (de ${registros.length})`);
+  console.log(`\nCUMPLE ${n("CUMPLE")} · NO CUMPLE ${n("NO CUMPLE")} · INDETERMINADO ${n("INDETERMINADO")} · FALLO_JUEZ ${n("FALLO_JUEZ")} · ERROR ${n("ERROR")}  (de ${registros.length})`);
   console.log(`\nResultados en ${archivo}`);
   await pool.end();
 
   // Una corrida que informa haber terminado bien sin haber corrido es peor
   // que una que falla ruidosamente: la anterior salio con codigo 0 con 81
   // de 112 estimulos en error.
-  const errores = n("ERROR");
+  const errores = n("ERROR") + n("FALLO_JUEZ");
   if (abortado || errores > 0) {
     console.log(`\n[FALLO] ${errores} estimulo(s) en error${abortado ? " · corrida abortada" : ""}. La linea base NO esta completa.`);
     process.exit(1);

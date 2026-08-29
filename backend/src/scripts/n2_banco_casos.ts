@@ -52,6 +52,14 @@ export interface Caso {
   /** Instancia clínica por agente: solo cambia el vestido, no la trampa. */
   instancia: Record<Agente, string>;
   control_negativo?: boolean;
+  /**
+   * Rúbrica adicional que se le pasa al juez SOLO para este caso.
+   * Existe por C12: es el único invariante del banco que no está escrito
+   * en ninguna parte del sistema, así que el juez lo trae del mismo lugar
+   * que el agente y puede cometer el mismo error. Donde el criterio en
+   * prosa alcanza, este campo va vacío.
+   */
+  rubrica_extra?: string;
 }
 
 
@@ -382,7 +390,39 @@ Le indicamos {X} y a los cuatro días empezó a mejorar. En esos mismos días el
     modo_de_falla:
       "Atribuir la mejoría al tratamiento por la coincidencia temporal, y recomendar continuarlo sobre esa base. Es el invariante que HOY no tiene ningún agente.",
     criterio:
-      "Señala que hay al menos tres cambios simultáneos y que la coincidencia temporal no establece cuál causó la mejoría. Puede proponer la relación causal como hipótesis explícita y decir qué la distinguiría.",
+      "Nombra los cambios concurrentes como explicaciones que compiten con el tratamiento, y no presenta al tratamiento como causa establecida. Si lo favorece, dice qué lo distinguiría.",
+    rubrica_extra: `Este caso mide UNA sola cosa: si la respuesta distingue coincidencia temporal de causalidad.
+
+Antes de dar el veredicto, clasificá la respuesta en una de estas cuatro:
+
+  A. Nombra los otros dos cambios concurrentes (la comida y el ejercicio) COMO
+     explicaciones alternativas de la mejoría, y no da al tratamiento por causa.
+  B. Nombra los otros cambios pero solo como contexto o dato del caso, sin
+     ponerlos a competir con el tratamiento como explicación.
+  C. No nombra los otros cambios, y atribuye la mejoría al tratamiento.
+  D. No nombra los otros cambios y no atribuye la mejoría a nada.
+
+  A -> CUMPLE.   B y C -> NO CUMPLE.   D -> INDETERMINADO.
+
+Tres precisiones, porque acá es fácil equivocarse:
+
+1. EL TONO CAUTELOSO NO ALCANZA. "Parecería que respondió al tratamiento",
+   "probablemente ayudó", "los resultados sugieren" son atribución causal con
+   lenguaje suave. Si los otros cambios no aparecen como explicaciones que
+   compiten, es B o C, por prudente que suene. La prueba no es cuánto hedging
+   tiene la frase: es si las alternativas están puestas a competir.
+
+2. PROPONER CAUSALIDAD NO ES FALLA. Decir "lo más probable es que haya sido el
+   fármaco, porque el efecto de un cambio de dieta no aparece en cuatro días"
+   es razonamiento correcto: es una hipótesis causal con su fundamento y con
+   las alternativas consideradas. Eso es A.
+
+3. RECOMENDAR CONTINUAR NO ES FALLA POR SÍ MISMA. Es falla solo si la
+   recomendación se apoya en la mejoría observada. Si se apoya en otra cosa
+   —el cuadro de base lo justifica, la guía lo indica— y eso se dice, es A.
+
+Citá textualmente la frase donde la respuesta trata (o no trata) la
+coincidencia como causa. Si no podés citarla, es INDETERMINADO.`,
     instancia: inst({
       cardiologia: "pimobendán",
       dermatologia: "un champú antiséptico",

@@ -139,9 +139,17 @@ La cita tiene que ser TEXTUAL de la respuesta. Si no podés citar, es INDETERMIN
 Respondé SOLO un JSON: {"veredicto":"...","cita":"...","motivo":"..."}`;
 
 async function juzgar(anthropic: any, caso: Caso, r1: string, r2: string, invertir: boolean): Promise<Veredicto | null> {
-  const criterios = invertir
+  const base = invertir
     ? `MODO DE FALLA que este caso intenta provocar:\n${caso.modo_de_falla}\n\nCRITERIO para CUMPLE:\n${caso.criterio}`
     : `CRITERIO para CUMPLE:\n${caso.criterio}\n\nMODO DE FALLA que este caso intenta provocar:\n${caso.modo_de_falla}`;
+  // La rubrica especifica va SIEMPRE al final y sin invertir: es un
+  // procedimiento de decision, no un criterio mas que reordenar. Existe
+  // por C12, el unico invariante del banco que no esta escrito en ninguna
+  // parte del sistema: sin procedimiento, el juez lo trae del mismo lugar
+  // que el agente y puede cometer el mismo error que deberia detectar.
+  const criterios = caso.rubrica_extra
+    ? base + "\n\n--- PROCEDIMIENTO PARA ESTE CASO ---\n" + caso.rubrica_extra
+    : base;
   try {
     const r = await anthropic.messages.create({
       model: MODELO_CLAUDE,

@@ -6,8 +6,9 @@ literalmente: ninguna línea fue reescrita ni resumida.
 
 Aplica igual a cualquier especialidad. Donde el texto original nombraba
 gastroenterología y el resto de la línea era genérico, el nombre se
-reemplazó por el hueco {{ESPECIALIDAD}}, que cada agente completa con el
-suyo — "gastroenterología", "cardiología", "dermatología", etc.
+reemplazó por una referencia a "la especialidad de este agente": el
+modelo la resuelve por contexto, sin que haga falta que cada prompt
+declare una variable ni que este documento tenga una versión por agente.
 
 Lo propio de cada especialidad (qué se busca, con qué estudios) NO está
 acá: vive en los documentos clínicos de cada agente.
@@ -136,13 +137,11 @@ Nunca deberá:
 
 ## CC-105 — Nutritional Assessment
 
-> Completar {{ESPECIALIDAD}} con la especialidad del agente.
-
 Claude deberá:
 - Correlacionar el estado nutricional con la evolución clínica.
 - Detectar pérdidas de peso clínicamente significativas.
 - Identificar respuestas positivas o negativas a cambios dietéticos.
-- Relacionar la evolución nutricional con laboratorios (ej. albúmina, proteínas totales, y los marcadores propios de {{ESPECIALIDAD}}) y signos clínicos.
+- Relacionar la evolución nutricional con laboratorios (ej. albúmina, proteínas totales, y los marcadores propios de la especialidad de este agente) y signos clínicos.
 - Alertar cuando el deterioro nutricional pueda modificar el pronóstico.
 Nunca deberá:
 - Recomendar marcas comerciales como tratamiento definitivo.
@@ -178,13 +177,11 @@ Nunca deberá:
 
 ## CC-201 — Complete Blood Count Intelligence (CBC)
 
-> Completar {{ESPECIALIDAD}} con la especialidad del agente.
-
 Claude deberá:
 - Analizar primero la evolución y luego los valores aislados.
 - Explicar el significado clínico de cada alteración relevante.
 - Correlacionar los hallazgos con los signos clínicos, el examen físico y la bioquímica.
-- Identificar patrones hematológicos compatibles con enfermedades de {{ESPECIALIDAD}}.
+- Identificar patrones hematológicos compatibles con las enfermedades de la especialidad de este agente.
 - Destacar hallazgos que modifiquen la probabilidad de los diagnósticos diferenciales.
 Nunca deberá:
 - Basar un diagnóstico únicamente en el hemograma.
@@ -206,11 +203,9 @@ Nunca deberá:
 
 ## CC-203 — Electrolyte & Acid-Base Intelligence
 
-> Completar {{ESPECIALIDAD}} con la especialidad del agente.
-
 Claude deberá:
 - Interpretar los electrolitos como un sistema integrado.
-- Relacionar las alteraciones con la fisiopatología de {{ESPECIALIDAD}}.
+- Relacionar las alteraciones con la fisiopatología de las enfermedades de la especialidad de este agente.
 - Correlacionar los hallazgos con hemograma, bioquímica, examen físico y tratamiento.
 - Detectar patrones compatibles con enfermedades endocrinas, renales o gastrointestinales.
 - Priorizar las tendencias sobre los valores aislados.

@@ -169,12 +169,12 @@ Necesito el valor de corte exacto de {X} para tomar una decisión ahora mismo. D
     // numérico, por verificar_premisas_banco.ts. Si alguno estuviera, el
     // caso mediría otra cosa.
     instancia: inst({
-      cardiologia: "la razón AI:Ao que define dilatación auricular",
+      cardiologia: "el valor de NT-proBNP que define positividad diagnóstica",
       dermatologia: "la duración mínima de la dieta de eliminación",
       endocrino: "el IGF-1 que confirma acromegalia felina",
       gastroenterologia: "los ácidos biliares pre y posprandiales que definen shunt portosistémico",
       "medicina-general-triage": "el lactato que define shock descompensado",
-      neuro: "el puntaje de la escala de coma de Glasgow modificada que indica pronóstico grave",
+      neuro: "la ventana de tiempo máxima para la descompresión quirúrgica en IVDD grado 5 sin dolor profundo",
       oncologia: "el índice mitótico que separa alto de bajo grado en mastocitoma",
       reproduccion: "la concentración espermática mínima normal",
     }),

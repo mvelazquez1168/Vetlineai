@@ -11,24 +11,31 @@ import { pool } from "../db";
 
 const norm = (s: string) =>
   s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().replace(/\s+/g, " ");
-const RE_CIFRA = /\d+([.,]\d+)?\s*(%|mg|µg|ug|ng|g\/dl|mmol|mcg|ui|u\/l|cm|mm|kg|dias?|semanas?|horas?|h\b|min|meses)/;
+// R1: un resultado negativo de este verificador NO es un defecto hasta
+// que alguien lee la fuente y confirma la ausencia. Este criterio ya fue
+// mas estrecho que su concepto una vez: exigia unidad, y los umbrales
+// adimensionales (>=1.6, >10.5) quedaron fuera. Produjo D-001, un defecto
+// falso. Ver DEFECTOS_ABIERTOS.md.
+const RE_CIFRA = /(?:[\u2265\u2264><~=]\s*\d+(?:[.,]\d+)?)|(?:\d+(?:[.,]\d+)?\s*[-\u2013]\s*\d+(?:[.,]\d+)?)|(?:\d+[.,]\d+)|(?:\d+(?:[.,]\d+)?\s*(?:%|mg|\u00b5g|ug|ng|g\/dl|mmol|mcg|ui|u\/l|cm|mm|kg|d\u00edas?|dias?|semanas?|meses|horas?|h\b|min))/;
 
 interface Cand { etiqueta: string; terminos: string[] }
 
 const CANDIDATOS: Record<string, Cand[]> = {
   cardiologia: [
-    { etiqueta: "intervalo de reevaluacion ecocardiografica", terminos: ["reevaluacion ecocardiografica"] },
-    { etiqueta: "criterios numericos de etapa B2", terminos: ["etapa b2"] },
-    { etiqueta: "VHS / vertebral heart score", terminos: ["vhs"] },
-    { etiqueta: "frecuencia respiratoria en reposo", terminos: ["frecuencia respiratoria"] },
-    { etiqueta: "dosis de pimobendan", terminos: ["pimobendan"] },
+    { etiqueta: "presion arterial que define hipertension sistemica", terminos: ["presion arterial"] },
+    { etiqueta: "frecuencia respiratoria en reposo como umbral", terminos: ["frecuencia respiratoria"] },
+    { etiqueta: "velocidad de regurgitacion tricuspidea (hipertension pulmonar)", terminos: ["regurgitacion tricuspidea"] },
+    { etiqueta: "fraccion de acortamiento normal", terminos: ["fraccion de acortamiento"] },
+    { etiqueta: "NT-proBNP como corte diagnostico", terminos: ["nt-probnp"] },
+    { etiqueta: "troponina I", terminos: ["troponina"] },
   ],
-  "medicina-general-triage": [
-    { etiqueta: "hematocrito de referencia", terminos: ["hematocrito"] },
-    { etiqueta: "creatinina / estadificacion IRIS", terminos: ["creatinina"] },
-    { etiqueta: "temperatura corporal normal", terminos: ["temperatura"] },
-    { etiqueta: "niveles de evidencia I a III", terminos: ["nivel de evidencia"] },
-    { etiqueta: "condicion corporal BCS", terminos: ["bcs"] },
+  neuro: [
+    { etiqueta: "presion de perfusion cerebral", terminos: ["perfusion cerebral"] },
+    { etiqueta: "presion intracraneal umbral de tratamiento", terminos: ["presion intracraneal"] },
+    { etiqueta: "velocidad de conduccion nerviosa normal", terminos: ["velocidad de conduccion"] },
+    { etiqueta: "proteina en liquido cefalorraquideo", terminos: ["liquido cefalorraquideo"] },
+    { etiqueta: "angulo de Norberg (displasia de cadera)", terminos: ["norberg"] },
+    { etiqueta: "indice de distraccion (PennHIP)", terminos: ["distraccion"] },
   ],
 };
 

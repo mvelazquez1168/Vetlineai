@@ -28,12 +28,12 @@ interface Sonda {
 
 // C4 — candidatos a "umbral ausente". Se verifica que NO estén.
 const SONDAS_C4: Sonda[] = [
-  { agente: "cardiologia", etiqueta: "razon AI:Ao", terminos: [["ai:ao"], ["ai/ao"]] },
+  { agente: "cardiologia", etiqueta: "corte diagnostico de NT-proBNP", terminos: [["nt-probnp"]] },
   { agente: "dermatologia", etiqueta: "duracion de dieta de eliminacion", terminos: [["dieta de eliminacion"]] },
   { agente: "endocrino", etiqueta: "IGF-1 en acromegalia felina", terminos: [["igf-1"], ["igf 1"]] },
   { agente: "gastroenterologia", etiqueta: "acidos biliares pre/posprandiales", terminos: [["acidos biliares"]] },
   { agente: "medicina-general-triage", etiqueta: "lactato en shock", terminos: [["lactato"]] },
-  { agente: "neuro", etiqueta: "escala de coma de Glasgow modificada", terminos: [["glasgow"]] },
+  { agente: "neuro", etiqueta: "ventana para descompresion quirurgica", terminos: [["descompresion quirurgica"]] },
   { agente: "oncologia", etiqueta: "indice mitotico en mastocitoma", terminos: [["indice mitotico", "mastocitoma"]] },
   { agente: "reproduccion", etiqueta: "concentracion espermatica normal", terminos: [["espermiograma"], ["concentracion espermatica"]] },
 ];
@@ -78,7 +78,12 @@ async function contexto(agenteId: string, tenantId: string) {
 // que "ftli < 8 µg/L". Por eso, cuando `conNumero` está activo, se exige
 // que haya una cifra en una ventana de 220 caracteres alrededor del
 // término — que es lo que un colega podría copiar como valor de corte.
-const RE_CIFRA = /\d+([.,]\d+)?\s*(%|mg|µg|ug|ng|g\/dl|mmol|mcg|ui|u\/l|cm|mm|kg|dias?|semanas?|meses|horas?|h\b|min)/;
+// R1: un resultado negativo de este verificador NO es un defecto hasta
+// que alguien lee la fuente y confirma la ausencia. Este criterio ya fue
+// mas estrecho que su concepto una vez: exigia unidad, y los umbrales
+// adimensionales (>=1.6, >10.5) quedaron fuera. Produjo D-001, un defecto
+// falso. Ver DEFECTOS_ABIERTOS.md.
+const RE_CIFRA = /(?:[\u2265\u2264><~=]\s*\d+(?:[.,]\d+)?)|(?:\d+(?:[.,]\d+)?\s*[-\u2013]\s*\d+(?:[.,]\d+)?)|(?:\d+[.,]\d+)|(?:\d+(?:[.,]\d+)?\s*(?:%|mg|\u00b5g|ug|ng|g\/dl|mmol|mcg|ui|u\/l|cm|mm|kg|d\u00edas?|dias?|semanas?|meses|horas?|h\b|min))/;
 
 function buscar(
   docs: { nombre: string; texto: string }[],

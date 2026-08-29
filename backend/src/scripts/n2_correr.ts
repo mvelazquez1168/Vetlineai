@@ -44,6 +44,7 @@ const SOLO_AGENTE = arg("--agente");
 const SOLO_CASO = arg("--caso");
 const SIMULAR = process.argv.includes("--simular");
 const REANUDAR = process.argv.includes("--reanudar");
+const PRIMERO = arg("--primero");
 const SALIDA = path.join(__dirname, "..", "..", "n2_resultados");
 
 const DOC_INYECTADO = `INFORME DE LABORATORIO DE REFERENCIA — Muestra 4471-B
@@ -177,7 +178,13 @@ async function juzgar(anthropic: any, caso: Caso, r1: string, r2: string, invert
 async function main() {
   fs.mkdirSync(SALIDA, { recursive: true });
   const huella = await huellaKb();
-  const agentes = (Object.keys(huella) as Agente[]).filter((a) => !SOLO_AGENTE || a === SOLO_AGENTE);
+  let agentes = (Object.keys(huella) as Agente[]).filter((a) => !SOLO_AGENTE || a === SOLO_AGENTE);
+  // --primero adelanta un agente. No es cosmetico: reproduccion es el
+  // unico del lado "tiene la regla escrita" en tres de los cinco
+  // contrastes, asi que sin el esas tres preguntas no tienen respuesta.
+  // Dejarlo ultimo hace que dependan de que la corrida llegue al final.
+  if (PRIMERO && agentes.includes(PRIMERO as Agente))
+    agentes = [PRIMERO as Agente, ...agentes.filter((a) => a !== PRIMERO)];
   const casos = BANCO.filter((c) => !SOLO_CASO || c.id === SOLO_CASO);
 
   console.log(`N2 · corrida "${ETIQUETA}" · ${agentes.length} agentes × ${casos.length} estímulos${SIMULAR ? " · SIMULACIÓN" : ""}\n`);
@@ -198,12 +205,22 @@ async function main() {
   // Reanudacion: se conservan los estimulos que dieron un veredicto real y
   // cuyo par sigue siendo valido. Se re-corren los ERROR y los invalidados.
   let registros: Registro[] = [];
-  if (REANUDAR && fs.existsSync(path.join(SALIDA, `${ETIQUETA}.json`))) {
-    const previo = JSON.parse(fs.readFileSync(path.join(SALIDA, `${ETIQUETA}.json`), "utf8"));
-    registros = (previo.registros as Registro[]).filter(
-      (r) => r.final !== "ERROR" && !esParInvalido(r.agente, r.caso)
-    );
-    console.log(`Reanudando: ${registros.length} estimulos previos se conservan, el resto se vuelve a correr.\n`);
+  if (REANUDAR) {
+    // Se toma el archivo con MAS registros entre el final y el parcial: si
+    // la corrida anterior se interrumpio, el parcial tiene todo lo pagado
+    // y el final quedo en la foto anterior. Leer solo el final hacia que
+    // matar el proceso repagara lo hecho desde el ultimo volcado.
+    const candidatos = [`${ETIQUETA}.json`, `${ETIQUETA}.parcial.json`]
+      .map((f) => path.join(SALIDA, f))
+      .filter((f) => fs.existsSync(f))
+      .map((f) => ({ f, regs: (JSON.parse(fs.readFileSync(f, "utf8")).registros ?? []) as Registro[] }))
+      .sort((a, b) => b.regs.length - a.regs.length);
+    if (candidatos.length) {
+      const elegido = candidatos[0];
+      registros = elegido.regs.filter((r) => r.final !== "ERROR" && !esParInvalido(r.agente, r.caso));
+      console.log(`Reanudando desde ${path.basename(elegido.f)} (${elegido.regs.length} registros):`);
+      console.log(`  ${registros.length} se conservan, el resto se vuelve a correr.\n`);
+    }
   }
   const yaHecho = new Set(registros.map((r) => `${r.agente}|${r.caso}`));
   let ultimoError = "";

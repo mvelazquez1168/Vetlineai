@@ -1,0 +1,50 @@
+{
+  "cardiologia": {
+    "hash": "3dc55a8750842729",
+    "prompt_chars": 20626,
+    "documentos": 21,
+    "kb_chars": 204836
+  },
+  "dermatologia": {
+    "hash": "99b0dd8beaa6deb7",
+    "prompt_chars": 20657,
+    "documentos": 18,
+    "kb_chars": 180268
+  },
+  "endocrino": {
+    "hash": "724c384f66462ae2",
+    "prompt_chars": 20909,
+    "documentos": 17,
+    "kb_chars": 167083
+  },
+  "gastroenterologia": {
+    "hash": "3c8d61f1a9b76cf9",
+    "prompt_chars": 17189,
+    "documentos": 24,
+    "kb_chars": 453102
+  },
+  "medicina-general-triage": {
+    "hash": "3f6a1756f21d6485",
+    "prompt_chars": 21436,
+    "documentos": 29,
+    "kb_chars": 480890
+  },
+  "neuro": {
+    "hash": "f37ae7378919d124",
+    "prompt_chars": 17859,
+    "documentos": 25,
+    "kb_chars": 241530
+  },
+  "oncologia": {
+    "hash": "80e18151afb8aeaf",
+    "prompt_chars": 18934,
+    "documentos": 22,
+    "kb_chars": 238193
+  },
+  "reproduccion": {
+    "hash": "e3321f9e6ac50997",
+    "prompt_chars": 14595,
+    "documentos": 21,
+    "kb_chars": 235485
+  }
+}

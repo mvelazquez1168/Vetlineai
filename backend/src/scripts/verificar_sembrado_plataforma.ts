@@ -56,7 +56,7 @@ async function main() {
         continue;
       }
 
-      const documentos = await obtenerDocumentosParaContexto(client, agente.id, tenantId);
+      const documentos = (await obtenerDocumentosParaContexto(client, agente.id, tenantId)).todos;
       if (documentos.length === 0) {
         resultados.push({ agente: agente.nombre, ok: false, detalle: "0 documentos en contexto — salteado" });
         continue;

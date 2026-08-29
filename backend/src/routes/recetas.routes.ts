@@ -274,7 +274,13 @@ recetasRouter.post("/:id/validar", async (req, res) => {
     // no reescrito (obtenerDocumentosParaContexto/construirBloqueDocumentos
     // importados de casos.routes.ts).
     const documentos = await obtenerDocumentosParaContexto(req.db!, fila.agente_id, req.auth!.tenantId!);
-    const bloqueDocumentos = construirBloqueDocumentos(documentos);
+    const bloqueDocumentos = construirBloqueDocumentos(documentos.clinicos);
+    // Bloque B: solo lo mandan los caminos de generación. Va DESPUÉS del
+    // bloque A y con su propio cache_control, así el prefijo del chat
+    // (tools + A) sigue siendo un prefijo exacto de éste (tools + A + B) y
+    // A se comparte entre los cuatro (ver migración 073).
+    const bloqueGeneracion =
+      documentos.generacion.length > 0 ? construirBloqueDocumentos(documentos.generacion) : null;
     const systemCacheado = `${fila.system_prompt}\n\n---\n\n${bloqueDocumentos}`;
     // Mismo criterio que chat/Dashboard/Informe — ver razaDocumento.ts.
     const bloqueRazaDocumento = await construirBloqueRazaDocumento(req.db!, fila.caso_id, req.auth!.tenantId ?? null);
@@ -318,6 +324,9 @@ recetasRouter.post("/:id/validar", async (req, res) => {
         betas: ["files-api-2025-04-14"],
         system: [
           { type: "text", text: systemCacheado, cache_control: CACHE_PREFIJO_COMPARTIDO },
+          ...(bloqueGeneracion
+            ? [{ type: "text" as const, text: bloqueGeneracion, cache_control: CACHE_PREFIJO_COMPARTIDO }]
+            : []),
           ...(bloqueRazaDocumento ? [{ type: "text" as const, text: bloqueRazaDocumento }] : []),
           { type: "text", text: instruccionValidacion },
         ],

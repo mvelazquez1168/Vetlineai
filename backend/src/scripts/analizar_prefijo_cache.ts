@@ -50,7 +50,7 @@ async function main() {
   const cliente = await pool.connect();
   let documentos: any[];
   try {
-    documentos = await obtenerDocumentosParaContexto(cliente, caso.agente_id, caso.tenant_id);
+    documentos = (await obtenerDocumentosParaContexto(cliente, caso.agente_id, caso.tenant_id)).todos;
   } finally {
     cliente.release();
   }

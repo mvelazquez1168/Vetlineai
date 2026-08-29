@@ -54,7 +54,7 @@ async function main() {
   let bloqueRaza: string;
   let historial: Awaited<ReturnType<typeof construirMensajesParaModelo>>;
   try {
-    documentos = await obtenerDocumentosParaContexto(cliente, caso.agente_id, caso.tenant_id);
+    documentos = (await obtenerDocumentosParaContexto(cliente, caso.agente_id, caso.tenant_id)).todos;
     bloqueContextoCaso = await construirBloqueContextoCaso(cliente, caso.id);
     bloqueRaza = (await construirBloqueRazaDocumento(cliente, caso.id, caso.tenant_id)) ?? "";
     historial = await construirMensajesParaModelo(cliente, caso.id);

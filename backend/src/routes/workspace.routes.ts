@@ -742,7 +742,10 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
     // ---------------------------------------------------------------
     // Agente CON system_prompt (GCIS) — llamada real a Claude.
     // ---------------------------------------------------------------
-    const documentos = await obtenerDocumentosParaContexto(
+    // El chat manda SOLO el bloque A: los documentos de ámbito
+    // 'generacion' describen cómo se arma un dashboard o un informe y no
+    // participan de un turno de conversación (ver migración 073).
+    const { clinicos: documentos } = await obtenerDocumentosParaContexto(
       req.db!,
       caso.agente_id,
       req.auth!.tenantId!

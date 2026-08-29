@@ -71,13 +71,20 @@ casosRouter.use((req, res, next) => {
 // agente (la raza varía por caso) y se perdería el caché compartido para
 // TODO el bloque, no solo para este documento.
 // ---------------------------------------------------------------------
+//
+// Devuelve los documentos separados por ámbito (migración 073):
+// `clinicos` va en el bloque A, que leen los cuatro caminos, y
+// `generacion` en el bloque B, que solo mandan dashboard, informe y
+// receta. Se hace en UNA consulta y se separa acá para que el orden
+// dentro de cada bloque salga del mismo ORDER BY — dos consultas
+// distintas podrían ordenar distinto y eso es una reescritura de caché.
 export async function obtenerDocumentosParaContexto(
   db: PoolClient,
   agenteId: string,
   tenantId: string
 ) {
   const result = await db.query(
-    `SELECT d.id, d.nombre, d.tipo, d.archivo_ref, d.contenido_texto
+    `SELECT d.id, d.nombre, d.tipo, d.archivo_ref, d.contenido_texto, d.ambito
      FROM documentos_conocimiento d
      JOIN tenants t ON t.id = $2
      WHERE d.estado = 'activo'
@@ -99,7 +106,11 @@ export async function obtenerDocumentosParaContexto(
      ORDER BY d.fecha_carga DESC, d.id`,
     [agenteId, tenantId, NOMBRE_DOCUMENTO_PREDISPOSICIONES]
   );
-  return result.rows;
+  return {
+    clinicos: result.rows.filter((d) => d.ambito !== "generacion"),
+    generacion: result.rows.filter((d) => d.ambito === "generacion"),
+    todos: result.rows,
+  };
 }
 
 // ---------------------------------------------------------------------
@@ -650,7 +661,7 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
         [req.params.id]
       );
 
-      const documentosContexto = await obtenerDocumentosParaContexto(
+      const { todos: documentosContexto } = await obtenerDocumentosParaContexto(
         req.db!,
         caso.agente_id,
         req.auth!.tenantId!
@@ -715,7 +726,13 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
       caso.agente_id,
       req.auth!.tenantId!
     );
-    const bloqueDocumentos = construirBloqueDocumentos(documentos);
+    const bloqueDocumentos = construirBloqueDocumentos(documentos.clinicos);
+    // Bloque B: solo lo mandan los caminos de generación. Va DESPUÉS del
+    // bloque A y con su propio cache_control, así el prefijo del chat
+    // (tools + A) sigue siendo un prefijo exacto de éste (tools + A + B) y
+    // A se comparte entre los cuatro (ver migración 073).
+    const bloqueGeneracion =
+      documentos.generacion.length > 0 ? construirBloqueDocumentos(documentos.generacion) : null;
     const systemCacheado = `${caso.system_prompt}\n\n---\n\n${bloqueDocumentos}`;
     // Ajustes del área de trabajo, Prioridad 1 — mismo bloque y mismo
     // criterio de ubicación que el chat: después del bloque cacheado, sin
@@ -758,6 +775,9 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
         betas: ["files-api-2025-04-14"],
         system: [
           { type: "text", text: systemCacheado, cache_control: CACHE_PREFIJO_COMPARTIDO },
+          ...(bloqueGeneracion
+            ? [{ type: "text" as const, text: bloqueGeneracion, cache_control: CACHE_PREFIJO_COMPARTIDO }]
+            : []),
           { type: "text", text: bloqueContextoCaso },
           ...(bloqueRazaDocumento ? [{ type: "text" as const, text: bloqueRazaDocumento }] : []),
           { type: "text", text: instruccionDashboard },
@@ -1820,7 +1840,13 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
     // (byte a byte) para reusar el cache_control ephemeral ya pagado.
     // -----------------------------------------------------------------
     const documentos = await obtenerDocumentosParaContexto(req.db!, caso.agente_id, req.auth!.tenantId!);
-    const bloqueDocumentos = construirBloqueDocumentos(documentos);
+    const bloqueDocumentos = construirBloqueDocumentos(documentos.clinicos);
+    // Bloque B: solo lo mandan los caminos de generación. Va DESPUÉS del
+    // bloque A y con su propio cache_control, así el prefijo del chat
+    // (tools + A) sigue siendo un prefijo exacto de éste (tools + A + B) y
+    // A se comparte entre los cuatro (ver migración 073).
+    const bloqueGeneracion =
+      documentos.generacion.length > 0 ? construirBloqueDocumentos(documentos.generacion) : null;
     const systemCacheado = `${caso.system_prompt}\n\n---\n\n${bloqueDocumentos}`;
     // Ajustes del área de trabajo, Prioridad 1 — mismo criterio que el
     // chat y el Dashboard (ver contextoCaso.ts).
@@ -1869,6 +1895,9 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
         betas: ["files-api-2025-04-14"],
         system: [
           { type: "text", text: systemCacheado, cache_control: CACHE_PREFIJO_COMPARTIDO },
+          ...(bloqueGeneracion
+            ? [{ type: "text" as const, text: bloqueGeneracion, cache_control: CACHE_PREFIJO_COMPARTIDO }]
+            : []),
           { type: "text", text: bloqueContextoCaso },
           ...(bloqueRazaDocumento ? [{ type: "text" as const, text: bloqueRazaDocumento }] : []),
           { type: "text", text: instruccionInforme },

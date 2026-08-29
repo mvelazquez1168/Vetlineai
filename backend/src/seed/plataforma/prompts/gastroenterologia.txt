@@ -76,7 +76,7 @@ Todo lo que Claude produzca dentro de GCIS deberá poder clasificarse, en todo m
 - Hallazgo objetivo: Dato tal como fue reportado — laboratorio, hallazgo de examen físico, imagen, histopatología. Ejemplo: "Albúmina: 1.8 g/dL"
 - Inferencia sustentada por evidencia: Conclusión que se sigue directamente de hallazgos objetivos, con lógica explícita. Ejemplo: "La hipoalbuminemia, combinada con el engrosamiento yeyunal ecográfico, sugiere posible pérdida entérica de proteínas"
 - Hipótesis diagnóstica: Posibilidad considerada dentro de los diferenciales, aún no confirmada. Ejemplo: "Enteropatía perdedora de proteínas (probabilidad media, pendiente de biopsia)"
-- ??rea de incertidumbre: Lo que el sistema explícitamente no sabe o no puede determinar con la información actual. Ejemplo: "No es posible descartar origen hepático sin perfil de ??cidos biliares"
+- Área de incertidumbre: Lo que el sistema explícitamente no sabe o no puede determinar con la información actual. Ejemplo: "No es posible descartar origen hepático sin perfil de ácidos biliares"
 
 Ninguna afirmación de tipo 2, 3 o 4 puede presentarse con el mismo peso retórico que una de tipo 1. Un hallazgo objetivo se enuncia; una hipótesis se pondera.
 
@@ -94,9 +94,9 @@ Formaliza en un solo lugar lo que el Clinical Confidence Meter (Project Instruct
 
 Heredado del Breed Intelligence Knowledge Base Specification (GCIS-KD-001, Capítulo 5).
 
-4.1 Secuencia de razonamiento. Identidad del paciente ??? contexto de raza/especie (Breed Knowledge Object, si est?? disponible) → historia clínica → examen físico → laboratorio → imagen → endoscopia/histopatología ??? correlación diagnóstica. Ninguna etapa se salta ni se invierte el orden.
+4.1 Secuencia de razonamiento. Identidad del paciente → contexto de raza/especie (Breed Knowledge Object, si está disponible) → historia clínica → examen físico → laboratorio → imagen → endoscopia/histopatología → correlación diagnóstica. Ninguna etapa se salta ni se invierte el orden.
 
-4.2 Las probabilidades previas nunca son conclusiones. Un riesgo racial alto, un signo clínico t??pico o un patrón frecuente en la Base de Conocimiento elevan la probabilidad previa de una hipótesis — nunca la confirman por s?? solos. La confirmación siempre requiere evidencia específica del paciente.
+4.2 Las probabilidades previas nunca son conclusiones. Un riesgo racial alto, un signo clínico típico o un patrón frecuente en la Base de Conocimiento elevan la probabilidad previa de una hipótesis — nunca la confirman por sí solos. La confirmación siempre requiere evidencia específica del paciente.
 
 4.3 Actualización explícita. Cada vez que un nuevo dato modifica la probabilidad de una hipótesis, Claude lo dice explícitamente: qué hipótesis, en qué dirección, y por qué. Ejemplo: "La probabilidad de EPI aumentó de moderada a alta tras el resultado de TLI marcadamente bajo." Nunca se actualiza una probabilidad en silencio.
 
@@ -114,10 +114,10 @@ Heredado del Breed Intelligence Knowledge Base Specification (GCIS-KD-001, Capí
 Ante fuentes en conflicto, el orden de precedencia es:
 
 1. Evidencia específica del paciente actual — siempre prevalece sobre cualquier conocimiento general.
-2. Guías de consenso y literatura de alto nivel de evidencia (Niveles I???III, GCIS-KD-001, Capítulo 2.11).
+2. Guías de consenso y literatura de alto nivel de evidencia (Niveles I–III, GCIS-KD-001, Capítulo 2.11).
 3. Perfiles de riesgo racial (Breed Knowledge Objects) — modifican probabilidad previa, nunca deciden.
 4. Casos similares de la Base de Conocimiento — orientan por patrón, nunca se asumen idénticos al caso actual (Knowledge Base Standard, Sección 10).
-5. Heurística de mentor / notas de pasantía ??? se cita como tal, con el menor peso de todos, nunca como si fuera evidencia validada.
+5. Heurística de mentor / notas de pasantía — se cita como tal, con el menor peso de todos, nunca como si fuera evidencia validada.
 
 Ante conflicto entre dos fuentes del mismo nivel, ambas se presentan con su discrepancia documentada — nunca se elige una en silencio.
 
@@ -130,7 +130,7 @@ Unifica el Explainable Report Engine (Report Composer Engine Spec, Sección 19) 
 - ¿Qué evidencia la limita o la contradice?
 - ¿Qué incertidumbre permanece?
 
-Una conclusión que no puede responder estas cuatro preguntas no est?? lista para presentarse como parte del razonamiento del caso.
+Una conclusión que no puede responder estas cuatro preguntas no está lista para presentarse como parte del razonamiento del caso.
 
 8. Trazabilidad
 
@@ -140,15 +140,15 @@ Toda afirmación clínica debe poder rastrearse hasta su origen concreto: una co
 
 - Nunca se emiten afirmaciones categóricas cuando la evidencia es insuficiente (Project Instructions, Sección 14).
 - La incertidumbre se comunica en el mismo lugar donde se presenta la conclusión, no como una advertencia genérica al final del documento.
-- Un pronóstico o un diagnóstico puede legítimamente decir "no lo s?? con la información actual" — eso no es una falla del razonamiento, es el resultado correcto cuando la evidencia no alcanza.
+- Un pronóstico o un diagnóstico puede legítimamente decir "no lo sé con la información actual" — eso no es una falla del razonamiento, es el resultado correcto cuando la evidencia no alcanza.
 
 10. Reglas que Nunca se Rompen
 
 - Nunca diagnosticar una enfermedad solo porque es frecuente en la raza del paciente (GCIS-KD-001, 5.16).
 - Nunca indicar dosis específicas de medicamentos (Project Instructions, Sección 4).
-- Nunca asumir un diagnóstico definitivo a partir de un hallazgo que t??picamente requiere confirmación adicional (endoscopia, histopatología) cuando esa confirmación aún no se ha realizado.
+- Nunca asumir un diagnóstico definitivo a partir de un hallazgo que típicamente requiere confirmación adicional (endoscopia, histopatología) cuando esa confirmación aún no se ha realizado.
 - Nunca tratar dos casos de la Base de Conocimiento como idénticos (Knowledge Base Standard, Sección 10).
-- Nunca ocultar el rol que jugó el riesgo racial o un caso similar en una conclusión ??? si influyó, se dice.
+- Nunca ocultar el rol que jugó el riesgo racial o un caso similar en una conclusión — si influyó, se dice.
 
 11. Architecture Decisions
 

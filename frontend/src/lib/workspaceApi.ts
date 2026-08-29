@@ -86,6 +86,12 @@ export interface Archivo {
   tipo: string;
   url: string;
   creado_en: string;
+  // false = el archivo queda guardado en el caso y el médico lo puede ver
+  // y descargar, pero el agente NO lo va a poder leer (formato que la API
+  // no sabe referenciar, o falló su preparación). Se avisa en el chip al
+  // adjuntar — antes esto no se decía en ningún lado y el archivo
+  // simplemente no participaba del análisis.
+  legible_por_agente?: boolean;
 }
 
 export interface CasoDetalle {

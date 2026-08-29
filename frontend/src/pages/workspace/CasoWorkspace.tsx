@@ -182,6 +182,13 @@ export function CasoWorkspace() {
   // no debe perder ese estado si el médico cambia a otro caso y vuelve.
   const [adjuntosPorCaso, setAdjuntosPorCaso] = useState<Record<string, AdjuntoEnProgreso[]>>({});
   const adjuntos = casoId ? adjuntosPorCaso[casoId] ?? [] : [];
+  // Adjuntar estudios sin escribir nada es un análisis válido — el médico
+  // que arrastra una endoscopía y le da a "Analizar el caso" no tiene por
+  // qué inventar un texto para que el agente los reciba. Antes el botón
+  // quedaba deshabilitado en ese caso.
+  const adjuntosListos = adjuntos.filter((a) => a.estado === "listo" && a.archivo);
+  const adjuntosSubiendo = adjuntos.some((a) => a.estado === "subiendo");
+  const adjuntosNoLegibles = adjuntosListos.filter((a) => a.archivo!.legible_por_agente === false);
   const [avisoLimiteAdjuntos, setAvisoLimiteAdjuntos] = useState<string | null>(null);
   const [arrastrandoArchivo, setArrastrandoArchivo] = useState(false);
   const [cambioCasoPendiente, setCambioCasoPendiente] = useState<string | null>(null);
@@ -734,13 +741,11 @@ export function CasoWorkspace() {
   // analizar sin texto y sin nada pendiente — no hay nada nuevo que
   // mandar, sería una llamada completa para regenerar la misma respuesta.
   const analizarCaso = async () => {
-    if (!casoId || (!nuevoMensaje.trim() && pendientesInformacion === 0)) return;
+    if (!casoId || (!nuevoMensaje.trim() && pendientesInformacion === 0 && adjuntosListos.length === 0)) return;
     setEnviando(true);
     setErrorAnalisis(null);
     try {
-      const archivoIds = adjuntos
-        .filter((a) => a.estado === "listo" && a.archivo)
-        .map((a) => a.archivo!.id);
+      const archivoIds = adjuntosListos.map((a) => a.archivo!.id);
       const { mensaje, respuesta } = await workspaceApi.enviarMensaje(
         casoId,
         nuevoMensaje.trim(),
@@ -802,9 +807,7 @@ export function CasoWorkspace() {
     if (!casoId || !nuevoMensaje.trim()) return;
     setAgregando(true);
     try {
-      const archivoIds = adjuntos
-        .filter((a) => a.estado === "listo" && a.archivo)
-        .map((a) => a.archivo!.id);
+      const archivoIds = adjuntosListos.map((a) => a.archivo!.id);
       const { mensaje } = await workspaceApi.agregarInformacion(
         casoId,
         nuevoMensaje.trim(),
@@ -1365,7 +1368,14 @@ export function CasoWorkspace() {
                         />
                       )}
                       {a.estado === "listo" && a.archivo && (
-                        <span className="rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-accent">
+                        <span
+                          className={[
+                            "rounded px-1.5 py-0.5 text-[10px] font-bold uppercase",
+                            a.archivo.legible_por_agente === false
+                              ? "bg-warning/15 text-warning"
+                              : "bg-accent/10 text-accent",
+                          ].join(" ")}
+                        >
                           {a.archivo.tipo}
                         </span>
                       )}
@@ -1409,6 +1419,17 @@ export function CasoWorkspace() {
 
               {avisoLimiteAdjuntos && (
                 <p className="mb-3 text-xs text-warning">{avisoLimiteAdjuntos}</p>
+              )}
+
+              {/* El médico se entera de que un adjunto no entra en el
+                  análisis acá, al adjuntarlo — no después, por una
+                  respuesta en la que el agente lo ignoró en silencio. */}
+              {adjuntosNoLegibles.length > 0 && (
+                <p className="mb-3 text-xs text-warning">
+                  El agente no va a poder leer{" "}
+                  {adjuntosNoLegibles.map((a) => a.archivo!.nombre_archivo).join(", ")} — queda guardado en el
+                  caso, pero su contenido no entra en el análisis. Para que lo lea, adjuntalo como PDF o imagen.
+                </p>
               )}
 
               {avisoVoz && <p className="mb-3 text-xs text-warning">{avisoVoz}</p>}
@@ -1522,11 +1543,7 @@ export function CasoWorkspace() {
                     variant="secondary"
                     onClick={agregarInformacion}
                     disabled={
-                      enviando ||
-                      agregando ||
-                      casoCerrado ||
-                      !nuevoMensaje.trim() ||
-                      adjuntos.some((a) => a.estado === "subiendo")
+                      enviando || agregando || casoCerrado || !nuevoMensaje.trim() || adjuntosSubiendo
                     }
                   >
                     {agregando && (
@@ -1546,8 +1563,10 @@ export function CasoWorkspace() {
                       enviando ||
                       agregando ||
                       casoCerrado ||
-                      (!nuevoMensaje.trim() && pendientesInformacion === 0) ||
-                      adjuntos.some((a) => a.estado === "subiendo")
+                      // Con adjuntos listos alcanza: no hace falta escribir
+                      // nada para mandarle estudios al agente.
+                      (!nuevoMensaje.trim() && pendientesInformacion === 0 && adjuntosListos.length === 0) ||
+                      adjuntosSubiendo
                     }
                   >
                     {enviando && (

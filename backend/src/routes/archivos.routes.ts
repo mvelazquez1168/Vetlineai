@@ -4,6 +4,7 @@ import { Request, Response, Router } from "express";
 import multer from "multer";
 import path from "path";
 import { requerirAnthropic } from "../anthropic";
+import { esLegiblePorAgente } from "../archivosDelCaso";
 import { almacenamientoPrivado } from "../almacenamiento";
 import { authenticate, withTenantClient } from "../middleware/auth";
 
@@ -64,15 +65,22 @@ archivosRouter.use(authenticate, withTenantClient);
 // antes de que el médico termine de escribir y enviar el mensaje.
 //
 // Además de guardarlo en el filesystem local (sigue siendo la fuente para
-// que el médico lo vea/descargue desde la interfaz), se sube también a la
-// Files API de Anthropic — el file_id devuelto queda en
-// archivos.file_id_anthropic para que GCIS pueda referenciarlo dentro del
-// content de un mensaje real (ver workspace.routes.ts). La subida a
-// Anthropic se intenta para todos los archivos, no solo los de casos de
-// GCIS: es barata (el storage de la Files API no se cobra, solo el uso
-// dentro de un mensaje) y evita tener que resolver acá el agente del caso.
-// Si falla (Anthropic no configurado, formato no soportado, etc.), el
-// archivo local NO se pierde — solo queda file_id_anthropic en null.
+// que el médico lo vea/descargue desde la interfaz), se sube a la Files
+// API de Anthropic — el file_id devuelto queda en
+// archivos.file_id_anthropic para que el agente pueda referenciarlo dentro
+// del content de un mensaje real (ver archivosDelCaso.ts). Se intenta para
+// cualquier caso, no solo los de GCIS: es barata (el storage de la Files
+// API no se cobra, solo el uso dentro de un mensaje) y evita tener que
+// resolver acá el agente del caso.
+//
+// Se sube SOLO lo que el agente después va a poder leer — imágenes, PDF y
+// texto plano, según esLegiblePorAgente(). El resto se guarda igual y el
+// médico lo sigue viendo y descargando, pero queda con file_id_anthropic
+// en null, que es lo que la interfaz usa para avisarle en el chip que ese
+// adjunto no va a entrar en el análisis. Si la subida falla (Anthropic no
+// configurado, red, etc.), el archivo local NO se pierde y el aviso es el
+// mismo — el médico se entera al adjuntar, no después de una respuesta en
+// la que el agente hizo como si el archivo no existiera.
 // ---------------------------------------------------------------------
 archivosRouter.post("/", (req, res) => {
   upload.single("archivo")(req, res, async (err: any) => {
@@ -123,21 +131,38 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
     const clave = `casos/${crypto.randomUUID()}${ext}`;
     await almacenamientoPrivado.guardar(clave, req.file.buffer, contentType);
 
+    // Un file_id de la Files API solo sirve si después se puede
+    // referenciar dentro de un mensaje, y eso depende del formato. Subir
+    // igual un .pages o un .docx dejaba una fila con file_id_anthropic
+    // cargado que hacía creer —al mirar la base— que el archivo le había
+    // llegado al agente, cuando el armado del pedido lo descartaba por
+    // formato. Con este chequeo, file_id_anthropic no nulo significa una
+    // sola cosa: el agente puede leerlo. Misma función que decide en
+    // archivosDelCaso.ts, no una lista paralela.
+    const legiblePorAgente = esLegiblePorAgente(tipo, req.file.originalname);
     let fileIdAnthropic: string | null = null;
-    try {
-      const anthropic = requerirAnthropic();
-      const subida = await anthropic.beta.files.upload({
-        file: await toFile(req.file.buffer, req.file.originalname, {
-          type: contentType,
-        }),
-        betas: ["files-api-2025-04-14"],
-      });
-      fileIdAnthropic = subida.id;
-    } catch (err) {
-      console.error(
-        `No se pudo subir "${req.file.originalname}" a la Files API de Anthropic — sigue disponible localmente`,
-        err
+    if (!legiblePorAgente) {
+      console.warn(
+        `"${req.file.originalname}" (tipo ${tipo}) se guarda en el caso ${casoId} pero el agente no ` +
+          `va a poder leerlo: la Messages API solo referencia imágenes, PDF y texto plano.`
       );
+    } else {
+      try {
+        const anthropic = requerirAnthropic();
+        const subida = await anthropic.beta.files.upload({
+          file: await toFile(req.file.buffer, req.file.originalname, {
+            type: contentType,
+          }),
+          betas: ["files-api-2025-04-14"],
+        });
+        fileIdAnthropic = subida.id;
+      } catch (err) {
+        console.error(
+          `No se pudo subir "${req.file.originalname}" a la Files API de Anthropic — sigue disponible localmente, ` +
+            `pero el agente NO va a poder leerlo hasta que se vuelva a adjuntar`,
+          err
+        );
+      }
     }
 
     const result = await req.db!.query(
@@ -146,11 +171,15 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
        RETURNING id, nombre_archivo, tipo, url, creado_en, file_id_anthropic`,
       [casoId, req.file.originalname, tipo, `/uploads/${clave}`, fileIdAnthropic]
     );
+    // La interfaz necesita saberlo en el momento de adjuntar, no después
+    // de un análisis en el que el agente hizo como si el archivo no
+    // existiera. `false` acá es lo que pinta el aviso en el chip.
+    const archivo = { ...result.rows[0], legible_por_agente: fileIdAnthropic !== null };
     // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
     // actividad tocan actualizado_en, no solo informacion/mensajes.
     await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [casoId]);
 
-    res.status(201).json({ archivo: result.rows[0] });
+    res.status(201).json({ archivo });
   } catch (err) {
     console.error("POST /archivos", err);
     res.status(500).json({ error: "Error al subir el archivo." });

@@ -13,6 +13,7 @@ import {
   insertarBloquePrescripciones,
 } from "./casos.routes";
 import { construirBloqueRazaDocumento } from "../razaDocumento";
+import { construirMensajesParaModelo } from "../archivosDelCaso";
 import { registrarResultadoAnthropic, registrarExitoAnthropic } from "../proveedorIaEstado";
 import { calcularEdadEfectiva } from "../edadPaciente";
 
@@ -372,49 +373,9 @@ recetasRouter.post("/:id/validar", async (req, res) => {
       "(si está presente más abajo, junto al historial de mensajes) — un medicamento ya recetado en una " +
       "receta emitida anteriormente para este caso también cuenta como duplicidad terapéutica.";
 
-    // Mismo mecanismo que Dashboard/Informe (duplicado a propósito, ver
-    // nota de cabecera en casos.routes.ts). tipo IN ('consulta','respuesta')
-    // — mismo criterio de anotar vs consultar que en los otros tres.
-    const historialResult = await req.db!.query(
-      `SELECT m.id, m.remitente, m.contenido,
-              a.tipo AS archivo_tipo, a.file_id_anthropic
-       FROM mensajes m
-       LEFT JOIN archivos a ON a.mensaje_id = m.id
-       WHERE m.caso_id = $1 AND m.tipo IN ('consulta', 'respuesta')
-       ORDER BY m.creado_en ASC`,
-      [fila.caso_id]
-    );
-    interface MensajeConArchivos {
-      remitente: string;
-      contenido: string;
-      archivos: { tipo: string; fileId: string | null }[];
-    }
-    const mensajesPorId = new Map<string, MensajeConArchivos>();
-    const ordenMensajes: string[] = [];
-    for (const m of historialResult.rows) {
-      if (!mensajesPorId.has(m.id)) {
-        mensajesPorId.set(m.id, { remitente: m.remitente, contenido: m.contenido, archivos: [] });
-        ordenMensajes.push(m.id);
-      }
-      if (m.file_id_anthropic || m.archivo_tipo) {
-        mensajesPorId.get(m.id)!.archivos.push({ tipo: m.archivo_tipo, fileId: m.file_id_anthropic });
-      }
-    }
-    const mensajesParaClaude = ordenMensajes.map((id) => {
-      const m = mensajesPorId.get(id)!;
-      const role = (m.remitente === "medico" ? "user" : "assistant") as "user" | "assistant";
-      const bloquesArchivo = m.archivos
-        .filter((a) => a.fileId && (a.tipo === "imagen" || a.tipo === "pdf"))
-        .map((a) =>
-          a.tipo === "imagen"
-            ? ({ type: "image" as const, source: { type: "file" as const, file_id: a.fileId! } })
-            : ({ type: "document" as const, source: { type: "file" as const, file_id: a.fileId! } })
-        );
-      if (bloquesArchivo.length === 0) {
-        return { role, content: m.contenido };
-      }
-      return { role, content: [{ type: "text" as const, text: m.contenido }, ...bloquesArchivo] };
-    });
+    // Historial + adjuntos: mismo módulo compartido que el chat real, el
+    // Dashboard y el informe (ver archivosDelCaso.ts).
+    const { mensajes: mensajesParaClaude } = await construirMensajesParaModelo(req.db!, fila.caso_id);
 
     // Solo recetas 'emitida' de este caso — la que se está validando
     // ahora mismo sigue en 'borrador' en este punto (guardarBorrador() ya

@@ -12,6 +12,7 @@ import {
 import { debeBloquearseMensaje, verificarUmbralesYNotificar } from "../usoIa";
 import { registrarUsoApi, verificarAntesDeGenerar, mensajeRechazoGeneracion } from "../tarifas";
 import { construirBloqueContextoCaso } from "../contextoCaso";
+import { construirMensajesParaModelo } from "../archivosDelCaso";
 import { calcularEdadEfectiva } from "../edadPaciente";
 import { construirBloqueRazaDocumento } from "../razaDocumento";
 import { construirBloqueInformacionRegistrada, TEXTO_DISPARADOR_ANALISIS } from "../informacionRegistrada";
@@ -535,38 +536,79 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
     );
     const pendientes = pendientesResult.rows as { id: string; contenido: string; creado_en: Date }[];
 
-    if (!contenidoLimpio && pendientes.length === 0) {
+    const idsArchivos = Array.isArray(archivoIds) ? archivoIds : [];
+    const hayAdjuntos = idsArchivos.length > 0;
+
+    // Adjuntar estudios SIN escribir nada es un análisis legítimo — es,
+    // de hecho, el caso más natural ("mirá esta endoscopía"). Antes esto
+    // devolvía 400 y el botón de la interfaz estaba deshabilitado, así
+    // que la única forma de mandar archivos era escribiendo algo.
+    if (!contenidoLimpio && !hayAdjuntos && pendientes.length === 0) {
       return res.status(400).json({
-        error: "No hay nada nuevo para analizar — agregá información o escribí un mensaje.",
+        error: "No hay nada nuevo para analizar — adjuntá un archivo, agregá información o escribí un mensaje.",
       });
     }
 
-    // Solo se crea una fila de mensaje si el médico escribió algo. Si
-    // analiza con la caja vacía (solo información pendiente), no se
-    // persiste ninguna fila de "consulta": lo que dispara el análisis es
-    // el click, no un texto que el médico nunca escribió (ver
-    // TEXTO_DISPARADOR_ANALISIS más abajo).
+    // Se crea una fila de mensaje si el médico escribió algo O si adjuntó
+    // archivos. El segundo caso NO fabrica palabras que el médico no dijo:
+    // deja constancia del hecho que sí ocurrió (adjuntó estos archivos),
+    // y le da a los adjuntos un turno propio en el hilo — sin eso no
+    // tendrían dónde mostrarse en la conversación ni dónde viajar dentro
+    // del pedido al modelo.
+    //
+    // Si analiza con la caja vacía y sin adjuntos (solo información
+    // pendiente), se sigue sin persistir fila: lo que dispara el análisis
+    // es el click (ver TEXTO_DISPARADOR_ANALISIS más abajo).
     let mensaje: { id: string; remitente: string; contenido: string; tipo: string; creado_en: Date } | null =
       null;
-    if (contenidoLimpio) {
+    if (contenidoLimpio || hayAdjuntos) {
+      let contenidoMensaje = contenidoLimpio;
+      if (!contenidoMensaje) {
+        const nombresResult = await req.db!.query(
+          `SELECT nombre_archivo FROM archivos
+            WHERE id = ANY($1::uuid[]) AND caso_id = $2
+            ORDER BY creado_en ASC`,
+          [idsArchivos, req.params.id]
+        );
+        const nombres = nombresResult.rows.map((f: any) => f.nombre_archivo);
+        contenidoMensaje =
+          nombres.length > 0
+            ? `Archivos adjuntos: ${nombres.join(", ")}`
+            : "Archivos adjuntos.";
+      }
       const mensajeResult = await req.db!.query(
         `INSERT INTO mensajes (caso_id, remitente, contenido, tipo, autor_persona_id)
          VALUES ($1, 'medico', $2, 'consulta', $3)
          RETURNING id, remitente, contenido, tipo, creado_en`,
-        [req.params.id, contenidoLimpio, req.auth!.userId]
+        [req.params.id, contenidoMensaje, req.auth!.userId]
       );
       mensaje = mensajeResult.rows[0];
     }
 
+    // La vinculación NO está condicionada a que haya texto: el `if
+    // (mensaje && ...)` anterior hacía que, sin texto, los archivoIds se
+    // ignoraran en silencio y los archivos quedaran con mensaje_id NULL
+    // para siempre. Hoy siempre hay un mensaje cuando hay adjuntos (arriba),
+    // y aun si algo quedara suelto, construirMensajesParaModelo() lo
+    // recoge igual (ver archivosDelCaso.ts).
     let archivosVinculados: { id: string; nombre_archivo: string; tipo: string }[] = [];
-    if (mensaje && Array.isArray(archivoIds) && archivoIds.length > 0) {
+    if (mensaje && hayAdjuntos) {
       const archivosResult = await req.db!.query(
         `UPDATE archivos SET mensaje_id = $1
          WHERE id = ANY($2::uuid[]) AND caso_id = $3
          RETURNING id, nombre_archivo, tipo`,
-        [mensaje.id, archivoIds, req.params.id]
+        [mensaje.id, idsArchivos, req.params.id]
       );
       archivosVinculados = archivosResult.rows;
+      if (archivosVinculados.length !== idsArchivos.length) {
+        // Nunca debería pasar (los ids vienen de una subida a este mismo
+        // caso), pero si pasa es una pérdida silenciosa de un estudio
+        // clínico: queda en el log con nombre y caso.
+        console.error(
+          `Vinculación incompleta de adjuntos en el caso ${req.params.id}: se pidieron ` +
+            `${idsArchivos.length} y se vincularon ${archivosVinculados.length}.`
+        );
+      }
     }
 
     await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [req.params.id]);
@@ -754,66 +796,21 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
       caso.zona_horaria ?? "America/Costa_Rica"
     );
 
-    // LEFT JOIN a archivos: duplica la fila del mensaje por cada archivo
-    // adjunto, se agrupan abajo. mensaje_id ya vincula archivo -> mensaje
-    // (ver POST /casos/:id/mensajes más arriba, donde se resuelve ese UPDATE).
-    // tipo IN ('consulta','respuesta') a propósito: los bloques de
-    // tipo='informacion' NUNCA entran acá — van aparte, como
-    // bloqueInformacionRegistrada arriba, no como turnos previos del
-    // médico (ver informacionRegistrada.ts).
-    const historialResult = await req.db!.query(
-      `SELECT m.id, m.remitente, m.contenido,
-              a.tipo AS archivo_tipo, a.file_id_anthropic
-       FROM mensajes m
-       LEFT JOIN archivos a ON a.mensaje_id = m.id
-       WHERE m.caso_id = $1 AND m.tipo IN ('consulta', 'respuesta')
-       ORDER BY m.creado_en ASC`,
-      [req.params.id]
-    );
-    interface MensajeConArchivos {
-      remitente: string;
-      contenido: string;
-      archivos: { tipo: string; fileId: string | null }[];
+    // Historial + adjuntos, todo desde archivosDelCaso.ts: es el único
+    // lugar donde se decide qué archivo del caso llega al modelo, y es el
+    // mismo módulo que usan dashboard, informe y receta. La versión
+    // anterior de esto vivía duplicada en los cuatro puntos, y bastaba con
+    // que un adjunto no cayera en el LEFT JOIN (por estar colgado de un
+    // bloque de información, o de ningún mensaje) para que desapareciera
+    // sin dejar rastro.
+    const { mensajes: mensajesParaClaude, archivosEnviados, archivosNoLegibles } =
+      await construirMensajesParaModelo(req.db!, req.params.id);
+    if (archivosNoLegibles.length > 0) {
+      console.warn(
+        `Caso ${req.params.id}: ${archivosNoLegibles.length} adjunto(s) no se le pueden mandar al agente ` +
+          `(${archivosNoLegibles.map((a) => a.nombre).join(", ")}). Se le nombran en el pedido para que lo diga.`
+      );
     }
-    const mensajesPorId = new Map<string, MensajeConArchivos>();
-    const ordenMensajes: string[] = [];
-    for (const fila of historialResult.rows) {
-      if (!mensajesPorId.has(fila.id)) {
-        mensajesPorId.set(fila.id, { remitente: fila.remitente, contenido: fila.contenido, archivos: [] });
-        ordenMensajes.push(fila.id);
-      }
-      if (fila.file_id_anthropic || fila.archivo_tipo) {
-        mensajesPorId.get(fila.id)!.archivos.push({ tipo: fila.archivo_tipo, fileId: fila.file_id_anthropic });
-      }
-    }
-
-    const mensajesParaClaude = ordenMensajes.map((id) => {
-      const m = mensajesPorId.get(id)!;
-      const role = (m.remitente === "medico" ? "user" : "assistant") as "user" | "assistant";
-
-      // Solo los archivos que YA tienen file_id_anthropic (la subida a la
-      // Files API en POST /archivos no falló) y son de un tipo que la
-      // Messages API sabe referenciar directamente (imagen o PDF) entran
-      // como bloque real. El resto (docx/xlsx, o una subida que falló)
-      // sigue el fallback de antes: se menciona solo por nombre dentro del
-      // texto del mensaje (ver workspaceApi/CasoWorkspace, que ya arma
-      // `contenido` así del lado del médico).
-      const bloquesArchivo = m.archivos
-        .filter((a) => a.fileId && (a.tipo === "imagen" || a.tipo === "pdf"))
-        .map((a) =>
-          a.tipo === "imagen"
-            ? ({ type: "image" as const, source: { type: "file" as const, file_id: a.fileId! } })
-            : ({ type: "document" as const, source: { type: "file" as const, file_id: a.fileId! } })
-        );
-
-      if (bloquesArchivo.length === 0) {
-        return { role, content: m.contenido };
-      }
-      return {
-        role,
-        content: [{ type: "text" as const, text: m.contenido }, ...bloquesArchivo],
-      };
-    });
 
     const recetasEmitidas = await obtenerRecetasEmitidasParaContexto(req.db!, req.params.id);
     const bloquePrescripciones = construirBloquePrescripciones(recetasEmitidas);
@@ -883,13 +880,24 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
       respuestaTexto = bloqueTexto?.text ?? "";
       usage = response.usage;
     } catch (err) {
-      console.error("Error al llamar a la API de Claude (GCIS)", err);
+      console.error(
+        `Error al llamar a la API de Claude (GCIS) — caso ${req.params.id}, ${archivosEnviados} adjunto(s) en el pedido`,
+        err
+      );
       await registrarResultadoAnthropic(err);
       // La información pendiente NO se marca incorporada acá: la llamada
       // falló, así que el modelo nunca la vio de verdad. Queda pendiente
       // para el próximo intento (ver informacionRegistrada.ts).
+      //
+      // No hay reintento automático sin los adjuntos: una respuesta
+      // generada a ciegas sobre un caso que tiene estudios adjuntos es
+      // peor que no tener respuesta, y el médico no tendría cómo notar la
+      // diferencia. Si los adjuntos son la causa, se dice.
       return res.status(502).json({
-        error: "No se pudo generar la respuesta de IA en este momento. Tu mensaje quedó guardado.",
+        error:
+          archivosEnviados > 0
+            ? "No se pudo generar la respuesta de IA en este momento — puede ser un problema con alguno de los archivos adjuntos. Tu mensaje y tus archivos quedaron guardados."
+            : "No se pudo generar la respuesta de IA en este momento. Tu mensaje quedó guardado.",
         mensaje: mensaje ? { ...mensaje, archivos: archivosVinculados } : null,
       });
     }

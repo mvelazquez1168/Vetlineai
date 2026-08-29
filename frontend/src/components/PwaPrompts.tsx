@@ -67,12 +67,27 @@ function InvitacionInstalar() {
   );
 }
 
+// Un médico deja la app abierta horas sin navegar — el navegador solo
+// revisa si hay un service worker nuevo cuando hay una navegación real
+// (o cada ~24h en segundo plano, según el motor). Sin este chequeo
+// periódico, una pestaña quieta podría tardar todo el día en enterarse
+// de un despliegue nuevo. 15 minutos es un intervalo razonable para el
+// uso real de una clínica, sin llamar a la red constantemente.
+const INTERVALO_CHEQUEO_ACTUALIZACION_MS = 15 * 60 * 1000;
+
 function AvisoActualizacion() {
   const [ocultoPorAhora, setOcultoPorAhora] = useState(false);
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
-  } = useRegisterSW();
+  } = useRegisterSW({
+    onRegisteredSW(_swUrl, registration) {
+      if (!registration) return;
+      setInterval(() => {
+        registration.update();
+      }, INTERVALO_CHEQUEO_ACTUALIZACION_MS);
+    },
+  });
 
   if (!needRefresh || ocultoPorAhora) return null;
 

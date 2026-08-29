@@ -37,10 +37,38 @@ export default defineConfig({
                 ],
             },
             workbox: {
-                // El armazón (JS/CSS/HTML/íconos) se precarga para que la segunda
-                // apertura sea instantánea y la instalación tenga sentido.
-                globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+                // El armazón (JS/CSS/íconos) se precarga para que la segunda
+                // apertura sea instantánea. "html" quedó afuera a propósito — ver
+                // el bug real de dos despliegues seguidos: index.html precacheado
+                // referencia los archivos con huella de ESE build; el build
+                // siguiente borra esos archivos del servidor, así que el navegador
+                // que ya visitó la app queda pidiendo assets que ya no existen,
+                // roto hasta que se le borren los datos del sitio a mano. index.html
+                // nunca debe sacarse de una caché fija — solo de la red, con la
+                // caché como respaldo para cuando no hay conexión (ver
+                // navigateFallback + runtimeCaching de navegación, abajo).
+                globPatterns: ["**/*.{js,css,ico,png,svg,woff2}"],
+                // Toda navegación (carga de página, no assets) que no matchee un
+                // archivo precacheado cae acá — es lo que hace que la app siga
+                // sirviendo algo offline, pero SIEMPRE intentando la red primero
+                // (ver la regla de navegación en runtimeCaching): nunca sirve
+                // index.html directo desde una caché fija como haría el precache.
+                navigateFallback: "/index.html",
                 runtimeCaching: [
+                    {
+                        // El documento principal — SIEMPRE a la red primero. Si la red
+                        // responde (el caso normal), esa respuesta fresca reemplaza lo
+                        // que hubiera en caché y es la que se sirve. La copia en caché
+                        // solo se usa como último recurso, sin conexión. Con esto, un
+                        // despliegue nuevo es visible en la próxima carga de página,
+                        // sin esperar ninguna expiración.
+                        urlPattern: function (_a) {
+                            var request = _a.request;
+                            return request.mode === "navigate";
+                        },
+                        handler: "NetworkFirst",
+                        options: { cacheName: "html-navigation", networkTimeoutSeconds: 10 },
+                    },
                     {
                         // Decisión de privacidad del prompt: las respuestas de la API
                         // (expedientes, pacientes, informes, casos) NUNCA se cachean.

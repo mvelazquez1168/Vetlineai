@@ -38,10 +38,46 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // El armazón (JS/CSS/HTML/íconos) se precarga para que la segunda
-        // apertura sea instantánea y la instalación tenga sentido.
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // El armazón (JS/CSS/íconos) se precarga para que la segunda
+        // apertura sea instantánea. "html" quedó afuera a propósito — ver
+        // el bug real de dos despliegues seguidos: index.html precacheado
+        // referencia los archivos con huella de ESE build; el build
+        // siguiente borra esos archivos del servidor, así que el navegador
+        // que ya visitó la app queda pidiendo assets que ya no existen,
+        // roto hasta que se le borren los datos del sitio a mano. index.html
+        // nunca debe sacarse de una caché fija — solo de la red, con la
+        // caché como respaldo para cuando no hay conexión (ver la regla de
+        // navegación en runtimeCaching, abajo).
+        //
+        // navigateFallback: undefined es OBLIGATORIO, no cosmético.
+        // vite-plugin-pwa mergea sus propios defaults con
+        // Object.assign({}, defaultWorkbox, options.workbox) — y
+        // defaultWorkbox.navigateFallback = "index.html" siempre, aunque
+        // esta clave no aparezca acá. Con eso, workbox registra
+        // NavigationRoute(createHandlerBoundToURL("index.html")) ANTES
+        // que las reglas de runtimeCaching de abajo (gana el primer
+        // match), buscando "index.html" DENTRO del precache — que ya no
+        // existe, porque "html" salió de globPatterns a propósito. Sin
+        // este override explícito, la regla NetworkFirst de navegación
+        // de abajo nunca llegaría a ejecutarse. Esto NO se dedujo leyendo
+        // la documentación: se encontró inspeccionando el sw.js
+        // generado, que seguía trayendo esa ruta después de sacar
+        // "navigateFallback" del config — no alcanzaba con omitir la
+        // clave, hacía falta pisar el default explícitamente.
+        navigateFallback: undefined,
+        globPatterns: ["**/*.{js,css,ico,png,svg,woff2}"],
         runtimeCaching: [
+          {
+            // El documento principal — SIEMPRE a la red primero. Si la red
+            // responde (el caso normal), esa respuesta fresca reemplaza lo
+            // que hubiera en caché y es la que se sirve. La copia en caché
+            // solo se usa como último recurso, sin conexión. Con esto, un
+            // despliegue nuevo es visible en la próxima carga de página,
+            // sin esperar ninguna expiración.
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: { cacheName: "html-navigation", networkTimeoutSeconds: 10 },
+          },
           {
             // Decisión de privacidad del prompt: las respuestas de la API
             // (expedientes, pacientes, informes, casos) NUNCA se cachean.

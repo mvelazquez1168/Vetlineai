@@ -77,3 +77,51 @@ objetivo de la búsqueda.
 El caso `C4` del banco N2 usaba «razón AI:Ao» como umbral *verificado ausente*
 para cardiología. Está presente, así que ese caso no mide `E11` en cardiología y
 hay que reemplazar la instancia y volver a correr ese par.
+
+---
+
+## Regla de admisión — R2
+
+> **Toda categoría que signifique «no se pudo determinar» tiene que distinguir
+> por causa. Y el conteo por causa tiene que ser automático: si depende de que
+> alguien tenga la curiosidad de mirar, no existe.**
+
+Una sola etiqueta que cubra «el caso estaba mal planteado» y «la máquina falló»
+hace que la segunda se disfrace de la primera. Y no se lee como un error: se lee
+como un dato sobre el diseño, que es peor, porque un error visible se corrige y
+un dato falso se usa.
+
+### El caso que la origina
+
+`INDETERMINADO` era, por rúbrica, un resultado de primera clase con un
+significado preciso: *la respuesta no aborda la situación planteada*. Es lo que
+indica que un caso del banco está mal construido.
+
+Al contarlos apareció que **6 de 12 no eran eso**: el juez había devuelto JSON
+inválido y el arnés lo convertía en `INDETERMINADO`. La causa era previsible —
+se le pedía JSON y la cita es texto verbatim que casi siempre trae comillas
+adentro.
+
+Ninguna prueba fallaba. El arnés terminaba con `[OK]`, la matriz se veía
+completa, y la conclusión que se iba a sacar era *«seis casos del banco están mal
+planteados»* cuando la mitad de ellos estaban bien y lo que fallaba era el
+parser.
+
+**Lo que lo hizo visible fue contarlos, no que algo fallara.** Por eso la regla
+tiene dos mitades: separar por causa no alcanza si el conteo depende de que
+alguien mire.
+
+### Cómo queda aplicada
+
+| Antes | Ahora | Significa |
+|---|---|---|
+| `INDETERMINADO` | `INDETERMINADO` | las dos pasadas coinciden: la respuesta no aborda la situación → el caso está mal planteado |
+| `INDETERMINADO` | `DESACUERDO` | las dos pasadas discrepan → el criterio es ambiguo, no la respuesta |
+| `INDETERMINADO` | `FALLO_JUEZ` | el juez no dictaminó → problema de la máquina, no del caso |
+
+Las tres eran la misma etiqueta y significan cosas distintas: una acusa al banco,
+otra al criterio, la tercera al arnés.
+
+El arnés y el análisis imprimen el desglose por causa **siempre**, también cuando
+da cero — afirmar la ausencia vale más que suponerla — y la corrida sale con
+código distinto de cero si hay `FALLO_JUEZ`.

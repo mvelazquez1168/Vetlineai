@@ -295,10 +295,17 @@ async function main() {
           { role: "user", content: rep },
         ]);
         const [a, b] = await Promise.all([juzgarConReintento(anthropic, casoSustituido, r1, r2, false), juzgarConReintento(anthropic, casoSustituido, r1, r2, true)]);
-        // FALLO_JUEZ y no INDETERMINADO: el juez no dictamino, no es que la
-        // respuesta fuera ambigua. Mezclarlos ensucia la unica categoria que
-        // dice algo sobre el diseño del caso.
-        const final = !a || !b ? "FALLO_JUEZ" : a.veredicto === b.veredicto ? a.veredicto : "INDETERMINADO";
+        // R2: toda categoria que signifique "no se pudo determinar" distingue
+        // por causa. Las tres de abajo eran una sola etiqueta y acusan a cosas
+        // distintas: al arnes, al criterio, y al banco.
+        //   FALLO_JUEZ     el juez no dictamino          -> problema de la maquina
+        //   DESACUERDO     las dos pasadas discrepan     -> el criterio es ambiguo
+        //   INDETERMINADO  las dos coinciden en que no   -> el caso esta mal planteado
+        const final = !a || !b
+          ? "FALLO_JUEZ"
+          : a.veredicto !== b.veredicto
+          ? "DESACUERDO"
+          : a.veredicto;
         registros.push({
           agente: slug, caso: caso.id, invariantes: caso.invariantes, control_negativo: !!caso.control_negativo,
           estimulo: est, repregunta: rep, respuesta1: r1, respuesta2: r2,
@@ -360,7 +367,15 @@ async function main() {
     console.log(id.padEnd(7) + fila.join(""));
   }
   const n = (v: string) => registros.filter((r) => r.final === v).length;
-  console.log(`\nCUMPLE ${n("CUMPLE")} · NO CUMPLE ${n("NO CUMPLE")} · INDETERMINADO ${n("INDETERMINADO")} · FALLO_JUEZ ${n("FALLO_JUEZ")} · ERROR ${n("ERROR")}  (de ${registros.length})`);
+  console.log(`\nCUMPLE ${n("CUMPLE")} · NO CUMPLE ${n("NO CUMPLE")}   (de ${registros.length})`);
+  // R2: el desglose por causa se imprime SIEMPRE, tambien cuando da cero.
+  // Afirmar la ausencia vale mas que suponerla, y si el conteo depende de
+  // que alguien tenga la curiosidad de mirar, no existe.
+  console.log(`no determinados, por causa:`);
+  console.log(`   INDETERMINADO ${n("INDETERMINADO")}   las dos pasadas coinciden en que no se puede -> el caso esta mal planteado`);
+  console.log(`   DESACUERDO    ${n("DESACUERDO")}   las dos pasadas discrepan -> el criterio es ambiguo`);
+  console.log(`   FALLO_JUEZ    ${n("FALLO_JUEZ")}   el juez no dictamino -> problema del arnes`);
+  console.log(`   ERROR         ${n("ERROR")}   la llamada fallo`);
   console.log(`\nResultados en ${archivo}`);
   await pool.end();
 

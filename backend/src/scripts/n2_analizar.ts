@@ -28,6 +28,18 @@ const ETIQUETA = process.argv[2] ?? "base";
 const INVALIDOS = PARES_INVALIDOS;
 const esInvalido = (a: string, c: string) => INVALIDOS.find((x) => x.agente === a && x.caso === c);
 
+
+// R2 aplicada a los datos ya guardados: la causa se DERIVA de las dos
+// pasadas, no se toma del campo `final`. Asi los registros de corridas
+// anteriores —que guardaban las tres causas bajo una sola etiqueta— se
+// reclasifican sin volver a correrlos.
+function causa(r: any): string {
+  if (r.final === "ERROR") return "ERROR";
+  if (!r.pasada_a || !r.pasada_b) return "FALLO_JUEZ";
+  if (r.pasada_a.veredicto !== r.pasada_b.veredicto) return "DESACUERDO";
+  return r.pasada_a.veredicto;
+}
+
 function main() {
   let archivo = path.join(SALIDA, `${ETIQUETA}.json`);
   let parcial = false;
@@ -57,7 +69,9 @@ function main() {
       const r = regs.find((x) => x.agente === a && x.caso === id);
       if (!r) return "·".padStart(9);
       const inv = esInvalido(a, id) ? "*" : "";
-      return ((r.final === "CUMPLE" ? "ok" : r.final === "NO CUMPLE" ? "FALLA" : r.final === "ERROR" ? "err" : "indet") + inv).padStart(9);
+      const c = causa(r);
+      const et = c === "CUMPLE" ? "ok" : c === "NO CUMPLE" ? "FALLA" : c === "ERROR" ? "err" : c === "FALLO_JUEZ" ? "juez" : c === "DESACUERDO" ? "desac" : "indet";
+      return (et + inv).padStart(9);
     });
     console.log(id.padEnd(7) + fila.join("") + "   " + c.invariantes.join(",") + (c.control_negativo ? " (control)" : ""));
   }
@@ -71,11 +85,12 @@ function main() {
     const r = regs.find((x) => x.agente === p.agente && x.caso === p.caso);
     if (!r) { sin++; continue; }
     if (esInvalido(p.agente, p.caso)) { exc++; continue; }
-    if (r.final === "INDETERMINADO" || r.final === "ERROR") { sin++; continue; }
-    const acierta = r.final === p.espera;
+    const c = causa(r);
+    if (c !== "CUMPLE" && c !== "NO CUMPLE") { sin++; continue; }
+    const acierta = c === p.espera;
     if (acierta) ac++; else fa++;
     detalle.push(
-      `  ${acierta ? "✓" : "✗"} ${p.agente.padEnd(24)}${p.caso.padEnd(5)}predijo ${p.espera.padEnd(10)}dio ${r.final.padEnd(10)}${p.yaVisto ? "[no ciega] " : ""}${p.fundamento.slice(0, 52)}…`
+      `  ${acierta ? "✓" : "✗"} ${p.agente.padEnd(24)}${p.caso.padEnd(5)}predijo ${p.espera.padEnd(10)}dio ${c.padEnd(10)}${p.yaVisto ? "[no ciega] " : ""}${p.fundamento.slice(0, 52)}…`
     );
   }
   detalle.forEach((l) => console.log(l));
@@ -91,16 +106,23 @@ function main() {
     const ids = BANCO.filter((c) => c.invariantes.includes(inv)).map((c) => c.id);
     const rs = regs.filter((r) => ids.includes(r.caso) && !esInvalido(r.agente, r.caso));
     if (!rs.length) continue;
-    const ok = rs.filter((r) => r.final === "CUMPLE").length;
-    const mal = rs.filter((r) => r.final === "NO CUMPLE").length;
-    const ind = rs.filter((r) => r.final === "INDETERMINADO").length;
+    const ok = rs.filter((r) => causa(r) === "CUMPLE").length;
+    const mal = rs.filter((r) => causa(r) === "NO CUMPLE").length;
+    const ind = rs.length - ok - mal;
     const barra = "█".repeat(ok) + "░".repeat(mal) + "·".repeat(ind);
     console.log(`  ${inv}  ${String(ok).padStart(2)}/${String(rs.length).padStart(2)} cumplen  ${barra}${mal > 0 ? "   ← " + mal + " falla(n)" : ""}`);
   }
 
   // ------------------------------------------------------- desacuerdos del juez
-  const desac = regs.filter((r) => r.pasada_a && r.pasada_b && r.pasada_a.veredicto !== r.pasada_b.veredicto);
-  console.log(`\n\nCONTROL DEL JUEZ: ${desac.length} desacuerdo(s) entre las dos pasadas de ${regs.filter((r) => r.pasada_a && r.pasada_b).length}`);
+  const cuenta = (c: string) => regs.filter((r) => causa(r) === c).length;
+  console.log("\n\nNO DETERMINADOS, POR CAUSA   (R2: se imprime siempre, tambien en cero)");
+  console.log(`  INDETERMINADO ${String(cuenta("INDETERMINADO")).padStart(3)}   las dos pasadas coinciden en que no se puede -> el caso esta mal planteado`);
+  console.log(`  DESACUERDO    ${String(cuenta("DESACUERDO")).padStart(3)}   las dos pasadas discrepan -> el criterio es ambiguo`);
+  console.log(`  FALLO_JUEZ    ${String(cuenta("FALLO_JUEZ")).padStart(3)}   el juez no dictamino -> problema del arnes`);
+  console.log(`  ERROR         ${String(cuenta("ERROR")).padStart(3)}   la llamada fallo`);
+
+  const desac = regs.filter((r) => causa(r) === "DESACUERDO");
+  console.log(`\nDETALLE DE LOS DESACUERDOS (${desac.length} de ${regs.filter((r) => r.pasada_a && r.pasada_b).length} con dos pasadas)`);
   for (const d of desac.slice(0, 8))
     console.log(`  ${d.agente.padEnd(24)}${d.caso.padEnd(5)}${d.pasada_a.veredicto} vs ${d.pasada_b.veredicto}`);
   if (desac.length > 8) console.log(`  (+${desac.length - 8} más)`);

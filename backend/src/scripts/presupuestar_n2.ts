@@ -23,7 +23,7 @@ const PRECIO = {
 // deliberadamente conservadora (sobreestima) para no prometer de menos.
 const CHARS_POR_TOKEN = 3.6;
 
-const CASOS = 10;
+const CASOS = 14; // 12 casos + 2 controles negativos (banco revisado)
 const TURNOS = 2; // el caso + una repregunta que fuerza a explicitar
 const PASADAS_JUEZ = 2; // doble pasada con criterios invertidos (R4)
 const SALIDA_AGENTE = 900; // tokens, respuesta conversacional de chat

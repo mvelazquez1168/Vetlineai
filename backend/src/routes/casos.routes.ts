@@ -85,7 +85,18 @@ export async function obtenerDocumentosParaContexto(
        AND d.nombre != $3
        AND (d.agente_id IS NULL OR d.agente_id = $1)
        AND (d.pais_codigo IS NULL OR d.pais_codigo = t.pais_codigo)
-     ORDER BY d.fecha_carga DESC`,
+     -- El desempate por id NO es cosmético: este orden define el orden de
+     -- los documentos dentro del bloque cacheado, y el caché es un match
+     -- de prefijo byte a byte. Ordenando solo por fecha_carga hay empates
+     -- reales (5 documentos comparten la misma fecha al milisegundo, y hay
+     -- otros cuatro grupos iguales) y Postgres no garantiza un orden
+     -- estable entre consultas cuando empatan. En la práctica hoy sale
+     -- estable, pero un UPDATE a un documento reescribe la fila al final
+     -- del heap y le cambia la posición en un scan sin orden garantizado:
+     -- editar un documento desde Platform Admin podría reordenar el bloque
+     -- y reescribir el caché entero sin que el contenido cambie. id es
+     -- inmutable, así que fija el orden para siempre.
+     ORDER BY d.fecha_carga DESC, d.id`,
     [agenteId, tenantId, NOMBRE_DOCUMENTO_PREDISPOSICIONES]
   );
   return result.rows;

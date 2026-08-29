@@ -13,6 +13,7 @@ import {
   insertarBloquePrescripciones,
 } from "./casos.routes";
 import { construirBloqueRazaDocumento } from "../razaDocumento";
+import { CACHE_PREFIJO_COMPARTIDO, HERRAMIENTAS_AGENTE } from "../herramientasAgente";
 import { construirMensajesParaModelo } from "../archivosDelCaso";
 import { registrarResultadoAnthropic, registrarExitoAnthropic } from "../proveedorIaEstado";
 import { calcularEdadEfectiva } from "../edadPaciente";
@@ -46,93 +47,6 @@ recetasRouter.use((req, res, next) => {
 // una copia de registrarUsoApi(), ya consolidadas ahí.
 const MODELO_CLAUDE = "claude-sonnet-4-6";
 
-// Tal como la definió el usuario en receta_validacion_schema.json — se
-// usa TAL CUAL, sin reescribirla.
-const VALIDAR_RECETA_TOOL = {
-  name: "validar_receta",
-  description:
-    "Realiza la validación de seguridad clínica de una receta veterinaria propuesta por el médico, en " +
-    "el contexto del caso actual — esta tool es común a cualquier agente clínico de Vetline Ai (GCIS, " +
-    "ICIS, u otros que se agreguen a futuro), no exclusiva de una especialidad. Esta validación es " +
-    "EXCLUSIVAMENTE ADVISORIA: nunca aprueba, rechaza ni bloquea la receta — el médico es el único " +
-    "responsable de la prescripción. Tu única función es identificar riesgos potenciales y explicarlos " +
-    "con claridad, para que el médico decida con esa información. Nunca inventes contraindicaciones sin " +
-    "fundamento; si no hay preocupaciones reales, devolvé un array vacío en alertas.",
-  input_schema: {
-    type: "object",
-    additionalProperties: false,
-    required: ["meta", "alertas", "resumen_validacion"],
-    properties: {
-      meta: {
-        type: "object",
-        additionalProperties: false,
-        required: ["estado_validacion"],
-        properties: {
-          estado_validacion: {
-            type: "string",
-            enum: ["completada", "informacion_insuficiente"],
-            description:
-              "'informacion_insuficiente' solo si el caso carece de datos básicos del paciente (especie, " +
-              "peso, edad) necesarios para cualquier validación mínima — en ese caso, alertas puede venir " +
-              "vacío y el resumen_validacion debe explicar qué falta.",
-          },
-        },
-      },
-      alertas: {
-        type: "array",
-        description:
-          "Lista de advertencias clínicas encontradas. Array vacío si no se identificó ningún riesgo " +
-          "relevante — eso es un resultado válido y esperado, no forzar alertas artificiales.",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["categoria", "medicamento_afectado", "descripcion", "nivel", "fuente"],
-          properties: {
-            categoria: {
-              type: "string",
-              enum: [
-                "interaccion_medicamentosa",
-                "contraindicacion",
-                "alergia_registrada",
-                "duplicidad_terapeutica",
-                "dosis_fuera_de_rango",
-                "incompatibilidad_enfermedad_existente",
-                "advertencia_edad",
-                "advertencia_peso",
-                "advertencia_especie",
-                "advertencia_raza",
-              ],
-            },
-            medicamento_afectado: {
-              type: "string",
-              description:
-                "Nombre del medicamento de la receta al que aplica esta alerta (o 'combinación de X y Y' " +
-                "si es una interacción entre dos items de la misma receta).",
-            },
-            descripcion: {
-              type: "string",
-              description: "Explicación clínica clara del riesgo — nunca solo una etiqueta, siempre el razonamiento.",
-            },
-            nivel: { type: "string", enum: ["alta", "media"] },
-            fuente: {
-              type: "string",
-              description:
-                "De dónde surge esta alerta: documento de Farmacoterapia, historia clínica del caso, " +
-                "predisposición racial documentada, etc.",
-            },
-          },
-        },
-      },
-      resumen_validacion: {
-        type: "string",
-        description:
-          "1-2 líneas resumiendo el resultado general de la validación, para mostrar como encabezado del " +
-          "panel de advertencias. Ej: 'Se identificaron 2 advertencias de nivel alta relacionadas con " +
-          "función renal.' o 'No se identificaron riesgos relevantes con la información disponible.'",
-      },
-    },
-  },
-};
 
 function validacionInformacionInsuficiente(resumen: string) {
   return {
@@ -403,7 +317,7 @@ recetasRouter.post("/:id/validar", async (req, res) => {
         max_tokens: 4096,
         betas: ["files-api-2025-04-14"],
         system: [
-          { type: "text", text: systemCacheado, cache_control: { type: "ephemeral" } },
+          { type: "text", text: systemCacheado, cache_control: CACHE_PREFIJO_COMPARTIDO },
           ...(bloqueRazaDocumento ? [{ type: "text" as const, text: bloqueRazaDocumento }] : []),
           { type: "text", text: instruccionValidacion },
         ],
@@ -415,7 +329,7 @@ recetasRouter.post("/:id/validar", async (req, res) => {
               `Validá la siguiente receta propuesta para este caso, usando la tool validar_receta:\n\n${textoReceta}`,
           },
         ],
-        tools: [VALIDAR_RECETA_TOOL as any],
+        tools: HERRAMIENTAS_AGENTE,
         tool_choice: { type: "tool", name: "validar_receta" },
       });
       await registrarExitoAnthropic();

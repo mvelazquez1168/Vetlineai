@@ -12,6 +12,7 @@ import {
 import { debeBloquearseMensaje, verificarUmbralesYNotificar } from "../usoIa";
 import { registrarUsoApi, verificarAntesDeGenerar, mensajeRechazoGeneracion } from "../tarifas";
 import { construirBloqueContextoCaso } from "../contextoCaso";
+import { CACHE_PREFIJO_COMPARTIDO, HERRAMIENTAS_AGENTE } from "../herramientasAgente";
 import { construirMensajesParaModelo } from "../archivosDelCaso";
 import { calcularEdadEfectiva } from "../edadPaciente";
 import { construirBloqueRazaDocumento } from "../razaDocumento";
@@ -863,7 +864,7 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
           {
             type: "text",
             text: systemCombinado,
-            cache_control: { type: "ephemeral", ttl: "1h" },
+            cache_control: CACHE_PREFIJO_COMPARTIDO,
           },
           { type: "text", text: bloqueContextoCaso },
           // Solo si hay algo que mostrar — igual que bloqueContextoCaso
@@ -873,6 +874,13 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
             ? [{ type: "text" as const, text: bloqueInformacionRegistrada }]
             : []),
         ],
+        // El chat no usa ninguna de estas herramientas: las manda para
+        // que su prefijo sea idéntico al de dashboard/informe/receta y
+        // los cuatro compartan una sola entrada de caché. tool_choice
+        // "none" impide usarlas y NO invalida el caché (a diferencia de
+        // cambiar las definiciones, que sí lo invalida).
+        tools: HERRAMIENTAS_AGENTE,
+        tool_choice: { type: "none" },
         messages: mensajesConPrescripciones,
       });
       await registrarExitoAnthropic();

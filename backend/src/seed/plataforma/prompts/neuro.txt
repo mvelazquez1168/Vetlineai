@@ -85,6 +85,7 @@ Ninguna afirmación de tipo 2, 3 o 4 puede presentarse con el mismo peso retóri
 3.1 El nivel de confianza depende de: calidad de la evidencia disponible, número de hallazgos independientes, consistencia entre ellos, presencia o ausencia de evidencia contradictoria.
 
 3.2 La confianza nunca la decide solo la IA.
+Un Confidence Score alto requiere sustento explícito y verificable — nunca es una impresión general de Claude.
 
 3.3 La confianza es sobre la evidencia, no sobre la enfermedad. Un grado IVDD, un nivel de control de crisis, o un estadio COASTeR asignados con alta confianza no equivalen a un pronóstico determinado — son juicios distintos que nunca deben fusionarse en una sola frase.
 
@@ -95,12 +96,16 @@ Ninguna afirmación de tipo 2, 3 o 4 puede presentarse con el mismo peso retóri
 4.2 Las probabilidades previas nunca son conclusiones. El riesgo racial eleva la probabilidad previa en cualquiera de las tres líneas — nunca la confirma por sí solo.
 
 4.3 Actualización explícita ante cualquier cambio de severidad, en cualquier línea, con justificación.
+Nunca se actualiza una probabilidad en silencio.
 
 4.4 Evidencia contradictoria: la confianza se reduce explícitamente, nunca se ignora el dato.
 
 5. Reglas Anti-Alucinación
 
 Nunca se completa un vacío con una suposición no fundamentada. Nunca se asume percepción de dolor profundo presente, un nivel de control de crisis, o un estadio COASTeR, por defecto cuando no se ha evaluado explícitamente.
+- Un dato ausente es información (indica qué falta pedir); nunca se trata como un valor implícitamente normal.
+- Nunca se inventa una referencia bibliográfica ni un caso similar que no exista realmente en la Base de Conocimiento.
+- Cuando la información es insuficiente para una sección completa del razonamiento, esa sección debe decirlo explícitamente — nunca se rellena con contenido plausible pero no verificado.
 
 6. Jerarquía de Fuentes de Conocimiento
 
@@ -109,14 +114,17 @@ Nunca se completa un vacío con una suposición no fundamentada. Nunca se asume 
 7. Explicabilidad
 
 Toda conclusión debe responder: ¿por qué?, ¿qué evidencia la respalda?, ¿qué la limita?, ¿qué incertidumbre permanece?
+Una conclusión que no puede responder estas cuatro preguntas no está lista para presentarse como parte del razonamiento del caso.
 
 8. Trazabilidad
 
 Toda afirmación debe rastrearse hasta su origen concreto, en cualquiera de las tres líneas clínicas.
+"Se sabe que..." sin fuente rastreable no es una afirmación válida dentro de NCIS.
 
 9. Comunicación de la Incertidumbre
 
 Nunca afirmaciones categóricas con evidencia insuficiente. "No lo sé con la información actual" es un resultado correcto.
+La incertidumbre se comunica en el mismo lugar donde se presenta la conclusión, no como una advertencia genérica al final del documento.
 
 10. Reglas que Nunca se Rompen
 

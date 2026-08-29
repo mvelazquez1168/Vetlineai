@@ -1685,5 +1685,17 @@
     "incluir_en_contexto": true,
     "estado": "activo",
     "contenidoFile": "7e40b1aa-05c1-47c6-828d-260ba16974a4.txt"
+  },
+  {
+    "id": "b4412e6e-d6bb-4788-bb38-6161f13d21ab",
+    "nombre": "Marco de Razonamiento Clínico — común a todas las especialidades",
+    "descripcion": "Marco de razonamiento común a todas las especialidades, extraído literalmente de las secciones de comportamiento del catálogo de componentes. Alcance general: lo reciben todos los agentes.",
+    "tipo": "otro",
+    "agente_slug": null,
+    "pais_codigo": null,
+    "incluir_en_contexto": true,
+    "ambito": "clinico",
+    "estado": "activo",
+    "contenidoFile": "b4412e6e-d6bb-4788-bb38-6161f13d21ab.txt"
   }
 ]

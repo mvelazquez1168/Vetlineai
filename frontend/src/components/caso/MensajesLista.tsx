@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import ReactMarkdown, { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { RechazoGeneracionAviso } from "./ConsumoBanner";
-import { Mensaje, RechazoGeneracion } from "../../lib/workspaceApi";
+import { ArchivoDeMensaje, Mensaje, RechazoGeneracion } from "../../lib/workspaceApi";
 
 interface MensajesListaProps {
   mensajes: Mensaje[];
@@ -13,6 +13,66 @@ interface MensajesListaProps {
   // necesita.
   avisosSinRespuesta?: Map<string, RechazoGeneracion>;
   onAbrirArchivo: (archivoId: string) => void;
+  // Opcional a propósito: sin esta prop el chip no muestra la ✕ y queda
+  // igual que antes. Así la vista de solo lectura del admin de clínica
+  // —que reusa este mismo componente— no ofrece borrar nada.
+  onEliminarArchivo?: (archivo: ArchivoDeMensaje) => void;
+}
+
+// Un solo chip para los dos lugares donde aparecen adjuntos (el bloque de
+// información registrada y la burbuja de mensaje). Estaba duplicado; que
+// dos copias del mismo chip diverjan es cómo termina habiendo un lugar
+// desde donde sí se puede borrar y otro desde donde no.
+function ChipArchivo({
+  archivo,
+  oscuro,
+  onAbrir,
+  onEliminar,
+}: {
+  archivo: ArchivoDeMensaje;
+  oscuro: boolean;
+  onAbrir: () => void;
+  onEliminar?: () => void;
+}) {
+  return (
+    <span
+      className={[
+        "inline-flex max-w-[12rem] items-center gap-1 rounded-lg border px-2.5 py-1 text-xs",
+        oscuro ? "border-white/20 bg-white/10 text-white" : "border-black/10 bg-background text-text-primary",
+      ].join(" ")}
+    >
+      <button
+        type="button"
+        onClick={onAbrir}
+        title="Abrir archivo"
+        className="inline-flex min-w-0 items-center gap-1.5 hover:underline"
+      >
+        <span
+          className={[
+            "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase",
+            oscuro ? "bg-white/20" : "bg-accent/10 text-accent",
+          ].join(" ")}
+        >
+          {archivo.tipo}
+        </span>
+        <span className="truncate">{archivo.nombre_archivo}</span>
+      </button>
+      {onEliminar && (
+        <button
+          type="button"
+          onClick={onEliminar}
+          title="Eliminar del caso"
+          aria-label={`Eliminar ${archivo.nombre_archivo} del caso`}
+          className={[
+            "shrink-0 px-0.5 font-bold leading-none",
+            oscuro ? "text-white/60 hover:text-white" : "text-text-muted hover:text-error",
+          ].join(" ")}
+        >
+          ✕
+        </button>
+      )}
+    </span>
+  );
 }
 
 // Mapeo explícito de cada elemento markdown a clases de Tailwind con la
@@ -79,7 +139,12 @@ const COMPONENTES_MARKDOWN: Components = {
 
 // Extraído de CasoWorkspace.tsx para poder reusar exactamente las mismas
 // burbujas de mensaje en la vista de solo lectura del admin de clínica.
-export function MensajesLista({ mensajes, avisosSinRespuesta, onAbrirArchivo }: MensajesListaProps) {
+export function MensajesLista({
+  mensajes,
+  avisosSinRespuesta,
+  onAbrirArchivo,
+  onEliminarArchivo,
+}: MensajesListaProps) {
   return (
     <>
       {mensajes.map((m) =>
@@ -113,18 +178,13 @@ export function MensajesLista({ mensajes, avisosSinRespuesta, onAbrirArchivo }: 
               {m.archivos.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {m.archivos.map((a) => (
-                    <button
+                    <ChipArchivo
                       key={a.id}
-                      type="button"
-                      onClick={() => onAbrirArchivo(a.id)}
-                      title="Abrir archivo"
-                      className="inline-flex max-w-[10rem] items-center gap-1.5 truncate rounded-lg border border-black/10 bg-background px-2.5 py-1 text-xs text-text-primary hover:underline"
-                    >
-                      <span className="rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-accent">
-                        {a.tipo}
-                      </span>
-                      <span className="truncate">{a.nombre_archivo}</span>
-                    </button>
+                      archivo={a}
+                      oscuro={false}
+                      onAbrir={() => onAbrirArchivo(a.id)}
+                      onEliminar={onEliminarArchivo ? () => onEliminarArchivo(a) : undefined}
+                    />
                   ))}
                 </div>
               )}
@@ -161,28 +221,13 @@ export function MensajesLista({ mensajes, avisosSinRespuesta, onAbrirArchivo }: 
               {m.archivos.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {m.archivos.map((a) => (
-                    <button
+                    <ChipArchivo
                       key={a.id}
-                      type="button"
-                      onClick={() => onAbrirArchivo(a.id)}
-                      title="Abrir archivo"
-                      className={[
-                        "inline-flex max-w-[10rem] items-center gap-1.5 truncate rounded-lg border px-2.5 py-1 text-xs hover:underline",
-                        m.remitente === "medico"
-                          ? "border-white/20 bg-white/10 text-white"
-                          : "border-black/10 bg-background text-text-primary",
-                      ].join(" ")}
-                    >
-                      <span
-                        className={[
-                          "rounded px-1.5 py-0.5 text-[10px] font-bold uppercase",
-                          m.remitente === "medico" ? "bg-white/20" : "bg-accent/10 text-accent",
-                        ].join(" ")}
-                      >
-                        {a.tipo}
-                      </span>
-                      <span className="truncate">{a.nombre_archivo}</span>
-                    </button>
+                      archivo={a}
+                      oscuro={m.remitente === "medico"}
+                      onAbrir={() => onAbrirArchivo(a.id)}
+                      onEliminar={onEliminarArchivo ? () => onEliminarArchivo(a) : undefined}
+                    />
                   ))}
                 </div>
               )}

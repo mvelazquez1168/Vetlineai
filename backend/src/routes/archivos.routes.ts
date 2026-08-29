@@ -7,6 +7,7 @@ import { requerirAnthropic } from "../anthropic";
 import { esLegiblePorAgente } from "../archivosDelCaso";
 import { almacenamientoPrivado } from "../almacenamiento";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { registrarEventoDetallado } from "../middleware/auditoria";
 
 export const archivosRouter = Router();
 
@@ -166,10 +167,10 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
     }
 
     const result = await req.db!.query(
-      `INSERT INTO archivos (caso_id, nombre_archivo, tipo, url, file_id_anthropic)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO archivos (caso_id, nombre_archivo, tipo, url, file_id_anthropic, subido_por_persona_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, nombre_archivo, tipo, url, creado_en, file_id_anthropic`,
-      [casoId, req.file.originalname, tipo, `/uploads/${clave}`, fileIdAnthropic]
+      [casoId, req.file.originalname, tipo, `/uploads/${clave}`, fileIdAnthropic, req.auth!.userId]
     );
     // La interfaz necesita saberlo en el momento de adjuntar, no después
     // de un análisis en el que el agente hizo como si el archivo no
@@ -185,6 +186,99 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
     res.status(500).json({ error: "Error al subir el archivo." });
   }
 }
+
+// ---------------------------------------------------------------------
+// DELETE /api/archivos/:id
+// Quita un adjunto del caso. Borrado real —fila, objeto del
+// almacenamiento y archivo de la Files API— igual que el borrado de
+// documentos_conocimiento (platform-admin.routes.ts): el proyecto no usa
+// baja lógica en ningún lado, y una fila fantasma en `archivos` sería un
+// adjunto que el médico no ve pero el agente sí sigue leyendo, que es
+// exactamente el tipo de divergencia que este módulo acaba de cerrar.
+//
+// Dos reglas, ambas definidas por el usuario:
+//   1. Solo quien lo subió. Ver migración 072: hasta ahora no se guardaba
+//      el autor, así que la comparación es contra subido_por_persona_id, y
+//      cuando esa columna quedó en NULL (autor no reconstruible) el
+//      permiso cae al médico del caso.
+//   2. En un caso cerrado no tiene sentido: 409, igual que la subida.
+//
+// Queda registrado en auditoría con el nombre del archivo, no solo el id:
+// un adjunto clínico borrado tiene que poder rastrearse por lo que era.
+// ---------------------------------------------------------------------
+archivosRouter.delete("/:id", async (req, res) => {
+  if (!req.auth!.esMedico) {
+    return res.status(403).json({ error: "Esta sección es solo para médicos." });
+  }
+
+  try {
+    const result = await req.db!.query(
+      `SELECT a.id, a.nombre_archivo, a.url, a.caso_id, a.file_id_anthropic,
+              a.subido_por_persona_id, c.estado AS caso_estado, c.medico_id
+         FROM archivos a
+         JOIN casos c ON c.id = a.caso_id
+        WHERE a.id = $1 AND c.tenant_id = $2`,
+      [req.params.id, req.auth!.tenantId]
+    );
+    // Mismo criterio que el GET de abajo: un archivo de otro tenant no
+    // confirma ni siquiera que existe.
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Archivo no encontrado." });
+    }
+    const archivo = result.rows[0];
+
+    const autor = archivo.subido_por_persona_id ?? archivo.medico_id;
+    if (autor !== req.auth!.userId) {
+      return res.status(403).json({
+        error: "Solo quien adjuntó el archivo puede eliminarlo.",
+      });
+    }
+
+    if (archivo.caso_estado === "completado") {
+      return res.status(409).json({
+        error: "El caso está cerrado — no se pueden eliminar sus archivos.",
+      });
+    }
+
+    await req.db!.query(`DELETE FROM archivos WHERE id = $1`, [req.params.id]);
+    await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [archivo.caso_id]);
+
+    registrarEventoDetallado(req.auth!, "eliminar", "archivo", archivo.id, {
+      nombre_archivo: archivo.nombre_archivo,
+      caso_id: archivo.caso_id,
+    });
+
+    // El objeto guardado y el archivo del proveedor se van detrás de la
+    // fila, sin bloquear la respuesta: si alguno falla, lo que el médico
+    // pidió (que el adjunto deje de estar en el caso, y de llegarle al
+    // agente) ya pasó igual. Se loguean, no se reintentan.
+    const clave = String(archivo.url).replace(/^\/uploads\//, "");
+    almacenamientoPrivado
+      .eliminar(clave)
+      .catch((err) => console.error(`No se pudo borrar el objeto ${clave} del almacenamiento`, err));
+
+    if (archivo.file_id_anthropic) {
+      void (async () => {
+        try {
+          await requerirAnthropic().beta.files.delete(archivo.file_id_anthropic, {
+            betas: ["files-api-2025-04-14"],
+          });
+        } catch (err) {
+          console.error(
+            `No se pudo borrar ${archivo.file_id_anthropic} de la Files API — la fila ya no existe, ` +
+              `así que no se le va a mandar al agente igual`,
+            err
+          );
+        }
+      })();
+    }
+
+    res.status(204).send();
+  } catch (err) {
+    console.error("DELETE /archivos/:id", err);
+    res.status(500).json({ error: "Error al eliminar el archivo." });
+  }
+});
 
 // ---------------------------------------------------------------------
 // GET /api/archivos/:id

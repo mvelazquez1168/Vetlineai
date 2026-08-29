@@ -34,6 +34,7 @@ import { exportarDashboardHtml } from "../../lib/exportarDashboardHtml";
 import { fechaHoyEnZona, formatearFecha, formatearFechaCorta } from "../../lib/formatFecha";
 import {
   Archivo,
+  ArchivoDeMensaje,
   CasoDetalle,
   CasoResumen,
   ConsumoWorkspace,
@@ -990,6 +991,38 @@ export function CasoWorkspace() {
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
 
+  // Quitar un adjunto del caso. Se pide confirmación porque es un borrado
+  // real y definitivo de un documento clínico (fila, archivo guardado y
+  // copia del proveedor) — el proyecto no tiene baja lógica en ninguna
+  // tabla, así que no hay de dónde recuperarlo.
+  //
+  // El backend es quien decide si se puede (solo quien lo subió, y nunca
+  // en un caso cerrado); acá el error que devuelve se muestra tal cual en
+  // vez de adivinarlo de este lado.
+  const eliminarArchivoDelCaso = async (archivo: ArchivoDeMensaje) => {
+    if (!casoId) return;
+    const confirmado = window.confirm(
+      `¿Eliminar "${archivo.nombre_archivo}" del caso?\n\n` +
+        "Se borra del expediente y deja de estar disponible para el agente. No se puede deshacer."
+    );
+    if (!confirmado) return;
+
+    setErrorAnalisis(null);
+    try {
+      await workspaceApi.eliminarArchivo(archivo.id);
+      // Se saca del hilo en memoria en vez de recargar el caso entero: es
+      // el mismo dato, sin un viaje de más ni perder la posición de
+      // lectura del médico a mitad de un caso largo.
+      setMensajes((prev) =>
+        prev.map((m) => ({ ...m, archivos: m.archivos.filter((a) => a.id !== archivo.id) }))
+      );
+    } catch (err) {
+      setErrorAnalisis(
+        err instanceof ApiError ? err.message : "No se pudo eliminar el archivo."
+      );
+    }
+  };
+
   return (
     <div className="flex h-screen flex-col bg-background">
       {/* prompt_code_menu_colapsable — la lista de casos cumple el mismo rol
@@ -1343,6 +1376,9 @@ export function CasoWorkspace() {
                 mensajes={mensajes}
                 avisosSinRespuesta={avisosSinRespuesta}
                 onAbrirArchivo={abrirArchivo}
+                // En un caso cerrado no se ofrece: es de solo lectura, y
+                // el backend lo rechaza igual con 409.
+                onEliminarArchivo={casoCerrado ? undefined : eliminarArchivoDelCaso}
               />
 
               {/* Ajustes del área de trabajo, Prioridad 3 — indicador en el

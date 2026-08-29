@@ -826,6 +826,12 @@ export const workspaceApi = {
       body: JSON.stringify({ contenido, archivoIds }),
     }),
 
+  // Borra el adjunto del caso: la fila, el objeto guardado y el archivo
+  // del proveedor. Solo lo permite el backend a quien lo subió, y nunca
+  // en un caso cerrado (ver DELETE /api/archivos/:id).
+  eliminarArchivo: (archivoId: string) =>
+    authedFetch<void>(`/archivos/${archivoId}`, { method: "DELETE" }),
+
   subirArchivo: (casoId: string, archivo: File) => {
     const formData = new FormData();
     formData.append("casoId", casoId);

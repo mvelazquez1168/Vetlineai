@@ -232,12 +232,23 @@ async function main() {
           pasada_a: null, pasada_b: null, final: "ERROR", transversales: {},
         });
       }
+      // Volcado incremental. La primera corrida escribia solo al final:
+      // dos horas y media de llamadas pagas vivian en memoria, y una caida
+      // en el estimulo 100 se llevaba las respuestas y las citas — el log
+      // solo conserva los veredictos, que alcanzan para la matriz pero no
+      // para la evidencia auditable ni para N3.
+      fs.writeFileSync(
+        path.join(SALIDA, `${ETIQUETA}.parcial.json`),
+        JSON.stringify({ etiqueta: ETIQUETA, completo: false, huella, transversales: TRANSVERSALES, registros }, null, 2),
+        "utf8"
+      );
     }
   }
 
-  const salida = { etiqueta: ETIQUETA, huella, transversales: TRANSVERSALES, registros };
+  const salida = { etiqueta: ETIQUETA, completo: true, huella, transversales: TRANSVERSALES, registros };
   const archivo = path.join(SALIDA, `${ETIQUETA}.json`);
   fs.writeFileSync(archivo, JSON.stringify(salida, null, 2), "utf8");
+  try { fs.unlinkSync(path.join(SALIDA, `${ETIQUETA}.parcial.json`)); } catch {}
 
   console.log(`\n${"=".repeat(78)}\nRESUMEN\n${"=".repeat(78)}`);
   const ids = [...new Set(registros.map((r) => r.caso))];

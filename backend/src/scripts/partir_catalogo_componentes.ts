@@ -46,12 +46,19 @@ interface Linea {
 }
 
 async function main() {
+  // Parametrizado: sirve para cualquier catálogo, no solo el de GCIS.
+  //   argv[2] = patrón LIKE del nombre del documento
+  //   argv[3] = prefijo de los archivos de salida
+  const patron = process.argv[2] ?? "GCIS Clinical Components Catalog%";
+  const prefijo = process.argv[3] ?? "catalogo_gcis";
   const doc = (
     await pool.query(
       `SELECT nombre, contenido_texto AS t FROM documentos_conocimiento
-        WHERE nombre LIKE 'GCIS Clinical Components Catalog%' AND estado = 'activo'`
+        WHERE nombre LIKE $1 AND estado = 'activo'`,
+      [patron]
     )
   ).rows[0];
+  if (!doc) throw new Error(`No se encontró un documento activo que matchee: ${patron}`);
   const original: string[] = doc.t.split("\n");
 
   const salida: Linea[] = [];
@@ -126,10 +133,10 @@ async function main() {
   }
 
   const dir = path.join(__dirname, "..", "seed", "plataforma");
-  const nombreA = "GCIS Clinical Components Catalog — Razonamiento clínico";
-  const nombreB = "GCIS Clinical Components Catalog — Composición de salida";
-  fs.writeFileSync(path.join(dir, "catalogo_gcis_razonamiento.md"), lineasA.join("\n"), "utf8");
-  fs.writeFileSync(path.join(dir, "catalogo_gcis_composicion.md"), lineasB.join("\n"), "utf8");
+  const nombreA = `${doc.nombre} — Razonamiento clínico`;
+  const nombreB = `${doc.nombre} — Composición de salida`;
+  fs.writeFileSync(path.join(dir, `${prefijo}_razonamiento.md`), lineasA.join("\n"), "utf8");
+  fs.writeFileSync(path.join(dir, `${prefijo}_composicion.md`), lineasB.join("\n"), "utf8");
 
   const chA = lineasA.join("\n").length;
   const chB = lineasB.join("\n").length;

@@ -69,6 +69,11 @@ interface Documento {
   agente_slug: string | null;
   pais_codigo: string | null;
   incluir_en_contexto: boolean;
+  // Migración 073 — en qué bloque del pedido entra el documento. Si el
+  // sembrado no lo llevara, la mitad de composición se insertaría con el
+  // DEFAULT ('clinico') y volvería al bloque que lee el chat, deshaciendo
+  // la partición sin que nada falle a la vista.
+  ambito?: "clinico" | "generacion";
   estado: string;
   contenidoFile: string;
 }
@@ -144,12 +149,21 @@ async function sembrarDocumentos(client: PoolClient) {
   );
   let insertadas = 0;
   for (const d of documentos) {
-    const contenido = fs.readFileSync(path.join(DOCUMENTOS_DIR, d.contenidoFile), "utf8");
+    // Normalizar los saltos de línea NO es cosmético: el contenido de
+    // estos documentos entra en el bloque cacheado, y el caché es un
+    // match de prefijo byte a byte. Sin esto, un checkout en Windows
+    // (CRLF) sembraría un texto distinto al de un checkout en Linux (LF)
+    // y las dos bases nunca compartirían caché entre sí ni con lo ya
+    // sembrado.
+    const contenido = fs
+      .readFileSync(path.join(DOCUMENTOS_DIR, d.contenidoFile), "utf8")
+      .replace(/\r\n/g, "\n");
     const agenteId = d.agente_slug ? agentesPorSlug.get(d.agente_slug) ?? null : null;
     const r = await client.query(
       `INSERT INTO documentos_conocimiento (id, nombre, descripcion, tipo, agente_id, archivo_ref,
-                                             estado, pais_codigo, contenido_texto, incluir_en_contexto)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                                             estado, pais_codigo, contenido_texto, incluir_en_contexto,
+                                             ambito)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        ON CONFLICT (id) DO NOTHING`,
       [
         d.id,
@@ -166,6 +180,7 @@ async function sembrarDocumentos(client: PoolClient) {
         d.pais_codigo,
         contenido,
         d.incluir_en_contexto,
+        d.ambito ?? "clinico",
       ]
     );
     insertadas += r.rowCount ?? 0;

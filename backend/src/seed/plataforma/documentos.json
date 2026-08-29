@@ -836,15 +836,28 @@
     "contenidoFile": "a4f05ec1-d2f9-433c-ad8f-0cfa046a351a.txt"
   },
   {
-    "id": "4cf4eda5-7b78-446f-b747-822abee11d09",
-    "nombre": "GCIS Clinical Components Catalog v2.0 (GCIS-ARCH-001)",
-    "descripcion": "Catalogo completo de componentes clinicos de GCIS (GCIS-ARCH-001 v2.0): definicion de cada unidad de procesamiento CC-xxx con su informacion general, proposito, alcance, entradas, salidas, flujo, reglas e integraciones. Es la referencia que consultan todas las demas especificaciones al construir o interpretar cualquier CC-xxx. Documento de consulta puntual, no de lectura corrida.",
+    "id": "13485323-b850-4993-8386-29588ea3324a",
+    "nombre": "GCIS Clinical Components Catalog v2.0 (GCIS-ARCH-001) — Razonamiento clínico",
+    "descripcion": "Mitad del catálogo de componentes con el razonamiento clínico. Entra en todos los caminos.",
     "tipo": "otro",
     "agente_slug": "gastroenterologia",
     "pais_codigo": null,
     "incluir_en_contexto": true,
     "estado": "activo",
-    "contenidoFile": "4cf4eda5-7b78-446f-b747-822abee11d09.txt"
+    "contenidoFile": "13485323-b850-4993-8386-29588ea3324a.txt",
+    "ambito": "clinico"
+  },
+  {
+    "id": "6408da64-0840-42dd-91b0-673b07c4f6c0",
+    "nombre": "GCIS Clinical Components Catalog v2.0 (GCIS-ARCH-001) — Composición de salida",
+    "descripcion": "Mitad del catálogo de componentes que describe cómo se arma la salida (dashboard, informe, base de conocimiento). No entra en el chat.",
+    "tipo": "otro",
+    "agente_slug": "gastroenterologia",
+    "pais_codigo": null,
+    "incluir_en_contexto": true,
+    "estado": "activo",
+    "contenidoFile": "6408da64-0840-42dd-91b0-673b07c4f6c0.txt",
+    "ambito": "generacion"
   },
   {
     "id": "2af8bfda-f00d-40dc-91e4-a6023eec799a",
@@ -1012,15 +1025,28 @@
     "contenidoFile": "a5dbf800-a457-46dc-a36a-64d517d4c175.txt"
   },
   {
-    "id": "13fddd2e-a1ce-46d6-81b5-a965aa0754bd",
-    "nombre": "ICIS Clinical Components Catalog",
-    "descripcion": "Catalogo de componentes clinicos de ICIS (ICIS-ARCH-001), adaptado de GCIS-ARCH-001 v2.0. Incluye CC-001 a CC-107, CC-201 a CC-205, CC-220, y la capa completa de Derivacion (CC-260 a CC-263, AD-031, AD-032). Excluye deliberadamente componentes de procedimientos especializados de gastroenterologia (CC-206, CC-230, CC-231). Documenta explicitamente los componentes aun no definidos (CC-101, CC-103, CC-250, CC-301 a CC-304, CC-401).",
+    "id": "9782e92d-7804-45f9-8177-e1b66c9ff2a3",
+    "nombre": "ICIS Clinical Components Catalog — Razonamiento clínico",
+    "descripcion": "Mitad del catálogo de componentes con el razonamiento clínico. Entra en todos los caminos.",
     "tipo": "otro",
     "agente_slug": "medicina-general-triage",
     "pais_codigo": null,
     "incluir_en_contexto": true,
     "estado": "activo",
-    "contenidoFile": "13fddd2e-a1ce-46d6-81b5-a965aa0754bd.txt"
+    "contenidoFile": "9782e92d-7804-45f9-8177-e1b66c9ff2a3.txt",
+    "ambito": "clinico"
+  },
+  {
+    "id": "ff5c8066-2902-4020-959e-ae2fa70de675",
+    "nombre": "ICIS Clinical Components Catalog — Composición de salida",
+    "descripcion": "Mitad del catálogo de componentes que describe cómo se arma la salida (dashboard, informe, base de conocimiento). No entra en el chat.",
+    "tipo": "otro",
+    "agente_slug": "medicina-general-triage",
+    "pais_codigo": null,
+    "incluir_en_contexto": true,
+    "estado": "activo",
+    "contenidoFile": "ff5c8066-2902-4020-959e-ae2fa70de675.txt",
+    "ambito": "generacion"
   },
   {
     "id": "6c9b6f68-8777-4dcd-a4c4-f370aba35516",

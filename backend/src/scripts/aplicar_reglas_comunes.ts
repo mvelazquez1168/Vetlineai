@@ -50,17 +50,29 @@ function main() {
   const resultados: { f: string; accion: string; antes: number; despues: number }[] = [];
   for (const f of archivos) {
     const original = antes.get(f)!;
-    if (original.includes(MARCA)) {
-      resultados.push({ f, accion: "ya lo tenía", antes: original.length, despues: original.length });
+    // Si el bloque ya está, se REEMPLAZA en vez de saltearse. Saltearlo
+    // funcionaba mientras el bloque no cambiara nunca; ahora que se le
+    // promueven reglas, saltearlo dejaría a los ocho con la versión vieja
+    // y el archivo fuente diciendo otra cosa — deriva silenciosa, que es
+    // justo lo que este bloque existe para evitar.
+    const i = original.indexOf(MARCA);
+    if (i >= 0 && original.slice(i).trimEnd() === bloque) {
+      resultados.push({ f, accion: "ya idéntico", antes: original.length, despues: original.length });
       continue;
     }
     // Sin salto de línea final: ningún prompt de este repo lo tiene, y la
     // migración concatena el bloque tal cual. Un "\n" de más acá hace que
     // el archivo y la base difieran en 1 carácter — invisible al leer,
     // pero suficiente para que el auditor de deriva marque los ocho.
-    const nuevo = original.trimEnd() + "\n\n" + bloque;
+    const previo = (i >= 0 ? original.slice(0, i) : original).trimEnd();
+    const nuevo = previo + "\n\n" + bloque;
     if (escribir) fs.writeFileSync(path.join(PROMPTS, f), nuevo, "utf8");
-    resultados.push({ f, accion: escribir ? "agregado" : "agregaría", antes: original.length, despues: nuevo.length });
+    resultados.push({
+      f,
+      accion: (i >= 0 ? "actualizado" : "agregado") + (escribir ? "" : " (simulado)"),
+      antes: original.length,
+      despues: nuevo.length,
+    });
   }
 
   console.log("prompt                       antes   después   acción");

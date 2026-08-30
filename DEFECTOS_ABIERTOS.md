@@ -125,3 +125,48 @@ otra al criterio, la tercera al arnés.
 El arnés y el análisis imprimen el desglose por causa **siempre**, también cuando
 da cero — afirmar la ausencia vale más que suponerla — y la corrida sale con
 código distinto de cero si hay `FALLO_JUEZ`.
+
+---
+
+## Hallazgo — H1: los agentes divergen por pérdida, no por desacuerdo
+
+**Confirmado** · 2026-08-29
+
+Cuatro búsquedas independientes de contradicciones entre las nueve versiones del
+estándar de razonamiento. **Ninguna encontró una.**
+
+| Búsqueda | Método | Resultado |
+|---|---|---|
+| Lectura de los ocho prompts | manual, completa | ninguna |
+| Contraste por temas | siete temas donde un choque sería grave | ninguna |
+| Reglas duras | matriz de 11 reglas × 8 agentes | ninguna |
+| Unión afirmación por afirmación | 426 afirmaciones, marca por polaridad | 4 candidatas, **las 4 falsas** |
+
+Las cuatro candidatas de la última resultaron ser la misma regla con la cola
+adaptada a cada especialidad:
+
+```
+cardiologia   Ninguna etapa se salta … la estadificación siempre ocurre después de confirmar
+dermatologia  Ninguna etapa se salta … el diagnóstico de DA siempre después del descarte
+endocrino     Ninguna etapa se salta … la confirmación siempre después de la estimulación
+```
+
+### Por qué importa
+
+**El arreglo es restauración, no reconciliación.** Nadie decidió nunca que un
+agente razonara distinto de otro: lo que hay son copias que perdieron pedazos al
+adaptarse. Neuro no contradice a sus hermanos — tiene un tercio de su contenido.
+Reproducción no discrepa — tiene otra cosa, y más avanzada.
+
+Eso cambia el riesgo de toda la fase. Reconciliar dos reglas incompatibles exige
+decidir cuál es la correcta, y esa decisión es clínica. Restaurar una regla
+perdida solo exige copiarla del que la conserva, y se puede verificar byte a
+byte. Es la diferencia entre un trabajo que necesita criterio veterinario en cada
+paso y uno que necesita disciplina de copia.
+
+### Salvedad
+
+La ausencia de contradicciones está medida sobre el **texto** de los prompts. Dos
+agentes pueden comportarse de forma incompatible sin que sus prompts se
+contradigan — por lo que cada uno omite, no por lo que dice. Eso lo mediría N2, y
+la corrida base no llegó a tener resolución para responderlo.

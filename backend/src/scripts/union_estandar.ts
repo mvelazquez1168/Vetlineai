@@ -30,6 +30,11 @@ import path from "path";
 
 const DIR = path.join(__dirname, "..", "seed", "plataforma", "prompts");
 const MARCA_COMUN = "## Reglas comunes a todos los agentes clínicos de Vetline Ai";
+// El bloque de contexto del caso tambien es byte-identico en los ocho.
+// Se excluye por la misma razon, y ademas venia contaminando: va despues
+// de la ultima seccion numerada, asi que el parser le atribuia el titulo
+// anterior y sus cuatro afirmaciones aparecian como "explicabilidad".
+const MARCA_CONTEXTO = "## Regla de contexto del caso";
 const UMBRAL = 0.62;
 
 const SECCIONES_CANONICAS = [
@@ -100,8 +105,10 @@ function extraer(): Afirmacion[] {
   for (const f of fs.readdirSync(DIR).filter((x) => x.endsWith(".txt"))) {
     const agente = f.replace(".txt", "");
     let t = fs.readFileSync(path.join(DIR, f), "utf8").replace(/\r\n/g, "\n");
-    const iC = t.indexOf(MARCA_COMUN);
-    if (iC >= 0) t = t.slice(0, iC); // fuera el bloque común
+    for (const marca of [MARCA_COMUN, MARCA_CONTEXTO]) {
+      const i = t.indexOf(marca);
+      if (i >= 0) t = t.slice(0, i);
+    }
     // El estándar arranca en la segunda aparición de "1. Propósito" (o en
     // "RCIS AI REASONING STANDARD" para reproducción).
     const m = t.match(/\n\s*1[.\s]+(Propósito|PROPÓSITO)/);
@@ -109,6 +116,9 @@ function extraer(): Afirmacion[] {
 
     let seccion: string | null = null;
     for (const linea of t.split("\n")) {
+      // Un encabezado markdown o un separador cierra la seccion en curso:
+      // lo que sigue no pertenece a la ultima seccion numerada.
+      if (/^\s*(##+\s|---\s*$|===)/.test(linea)) { seccion = null; continue; }
       const mt = linea.match(/^(\d+(?:\.\d+)?)[.\s]+([A-ZÁÉÍÓÚÑ][^\n]{2,70})$/);
       if (mt && !/\.$/.test(mt[2].trim())) { seccion = seccionCanonica(mt[2], agente); continue; }
       if (!seccion) continue;

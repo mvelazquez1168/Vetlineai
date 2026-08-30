@@ -377,3 +377,65 @@ export function proyectarInforme(sintesis: any, casoId: string): Record<string, 
     ...proyectar(sintesis, propsInf, mapa),
   };
 }
+
+// ---------------------------------------------------------------------
+// DOS FASES, UNA SÍNTESIS
+//
+// La síntesis completa tarda ~220 s porque produce las dos vistas. Con 70
+// dashboards y 0 informes en el uso real, hacer esperar todo eso a quien
+// solo va a mirar la pantalla es el peor reparto posible.
+//
+// Se parte en dos llamadas encadenadas sobre la MISMA síntesis:
+//
+//   NÚCLEO       lo que el dashboard necesita. Se muestra apenas está.
+//   COMPLEMENTO  lo que solo el informe usa. Se completa después.
+//
+// No son dos razonamientos: el complemento recibe el núcleo ya hecho y
+// solo agrega lo que falta. Por eso sigue habiendo una sola fuente y las
+// dos vistas siguen sin poder contradecirse — que era lo que importaba
+// más que el ahorro.
+//
+// La partición NO se escribe a mano: sale de ORIGEN_DE_CAMPO, el mismo
+// registro que dice de qué esquema vino cada campo. Si mañana se agrega un
+// campo al dashboard, cae en el núcleo solo.
+// ---------------------------------------------------------------------
+
+const CAMPOS_NUCLEO = Object.keys(props).filter((k) => ORIGEN_DE_CAMPO[k] === "dashboard");
+const CAMPOS_COMPLEMENTO = Object.keys(props).filter((k) => ORIGEN_DE_CAMPO[k] === "informe");
+
+const subEsquema = (campos: string[], nombre: string, descripcion: string) => ({
+  name: nombre,
+  description: descripcion,
+  input_schema: {
+    type: "object",
+    additionalProperties: false,
+    required: nombre === "generar_sintesis_nucleo" ? ["meta", ...campos] : campos,
+    properties: {
+      ...(nombre === "generar_sintesis_nucleo"
+        ? { meta: (SINTESIS_TOOL.input_schema.properties as any).meta }
+        : {}),
+      ...Object.fromEntries(campos.map((k) => [k, props[k]])),
+    },
+  },
+});
+
+export const SINTESIS_NUCLEO_TOOL = subEsquema(
+  CAMPOS_NUCLEO,
+  "generar_sintesis_nucleo",
+  "Produce el NÚCLEO de la síntesis clínica: el razonamiento del caso en la forma que el médico ve en " +
+    "pantalla. Es la primera de dos partes de una misma síntesis — después se completa con las secciones " +
+    "que solo el documento usa, sin volver a razonar. Razoná el caso completo acá: lo que se agregue " +
+    "después parte de esto y no puede contradecirlo."
+) as any;
+
+export const SINTESIS_COMPLEMENTO_TOOL = subEsquema(
+  CAMPOS_COMPLEMENTO,
+  "generar_sintesis_complemento",
+  "Completa la síntesis clínica con las secciones que solo el documento usa. El núcleo ya está hecho y " +
+    "te lo paso: NO vuelvas a razonar el caso ni cambies ninguna conclusión. Tu tarea es desarrollar lo " +
+    "que falta —narrativa, cronología, laboratorio, recomendaciones, pronóstico— de forma consistente " +
+    "con lo que el núcleo ya dice. Si algo del núcleo te parece incorrecto, no lo corrijas: desarrollá " +
+    "sobre lo que hay."
+) as any;
+
+export const PARTICION_SINTESIS = { nucleo: CAMPOS_NUCLEO, complemento: CAMPOS_COMPLEMENTO };

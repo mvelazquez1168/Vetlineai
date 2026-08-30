@@ -1,5 +1,5 @@
 import { DASHBOARD_TOOL, INFORME_TOOL } from "../herramientasAgente";
-import { SINTESIS_TOOL, ORIGEN_DE_CAMPO, CONCEPTOS_UNIFICADOS, NO_UNIFICAR } from "../sintesisClinica";
+import { SINTESIS_TOOL, ORIGEN_DE_CAMPO, CONCEPTOS_UNIFICADOS, RENOMBRES, NO_UNIFICAR } from "../sintesisClinica";
 
 // La restricción del Paso 2 no se declara: se comprueba. Ningún campo de
 // ninguna de las dos vistas puede quedar sin lugar en la síntesis, y la
@@ -13,8 +13,12 @@ function main() {
   const i = props(INFORME_TOOL).filter((k) => !IGNORAR.includes(k));
   const s = props(SINTESIS_TOOL).filter((k) => !IGNORAR.includes(k));
 
-  const aSintesisDash = new Map(CONCEPTOS_UNIFICADOS.map((c) => [c.dashboard, c.sintesis]));
-  const aSintesisInf = new Map(CONCEPTOS_UNIFICADOS.map((c) => [c.informe, c.sintesis]));
+  const aSintesisDash = new Map<string, string>(CONCEPTOS_UNIFICADOS.map((c) => [c.dashboard, c.sintesis]));
+  const aSintesisInf = new Map<string, string>(CONCEPTOS_UNIFICADOS.map((c) => [c.informe, c.sintesis]));
+  for (const r of RENOMBRES) {
+    if (r.dashboard) aSintesisDash.set(r.dashboard, r.sintesis);
+    if (r.informe) aSintesisInf.set(r.informe, r.sintesis);
+  }
 
   console.log(`SÍNTESIS: ${s.length} campos de raíz  (dashboard ${d.length} · informe ${i.length})\n`);
 

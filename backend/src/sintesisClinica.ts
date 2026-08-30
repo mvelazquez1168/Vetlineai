@@ -48,9 +48,35 @@ export const CONCEPTOS_UNIFICADOS: { sintesis: string; dashboard: string; inform
  * síntesis. Fusionarlas sería repetir el error de `confianza`/
  * `probabilidad`, con otro disfraz.
  */
-export const NO_UNIFICAR = ["clinical_confidence", "matriz_evidencia"];
+/**
+ * Renombres sin contraparte en la otra vista: el campo existe en una sola,
+ * pero su nombre era ambiguo. Van declarados aca y no escondidos en una
+ * funcion de ajuste — el verificador los lee de esta lista, y un renombre
+ * que no este aca aparece como campo perdido, que es lo que corresponde.
+ */
+export const RENOMBRES: { sintesis: string; dashboard?: string; informe?: string }[] = [
+  { sintesis: "sustento_del_caso", dashboard: "clinical_confidence" },
+];
+
+/**
+ * `matriz_evidencia` NO se unifica con el sustento del caso aunque el
+ * relevamiento los emparejo por posicion: uno es un nivel de calidad de
+ * evidencia y el otro es la tabla afirmacion -> sustento -> fuente. Son
+ * dos cosas distintas y las dos van a la sintesis.
+ */
+export const NO_UNIFICAR = ["sustento_del_caso", "matriz_evidencia"];
 
 const propsDe = (t: any) => t.input_schema.properties as Record<string, any>;
+
+/**
+ * Copia profunda. Sin esto, componer la sintesis MUTA los esquemas de las
+ * dos tools: `props[nombre] = v` guarda la misma referencia, y cualquier
+ * ajuste posterior sobre la sintesis se aplica tambien al dashboard y al
+ * informe. Verificado: importar este modulo cambiaba el esquema que el
+ * endpoint del dashboard le manda al modelo, sin que nadie tocara ese
+ * endpoint. Un modulo que altera otro por el solo hecho de existir.
+ */
+const clonar = <T>(x: T): T => JSON.parse(JSON.stringify(x));
 
 function componerEsquema() {
   const d = propsDe(DASHBOARD_TOOL);
@@ -59,14 +85,20 @@ function componerEsquema() {
   const requeridos: string[] = [];
   const origen: Record<string, string> = {};
 
-  const renombreDash = new Map(CONCEPTOS_UNIFICADOS.map((c) => [c.dashboard, c.sintesis]));
-  const renombreInf = new Map(CONCEPTOS_UNIFICADOS.map((c) => [c.informe, c.sintesis]));
+  const renombreDash = new Map([
+    ...CONCEPTOS_UNIFICADOS.map((c) => [c.dashboard, c.sintesis] as [string, string]),
+    ...RENOMBRES.filter((r) => r.dashboard).map((r) => [r.dashboard!, r.sintesis] as [string, string]),
+  ]);
+  const renombreInf = new Map([
+    ...CONCEPTOS_UNIFICADOS.map((c) => [c.informe, c.sintesis] as [string, string]),
+    ...RENOMBRES.filter((r) => r.informe).map((r) => [r.informe!, r.sintesis] as [string, string]),
+  ]);
 
   // 1. El dashboard primero y entero: define la forma.
   for (const [k, v] of Object.entries(d)) {
     if (k === "meta") continue; // la síntesis tiene su propio meta
     const nombre = renombreDash.get(k) ?? k;
-    props[nombre] = v;
+    props[nombre] = clonar(v);
     origen[nombre] = "dashboard";
     requeridos.push(nombre);
   }
@@ -76,7 +108,7 @@ function componerEsquema() {
     if (k === "meta" || k === "tipo_reporte") continue;
     const nombre = renombreInf.get(k) ?? k;
     if (props[nombre]) continue; // ya lo puso el dashboard, que manda
-    props[nombre] = v;
+    props[nombre] = clonar(v);
     origen[nombre] = "informe";
     requeridos.push(nombre);
   }
@@ -84,7 +116,105 @@ function componerEsquema() {
   return { props, requeridos, origen };
 }
 
+/**
+ * TRES EJES EN EL DIFERENCIAL.
+ *
+ * El diferencial del dashboard traia un solo campo `confianza` con
+ * valores alta/moderada/baja, y el del informe traia `probabilidad` con
+ * los mismos tres valores. Eran dos conceptos distintos bajo vocabularios
+ * identicos, que es como se confunden sin que nadie lo note.
+ *
+ * Se separan en tres ejes ortogonales, y CADA UNO CON SU PROPIO
+ * VOCABULARIO. Esa es la parte que hace que funcione: si los tres usaran
+ * alta/media/baja, el modelo los llenaria igual y la confusion habria
+ * quedado mudada al esquema en vez de eliminada. Con vocabularios
+ * distintos, confundirlos se ve a simple vista y lo detecta un validador.
+ *
+ *   sustento      que tan buena es la evidencia disponible
+ *   probabilidad  que tan probable es el diagnostico
+ *   confirmacion  si esta confirmado, apoyado, o pendiente
+ *
+ * Los tres pueden combinarse en cualquier orden: evidencia solida de que
+ * algo NO es (sustento solida + probabilidad descartada + confirmacion
+ * refutada) es un estado valido y hoy inexpresable.
+ *
+ * `confianza` desaparece: era el nombre ambiguo.
+ */
+function ajustarDiferencial(props: Record<string, any>) {
+  const dif = props["diagnostico_diferencial"];
+  if (!dif?.items?.properties) return;
+  const it = dif.items;
+  delete it.properties.confianza;
+  it.properties.sustento = {
+    type: "string",
+    enum: ["solida", "parcial", "insuficiente"],
+    description:
+      "Calidad de la EVIDENCIA disponible para evaluar esta hipotesis. No es la probabilidad de la " +
+      "enfermedad: evidencia solida de que algo NO es tambien es sustento solido.",
+  };
+  it.properties.probabilidad = {
+    type: "string",
+    enum: ["alta", "moderada", "baja", "descartada"],
+    description:
+      "Probabilidad de que ESTE diagnostico sea el del paciente, dada la evidencia. Ortogonal al " +
+      "sustento: una hipotesis puede ser probable con evidencia pobre, o improbable con evidencia solida.",
+  };
+  // `confirmacion` es un objeto y no un string suelto: 'confirmada' EXIGE
+  // nombrar la prueba que confirmo. Sin ese requisito, "confirmado" es una
+  // palabra; con el, es una afirmacion verificable — y la unica de las
+  // reglas de razonamiento que se puede validar mecanicamente.
+  it.properties.confirmacion = {
+    type: "object",
+    additionalProperties: false,
+    required: ["estado", "criterio", "pendiente"],
+    properties: {
+      estado: {
+        type: "string",
+        enum: ["sospechada", "apoyada", "confirmada", "refutada", "no_confirmable"],
+        description:
+          "'confirmada' solo si la prueba de referencia se hizo y es compatible. Si la evidencia " +
+          "apoya pero la confirmacion no se hizo, es 'apoyada' por fuerte que sea la evidencia.",
+      },
+      criterio: {
+        type: ["string", "null"],
+        description:
+          "Que prueba confirmo o refuto, con su resultado. OBLIGATORIO cuando estado es 'confirmada' " +
+          "o 'refutada'; null en los otros estados.",
+      },
+      pendiente: {
+        type: ["string", "null"],
+        description:
+          "Que prueba falta para confirmar. Se espera cuando estado es 'apoyada' o 'sospechada'; " +
+          "null cuando ya se confirmo, se refuto, o no hay prueba de referencia disponible.",
+      },
+    },
+  };
+  it.required = ["diagnostico", "evidencia_a_favor", "evidencia_en_contra", "informacion_faltante",
+                 "sustento", "probabilidad", "confirmacion"];
+}
+
 const { props, requeridos, origen } = componerEsquema();
+
+/**
+ * El sustento a nivel CASO. Se llamaba `clinical_confidence` con valores
+ * alto/moderado/bajo: nombre ambiguo y vocabulario que colisionaba con el
+ * de probabilidad. Es el mismo concepto que el sustento de una hipotesis,
+ * con otro alcance, asi que lleva el mismo nombre y el mismo vocabulario.
+ */
+function ajustarSustentoDelCaso(props: Record<string, any>) {
+  const cc = props["sustento_del_caso"];
+  if (!cc) return;
+  const nivel = cc.properties?.nivel;
+  if (nivel) {
+    nivel.enum = ["solida", "parcial", "insuficiente"];
+    nivel.description =
+      "Calidad de la evidencia disponible en el caso como conjunto. Nunca es la probabilidad de " +
+      "una enfermedad.";
+  }
+}
+
+ajustarDiferencial(props);
+ajustarSustentoDelCaso(props);
 
 export const ORIGEN_DE_CAMPO = origen;
 
@@ -191,5 +321,59 @@ export async function estadoSintesis(db: PoolClient, casoId: string): Promise<Es
     huellaGuardada: f?.sintesis_huella ?? null,
     huellaActual,
     generadaEn: f?.sintesis_generada_en ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------
+// LAS DOS VISTAS
+//
+// Proyecciones puras: toman la síntesis y devuelven la forma que cada
+// vista ya esperaba. No razonan, no completan, no interpretan — si un
+// campo no está en la síntesis, no está en la vista.
+//
+// Esa es toda la garantía de coherencia del Paso 5: con una sola fuente y
+// dos proyecciones sin lógica, el dashboard y el informe no pueden
+// contradecirse, porque ninguno de los dos decide nada.
+// ---------------------------------------------------------------------
+
+const propsDash = Object.keys(DASHBOARD_TOOL.input_schema.properties);
+const propsInf = Object.keys(INFORME_TOOL.input_schema.properties);
+
+function proyectar(sintesis: any, campos: string[], mapa: Map<string, string>): Record<string, any> {
+  const out: Record<string, any> = {};
+  for (const destino of campos) {
+    if (destino === "meta" || destino === "tipo_reporte") continue;
+    const enSintesis = mapa.get(destino) ?? destino;
+    // `?? null` y no `undefined`: la vista espera el campo presente aunque
+    // esté vacío. Un campo ausente y un campo en null son cosas distintas
+    // para quien lo consume, y confundirlas es cómo una sección
+    // desaparece de un informe sin que nadie lo note.
+    out[destino] = sintesis[enSintesis] ?? null;
+  }
+  return out;
+}
+
+/** La vista de pantalla. Conserva los nombres que el frontend ya usa. */
+export function proyectarDashboard(sintesis: any, casoId: string): Record<string, any> {
+  const mapa = new Map(CONCEPTOS_UNIFICADOS.map((c) => [c.dashboard, c.sintesis]));
+  // El frontend todavia lee los nombres viejos. La proyeccion se los da
+  // desde el campo canonico: es el mismo objeto con otro nombre, nunca una
+  // traduccion de valores. Cuando el frontend adopte el nombre nuevo, la
+  // entrada sale de RENOMBRES y esto sigue funcionando.
+  for (const r of RENOMBRES) if (r.dashboard) mapa.set(r.dashboard, r.sintesis);
+  return {
+    meta: { ...(sintesis.meta ?? {}), caso_id: casoId, generado_en: new Date().toISOString() },
+    ...proyectar(sintesis, propsDash, mapa),
+  };
+}
+
+/** La vista de documento. */
+export function proyectarInforme(sintesis: any, casoId: string): Record<string, any> {
+  const mapa = new Map(CONCEPTOS_UNIFICADOS.map((c) => [c.informe, c.sintesis]));
+  for (const r of RENOMBRES) if (r.informe) mapa.set(r.informe, r.sintesis);
+  return {
+    meta: { ...(sintesis.meta ?? {}), caso_id: casoId, generado_en: new Date().toISOString() },
+    tipo_reporte: "CR-001",
+    ...proyectar(sintesis, propsInf, mapa),
   };
 }

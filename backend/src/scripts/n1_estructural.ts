@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { HERRAMIENTAS_AGENTE } from "../herramientasAgente";
+import { SINTESIS_TOOL } from "../sintesisClinica";
 
 // ---------------------------------------------------------------------
 // N1 — Validación estructural del modelo de razonamiento.
@@ -78,7 +79,9 @@ const registrar = (id: string, titulo: string, detalle: string[]) =>
 
 function main() {
   const campos: Campo[] = [];
-  for (const t of HERRAMIENTAS_AGENTE as any[]) recorrer(t.input_schema, t.name, "", campos);
+  // La sintesis entra en N1 como una tool mas: es donde viven ahora los
+  // conceptos canonicos, y dejarla afuera seria verificar el modelo viejo.
+  for (const t of [...(HERRAMIENTAS_AGENTE as any[]), SINTESIS_TOOL]) recorrer(t.input_schema, t.name, "", campos);
   const conEnum = campos.filter((c) => c.valores && c.valores.length);
 
   // ---------------------------------------------------------------
@@ -127,6 +130,12 @@ function main() {
     const fallas: string[] = [];
     const porVocab = new Map<string, Set<string>>();
     const dondes = new Map<string, string[]>();
+    // Mismo concepto en dos alcances distintos NO es un duplicado. El
+    // sustento de una hipotesis y el del caso entero son la misma cosa
+    // medida sobre distinto objeto, y comparten vocabulario a proposito.
+    // La excepcion va declarada y acotada: cualquier otro par que comparta
+    // vocabulario sigue siendo un hallazgo.
+    const MISMO_CONCEPTO_OTRO_ALCANCE = new Set(["sustento|nivel", "nivel|sustento"]);
     for (const c of conEnum) {
       const k = c.valores!.join("|");
       if (c.valores!.length < 3) continue; // vocabularios chicos coinciden por azar
@@ -134,7 +143,7 @@ function main() {
       dondes.set(k, [...(dondes.get(k) ?? []), `${c.tool}:${c.ruta}`]);
     }
     for (const [vocab, nombres] of porVocab) {
-      if (nombres.size > 1) {
+      if (nombres.size > 1 && !MISMO_CONCEPTO_OTRO_ALCANCE.has([...nombres].sort().join("|"))) {
         fallas.push(`el vocabulario [${vocab}] aparece bajo ${nombres.size} nombres: ${[...nombres].join(", ")}`);
         fallas.push(`      en ${dondes.get(vocab)!.join(", ")}`);
       }

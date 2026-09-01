@@ -170,3 +170,54 @@ La ausencia de contradicciones está medida sobre el **texto** de los prompts. D
 agentes pueden comportarse de forma incompatible sin que sus prompts se
 contradigan — por lo que cada uno omite, no por lo que dice. Eso lo mediría N2, y
 la corrida base no llegó a tener resolución para responderlo.
+
+---
+
+## Regla de admisión — R3
+
+> **Toda comparación de datos estructurados tiene que ser canónica. Comparar la
+> forma serializada es un generador de falsos negativos, porque el orden de las
+> claves no es parte del dato.**
+
+### El caso que la origina
+
+La prueba de las dos fases tenía que verificar que el complemento no pisara
+ningún campo del núcleo. Comparaba así:
+
+```ts
+JSON.stringify(nucleo[k]) !== JSON.stringify(completa[k])
+```
+
+Reportó que **el complemento había pisado seis campos**. No había pisado ninguno.
+
+`JSON.stringify` conserva el orden de inserción de las claves. **JSONB no lo
+conserva**: al guardar, Postgres las reordena por longitud y después
+alfabéticamente. El núcleo recién generado tenía el orden en que lo escribió el
+modelo; el mismo objeto leído de vuelta tenía el orden de JSONB. Mismo contenido,
+serialización distinta.
+
+```
+modelo escribe:  diagnostico, evidencia_a_favor, evidencia_en_contra, sustento, ...
+JSONB devuelve:  sustento, diagnostico, confirmacion, probabilidad, evidencia_a_favor, ...
+```
+
+### Por qué es una regla y no una anécdota
+
+**Lo que evitó que llegara a reporte fue que el resultado era demasiado raro para
+creerle** — seis campos pisados por un código que estructuralmente no puede
+pisarlos. Eso es suerte, no método. La próxima vez el falso positivo puede ser de
+un solo campo, y un solo campo pisado es perfectamente creíble.
+
+Es la tercera vez en la misma semana que un verificador mide algo más estrecho
+que lo que dice medir: el desplazamiento de índice, la cifra sin unidad, y ahora
+el orden de las claves. Las tres pasaron sus propias pruebas.
+
+### Cómo queda aplicada
+
+Comparación canónica: se ordenan las claves recursivamente antes de serializar.
+Se aplica a toda comparación de objetos que hayan pasado por la base, por la API
+o por cualquier serialización — que en este sistema es casi todas.
+
+Vale también en la otra dirección, y es la más peligrosa: dos objetos con el
+mismo orden y **distinto contenido anidado** pueden parecer iguales si la
+comparación es superficial. Canónica y profunda, las dos cosas.

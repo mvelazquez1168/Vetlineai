@@ -1,6 +1,7 @@
 import { Pool, PoolClient } from "pg";
 import { config } from "./config";
 import { enviarEmail, resendConfigurado } from "./email";
+import { MarcaCorreo, resolverMarca } from "./marcaCorreo";
 
 // ---------------------------------------------------------------------
 // Correos transaccionales — plantillas con identidad visual + registro
@@ -97,56 +98,101 @@ export interface DatosPlantilla {
   contrasena_cambiada: { nombre: string | null; fecha: string };
 }
 
-// Layout compartido — español neutro, una sola acción principal por
-// correo (botón), identidad visual mínima (el azul primario del
-// producto) sin depender de imágenes alojadas (el logo vive detrás de
-// auth, no hay una URL pública que un cliente de correo pueda cargar).
-function envolverLayout(tituloInterno: string, cuerpoHtml: string, textoBotonPrincipal: string, enlacePrincipal: string): string {
-  return `<!DOCTYPE html>
-<html lang="es">
-<body style="margin:0;padding:0;background-color:#f4f5f7;font-family:Arial,Helvetica,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;padding:32px 0;">
-    <tr><td align="center">
-      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;">
-        <tr><td style="background-color:#1e3a5f;padding:20px 32px;">
-          <span style="color:#ffffff;font-size:18px;font-weight:bold;">Vetline Ai</span>
-        </td></tr>
-        <tr><td style="padding:32px;">
-          <h1 style="font-size:18px;color:#1e3a5f;margin:0 0 16px;">${tituloInterno}</h1>
-          <div style="font-size:14px;color:#333333;line-height:1.6;">${cuerpoHtml}</div>
+// Escapa lo que se interpola en el HTML desde un dato del tenant (hoy:
+// su nombre, en el encabezado y en el pie). El resto de las plantillas
+// interpola datos clínicos con la misma exposición, pero eso es
+// preexistente y ajeno a este cambio — acá se escapa lo que este cambio
+// introduce.
+function esc(texto: string): string {
+  return texto
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// Encabezado claro y neutro, con el logo haciendo el trabajo — decisión
+// explícita del usuario sobre el criterio 1/3/4 del prompt: en correo un
+// encabezado claro se lee mejor que una banda de color, y sin color de
+// marca no hace falta ni un campo nuevo en `tenants` ni un cálculo de
+// contraste. Si algún día el producto tiene color de marca en la
+// interfaz, se suma acá.
+//
+// Tres detalles que no son cosméticos:
+//   - `alt` con el nombre: la mayoría de los clientes de correo bloquea
+//     imágenes por omisión, y ahí el texto alternativo ES el encabezado.
+//     Va estilado para que en ese caso se lea como un título y no como
+//     una etiqueta rota.
+//   - sin logo cargado, el nombre en texto, nunca un hueco.
+//   - la URL del logo no lleva ningún dato del destinatario (ver
+//     marcaCorreo.ts): un intermediario que la vea no aprende nada.
+//
+// El tamaño va con ancho Y alto explícitos, ya escalados dentro de la
+// caja por marcaCorreo.ts a partir de las dimensiones reales del archivo.
+// El logo lo sube la clínica y puede tener cualquier proporción: con solo
+// el alto fijo, un logo apaisado (12:1 y peores existen) se pasa del
+// ancho del cuerpo. Acotar con `max-width` no alcanza porque Outlook lo
+// ignora — usa el motor de Word, que respeta los atributos width/height y
+// poco más. Dando los dos números escalados a la misma proporción, el
+// logo queda acotado en todos los clientes y no se deforma en ninguno.
+function encabezado(marca: MarcaCorreo): string {
+  if (marca.logoUrl && marca.logoTamano) {
+    const { width, height } = marca.logoTamano;
+    return `<img src="${esc(marca.logoUrl)}" alt="${esc(marca.nombre)}" width="${width}" height="${height}" style="display:block;width:${width}px;height:${height}px;max-width:100%;border:0;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:bold;color:#1f2937;text-decoration:none;">`;
+  }
+  return `<span style="font-size:18px;font-weight:bold;color:#1f2937;">${esc(marca.nombre)}</span>`;
+}
+
+// El pie va SOLO en los correos con marca del comercio, y no es marca:
+// es honestidad y protección. Si el destinatario responde, reclama o
+// denuncia el correo como no deseado, tiene que poder saber quién es
+// quién; y ante una queja por correo no solicitado, que la plataforma
+// esté identificada nos cubre. En los correos de plataforma sería
+// redundante — el encabezado ya somos nosotros.
+function pie(marca: MarcaCorreo): string {
+  if (!marca.esComercio) return "";
+  return `
+        <tr><td style="padding:16px 32px 0;text-align:center;">
+          <span style="font-size:11px;color:#9ca3af;line-height:1.5;">Enviado por ${esc(marca.nombre)} a través de Vetline Ai.</span>
+        </td></tr>`;
+}
+
+// Layout único para las dos categorías (decisión del usuario): lo único
+// que cambia entre una y otra es qué marca entra en el encabezado y si
+// lleva pie. El botón sigue en el azul del producto porque hoy ningún
+// correo con marca de comercio tiene botón — los 10 son informativos —;
+// si alguna vez lo tuviera, `esComercio` lo baja a un neutro oscuro en
+// vez de teñir de azul nuestro un correo que dice ser de la clínica.
+function envolver(
+  marca: MarcaCorreo,
+  tituloInterno: string,
+  cuerpoHtml: string,
+  boton?: { texto: string; enlace: string }
+): string {
+  const colorTitulo = marca.esComercio ? "#1f2937" : "#1e3a5f";
+  const colorBoton = marca.esComercio ? "#1f2937" : "#1e3a5f";
+  const botonHtml = boton
+    ? `
           <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:24px;">
-            <tr><td style="border-radius:8px;background-color:#1e3a5f;">
-              <a href="${enlacePrincipal}" style="display:inline-block;padding:12px 24px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:bold;">${textoBotonPrincipal}</a>
+            <tr><td style="border-radius:8px;background-color:${colorBoton};">
+              <a href="${boton.enlace}" style="display:inline-block;padding:12px 24px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:bold;">${boton.texto}</a>
             </td></tr>
-          </table>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`;
-}
+          </table>`
+    : "";
 
-// Variante sin botón de acción — el módulo de Notificaciones (recordatorio
-// de cita, desparasitación, seguimiento faltante) no tiene un enlace
-// natural al que mandar al destinatario: los propietarios no tienen
-// portal propio, y el médico ya recibe el aviso también como campanita
-// dentro de la app. Forzar un botón a un enlace inventado sería peor que
-// no tener botón.
-function envolverLayoutInformativo(tituloInterno: string, cuerpoHtml: string): string {
   return `<!DOCTYPE html>
 <html lang="es">
 <body style="margin:0;padding:0;background-color:#f4f5f7;font-family:Arial,Helvetica,sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;padding:32px 0;">
     <tr><td align="center">
-      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;">
-        <tr><td style="background-color:#1e3a5f;padding:20px 32px;">
-          <span style="color:#ffffff;font-size:18px;font-weight:bold;">Vetline Ai</span>
+      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="width:480px;max-width:100%;">
+        <tr><td style="background-color:#ffffff;border-radius:12px 12px 0 0;border-bottom:1px solid #e5e7eb;padding:20px 32px;">
+          ${encabezado(marca)}
         </td></tr>
-        <tr><td style="padding:32px;">
-          <h1 style="font-size:18px;color:#1e3a5f;margin:0 0 16px;">${tituloInterno}</h1>
-          <div style="font-size:14px;color:#333333;line-height:1.6;">${cuerpoHtml}</div>
-        </td></tr>
+        <tr><td style="background-color:#ffffff;border-radius:0 0 12px 12px;padding:32px;">
+          <h1 style="font-size:18px;color:${colorTitulo};margin:0 0 16px;">${tituloInterno}</h1>
+          <div style="font-size:14px;color:#333333;line-height:1.6;">${cuerpoHtml}</div>${botonHtml}
+        </td></tr>${pie(marca)}
       </table>
     </td></tr>
   </table>
@@ -154,10 +200,21 @@ function envolverLayoutInformativo(tituloInterno: string, cuerpoHtml: string): s
 </html>`;
 }
 
-function construirCorreo<T extends TipoCorreo>(
+export function construirCorreo<T extends TipoCorreo>(
   tipo: T,
-  datos: DatosPlantilla[T]
+  datos: DatosPlantilla[T],
+  marca: MarcaCorreo
 ): { asunto: string; texto: string; html: string } {
+  // Los dos envoltorios que usan los 27 casos de abajo, cerrados sobre la
+  // marca de este envío — así el switch no tiene que arrastrar `marca`
+  // caso por caso. `envolverLayoutInformativo` es la variante sin botón:
+  // los avisos al tutor no tienen un enlace natural al que mandarlo (no
+  // hay portal del propietario) y forzar un botón a un enlace inventado
+  // sería peor que no tener botón.
+  const envolverLayout = (titulo: string, cuerpo: string, textoBoton: string, enlace: string) =>
+    envolver(marca, titulo, cuerpo, { texto: textoBoton, enlace });
+  const envolverLayoutInformativo = (titulo: string, cuerpo: string) => envolver(marca, titulo, cuerpo);
+
   switch (tipo) {
     case "invitacion_medico": {
       const d = datos as DatosPlantilla["invitacion_medico"];
@@ -639,9 +696,18 @@ export async function enviarCorreoTransaccional<T extends TipoCorreo>(
   datos: DatosPlantilla[T]
 ): Promise<{ correoEnviadoId: string | null; proveedorMessageId: string | null; resultado: "enviado" | "fallido" | "no_configurado" }> {
   if (!resendConfigurado()) return { correoEnviadoId: null, proveedorMessageId: null, resultado: "no_configurado" };
-  const { asunto, texto, html } = construirCorreo(tipo, datos);
+  // Quién firma este correo — ver marcaCorreo.ts. En los correos al
+  // consumidor final el nombre visible del remitente también es el del
+  // comercio: si el encabezado dice la clínica y la bandeja dice
+  // "Vetline Ai", la incoherencia se nota más que antes. El DOMINIO no
+  // cambia (es el que autentica DKIM), solo el nombre.
+  const marca = await resolverMarca(db, tipo, tenantId);
+  const { asunto, texto, html } = construirCorreo(tipo, datos, marca);
   try {
-    const { id: proveedorMessageId } = await enviarEmail(destinatario, asunto, texto, html);
+    const { id: proveedorMessageId } = await enviarEmail(destinatario, asunto, texto, html, {
+      nombreRemitente: marca.esComercio ? marca.nombre : null,
+      replyTo: marca.replyTo,
+    });
     const insert = await db.query(
       `INSERT INTO correos_enviados (tenant_id, destinatario, tipo, resultado, proveedor_message_id)
        VALUES ($1, $2, $3, 'enviado', $4) RETURNING id`,

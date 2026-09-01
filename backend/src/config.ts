@@ -123,6 +123,13 @@ export const config = {
   // Dominio público desde el que se sirve el bucket público (URL directa a
   // un logo) — el endpoint del bucket, o un CDN delante de él si hay uno.
   s3UrlPublicaBase: process.env.S3_URL_PUBLICA_BASE,
+  // Origen público de ESTE backend. Solo lo usa marcaCorreo.ts, y solo con
+  // ALMACENAMIENTO_PROVEEDOR=local: ahí almacenamientoPublico.url() devuelve
+  // una ruta relativa ("/uploads/logos/x.png"), que sirve dentro del
+  // navegador pero no dentro de un correo — un cliente de correo no tiene
+  // origen contra el cual resolverla. Con s3 no se usa: url() ya devuelve
+  // una URL absoluta al bucket.
+  apiPublicUrl: process.env.API_PUBLIC_URL ?? `http://localhost:${Number(process.env.PORT ?? 4000)}`,
 };
 
 // Mismo patrón que validarCredencialesPaisesHabilitados (pagos/credencialesPasarela.ts)

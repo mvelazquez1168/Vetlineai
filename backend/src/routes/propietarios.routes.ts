@@ -1,7 +1,32 @@
 import { Router } from "express";
+import { direccionValida } from "../email";
 import { authenticate, withTenantClient } from "../middleware/auth";
 
 export const propietariosRouter = Router();
+
+// El correo del propietario es opcional (una clínica que atiende una
+// urgencia no debe verse obligada a pedirlo, mismo criterio que la
+// identificación) — pero si viene, tiene que ser una dirección a la que
+// se le pueda escribir.
+//
+// Antes se guardaba con solo .trim(). El envío ahora rechaza una
+// dirección mutilada (ver enviarEmail), así que una fila mala ya no puede
+// inyectar nada; lo que sí hace es fallar en silencio cada vez que a ese
+// tutor le toca un aviso, y para propietarios no hay webhook de rebotes
+// que lo delate (correo_rebotado_en existe en `personas`, no acá). Por
+// eso conviene rechazarla al cargarla, cuando hay alguien mirando la
+// pantalla que puede corregir el typo.
+//
+// Se usa la MISMA función que aplica el envío: si divergieran, la
+// pantalla aceptaría direcciones que después nunca se entregan, que es
+// exactamente el problema que esto viene a cerrar.
+const ERROR_CORREO_INVALIDO =
+  "El correo electrónico no parece válido. Revisalo, o dejalo vacío si no lo tenés — el propietario se guarda igual.";
+
+function correoUtilizable(email: string | undefined): boolean {
+  if (!email || !email.trim()) return true; // sigue siendo opcional
+  return direccionValida(email) !== null;
+}
 
 propietariosRouter.use(authenticate, withTenantClient);
 
@@ -183,6 +208,9 @@ propietariosRouter.post("/", async (req, res) => {
       error: "Si cargás la identificación del propietario, hacen falta el tipo y el número juntos.",
     });
   }
+  if (!correoUtilizable(email)) {
+    return res.status(400).json({ error: ERROR_CORREO_INVALIDO });
+  }
 
   try {
     const result = await req.db!.query(
@@ -253,6 +281,9 @@ propietariosRouter.patch("/:id", async (req, res) => {
 
   if (!nombre || !nombre.trim()) {
     return res.status(400).json({ error: "Falta el nombre del propietario." });
+  }
+  if (!correoUtilizable(email)) {
+    return res.status(400).json({ error: ERROR_CORREO_INVALIDO });
   }
 
   try {

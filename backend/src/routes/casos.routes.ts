@@ -28,6 +28,7 @@ import {
   suscripcionBloqueaGeneracionIa,
 } from "../purga";
 import { construirBloqueContextoCaso } from "../contextoCaso";
+import { dimensionesImagen, escalarDentroDeCaja } from "../lib/imagenLogo";
 import { CACHE_PREFIJO_COMPARTIDO, HERRAMIENTAS_AGENTE } from "../herramientasAgente";
 import { construirMensajesParaModelo } from "../archivosDelCaso";
 import { calcularEdadEfectiva } from "../edadPaciente";
@@ -1150,44 +1151,9 @@ const DOCX_COLOR_MUTED = "5A6B82";
 const DOCX_COLOR_ERROR = "E8725C";
 const DOCX_COLOR_ERROR_FONDO = "FCE9E5";
 
-// Lee el ancho/alto real del PNG/JPEG (los dos únicos tipos que acepta la
-// carga del logo — ver POST /admin/clinica/logo) para poder escalar el
-// logo de la portada dentro de una caja máxima SIN estirarlo: un logo de
-// clínica veterinaria típico es horizontal (4:1, 5:1...) y forzarlo a un
-// tamaño fijo lo deforma. PNG: IHDR siempre en el mismo offset. JPEG: hay
-// que caminar los marcadores hasta el primer SOF (0xC0 o 0xC2).
-function dimensionesImagen(buffer: Buffer, tipo: "png" | "jpg"): { width: number; height: number } {
-  if (tipo === "png") {
-    return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
-  }
-  let i = 2;
-  while (i < buffer.length - 9) {
-    if (buffer[i] !== 0xff) {
-      i++;
-      continue;
-    }
-    const marcador = buffer[i + 1];
-    if (marcador === 0xc0 || marcador === 0xc2) {
-      return { height: buffer.readUInt16BE(i + 5), width: buffer.readUInt16BE(i + 7) };
-    }
-    const largo = buffer.readUInt16BE(i + 2);
-    i += 2 + largo;
-  }
-  return { width: 180, height: 60 };
-}
-
-// Ajusta a la caja máxima (mismo footprint visual que antes) preservando
-// la proporción real — igual criterio que .export-header img del HTML
-// del Dashboard (height fijo, width automático).
-function escalarDentroDeCaja(
-  anchoReal: number,
-  altoReal: number,
-  anchoMax: number,
-  altoMax: number
-): { width: number; height: number } {
-  const escala = Math.min(anchoMax / anchoReal, altoMax / altoReal);
-  return { width: Math.round(anchoReal * escala), height: Math.round(altoReal * escala) };
-}
+// dimensionesImagen/escalarDentroDeCaja se movieron a lib/imagenLogo.ts
+// (importados arriba): el encabezado de los correos necesita el mismo
+// escalado sin deformación y no tenía sentido duplicarlo.
 
 const ESTADO_CASO_LABEL: Record<string, string> = {
   triage: "Triage",

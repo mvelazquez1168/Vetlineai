@@ -1,4 +1,5 @@
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { contentTypePorClave } from "./contentType";
 import { AlmacenamientoObjetos, AlmacenamientoPublico } from "./tipos";
 
 // Implementación de producción — contra cualquier almacenamiento
@@ -12,13 +13,19 @@ class AlmacenamientoS3 implements AlmacenamientoObjetos {
     protected bucket: string
   ) {}
 
+  // El tipo se resuelve acá y no en cada llamador: es el punto por el que
+  // pasa toda subida a S3, y un objeto sin tipo queda servido como
+  // binary/octet-stream para siempre (ver contentType.ts sobre por qué eso
+  // rompe el logo del encabezado en Outlook). Dejarlo librado a que cada
+  // llamador se acuerde ya falló una vez: migrar_archivos_a_almacenamiento
+  // subía todo sin tipo.
   async guardar(clave: string, datos: Buffer, contentType?: string): Promise<void> {
     await this.cliente.send(
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: clave,
         Body: datos,
-        ContentType: contentType,
+        ContentType: contentType ?? contentTypePorClave(clave),
       })
     );
   }

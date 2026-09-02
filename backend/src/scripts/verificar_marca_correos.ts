@@ -19,7 +19,15 @@ import { pool } from "../db";
 import { config } from "../config";
 import { DatosPlantilla, TipoCorreo, construirCorreo } from "../correos";
 import { asuntoParaCabecera, componerRemitente, direccionValida, enviarEmail } from "../email";
-import { MarcaCorreo, TIPOS_MARCA_COMERCIO, marcaPlataforma, resolverMarca } from "../marcaCorreo";
+import {
+  LOGO_ALTO_MAX,
+  LOGO_ANCHO_MAX,
+  MarcaCorreo,
+  TIPOS_MARCA_COMERCIO,
+  escalarLogoDeEncabezado,
+  marcaPlataforma,
+  resolverMarca,
+} from "../marcaCorreo";
 
 // PNG mínimo con un IHDR real — es todo lo que lee dimensionesImagen().
 // Sirve para probar proporciones extremas sin subir imágenes de verdad.
@@ -346,11 +354,31 @@ async function main() {
     // -----------------------------------------------------------------
     console.log("\n9. El logo queda acotado sea cual sea su proporción");
     // -----------------------------------------------------------------
+    // Antes de los casos: que la caja misma entre en el encabezado. Sin
+    // esto, comparar cada logo contra la caja sería una tautología —
+    // pasaría igual con una caja de 900px. El ancho útil más chico es el
+    // de un teléfono de 320: la tabla del cuerpo es width=480 con
+    // max-width:100%, así que baja a 320, y el encabezado le descuenta
+    // 32px de padding a cada lado.
+    const UTIL_ESCRITORIO = 480 - 32 * 2;
+    const UTIL_ANGOSTO = 320 - 32 * 2;
+    afirmar(
+      LOGO_ANCHO_MAX <= UTIL_ANGOSTO,
+      `la caja (${LOGO_ANCHO_MAX}px) entra en el encabezado más angosto (${UTIL_ANGOSTO}px a 320 de viewport)`
+    );
+    afirmar(
+      LOGO_ANCHO_MAX <= UTIL_ESCRITORIO,
+      `y con margen en el de escritorio (${UTIL_ESCRITORIO}px)`
+    );
+
     for (const [ancho, alto, etiqueta] of [
       [400, 100, "4:1, un logo típico"],
       [2400, 100, "24:1, una banda apaisada"],
       [100, 100, "1:1, cuadrado"],
       [100, 400, "1:4, vertical"],
+      // Fuente más chica que la caja: el caso que la caja grande podría
+      // ampliar y dejar borroso. Tiene que salir en sus propios píxeles.
+      [90, 30, "90x30, más chico que la caja"],
     ] as [number, number, string][]) {
       const clave = await subirLogoDePrueba(ancho, alto);
       const t = await pool.query(
@@ -363,15 +391,20 @@ async function main() {
       const tam = m.logoTamano!;
 
       afirmar(
-        tam.width <= 180 && tam.height <= 36,
+        tam.width <= LOGO_ANCHO_MAX && tam.height <= LOGO_ALTO_MAX,
         `logo ${etiqueta} → cabe en la caja del encabezado (${tam.width}x${tam.height})`
+      );
+      afirmar(
+        tam.width <= ancho && tam.height <= alto,
+        `logo ${etiqueta} → no se amplía por encima de sus propios píxeles`,
+        `fuente ${ancho}x${alto}, render ${tam.width}x${tam.height}`
       );
       // La proporción se compara contra el tamaño exacto antes de
       // redondear, no como un cociente: a 8px de alto, medio píxel de
       // redondeo son un 6% de "distorsión" que no existe. Lo que hay que
       // garantizar es que cada eje esté dentro del píxel de su valor
       // exacto — que es lo mejor que se puede hacer con enteros.
-      const escala = Math.min(180 / ancho, 36 / alto);
+      const escala = Math.min(LOGO_ANCHO_MAX / ancho, LOGO_ALTO_MAX / alto, 1);
       afirmar(
         Math.abs(tam.width - ancho * escala) <= 1 && Math.abs(tam.height - alto * escala) <= 1,
         `logo ${etiqueta} → conserva la proporción, no se estira`,
@@ -461,7 +494,10 @@ async function main() {
       const muestra: MarcaCorreo = {
         nombre: "Clínica San Roque",
         logoUrl: `${config.frontendUrl}/brand/logo-horizontal-claro@2x.png`,
-        logoTamano: { width: 70, height: 36 },
+        // El archivo es el nuestro, 194x100: se deja que lo escale la misma
+        // función del encabezado en vez de copiar el resultado a mano, que
+        // es lo que quedó desactualizado al agrandar la caja.
+        logoTamano: escalarLogoDeEncabezado(194, 100),
         replyTo: "contacto@sanroque.example",
         esComercio: true,
       };

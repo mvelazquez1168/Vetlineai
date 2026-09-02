@@ -84,18 +84,49 @@ export function marcaPlataforma(): MarcaCorreo {
   return {
     nombre: "Vetline Ai",
     logoUrl: logoPlataformaUrl(),
-    logoTamano: escalarDentroDeCaja(194, 100, LOGO_ANCHO_MAX, LOGO_ALTO_MAX),
+    logoTamano: escalarLogoDeEncabezado(194, 100),
     replyTo: null,
     esComercio: false,
   };
 }
 
-// La caja del encabezado. El ancho útil del cuerpo son 416px (480 menos
-// 32 de padding a cada lado); 180 deja el logo en una proporción sensata
-// y sobra margen de sobra incluso si algún cliente agrega su propio
-// relleno.
-const LOGO_ANCHO_MAX = 180;
-const LOGO_ALTO_MAX = 36;
+// La caja del encabezado.
+//
+// El límite que manda casi siempre es el ALTO, no el ancho: el ancho solo
+// ata cuando la proporción supera ANCHO_MAX/ALTO_MAX, y por debajo de eso
+// el logo se escala hasta tocar el alto y ahí se queda. Con la caja vieja
+// (180x36) ese cruce estaba en 5:1, así que un logo apaisado normal —4:1,
+// 2:1— nunca llegaba a usar el ancho disponible y salía en 145 o en 70
+// píxeles contra un título de ~200: una miniatura al lado del texto.
+//
+// Los dos números suben juntos para que el cruce quede donde estaba en
+// proporción (240/56 ≈ 4.3:1) y ningún caso cambie de lado:
+//
+//   2:1   →  112x56   (antes  72x36)
+//   4:1   →  224x56   (antes 145x36)
+//   1:1   →   56x56   (antes  36x36)
+//   24:1  →  240x10   (antes 180x8, ahí el que ata es el ancho)
+//
+// El techo del ancho no es estético: es el ancho útil real. El cuerpo mide
+// 480 con 32 de padding a cada lado → 416 en escritorio, pero en un
+// teléfono de 320 la tabla baja a 320 y el útil queda en 256. 240 entra en
+// el caso angosto, que es el que puede desbordar.
+export const LOGO_ANCHO_MAX = 240;
+export const LOGO_ALTO_MAX = 56;
+
+// Escala un logo dentro de la caja SIN ampliarlo nunca por encima de sus
+// propios píxeles. Al subir el alto máximo de 36 a 56 aparece un caso que
+// antes no existía: un archivo de menos de 56px de alto, que la caja
+// estiraría (un 90x30 se iría a 168x56, casi el doble) y en un cliente de
+// correo se ve borroso. Un archivo chico se muestra chico: eso es un
+// defecto del archivo, y agrandarlo lo empeora en vez de arreglarlo.
+//
+// El recorte se hace acá y no dentro de escalarDentroDeCaja() porque esa
+// función la comparte la portada del informe .docx, que hoy sí amplía y no
+// es parte de este cambio.
+export function escalarLogoDeEncabezado(ancho: number, alto: number): { width: number; height: number } {
+  return escalarDentroDeCaja(ancho, alto, Math.min(LOGO_ANCHO_MAX, ancho), Math.min(LOGO_ALTO_MAX, alto));
+}
 
 // El archivo del logo cambia solo cuando el admin sube otro, y ahí cambia
 // también la clave (es un UUID nuevo). Así que la medición se puede
@@ -112,7 +143,7 @@ async function medirLogo(clave: string): Promise<{ width: number; height: number
     const buffer = await almacenamientoPublico.leer(clave);
     const real = dimensionesImagen(buffer, tipoDeImagenPorClave(clave));
     if (real.width > 0 && real.height > 0) {
-      tamano = escalarDentroDeCaja(real.width, real.height, LOGO_ANCHO_MAX, LOGO_ALTO_MAX);
+      tamano = escalarLogoDeEncabezado(real.width, real.height);
     }
   } catch (err) {
     // No es excepcional: un logo cargado antes de la migración de

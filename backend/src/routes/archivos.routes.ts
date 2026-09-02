@@ -6,6 +6,7 @@ import path from "path";
 import { requerirAnthropic } from "../anthropic";
 import { esLegiblePorAgente } from "../archivosDelCaso";
 import { almacenamientoPrivado } from "../almacenamiento";
+import { contentTypePorExtension } from "../almacenamiento/contentType";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { registrarEventoDetallado } from "../middleware/auditoria";
 
@@ -17,7 +18,7 @@ export const archivosRouter = Router();
 // (casos/) dentro de ese ámbito.
 //
 // 25MB: cubre una radiografía o ecografía exportada como JPEG/PNG/PDF (lo
-// único que este endpoint tipa — ver CONTENT_TYPE_POR_EXTENSION) con
+// único que este endpoint tipa — ver contentTypePorExtension) con
 // margen; un estudio DICOM crudo no entra en este flujo, es un formato
 // distinto que este endpoint no interpreta. El límite se aplica DURANTE
 // la subida (multer corta el stream al llegar al límite, no bufferiza el
@@ -36,23 +37,21 @@ function inferirTipo(nombreOriginal: string): string {
   return "otro";
 }
 
-const CONTENT_TYPE_POR_EXTENSION: Record<string, string> = {
-  ".pdf": "application/pdf",
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".gif": "image/gif",
-  ".webp": "image/webp",
-  ".txt": "text/plain",
-  ".csv": "text/csv",
-  ".doc": "application/msword",
-  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ".xls": "application/vnd.ms-excel",
-  ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-};
+// La tabla de extensión → tipo vive en almacenamiento/contentType.ts (ver
+// `contentTypePorExtension`, importada arriba). Acá había una copia propia
+// que ya había divergido: servía .txt y .csv sin `charset=utf-8`, así que
+// un estudio exportado como texto con tildes quedaba librado a lo que
+// adivinara el navegador.
 
 // Solo estos formatos tienen vista inline razonable en el navegador; el
 // resto siempre fuerza descarga (mismo criterio que documentos_conocimiento).
+//
+// NO agregar ".svg" acá. Desde que el tipo sale de la tabla compartida, un
+// .svg se sirve como image/svg+xml, y un SVG mostrado inline ejecuta el
+// script que traiga adentro con el origen de la aplicación — sería XSS
+// almacenado, subible por cualquier médico como adjunto de un caso. Hoy
+// está fuera de esta lista y por eso sale con Content-Disposition:
+// attachment, que el navegador descarga en vez de interpretar.
 const EXTENSIONES_INLINE = [".pdf", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".txt"];
 
 archivosRouter.use(authenticate, withTenantClient);
@@ -128,7 +127,7 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
 
     const tipo = inferirTipo(req.file.originalname);
     const ext = path.extname(req.file.originalname).toLowerCase();
-    const contentType = CONTENT_TYPE_POR_EXTENSION[ext] ?? "application/octet-stream";
+    const contentType = contentTypePorExtension(ext);
     const clave = `casos/${crypto.randomUUID()}${ext}`;
     await almacenamientoPrivado.guardar(clave, req.file.buffer, contentType);
 
@@ -317,7 +316,7 @@ archivosRouter.get("/:id", async (req, res) => {
     }
 
     const ext = path.extname(clave).toLowerCase();
-    const contentType = CONTENT_TYPE_POR_EXTENSION[ext] ?? "application/octet-stream";
+    const contentType = contentTypePorExtension(ext);
     const forzarDescarga = req.query.descargar === "1" || !EXTENSIONES_INLINE.includes(ext);
     const disposicion = forzarDescarga ? "attachment" : "inline";
     const nombreSanitizado = nombreArchivo.replace(/[\\/:*?"<>|]/g, "").trim() || "archivo";

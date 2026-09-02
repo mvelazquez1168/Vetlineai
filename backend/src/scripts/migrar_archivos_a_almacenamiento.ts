@@ -24,6 +24,7 @@ import * as path from "path";
 import { Pool } from "pg";
 import { almacenamientoPrivado, almacenamientoPublico } from "../almacenamiento";
 import { claveLogoDesdeValorGuardado } from "../almacenamiento";
+import { contentTypePorClave } from "../almacenamiento/contentType";
 import { AlmacenamientoObjetos } from "../almacenamiento/tipos";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -65,7 +66,12 @@ async function migrarUno(
   }
 
   if (aplicar) {
-    await destino.guardar(clave, datos);
+    // Explícito aunque el ámbito S3 ya lo derivaría solo: acá el tipo es
+    // lo único que se pierde al pasar del disco (donde express.static lo
+    // recalcula en cada respuesta desde la extensión) al bucket (donde
+    // queda congelado en el momento de subir). Un logo migrado sin tipo se
+    // sirve como binary/octet-stream y deja de mostrarse en los correos.
+    await destino.guardar(clave, datos, contentTypePorClave(clave));
   }
   return { categoria, id, clave, estado: "migrado" };
 }

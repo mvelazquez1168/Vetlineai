@@ -3,6 +3,7 @@ import { Request, Response, Router } from "express";
 import multer from "multer";
 import path from "path";
 import { almacenamientoPrivado } from "../almacenamiento";
+import { contentTypePorExtension } from "../almacenamiento/contentType";
 import { registrarEventoFacturacion } from "../facturacion";
 import { extraerTexto } from "../lib/extraccion";
 import { registrarLecturaSensible } from "../middleware/auditoria";
@@ -92,11 +93,6 @@ platformAdminRouter.get("/documentos", async (req, res) => {
   }
 });
 
-const CONTENT_TYPE_POR_EXTENSION: Record<string, string> = {
-  ".pdf": "application/pdf",
-  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-};
-
 // Nombre "legible" para el archivo descargado: no existe ningún registro
 // del nombre original del archivo subido (multer solo guarda un UUID), así
 // que se reconstruye a partir del título del documento + la extensión real.
@@ -124,7 +120,7 @@ platformAdminRouter.get("/documentos/:id/archivo", async (req, res) => {
     }
 
     const ext = path.extname(archivoRef).toLowerCase();
-    const contentType = CONTENT_TYPE_POR_EXTENSION[ext] ?? "application/octet-stream";
+    const contentType = contentTypePorExtension(ext);
     const nombreLegible = nombreDeArchivoLegible(nombre, ext);
 
     // Solo el PDF tiene vista previa inline en el navegador; cualquier otro

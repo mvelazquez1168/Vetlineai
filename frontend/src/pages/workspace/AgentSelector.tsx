@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
 import { NotificacionesPersonalesBell } from "../../components/NotificacionesPersonalesBell";
 import { useAuth } from "../../hooks/useAuth";
+import { saludoMedico } from "../../lib/saludoMedico";
 import { AgenteResumen, workspaceApi } from "../../lib/workspaceApi";
 
 export function AgentSelector() {
@@ -18,21 +19,27 @@ export function AgentSelector() {
   useEffect(() => {
     let cancelado = false;
 
+    // Las dos llamadas van en paralelo pero se resuelven por separado: con
+    // un try/catch común sobre Promise.all, que fallara el listado de
+    // agentes descartaba también el perfil, y el saludo se quedaba sin
+    // nombre por un error que no tenía nada que ver con el nombre.
     async function cargar() {
-      try {
-        const [meData, agentesData] = await Promise.all([
-          workspaceApi.obtenerMe(),
-          workspaceApi.listarAgentes(),
-        ]);
-        if (cancelado) return;
-        setNombrePersona(meData.persona?.persona_nombre ?? "");
-        setNombreTenant(meData.persona?.tenant_nombre ?? "");
-        setAgentes(agentesData.agentes);
-      } catch {
-        if (!cancelado) setError("No pudimos cargar tus agentes. Intentá de nuevo.");
-      } finally {
-        if (!cancelado) setIsLoading(false);
+      const [me, agentesData] = await Promise.allSettled([
+        workspaceApi.obtenerMe(),
+        workspaceApi.listarAgentes(),
+      ]);
+      if (cancelado) return;
+
+      if (me.status === "fulfilled") {
+        setNombrePersona(me.value.persona?.persona_nombre ?? "");
+        setNombreTenant(me.value.persona?.tenant_nombre ?? "");
       }
+      if (agentesData.status === "fulfilled") {
+        setAgentes(agentesData.value.agentes);
+      } else {
+        setError("No pudimos cargar tus agentes. Intentá de nuevo.");
+      }
+      setIsLoading(false);
     }
 
     cargar();
@@ -40,12 +47,6 @@ export function AgentSelector() {
       cancelado = true;
     };
   }, []);
-
-  // "Dr. Carlos García" -> "Dr. García" para el saludo, tal como en el diseño.
-  const apellidoSaludo = nombrePersona.split(" ").slice(-1)[0] ?? "";
-  const prefijo = nombrePersona.startsWith("Dr.") || nombrePersona.startsWith("Dra.")
-    ? nombrePersona.split(" ")[0]
-    : "Dr.";
 
   if (isLoading) {
     return (
@@ -83,9 +84,7 @@ export function AgentSelector() {
         </div>
       </div>
 
-      <h1 className="mt-16 font-display text-5xl text-primary">
-        Bienvenido, {prefijo} {apellidoSaludo}
-      </h1>
+      <h1 className="mt-16 font-display text-5xl text-primary">{saludoMedico(nombrePersona)}</h1>
       <p className="mt-4 max-w-xl text-center text-text-muted">
         Selecciona tu área de trabajo para activar el copiloto clínico de inteligencia
         artificial.

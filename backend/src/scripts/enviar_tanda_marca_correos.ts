@@ -116,11 +116,10 @@ const marcaLogoInalcanzable: MarcaCorreo = {
 // agrandar la caja del encabezado.
 //
 // Dos proporciones distintas, cada una en las dos cajas, para poder
-// juzgar el cambio con los ojos en vez de discutir números:
-//
-//   caja vieja 180x36   →   caja nueva 240x56
-//   1.94:1   70x36              109x56
-//   1:1      36x36               56x56
+// juzgar el cambio con los ojos en vez de discutir números. Los tamaños
+// NO se escriben acá: las etiquetas los calculan, porque escribirlos a
+// mano ya dejó dos veces una tanda mostrando un encabezado que el backend
+// no producía.
 //
 // LIMITACIÓN de esta tanda: el logo tiene que salir de una URL que un
 // cliente de correo pueda alcanzar, y desde este entorno las únicas que
@@ -132,10 +131,16 @@ const marcaLogoInalcanzable: MarcaCorreo = {
 const LOGO_APAISADO = LOGO_PUBLICO; // 388x200 → 1.94:1
 const LOGO_CUADRADO = "https://app.vetlineai.com/icon-512.png"; // 512x512 → 1:1
 
-// El tamaño viejo se calcula con la caja vieja escrita a mano a propósito:
-// es el término de comparación, no la configuración vigente.
-function tamanoCajaVieja(ancho: number, alto: number) {
-  return escalarDentroDeCaja(ancho, alto, 180, 36);
+// 180x36 es la caja que corre HOY EN PRODUCCIÓN, escrita a mano a
+// propósito: es el término de comparación, no la configuración vigente del
+// código. Cuando se despliegue, este par deja de tener sentido.
+const CAJA_EN_PRODUCCION = { ancho: 180, alto: 36 };
+function tamanoEnProduccion(ancho: number, alto: number) {
+  return escalarDentroDeCaja(ancho, alto, CAJA_EN_PRODUCCION.ancho, CAJA_EN_PRODUCCION.alto);
+}
+
+function etiquetaDeTamano(tamano: { width: number; height: number }): string {
+  return `${tamano.width}x${tamano.height}`;
 }
 
 function marcaDeComparacion(
@@ -146,24 +151,21 @@ function marcaDeComparacion(
   return { nombre, logoUrl, logoTamano: tamano, replyTo: null, esComercio: true };
 }
 
-const comparacion = [
-  {
-    etiqueta: "1/4 apaisado 1.94:1 — ANTES (70x36)",
-    marca: marcaDeComparacion("Clínica Veterinaria San Roque", LOGO_APAISADO, tamanoCajaVieja(388, 200)),
-  },
-  {
-    etiqueta: "2/4 apaisado 1.94:1 — AHORA (109x56)",
-    marca: marcaDeComparacion("Clínica Veterinaria San Roque", LOGO_APAISADO, escalarLogoDeEncabezado(388, 200)),
-  },
-  {
-    etiqueta: "3/4 cuadrado 1:1 — ANTES (36x36)",
-    marca: marcaDeComparacion("Veterinaria Los Álamos", LOGO_CUADRADO, tamanoCajaVieja(512, 512)),
-  },
-  {
-    etiqueta: "4/4 cuadrado 1:1 — AHORA (56x56)",
-    marca: marcaDeComparacion("Veterinaria Los Álamos", LOGO_CUADRADO, escalarLogoDeEncabezado(512, 512)),
-  },
-].map(({ etiqueta, marca }) => ({
+const CASOS_COMPARACION = [
+  { nombre: "Clínica Veterinaria San Roque", url: LOGO_APAISADO, ancho: 388, alto: 200 },
+  { nombre: "Veterinaria Los Álamos", url: LOGO_CUADRADO, ancho: 512, alto: 512 },
+];
+
+const comparacion = CASOS_COMPARACION.flatMap(({ nombre, url, ancho, alto }) => {
+  const proporcion = `${(ancho / alto).toFixed(2)}:1`;
+  return [
+    { sufijo: "ANTES (producción hoy)", tamano: tamanoEnProduccion(ancho, alto) },
+    { sufijo: "AHORA", tamano: escalarLogoDeEncabezado(ancho, alto) },
+  ].map(({ sufijo, tamano }) => ({
+    etiqueta: `${proporcion} — ${sufijo} ${etiquetaDeTamano(tamano)}`,
+    marca: marcaDeComparacion(nombre, url, tamano),
+  }));
+}).map(({ etiqueta, marca }) => ({
   etiqueta,
   marca,
   // Siempre la misma plantilla y los mismos datos: si el correo cambiara
@@ -213,12 +215,12 @@ async function enviarConLogoAdjunto(destino: string, ruta: string, nombreClinica
   const esPng = /\.png$/i.test(ruta) || bytes.subarray(0, 4).toString("hex") === "89504e47";
   const real = dimensionesImagen(bytes, esPng ? "png" : "jpg");
 
-  const antes = escalarDentroDeCaja(real.width, real.height, 180, 36);
+  const antes = tamanoEnProduccion(real.width, real.height);
   const ahora = escalarLogoDeEncabezado(real.width, real.height);
   console.log(
     `  archivo ${real.width}x${real.height} (proporción ${(real.width / real.height).toFixed(2)}:1)\n` +
-      `  caja vieja 180x36 → ${antes.width}x${antes.height}\n` +
-      `  caja nueva 240x56 → ${ahora.width}x${ahora.height}`
+      `  producción hoy → ${etiquetaDeTamano(antes)}\n` +
+      `  con este cambio → ${etiquetaDeTamano(ahora)}`
   );
 
   // Cliente propio, no el de email.ts: enviarEmail() no manda adjuntos y
@@ -226,9 +228,10 @@ async function enviarConLogoAdjunto(destino: string, ruta: string, nombreClinica
   // solo necesita esta prueba. El saneo de cabeceras sí se reusa.
   const resend = new Resend(config.resendApiKey);
 
+  const proporcion = `${(real.width / real.height).toFixed(2)}:1`;
   for (const [etiqueta, tamano] of [
-    ["ANTES (caja 180x36)", antes],
-    ["AHORA (caja 240x56)", ahora],
+    [`${proporcion} ANTES (producción hoy)`, antes],
+    [`${proporcion} AHORA`, ahora],
   ] as [string, { width: number; height: number }][]) {
     const marca: MarcaCorreo = {
       nombre: nombreClinica,

@@ -212,8 +212,8 @@ async function main() {
     const marca = await resolverMarca(pool, "recordatorio_cita", tenantId!);
     afirmar(marca.logoUrl === urlPublica, "la marca del correo apunta a la URL del bucket", marca.logoUrl);
     afirmar(
-      marca.logoTamano?.width === 224 && marca.logoTamano?.height === 56,
-      "y el logo 400x100 se escaló a 224x56 leyéndolo del bucket",
+      marca.logoTamano?.width === 200 && marca.logoTamano?.height === 50,
+      "y el logo 400x100 se escaló a 200x50 leyéndolo del bucket",
       marca.logoTamano
     );
 

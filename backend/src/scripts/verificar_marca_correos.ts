@@ -20,8 +20,10 @@ import { config } from "../config";
 import { DatosPlantilla, TipoCorreo, construirCorreo } from "../correos";
 import { asuntoParaCabecera, componerRemitente, direccionValida, enviarEmail } from "../email";
 import {
+  ANCHO_MINIMO_APAISADO,
   LOGO_ALTO_MAX,
-  LOGO_ANCHO_MAX,
+  LOGO_ANCHO_OBJETIVO,
+  PROPORCION_APAISADA_MINIMA,
   MarcaCorreo,
   TIPOS_MARCA_COMERCIO,
   escalarLogoDeEncabezado,
@@ -363,11 +365,11 @@ async function main() {
     const UTIL_ESCRITORIO = 480 - 32 * 2;
     const UTIL_ANGOSTO = 320 - 32 * 2;
     afirmar(
-      LOGO_ANCHO_MAX <= UTIL_ANGOSTO,
-      `la caja (${LOGO_ANCHO_MAX}px) entra en el encabezado más angosto (${UTIL_ANGOSTO}px a 320 de viewport)`
+      LOGO_ANCHO_OBJETIVO <= UTIL_ANGOSTO,
+      `la caja (${LOGO_ANCHO_OBJETIVO}px) entra en el encabezado más angosto (${UTIL_ANGOSTO}px a 320 de viewport)`
     );
     afirmar(
-      LOGO_ANCHO_MAX <= UTIL_ESCRITORIO,
+      LOGO_ANCHO_OBJETIVO <= UTIL_ESCRITORIO,
       `y con margen en el de escritorio (${UTIL_ESCRITORIO}px)`
     );
 
@@ -379,6 +381,10 @@ async function main() {
       // Fuente más chica que la caja: el caso que la caja grande podría
       // ampliar y dejar borroso. Tiene que salir en sus propios píxeles.
       [90, 30, "90x30, más chico que la caja"],
+      // Las dos proporciones apaisadas reales del pedido: la del logo de
+      // MedicaVet (~1.67:1) y el borde del rango (1.33:1).
+      [1000, 600, "1.67:1, un apaisado como el de MedicaVet"],
+      [800, 600, "1.33:1, el menos apaisado que entra en el rango"],
     ] as [number, number, string][]) {
       const clave = await subirLogoDePrueba(ancho, alto);
       const t = await pool.query(
@@ -391,7 +397,7 @@ async function main() {
       const tam = m.logoTamano!;
 
       afirmar(
-        tam.width <= LOGO_ANCHO_MAX && tam.height <= LOGO_ALTO_MAX,
+        tam.width <= LOGO_ANCHO_OBJETIVO && tam.height <= LOGO_ALTO_MAX,
         `logo ${etiqueta} → cabe en la caja del encabezado (${tam.width}x${tam.height})`
       );
       afirmar(
@@ -399,12 +405,23 @@ async function main() {
         `logo ${etiqueta} → no se amplía por encima de sus propios píxeles`,
         `fuente ${ancho}x${alto}, render ${tam.width}x${tam.height}`
       );
+      // EL compromiso del pedido, en número: un apaisado tiene que ocupar
+      // entre 160 y 200px de ancho. Solo aplica si el archivo da el ancho
+      // —no se amplía nunca—, por eso el guardia sobre `ancho`.
+      const esApaisado = ancho / alto >= PROPORCION_APAISADA_MINIMA;
+      if (esApaisado && ancho >= LOGO_ANCHO_OBJETIVO) {
+        afirmar(
+          tam.width >= ANCHO_MINIMO_APAISADO && tam.width <= LOGO_ANCHO_OBJETIVO,
+          `logo ${etiqueta} → ocupa entre ${ANCHO_MINIMO_APAISADO} y ${LOGO_ANCHO_OBJETIVO}px de ancho (${tam.width})`,
+          `el alto NO puede ser el que ata en un apaisado — render ${tam.width}x${tam.height}`
+        );
+      }
       // La proporción se compara contra el tamaño exacto antes de
       // redondear, no como un cociente: a 8px de alto, medio píxel de
       // redondeo son un 6% de "distorsión" que no existe. Lo que hay que
       // garantizar es que cada eje esté dentro del píxel de su valor
       // exacto — que es lo mejor que se puede hacer con enteros.
-      const escala = Math.min(LOGO_ANCHO_MAX / ancho, LOGO_ALTO_MAX / alto, 1);
+      const escala = Math.min(LOGO_ANCHO_OBJETIVO / ancho, LOGO_ALTO_MAX / alto, 1);
       afirmar(
         Math.abs(tam.width - ancho * escala) <= 1 && Math.abs(tam.height - alto * escala) <= 1,
         `logo ${etiqueta} → conserva la proporción, no se estira`,

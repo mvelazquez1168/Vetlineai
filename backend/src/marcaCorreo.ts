@@ -90,42 +90,67 @@ export function marcaPlataforma(): MarcaCorreo {
   };
 }
 
-// La caja del encabezado.
+// La caja del encabezado. **El criterio es el ANCHO, no el alto.**
 //
-// El límite que manda casi siempre es el ALTO, no el ancho: el ancho solo
-// ata cuando la proporción supera ANCHO_MAX/ALTO_MAX, y por debajo de eso
-// el logo se escala hasta tocar el alto y ahí se queda. Con la caja vieja
-// (180x36) ese cruce estaba en 5:1, así que un logo apaisado normal —4:1,
-// 2:1— nunca llegaba a usar el ancho disponible y salía en 145 o en 70
-// píxeles contra un título de ~200: una miniatura al lado del texto.
+// Los dos intentos anteriores fallaron por el mismo motivo, y conviene
+// dejarlo escrito: con `min(ancho/w, alto/h)`, el que ata es el ANCHO solo
+// cuando la proporción supera ANCHO/ALTO. Con 180x36 ese cruce estaba en
+// 5:1 y con 240x56 en 4.3:1 — o sea que un logo apaisado normal (2:1,
+// 1.7:1) caía siempre del lado del ALTO, se frenaba ahí y no se acercaba
+// nunca al ancho disponible. Subir los dos números en proporción movía el
+// resultado unos píxeles pero no cambiaba quién mandaba.
 //
-// Los dos números suben juntos para que el cruce quede donde estaba en
-// proporción (240/56 ≈ 4.3:1) y ningún caso cambie de lado:
+// Ahora el cruce se baja a 200/120 ≈ 1.67:1, de modo que **cualquier logo
+// razonablemente apaisado queda limitado por el ancho** y aterriza donde
+// tiene que aterrizar:
 //
-//   2:1   →  112x56   (antes  72x36)
-//   4:1   →  224x56   (antes 145x36)
-//   1:1   →   56x56   (antes  36x36)
-//   24:1  →  240x10   (antes 180x8, ahí el que ata es el ancho)
+//   proporción   ancho renderizado
+//   1.33:1       160   ← el más "cuadrado" que sigue entrando en el rango
+//   1.67:1       200
+//   2:1          200
+//   4:1          200   (alto 50)
+//   24:1         200   (alto 8)
 //
-// El techo del ancho no es estético: es el ancho útil real. El cuerpo mide
-// 480 con 32 de padding a cada lado → 416 en escritorio, pero en un
-// teléfono de 320 la tabla baja a 320 y el útil queda en 256. 240 entra en
-// el caso angosto, que es el que puede desbordar.
-export const LOGO_ANCHO_MAX = 240;
-export const LOGO_ALTO_MAX = 56;
+// La propiedad que hay que sostener, y que el arnés verifica: **todo logo
+// de 1.33:1 o más apaisado se renderiza entre 160 y 200px de ancho.**
+//
+// El alto ya NO es el criterio: es solo un tope de seguridad, y por eso es
+// generoso. Existe para que un logo cuadrado o vertical no empuje el
+// encabezado a lo alto, no para acotar a los apaisados — a 120 no llega a
+// tocar a ninguno de la tabla de arriba.
+//
+//   1:1   →  120x120
+//   1:4   →   30x120
+//
+// 200 no es un número estético sino el ancho útil real en el peor caso: el
+// cuerpo mide 480 con 32 de padding por lado → 416 en escritorio, pero en
+// un teléfono de 320 la tabla baja a 320 y el útil queda en 256. 200 entra
+// ahí con margen.
+export const LOGO_ANCHO_OBJETIVO = 200;
+export const LOGO_ALTO_MAX = 120;
 
-// Escala un logo dentro de la caja SIN ampliarlo nunca por encima de sus
-// propios píxeles. Al subir el alto máximo de 36 a 56 aparece un caso que
-// antes no existía: un archivo de menos de 56px de alto, que la caja
-// estiraría (un 90x30 se iría a 168x56, casi el doble) y en un cliente de
-// correo se ve borroso. Un archivo chico se muestra chico: eso es un
-// defecto del archivo, y agrandarlo lo empeora en vez de arreglarlo.
+// El ancho a partir del cual un logo se considera apaisado a los efectos
+// del compromiso de arriba. No configura nada — se deriva de la caja y lo
+// usa el arnés para verificar el rango [160, 200].
+export const PROPORCION_APAISADA_MINIMA = 4 / 3;
+export const ANCHO_MINIMO_APAISADO = 160;
+
+// Escala un logo a la caja SIN ampliarlo nunca por encima de sus propios
+// píxeles. Un archivo chico se muestra chico: estirarlo no lo mejora, lo
+// vuelve borroso, y en un cliente de correo eso se nota más que el tamaño.
+//
+// CONSECUENCIA que hay que tener presente con el objetivo de 200px: un
+// archivo de menos de 200px de ancho NO llega a 200 — se queda en su
+// tamaño real. El compromiso de "160 a 200 para un apaisado" vale para
+// archivos de al menos 200px de ancho, que es lo normal en un logo real
+// (el de la base mide 1201). Si un logo sale chico, mirar primero las
+// dimensiones del archivo antes que la caja.
 //
 // El recorte se hace acá y no dentro de escalarDentroDeCaja() porque esa
 // función la comparte la portada del informe .docx, que hoy sí amplía y no
 // es parte de este cambio.
 export function escalarLogoDeEncabezado(ancho: number, alto: number): { width: number; height: number } {
-  return escalarDentroDeCaja(ancho, alto, Math.min(LOGO_ANCHO_MAX, ancho), Math.min(LOGO_ALTO_MAX, alto));
+  return escalarDentroDeCaja(ancho, alto, Math.min(LOGO_ANCHO_OBJETIVO, ancho), Math.min(LOGO_ALTO_MAX, alto));
 }
 
 // El archivo del logo cambia solo cuando el admin sube otro, y ahí cambia

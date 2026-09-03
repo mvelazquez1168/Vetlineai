@@ -2,6 +2,7 @@ import { Router } from "express";
 import { PoolClient } from "pg";
 import PDFDocument from "pdfkit";
 import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
+import { conAlcanceTenant } from "../alcanceTenant";
 import { requerirAnthropic } from "../anthropic";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { registrarUsoApi, verificarAntesDeGenerar, mensajeRechazoGeneracion } from "../tarifas";
@@ -209,8 +210,13 @@ recetasRouter.post("/:id/validar", async (req, res) => {
       });
     }
 
-    const guardarValidacion = async (validacion: Record<string, any>) => {
-      await req.db!.query(
+    // Recibe el cliente en vez de tomar `req.db` de afuera: las ramas que
+    // cortan antes del modelo la llaman dentro de la transacción de la
+    // request, y la que guarda el resultado real la llama en la
+    // transacción corta de después. Sin el parámetro, esa última usaría un
+    // cliente ya devuelto al pool.
+    const guardarValidacion = async (db: PoolClient, validacion: Record<string, any>) => {
+      await db.query(
         `UPDATE recetas SET validacion_ia = $1, validado_en = now(), estado = 'validada' WHERE id = $2`,
         [JSON.stringify(validacion), req.params.id]
       );
@@ -227,7 +233,7 @@ recetasRouter.post("/:id/validar", async (req, res) => {
       const validacion = validacionInformacionInsuficiente(
         "El agente de este caso todavía no tiene su manual operativo cargado — la validación clínica automática no está disponible por ahora."
       );
-      await guardarValidacion(validacion);
+      await guardarValidacion(req.db!, validacion);
       return res.json(validacion);
     }
 
@@ -249,7 +255,7 @@ recetasRouter.post("/:id/validar", async (req, res) => {
       const validacion = validacionInformacionInsuficiente(
         "El caso no tiene registrados los datos mínimos del paciente ni historial clínico suficiente para una validación."
       );
-      await guardarValidacion(validacion);
+      await guardarValidacion(req.db!, validacion);
       return res.json(validacion);
     }
 
@@ -315,6 +321,14 @@ recetasRouter.post("/:id/validar", async (req, res) => {
       )
       .join("\n");
 
+    // Acá se suelta la transacción de la request, antes de la llamada al
+    // modelo — mismo patrón que chat, dashboard e informe. Todo lo de
+    // arriba que llega hasta este punto es LECTURA: las dos ramas que
+    // escriben (`guardarValidacion` para agente sin manual y para datos
+    // insuficientes) devuelven la respuesta antes de llegar acá, dentro de
+    // la transacción de la request.
+    await req.cerrarTransaccion!();
+
     let response;
     try {
       const anthropic = requerirAnthropic();
@@ -356,30 +370,35 @@ recetasRouter.post("/:id/validar", async (req, res) => {
       return res.status(502).json({ error: "No se pudo validar la receta en este momento." });
     }
     const validacion = toolUseBlock.input as Record<string, any>;
-    await guardarValidacion(validacion);
-
-    const medicoAgenteResult = await req.db!.query(
-      `SELECT id FROM medico_agente WHERE persona_id = $1 AND agente_id = $2`,
-      [req.auth!.userId, fila.agente_id]
-    );
-    const medicoAgenteId = medicoAgenteResult.rows[0]?.id ?? null;
 
     const usage = response.usage;
     const tokensCacheEscritura = usage.cache_creation_input_tokens ?? 0;
     const tokensCacheLectura = usage.cache_read_input_tokens ?? 0;
 
-    await registrarUsoApi(req.db!, {
-      tenantId: req.auth!.tenantId!,
-      casoId: fila.caso_id,
-      medicoAgenteId,
-      personaId: req.auth!.userId,
-      modelo: MODELO_CLAUDE,
-      tokensEntrada: usage.input_tokens,
-      tokensSalida: usage.output_tokens,
-      tokensCacheEscritura,
-      tokensCacheLectura,
-      tipoConsumo: "clinico",
-      disparadoPor: "usuario",
+    // Transacción corta de cierre: la validación guardada y el consumo van
+    // juntos o no va ninguno — si se registrara el consumo aparte y
+    // fallara, quedaría una receta validada y no cobrada (o al revés).
+    await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
+      await guardarValidacion(db, validacion);
+
+      const medicoAgenteResult = await db.query(
+        `SELECT id FROM medico_agente WHERE persona_id = $1 AND agente_id = $2`,
+        [req.auth!.userId, fila.agente_id]
+      );
+
+      await registrarUsoApi(db, {
+        tenantId: req.auth!.tenantId!,
+        casoId: fila.caso_id,
+        medicoAgenteId: medicoAgenteResult.rows[0]?.id ?? null,
+        personaId: req.auth!.userId,
+        modelo: MODELO_CLAUDE,
+        tokensEntrada: usage.input_tokens,
+        tokensSalida: usage.output_tokens,
+        tokensCacheEscritura,
+        tokensCacheLectura,
+        tipoConsumo: "clinico",
+        disparadoPor: "usuario",
+      });
     });
 
     res.json(validacion);

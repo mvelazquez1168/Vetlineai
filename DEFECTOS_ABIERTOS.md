@@ -221,3 +221,195 @@ o por cualquier serialización — que en este sistema es casi todas.
 Vale también en la otra dirección, y es la más peligrosa: dos objetos con el
 mismo orden y **distinto contenido anidado** pueden parecer iguales si la
 comparación es superficial. Canónica y profunda, las dos cosas.
+
+---
+
+## D-002 — La URL del JWKS hereda el esquema del issuer, no del anfitrión
+
+**ABIERTO** · encontrado 2026-09-02 · causó una caída del inicio de sesión en producción
+
+`backend/src/middleware/auth.ts` arma la dirección del JWKS así:
+
+```ts
+const jwksHost = config.keycloakJwksHost ?? issuerUrl.host;
+jwksUri: `${issuerUrl.protocol}//${jwksHost}${issuerUrl.pathname}/protocol/openid-connect/certs`
+```
+
+El **anfitrión** es configurable (`KEYCLOAK_JWKS_HOST`) pero el **esquema** no:
+sale siempre de `issuerUrl.protocol`, que es el del issuer público. Los dos
+valores describen cosas distintas y se combinan como si describieran la misma.
+
+### Qué provocó
+
+En producción el issuer es `https://` (detrás de Caddy) y el anfitrión interno
+es `keycloak:8080`, que dentro de la red de Docker escucha en **texto plano** —
+Caddy termina el TLS afuera, `KC_HTTP_ENABLED: "true"`. Con
+`KEYCLOAK_JWKS_HOST: keycloak:8080` puesta, la URL quedaba
+`https://keycloak:8080/...`: la descarga del JWKS fallaba, con ella la
+verificación de firma de todo token, y **nadie podía iniciar sesión**.
+
+No se detecta en desarrollo porque ahí el issuer también es `http://`, así que el
+esquema heredado resulta ser el correcto por casualidad.
+
+### Cómo está hoy
+
+Se desbloqueó **quitando `KEYCLOAK_JWKS_HOST` del compose de producción**. Sin
+ella, `jwksHost` cae al anfitrión del issuer y el esquema heredado vuelve a
+coincidir. Funciona, con un costo: la validación de firma resuelve por el camino
+público, o sea que depende de que Caddy y el DNS público respondan, para algo que
+podría resolverse dentro de la red.
+
+`docker-compose.prod.yml` lleva la advertencia de no restaurar la variable.
+
+### Criterio de cierre
+
+Que el esquema se componga junto con el anfitrión y no se herede — por ejemplo
+aceptando que `KEYCLOAK_JWKS_HOST` traiga el esquema (`http://keycloak:8080`), o
+una `KEYCLOAK_JWKS_URL` completa. Cerrado el defecto, la variable puede volver y
+la validación de tokens deja de depender del camino público.
+
+Ojo al tocarlo: `issuerInternoDocker` (mismo archivo, unas líneas más abajo)
+compone la cadena **de la misma forma** para armar la lista de issuers
+aceptados, y arrastra el mismo supuesto.
+
+### Por qué está acá y no arreglado de paso
+
+Toca el camino de autenticación de producción, que es exactamente donde ya hubo
+una caída. Merece su propio cambio y su propia verificación, no un arreglo
+incidental dentro de otro trabajo.
+
+---
+
+## D-003 — El estado de salud del contenedor no lo consume nadie
+
+**ABIERTO** · encontrado 2026-09-02 · sin impacto hoy, tapa un fallo mañana
+
+`backend/Dockerfile.prod:69` define un HEALTHCHECK real y bien pensado —
+`wget --spider http://localhost:4000/api/health`, cada 30 s, con 3 reintentos —
+y `/api/health` (`index.ts:72`) consulta la base, no solo si el proceso vive.
+
+El comentario que lo acompaña dice: *"El orquestador puede consultar esto para
+saber si el contenedor está listo para recibir tráfico"*. **No hay tal
+orquestador.** Se revisaron los tres lugares que podrían consumir ese estado:
+
+| Candidato | Qué hace con el estado no-sano |
+|---|---|
+| `restart: unless-stopped` (compose) | Nada. Reacciona a que el proceso **salga**, no al estado de salud. |
+| Caddy (`Caddyfile`) | Nada. Los `reverse_proxy` no tienen `health_uri` ni ninguna directiva de salud: reenvía igual. |
+| Orquestador (ECS/Swarm/k8s) | No hay. Es `docker compose` plano sobre una EC2. |
+
+O sea que el estado no-sano solo se ve escribiendo `docker ps` a mano.
+
+### Por qué importa igual
+
+Tiene un lado bueno: **no hay cascada**. Agotar el grupo de conexiones degrada
+pero no reinicia nada, así que no se pierde trabajo en vuelo. Eso está bien y no
+hay que "arreglarlo" con un reinicio automático.
+
+El lado malo es el contrario: un backend genuinamente roto —base caída, grupo de
+conexiones agotado— **sigue recibiendo tráfico** y devolviendo errores hasta que
+una persona mire. El chequeo detecta el problema y no se lo cuenta a nadie.
+
+### Criterio de cierre — decidido: avisar, NO sacar de rotación
+
+Se evaluó agregar `health_uri /api/health` al `reverse_proxy` del Caddyfile para
+que Caddy dejara de mandarle tráfico al backend enfermo. **Descartado, y el
+motivo vale como criterio general para esta infraestructura:**
+
+> **Con un solo servidor, sacar de rotación no ayuda: la alternativa a uno
+> degradado es ninguno.** El usuario pasa de lento a caído y no gana nada. Y si
+> el chequeo se vuelve estricto, una saturación transitoria apagaría tráfico que
+> habría funcionado.
+
+Lo que falta no es que el sistema se apague solo: es que **alguien se entere**.
+
+### Bloqueado a propósito — se cierra junto con el monitoreo
+
+No se construye una alarma para este síntoma suelto. Desde el despliegue **no hay
+monitoreo de ningún tipo**: si el servidor cae, el aviso llega porque una clínica
+llama por teléfono. Una alarma solo para el chequeo de salud del backend dejaría
+ese hueco intacto y agregaría un mecanismo más que mantener.
+
+Este defecto se cierra como parte de ese trabajo, no antes. Cuando se haga, el
+estado no-sano del contenedor es una de las señales a cubrir, no el objetivo.
+
+Mientras tanto, que el comentario del Dockerfile no prometa un orquestador que no
+existe.
+
+---
+
+## D-004 — No hay monitoreo de ningún tipo en producción
+
+**ABIERTO** · anotado 2026-09-02 · pendiente desde el despliegue
+
+Hoy, si el servidor de producción cae, **el aviso llega porque una clínica llama
+por teléfono.** No hay nada mirando: ni disponibilidad, ni errores, ni recursos,
+ni la base.
+
+Lo que ya existe y no se está usando: el HEALTHCHECK del contenedor (ver D-003)
+detecta un backend enfermo y no se lo cuenta a nadie; `/api/health` sabe
+distinguir "el proceso vive" de "la base responde"; los logs quedan en el
+contenedor.
+
+### Por qué está acá como un solo defecto
+
+Se llegó a este punto desde D-003, que necesitaba una alarma. La decisión fue
+**no armar una alarma para un síntoma suelto**: resolvería el chequeo del backend
+y dejaría intacto todo lo demás, agregando un mecanismo más que mantener. Este
+defecto es el trabajo real; D-003 es uno de sus casos.
+
+### Señales que tendría que cubrir, al menos
+
+- El contenedor del backend marcado no-sano (D-003).
+- La instancia EC2 caída o sin responder.
+- La base administrada: conexiones, y en particular el `idle in transaction` que
+  disparó la alerta de AWS (ver la nota del incidente).
+- Memoria: Keycloak ya fue matado por el kernel una vez sin dejar rastro útil en
+  su propio log (ver la nota de `JAVA_OPTS_APPEND` en `docker-compose.prod.yml`).
+- Errores de la aplicación que hoy solo quedan en el log del contenedor.
+
+### Criterio de cierre
+
+Que un fallo de producción llegue a una persona **antes** que a una clínica.
+
+---
+
+## Regla de admisión — R4
+
+> **Una medición que da cero tiene que demostrar que ejercitó el camino que dice
+> medir. Un cero que no midió nada se lee igual que un cero que sí midió.**
+
+Sale de la migración del Dashboard (2026-09-02). Se medía cuánto tiempo queda una
+transacción abierta y quieta durante la llamada al modelo. Las dos primeras
+corridas dieron `MAXIMO: 0.0s` — el resultado buscado — y **ninguna de las dos
+había llamado al modelo**:
+
+| Corrida | Resultado | Lo que pasó en realidad |
+|---|---|---|
+| 1 | `HTTP 200`, `0.0s` | La compuerta de datos mínimos cortó: `raza` sale de `LEFT JOIN razas ON r.id = p.raza_id`, y el dato de prueba había llenado la columna de texto, no `raza_id` |
+| 2 | `HTTP 402`, `0.0s` | El motor de crédito rechazó: el tenant descartable no tenía saldo |
+| 3 | `HTTP 200`, `0.0s` | Generación real de 43.5 s — **este cero sí significa algo** |
+
+Los tres ceros son idénticos en la salida. Lo que delató a los dos primeros no fue
+ninguna comprobación: fue que **el tiempo total no cuadraba** — 0.1 s para algo
+que debía tardar decenas de segundos.
+
+### Es la misma familia que R1, R2 y R3
+
+Un resultado plausible que no significa lo que parece. Igual que el verificador
+que medía «cifra + unidad» y decía medir «hay un valor numérico», acá el arnés
+medía «no hubo transacción abierta» y decía medir «la transacción ya no abarca la
+llamada al modelo». Son cosas distintas cuando la llamada no ocurre.
+
+### Cómo se aplica
+
+La medición tiene que llevar **un testigo de que el camino se ejercitó**, no solo
+la métrica. En este caso alcanzaba con cualquiera de estos, y conviene imprimir
+los tres:
+
+- el tiempo total (una generación real no baja de decenas de segundos);
+- el efecto observable (`estado_generacion: generado`, el Dashboard persistido);
+- el consumo registrado (una fila nueva en `uso_api`).
+
+Vale para cualquier medición de una ausencia: si el número puede salir del camino
+corto **y** del largo, no distingue nada por sí solo.

@@ -25,6 +25,18 @@ let tokenCacheado: TokenServicio | null = null;
 
 // Cachea el token de servicio en memoria hasta que esté por vencer — no
 // pide uno nuevo en cada llamada a la Admin API.
+// `fetch` de Node no tiene timeout: sin esto, una llamada a Keycloak que
+// no responde se queda esperando hasta que el sistema operativo corte el
+// TCP, que puede ser más de una hora. Eso importa acá más que en otros
+// lados porque el alta de registro (registro.routes.ts) llama a Keycloak
+// CON UNA TRANSACCIÓN ABIERTA: mientras el fetch cuelga, esa conexión
+// queda en `idle in transaction` reteniendo bloqueos y frenando el vacuum
+// de toda la base. Es la alerta de AWS, en su versión ilimitada.
+//
+// 15 s es holgado para Keycloak (las respuestas reales son de decenas de
+// milisegundos) y acota el peor caso a algo que la base puede tolerar.
+const TIMEOUT_KEYCLOAK_MS = 15_000;
+
 async function obtenerTokenServicio(): Promise<string> {
   if (tokenCacheado && tokenCacheado.expiraEn - Date.now() > 5_000) {
     return tokenCacheado.accessToken;
@@ -40,6 +52,7 @@ async function obtenerTokenServicio(): Promise<string> {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
+    signal: AbortSignal.timeout(TIMEOUT_KEYCLOAK_MS),
   });
 
   if (!response.ok) {
@@ -61,6 +74,7 @@ async function adminFetch(path: string, options: RequestInit = {}): Promise<Resp
   const token = await obtenerTokenServicio();
   return fetch(`${config.keycloakAdminUrl}${path}`, {
     ...options,
+    signal: options.signal ?? AbortSignal.timeout(TIMEOUT_KEYCLOAK_MS),
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",

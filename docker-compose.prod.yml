@@ -1,9 +1,15 @@
 # Composición de PRODUCCIÓN — separada de docker-compose.yml (desarrollo),
 # que sigue existiendo tal cual, sin tocar.
 #
+# RECONCILIADO 2026-09-02 con el archivo que estaba corriendo en el
+# servidor. Se había editado en caliente al desplegar y nunca se versionó,
+# así que la configuración real de producción vivía solo ahí. Las
+# diferencias que traía y que ahora están acá: imágenes de ECR en vez de
+# `build:`, KEYCLOAK_JWKS_HOST sacada, y más memoria/heap para Keycloak.
+#
 # Diferencias de fondo con la de desarrollo:
-#   - Imágenes construidas (Dockerfile.prod de cada servicio), nunca
-#     código montado desde el disco.
+#   - Imágenes YA CONSTRUIDAS, publicadas en ECR (ver Dockerfile.prod de
+#     cada servicio) — el servidor no compila, solo baja la imagen.
 #   - Un proxy inverso (Caddy) adelante, con certificados TLS automáticos
 #     (Let's Encrypt) — es el ÚNICO servicio con puertos publicados al
 #     host. backend/frontend/keycloak solo se hablan entre sí por la red
@@ -22,9 +28,12 @@
 
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.prod
+    # El tag va parametrizado y NO fijo: el servidor tenía escrito a mano
+    # el commit desplegado, así que cada despliegue volvía a desincronizar
+    # este archivo del que corría de verdad. Con IMAGE_TAG, desplegar es
+    # exportar una variable y no editar el archivo. El default reproduce
+    # exactamente lo que estaba corriendo al reconciliar.
+    image: ${ECR_REGISTRY:-344872152822.dkr.ecr.us-east-1.amazonaws.com}/vetplatform-backend:${IMAGE_TAG:-95726cf}
     restart: unless-stopped
     # 512m se quedaba corto: la carga de adjuntos ahora pasa por memoria
     # (multer.memoryStorage, ver almacenamiento/) — cada archivo ocupa un
@@ -43,10 +52,21 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
-      # Igual que en dev: el issuer público (KEYCLOAK_ISSUER, detrás de
-      # Caddy) no resuelve desde ADENTRO de la red de Docker — el backend
-      # necesita el nombre de servicio interno para buscar el JWKS.
-      KEYCLOAK_JWKS_HOST: keycloak:8080
+      # KEYCLOAK_JWKS_HOST NO va acá, y no es un olvido: se quitó a
+      # propósito para desbloquear el inicio de sesión en producción.
+      #
+      # El código arma la URL del JWKS heredando el esquema del issuer
+      # (middleware/auth.ts), que en producción es https. Con la variable
+      # puesta, eso daba `https://keycloak:8080/...` — pero adentro de la
+      # red Keycloak escucha en texto plano (KC_HTTP_ENABLED, Caddy
+      # termina el TLS). La descarga fallaba, con ella la verificación de
+      # firma, y nadie podía entrar.
+      #
+      # Sin la variable, el JWKS resuelve contra el anfitrión público. Eso
+      # ata la validación de tokens al camino público (Caddy + DNS), que
+      # es el costo que se paga hoy. NO restaurar la variable hasta que el
+      # código componga el esquema según el anfitrión — defecto D-002 en
+      # DEFECTOS_ABIERTOS.md.
       KEYCLOAK_ADMIN_URL: http://keycloak:8080/admin/realms/${KEYCLOAK_REALM}
       KEYCLOAK_SERVICE_CLIENT_ID: ${KEYCLOAK_SERVICE_CLIENT_ID}
       KEYCLOAK_SERVICE_CLIENT_SECRET: ${KEYCLOAK_SERVICE_CLIENT_SECRET}
@@ -77,9 +97,7 @@ services:
       S3_URL_PUBLICA_BASE: ${S3_URL_PUBLICA_BASE}
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
+    image: ${ECR_REGISTRY:-344872152822.dkr.ecr.us-east-1.amazonaws.com}/vetplatform-frontend:${IMAGE_TAG:-95726cf}
     restart: unless-stopped
     mem_limit: 128m
     mem_reservation: 64m
@@ -104,8 +122,11 @@ services:
     # default en producción, explícito acá para que quede documentado.
     command: start --hostname=https://${KEYCLOAK_HOSTNAME} --hostname-strict=true --proxy-headers=xforwarded
     restart: unless-stopped
-    mem_limit: 768m
-    mem_reservation: 384m
+    # Subido en el servidor de 768m/384m a esto. La memoria que Keycloak
+    # necesita FUERA del heap (ver la nota de JAVA_OPTS_APPEND) no entraba
+    # con 768m.
+    mem_limit: 1200m
+    mem_reservation: 768m
     networks:
       - interna
     environment:
@@ -132,11 +153,14 @@ services:
       # buffers directos, caché nativa de Infinispan). El síntoma real es
       # que el kernel mata el contenedor por memoria sin ningún error en
       # el log de Keycloak — no es un fallo de aplicación, así que no dice
-      # nada útil. -Xmx384m dentro de un límite de 768m deja 384m (50%)
+      # nada útil. -Xmx640m dentro de un límite de 1200m deja 560m (47%)
       # de margen para todo lo no-heap; JAVA_OPTS_APPEND (no JAVA_OPTS)
       # porque agrega estas dos flags a los valores por defecto que
       # Keycloak ya calcula, en vez de reemplazarlos.
-      JAVA_OPTS_APPEND: "-Xms256m -Xmx384m"
+      #
+      # Los números de este comentario decían 384m/768m: eran los del repo,
+      # y en el servidor ya se habían subido sin actualizar el texto.
+      JAVA_OPTS_APPEND: "-Xms256m -Xmx640m"
 
   caddy:
     image: caddy:2-alpine

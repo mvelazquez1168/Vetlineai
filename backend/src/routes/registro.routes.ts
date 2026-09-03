@@ -1,7 +1,13 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { Router } from "express";
 import { pool } from "../db";
-import { crearUsuarioKeycloak, KeycloakUsuarioExistenteError, obtenerTokenParaUsuario } from "../keycloakAdmin";
+import {
+  crearUsuarioKeycloak,
+  eliminarUsuarioKeycloak,
+  KeycloakUsuarioExistenteError,
+  obtenerTokenParaUsuario,
+} from "../keycloakAdmin";
 import { crearInvitacion } from "../invitaciones";
 import { asignarAgenteAlRegistrante } from "../medicoAgente";
 import { otorgarCreditoPruebaSiCorresponde } from "../registroPrueba";
@@ -169,8 +175,41 @@ registroRouter.post("/", async (req, res) => {
     const zonaHoraria = zonasHorariasParaPais(paisCodigo).default ?? "America/Costa_Rica";
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // -----------------------------------------------------------------
+    // Orden invertido a propósito: Keycloak PRIMERO, con la base sin tocar.
+    //
+    // Antes el usuario de Keycloak se creaba en el medio de la transacción
+    // del alta, y el correo de verificación se mandaba también adentro. O
+    // sea que esta conexión quedaba en `idle in transaction` durante dos
+    // llamadas de red — y `fetch` no tenía timeout, así que un Keycloak que
+    // no respondiera la dejaba retenida hasta que cortara el TCP del
+    // sistema operativo. Peor que en el chat: esta ruta es PÚBLICA (la
+    // dispara cualquiera desde afuera) y usa el pool ADMIN, el mismo del
+    // que sale /api/health.
+    //
+    // El id del tenant se genera acá en vez de dejarlo a `gen_random_uuid()`
+    // porque Keycloak lo necesita como atributo del usuario. Es lo que
+    // permite invertir el orden: sin esto, había que insertar primero para
+    // saber el id, y entonces la llamada quedaba sí o sí dentro de la
+    // transacción.
+    // -----------------------------------------------------------------
+    const tenantId = crypto.randomUUID();
+
+    // emailVerificado=false — a diferencia del resto de los usuarios que
+    // este backend crea en Keycloak, el admin autorregistrado todavía no
+    // probó que su correo es válido (prompt de verificación de correo).
+    // Se sincroniza a true recién cuando confirma el enlace que le
+    // mandamos por Resend, ver verificacionCorreo.ts.
+    const keycloakUserId = await crearUsuarioKeycloak({
+      email,
+      nombreCompleto: nombreTitular,
+      password,
+      tenantId,
+      rol: "ADMIN",
+      emailVerificado: false,
+    });
+
     const client = await pool.connect();
-    let tenantId: string;
     let personaId: string;
     try {
       await client.query("BEGIN");
@@ -180,13 +219,12 @@ registroRouter.post("/", async (req, res) => {
       // no acepta) — la fijamos acá a 'prueba' para que quede consistente
       // con suscripciones.estado; el resto del alta usa exclusivamente el
       // modelo nuevo (suscripciones/saldos_ia).
-      const tenantResult = await client.query(
+      await client.query(
         `INSERT INTO tenants
-           (nombre, pais_codigo, zona_horaria, tipo_persona, tipo_identificacion_id,
+           (id, nombre, pais_codigo, zona_horaria, tipo_persona, tipo_identificacion_id,
             numero_identificacion, nombre_fiscal, medico_invitado_email, telefono, email,
             estado_suscripcion)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'prueba')
-         RETURNING id`,
+         VALUES ($11, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'prueba')`,
         [
           nombreComercial,
           paisCodigo,
@@ -198,9 +236,9 @@ registroRouter.post("/", async (req, res) => {
           esMedico ? null : correoMedicoInvitado,
           telefono ?? null,
           email,
+          tenantId,
         ]
       );
-      tenantId = tenantResult.rows[0].id;
 
       // PASO 4 — suscripción en prueba, sin cobrar nada. periodo_inicio/fin
       // define la ventana de prueba; credito_pactado_usd arranca en 0 y lo
@@ -237,11 +275,13 @@ registroRouter.post("/", async (req, res) => {
       );
 
       // PASO 3 — rol del registrante.
+      // keycloak_user_id va en el INSERT, no en un UPDATE posterior: el
+      // usuario de Keycloak ya existe antes de abrir esta transacción.
       const personaResult = await client.query(
         `INSERT INTO personas
            (tenant_id, nombre, email, password_hash, es_admin_clinica, es_medico,
-            colegiatura, universidad_egreso, anio_graduacion, estado)
-         VALUES ($1, $2, $3, $4, true, $5, $6, $7, $8, 'activo')
+            colegiatura, universidad_egreso, anio_graduacion, estado, keycloak_user_id)
+         VALUES ($1, $2, $3, $4, true, $5, $6, $7, $8, 'activo', $9)
          RETURNING id`,
         [
           tenantId,
@@ -252,32 +292,10 @@ registroRouter.post("/", async (req, res) => {
           esMedico ? colegiatura : null,
           esMedico ? universidadEgreso ?? null : null,
           esMedico ? anioGraduacion ?? null : null,
+          keycloakUserId,
         ]
       );
       personaId = personaResult.rows[0].id;
-
-      // emailVerificado=false — a diferencia del resto de los usuarios que
-      // este backend crea en Keycloak, el admin autorregistrado todavía no
-      // probó que su correo es válido (prompt de verificación de correo).
-      // Se sincroniza a true recién cuando confirma el enlace que le
-      // mandamos por Resend, ver verificacionCorreo.ts.
-      const keycloakUserId = await crearUsuarioKeycloak({
-        email,
-        nombreCompleto: nombreTitular,
-        password,
-        tenantId,
-        rol: "ADMIN",
-        emailVerificado: false,
-      });
-      await client.query(`UPDATE personas SET keycloak_user_id = $1 WHERE id = $2`, [
-        keycloakUserId,
-        personaId,
-      ]);
-
-      // Capa 1/2 del prompt de verificación de correo — dispara el envío
-      // dentro de la misma transacción que crea la persona, igual que la
-      // invitación del primer médico un poco más abajo.
-      await generarYEnviarVerificacion(client, personaId, tenantId, email, nombreComercial);
 
       // PASO 5 — el crédito de prueba NO se otorga todavía si nadie
       // colegiado está confirmado. Si el registrante es médico, ya lo
@@ -297,23 +315,60 @@ registroRouter.post("/", async (req, res) => {
       // su área de trabajo y la vería vacía. Cualquier médico que se dé
       // de alta de ahí en adelante (invitación) lo decide el
       // administrador, ver medicoAgente.ts.
+      // La invitación del primer médico ya NO se crea acá: manda un correo,
+      // y lo que esta transacción no puede hacer es esperar a Resend. Se
+      // dispara abajo, con el alta ya confirmada.
       if (esMedico) {
         await asignarAgenteAlRegistrante(client, personaId, agenteId);
         await otorgarCreditoPruebaSiCorresponde(client, tenantId);
-      } else if (correoMedicoInvitado) {
-        await crearInvitacion(client, tenantId, nombreComercial, personaId, correoMedicoInvitado);
       }
 
       await client.query("COMMIT");
     } catch (err) {
-      await client.query("ROLLBACK");
+      await client.query("ROLLBACK").catch(() => undefined);
+      // El usuario de Keycloak ya existe en este punto (se crea antes de
+      // abrir la transacción), así que si el alta en base falla hay que
+      // deshacerlo o queda huérfano: una cuenta que puede autenticarse
+      // contra un tenant que no existe. Antes esto no se compensaba —
+      // el log original decía "posiblemente quedó huérfano" y ahí quedaba.
+      // eliminarUsuarioKeycloak() no lanza: registra y sigue.
       console.error(
-        `POST /registro-publico: falló el alta en base de datos (posiblemente quedó huérfano un usuario de Keycloak)`,
+        `POST /registro-publico: falló el alta en base de datos — se elimina el usuario de Keycloak ${keycloakUserId}`,
         err
       );
+      await eliminarUsuarioKeycloak(keycloakUserId);
       throw err;
     } finally {
       client.release();
+    }
+
+    // -----------------------------------------------------------------
+    // Correos, ya con el alta confirmada y SIN ninguna transacción abierta.
+    //
+    // Antes los dos salían desde adentro de la transacción del alta, que es
+    // lo que la dejaba retenida esperando a Resend. Además tenía una
+    // consecuencia rara: un fallo de correo revertía el registro entero.
+    //
+    // Que vayan después no cambia la fiabilidad del envío en sí —
+    // enviarCorreoTransaccional ya no lanza ante un fallo del proveedor:
+    // deja la fila en correos_enviados como 'fallido' y sigue. Lo que sí
+    // cambia es que ese fallo ya no puede borrar una clínica válida.
+    // -----------------------------------------------------------------
+    try {
+      await generarYEnviarVerificacion(pool, personaId, tenantId, email, nombreComercial);
+    } catch (err) {
+      console.error(`POST /registro-publico: la clínica ${tenantId} se creó pero falló la verificación de correo`, err);
+    }
+    if (!esMedico && correoMedicoInvitado) {
+      try {
+        await crearInvitacion(pool, tenantId, nombreComercial, personaId, correoMedicoInvitado);
+      } catch (err) {
+        console.error(
+          `POST /registro-publico: la clínica ${tenantId} se creó pero falló la invitación al primer médico ` +
+            `(${correoMedicoInvitado}) — se puede reenviar desde el panel`,
+          err
+        );
+      }
     }
 
     // Auto-login: no hay pago que confirmar, la cuenta ya está activa

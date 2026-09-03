@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { PoolClient } from "pg";
 import * as path from "path";
+import { conAlcanceTenant } from "../alcanceTenant";
 import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import {
   Document,
@@ -757,6 +758,20 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
     const bloquePrescripciones = construirBloquePrescripciones(recetasEmitidas);
     const mensajesConPrescripciones = insertarBloquePrescripciones(mensajesParaClaude, bloquePrescripciones);
 
+    // Acá termina todo lo que esta ruta le pide a la base antes de hablar
+    // con el modelo, así que acá se suelta la transacción. Sin el corte
+    // quedaba abierta y quieta durante toda la generación del Dashboard
+    // —que es larga: max_tokens 8192— reteniendo bloqueos y frenando el
+    // vacuum. Mismo patrón que el chat.
+    //
+    // Todo lo de arriba es LECTURA (incluido verificarAntesDeGenerar, que
+    // solo consulta), así que confirmar acá no puede perder nada: no hay
+    // ninguna escritura pendiente que un fallo posterior debiera revertir.
+    //
+    // Desde este punto `req.db` no se usa más; lo que resta va en una
+    // transacción corta con conAlcanceTenant.
+    await req.cerrarTransaccion!();
+
     // -----------------------------------------------------------------
     // Llamada real con tool_choice forzado a generar_dashboard.
     // -----------------------------------------------------------------
@@ -819,43 +834,48 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
       generado_en: new Date().toISOString(),
     };
 
-    const medicoAgenteResult = await req.db!.query(
-      `SELECT id FROM medico_agente WHERE persona_id = $1 AND agente_id = $2`,
-      [req.auth!.userId, caso.agente_id]
-    );
-    const medicoAgenteId = medicoAgenteResult.rows[0]?.id ?? null;
-
     const usage = response.usage;
     const tokensCacheEscritura = usage.cache_creation_input_tokens ?? 0;
     const tokensCacheLectura = usage.cache_read_input_tokens ?? 0;
 
-    // Llamada separada del chat — fila propia en uso_api, no se mezcla con
-    // el consumo de POST /casos/:id/mensajes. tipoConsumoDashboard ya se
-    // determinó arriba, antes de sobreescribir dashboard_cache más abajo.
-    await registrarUsoApi(req.db!, {
-      tenantId: req.auth!.tenantId!,
-      casoId: req.params.id,
-      medicoAgenteId,
-      personaId: req.auth!.userId,
-      modelo: MODELO_GCIS,
-      tokensEntrada: usage.input_tokens,
-      tokensSalida: usage.output_tokens,
-      tokensCacheEscritura,
-      tokensCacheLectura,
-      tipoConsumo: tipoConsumoDashboard,
-      disparadoPor: "usuario",
-    });
-
-    // Persiste como cache solo si realmente se generó — un "sin_datos"
-    // devuelto por el modelo pese a pasar la compuerta, o cualquier falla
-    // previa, no debe pisar un Dashboard bueno que ya existiera (ver
-    // prompt_dashboard_persistencia.md Fase B.1).
-    if (dashboardGenerado.meta.estado_generacion === "generado") {
-      await req.db!.query(
-        `UPDATE casos SET dashboard_cache = $1, dashboard_generado_en = $2 WHERE id = $3`,
-        [JSON.stringify(dashboardGenerado), dashboardGenerado.meta.generado_en, req.params.id]
+    // Segunda transacción, corta: el consumo y el Dashboard persistido van
+    // juntos o no va ninguno. Si el consumo se registrara aparte y fallara,
+    // quedaría un Dashboard generado y no cobrado (o al revés).
+    await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
+      const medicoAgenteResult = await db.query(
+        `SELECT id FROM medico_agente WHERE persona_id = $1 AND agente_id = $2`,
+        [req.auth!.userId, caso.agente_id]
       );
-    }
+      const medicoAgenteId = medicoAgenteResult.rows[0]?.id ?? null;
+
+      // Llamada separada del chat — fila propia en uso_api, no se mezcla con
+      // el consumo de POST /casos/:id/mensajes. tipoConsumoDashboard ya se
+      // determinó arriba, antes de sobreescribir dashboard_cache más abajo.
+      await registrarUsoApi(db, {
+        tenantId: req.auth!.tenantId!,
+        casoId: req.params.id,
+        medicoAgenteId,
+        personaId: req.auth!.userId,
+        modelo: MODELO_GCIS,
+        tokensEntrada: usage.input_tokens,
+        tokensSalida: usage.output_tokens,
+        tokensCacheEscritura,
+        tokensCacheLectura,
+        tipoConsumo: tipoConsumoDashboard,
+        disparadoPor: "usuario",
+      });
+
+      // Persiste como cache solo si realmente se generó — un "sin_datos"
+      // devuelto por el modelo pese a pasar la compuerta, o cualquier falla
+      // previa, no debe pisar un Dashboard bueno que ya existiera (ver
+      // prompt_dashboard_persistencia.md Fase B.1).
+      if (dashboardGenerado.meta.estado_generacion === "generado") {
+        await db.query(
+          `UPDATE casos SET dashboard_cache = $1, dashboard_generado_en = $2 WHERE id = $3`,
+          [JSON.stringify(dashboardGenerado), dashboardGenerado.meta.generado_en, req.params.id]
+        );
+      }
+    });
 
     res.json({ dashboard: dashboardGenerado });
   } catch (err) {
@@ -1839,6 +1859,21 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
     const bloquePrescripciones = construirBloquePrescripciones(recetasEmitidas);
     const mensajesConPrescripciones = insertarBloquePrescripciones(mensajesParaClaude, bloquePrescripciones);
 
+    // Acá se suelta la transacción de la request: lo que sigue es la
+    // llamada al modelo, la más larga de todas (max_tokens 16384), y
+    // sostenerla abierta durante toda la generación es la causa raíz de
+    // la alerta de `idle in transaction`. Mismo patrón que chat y
+    // dashboard.
+    //
+    // Todo lo de arriba es LECTURA —incluidos verificarAntesDeGenerar y
+    // verificarInformeCortesiaPermitido, que solo consultan—, así que
+    // confirmar acá no puede perder ninguna escritura pendiente. La
+    // cortesía, que es lo único con efecto de una sola vez, se marca con
+    // el INSERT en informes_generados de más abajo, no antes.
+    //
+    // Desde este punto `req.db` no se usa más.
+    await req.cerrarTransaccion!();
+
     // -----------------------------------------------------------------
     // Llamada real con tool_choice forzado a generar_informe.
     // max_tokens generoso (contenido más extenso que el Dashboard) —
@@ -1898,33 +1933,37 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
       return res.status(422).json({ error: "No se pudo generar un informe con datos suficientes para este caso." });
     }
 
-    const medicoAgenteResult = await req.db!.query(
-      `SELECT id FROM medico_agente WHERE persona_id = $1 AND agente_id = $2`,
-      [req.auth!.userId, caso.agente_id]
-    );
-    const medicoAgenteId = medicoAgenteResult.rows[0]?.id ?? null;
-
     const usage = response.usage;
     const tokensCacheEscritura = usage.cache_creation_input_tokens ?? 0;
     const tokensCacheLectura = usage.cache_read_input_tokens ?? 0;
 
+    // Primera transacción corta después del modelo: el consumo. Va sola y
+    // ANTES de armar el .docx porque la llamada ya se hizo y ya costó —
+    // registrarla no depende de que el ensamblado del documento salga bien.
+    //
     // Llamada separada del Dashboard y del chat — fila propia en uso_api.
     // El Informe siempre cuenta como consumo clínico: a diferencia del
     // Dashboard, no se regenera en el sentido de reemplazar un resultado
     // previo — cada generación queda persistida como un informe nuevo
     // (ver informes_generados).
-    await registrarUsoApi(req.db!, {
-      tenantId: req.auth!.tenantId!,
-      casoId: req.params.id,
-      medicoAgenteId,
-      personaId: req.auth!.userId,
-      modelo: MODELO_GCIS,
-      tokensEntrada: usage.input_tokens,
-      tokensSalida: usage.output_tokens,
-      tokensCacheEscritura,
-      tokensCacheLectura,
-      tipoConsumo: esCortesia ? "cortesia" : "clinico",
-      disparadoPor: "usuario",
+    await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
+      const medicoAgenteResult = await db.query(
+        `SELECT id FROM medico_agente WHERE persona_id = $1 AND agente_id = $2`,
+        [req.auth!.userId, caso.agente_id]
+      );
+      await registrarUsoApi(db, {
+        tenantId: req.auth!.tenantId!,
+        casoId: req.params.id,
+        medicoAgenteId: medicoAgenteResult.rows[0]?.id ?? null,
+        personaId: req.auth!.userId,
+        modelo: MODELO_GCIS,
+        tokensEntrada: usage.input_tokens,
+        tokensSalida: usage.output_tokens,
+        tokensCacheEscritura,
+        tokensCacheLectura,
+        tipoConsumo: esCortesia ? "cortesia" : "clinico",
+        disparadoPor: "usuario",
+      });
     });
 
     // -----------------------------------------------------------------
@@ -2061,31 +2100,53 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
     // documento formal fechado que se conserva para siempre. Si esto
     // fallara, no debería tirar abajo la descarga que el médico ya está
     // esperando — se loguea y se sigue.
+    //
+    // Va en SU PROPIA transacción, separada de la del consumo de arriba.
+    // Antes las dos compartían la transacción de la request, y eso hacía
+    // que este fallo —el que el comentario dice que no debe bloquear
+    // nada— envenenara la transacción entera: en Postgres, un error deja
+    // la transacción abortada y todo lo que siguiera, incluido el registro
+    // de consumo ya hecho, se perdía en el COMMIT. El `catch` tapaba el
+    // error pero no el efecto.
     try {
-      await req.db!.query(
-        `INSERT INTO informes_generados (tenant_id, caso_id, medico_id, tipo_reporte, contenido_docx, nombre_archivo, es_cortesia)
-         VALUES ($1, $2, $3, 'CR-001', $4, $5, $6)`,
-        [req.auth!.tenantId, req.params.id, req.auth!.userId, buffer, nombreArchivo, esCortesia]
-      );
+      await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
+        await db.query(
+          `INSERT INTO informes_generados (tenant_id, caso_id, medico_id, tipo_reporte, contenido_docx, nombre_archivo, es_cortesia)
+           VALUES ($1, $2, $3, 'CR-001', $4, $5, $6)`,
+          [req.auth!.tenantId, req.params.id, req.auth!.userId, buffer, nombreArchivo, esCortesia]
+        );
+        // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
+        // actividad tocan actualizado_en, no solo informacion/mensajes.
+        await db.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [req.params.id]);
+      });
     } catch (err) {
       console.error("Error al persistir el informe en informes_generados (no bloquea la descarga)", err);
     }
-    // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
-    // actividad tocan actualizado_en, no solo informacion/mensajes.
-    await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [req.params.id]);
 
     // prompt_code_notificaciones_pendientes.md, C3 — avisa que el informe
     // está disponible, sin adjuntarlo (decisión confirmada: es el
     // veterinario quien controla cuándo y cómo se comunica el contenido
     // clínico). No debería bloquear la descarga tampoco.
+    //
+    // RESIDUO CONOCIDO: `emitirNotificacion` inserta la fila y manda el
+    // correo en el mismo await, así que esta transacción corta sigue
+    // abierta durante la llamada a Resend (~centenas de ms). Es tres
+    // órdenes de magnitud menos que los ~40 s del modelo, pero es el mismo
+    // defecto en chico. Sacarlo del todo exige partir emitirNotificacion en
+    // "persistir" y "enviar", que la usan ~10 llamadores y merece su propio
+    // cambio. No se puede resolver acá usando el pool sin transacción: la
+    // escritura es tenant-scoped y `app.tenant_id` vive en la transacción.
     try {
-      // prompt_code_paciente_nacimiento_estado.md, Parte B2 — un paciente
-      // fallecido no recibe ningún aviso.
-      if (
-        caso.paciente_estado === "activo" &&
-        (await avisoActivo(req.db!, req.auth!.tenantId!, "informe_disponible_activo"))
-      ) {
-        await emitirNotificacion(req.db!, {
+      await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
+        // prompt_code_paciente_nacimiento_estado.md, Parte B2 — un paciente
+        // fallecido no recibe ningún aviso.
+        if (
+          caso.paciente_estado !== "activo" ||
+          !(await avisoActivo(db, req.auth!.tenantId!, "informe_disponible_activo"))
+        ) {
+          return;
+        }
+        await emitirNotificacion(db, {
           tenantId: req.auth!.tenantId!,
           tipo: "informe_disponible",
           destinatarioTipo: "propietario",
@@ -2096,7 +2157,7 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
           contenido: `El veterinario generó un nuevo informe clínico de ${caso.paciente_nombre}. Consultalo en tu próxima visita a la clínica.`,
           datosCorreo: { nombrePaciente: caso.paciente_nombre },
         });
-      }
+      });
     } catch (err) {
       console.error("Error al emitir la notificación de informe disponible (no bloquea la descarga)", err);
     }

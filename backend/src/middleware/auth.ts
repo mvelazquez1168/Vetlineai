@@ -34,6 +34,14 @@ declare global {
       /** Cliente de Postgres ya posicionado dentro de una transacción con
        *  app.tenant_id seteado (o sin setear, si es staff_plataforma). */
       db?: PoolClient;
+      /** Confirma y suelta la transacción de la request ANTES de que
+       *  termine la respuesta. Existe para las rutas que hacen una llamada
+       *  externa larga (el modelo, Keycloak) en el medio: sin esto, la
+       *  transacción queda abierta y quieta durante toda esa espera, que
+       *  es la alerta de `idle in transaction`. Después de llamarla,
+       *  `req.db` deja de servir a propósito — lo que venga después va en
+       *  su propia transacción corta con `conAlcanceTenant`. */
+      cerrarTransaccion?: () => Promise<void>;
     }
   }
 }
@@ -45,6 +53,21 @@ declare global {
 // ---------------------------------------------------------------------
 const issuerUrl = new URL(config.keycloakIssuer);
 const jwksHost = config.keycloakJwksHost ?? issuerUrl.host;
+// DEFECTO ABIERTO D-002 — el esquema sale del ISSUER, no del anfitrión.
+//
+// `issuerUrl.protocol` es el del issuer público, que en producción es
+// https. Al combinarlo con un anfitrión interno se arma
+// `https://keycloak:8080/...`, pero adentro de la red de Docker Keycloak
+// escucha en texto plano (Caddy termina el TLS afuera). La descarga del
+// JWKS falla, con ella la verificación de firma, y nadie puede iniciar
+// sesión. Pasó en producción: se desbloqueó QUITANDO KEYCLOAK_JWKS_HOST
+// del compose, de modo que hoy el JWKS resuelve contra el anfitrión
+// público — funciona, pero ata la validación de tokens a que Caddy y el
+// DNS público respondan.
+//
+// Mientras esta línea herede el esquema del issuer, KEYCLOAK_JWKS_HOST no
+// se puede volver a usar. El arreglo es componer el esquema según el
+// anfitrión (o dejar que la variable lo traiga). Ver DEFECTOS_ABIERTOS.md.
 const jwks = jwksClient({
   jwksUri: `${issuerUrl.protocol}//${jwksHost}${issuerUrl.pathname}/protocol/openid-connect/certs`,
   cache: true,
@@ -296,18 +319,39 @@ export function withTenantClient(req: Request, res: Response, next: NextFunction
     .connect()
     .then(async (client) => {
       let released = false;
+      // `client.release()` SIN argumento devuelve la conexión al pool tal
+      // como esté: node-postgres no hace rollback por su cuenta. Verificado
+      // contra la base — tras un BEGIN y un release() pelado, la sesión
+      // queda en `idle in transaction` y el siguiente que toma esa conexión
+      // hereda la MISMA transacción abierta. O sea que si el COMMIT falla,
+      // la versión anterior de esta función devolvía al pool una conexión
+      // sucia, que se quedaba retenida hasta que alguien la reusara.
+      //
+      // Con el error como argumento, el pool DESTRUYE la conexión en vez de
+      // reciclarla (también verificado). Perder una conexión es barato;
+      // reciclar una con una transacción abierta es justo lo que dispara la
+      // alerta de AWS.
       const release = async (commit: boolean) => {
         if (released) return;
         released = true;
         try {
           await client.query(commit ? "COMMIT" : "ROLLBACK");
-        } finally {
           client.release();
+        } catch (err) {
+          console.error(
+            `withTenantClient: falló el ${commit ? "COMMIT" : "ROLLBACK"} — se descarta la conexión en vez de devolverla al pool`,
+            err
+          );
+          client.release(err instanceof Error ? err : new Error(String(err)));
         }
       };
 
-      res.on("finish", () => release(res.statusCode < 500));
-      res.on("close", () => release(false));
+      // Los handlers de eventos no pueden devolver una promesa rechazada:
+      // nadie la espera, y una rechazada acá termina en unhandledRejection
+      // (que en Node moderno tira abajo el proceso). El catch de `release`
+      // ya registra el motivo; este `.catch` es el cinturón.
+      res.on("finish", () => void release(res.statusCode < 500).catch(() => {}));
+      res.on("close", () => void release(false).catch(() => {}));
 
       try {
         await client.query("BEGIN");
@@ -321,6 +365,28 @@ export function withTenantClient(req: Request, res: Response, next: NextFunction
         }
 
         req.db = client;
+
+        // Cierre anticipado, para las rutas que llaman a algo externo en
+        // el medio. Reusa el MISMO `release` (y su bandera `released`), así
+        // que el handler de `finish`/`close` después no hace nada: no hay
+        // doble COMMIT ni doble devolución al pool.
+        req.cerrarTransaccion = async () => {
+          await release(true);
+          // Que `req.db` quede inutilizable es la parte importante. Sin
+          // esto, una consulta posterior usaría un cliente ya devuelto al
+          // pool — o sea, la conexión de OTRA request, fuera de su
+          // transacción y sin su app.tenant_id. Falla ruidosa y explicada
+          // en vez de una fuga silenciosa entre tenants.
+          req.db = new Proxy({} as PoolClient, {
+            get() {
+              throw new Error(
+                "req.db ya no está disponible: esta request cerró su transacción con cerrarTransaccion(). " +
+                  "Para escribir después de la llamada externa, usá conAlcanceTenant()."
+              );
+            },
+          });
+        };
+
         next();
       } catch (err) {
         await release(false);

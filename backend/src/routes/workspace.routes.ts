@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { PoolClient } from "pg";
+import { conAlcanceTenant } from "../alcanceTenant";
 import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import { requerirAnthropic } from "../anthropic";
 import { registrarLecturaSensible } from "../middleware/auditoria";
@@ -675,16 +677,20 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
     // hace un no-op inofensivo en cualquier análisis posterior. Se llama
     // desde las dos ramas (mock y real), solo cuando cada una ya tuvo
     // éxito — nunca si el análisis fue bloqueado o falló antes de esto.
-    async function marcarEnCursoSiTriage() {
-      await req.db!.query(`UPDATE casos SET estado = 'en_curso' WHERE id = $1 AND estado = 'triage'`, [
+    // Las dos reciben el cliente en vez de tomar `req.db` de afuera: la
+    // rama mock las llama dentro de la transacción de la request, y la rama
+    // real dentro de la transacción corta de después de la llamada al
+    // modelo. Sin el parámetro, la segunda usaría un cliente ya devuelto.
+    async function marcarEnCursoSiTriage(db: PoolClient) {
+      await db.query(`UPDATE casos SET estado = 'en_curso' WHERE id = $1 AND estado = 'triage'`, [
         req.params.id,
       ]);
     }
 
     const idsPendientes = pendientes.map((p) => p.id);
-    async function marcarPendientesIncorporadas() {
+    async function marcarPendientesIncorporadas(db: PoolClient) {
       if (idsPendientes.length === 0) return;
-      await req.db!.query(`UPDATE mensajes SET incorporada = true WHERE id = ANY($1::uuid[])`, [
+      await db.query(`UPDATE mensajes SET incorporada = true WHERE id = ANY($1::uuid[])`, [
         idsPendientes,
       ]);
     }
@@ -709,8 +715,8 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
         [req.params.id, respuestaMock]
       );
 
-      await marcarPendientesIncorporadas();
-      await marcarEnCursoSiTriage();
+      await marcarPendientesIncorporadas(req.db!);
+      await marcarEnCursoSiTriage(req.db!);
 
       // Misma estimación que ya se usaba. El costo lo resuelve el servicio
       // de tarifas: claude-sonnet-5-mock tiene tarifa vigente marcada
@@ -831,6 +837,26 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
       mensajesConPrescripciones.push({ role: "user", content: TEXTO_DISPARADOR_ANALISIS });
     }
 
+    // -----------------------------------------------------------------
+    // Acá termina todo lo que necesita la base ANTES de hablar con el
+    // modelo, así que acá se cierra la transacción de la request.
+    //
+    // Sin este corte, la transacción abierta arriba seguía viva durante
+    // toda la llamada a Claude: la conexión quedaba en `idle in
+    // transaction` reteniendo bloqueos y frenando el vacuum de toda la
+    // base (medido: ~9.5 s en un mensaje trivial, y esto pasa en cada
+    // mensaje de cada médico). Es la alerta alta de AWS.
+    //
+    // Y arregla un defecto que ya estaba: el middleware confirma o revierte
+    // según `res.statusCode < 500`, así que el `return 502` de más abajo
+    // REVERTÍA el mensaje del médico — justo el que promete "Tu mensaje
+    // quedó guardado". Ahora ya está confirmado antes de la llamada, que es
+    // lo que el texto siempre dijo.
+    //
+    // A partir de este punto `req.db` no se puede usar (tira un error
+    // explicando esto); lo que resta se escribe con conAlcanceTenant.
+    await req.cerrarTransaccion!();
+
     let respuestaTexto: string;
     let usage: {
       input_tokens: number;
@@ -913,35 +939,43 @@ workspaceRouter.post("/casos/:id/mensajes", async (req, res) => {
       });
     }
 
-    const respuestaResult = await req.db!.query(
-      `INSERT INTO mensajes (caso_id, remitente, contenido, tipo)
-       VALUES ($1, 'ai', $2, 'respuesta')
-       RETURNING id, remitente, contenido, tipo, creado_en`,
-      [req.params.id, respuestaTexto]
-    );
-
-    // Recién acá, con la llamada ya exitosa — exactamente las filas que se
-    // capturaron en `pendientes` antes de llamar a Claude, ni una más (ver
-    // el comentario sobre la ventana de carrera en informacionRegistrada.ts).
-    await marcarPendientesIncorporadas();
-    await marcarEnCursoSiTriage();
-
     const tokensCacheEscritura = usage.cache_creation_input_tokens ?? 0;
     const tokensCacheLectura = usage.cache_read_input_tokens ?? 0;
 
-    await registrarUsoApi(req.db!, {
-      tenantId: req.auth!.tenantId!,
-      casoId: req.params.id,
-      medicoAgenteId,
-      personaId: req.auth!.userId,
-      modelo: MODELO_GCIS,
-      tokensEntrada: usage.input_tokens,
-      tokensSalida: usage.output_tokens,
-      tokensCacheEscritura,
-      tokensCacheLectura,
-      tipoConsumo: "clinico",
-      disparadoPor: "usuario",
-      ttlCacheEscritura: "1h",
+    // Segunda transacción, corta: la respuesta, las marcas y el consumo van
+    // juntos o no va ninguno. Que sea una sola transacción importa — si el
+    // consumo se registrara aparte y fallara, quedaría una respuesta de IA
+    // entregada y no cobrada (o al revés).
+    const respuestaResult = await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
+      const insertado = await db.query(
+        `INSERT INTO mensajes (caso_id, remitente, contenido, tipo)
+         VALUES ($1, 'ai', $2, 'respuesta')
+         RETURNING id, remitente, contenido, tipo, creado_en`,
+        [req.params.id, respuestaTexto]
+      );
+
+      // Recién acá, con la llamada ya exitosa — exactamente las filas que se
+      // capturaron en `pendientes` antes de llamar a Claude, ni una más (ver
+      // el comentario sobre la ventana de carrera en informacionRegistrada.ts).
+      await marcarPendientesIncorporadas(db);
+      await marcarEnCursoSiTriage(db);
+
+      await registrarUsoApi(db, {
+        tenantId: req.auth!.tenantId!,
+        casoId: req.params.id,
+        medicoAgenteId,
+        personaId: req.auth!.userId,
+        modelo: MODELO_GCIS,
+        tokensEntrada: usage.input_tokens,
+        tokensSalida: usage.output_tokens,
+        tokensCacheEscritura,
+        tokensCacheLectura,
+        tipoConsumo: "clinico",
+        disparadoPor: "usuario",
+        ttlCacheEscritura: "1h",
+      });
+
+      return insertado;
     });
 
     res.status(201).json({

@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { conAlcanceTenant } from "./alcanceTenant";
 import { requerirAnthropic } from "./anthropic";
 import { HERRAMIENTAS_AGENTE, CACHE_PREFIJO_COMPARTIDO } from "./herramientasAgente";
 import {
@@ -17,7 +18,7 @@ import {
   obtenerRecetasEmitidasParaContexto,
   construirBloquePrescripciones,
   insertarBloquePrescripciones,
-} from "./routes/casos.routes";
+} from "./contextoAgente";
 
 // ---------------------------------------------------------------------
 // Generación de la síntesis clínica.
@@ -34,6 +35,25 @@ import {
 //
 // A diferencia del dashboard y del informe, esta llamada SÍ persiste su
 // resultado, con la huella del material que lo produjo.
+//
+// ---------------------------------------------------------------------
+// POR QUÉ ESTAS FUNCIONES RECIBEN `tenantId` Y NO UN CLIENTE DE POSTGRES
+//
+// Cada una hace tres cosas en orden: lee el material del caso, llama al
+// modelo, y persiste el resultado. Si recibieran un cliente ya puesto en
+// una transacción —que es lo natural desde una ruta—, esa transacción
+// quedaría abierta durante toda la llamada al modelo. Eso es la alerta de
+// `idle in transaction` de AWS: la conexión retiene bloqueos y congela el
+// horizonte de vacuum mientras espera algo que no es la base.
+//
+// La propiedad vive ACÁ y no en cada llamador a propósito. La síntesis es
+// ahora la llamada larga de las dos vistas, así que si el patrón queda mal
+// se rompe en el peor lugar posible; y un llamador nuevo que reciba una
+// función "dame un `db`" va a pasarle el de su request sin pensarlo. Que
+// la puerta lo garantice es lo que evita que alguien copie el patrón mal.
+//
+// Cada fase corre en su propia transacción corta (`conAlcanceTenant`) y la
+// llamada al modelo queda AFUERA de las dos.
 // ---------------------------------------------------------------------
 
 const MODELO = "claude-sonnet-4-6";
@@ -58,6 +78,16 @@ export interface ResultadoSintesis {
   seGenero: boolean;
   estado: "nucleo" | "completa";
   usage?: any;
+  /**
+   * TODAS las llamadas al modelo que costaron esta síntesis, en orden.
+   *
+   * `usage` solo trae la última, y eso alcanzaba mientras cada fase se
+   * pedía por separado. Pero `obtenerSintesisParaInforme` puede encadenar
+   * dos —núcleo y complemento— y devolver solo la del complemento: quien
+   * facture desde `usage` cobraría una y regalaría la otra, sin que nada
+   * falle. Lista vacía = no se llamó al modelo y no hay nada que cobrar.
+   */
+  usosDelModelo: any[];
 }
 
 /**
@@ -77,6 +107,8 @@ async function leerVigente(db: PoolClient, casoId: string, huella: string): Prom
     generadaEn: f.sintesis_generada_en,
     seGenero: false,
     estado: f.sintesis_estado,
+    // No se llamó al modelo: no hay nada que cobrar.
+    usosDelModelo: [],
   };
 }
 
@@ -85,14 +117,17 @@ async function leerVigente(db: PoolClient, casoId: string, huella: string): Prom
  * vigente —completo o no— se devuelve sin llamar al modelo.
  */
 export async function obtenerSintesisParaDashboard(
-  db: PoolClient,
-  casoId: string,
   tenantId: string,
+  casoId: string,
   opciones: { forzar?: boolean } = {}
 ): Promise<ResultadoSintesis> {
-  const estado = await estadoSintesis(db, casoId);
-  if (estado.vigente && !opciones.forzar) return leerVigente(db, casoId, estado.huellaGuardada!);
-  return generarNucleo(db, casoId, tenantId);
+  const vigente = await conAlcanceTenant(tenantId, async (db) => {
+    const estado = await estadoSintesis(db, casoId);
+    if (estado.vigente && !opciones.forzar) return leerVigente(db, casoId, estado.huellaGuardada!);
+    return null;
+  });
+  if (vigente) return vigente;
+  return generarNucleo(tenantId, casoId);
 }
 
 /**
@@ -103,19 +138,30 @@ export async function obtenerSintesisParaDashboard(
  * de que alguien haya abierto el dashboard antes.
  */
 export async function obtenerSintesisParaInforme(
-  db: PoolClient,
-  casoId: string,
   tenantId: string,
+  casoId: string,
   opciones: { forzar?: boolean } = {}
 ): Promise<ResultadoSintesis> {
-  const estado = await estadoSintesis(db, casoId);
-  const fila = (await db.query(`SELECT sintesis_estado FROM casos WHERE id = $1`, [casoId])).rows[0];
+  const decision = await conAlcanceTenant(tenantId, async (db) => {
+    const estado = await estadoSintesis(db, casoId);
+    const fila = (await db.query(`SELECT sintesis_estado FROM casos WHERE id = $1`, [casoId])).rows[0];
+    if (estado.vigente && fila?.sintesis_estado === "completa" && !opciones.forzar) {
+      return { vigente: await leerVigente(db, casoId, estado.huellaGuardada!), hacerNucleo: false };
+    }
+    return { vigente: null, hacerNucleo: !estado.vigente || !!opciones.forzar };
+  });
 
-  if (estado.vigente && fila?.sintesis_estado === "completa" && !opciones.forzar)
-    return leerVigente(db, casoId, estado.huellaGuardada!);
+  if (decision.vigente) return decision.vigente;
 
-  if (!estado.vigente || opciones.forzar) await generarNucleo(db, casoId, tenantId);
-  return completarSintesis(db, casoId, tenantId);
+  // El núcleo se guarda para arrastrar su consumo: son DOS llamadas al
+  // modelo y las dos se cobran. Devolver solo la del complemento regalaba
+  // la del núcleo sin que nada fallara.
+  const nucleo = decision.hacerNucleo ? await generarNucleo(tenantId, casoId) : null;
+  const completa = await completarSintesis(tenantId, casoId);
+  return {
+    ...completa,
+    usosDelModelo: [...(nucleo?.usosDelModelo ?? []), ...completa.usosDelModelo],
+  };
 }
 
 /**
@@ -166,13 +212,20 @@ function bloquesSystem(ctx: any, instruccion: string) {
  * puede contradecirlo. Por eso el nucleo no es "la mitad barata" sino el
  * razonamiento, y el complemento es desarrollo.
  */
-export async function generarNucleo(db: PoolClient, casoId: string, tenantId: string): Promise<ResultadoSintesis> {
-  const ctx = await armarContexto(db, casoId, tenantId);
+export async function generarNucleo(tenantId: string, casoId: string): Promise<ResultadoSintesis> {
+  // FASE A — lectura. Transacción corta, y todo lo que el modelo necesita
+  // sale de acá: después de esto no se vuelve a tocar la base hasta tener
+  // la respuesta.
+  //
   // La huella se calcula ANTES de la llamada: si el caso cambiara mientras
   // el modelo responde, la sintesis quedaria guardada como vigente para un
   // material que no es el que razono.
-  const huella = await calcularHuellaCaso(db, casoId);
+  const { ctx, huella } = await conAlcanceTenant(tenantId, async (db) => ({
+    ctx: await armarContexto(db, casoId, tenantId),
+    huella: await calcularHuellaCaso(db, casoId),
+  }));
 
+  // FASE B — el modelo, SIN ninguna conexión tomada.
   const anthropic = requerirAnthropic();
   const respuesta = await anthropic.beta.messages.create({
     model: MODELO,
@@ -191,12 +244,16 @@ export async function generarNucleo(db: PoolClient, casoId: string, tenantId: st
   if (!bloque) throw new Error("La respuesta del modelo no incluyó el núcleo de la síntesis.");
   const sintesis = (bloque as any).input;
 
+  // FASE C — persistencia. Otra transacción corta.
   const generadaEn = new Date();
-  await db.query(
-    `UPDATE casos SET sintesis = $2, sintesis_huella = $3, sintesis_generada_en = $4, sintesis_estado = 'nucleo' WHERE id = $1`,
-    [casoId, sintesis, huella, generadaEn]
+  await conAlcanceTenant(tenantId, (db) =>
+    db.query(
+      `UPDATE casos SET sintesis = $2, sintesis_huella = $3, sintesis_generada_en = $4, sintesis_estado = 'nucleo' WHERE id = $1`,
+      [casoId, sintesis, huella, generadaEn]
+    )
   );
-  return { sintesis, huella, generadaEn, seGenero: true, estado: "nucleo", usage: (respuesta as any).usage };
+  const usage = (respuesta as any).usage;
+  return { sintesis, huella, generadaEn, seGenero: true, estado: "nucleo", usage, usosDelModelo: [usage] };
 }
 
 /**
@@ -207,21 +264,39 @@ export async function generarNucleo(db: PoolClient, casoId: string, tenantId: st
  * razonara de nuevo, serian otra vez dos razonamientos que pueden
  * discrepar, con un paso intermedio.
  */
-export async function completarSintesis(db: PoolClient, casoId: string, tenantId: string): Promise<ResultadoSintesis> {
-  const fila = (
-    await db.query(`SELECT sintesis, sintesis_huella, sintesis_estado FROM casos WHERE id = $1`, [casoId])
-  ).rows[0];
-  if (!fila?.sintesis) throw new Error("No hay núcleo que completar.");
+export async function completarSintesis(tenantId: string, casoId: string): Promise<ResultadoSintesis> {
+  // FASE A — lectura. El núcleo, su huella y el contexto salen de una sola
+  // transacción corta: si se leyeran por separado podrían describir
+  // momentos distintos del caso.
+  const leido = await conAlcanceTenant(tenantId, async (db) => {
+    const fila = (
+      await db.query(`SELECT sintesis, sintesis_huella, sintesis_estado FROM casos WHERE id = $1`, [casoId])
+    ).rows[0];
+    if (!fila?.sintesis) throw new Error("No hay núcleo que completar.");
+    const huellaAhora = await calcularHuellaCaso(db, casoId);
+    // Si el caso cambió, no se arma el contexto: se va a regenerar entero.
+    // Unión discriminada por `desactualizado` para que TypeScript sepa que
+    // en la otra rama `ctx` está — sin `!` ni casts que apaguen el chequeo.
+    if (huellaAhora !== fila.sintesis_huella) return { desactualizado: true as const };
+    return { desactualizado: false as const, fila, ctx: await armarContexto(db, casoId, tenantId) };
+  });
 
   // Si el caso cambio entre las dos fases, completar seria construir sobre
   // un nucleo que ya no describe el caso. Se regenera entero.
-  const huellaAhora = await calcularHuellaCaso(db, casoId);
-  if (huellaAhora !== fila.sintesis_huella) {
-    const nuevo = await generarNucleo(db, casoId, tenantId);
-    return completarSintesis(db, casoId, tenantId).catch(() => nuevo);
+  if (leido.desactualizado) {
+    const nuevo = await generarNucleo(tenantId, casoId);
+    // El consumo del núcleo recién hecho se arrastra al resultado, gane la
+    // rama que gane: si el complemento sale, se cobran los dos; si falla y
+    // se devuelve el núcleo solo, ya trae el suyo.
+    return completarSintesis(tenantId, casoId)
+      .then((r) => ({ ...r, usosDelModelo: [...nuevo.usosDelModelo, ...r.usosDelModelo] }))
+      .catch(() => nuevo);
   }
 
-  const ctx = await armarContexto(db, casoId, tenantId);
+  // En el camino normal esta llamada no viene precedida de otra.
+  const usosPrevios: any[] = [];
+
+  const { fila, ctx } = leido;
   const nucleo = JSON.stringify(fila.sintesis, null, 1);
   const instruccion =
     "Ya existe el núcleo de la síntesis de este caso, hecho por vos en la llamada anterior. Te lo paso " +
@@ -253,10 +328,22 @@ export async function completarSintesis(db: PoolClient, casoId: string, tenantId
   for (const k of PARTICION_SINTESIS.complemento) complemento[k] = (bloque as any).input[k] ?? null;
   const sintesis = { ...fila.sintesis, ...complemento };
 
+  // FASE C — persistencia, en su propia transacción corta.
   const generadaEn = new Date();
-  await db.query(
-    `UPDATE casos SET sintesis = $2, sintesis_generada_en = $3, sintesis_estado = 'completa' WHERE id = $1`,
-    [casoId, sintesis, generadaEn]
+  await conAlcanceTenant(tenantId, (db) =>
+    db.query(
+      `UPDATE casos SET sintesis = $2, sintesis_generada_en = $3, sintesis_estado = 'completa' WHERE id = $1`,
+      [casoId, sintesis, generadaEn]
+    )
   );
-  return { sintesis, huella: fila.sintesis_huella, generadaEn, seGenero: true, estado: "completa", usage: (respuesta as any).usage };
+  const usage = (respuesta as any).usage;
+  return {
+    sintesis,
+    huella: fila.sintesis_huella,
+    generadaEn,
+    seGenero: true,
+    estado: "completa",
+    usage,
+    usosDelModelo: [...usosPrevios, usage],
+  };
 }

@@ -210,19 +210,37 @@ async function procesarVacunacionesProximas() {
 }
 
 // ---------------------------------------------------------------------
-// 3. Seguimiento faltante: casos cuyo dashboard_cache más reciente diga
-// clinical_state.estado en (empeorando, critico) y sin ninguna cita
-// futura programada/confirmada. Dedupe: no repetir antes de
-// dias_aviso_seguimiento_faltante días (por tenant, default 3) para el
-// mismo caso si la condición sigue vigente — es la única noción de
-// "días" que existe hoy en este disparador (el trigger en sí es por
-// severidad clínica, no por tiempo de inactividad medido).
+// 3. Seguimiento faltante: casos cuyo estado clínico más reciente diga
+// empeorando o critico y sin ninguna cita futura programada/confirmada.
+// Dedupe: no repetir antes de dias_aviso_seguimiento_faltante días (por
+// tenant, default 3) para el mismo caso si la condición sigue vigente —
+// es la única noción de "días" que existe hoy en este disparador (el
+// trigger en sí es por severidad clínica, no por tiempo de inactividad
+// medido).
+//
+// DE DÓNDE SALE EL ESTADO. Primero de la síntesis (`estado_clinico`), que
+// es la fuente única desde el cableado; si no hay, del `dashboard_cache`
+// viejo. El COALESCE no es cosmético: este job es el TERCER consumidor de
+// dashboard_cache, además de las dos vistas, y la migración 079 solo
+// previó las vistas. Sin el respaldo, todo caso que todavía no regeneró su
+// síntesis desaparecería de esta consulta y **dejaría de avisar sobre los
+// pacientes que peor están** — sin error, sin log y sin nada que falle.
+//
+// El respaldo se retira junto con la columna, no antes.
+//
+// Los dos caminos leen el MISMO objeto con distinto nombre de primer
+// nivel: proyectarDashboard() solo renombra la clave de arriba
+// (`estado_clinico` -> `clinical_state`) y pasa el objeto anidado tal
+// cual, así que el `.estado` interno es idéntico en los dos.
 // ---------------------------------------------------------------------
 async function procesarSeguimientosFaltantes() {
   const candidatos = await pool.query(
     `SELECT c.id AS caso_id, c.tenant_id, c.medico_id, c.paciente_id,
             p.nombre AS paciente_nombre,
-            c.dashboard_cache->'clinical_state'->>'estado' AS estado_clinico,
+            COALESCE(
+              c.sintesis->'estado_clinico'->>'estado',
+              c.dashboard_cache->'clinical_state'->>'estado'
+            ) AS estado_clinico,
             COALESCE(cn.dias_aviso_seguimiento_faltante, 3) AS dias_dedupe
      FROM casos c
      JOIN pacientes p ON p.id = c.paciente_id
@@ -234,7 +252,10 @@ async function procesarSeguimientosFaltantes() {
        -- por cerrado no debe seguir generando avisos de seguimiento.
        AND c.estado <> 'completado'
        AND COALESCE(cn.seguimiento_faltante_activo, true) = true
-       AND c.dashboard_cache->'clinical_state'->>'estado' IN ('empeorando', 'critico')
+       AND COALESCE(
+             c.sintesis->'estado_clinico'->>'estado',
+             c.dashboard_cache->'clinical_state'->>'estado'
+           ) IN ('empeorando', 'critico')
        AND NOT EXISTS (
          SELECT 1 FROM citas ci
          WHERE ci.caso_id = c.id AND ci.fecha >= CURRENT_DATE AND ci.estado IN ('programada', 'confirmada')

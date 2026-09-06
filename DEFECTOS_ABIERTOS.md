@@ -413,3 +413,100 @@ los tres:
 
 Vale para cualquier medición de una ausencia: si el número puede salir del camino
 corto **y** del largo, no distingue nada por sí solo.
+
+---
+
+## D-005 — Un concepto "unificado" de la síntesis tiene tipos incompatibles entre las dos vistas
+
+**CERRADO 2026-09-05** · encontrado 2026-09-04 · bloqueaba el cableado del informe
+
+**Cómo se cerró: des-unificando.** Eran dos cosas distintas, no dos nombres del
+mismo dato — lo decide la evidencia de los propios esquemas, no una preferencia:
+
+- Las **reglas de presencia son incompatibles**: `razonamiento_diagnostico` es
+  "siempre presente" y `clinical_reasoning_journal` admite null legítimo en un
+  caso incipiente. Dos nombres del mismo dato no pueden diferir en eso; si fueran
+  lo mismo, un caso incipiente dejaría al informe sin su sección más importante.
+- El informe **ya cubre lo cronológico** en `historia_clinica` y
+  `evolucion_clinica`, que es lo que el arreglo fecha/estado/motivo describe.
+  `razonamiento_diagnostico` no es la evolución: es la argumentación.
+
+La síntesis ahora carga las dos, como con `confianza`/`probabilidad`. El diario
+estructurado queda en el **núcleo** (lo usa el dashboard) y la narrativa en el
+**complemento** — sale del `origen` del campo, así que no se genera cuando nadie
+pide el informe.
+
+Y `verificar_sintesis_esquema.ts` compara **tipos** además de presencia (punto
+4b). Se comprobó que el chequeo nuevo detecta el defecto: reponiendo la
+unificación reporta `array|null ≠ null|string ← INCOMPATIBLES` y falla.
+
+Verificado de punta a punta, 12/12: el informe genera (16.470 bytes), y el
+segundo informe sobre síntesis vigente sale en **0.3 s con consumo cero**.
+
+---
+
+
+
+`CONCEPTOS_UNIFICADOS` (`sintesisClinica.ts`) declara que estos tres nombres son
+el mismo concepto:
+
+```
+sintesis: "diario_de_razonamiento"
+dashboard: "clinical_reasoning_journal"
+informe:   "razonamiento_diagnostico"
+```
+
+Pero no son la misma **forma**:
+
+| Campo | Tipo |
+|---|---|
+| `sintesis.diario_de_razonamiento` | `array` de `{fecha, hipotesis, estado, motivo}` |
+| `dashboard.clinical_reasoning_journal` | `array` (igual) |
+| `informe.razonamiento_diagnostico` | **`string`** — prosa |
+
+La síntesis adoptó la forma del dashboard. Al proyectar el informe, ese array
+llega a `construirCuerpoInforme`, que hace `texto.split()` sobre él y falla con
+`TypeError: texto.split is not a function`. Medido: el informe devuelve HTTP 500
+después de generar (y cobrar) la síntesis completa.
+
+Los otros tres conceptos unificados sí son compatibles — `estado_clinico` es
+`object` en las tres.
+
+### Por qué no se arregla en la proyección
+
+`proyectarInforme` renombra la clave de primer nivel y **nunca traduce valores**;
+es lo que garantiza que las dos vistas no puedan contradecirse. Convertir el
+array en prosa ahí sería que la proyección interprete, que es exactamente lo que
+la fuente única existe para impedir.
+
+### Es el error que el propio módulo ya advierte
+
+`sintesisClinica.ts` documenta no fusionar `clinical_confidence` con
+`matriz_evidencia` porque "el relevamiento los emparejó por posición" y son cosas
+distintas: *"fusionarlas sería repetir el error de confianza/probabilidad, con
+otro disfraz"*. Este caso es el mismo: la narrativa del razonamiento (informe) y
+el registro de hipótesis activas/descartadas (dashboard) se emparejaron por tema,
+no por ser el mismo dato.
+
+### El verificador no lo detecta
+
+`verificar_sintesis_esquema.ts` dice `[OK] la síntesis es superconjunto de las dos
+vistas y el dashboard manda`. Comprueba **presencia de campos**, no compatibilidad
+de tipos — así que pasó mientras un concepto unificado tenía dos formas
+incompatibles. Misma familia que R1/R2/R4: mide algo más estrecho de lo que dice.
+Su propio mensaje nombra la causa sin advertirla: *"el dashboard manda"*.
+
+### Criterio de cierre
+
+Es una decisión de producto sobre qué dice la sección "Razonamiento Diagnóstico"
+del informe, que es un documento que se entrega:
+
+- **Des-unificar**: la síntesis lleva las dos cosas — el diario estructurado para
+  el dashboard y la narrativa para el informe. Cuesta un campo más en el esquema
+  y que el modelo escriba las dos, pero cada vista recibe lo que su formato pide.
+- **Unificar de verdad**: el informe pasa a renderizar el diario estructurado
+  (fecha, hipótesis, estado, motivo). Una sola fuente sin duplicar, pero cambia lo
+  que ve el veterinario y el tutor.
+
+Y en cualquier caso, que `verificar_sintesis_esquema.ts` compare tipos además de
+presencia.

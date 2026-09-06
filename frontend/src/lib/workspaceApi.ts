@@ -658,10 +658,22 @@ function authedFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   return apiFetch<T>(path, { ...options, token: getStoredToken() });
 }
 
+/** Para quién se genera el informe. Decide el CAMINO de generación, no una
+ *  plantilla: colega es proyección pura de la síntesis (consumo cero) y
+ *  tutor agrega una reescritura del lenguaje. */
+export type DestinatarioInforme = "colega" | "tutor";
+
 export const workspaceApi = {
   obtenerMe: () =>
     authedFetch<{
-      persona: { persona_nombre: string; tenant_nombre: string; tenant_logo_url: string | null } | null;
+      persona: {
+        persona_nombre: string;
+        tenant_nombre: string;
+        tenant_logo_url: string | null;
+        /** Con qué destinatario generó su último informe. Null = nunca
+         *  generó uno, y ahí no se preselecciona nada. */
+        destinatario_informe_preferido: DestinatarioInforme | null;
+      } | null;
     }>("/workspace/me"),
 
   obtenerConsumo: () => authedFetch<ConsumoWorkspace>("/workspace/consumo"),
@@ -871,15 +883,21 @@ export const workspaceApi = {
       dashboard: DashboardGcis | null;
       generado_en: string | null;
       hayInformacionPosterior: boolean;
+      /** La síntesis sigue valiendo para el material actual del caso: no
+       *  hace falta rehacerla. Sale de la huella, así que también cuenta
+       *  adjuntos, recetas y datos del paciente — no solo mensajes. */
+      sintesisAlDia: boolean;
     }>(`/casos/${casoId}/dashboard`),
 
   // Informe clínico real (CR-001, GCIS) — endpoint completamente distinto
   // de actualizarDashboard, aunque comparta el patrón de tool use del
   // lado del backend. Devuelve el .docx binario directo, no JSON.
-  generarInforme: (casoId: string) =>
+  generarInforme: (casoId: string, destinatario: DestinatarioInforme) =>
     apiFetchFile(`/casos/${casoId}/informe/generar`, {
       method: "POST",
       token: getStoredToken(),
+      // apiFetchFile ya pone Content-Type: application/json.
+      body: JSON.stringify({ destinatario }),
     }),
 
   // Historial versionado (migración 018) — cada informe generado queda

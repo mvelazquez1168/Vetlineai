@@ -39,6 +39,7 @@ import {
   CasoResumen,
   ConsumoWorkspace,
   DashboardGcis,
+  DestinatarioInforme,
   Derivacion,
   GrupoTiposReporte,
   InformeGenerado,
@@ -259,6 +260,15 @@ export function CasoWorkspace() {
   // Paso 2 de prompt_code_dashboards_informes — indicación no bloqueante:
   // hay actividad en el caso posterior a la fecha del dashboard mostrado.
   const [hayInformacionPosteriorDashboard, setHayInformacionPosteriorDashboard] = useState(false);
+  const [sintesisAlDia, setSintesisAlDia] = useState(false);
+  // Paso 4 — la elección de destinatario es un paso del flujo de
+  // generación, no un control permanente: aparece al tocar el botón y
+  // desaparece. La barra del área de trabajo no gana ningún control.
+  const [eleccionInformeAbierta, setEleccionInformeAbierta] = useState(false);
+  const [destinatarioInforme, setDestinatarioInforme] = useState<DestinatarioInforme>("colega");
+  // null = este médico todavía no generó ningún informe. Sirve para
+  // preseleccionar, no para decidir: si nunca eligió, queda el default.
+  const [destinatarioPreferido, setDestinatarioPreferido] = useState<DestinatarioInforme | null>(null);
 
   // Estado del Dashboard real de GCIS — independiente del stub ICIS
   // (severidad/confianza_diagnostica/derivacion, sin cambios arriba).
@@ -344,6 +354,7 @@ export function CasoWorkspace() {
             // regeneración en vivo, aunque el dashboard sí se mostrara.
             setUltimaActualizacion(cache.generado_en);
             setHayInformacionPosteriorDashboard(cache.hayInformacionPosterior);
+            setSintesisAlDia(cache.sintesisAlDia);
             setDashboardGcisEstado("listo");
           } else {
             setDashboardGcisEstado("sin_datos");
@@ -378,7 +389,14 @@ export function CasoWorkspace() {
   // Logo de la clínica (tenants.logo_url) — se necesita para el export a
   // HTML del Dashboard GCIS (Fase D), no para nada de la pantalla en sí.
   useEffect(() => {
-    workspaceApi.obtenerMe().then((data) => setTenantLogoUrl(data.persona?.tenant_logo_url ?? null));
+    workspaceApi.obtenerMe().then((data) => {
+      setTenantLogoUrl(data.persona?.tenant_logo_url ?? null);
+      // Paso 4 — la última elección de ESTE médico, para preseleccionarla.
+      // Viene de la base y no del navegador: en una computadora compartida
+      // por varios médicos de la clínica, localStorage le mostraría a cada
+      // uno lo que eligió el anterior.
+      setDestinatarioPreferido(data.persona?.destinatario_informe_preferido ?? null);
+    });
   }, []);
 
   // Discrimina en runtime entre el stub ICIS (shape plano, sin cambios) y
@@ -454,13 +472,14 @@ export function CasoWorkspace() {
   // /:id/informe/generar, no /dashboard/actualizar) — genera el .docx
   // real del lado del backend y lo manda como binario; acá solo se
   // dispara la descarga con el nombre que ya viene en Content-Disposition.
-  const generarInforme = async () => {
+  const generarInforme = async (destinatario: DestinatarioInforme) => {
     if (!casoId) return;
+    setEleccionInformeAbierta(false);
     setGenerandoInforme(true);
     setErrorInforme(null);
     setInformeMotivo(undefined);
     try {
-      const { blob, filename } = await workspaceApi.generarInforme(casoId);
+      const { blob, filename } = await workspaceApi.generarInforme(casoId, destinatario);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -469,6 +488,7 @@ export function CasoWorkspace() {
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      setDestinatarioPreferido(destinatario);
       cargarInformes(casoId);
       cargarConsumo();
     } catch (err) {
@@ -1209,13 +1229,23 @@ export function CasoWorkspace() {
                   </div>
                 )}
 
+                {/* Rehacer el análisis cuesta plata. Si el caso no cambió
+                    desde la última síntesis, el botón lo dice ANTES de que
+                    lo aprieten: así rehacer es una decisión y no un
+                    reflejo. No se deshabilita — el médico puede querer
+                    rehacerlo igual, y bloquearlo se leería como que el
+                    sistema ignora su pedido. */}
                 <Button
                   variant="secondary"
                   onClick={actualizarDashboard}
                   disabled={dashboardGcisEstado === "generando" || generacionDetenida}
                   size="sm"
                 >
-                  {dashboardGcisEstado === "generando" ? "Generando…" : "Actualizar Dashboard"}
+                  {dashboardGcisEstado === "generando"
+                    ? "Generando…"
+                    : sintesisAlDia
+                      ? "Actualizar Dashboard (ya está al día)"
+                      : "Actualizar Dashboard"}
                 </Button>
 
                 {dashboardGcisEstado === "listo" && dashboardGcis?.meta.estado_generacion === "generado" && (
@@ -1239,7 +1269,10 @@ export function CasoWorkspace() {
                     ya no hay motivo para acoplar la visibilidad a eso. */}
                 <Button
                   variant="secondary"
-                  onClick={generarInforme}
+                  onClick={() => {
+                    setDestinatarioInforme(destinatarioPreferido ?? "colega");
+                    setEleccionInformeAbierta(true);
+                  }}
                   disabled={generandoInforme || generacionDetenida}
                   size="sm"
                   title="Genera un informe nuevo — los anteriores quedan disponibles en Informes anteriores."
@@ -1247,7 +1280,73 @@ export function CasoWorkspace() {
                   {generandoInforme ? "Generando informe…" : "Generar informe nuevo"}
                 </Button>
 
-                {/* prompt_code_informes_anteriores, Paso 1 — botón fijo
+                {/* Paso 4 — para quién es el informe.
+          Aparece al tocar "Generar informe nuevo" y no antes: es una
+          decisión por informe, no algo que tenga que estar a la vista
+          siempre. La opción viene preseleccionada con la última elección
+          de este médico. */}
+      <Modal
+        open={eleccionInformeAbierta}
+        onClose={() => setEleccionInformeAbierta(false)}
+        title="¿Para quién es este informe?"
+        description="El contenido clínico es el mismo. Lo que cambia es el lenguaje."
+        footer={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setEleccionInformeAbierta(false)}>
+              Cancelar
+            </Button>
+            <Button size="sm" onClick={() => generarInforme(destinatarioInforme)}>
+              Generar informe
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {(
+            [
+              {
+                valor: "colega" as const,
+                titulo: "Para un colega",
+                detalle: "Lenguaje técnico, tal como está en el análisis del caso.",
+              },
+              {
+                valor: "tutor" as const,
+                titulo: "Para el tutor",
+                detalle:
+                  "Mismo contenido, explicado en lenguaje llano. No cambia el diagnóstico ni el pronóstico.",
+              },
+            ]
+          ).map((opcion) => (
+            <label
+              key={opcion.valor}
+              className={`flex cursor-pointer gap-3 rounded-xl border p-4 ${
+                destinatarioInforme === opcion.valor
+                  ? "border-accent bg-accent/5"
+                  : "border-border hover:border-accent/40"
+              }`}
+            >
+              <input
+                type="radio"
+                name="destinatario-informe"
+                className="mt-1"
+                checked={destinatarioInforme === opcion.valor}
+                onChange={() => setDestinatarioInforme(opcion.valor)}
+              />
+              <span>
+                <span className="block text-sm font-semibold text-text-primary">
+                  {opcion.titulo}
+                  {destinatarioPreferido === opcion.valor && (
+                    <span className="ml-2 text-xs font-normal text-text-muted">— tu última elección</span>
+                  )}
+                </span>
+                <span className="mt-1 block text-xs text-text-muted">{opcion.detalle}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </Modal>
+
+      {/* prompt_code_informes_anteriores, Paso 1 — botón fijo
                     con contador, siempre en el mismo lugar, deshabilitado
                     (no oculto) cuando no hay informes. Reemplaza la
                     sección pasiva que aparecía más abajo solo cuando

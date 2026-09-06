@@ -32,9 +32,16 @@ platformConsumoClinicasRouter.use((req, res, next) => {
   next();
 });
 
+// `regeneracion` se conserva porque las filas históricas la usan y su
+// significado viejo ("segunda apertura o más del dashboard") sigue siendo
+// el correcto PARA ELLAS. Ya no se emite: lo que se registra hoy es
+// `regeneracion_forzada`, que es otra cosa —el médico pidió rehacer una
+// síntesis vigente— y por eso tiene nombre propio en vez de reutilizar el
+// anterior. Ver migración 083.
 const CONCEPTO_LABEL: Record<string, string> = {
   clinico: "Casos clínicos procesados",
-  regeneracion: "Regeneraciones de dashboard",
+  regeneracion_forzada: "Análisis rehechos a pedido",
+  regeneracion: "Regeneraciones de dashboard (histórico)",
   operativo: "Operativo",
   cortesia: "Cortesía",
 };

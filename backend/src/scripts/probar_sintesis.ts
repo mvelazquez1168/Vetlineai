@@ -39,7 +39,7 @@ async function main() {
     const e0 = await estadoSintesis(client, caso.id);
     console.log(`1. antes: existe=${e0.existe} vigente=${e0.vigente}`);
     const t0 = Date.now();
-    const r1 = await obtenerSintesisParaDashboard(client, caso.id, tenant);
+    const r1 = await obtenerSintesisParaDashboard(tenant, caso.id);
     console.log(`   generó: ${r1.seGenero}   en ${Math.round((Date.now() - t0) / 1000)} s`);
     if (r1.usage) {
       const u = r1.usage;
@@ -58,7 +58,7 @@ async function main() {
 
     // 3. Segunda llamada: no debe regenerar.
     const t1 = Date.now();
-    const r2 = await obtenerSintesisParaDashboard(client, caso.id, tenant);
+    const r2 = await obtenerSintesisParaDashboard(tenant, caso.id);
     console.log(`\n3. segunda llamada: generó=${r2.seGenero}${r2.seGenero ? "  ← DEBERÍA SER false" : ""}   en ${Date.now() - t1} ms`);
 
     // 4. El caso avanza: deja de estar vigente.

@@ -20,9 +20,13 @@ const TONO_AVISO: Record<AvisoConsumo["umbral"], string> = {
   colchon_agotado: "border-error/40 bg-error/10",
 };
 
+// "regeneracion" ya no se emite — queda para las filas anteriores al
+// cambio de la síntesis, con su significado viejo intacto. Lo que se
+// registra hoy es "regeneracion_forzada". Ver migración 083.
 const CONCEPTO_LABEL: Record<string, string> = {
   clinico: "Consultas clínicas",
-  regeneracion: "Regeneraciones",
+  regeneracion_forzada: "Análisis rehechos a pedido",
+  regeneracion: "Regeneraciones (histórico)",
   operativo: "Operativo",
   cortesia: "Cortesía",
 };

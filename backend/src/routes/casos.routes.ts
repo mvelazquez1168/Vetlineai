@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { PoolClient } from "pg";
 import * as path from "path";
+import { adaptarInformeParaTutor } from "../adaptarInformeTutor";
 import { conAlcanceTenant } from "../alcanceTenant";
+import { obtenerSintesisParaDashboard, obtenerSintesisParaInforme } from "../generarSintesis";
+import { estadoSintesis, proyectarDashboard, proyectarInforme } from "../sintesisClinica";
 import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import {
   Document,
@@ -56,64 +59,27 @@ casosRouter.use((req, res, next) => {
   next();
 });
 
-// ---------------------------------------------------------------------
-// Documentos de la Base de Conocimiento relevantes para el contexto de un
-// caso: los del agente del caso (o compartidos, agente_id NULL) que
-// ADEMÁS apliquen al país del tenant — sin país asignado (NULL, aplica a
-// cualquier país) o coincidiendo exactamente con tenants.pais_codigo.
-//
-// Trae también d.contenido_texto (texto completo, cuando está cargado) —
-// se usa tanto para el chat real de GCIS (workspace.routes.ts) como para
-// la generación real del Dashboard más abajo en este archivo.
-//
-// Excluye a propósito el documento de predisposiciones raciales (ver
-// razaDocumento.ts) — ese va aparte, seleccionado por la raza del
-// paciente, y NUNCA como parte de este bloque cacheado: si viviera acá,
-// el prefijo dejaría de ser idéntico byte a byte entre casos del mismo
-// agente (la raza varía por caso) y se perdería el caché compartido para
-// TODO el bloque, no solo para este documento.
-// ---------------------------------------------------------------------
-//
-// Devuelve los documentos separados por ámbito (migración 073):
-// `clinicos` va en el bloque A, que leen los cuatro caminos, y
-// `generacion` en el bloque B, que solo mandan dashboard, informe y
-// receta. Se hace en UNA consulta y se separa acá para que el orden
-// dentro de cada bloque salga del mismo ORDER BY — dos consultas
-// distintas podrían ordenar distinto y eso es una reescritura de caché.
-export async function obtenerDocumentosParaContexto(
-  db: PoolClient,
-  agenteId: string,
-  tenantId: string
-) {
-  const result = await db.query(
-    `SELECT d.id, d.nombre, d.tipo, d.archivo_ref, d.contenido_texto, d.ambito
-     FROM documentos_conocimiento d
-     JOIN tenants t ON t.id = $2
-     WHERE d.estado = 'activo'
-       AND d.incluir_en_contexto = true
-       AND d.nombre != $3
-       AND (d.agente_id IS NULL OR d.agente_id = $1)
-       AND (d.pais_codigo IS NULL OR d.pais_codigo = t.pais_codigo)
-     -- El desempate por id NO es cosmético: este orden define el orden de
-     -- los documentos dentro del bloque cacheado, y el caché es un match
-     -- de prefijo byte a byte. Ordenando solo por fecha_carga hay empates
-     -- reales (5 documentos comparten la misma fecha al milisegundo, y hay
-     -- otros cuatro grupos iguales) y Postgres no garantiza un orden
-     -- estable entre consultas cuando empatan. En la práctica hoy sale
-     -- estable, pero un UPDATE a un documento reescribe la fila al final
-     -- del heap y le cambia la posición en un scan sin orden garantizado:
-     -- editar un documento desde Platform Admin podría reordenar el bloque
-     -- y reescribir el caché entero sin que el contenido cambie. id es
-     -- inmutable, así que fija el orden para siempre.
-     ORDER BY d.fecha_carga DESC, d.id`,
-    [agenteId, tenantId, NOMBRE_DOCUMENTO_PREDISPOSICIONES]
-  );
-  return {
-    clinicos: result.rows.filter((d) => d.ambito !== "generacion"),
-    generacion: result.rows.filter((d) => d.ambito === "generacion"),
-    todos: result.rows,
-  };
-}
+// Las funciones de contexto del agente se movieron a contextoAgente.ts
+// para romper el ciclo de importación con generarSintesis.ts (ver la
+// cabecera de ese archivo). Se re-exportan acá para no tocar a los nueve
+// módulos y scripts que ya las importaban desde esta ruta.
+import {
+  obtenerDocumentosParaContexto,
+  construirBloqueDocumentos,
+  obtenerRecetasEmitidasParaContexto,
+  construirBloquePrescripciones,
+  insertarBloquePrescripciones,
+} from "../contextoAgente";
+// Se importan (este archivo las sigue usando) y se re-exportan (los nueve
+// importadores que ya las traian de aca siguen funcionando sin cambios).
+export {
+  obtenerDocumentosParaContexto,
+  construirBloqueDocumentos,
+  obtenerRecetasEmitidasParaContexto,
+  construirBloquePrescripciones,
+  insertarBloquePrescripciones,
+};
+
 
 // ---------------------------------------------------------------------
 // POST /api/casos
@@ -435,125 +401,9 @@ const MODELO_GCIS = "claude-sonnet-4-6";
 // porque son requisitos estructurales, no un número a afinar.
 const DASHBOARD_MENSAJES_MINIMOS = 2;
 
-// Mismo mecanismo que workspace.routes.ts (duplicado a propósito, ver
-// nota arriba): documentos con contenido_texto cargado se concatenan
-// completos; los que no, se mencionan solo por nombre/tipo/archivo_ref.
-// El texto resultante tiene que ser BYTE POR BYTE igual al que arma el
-// chat para el mismo caso — de eso depende que esta llamada aproveche el
-// cache_control ephemeral que ya paga el chat, en vez de escribir un
-// cache nuevo.
-export function construirBloqueDocumentos(
-  documentos: { nombre: string; tipo: string; archivo_ref: string; contenido_texto: string | null }[]
-): string {
-  if (documentos.length === 0) {
-    return "No hay documentos de referencia adicionales cargados para este agente/país.";
-  }
-  const documentosConTexto = documentos.filter((d) => d.contenido_texto);
-  const documentosSinTexto = documentos.filter((d) => !d.contenido_texto);
-  return [
-    documentosConTexto.length > 0
-      ? "Documentos de referencia (contenido completo) para este caso:\n\n" +
-        documentosConTexto
-          .map((d) => `### ${d.nombre} (${d.tipo})\n${d.contenido_texto}`)
-          .join("\n\n---\n\n")
-      : null,
-    documentosSinTexto.length > 0
-      ? "Documentos de referencia mencionados pero sin contenido de texto cargado " +
-        "todavía (solo metadata):\n" +
-        documentosSinTexto.map((d) => `- ${d.nombre} (${d.tipo}): ${d.archivo_ref}`).join("\n")
-      : null,
-  ]
-    .filter((bloque): bloque is string => bloque !== null)
-    .join("\n\n");
-}
 
-// ---------------------------------------------------------------------
-// Historial de prescripciones YA emitidas de un caso — función
-// compartida (ver prompt_receta_contexto_caso.md) reusada tal cual por
-// chat, Dashboard, Informe y validación de recetas, mismo criterio que
-// obtenerDocumentosParaContexto/construirBloqueDocumentos arriba. Solo
-// 'emitida': un borrador de otra sesión/médico no cuenta como "ya
-// prescripto" y no debe filtrarse acá.
-// ---------------------------------------------------------------------
-export async function obtenerRecetasEmitidasParaContexto(db: PoolClient, casoId: string) {
-  const result = await db.query(
-    `SELECT r.id, r.emitido_en, per.nombre AS medico_nombre,
-            med.nombre AS medicamento_nombre, med.concentracion,
-            ri.dosis, ri.frecuencia, ri.duracion, ri.via_administracion, ri.orden
-     FROM recetas r
-     JOIN personas per ON per.id = r.medico_id
-     JOIN receta_items ri ON ri.receta_id = r.id
-     JOIN medicamentos med ON med.id = ri.medicamento_id
-     WHERE r.caso_id = $1 AND r.estado = 'emitida'
-     ORDER BY r.emitido_en ASC, ri.orden ASC`,
-    [casoId]
-  );
-  return result.rows;
-}
 
-// Devuelve null (nunca un bloque vacío) cuando el caso no tiene ninguna
-// receta emitida todavía — mismo criterio de "nunca insertar secciones
-// vacías" que ya aplican Dashboard e Informe para sus propias secciones.
-export function construirBloquePrescripciones(
-  filas: {
-    id: string;
-    emitido_en: string;
-    medico_nombre: string;
-    medicamento_nombre: string;
-    concentracion: string | null;
-    dosis: string;
-    frecuencia: string;
-    duracion: string;
-    via_administracion: string;
-  }[]
-): string | null {
-  if (filas.length === 0) return null;
 
-  const recetasPorId = new Map<string, { emitido_en: string; medico_nombre: string; items: string[] }>();
-  const ordenRecetas: string[] = [];
-  for (const fila of filas) {
-    if (!recetasPorId.has(fila.id)) {
-      recetasPorId.set(fila.id, { emitido_en: fila.emitido_en, medico_nombre: fila.medico_nombre, items: [] });
-      ordenRecetas.push(fila.id);
-    }
-    recetasPorId.get(fila.id)!.items.push(
-      `- ${fila.medicamento_nombre}${fila.concentracion ? ` (${fila.concentracion})` : ""}: ` +
-        `${fila.dosis}, ${fila.frecuencia}, ${fila.duracion}, vía ${fila.via_administracion}`
-    );
-  }
-
-  const bloques = ordenRecetas.map((id) => {
-    const r = recetasPorId.get(id)!;
-    const fecha = new Date(r.emitido_en).toISOString().slice(0, 10);
-    return `Receta emitida el ${fecha} por ${r.medico_nombre}:\n${r.items.join("\n")}`;
-  });
-
-  return (
-    "Historial de prescripciones de este caso (recetas YA EMITIDAS — tenelas en cuenta al " +
-    "razonar sobre mensajes nuevos, al generar el Dashboard/Informe, y sobre todo al validar " +
-    "una receta nueva contra duplicidad terapéutica; nunca las repitas como si fueran una " +
-    "prescripción recién indicada):\n\n" +
-    bloques.join("\n\n")
-  );
-}
-
-// Inserta el bloque (si existe) como un par user/assistant sintético
-// ANTES del historial real de mensajes — junto a los mensajes, NO en el
-// bloque de system prompt cacheado (ver prompt_receta_contexto_caso.md:
-// esto es dinámico por caso, igual que los mensajes, nunca debe
-// cachearse como si fuera parte de las Project Instructions o la Base
-// de Conocimiento). Si no hay recetas emitidas, no toca el array.
-export function insertarBloquePrescripciones<T extends { role: "user" | "assistant"; content: unknown }>(
-  mensajes: T[],
-  bloque: string | null
-): T[] {
-  if (!bloque) return mensajes;
-  return [
-    { role: "user", content: bloque } as T,
-    { role: "assistant", content: "Entendido — tengo presente el historial de prescripciones de este caso." } as T,
-    ...mensajes,
-  ];
-}
 
 // Objeto con la forma completa del schema (todas las claves raíz
 // requeridas presentes, todo en null salvo meta) — tanto para la
@@ -651,7 +501,24 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
     // esquema para esa distinción; se lee ACÁ, antes de llamar a Claude,
     // porque más abajo esta misma fila se sobreescribe con el resultado
     // nuevo.
-    const tipoConsumoDashboard = caso.dashboard_cache === null ? "clinico" : "regeneracion";
+    //
+    // Se reemplaza por la vigencia de la síntesis (y por la categoría
+    // `regeneracion_forzada`, migración 083) recién cuando esta ruta pase a
+    // proyectar desde la síntesis. Cambiarla antes haría que todo cayera en
+    // `clinico` sin que nada falle.
+    // ¿Había una síntesis VIGENTE antes de esta llamada?
+    //
+    // Reemplaza a `dashboard_cache === null`, que decía "es la segunda vez
+    // o más que se abre el dashboard". Esa señal desaparece al proyectar
+    // desde la síntesis, y además dejó de describir algo real: lo que
+    // cuesta plata no es volver a abrir, es rehacer el razonamiento.
+    //
+    // Se lee ACÁ, antes de generar, porque generar la sobreescribe.
+    // Categoría NUEVA (`regeneracion_forzada`, migración 083) en vez de
+    // reinterpretar `regeneracion`: una serie que cambia de significado sin
+    // marca en el dato produce conclusiones falsas cuando ya nadie recuerda
+    // el cambio.
+    const habiaSintesisVigente = (await estadoSintesis(req.db!, req.params.id)).vigente;
 
     // -----------------------------------------------------------------
     // ICIS (sin system_prompt) — stub sin cambios.
@@ -715,128 +582,38 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
       });
     }
 
-    // -----------------------------------------------------------------
-    // Arma el mismo bloque de system prompt cacheado que usa el chat
-    // (mismo texto byte a byte, para reusar el cache_control ephemeral
-    // que ya paga el chat) + una instrucción adicional breve FUERA del
-    // bloque cacheado, específica de esta llamada. La función compartida
-    // ya resuelve Project Instructions + AI Reasoning Standard +
-    // documentos_conocimiento del agente real del caso — no asume GCIS.
-    // -----------------------------------------------------------------
-    const documentos = await obtenerDocumentosParaContexto(
-      req.db!,
-      caso.agente_id,
-      req.auth!.tenantId!
-    );
-    const bloqueDocumentos = construirBloqueDocumentos(documentos.clinicos);
-    // Bloque B: solo lo mandan los caminos de generación. Va DESPUÉS del
-    // bloque A y con su propio cache_control, así el prefijo del chat
-    // (tools + A) sigue siendo un prefijo exacto de éste (tools + A + B) y
-    // A se comparte entre los cuatro (ver migración 073).
-    const bloqueGeneracion =
-      documentos.generacion.length > 0 ? construirBloqueDocumentos(documentos.generacion) : null;
-    const systemCacheado = `${caso.system_prompt}\n\n---\n\n${bloqueDocumentos}`;
-    // Ajustes del área de trabajo, Prioridad 1 — mismo bloque y mismo
-    // criterio de ubicación que el chat: después del bloque cacheado, sin
-    // cache_control (ver contextoCaso.ts).
-    const bloqueContextoCaso = await construirBloqueContextoCaso(req.db!, req.params.id);
-    const bloqueRazaDocumento = await construirBloqueRazaDocumento(req.db!, req.params.id, req.auth!.tenantId ?? null);
-    const instruccionDashboard =
-      "A continuación se te pedirá generar el Dashboard clínico del caso mediante la tool " +
-      "generar_dashboard, siguiendo estrictamente las reglas de aparición condicional de la " +
-      "Dashboard Functional Specification del agente correspondiente a este caso, Sección 5.2 — " +
-      "nunca completes un campo de tendencia si no se cumple el umbral mínimo de datos, dejalo en null.";
-
-    // Historial + adjuntos: mismo módulo que el chat real, el informe y la
-    // receta (ver archivosDelCaso.ts). Esto SÍ se comparte a propósito
-    // —a diferencia del resto de la duplicación deliberada de este
-    // archivo— porque cuatro copias del filtro de adjuntos es exactamente
-    // cómo un estudio se pierde en una sola de ellas sin que nadie lo note.
-    const { mensajes: mensajesParaClaude } = await construirMensajesParaModelo(req.db!, req.params.id);
-
-    const recetasEmitidas = await obtenerRecetasEmitidasParaContexto(req.db!, req.params.id);
-    const bloquePrescripciones = construirBloquePrescripciones(recetasEmitidas);
-    const mensajesConPrescripciones = insertarBloquePrescripciones(mensajesParaClaude, bloquePrescripciones);
-
-    // Acá termina todo lo que esta ruta le pide a la base antes de hablar
-    // con el modelo, así que acá se suelta la transacción. Sin el corte
-    // quedaba abierta y quieta durante toda la generación del Dashboard
-    // —que es larga: max_tokens 8192— reteniendo bloqueos y frenando el
-    // vacuum. Mismo patrón que el chat.
+    // Todo lo que esta ruta le pide a la base ya está leído. Se suelta la
+    // transacción ANTES de la síntesis, que es la llamada larga.
     //
-    // Todo lo de arriba es LECTURA (incluido verificarAntesDeGenerar, que
-    // solo consulta), así que confirmar acá no puede perder nada: no hay
-    // ninguna escritura pendiente que un fallo posterior debiera revertir.
-    //
-    // Desde este punto `req.db` no se usa más; lo que resta va en una
-    // transacción corta con conAlcanceTenant.
+    // El armado del contexto (prompt cacheado, documentos, historial,
+    // adjuntos, prescripciones) ya NO se hace acá: lo hace generarSintesis
+    // con exactamente el mismo material. Tenerlo duplicado en dos lugares
+    // era lo que permitía que el dashboard y el informe razonaran distinto
+    // sobre el mismo paciente.
     await req.cerrarTransaccion!();
 
     // -----------------------------------------------------------------
-    // Llamada real con tool_choice forzado a generar_dashboard.
+    // La síntesis: fuente única del dashboard y del informe.
+    //
+    // `forzar: true` porque este endpoint ES el pedido explícito de
+    // actualizar del médico. Devolverle lo que ya tenía se leería como que
+    // el sistema ignoró su pedido. Que cueste está bien mientras sea
+    // explícito — y ahora además queda atribuido. Abrir el dashboard (GET)
+    // sigue sin generar nada.
     // -----------------------------------------------------------------
-    let response;
+    let resultado;
     try {
-      const anthropic = requerirAnthropic();
-      response = await anthropic.beta.messages.create({
-        model: MODELO_GCIS,
-        // 4096 (valor sugerido originalmente) se probó insuficiente en la
-        // práctica: contra el caso de Piki (historia clínica extensa), la
-        // respuesta se cortó exactamente en tokens_salida=4096 con 3 de
-        // los 10 campos raíz requeridos (differential_diagnosis,
-        // knowledge_match, clinical_reasoning_journal) directamente
-        // ausentes del JSON — no es un límite arbitrario, es el "ajustable"
-        // que el pedido original ya anticipaba que habría que afinar.
-        max_tokens: 8192,
-        betas: ["files-api-2025-04-14"],
-        system: [
-          { type: "text", text: systemCacheado, cache_control: CACHE_PREFIJO_COMPARTIDO },
-          ...(bloqueGeneracion
-            ? [{ type: "text" as const, text: bloqueGeneracion, cache_control: CACHE_PREFIJO_COMPARTIDO }]
-            : []),
-          { type: "text", text: bloqueContextoCaso },
-          ...(bloqueRazaDocumento ? [{ type: "text" as const, text: bloqueRazaDocumento }] : []),
-          { type: "text", text: instruccionDashboard },
-        ],
-        messages: [
-          ...mensajesConPrescripciones,
-          {
-            role: "user",
-            content: "Generá el Dashboard clínico actualizado de este caso, usando la tool generar_dashboard.",
-          },
-        ],
-        tools: HERRAMIENTAS_AGENTE,
-        tool_choice: { type: "tool", name: "generar_dashboard" },
-      });
+      resultado = await obtenerSintesisParaDashboard(req.auth!.tenantId!, req.params.id, { forzar: true });
       await registrarExitoAnthropic();
     } catch (err) {
-      console.error("Error al llamar a la API de Claude para el Dashboard", err);
+      console.error("Error al generar la síntesis para el Dashboard", err);
       await registrarResultadoAnthropic(err);
       return res.status(502).json({ error: "No se pudo generar el Dashboard en este momento." });
     }
 
-    const toolUseBlock = response.content.find(
-      (b: any) => b.type === "tool_use" && b.name === "generar_dashboard"
-    ) as any;
-    if (!toolUseBlock) {
-      console.error("La respuesta de Claude no incluyó el tool_use esperado para el Dashboard", response);
-      return res.status(502).json({ error: "No se pudo generar el Dashboard en este momento." });
-    }
-
-    // El backend siempre pisa caso_id/generado_en — nunca confía en que
-    // el modelo los complete (ni el schema se los pide: meta solo exige
-    // estado_generacion). Si el modelo devolvió "sin_datos" pese a haber
-    // pasado la compuerta, se respeta tal cual — no se sobreescribe.
-    const dashboardGenerado = toolUseBlock.input as Record<string, any>;
-    dashboardGenerado.meta = {
-      ...(dashboardGenerado.meta ?? {}),
-      caso_id: req.params.id,
-      generado_en: new Date().toISOString(),
-    };
-
-    const usage = response.usage;
-    const tokensCacheEscritura = usage.cache_creation_input_tokens ?? 0;
-    const tokensCacheLectura = usage.cache_read_input_tokens ?? 0;
+    // Proyección pura: no razona, no completa, no interpreta. Es toda la
+    // garantía de que el dashboard y el informe no puedan contradecirse.
+    const dashboardGenerado = proyectarDashboard(resultado.sintesis, req.params.id);
 
     // Segunda transacción, corta: el consumo y el Dashboard persistido van
     // juntos o no va ninguno. Si el consumo se registrara aparte y fallara,
@@ -848,28 +625,44 @@ casosRouter.post("/:id/dashboard/actualizar", async (req, res) => {
       );
       const medicoAgenteId = medicoAgenteResult.rows[0]?.id ?? null;
 
-      // Llamada separada del chat — fila propia en uso_api, no se mezcla con
-      // el consumo de POST /casos/:id/mensajes. tipoConsumoDashboard ya se
-      // determinó arriba, antes de sobreescribir dashboard_cache más abajo.
-      await registrarUsoApi(db, {
-        tenantId: req.auth!.tenantId!,
-        casoId: req.params.id,
-        medicoAgenteId,
-        personaId: req.auth!.userId,
-        modelo: MODELO_GCIS,
-        tokensEntrada: usage.input_tokens,
-        tokensSalida: usage.output_tokens,
-        tokensCacheEscritura,
-        tokensCacheLectura,
-        tipoConsumo: tipoConsumoDashboard,
-        disparadoPor: "usuario",
-      });
+      // Una fila de uso_api POR CADA llamada al modelo, no una por request:
+      // la síntesis puede encadenar dos fases y cobrar solo la última
+      // regalaría la otra. Lista vacía = se reusó una síntesis vigente y no
+      // hay nada que cobrar (no puede pasar acá, que va con forzar, pero la
+      // condición se respeta igual y no se inventa consumo).
+      for (const usage of resultado.usosDelModelo) {
+        await registrarUsoApi(db, {
+          tenantId: req.auth!.tenantId!,
+          casoId: req.params.id,
+          medicoAgenteId,
+          personaId: req.auth!.userId,
+          modelo: MODELO_GCIS,
+          tokensEntrada: usage.input_tokens,
+          tokensSalida: usage.output_tokens,
+          tokensCacheEscritura: usage.cache_creation_input_tokens ?? 0,
+          tokensCacheLectura: usage.cache_read_input_tokens ?? 0,
+          // Rehacer una síntesis que YA estaba vigente es lo que el médico
+          // eligió pagar; generarla por primera vez, o porque el caso
+          // avanzó, es consumo clínico normal.
+          tipoConsumo: habiaSintesisVigente ? "regeneracion_forzada" : "clinico",
+          disparadoPor: "usuario",
+        });
+      }
 
       // Persiste como cache solo si realmente se generó — un "sin_datos"
       // devuelto por el modelo pese a pasar la compuerta, o cualquier falla
       // previa, no debe pisar un Dashboard bueno que ya existiera (ver
       // prompt_dashboard_persistencia.md Fase B.1).
-      if (dashboardGenerado.meta.estado_generacion === "generado") {
+      // Se sigue escribiendo dashboard_cache durante la transición: hay un
+      // TERCER consumidor además de las dos vistas —el job de seguimiento
+      // faltante— y la columna se retira en una migración aparte, cuando
+      // todos hayan migrado. Es lo que hace reversible este cambio.
+      //
+      // La guarda pasa de "== generado" a "!= sin_datos": la síntesis puede
+      // no traer `estado_generacion`, y exigirlo dejaría de persistir sin
+      // que nada falle. Se conserva la intención original — no pisar un
+      // dashboard bueno con un "sin_datos".
+      if (dashboardGenerado.meta?.estado_generacion !== "sin_datos") {
         await db.query(
           `UPDATE casos SET dashboard_cache = $1, dashboard_generado_en = $2 WHERE id = $3`,
           [JSON.stringify(dashboardGenerado), dashboardGenerado.meta.generado_en, req.params.id]
@@ -916,10 +709,28 @@ casosRouter.get("/:id/dashboard", async (req, res) => {
     }
 
     const fila = result.rows[0];
+
+    // `sintesisAlDia` existe para que el botón de actualizar pueda decirlo
+    // ANTES de que lo aprieten: rehacer cuesta plata, y sin este aviso la
+    // única forma de enterarse de que no hacía falta es la factura.
+    //
+    // Es la huella, no una comparación de fechas: `hayInformacionPosterior`
+    // solo mira si llegaron MENSAJES después de generar, y el material de
+    // un caso también cambia con un adjunto, una receta emitida o un dato
+    // del paciente corregido. Se conserva ese campo porque el frontend
+    // todavía lo usa, pero el bueno es este.
+    //
+    // Este GET sigue sin generar nada: abrir un caso no puede costar plata.
+    // Un médico que revisa cinco casos por la mañana gastaría cinco veces
+    // sin haber pedido nada, y sin saberlo — mirar algo no se siente como
+    // una acción que consuma.
+    const sintesisAlDia = (await estadoSintesis(req.db!, req.params.id)).vigente;
+
     res.json({
       dashboard: fila.dashboard_cache ?? null,
       generado_en: fila.dashboard_generado_en ?? null,
       hayInformacionPosterior: fila.hay_informacion_posterior,
+      sintesisAlDia,
     });
   } catch (err) {
     console.error("GET /casos/:id/dashboard", err);
@@ -1711,6 +1522,18 @@ function sanitizarNombreArchivoInforme(nombre: string): string {
 // adjunto descargable.
 // ---------------------------------------------------------------------
 casosRouter.post("/:id/informe/generar", async (req, res) => {
+  // Paso 4 — para quién es este informe. Es una decisión POR INFORME, no
+  // una configuración: por eso viaja en el cuerpo del pedido y no hay un
+  // control permanente en la barra del área de trabajo, que ya está
+  // apretada y le quita espacio a lo que el médico lee.
+  //
+  // Default 'colega' = exactamente el comportamiento anterior, para que un
+  // cliente que todavía no manda el campo siga funcionando igual.
+  const destinatario = ((req.body ?? {}) as { destinatario?: string }).destinatario ?? "colega";
+  if (destinatario !== "colega" && destinatario !== "tutor") {
+    return res.status(400).json({ error: "El destinatario del informe tiene que ser 'colega' o 'tutor'." });
+  }
+
   try {
     const casoResult = await req.db!.query(
       `SELECT c.id, c.agente_id, c.estado, c.motivo, c.numero_expediente,
@@ -1821,150 +1644,117 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
       }
     }
 
-    // -----------------------------------------------------------------
-    // Mismo bloque de system prompt cacheado que el chat y el Dashboard
-    // (byte a byte) para reusar el cache_control ephemeral ya pagado.
-    // -----------------------------------------------------------------
-    const documentos = await obtenerDocumentosParaContexto(req.db!, caso.agente_id, req.auth!.tenantId!);
-    const bloqueDocumentos = construirBloqueDocumentos(documentos.clinicos);
-    // Bloque B: solo lo mandan los caminos de generación. Va DESPUÉS del
-    // bloque A y con su propio cache_control, así el prefijo del chat
-    // (tools + A) sigue siendo un prefijo exacto de éste (tools + A + B) y
-    // A se comparte entre los cuatro (ver migración 073).
-    const bloqueGeneracion =
-      documentos.generacion.length > 0 ? construirBloqueDocumentos(documentos.generacion) : null;
-    const systemCacheado = `${caso.system_prompt}\n\n---\n\n${bloqueDocumentos}`;
-    // Ajustes del área de trabajo, Prioridad 1 — mismo criterio que el
-    // chat y el Dashboard (ver contextoCaso.ts).
-    const bloqueContextoCaso = await construirBloqueContextoCaso(req.db!, req.params.id);
-    const bloqueRazaDocumento = await construirBloqueRazaDocumento(req.db!, req.params.id, req.auth!.tenantId ?? null);
-    const instruccionInforme =
-      "A continuación se te pedirá generar el contenido del Informe de Consulta Clínica (CR-001) del caso " +
-      "mediante la tool generar_informe, siguiendo estrictamente la Clinical Report Specification del " +
-      "agente correspondiente a este caso y sus reglas de sección condicional — nunca completes una " +
-      "sección opcional sin datos reales que la sustenten. En las secciones de texto libre (Historia " +
-      "Clínica, Razonamiento Diagnóstico, Evolución Clínica, apéndices): si subdividís el contenido " +
-      "internamente, marcá esa subdivisión con un encabezado de nivel 2 (## Título), nunca con negrita a " +
-      "modo de título — la negrita queda solo para destacar una palabra o frase dentro de un párrafo. Si " +
-      "anunciás una cantidad de partes o elementos, esa cantidad tiene que coincidir exactamente con lo " +
-      "que enumerás después.";
-
-    // Historial + adjuntos: mismo módulo compartido que el chat real, el
-    // Dashboard y la receta (ver archivosDelCaso.ts). El informe es la
-    // pieza que se entrega al tutor y queda en el expediente: un estudio
-    // que no llegue acá es un informe escrito sin haberlo visto.
-    const { mensajes: mensajesParaClaude } = await construirMensajesParaModelo(req.db!, req.params.id);
-
-    const recetasEmitidas = await obtenerRecetasEmitidasParaContexto(req.db!, req.params.id);
-    const bloquePrescripciones = construirBloquePrescripciones(recetasEmitidas);
-    const mensajesConPrescripciones = insertarBloquePrescripciones(mensajesParaClaude, bloquePrescripciones);
-
-    // Acá se suelta la transacción de la request: lo que sigue es la
-    // llamada al modelo, la más larga de todas (max_tokens 16384), y
-    // sostenerla abierta durante toda la generación es la causa raíz de
-    // la alerta de `idle in transaction`. Mismo patrón que chat y
-    // dashboard.
+    // Acá se suelta la transacción: lo que sigue es la síntesis, la llamada
+    // más larga del sistema. Sostenerla abierta era la causa raíz de la
+    // alerta de `idle in transaction`.
     //
     // Todo lo de arriba es LECTURA —incluidos verificarAntesDeGenerar y
     // verificarInformeCortesiaPermitido, que solo consultan—, así que
     // confirmar acá no puede perder ninguna escritura pendiente. La
-    // cortesía, que es lo único con efecto de una sola vez, se marca con
-    // el INSERT en informes_generados de más abajo, no antes.
+    // cortesía, que es lo único con efecto de una sola vez, se marca con el
+    // INSERT en informes_generados de más abajo, no antes.
+    //
+    // El armado del contexto ya NO se hace acá: lo hace generarSintesis con
+    // el mismo material. Dos armados separados eran dos razonamientos que
+    // podían discrepar sobre el mismo paciente sin que nadie lo notara
+    // hasta comparar la pantalla con el documento.
     //
     // Desde este punto `req.db` no se usa más.
     await req.cerrarTransaccion!();
 
     // -----------------------------------------------------------------
-    // Llamada real con tool_choice forzado a generar_informe.
-    // max_tokens generoso (contenido más extenso que el Dashboard) —
-    // verificado explícitamente contra el caso de Piki, sin truncarse.
+    // La síntesis, completa. SIN `forzar`: si ya hay una vigente, el
+    // informe la proyecta y NO consume nada — que es el punto del Paso 3.
+    // Si solo existe el núcleo, se completa; si no hay nada, se hacen las
+    // dos fases, sin depender de que alguien haya abierto el dashboard.
     // -----------------------------------------------------------------
-    let response;
+    let resultadoInforme;
     try {
-      const anthropic = requerirAnthropic();
-      response = await anthropic.beta.messages.create({
-        model: MODELO_GCIS,
-        // 8192 (mismo valor que terminó sirviendo para el Dashboard) se
-        // probó insuficiente acá: contra el caso de Piki, tokens_salida
-        // salió exactamente 8192 y 8 de las secciones "siempre presente"
-        // (razonamiento_diagnostico, estado_clinico_actual, recomendaciones,
-        // diagnostico_diferencial, historial_terapeutico, manejo_nutricional,
-        // consideraciones_farmacologicas, referencias) llegaron en null —
-        // el informe es más extenso que el Dashboard, como ya anticipaba
-        // el pedido original.
-        max_tokens: 16384,
-        betas: ["files-api-2025-04-14"],
-        system: [
-          { type: "text", text: systemCacheado, cache_control: CACHE_PREFIJO_COMPARTIDO },
-          ...(bloqueGeneracion
-            ? [{ type: "text" as const, text: bloqueGeneracion, cache_control: CACHE_PREFIJO_COMPARTIDO }]
-            : []),
-          { type: "text", text: bloqueContextoCaso },
-          ...(bloqueRazaDocumento ? [{ type: "text" as const, text: bloqueRazaDocumento }] : []),
-          { type: "text", text: instruccionInforme },
-        ],
-        messages: [
-          ...mensajesConPrescripciones,
-          {
-            role: "user",
-            content: "Generá el Informe de Consulta Clínica (CR-001) de este caso, usando la tool generar_informe.",
-          },
-        ],
-        tools: HERRAMIENTAS_AGENTE,
-        tool_choice: { type: "tool", name: "generar_informe" },
-      });
+      resultadoInforme = await obtenerSintesisParaInforme(req.auth!.tenantId!, req.params.id);
       await registrarExitoAnthropic();
     } catch (err) {
-      console.error("Error al llamar a la API de Claude para el Informe", err);
+      console.error("Error al generar la síntesis para el informe", err);
       await registrarResultadoAnthropic(err);
       return res.status(502).json({ error: "No se pudo generar el informe en este momento." });
     }
 
-    const toolUseBlock = response.content.find(
-      (b: any) => b.type === "tool_use" && b.name === "generar_informe"
-    ) as any;
-    if (!toolUseBlock) {
-      console.error("La respuesta de Claude no incluyó el tool_use esperado para el Informe", response);
-      return res.status(502).json({ error: "No se pudo generar el informe en este momento." });
-    }
-
-    const informeGenerado = toolUseBlock.input as Record<string, any>;
+    // Proyección pura de la MISMA síntesis que ve el dashboard.
+    let informeGenerado = proyectarInforme(resultadoInforme.sintesis, req.params.id);
     if (informeGenerado.meta?.estado_generacion === "sin_datos") {
       return res.status(422).json({ error: "No se pudo generar un informe con datos suficientes para este caso." });
     }
 
-    const usage = response.usage;
-    const tokensCacheEscritura = usage.cache_creation_input_tokens ?? 0;
-    const tokensCacheLectura = usage.cache_read_input_tokens ?? 0;
+    // PARA UN COLEGA no se llama al modelo: el lenguaje técnico ya está en
+    // la síntesis y el informe se compone proyectándola. Consumo cero.
+    //
+    // PARA EL TUTOR hay una llamada chica que REESCRIBE esa proyección en
+    // lenguaje llano — no vuelve a razonar ni recarga la base de
+    // conocimiento. Son dos caminos de generación distintos, no dos
+    // plantillas: si fueran dos prompts completos, la interfaz se vería
+    // igual y la diferencia aparecería solo en la factura.
+    const usosDelInforme = [...resultadoInforme.usosDelModelo];
+    if (destinatario === "tutor") {
+      try {
+        const adaptado = await adaptarInformeParaTutor(informeGenerado);
+        informeGenerado = adaptado.informe;
+        usosDelInforme.push(adaptado.usage);
+        if (adaptado.descartados.length > 0) {
+          // No es cosmético: cada entrada es un intento de agregar, quitar
+          // o cambiar contenido clínico que la barrera de forma frenó. Si
+          // esto aparece seguido, el prompt de adaptación necesita trabajo.
+          console.warn(
+            `Informe para tutor del caso ${req.params.id}: se descartaron ${adaptado.descartados.length} ` +
+              `cambio(s) que no respetaban la forma del informe técnico — ${adaptado.descartados.join("; ")}`
+          );
+        }
+      } catch (err) {
+        // Entregar la versión técnica "por las dudas" sería peor que fallar:
+        // el médico pidió una versión para el tutor y se llevaría un
+        // documento con lenguaje que el tutor no entiende, sin enterarse.
+        console.error(`Error al adaptar el informe para el tutor — caso ${req.params.id}`, err);
+        await registrarResultadoAnthropic(err);
+        return res.status(502).json({
+          error: "No se pudo preparar la versión para el tutor. La versión para colega sí está disponible.",
+        });
+      }
+    }
+
 
     // Primera transacción corta después del modelo: el consumo. Va sola y
     // ANTES de armar el .docx porque la llamada ya se hizo y ya costó —
     // registrarla no depende de que el ensamblado del documento salga bien.
     //
-    // Llamada separada del Dashboard y del chat — fila propia en uso_api.
-    // El Informe siempre cuenta como consumo clínico: a diferencia del
-    // Dashboard, no se regenera en el sentido de reemplazar un resultado
-    // previo — cada generación queda persistida como un informe nuevo
-    // (ver informes_generados).
-    await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
-      const medicoAgenteResult = await db.query(
-        `SELECT id FROM medico_agente WHERE persona_id = $1 AND agente_id = $2`,
-        [req.auth!.userId, caso.agente_id]
-      );
-      await registrarUsoApi(db, {
-        tenantId: req.auth!.tenantId!,
-        casoId: req.params.id,
-        medicoAgenteId: medicoAgenteResult.rows[0]?.id ?? null,
-        personaId: req.auth!.userId,
-        modelo: MODELO_GCIS,
-        tokensEntrada: usage.input_tokens,
-        tokensSalida: usage.output_tokens,
-        tokensCacheEscritura,
-        tokensCacheLectura,
-        tipoConsumo: esCortesia ? "cortesia" : "clinico",
-        disparadoPor: "usuario",
+    // UNA FILA POR CADA llamada al modelo, no una por request: pedir el
+    // informe sin síntesis previa encadena núcleo y complemento, y cobrar
+    // solo la última regalaría la otra sin que nada falle.
+    //
+    // Y si `usosDelModelo` viene vacío NO se registra nada: el informe se
+    // armó proyectando una síntesis que ya existía y estaba vigente. Ese es
+    // el punto del Paso 3 — el informe no vuelve a razonar, así que tampoco
+    // vuelve a cobrar.
+    if (usosDelInforme.length > 0) {
+      await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
+        const medicoAgenteResult = await db.query(
+          `SELECT id FROM medico_agente WHERE persona_id = $1 AND agente_id = $2`,
+          [req.auth!.userId, caso.agente_id]
+        );
+        for (const usage of usosDelInforme) {
+          await registrarUsoApi(db, {
+            tenantId: req.auth!.tenantId!,
+            casoId: req.params.id,
+            medicoAgenteId: medicoAgenteResult.rows[0]?.id ?? null,
+            personaId: req.auth!.userId,
+            modelo: MODELO_GCIS,
+            tokensEntrada: usage.input_tokens,
+            tokensSalida: usage.output_tokens,
+            tokensCacheEscritura: usage.cache_creation_input_tokens ?? 0,
+            tokensCacheLectura: usage.cache_read_input_tokens ?? 0,
+            tipoConsumo: esCortesia ? "cortesia" : "clinico",
+            disparadoPor: "usuario",
+          });
+        }
       });
-    });
+    }
 
     // -----------------------------------------------------------------
     // Ensamblado del .docx — portada y firma con datos reales del
@@ -2111,13 +1901,22 @@ casosRouter.post("/:id/informe/generar", async (req, res) => {
     try {
       await conAlcanceTenant(req.auth!.tenantId!, async (db) => {
         await db.query(
-          `INSERT INTO informes_generados (tenant_id, caso_id, medico_id, tipo_reporte, contenido_docx, nombre_archivo, es_cortesia)
-           VALUES ($1, $2, $3, 'CR-001', $4, $5, $6)`,
-          [req.auth!.tenantId, req.params.id, req.auth!.userId, buffer, nombreArchivo, esCortesia]
+          `INSERT INTO informes_generados (tenant_id, caso_id, medico_id, tipo_reporte, contenido_docx, nombre_archivo, es_cortesia, destinatario)
+           VALUES ($1, $2, $3, 'CR-001', $4, $5, $6, $7)`,
+          [req.auth!.tenantId, req.params.id, req.auth!.userId, buffer, nombreArchivo, esCortesia, destinatario]
         );
         // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
         // actividad tocan actualizado_en, no solo informacion/mensajes.
         await db.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [req.params.id]);
+
+        // La preferencia del médico, para preseleccionarla la próxima vez.
+        // Va acá y no antes: solo cuenta como "lo que este médico elige" si
+        // el informe realmente se emitió. Un intento que falló no es una
+        // preferencia.
+        await db.query(`UPDATE personas SET destinatario_informe_preferido = $2 WHERE id = $1`, [
+          req.auth!.userId,
+          destinatario,
+        ]);
       });
     } catch (err) {
       console.error("Error al persistir el informe en informes_generados (no bloquea la descarga)", err);

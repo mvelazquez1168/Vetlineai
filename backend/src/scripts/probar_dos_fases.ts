@@ -43,7 +43,7 @@ async function main() {
 
     // --- FASE 1: lo que espera el médico que abre el dashboard ---
     let t = Date.now();
-    const n = await obtenerSintesisParaDashboard(client, caso.id, tenant);
+    const n = await obtenerSintesisParaDashboard(tenant, caso.id);
     const tNucleo = Date.now() - t;
     console.log(`FASE 1 · núcleo      ${seg(t)}   estado=${n.estado}   salida ${n.usage?.output_tokens} tokens`);
     const faltanN = PARTICION_SINTESIS.nucleo.filter((k) => n.sintesis[k] === undefined);
@@ -56,12 +56,12 @@ async function main() {
 
     // Segunda apertura del dashboard: no debe costar nada.
     t = Date.now();
-    const n2 = await obtenerSintesisParaDashboard(client, caso.id, tenant);
+    const n2 = await obtenerSintesisParaDashboard(tenant, caso.id);
     console.log(`   segunda apertura del dashboard: generó=${n2.seGenero} en ${Date.now() - t} ms\n`);
 
     // --- FASE 2: solo cuando alguien pide el informe ---
     t = Date.now();
-    const c = await obtenerSintesisParaInforme(client, caso.id, tenant);
+    const c = await obtenerSintesisParaInforme(tenant, caso.id);
     const tComplemento = Date.now() - t;
     console.log(`FASE 2 · complemento ${seg(t)}   estado=${c.estado}   salida ${c.usage?.output_tokens} tokens`);
     const faltanC = PARTICION_SINTESIS.complemento.filter((k) => c.sintesis[k] === undefined);

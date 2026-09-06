@@ -59,7 +59,11 @@ workspaceRouter.use((req, res, next) => {
 workspaceRouter.get("/me", async (req, res) => {
   try {
     const result = await req.db!.query(
-      `SELECT p.nombre AS persona_nombre, t.nombre AS tenant_nombre, t.logo_url AS tenant_logo_url
+      `SELECT p.nombre AS persona_nombre, t.nombre AS tenant_nombre, t.logo_url AS tenant_logo_url,
+              -- Paso 4: con qué destinatario generó su último informe este
+              -- médico. Null = todavía no generó ninguno, y ahí la interfaz
+              -- no preselecciona nada en vez de inventar un default.
+              p.destinatario_informe_preferido
        FROM personas p JOIN tenants t ON t.id = p.tenant_id
        WHERE p.id = $1`,
       [req.auth!.userId]

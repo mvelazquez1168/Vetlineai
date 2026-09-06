@@ -33,10 +33,11 @@ import { DASHBOARD_TOOL, INFORME_TOOL } from "./herramientasAgente";
  * Mismo concepto, dos nombres según qué camino lo generaba. La síntesis
  * usa uno solo; cada vista traduce al suyo al mostrar.
  */
-export const CONCEPTOS_UNIFICADOS: { sintesis: string; dashboard: string; informe: string }[] = [
+export const CONCEPTOS_UNIFICADOS: { sintesis: string; dashboard: string; informe?: string }[] = [
   { sintesis: "estado_clinico", dashboard: "clinical_state", informe: "estado_clinico_actual" },
   { sintesis: "diagnostico_diferencial", dashboard: "differential_diagnosis", informe: "diagnostico_diferencial" },
-  { sintesis: "diario_de_razonamiento", dashboard: "clinical_reasoning_journal", informe: "razonamiento_diagnostico" },
+  // OJO: `razonamiento_diagnostico` del informe NO va acá. Ver NO_UNIFICAR.
+  { sintesis: "diario_de_razonamiento", dashboard: "clinical_reasoning_journal" },
   { sintesis: "resumen_ejecutivo", dashboard: "executive_summary", informe: "resumen_ejecutivo" },
 ];
 
@@ -64,7 +65,36 @@ export const RENOMBRES: { sintesis: string; dashboard?: string; informe?: string
  * evidencia y el otro es la tabla afirmacion -> sustento -> fuente. Son
  * dos cosas distintas y las dos van a la sintesis.
  */
-export const NO_UNIFICAR = ["sustento_del_caso", "matriz_evidencia"];
+export const NO_UNIFICAR = ["sustento_del_caso", "matriz_evidencia", "razonamiento_diagnostico"];
+
+/**
+ * POR QUE `razonamiento_diagnostico` NO SE UNIFICA CON `diario_de_razonamiento`.
+ *
+ * Estaban emparejados —el relevamiento los junto por tema— y eso rompia el
+ * informe: la sintesis adoptaba la forma del dashboard (un array de
+ * {fecha, hipotesis, estado, motivo}) y el informe espera prosa, asi que
+ * construirCuerpoInforme hacia texto.split() sobre un array. Ver D-005.
+ *
+ * Pero el tipo era el sintoma, no la causa. Son dos cosas distintas:
+ *
+ *   informe.razonamiento_diagnostico (CRS-010)  el ARGUMENTO: explicacion
+ *     paso a paso de como se llego al diagnostico, no solo el resultado.
+ *     "Siempre presente".
+ *
+ *   dashboard.clinical_reasoning_journal (Zona 4)  el REGISTRO: que
+ *     hipotesis siguen activas y cuales se descartaron, con fecha y motivo.
+ *     Null legitimo si el caso es demasiado incipiente.
+ *
+ * Dos nombres del mismo dato no pueden tener reglas de presencia distintas:
+ * si fueran lo mismo, un caso incipiente dejaria al informe sin su seccion
+ * mas importante. Y lo cronologico que el array describe ya lo cubren
+ * `historia_clinica` y `evolucion_clinica` del propio informe.
+ *
+ * Es el mismo error que confianza/probabilidad, con otro disfraz — y se
+ * resuelve igual: la sintesis carga las DOS, no se mapea una a la otra.
+ * Al no estar unificado, su `origen` queda en "informe" y cae solo en el
+ * COMPLEMENTO: se genera cuando alguien pide el informe, no antes.
+ */
 
 const propsDe = (t: any) => t.input_schema.properties as Record<string, any>;
 
@@ -89,8 +119,12 @@ function componerEsquema() {
     ...CONCEPTOS_UNIFICADOS.map((c) => [c.dashboard, c.sintesis] as [string, string]),
     ...RENOMBRES.filter((r) => r.dashboard).map((r) => [r.dashboard!, r.sintesis] as [string, string]),
   ]);
+  // `.filter(c => c.informe)` y no un cast: desde que un concepto puede
+  // estar unificado SOLO entre síntesis y dashboard, `c.informe` puede
+  // faltar. El cast que había antes metía `undefined` como clave del mapa
+  // — silencioso, y con el efecto de que un campo del informe se saltara.
   const renombreInf = new Map([
-    ...CONCEPTOS_UNIFICADOS.map((c) => [c.informe, c.sintesis] as [string, string]),
+    ...CONCEPTOS_UNIFICADOS.filter((c) => c.informe).map((c) => [c.informe!, c.sintesis] as [string, string]),
     ...RENOMBRES.filter((r) => r.informe).map((r) => [r.informe!, r.sintesis] as [string, string]),
   ]);
 
@@ -369,7 +403,7 @@ export function proyectarDashboard(sintesis: any, casoId: string): Record<string
 
 /** La vista de documento. */
 export function proyectarInforme(sintesis: any, casoId: string): Record<string, any> {
-  const mapa = new Map(CONCEPTOS_UNIFICADOS.map((c) => [c.informe, c.sintesis]));
+  const mapa = new Map(CONCEPTOS_UNIFICADOS.filter((c) => c.informe).map((c) => [c.informe!, c.sintesis]));
   for (const r of RENOMBRES) if (r.informe) mapa.set(r.informe, r.sintesis);
   return {
     meta: { ...(sintesis.meta ?? {}), caso_id: casoId, generado_en: new Date().toISOString() },

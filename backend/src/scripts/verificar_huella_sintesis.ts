@@ -47,8 +47,22 @@ async function main() {
     console.log(`4. vuelve a la original al revertir:  ${h5 === h1 ? "SÍ" : "NO ←"}   ${h5.slice(0, 16)}`);
 
     // Estado de la síntesis sobre un caso sin síntesis.
+    //
+    // La precondición se FUERZA en vez de suponerse. Este arnés elige el
+    // caso con más mensajes, que es justo el que cualquier script de
+    // síntesis usa primero: apenas alguien corrió uno, el caso ya tiene
+    // síntesis y este punto pasa a medir otra cosa (existe=true,
+    // vigente=true) sin que nada avise. Se limpia acá adentro y se revierte:
+    // el caso real no se toca.
+    await client.query("BEGIN");
+    await client.query(
+      `UPDATE casos SET sintesis=NULL, sintesis_huella=NULL, sintesis_generada_en=NULL, sintesis_estado=NULL
+        WHERE id = $1`,
+      [caso.id]
+    );
     const e = await estadoSintesis(client, caso.id);
     console.log(`\n5. estado sobre un caso sin síntesis: existe=${e.existe} vigente=${e.vigente}`);
+    await client.query("ROLLBACK");
 
     // Vigencia: se guarda una síntesis con la huella actual y se comprueba
     // que quede vigente, y que deje de estarlo al tocar el caso.
@@ -66,7 +80,19 @@ async function main() {
     await client.query("ROLLBACK");
 
     // El CHECK impide estados a medias.
+    //
+    // Misma precondición forzada, y por un motivo más filoso que el del
+    // punto 5: si el caso YA tiene huella, fecha y estado, escribir
+    // `sintesis` no deja ningún estado a medias, el CHECK no se viola, y
+    // este punto reporta "el CHECK no protege" cuando el CHECK está
+    // perfecto. Es una falsa alarma, no un falso OK — la peor clase, porque
+    // manda a investigar una restricción que funciona.
     await client.query("BEGIN");
+    await client.query(
+      `UPDATE casos SET sintesis=NULL, sintesis_huella=NULL, sintesis_generada_en=NULL, sintesis_estado=NULL
+        WHERE id = $1`,
+      [caso.id]
+    );
     let bloqueado = false;
     try {
       await client.query(`UPDATE casos SET sintesis = '{}'::jsonb WHERE id = $1`, [caso.id]);

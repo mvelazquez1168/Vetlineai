@@ -14,7 +14,22 @@ import { dispararAutorecargaSiCorresponde } from "./pagos/recargas";
 
 type EjecutorSql = Pool | PoolClient;
 
-export type TipoConsumo = "clinico" | "regeneracion" | "operativo" | "cortesia";
+// Los valores permitidos los fija el CHECK de uso_api.tipo_consumo — este
+// tipo tiene que seguirlo, no al revés.
+//
+// `regeneracion` está CERRADA: significaba "la segunda vez o más que se
+// abrió el dashboard", sale de una señal que ya no existe y no se emite
+// más. Se conserva porque las filas históricas la usan y su significado
+// viejo sigue siendo válido para ellas (ver migración 083).
+//
+// `regeneracion_forzada` es la que se emite hoy: el médico pidió rehacer
+// una síntesis que YA estaba vigente.
+export type TipoConsumo =
+  | "clinico"
+  | "regeneracion"
+  | "regeneracion_forzada"
+  | "operativo"
+  | "cortesia";
 export type DisparadoPor = "usuario" | "sistema";
 // Latencia y costo, Cambio 1 — el chat clínico usa cache_control con TTL de
 // una hora (ver workspace.routes.ts); Dashboard/Informe/Recetas siguen en

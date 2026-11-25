@@ -156,6 +156,16 @@ electrónica de compra con condición de venta `13`.
 
 Con `99` es obligatorio el campo "Detalle Condición de la Venta OTRO" [Anexo, bitácora 4.4.0 #34].
 
+**Corrección sobre la nota, hecha leyendo el XSD** (2026-11-25, durante la construcción del motor):
+la tabla de arriba es la Nota 5 completa, pero **el XSD de `FacturaElectronica` NO enumera `09` ni
+`11`** — enumera `01`..`08`, `10`, `12`..`15` y `99`. Los dos que faltan son de uso **exclusivo del
+Recibo Electrónico de Pago**, cuyo XSD enumera exactamente `[09|11]` y nada más (son el pago de una
+factura con condición `08` y `10` respectivamente; lo dicen las notas al pie 20 y 22 del Anexo).
+
+Ofrecer `09` o `11` en una factura produce un rechazo, así que el catálogo del motor lo marca con
+`soloEnRep` y la pantalla de emisión no los muestra. Lo mismo pasa con el **código de referencia
+`17`** (Nota 9, "Pago a comprobante electrónico"): el XSD de factura no lo enumera y el del REP sí.
+
 ### Medio de pago — [Anexo, Nota 6]
 
 | Código | Medio |
@@ -222,6 +232,17 @@ quintal, `Acv` activo virtual, …).
 **No se transcribe acá**: la carga de este catálogo la hace el script de sembrado leyendo el texto
 extraído de la fuente, justamente para no copiar a mano una tabla de cientos de filas y equivocarse
 en una.
+
+**Son 101**, contados en la enumeración de `UnidadMedidaType` del XSD, no estimados. El código ES el
+símbolo (`Kg`, `Unid`, `m³`, `Ω`) y va literal al XML.
+
+### Moneda — [Anexo, Nota 13.1 / `Codigodemoneda_V4.4.pdf`]
+
+**Son 168 códigos ISO 4217**, contados en la enumeración de `CodigoMonedaType` del XSD. (Una
+estimación anterior decía 178; el número sale de contar el esquema real.)
+
+Los nombres de las 168 salen del `Codigodemoneda_V4.4.pdf`. Para `CRC` el `TipoCambio` del XML vale
+`1`; para cualquier otra moneda es el tipo de cambio de venta de referencia del BCCR.
 
 ## API de recepción
 

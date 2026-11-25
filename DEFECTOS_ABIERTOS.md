@@ -510,3 +510,67 @@ del informe, que es un documento que se entrega:
 
 Y en cualquier caso, que `verificar_sintesis_esquema.ts` compare tipos además de
 presencia.
+
+---
+
+## D-006 — Una clínica cuyo médico escribió un mensaje no se puede purgar nunca
+
+**ABIERTO** · encontrado 2026-11-25, durante la verificación de
+`vetline-clinic-09a` (facturador de Costa Rica). **No tiene nada que ver con la
+facturación**: apareció porque el barrido de verificadores existentes dejó en rojo
+a `verificar_cambio4_purga_consumo`.
+
+`DELETE FROM tenants` falla con:
+
+```
+mensajes_autor_persona_id_fkey
+Key (id)=(…) is still referenced from table "mensajes".
+```
+
+Reproducido en aislamiento, con el caso mínimo: una clínica, un médico, un
+propietario, un paciente, un caso y **un** mensaje con
+`autor_persona_id` apuntando a ese médico. El `DELETE FROM tenants` falla.
+
+```
+RESULTADO: FALLO -> mensajes_autor_persona_id_fkey |
+Key (id)=(5bc4b039-…) is still referenced from table "mensajes".
+```
+
+### Por qué importa
+
+`purga.ts::ejecutarPurgas` atrapa el error y hace `ROLLBACK` dentro de un
+`catch`, así que **la clínica no se elimina y queda pendiente indefinidamente**,
+en silencio salvo una línea de log. Y como `mensajes.autor_persona_id` se llena en
+cuanto un médico escribe en el chat —que es el uso normal del producto— esto
+afecta a **cualquier** clínica con actividad, no a un caso raro.
+
+Es exactamente la misma familia que el hallazgo de `notificaciones_callback`, que
+`purga.ts` ya documenta en un comentario. La diferencia es que ese se encontró
+probando el escenario y este estuvo ahí desde la migración 066.
+
+### Por qué la auditoría de RLS no lo ve
+
+`jobs/auditoriaRls.job.ts` reporta FK **a `tenants`** sin `ON DELETE CASCADE`.
+Esta FK no apunta a `tenants`: apunta a `personas`, que es una tabla
+tenant-scoped que se borra por cascada. Y `mensajes` **no tiene `tenant_id`**, así
+que ni siquiera entra en el conjunto de tablas que la auditoría recorre.
+
+El chequeo mide algo más estrecho que el concepto que dice cubrir ("la purga no se
+va a trabar por una FK") — la misma forma que R1, R2 y R4.
+
+### Criterio de cierre
+
+Dos decisiones, y las dos son sobre datos de clínicas reales, así que no se toman
+de paso dentro de otro prompt:
+
+1. **Qué pasa con el mensaje.** O `mensajes` entra en
+   `TABLAS_BORRADO_MANUAL_EN_PURGA` (pero no tiene `tenant_id`, así que el DELETE
+   tendría que ir por `caso_id`), o la FK pasa a `ON DELETE SET NULL` y el mensaje
+   sobrevive sin autor — que para una clínica que se está purgando no tiene
+   sentido, porque el caso se va igual por cascada.
+2. **Que la auditoría cubra esta familia.** Hoy solo mira FK a `tenants`. Para
+   cubrir el concepto entero tendría que mirar toda FK `NO ACTION`/`RESTRICT`
+   cuyo destino sea una tabla que la purga borra por cascada — incluido el caso de
+   una tabla sin `tenant_id` como `mensajes`.
+
+Y verificarlo con el caso mínimo de arriba, que falla hoy.

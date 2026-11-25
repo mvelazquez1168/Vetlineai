@@ -9,6 +9,8 @@ import { iniciarJobCicloCobro } from "./jobs/cicloCobro.job";
 import { iniciarJobTarjetaPorVencer } from "./jobs/tarjetaPorVencer.job";
 import { iniciarJobAuditoriaRls } from "./jobs/auditoriaRls.job";
 import { iniciarJobSaldoProveedorIa } from "./jobs/saldoProveedorIa.job";
+import { iniciarJobColaFacturacion } from "./jobs/facturacionCola.job";
+import { anunciarProveedorHacienda } from "./facturacion/proveedorActivo";
 import { validarCredencialesPaisesHabilitados } from "./pagos/credencialesPasarela";
 import { pool } from "./db";
 import { authRouter } from "./routes/auth.routes";
@@ -19,6 +21,7 @@ import { casosRouter } from "./routes/casos.routes";
 import { citasRouter } from "./routes/citas.routes";
 import { atencionesRouter } from "./routes/atenciones.routes";
 import { clinicRouter } from "./routes/clinic.routes";
+import { facturacionCrRouter } from "./routes/facturacionCr.routes";
 import { busquedaRouter } from "./routes/busqueda.routes";
 import { farmacosRouter } from "./routes/farmacos.routes";
 import { horariosRouter } from "./routes/horarios.routes";
@@ -139,6 +142,10 @@ app.use("/api/citas", citasRouter);
 app.use("/api/atenciones", atencionesRouter);
 // Vetline Clinic — seccion de gestion, gateada por tenant_modulos.
 app.use("/api/clinic", clinicRouter);
+// Facturador electrónico de Costa Rica. Todo el router está gateado por
+// `requiereModulo("facturacion")`, así que una clínica sin el módulo
+// recibe 403 con code MODULO_NO_HABILITADO en cualquiera de sus rutas.
+app.use("/api/facturacion", facturacionCrRouter);
 // Busqueda global de la paleta de comandos (Ctrl/Cmd+K).
 app.use("/api/busqueda", busquedaRouter);
 app.use("/api/lista-espera", listaEsperaRouter);
@@ -152,6 +159,8 @@ const server = app.listen(config.port, () => {
   iniciarJobTarjetaPorVencer();
   iniciarJobAuditoriaRls();
   iniciarJobSaldoProveedorIa();
+  iniciarJobColaFacturacion();
+  anunciarProveedorHacienda();
   validarFrontendUrlConfigurada();
   validarCredencialesPaisesHabilitados(pool).catch((err) =>
     console.error("[pagos] No se pudo validar las credenciales de pasarela por país al arrancar", err)

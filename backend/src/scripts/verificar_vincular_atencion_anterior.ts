@@ -1,4 +1,5 @@
 import { pool } from "../db";
+import { asignarNumeroExpedientePaciente } from "../expediente";
 import { crearUsuarioKeycloak, eliminarUsuarioKeycloak, obtenerTokenParaUsuario } from "../keycloakAdmin";
 import { construirBloqueContextoCaso } from "../contextoCaso";
 
@@ -73,8 +74,11 @@ async function main() {
     propietarioId = propRes.rows[0].id;
 
     const pacRes = await pool.query(
-      `INSERT INTO pacientes (tenant_id, propietario_id, nombre, especie, estado) VALUES ($1, $2, 'Firulais Vincular', 'Canino', 'activo') RETURNING id`,
-      [tenantId, propietarioId]
+      `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie, estado)
+       VALUES ($1, $2, $3, 'Firulais Vincular', 'Canino', 'activo') RETURNING id`,
+      // numero_expediente es NOT NULL desde la migración 087, y se pide
+      // por el punto único (expediente.ts), no con un número inventado.
+      [tenantId, propietarioId, await asignarNumeroExpedientePaciente(pool, tenantId)]
     );
     pacienteId = pacRes.rows[0].id;
 

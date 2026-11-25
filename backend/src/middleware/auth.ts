@@ -331,6 +331,12 @@ export function withTenantClient(req: Request, res: Response, next: NextFunction
       // reciclarla (también verificado). Perder una conexión es barato;
       // reciclar una con una transacción abierta es justo lo que dispara la
       // alerta de AWS.
+      // Relanza el error después de soltar la conexión, en vez de
+      // comérselo: quien cierra la transacción ANTES de responder (ver
+      // `interceptarRespuesta` más abajo) necesita saber si el COMMIT
+      // falló para mandar un error en lugar de un éxito. Los handlers de
+      // `finish`/`close` lo siguen ignorando — ahí ya no hay nada que
+      // contarle al cliente.
       const release = async (commit: boolean) => {
         if (released) return;
         released = true;
@@ -343,8 +349,87 @@ export function withTenantClient(req: Request, res: Response, next: NextFunction
             err
           );
           client.release(err instanceof Error ? err : new Error(String(err)));
+          throw err;
         }
       };
+
+      // -----------------------------------------------------------------
+      // LA RESPUESTA SALE DESPUÉS DEL COMMIT.
+      //
+      // El defecto que esto cierra: hasta acá la transacción se confirmaba
+      // en `res.on("finish")`, o sea DESPUÉS de que la respuesta ya había
+      // salido. Un 201 llegaba al cliente antes del COMMIT, así que
+      // cualquier operación inmediata sobre la fila recién creada abría su
+      // propia transacción, no veía nada y respondía 404. Medido con
+      // `verificar_respuesta_despues_del_commit.ts`: 17 de 50 vueltas de
+      // "crear paciente y leerlo enseguida" perdían la carrera.
+      //
+      // No es un caso de laboratorio: es el flujo central de Vetline
+      // Clinic ("Guardar y agendar cita" crea el paciente y en el mismo
+      // segundo agenda una cita con él).
+      //
+      // POR QUÉ ACÁ Y NO EN LAS RUTAS: son 29 archivos de rutas y 762
+      // respuestas. Cualquier solución que dependa de que cada ruta se
+      // acuerde de algo ya nació rota. Este es el único punto por el que
+      // pasan todas.
+      //
+      // POR QUÉ INTERCEPTAR `res.send` Y NADA MÁS: se relevó cómo
+      // responde efectivamente este backend y son dos formas, no diez —
+      // `res.json(...)` y `res.send(...)` (incluido `res.status(204).send()`
+      // y los `res.send(buffer)` de las 7 descargas). NO hay `sendStatus`,
+      // `res.end`, `writeHead`, `sendFile`, `download`, `redirect` ni
+      // streams a `res` en ninguna parte. Y `res.json` de Express delega
+      // en `res.send`, así que envolver `send` cubre las dos.
+      //
+      // El `finish`/`close` de más abajo queda igual: con la bandera
+      // `released` ya en true no hace nada, y sigue siendo la red para un
+      // request que se corta sin responder nunca.
+      // -----------------------------------------------------------------
+      const sendOriginal = res.send.bind(res);
+      let yaInterceptado = false;
+
+      res.send = function interceptarRespuesta(this: Response, body?: unknown) {
+        // Segunda llamada a send (Express avisa de eso por su cuenta), o
+        // una ruta que ya cerró su transacción con `cerrarTransaccion()`:
+        // en los dos casos no hay nada que confirmar y se responde
+        // directo. Es lo que hace que esto convivise con
+        // `cerrarTransaccion()` + `conAlcanceTenant()` sin confirmar dos
+        // veces.
+        if (yaInterceptado || released) return sendOriginal(body);
+        yaInterceptado = true;
+
+        // Mismo criterio que tenía el handler de `finish`: 5xx hace
+        // ROLLBACK, cualquier otra cosa confirma. Los 4xx confirman a
+        // propósito — hay rutas que escriben (auditoría, un registro de
+        // intento) y después responden 400.
+        const confirmar = res.statusCode < 500;
+
+        release(confirmar)
+          .then(() => sendOriginal(body))
+          .catch(() => {
+            // El COMMIT falló. El cliente NO puede recibir el éxito que
+            // esta respuesta traía: lo que quería guardar no se guardó.
+            //
+            // Se puede cambiar el estado porque las cabeceras todavía no
+            // salieron — justamente porque diferimos el envío. El motivo
+            // real ya quedó en el log dentro de `release`; afuera no va,
+            // por lo mismo que el resto del backend no expone detalle de
+            // errores internos.
+            if (res.headersSent) return;
+            res.status(500);
+            res.setHeader("Content-Type", "application/json; charset=utf-8");
+            sendOriginal(
+              JSON.stringify({
+                error: "No se pudo confirmar la operación. No se guardó nada — volvé a intentarlo.",
+              })
+            );
+          });
+
+        // `send` es encadenable y los handlers lo llaman sin esperarlo
+        // (`return res.json(...)`), así que se devuelve `res` ya mismo y
+        // el envío real ocurre cuando el COMMIT termina.
+        return res;
+      } as typeof res.send;
 
       // Los handlers de eventos no pueden devolver una promesa rechazada:
       // nadie la espera, y una rechazada acá termina en unhandledRejection

@@ -260,6 +260,11 @@ async function main() {
     detalleAntesData.clinicas
   );
 
+  // Se captura el estado que CR tenía ANTES de tocarlo: lo que hay que
+  // dejar al terminar es eso, no un valor supuesto.
+  const estadoCrOriginal = (await pool.query(`SELECT estado FROM paises WHERE codigo_iso = 'CR'`))
+    .rows[0]?.estado as string | undefined;
+
   const respInactivar = await fetch(`${BASE_URL}/api/platform-admin/paises/CR/estado`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenSuperAdmin}` },
@@ -309,12 +314,57 @@ async function main() {
     { status: respRegistroNuevoPaisInactivo.status, data: dataRechazo }
   );
 
-  // Re-habilitar CR para dejar el ambiente como estaba.
-  await fetch(`${BASE_URL}/api/platform-admin/paises/CR/estado`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenSuperAdmin}` },
-    body: JSON.stringify({ estado: "habilitado" }),
-  });
+  // Devolver CR al estado en que estaba.
+  //
+  // ESTO ES CRITICO Y ANTES FALLABA EN SILENCIO. Este escenario inactiva
+  // Costa Rica, que es el unico pais habilitado del ambiente de
+  // desarrollo; mientras quede inactivo, TODO verificador que registre
+  // una clinica recibe 202 ("entra a lista de espera") y falla por un
+  // motivo que no tiene nada que ver con lo que esta probando. Paso: en
+  // la sesion nocturna del 2026-11-25, cinco verificadores que venian
+  // pasando empezaron a fallar y el rastro llevaba hasta aca.
+  //
+  // La version anterior disparaba el PATCH de re-habilitacion y
+  // descartaba la respuesta. Y ese PATCH NO PUEDE funcionar: el endpoint
+  // exige el checklist de habilitacion (pasarela, impuesto vigente,
+  // proveedor de facturacion, idioma) y CR en desarrollo tiene
+  // proveedor_facturacion en NULL, asi que devuelve 400. O sea que CR
+  // estaba habilitado en dev en un estado que la propia API no permite
+  // crear: alguien lo puso directo en la base. Eso es un defecto del
+  // AMBIENTE, no de este script, y queda reportado.
+  //
+  // Mientras siga asi, la restauracion se hace por SQL y lo dice en voz
+  // alta en cada corrida, en vez de dejar el ambiente roto.
+  if (estadoCrOriginal) {
+    const respRestaurar = await fetch(`${BASE_URL}/api/platform-admin/paises/CR/estado`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenSuperAdmin}` },
+      body: JSON.stringify({ estado: estadoCrOriginal }),
+    });
+
+    if (respRestaurar.status !== 200) {
+      const detalle = await respRestaurar.json().catch(() => null);
+      console.log(
+        `
+  AVISO: la API rechazo devolver CR a '${estadoCrOriginal}' (HTTP ${respRestaurar.status}). ` +
+          `Se restaura por SQL para no dejar el ambiente roto.
+  Motivo: ${JSON.stringify(detalle)}
+` +
+          `  Significa que CR estaba en '${estadoCrOriginal}' sin cumplir el checklist de habilitacion: ` +
+          `le falta completar proveedor_facturacion en la tabla paises.`
+      );
+      await pool.query(`UPDATE paises SET estado = $1 WHERE codigo_iso = 'CR'`, [estadoCrOriginal]);
+    }
+
+    const estadoFinalCr = (
+      await pool.query(`SELECT estado FROM paises WHERE codigo_iso = 'CR'`)
+    ).rows[0]?.estado;
+    reportar(
+      `CR volvio a quedar en '${estadoCrOriginal}' (si no, rompe a todos los demas verificadores)`,
+      estadoFinalCr === estadoCrOriginal,
+      { estadoEnBase: estadoFinalCr }
+    );
+  }
 
   console.log("\n=== Limpieza ===");
   for (const fn of limpieza.reverse()) {

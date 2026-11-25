@@ -1,7 +1,11 @@
 import cron from "node-cron";
 import { Pool } from "pg";
 import { pool } from "../db";
-import { TABLAS_BORRADO_MANUAL_EN_PURGA, TABLAS_SIN_POLITICA_RLS_A_PROPOSITO } from "../tablasTenant";
+import {
+  TABLAS_BORRADO_MANUAL_EN_PURGA,
+  TABLAS_BORRADO_MANUAL_SIN_TENANT_ID,
+  TABLAS_SIN_POLITICA_RLS_A_PROPOSITO,
+} from "../tablasTenant";
 
 // ---------------------------------------------------------------------
 // Auditoría estructural de aislamiento por tenant.
@@ -27,6 +31,17 @@ import { TABLAS_BORRADO_MANUAL_EN_PURGA, TABLAS_SIN_POLITICA_RLS_A_PROPOSITO } f
 //      ROLLBACK, dentro de un catch, dejando clínicas que debían
 //      eliminarse colgadas indefinidamente. Ya pasó una vez
 //      (`notificaciones_callback`).
+//   4. FK que traba la purga SIN apuntar a `tenants`. El punto 3 mide
+//      algo más estrecho que el concepto que dice cubrir: la purga no se
+//      traba solo por FK a `tenants`, sino por cualquier FK sin cascada
+//      cuyo **destino** la purga borra — aunque el destino sea
+//      `personas` y la tabla que apunta no tenga `tenant_id`. Ese agujero
+//      dejó pasar D-006 (`mensajes.autor_persona_id` → `personas`)
+//      durante meses, y con él a toda clínica cuyo médico escribió un
+//      mensaje. Ahora el criterio es el concepto: se calcula qué tablas
+//      borra la purga —el cierre transitivo de las cascadas desde
+//      `tenants`, más las que borra a mano— y se mira toda FK que apunte
+//      ahí dentro.
 //
 // Las excepciones viven en `tablasTenant.ts`, en un solo lugar y con el
 // motivo escrito, nunca hardcodeadas acá.
@@ -41,6 +56,17 @@ export interface HallazgosAuditoriaRls {
   sinPolitica: string[];
   /** FK a `tenants` sin ON DELETE CASCADE que la purga no borra a mano. */
   fkSinCascada: { tabla: string; constraint: string }[];
+  /**
+   * FK que van a trabar la purga sin apuntar a `tenants` (D-006).
+   * `remedio` dice cuál de las dos salidas aplica, que no es la misma:
+   * diferir solo sirve si la fila que apunta también se borra.
+   */
+  fkTrabanPurga: {
+    tabla: string;
+    constraint: string;
+    tablaDestino: string;
+    remedio: "diferir" | "borrado_manual";
+  }[];
 }
 
 /**
@@ -111,7 +137,73 @@ export async function auditarRlsPorTenant(db: Pool): Promise<HallazgosAuditoriaR
   const borradoManual = new Set<string>(TABLAS_BORRADO_MANUAL_EN_PURGA);
   const fkSinCascada = fks.rows.filter((f) => !borradoManual.has(f.tabla));
 
-  return { sinRls, sinForzar, sinPolitica, fkSinCascada };
+  // ---- Hallazgo 4: FK que traban la purga sin apuntar a `tenants`.
+  //
+  // `borra` es el conjunto de tablas que la purga vacía para un tenant:
+  // las semillas (el propio `tenants` y las que borra a mano) más el
+  // cierre transitivo de las cascadas que salen de ellas.
+  //
+  // Una FK traba si su DESTINO está en ese conjunto y su acción no es
+  // cascada. Se filtra por 'a' (NO ACTION) y 'r' (RESTRICT) y no por
+  // "distinto de 'c'" porque SET NULL y SET DEFAULT no traban nada: la
+  // fila que apunta se queda, pero sin apuntar.
+  //
+  // El remedio depende de si el ORIGEN también se borra:
+  //   * se borra  -> diferir alcanza, porque al COMMIT ya no existe
+  //                  ninguna de las dos filas. Es lo que hizo la
+  //                  migración 092 con 42 constraints.
+  //   * no se borra -> diferir NO alcanza, y hay que borrarla a mano.
+  const semillas = [
+    "tenants",
+    ...TABLAS_BORRADO_MANUAL_EN_PURGA,
+    ...TABLAS_BORRADO_MANUAL_SIN_TENANT_ID.map((t) => t.tabla),
+  ];
+  const trabas = await db.query<{
+    tabla: string;
+    constraint: string;
+    tabla_destino: string;
+    origen_se_borra: boolean;
+  }>(
+    `WITH RECURSIVE borra AS (
+       SELECT c.oid AS tabla
+         FROM pg_class c
+         JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public' AND c.relname = ANY($1::text[])
+       UNION
+       SELECT con.conrelid
+         FROM pg_constraint con
+         JOIN borra b ON b.tabla = con.confrelid
+        WHERE con.contype = 'f' AND con.confdeltype = 'c'
+     )
+     SELECT con.conrelid::regclass::text  AS tabla,
+            con.conname                   AS constraint,
+            con.confrelid::regclass::text AS tabla_destino,
+            (con.conrelid IN (SELECT tabla FROM borra)) AS origen_se_borra
+       FROM pg_constraint con
+       JOIN pg_class cl      ON cl.oid = con.conrelid
+       JOIN pg_namespace ns  ON ns.oid = cl.relnamespace
+      WHERE con.contype = 'f'
+        AND ns.nspname = 'public'
+        AND con.confdeltype IN ('a', 'r')
+        AND con.confrelid IN (SELECT tabla FROM borra)
+        AND con.confrelid <> 'tenants'::regclass
+        AND NOT (con.condeferrable AND con.conrelid IN (SELECT tabla FROM borra))
+      ORDER BY 1, 2`,
+    [semillas]
+  );
+  // Las que la purga YA borra a mano no traban nada: para cuando corre
+  // el DELETE FROM tenants, su tabla está vacía para ese tenant.
+  const borradoManualSinTenant = new Set(TABLAS_BORRADO_MANUAL_SIN_TENANT_ID.map((t) => t.tabla));
+  const fkTrabanPurga = trabas.rows
+    .filter((f) => !borradoManual.has(f.tabla) && !borradoManualSinTenant.has(f.tabla))
+    .map((f) => ({
+      tabla: f.tabla,
+      constraint: f.constraint,
+      tablaDestino: f.tabla_destino,
+      remedio: (f.origen_se_borra ? "diferir" : "borrado_manual") as "diferir" | "borrado_manual",
+    }));
+
+  return { sinRls, sinForzar, sinPolitica, fkSinCascada, fkTrabanPurga };
 }
 
 /**
@@ -158,6 +250,27 @@ export async function ejecutarJobAuditoriaRls(db: Pool): Promise<HallazgosAudito
         `va a eliminar nunca; poné la FK en CASCADE, o agregá la tabla a ` +
         `TABLAS_BORRADO_MANUAL_EN_PURGA en tablasTenant.ts): ` +
         hallazgos.fkSinCascada.map((f) => `${f.tabla} (${f.constraint})`).join(", ")
+    );
+  }
+  const aDiferir = hallazgos.fkTrabanPurga.filter((f) => f.remedio === "diferir");
+  const aBorrar = hallazgos.fkTrabanPurga.filter((f) => f.remedio === "borrado_manual");
+  if (aDiferir.length > 0) {
+    console.error(
+      `[auditoriaRls.job] ${aDiferir.length} FK va(n) a TRABAR LA PURGA (D-006): apuntan a una tabla ` +
+        `que la purga borra, sin ON DELETE CASCADE y sin ser DEFERRABLE, así que el chequeo corre al ` +
+        `final de la sentencia y la rama que borra el destino puede ir antes que la que borra el ` +
+        `origen. Arreglo: ALTER TABLE ... ALTER CONSTRAINT ... DEFERRABLE INITIALLY DEFERRED, como la ` +
+        `migración 092. Son: ` +
+        aDiferir.map((f) => `${f.tabla}.${f.constraint} -> ${f.tablaDestino}`).join(", ")
+    );
+  }
+  if (aBorrar.length > 0) {
+    console.error(
+      `[auditoriaRls.job] ${aBorrar.length} FK va(n) a TRABAR LA PURGA y diferirlas NO alcanza: la fila ` +
+        `que apunta SOBREVIVE al borrado del tenant, así que la FK se viola igual en el COMMIT. La ` +
+        `purga tiene que borrarlas a mano: agregalas a TABLAS_BORRADO_MANUAL_SIN_TENANT_ID en ` +
+        `tablasTenant.ts con su DELETE. Son: ` +
+        aBorrar.map((f) => `${f.tabla}.${f.constraint} -> ${f.tablaDestino}`).join(", ")
     );
   }
 

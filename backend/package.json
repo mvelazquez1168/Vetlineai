@@ -17,7 +17,8 @@
     "habilitar-modulo": "ts-node --transpile-only src/habilitarModulo.ts",
     "habilitar-modulo:prod": "node dist/habilitarModulo.js",
     "cargar-catalogos-fe": "ts-node --transpile-only src/cargarCatalogosFe.ts",
-    "cargar-catalogos-fe:prod": "node dist/cargarCatalogosFe.js"
+    "cargar-catalogos-fe:prod": "node dist/cargarCatalogosFe.js",
+    "purga-pendiente": "ts-node --transpile-only src/scripts/verificar_purga_pendiente_produccion.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
@@ -34,6 +35,7 @@
     "docx": "^9.7.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "fflate": "^0.8.3",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.2",
     "mammoth": "^1.12.0",

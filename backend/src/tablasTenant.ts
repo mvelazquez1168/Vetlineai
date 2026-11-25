@@ -43,6 +43,49 @@ export const TABLAS_BORRADO_MANUAL_EN_PURGA = [
 ] as const;
 
 /**
+ * Tablas que la purga también tiene que borrar a mano pero que **no
+ * tienen `tenant_id`**, así que no se pueden borrar por el criterio de
+ * la lista de arriba: se llega a sus filas por una FK a una tabla que sí
+ * es del tenant.
+ *
+ * Son la otra mitad de D-006. La diferencia con la familia que la
+ * migración 092 resolvió difiriendo las FK es que acá **diferir no
+ * sirve**: la fila que apunta sobrevive al COMMIT, así que la FK se va a
+ * violar igual, solo que más tarde. La única salida es borrarla.
+ *
+ * El SQL vive acá, no en `purga.ts`, para que la auditoría y la purga
+ * lean la misma lista: si estuviera en dos lados, agregar una tabla a
+ * una y olvidarse de la otra dejaría a la purga fallando en silencio,
+ * que es exactamente lo que pasó con `notificaciones_callback`.
+ *
+ * `$1` es el `tenants.id`.
+ */
+export const TABLAS_BORRADO_MANUAL_SIN_TENANT_ID: {
+  tabla: string;
+  sql: string;
+  motivo: string;
+}[] = [
+  {
+    tabla: "notificaciones_callback",
+    sql:
+      "DELETE FROM notificaciones_callback " +
+      "WHERE cobro_id IN (SELECT id FROM cobros WHERE tenant_id = $1)",
+    motivo:
+      "Bitácora cruda de los avisos de la pasarela de pago. Cuelga de `cobros`, que sí es del " +
+      "tenant, pero la FK no tiene cascada: es evidencia de qué dijo el proveedor y cuándo.",
+  },
+  {
+    tabla: "restablecimientos_contrasena",
+    sql:
+      "DELETE FROM restablecimientos_contrasena " +
+      "WHERE persona_id IN (SELECT id FROM personas WHERE tenant_id = $1)",
+    motivo:
+      "Pedidos de recuperación de contraseña. Cuelgan de `personas`. Cualquier clínica cuyo " +
+      "usuario alguna vez usó «olvidé mi contraseña» trababa el DELETE FROM tenants.",
+  },
+];
+
+/**
  * Tablas con RLS habilitado y CERO políticas **a propósito**: el bloqueo
  * total es el comportamiento buscado, no un olvido. La auditoría las
  * saltea en el chequeo de "sin política" y solo en ese.

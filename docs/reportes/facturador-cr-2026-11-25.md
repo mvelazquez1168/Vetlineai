@@ -71,11 +71,10 @@ lo cual la verificación de integridad perdería todo sentido.
 
 Está en `docs/facturacion/fuentes/LEEME.md` y se repite acá porque condiciona lo que se puede usar:
 
-1. **El catálogo CABYS completo.** El anexo lo exige en cada línea de detalle de factura y tiquete
-   (Nota 17) pero no lo incluye: se publica aparte, como archivo de datos. `fact_cat_cabys` existe y
-   está **vacía**; el cargador lo avisa fuerte y `GET /facturacion/cabys` devuelve
-   `{"resultados": [], "catalogoVacio": true, "aviso": "…"}` en vez de un 500 o de resultados
-   inventados. Mientras tanto el código hay que escribirlo a mano: 13 dígitos.
+1. ~~**El catálogo CABYS completo.**~~ **Resuelto el mismo día** — ver el addendum al final. El
+   anexo lo exige en cada línea de detalle (Nota 17) pero no lo incluye: lo publica el **Banco
+   Central**, no Hacienda, y por eso no estaba entre las fuentes. `fact_cat_cabys` tiene hoy los
+   **20 506 códigos** de la planilla oficial.
 2. **La codificación de ubicación** (provincia/cantón/distrito/barrio) se publica como
    `Codificacionubicacion_V4.4.rar`. No se descargó: es un `.rar` y el repo no tiene con qué
    descomprimirlo de forma reproducible. Los campos se validan por formato (1, 2 y 2 dígitos) pero no
@@ -448,8 +447,6 @@ agregue un estado dos se actualizan y el tercero lo pinta gris.
 - **No se probó contra el sandbox real de Hacienda.** El prompt lo prohíbe explícitamente y lo pone
   fuera de alcance, y además no hay credenciales de pruebas: las genera el ATV del contribuyente y
   llegan a su buzón electrónico.
-- **El catálogo CABYS no está cargado.** No se pudo obtener (ver arriba). Es lo único que impide
-  emitir una factura o un tiquete "de verdad" sin escribir el código a mano.
 - **Las cinco pantallas no se abrieron en un navegador.** `tsc` del frontend limpio y `vite build` de
   producción completo, pero no hubo una revisión visual. Es la misma salvedad que el prompt de
   `vinculo_caso_cita` dejó anotada.
@@ -478,9 +475,8 @@ En orden de lo que bloquea:
 5. **`FE_CR_CLAVE_CIFRADO` real en producción**, desde el orquestador y no desde `docker-compose.yml`.
 6. **Un certificado real**, emitido por el BCCR. El de prueba sirve para comprobar que la firma se
    construye y se verifica; Hacienda lo rechaza, y eso es lo correcto.
-7. **El catálogo CABYS**, para no escribir el código a mano.
 
-Cuando esos siete estén, el primer envío al sandbox es el que va a decir si el cuerpo del POST es el
+Cuando esos seis estén, el primer envío al sandbox es el que va a decir si el cuerpo del POST es el
 correcto — y es la única cosa de este motor que no se pudo verificar de otra forma.
 
 ---
@@ -496,7 +492,7 @@ que envían correo real y los que piden un argumento.
 |---|---|
 | `verificar_correos_cobro` | Pide un destinatario por argumento. No es una falla: no se le pasó, porque envía correo real. |
 | `verificar_motor_cobros` | **Preexistente**, ya anotado en la sesión del 2026-11-25. La FSM del cobro queda `morosa` donde esperaba `activa`. Nada de este trabajo toca cobros. |
-| `verificar_cambio4_purga_consumo` | **Defecto real preexistente, ahora documentado como D-006.** Ver abajo. |
+| `verificar_cambio4_purga_consumo` | **Defecto real preexistente, documentado como D-006 y CERRADO el mismo día** por decisión del usuario. Hoy está en verde. Ver abajo y el addendum. |
 
 ### D-006 — una clínica cuyo médico escribió un mensaje no se puede purgar
 
@@ -508,17 +504,8 @@ Que es preexistente está probado, no supuesto: la FK viene de la **migración 0
 `purga.ts` es de un commit **anterior** a la base de esta rama, y el diff de esta rama contra su base
 **no toca** `purga.ts`, `auditoriaRls.job.ts` ni `tablasTenant.ts`.
 
-Importa porque `purga.ts` atrapa el error y hace `ROLLBACK` dentro de un `catch`: la clínica queda
-pendiente indefinidamente, en silencio salvo una línea de log. Y como `mensajes.autor_persona_id` se
-llena en cuanto un médico escribe en el chat, afecta a cualquier clínica con actividad.
-
-**No lo arreglé**, y es deliberado: son dos decisiones sobre datos de clínicas reales (qué pasa con el
-mensaje, y cómo se extiende la auditoría para cubrir esta familia de FK) y no se toman de paso dentro
-de otro prompt. Está en `DEFECTOS_ABIERTOS.md` como **D-006**, con el caso mínimo que falla hoy.
-
-La auditoría de RLS **sí pasa limpia** con las 25 tablas nuevas, que es lo que el prompt exigía: D-006
-es de una familia que esa auditoría no cubre (una FK `NO ACTION` hacia una tabla tenant-scoped, desde
-una tabla sin `tenant_id`), y eso también quedó anotado.
+No se arregló dentro del prompt del facturador, a propósito: eran dos decisiones sobre datos de
+clínicas reales y no se toman de paso. **Se decidió y se cerró el mismo día** — ver el addendum.
 
 ---
 
@@ -532,15 +519,138 @@ cd docs/facturacion/fuentes && sha256sum -c sumas.sha256
 docker compose exec backend npm run migrate
 docker compose exec backend npm run cargar-catalogos-fe
 
-# Los siete verificadores nuevos (570 aserciones). No tocan producción,
-# no envían correo real y no le mandan nada a Hacienda.
+# Los nueve verificadores nuevos. No tocan producción, no envían correo
+# real y no le mandan nada a Hacienda.
 for v in facturacion_modelo catalogos_fe clave_y_calculo xml_y_firma \
-         emision_facturacion pdf_y_entrega_fe api_facturacion; do
+         emision_facturacion pdf_y_entrega_fe api_facturacion \
+         cabys purga_completa; do
   docker compose exec backend npx ts-node --transpile-only \
     src/scripts/verificar_$v.ts
 done
+
+# Antes de desplegar, contra la base que se va a desplegar (solo lectura)
+docker compose exec backend npm run purga-pendiente
 ```
 
 `verificar_api_facturacion` necesita el backend arriba y Keycloak accesible: crea su propia clínica y
 sus propios usuarios descartables, y los borra al terminar. **Nunca toca un usuario existente ni sus
 credenciales.**
+
+
+---
+
+# Addendum — 2026-11-25, las dos decisiones aplicadas
+
+Sobre el reporte de arriba se tomaron dos decisiones y las dos están hechas, en esta misma rama.
+
+## D-006 — la purga ya no se traba
+
+**Decisión:** *la regla de `mensajes.autor_persona_id` se mantiene —un médico no se borra, se
+desactiva, y sus mensajes son historial clínico— pero la purga deja de trabarse, ordenando el borrado
+o difiriendo la restricción, lo que sea más simple y seguro; que `verificar_cambio4_purga_consumo`
+vuelva a verde; y que exista un script de solo lectura para correr en producción antes del
+despliegue.*
+
+Lo primero fue medir, y la medición cambió la respuesta: **no era una FK, eran 42**. Cada rama de la
+cascada de `DELETE FROM tenants` es su propia sentencia interna, y `NO ACTION` se chequea al final de
+cada sentencia; si la rama que borra `personas` corre antes que la que borra `mensajes`, falla. El
+orden entre ramas no se controla desde la aplicación. Por eso **ordenar los borrados se descartó**:
+arreglaba 1 de 42 y se rompía de nuevo con la 43ª, que es cualquier tabla nueva de Vetline Clinic.
+
+| Qué | Dónde |
+|---|---|
+| 42 constraints a `DEFERRABLE INITIALLY DEFERRED`, una por una, con un bloque final que falla si quedó alguna | `migrations/092_purga_fk_diferidas.sql` |
+| `restablecimientos_contrasena` borrada a mano: misma familia, pero diferir **no** la arregla | `purga.ts` + `tablasTenant.ts` |
+| La auditoría pasa a mirar **toda** FK hacia una tabla que la purga borra, no solo las que apuntan a `tenants` | `jobs/auditoriaRls.job.ts` |
+| Script de solo lectura previo al despliegue | `npm run purga-pendiente` |
+
+**La regla no se debilitó.** La FK sigue existiendo y sigue siendo `NO ACTION`: borrar un médico que
+escribió un mensaje sigue prohibido, solo que el error aparece en el `COMMIT`. Es una aserción del
+verificador, no un comentario.
+
+`restablecimientos_contrasena` **no estaba en el síntoma original**: apareció al clasificar las 42 en
+«diferir alcanza» y «diferir no alcanza». Cualquier clínica cuyo usuario alguna vez usó «olvidé mi
+contraseña» también estaba trabada.
+
+**Evidencia:** `verificar_cambio4_purga_consumo` **TODO OK** (era el que estaba en rojo) ·
+`verificar_purga_completa` **19 OK, 0 FAIL** · `verificar_auditoria_rls_reforzada` **TODO OK** con una
+sección 3b nueva que crea los dos casos con remedio distinto y comprueba que diferir apaga uno y no
+el otro.
+
+`verificar_purga_completa` no usa una lista escrita a mano: calcula del esquema qué tablas pueden
+trabar (52 FK de 27 tablas), arma una clínica con una fila en cada una y la purga. Correrlo **purgó
+de paso 3 clínicas de prueba reales** que llevaban días atascadas en `ventana_purga` — evidencia de
+que el defecto estaba frenando purgas, no de que podía.
+
+`npm run purga-pendiente` abre `BEGIN TRANSACTION READ ONLY` y lista las clínicas que la próxima
+corrida va a eliminar, las de fecha futura, cuáles presentan el síntoma y si la 092 está aplicada. Se
+comprobó que **detecta**, creando una clínica pendiente descartable. No tiene variante `:prod`
+compilada a propósito: `tsconfig.build.json` excluye `src/scripts`, así que `node dist/scripts/…`
+sería un comando roto justo cuando más importa que funcione.
+
+## CABYS — 20 506 códigos, de la publicación oficial
+
+**Decisión:** *que el catálogo vigente se cargue desde su publicación oficial, por el mismo comando
+idempotente de los catálogos, con la URL y la fecha en `LEEME.md`; si no se puede descargar, se
+reporta y no se inventan códigos.*
+
+Lo que faltaba era **de dónde**: CABYS no lo publica Hacienda sino el **Banco Central**, y por eso no
+estaba entre las fuentes del anexo. Es una planilla `.xlsx`.
+
+| | |
+|---|---|
+| Fuente | `https://www.bccr.fi.cr/content/dam/bccr/bccr-espanol/noticias/2025/2025-04-01-catalogo-de-bienes-servicios-1.xlsx` |
+| Publicada | 2025-04-01 (CP-BCCR-015-2025) |
+| Descargada | 2026-11-25 |
+| En el repo | `backend/catalogos/cabys/Catalogo_CABYS_2025.xlsx`, con su sha256 en `fuentes/sumas.sha256` |
+| Códigos | **20 506**, 3 sin tarifa sugerida (el propio catálogo no se la asigna) |
+
+Va en `backend/` y no en `docs/` porque `docs/` no está montado en el contenedor: un cargador que
+necesita un archivo que el proceso no puede leer no es un cargador.
+
+**Una verificación corrigió un dato inventado por la búsqueda web**, que afirmaba que una versión 2026
+rige desde el 1 de junio de 2026. **No existe**: la vigente es la 2025. Quedó escrito en `LEEME.md`
+para que no se repita.
+
+**`fflate` en vez de `exceljs`.** Un `.xlsx` es un zip con XML adentro; `exceljs` traía 135 paquetes y
+un `uuid@8` deprecado para un cargador que corre una vez al año y va a producción. `fflate` es 1
+paquete y 0 dependencias.
+
+**La columna de impuesto no es homogénea** y medirla antes de escribir el mapeo evitó un error
+silencioso: conviven `0.13`, `13%`, `Exento` y `na`. Un `Number()` directo habría dejado **941 filas**
+sin tarifa sin que nadie se enterara. El mapeo es explícito y el cargador **avisa fuerte** si aparece
+un valor que no conoce, en vez de nulificarlo.
+
+El cargador se planta y no carga nada si el encabezado de las 21 columnas cambió, si un código no
+tiene 13 dígitos, si hay duplicados o si vienen menos de 10 000 filas: que el Banco Central reacomode
+columnas no puede traducirse en códigos corridos.
+
+**Evidencia:** `verificar_cabys` **33 OK, 0 FAIL**, con valores exactos contra dos códigos verificados
+a mano, las dos formas de romper el encabezado, la idempotencia y la desactivación-en-vez-de-borrado.
+`npm run cargar-catalogos-fe` corrido dos veces: la segunda, 0 nuevos.
+
+`verificar_api_facturacion` pasó de **85 a 91** aserciones: la búsqueda real por la API, los 13
+dígitos, la tarifa sugerida, el mínimo de 3 caracteres — y la rama de catálogo vacío, que ahora se
+prueba **vaciándolo de verdad** y reponiéndolo, para que no quede solo escrita.
+
+## Verificadores después de las dos decisiones
+
+| Verificador | Resultado |
+|---|---|
+| `verificar_purga_completa` (nuevo) | 19 OK, 0 FAIL |
+| `verificar_cabys` (nuevo) | 33 OK, 0 FAIL |
+| `verificar_api_facturacion` | 91 OK, 0 FAIL |
+| `verificar_cambio4_purga_consumo` | TODO OK |
+| `verificar_auditoria_rls_reforzada` | TODO OK |
+| `verificar_facturacion_modelo` | TODO OK |
+| `verificar_emision_facturacion` | TODO OK |
+| `verificar_rls_correos_purga_razas_log` | TODO OK |
+| `verificar_marca_correos` | 89 OK, 0 FAIL |
+
+`verificar_marca_correos` estaba en rojo con 3 fallas por contar **27** plantillas y **10** de
+comercio: el correo del comprobante electrónico es la 28ª y es de comercio —va al tutor con el nombre
+y el logo de la clínica—, así que los números del arnés estaban desactualizados, no el código.
+
+`tsc` del backend (`tsconfig.build.json`) y del frontend, limpios. Quedan dos errores de `tsc` en
+`src/scripts` que son **preexistentes y de otra rama** (`keycloak_habilitar_edit_username.ts`,
+`verificar_busqueda_paleta.ts`); `src/scripts` está excluido del build.

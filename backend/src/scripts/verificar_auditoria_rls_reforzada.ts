@@ -17,7 +17,15 @@ import { TABLAS_SIN_POLITICA_RLS_A_PROPOSITO } from "../tablasTenant";
 const T_SIN_FORZAR = "_audit_probe_sin_forzar";
 const T_SIN_POLITICA = "_audit_probe_sin_politica";
 const T_FK_SIN_CASCADA = "_audit_probe_fk_sin_cascada";
-const PROBES = [T_SIN_FORZAR, T_SIN_POLITICA, T_FK_SIN_CASCADA];
+const T_TRABA_DIFERIR = "_audit_probe_traba_diferir";
+const T_TRABA_BORRADO = "_audit_probe_traba_borrado";
+const PROBES = [
+  T_SIN_FORZAR,
+  T_SIN_POLITICA,
+  T_FK_SIN_CASCADA,
+  T_TRABA_DIFERIR,
+  T_TRABA_BORRADO,
+];
 
 let ok = true;
 function assert(cond: boolean, msg: string, detalle?: unknown) {
@@ -45,6 +53,11 @@ async function main() {
     assert(antes.sinForzar.length === 0, "0 tablas con tenant_id y RLS sin forzar", antes.sinForzar);
     assert(antes.sinPolitica.length === 0, "0 tablas con tenant_id, RLS y sin política", antes.sinPolitica);
     assert(antes.fkSinCascada.length === 0, "0 FK a tenants sin cascada fuera de la lista de purga", antes.fkSinCascada);
+    assert(
+      antes.fkTrabanPurga.length === 0,
+      "0 FK que traben la purga apuntando a una tabla que la purga borra (D-006)",
+      antes.fkTrabanPurga
+    );
 
     // Que el esquema esté limpio tiene que ser porque las excepciones se
     // respetan, no porque el chequeo no mire nada: las dos tablas sin
@@ -152,6 +165,71 @@ async function main() {
     );
 
     // -----------------------------------------------------------------
+    // El chequeo de D-006 sale limpio contra el esquema real, y eso solo
+    // sirve si encuentra algo cuando lo hay. Las dos tablas de acá son
+    // los dos casos cuyo remedio es DISTINTO, que es justo la parte que
+    // un chequeo ingenuo confunde.
+    console.log("\n=== 3b. Las dos formas de trabar la purga sin apuntar a tenants (D-006) ===");
+
+    // Caso A: la tabla SÍ se borra con el tenant (cascada desde tenants),
+    // y además apunta a `personas` sin cascada. Diferir alcanza.
+    await pool.query(
+      `CREATE TABLE ${T_TRABA_DIFERIR} (
+         id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+         tenant_id   UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+         persona_id  UUID NOT NULL REFERENCES personas(id)
+       )`
+    );
+    // Caso B: la tabla NO se borra con el tenant —no tiene FK a tenants—
+    // pero apunta a `personas`, que sí se borra. Diferir no alcanza.
+    await pool.query(
+      `CREATE TABLE ${T_TRABA_BORRADO} (
+         id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+         persona_id  UUID NOT NULL REFERENCES personas(id)
+       )`
+    );
+
+    const trabas = await auditarRlsPorTenant(pool);
+    const porTabla = new Map(trabas.fkTrabanPurga.map((f) => [f.tabla, f]));
+    console.log("fkTrabanPurga:", JSON.stringify(trabas.fkTrabanPurga, null, 2));
+
+    assert(
+      porTabla.get(T_TRABA_DIFERIR)?.remedio === "diferir",
+      `"${T_TRABA_DIFERIR}" se reporta como traba con remedio "diferir" (la fila también se borra)`,
+      porTabla.get(T_TRABA_DIFERIR)
+    );
+    assert(
+      porTabla.get(T_TRABA_DIFERIR)?.tablaDestino === "personas",
+      "el hallazgo nombra la tabla DESTINO, que es por donde hay que buscar el arreglo"
+    );
+    assert(
+      porTabla.get(T_TRABA_BORRADO)?.remedio === "borrado_manual",
+      `"${T_TRABA_BORRADO}" se reporta con remedio "borrado_manual" (la fila sobrevive, diferir no sirve)`,
+      porTabla.get(T_TRABA_BORRADO)
+    );
+
+    // Y el arreglo de verdad tiene que apagar el hallazgo: esta es la
+    // forma exacta que tomó la migración 092 sobre 42 constraints.
+    const nombreFk = await pool.query<{ conname: string }>(
+      `SELECT conname FROM pg_constraint
+        WHERE contype = 'f' AND conrelid = $1::regclass AND confrelid = 'personas'::regclass`,
+      [T_TRABA_DIFERIR]
+    );
+    await pool.query(
+      `ALTER TABLE ${T_TRABA_DIFERIR}
+         ALTER CONSTRAINT ${nombreFk.rows[0].conname} DEFERRABLE INITIALLY DEFERRED`
+    );
+    const yaDiferida = await auditarRlsPorTenant(pool);
+    assert(
+      !yaDiferida.fkTrabanPurga.some((f) => f.tabla === T_TRABA_DIFERIR),
+      "diferida la FK, el hallazgo desaparece (el chequeo mide la condición, no el nombre de la tabla)"
+    );
+    assert(
+      yaDiferida.fkTrabanPurga.some((f) => f.tabla === T_TRABA_BORRADO),
+      "y diferir NO apaga el caso B, porque ahí diferir no es el arreglo"
+    );
+
+    // -----------------------------------------------------------------
     console.log("\n=== 4. Borradas las tablas de prueba, el job vuelve a quedar limpio ===");
     await borrarProbes();
     const despues = await auditarRlsPorTenant(pool);
@@ -159,6 +237,7 @@ async function main() {
     assert(despues.sinForzar.length === 0, "0 tablas con RLS sin forzar", despues.sinForzar);
     assert(despues.sinPolitica.length === 0, "0 tablas con RLS sin política", despues.sinPolitica);
     assert(despues.fkSinCascada.length === 0, "0 FK a tenants sin cascada", despues.fkSinCascada);
+    assert(despues.fkTrabanPurga.length === 0, "0 FK que traben la purga (D-006)", despues.fkTrabanPurga);
   } finally {
     // Pase lo que pase, las tablas de prueba no se quedan en la base.
     await borrarProbes();

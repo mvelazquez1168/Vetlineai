@@ -179,15 +179,59 @@ async function main() {
       "las condiciones de venta 09 y 11 NO se ofrecen: son exclusivas del REP"
     );
 
-    // CABYS: catálogo vacío reportado, no un 500 ni resultados inventados.
-    const cabys = await pedir("/facturacion/cabys?q=consulta", { token: tokenMedico });
-    assert(cabys.status === 200, "GET /cabys → 200 aunque el catálogo esté vacío", cabys.status);
-    assert(cabys.json.catalogoVacio === true, "y lo dice con catalogoVacio: true");
+    // CABYS: el catálogo del Banco Central ya está cargado, así que la
+    // búsqueda tiene que devolver códigos reales — y la rama de catálogo
+    // vacío tiene que seguir existiendo para el servidor recién levantado.
+    const cabys = await pedir("/facturacion/cabys?q=veterinar", { token: tokenMedico });
+    assert(cabys.status === 200, "GET /cabys → 200", cabys.status);
+    assert(cabys.json.catalogoVacio === false, "el catálogo NO está vacío");
     assert(
-      typeof cabys.json.aviso === "string" && cabys.json.aviso.includes("13 dígitos"),
-      "con un aviso que explica qué hacer mientras tanto",
-      cabys.json.aviso
+      Array.isArray(cabys.json.resultados) && cabys.json.resultados.length > 0,
+      `buscar "veterinar" devuelve códigos reales`,
+      cabys.json.resultados?.length
     );
+    assert(
+      cabys.json.resultados.every(
+        (r: { codigo: string }) => /^[0-9]{13}$/.test(r.codigo)
+      ),
+      "todos los códigos tienen los 13 dígitos que exige Hacienda"
+    );
+    assert(
+      cabys.json.resultados.some(
+        (r: { codigoTarifaIvaSugerido: string | null }) => r.codigoTarifaIvaSugerido !== null
+      ),
+      "y traen la tarifa de IVA sugerida del propio catálogo"
+    );
+    // Menos de 3 caracteres no busca: es un catálogo de veinte mil filas
+    // y una sola letra devolvería cualquier cosa.
+    const cabysCorto = await pedir("/facturacion/cabys?q=ve", { token: tokenMedico });
+    assert(
+      cabysCorto.status === 200 && cabysCorto.json.resultados.length === 0,
+      "con menos de 3 caracteres no busca"
+    );
+
+    // La rama de catálogo vacío se prueba vaciándolo de verdad y
+    // dejándolo como estaba. Sin esto, esa rama solo estaría escrita.
+    // Si el proceso se cortara acá en el medio, el catálogo queda
+    // desactivado en desarrollo y lo repone `npm run cargar-catalogos-fe`,
+    // que es idempotente.
+    await pool.query("UPDATE fact_cat_cabys SET activo = false WHERE activo = true");
+    try {
+      const vacio = await pedir("/facturacion/cabys?q=veterinar", { token: tokenMedico });
+      assert(vacio.status === 200, "con el catálogo vacío sigue siendo 200, no 500", vacio.status);
+      assert(vacio.json.catalogoVacio === true, "y lo dice con catalogoVacio: true");
+      assert(
+        Array.isArray(vacio.json.resultados) && vacio.json.resultados.length === 0,
+        "sin inventar ni un código"
+      );
+      assert(
+        typeof vacio.json.aviso === "string" && vacio.json.aviso.includes("13 dígitos"),
+        "con un aviso que explica qué hacer mientras tanto",
+        vacio.json.aviso
+      );
+    } finally {
+      await pool.query("UPDATE fact_cat_cabys SET activo = true WHERE activo = false");
+    }
 
     // -----------------------------------------------------------------
     console.log("\n=== 3. Emisor: solo el administrador lo configura ===");

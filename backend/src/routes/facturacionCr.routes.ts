@@ -117,9 +117,14 @@ facturacionCrRouter.get("/catalogos", async (_req, res) => {
  * emisión manual.
  *
  * Devuelve lista vacía con un aviso cuando el catálogo no está cargado.
- * NO devuelve 500 ni inventa resultados: que falte el catálogo es un
- * hecho conocido (no se pudo descargar) y la pantalla tiene que poder
- * decirlo.
+ * NO devuelve 500 ni inventa resultados: inventar un código CABYS es
+ * peor que no tenerlo, porque el comprobante se emite y lo rechaza
+ * Hacienda —o peor, lo acepta con la clasificación equivocada.
+ *
+ * En una instalación normal el catálogo SÍ está cargado (más de veinte
+ * mil códigos del Banco Central, por `npm run cargar-catalogos-fe`).
+ * Esta rama queda para el ambiente recién levantado donde ese comando
+ * todavía no corrió.
  */
 facturacionCrRouter.get("/cabys", async (req, res) => {
   const q = String(req.query.q ?? "").trim();
@@ -132,7 +137,9 @@ facturacionCrRouter.get("/cabys", async (req, res) => {
         resultados: [],
         catalogoVacio: true,
         aviso:
-          "El catálogo CABYS no está cargado. Hacienda lo publica aparte de los anexos y todavía no se pudo obtener; mientras tanto el código hay que escribirlo a mano (13 dígitos).",
+          "El catálogo CABYS no está cargado en este servidor. Lo carga `npm run cargar-catalogos-fe` " +
+          "desde la planilla del Banco Central; mientras tanto el código hay que escribirlo a mano " +
+          "(13 dígitos).",
       });
     }
     if (q.length < 3) return res.json({ resultados: [], catalogoVacio: false });

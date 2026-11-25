@@ -277,13 +277,20 @@ adelante alimenta el IVA acreditable.
 - **No usa el `callbackUrl` de Hacienda.** El mismo JSON se obtiene con el GET por clave, así que la
   consulta por reintento alcanza y evita exponer un endpoint público. Queda como mejora posterior.
 
-## Dos cosas que faltan y hay que saber
+## Dos cosas que hay que saber
 
-**El catálogo CABYS no está cargado.** Hacienda lo publica aparte de los anexos, como archivo de
-datos, y no se pudo obtener (ver `docs/facturacion/fuentes/LEEME.md`). `GET /cabys` devuelve
+**El catálogo CABYS está cargado**: 20 506 códigos de la planilla oficial del Banco Central (versión
+2025, la vigente). `GET /cabys?q=…` busca por código o por descripción, tolerando acentos, y devuelve
+hasta 30 resultados con su tarifa de IVA **sugerida**.
+
+Sugerida quiere decir sugerida: el catálogo propone la tarifa del bien o servicio, pero la que va al
+comprobante la decide la línea, porque una exoneración o un régimen especial la cambian. Tres de los
+20 506 códigos no traen tarifa (el catálogo no se la asigna); ahí hay que elegirla.
+
+Si por alguna razón el catálogo no estuviera cargado, `GET /cabys` devuelve
 `{"resultados": [], "catalogoVacio": true, "aviso": "…"}` en vez de un 500 o de resultados
-inventados. Mientras tanto el código CABYS hay que escribirlo a mano: son 13 dígitos y es
-**obligatorio** en cada línea de factura y tiquete.
+inventados, y el código hay que escribirlo a mano: son 13 dígitos y es **obligatorio** en cada línea
+de factura y tiquete.
 
 **El proveedor de Hacienda es el simulado** mientras `FE_CR_PROVEEDOR` no diga `real`. En desarrollo
 no sale nada hacia los servidores de Hacienda, y eso es deliberado: el default protege contra un

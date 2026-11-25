@@ -107,11 +107,65 @@ puede `grep`ear en una revisión de código.
 
 No son la fuente: la fuente es el PDF. Si los dos difieren, manda el PDF.
 
+## Catálogo CABYS — `backend/catalogos/cabys/`
+
+Hacienda exige el código CABYS en **cada** línea de detalle de factura y tiquete (Nota 17 del anexo),
+pero no lo publica con el resto de los catálogos: lo publica el **Banco Central de Costa Rica**,
+aparte, como una planilla de Excel.
+
+| | |
+|---|---|
+| Archivo | `backend/catalogos/cabys/Catalogo_CABYS_2025.xlsx` |
+| URL de origen | `https://www.bccr.fi.cr/content/dam/bccr/bccr-espanol/noticias/2025/2025-04-01-catalogo-de-bienes-servicios-1.xlsx` |
+| Publicado por el BCCR | 1 de abril de 2025 |
+| Descargado | 2026-11-25 |
+| Contenido | 20 506 códigos de 13 dígitos |
+
+**Es la versión vigente.** El Ministerio de Hacienda fijó una transición del 1 de abril al 1 de junio
+de 2025 en la que se aceptaban los códigos de Cabys 2023 y de Cabys 2025, y *"a partir del 1.° de
+junio del 2025, se aceptarán únicamente los códigos Cabys de la nueva versión del catálogo"*
+([comunicado CP-BCCR-015-2025](https://www.hacienda.go.cr/docs/CP-BCCR-015-2025.pdf)).
+
+**No existe una versión 2026.** Se verificó: el listado de noticias del BCCR no publica ninguna
+actualización posterior a la de 2025, y las URL que seguirían el patrón de 2026 dan 404. (Una primera
+búsqueda afirmó que "Cabys 2026 rige desde el 1 de junio de 2026"; era falso, y por eso se comprobó
+contra la fuente antes de escribirlo acá.)
+
+### Dónde vive y por qué
+
+En `backend/catalogos/cabys/`, **no** en esta carpeta, por el mismo motivo que los XSD: es una entrada
+de ejecución del cargador, y `docs/` no está montado en el contenedor del backend ni entra en la
+imagen de producción. Una sola copia, con su `sha256` en `sumas.sha256`.
+
+### Cómo se carga
+
+Por el mismo comando idempotente que el resto de los catálogos:
+
+```bash
+docker compose exec backend npm run cargar-catalogos-fe
+```
+
+Lee la hoja `Catálogo` de la planilla: columna **Q** el código de 13 dígitos, **R** la descripción,
+**S** el impuesto.
+
+**La columna "Impuesto" no es homogénea** — medido sobre el archivo real: trae fracciones (`0.13`),
+textos con porcentaje (`13%`, 53 filas), `Exento` (885 filas) y `na` (3 filas). Un `Number()` ingenuo
+dejaría 941 filas sin tarifa en silencio, así que la traducción al código de tarifa de la Nota 8.1 es
+un mapa explícito, y cualquier valor que no esté en él se **reporta** en la salida del comando en vez
+de cargarse como nulo.
+
+`Exento` se traduce al código **10** (Tarifa Exenta), que es exactamente lo que nombra la Nota 8.1 —
+no al 01 ni al 11, que también valen 0% pero significan otra cosa. Los 3 códigos con `na` quedan **sin
+tarifa sugerida**: el catálogo no les asigna una y ponerles cualquiera sería inventarla.
+
+### Cuándo actualizarlo
+
+Cuando el BCCR publique una versión nueva: se descarga la planilla al mismo lugar, se regenera
+`sumas.sha256`, se corre el comando y se corre `verificar_cabys.ts`. El lector **detiene la carga** si
+el encabezado de la planilla cambió, en vez de cargar columnas corridas.
+
 ## Lo que NO se encontró en estas fuentes
 
-- **El catálogo CABYS completo** (código, descripción, tarifa de IVA sugerida). El anexo lo
-  referencia y lo exige en cada línea de detalle, pero no lo incluye: se publica aparte, en el sitio
-  del Banco Central / Hacienda, como archivo de datos. Queda reportado como pendiente.
 - **La codificación de ubicación** (provincia / cantón / distrito / barrio) se publica como
   `Codificacionubicacion_V4.4.rar`. No se descargó: es un `.rar` y el repo no tiene con qué
   descomprimirlo de forma reproducible. Queda reportado.

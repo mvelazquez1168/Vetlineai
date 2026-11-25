@@ -75,7 +75,7 @@ function sinImagenes(html: string): string {
   });
 }
 
-// Un ejemplar de cada uno de los 27 tipos, con datos de relleno. El
+// Un ejemplar de cada uno de los 28 tipos, con datos de relleno. El
 // objetivo no es el texto (ya verificado en otros arneses) sino que
 // TODOS pasen por el layout nuevo sin romperse.
 const MUESTRAS: { [K in TipoCorreo]: DatosPlantilla[K] } = {
@@ -103,6 +103,15 @@ const MUESTRAS: { [K in TipoCorreo]: DatosPlantilla[K] } = {
   desparasitacion_proxima: { nombrePaciente: "Toby", fechaProxima: "10/09/2026" },
   seguimiento_posterior_consulta: { nombrePaciente: "Toby" },
   informe_disponible: { nombrePaciente: "Toby" },
+  comprobante_electronico: {
+    tipoComprobanteNombre: "Factura electrónica",
+    consecutivo: "00100001010000000001",
+    clave: "50625112600310123456700100001010000000001100000001",
+    total: "11 300,00",
+    moneda: "CRC",
+    fecha: "25/11/2026",
+    estadoHacienda: "Aceptado",
+  },
   cumpleanos: { nombrePaciente: "Toby" },
   seguimiento_faltante: { nombrePaciente: "Toby", estadoClinico: "en tratamiento" },
   agenda_dia_siguiente: { fecha: "01/09/2026", citas: [{ hora: "10:30", pacienteNombre: "Toby", motivoConsulta: "Control" }] },
@@ -139,17 +148,20 @@ async function main() {
 
   try {
     // -----------------------------------------------------------------
-    console.log("\n1. Clasificación de las 27 plantillas");
+    console.log("\n1. Clasificación de las 28 plantillas");
     // -----------------------------------------------------------------
     const esperadosComercio = [
       "recordatorio_cita", "confirmacion_cita", "cita_cancelada_o_reprogramada",
       "vacunacion_proxima", "desparasitacion_proxima", "seguimiento_posterior_consulta",
       "informe_disponible", "cumpleanos", "seguimiento_faltante", "agenda_dia_siguiente",
+      // El comprobante electrónico va al tutor, con el nombre y el logo de
+      // la clínica: es de comercio, como el resto de esta lista.
+      "comprobante_electronico",
     ].sort();
-    afirmar(TODOS.length === 27, `las 27 plantillas están cubiertas por el arnés (hay ${TODOS.length})`);
+    afirmar(TODOS.length === 28, `las 28 plantillas están cubiertas por el arnés (hay ${TODOS.length})`);
     afirmar(
       JSON.stringify([...TIPOS_MARCA_COMERCIO].sort()) === JSON.stringify(esperadosComercio),
-      "los 10 tipos con marca de comercio son exactamente los clasificados",
+      "los 11 tipos con marca de comercio son exactamente los clasificados",
       `actual: ${[...TIPOS_MARCA_COMERCIO].sort().join(", ")}`
     );
     afirmar(
@@ -312,7 +324,7 @@ async function main() {
     );
 
     // -----------------------------------------------------------------
-    console.log("\n8. Las 27 plantillas renderizan, y solo las 10 llevan pie");
+    console.log("\n8. Las 28 plantillas renderizan, y solo las 11 llevan pie");
     // -----------------------------------------------------------------
     let conPie = 0;
     let conLogoPlataforma = 0;
@@ -346,7 +358,7 @@ async function main() {
         );
       }
     }
-    afirmar(conPie === 10, `las 10 plantillas de comercio llevan pie (${conPie})`);
+    afirmar(conPie === 11, `las 11 plantillas de comercio llevan pie (${conPie})`);
     afirmar(conLogoPlataforma === 17, `las 17 de plataforma conservan el logo de plataforma (${conLogoPlataforma})`);
     afirmar(
       !bloqueEncabezado(render("cobro_fallido", marcaPlataforma()).html).includes("background-color:#1e3a5f"),

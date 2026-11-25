@@ -8,3 +8,4 @@
 # como binarios, así que los XSD siguen apareciendo en los diff.
 docs/facturacion/fuentes/** -text
 backend/esquemas/** -text
+backend/catalogos/** -text

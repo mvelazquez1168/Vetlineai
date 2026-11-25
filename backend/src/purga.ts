@@ -3,7 +3,10 @@ import { PassThrough } from "stream";
 import { ZipArchive } from "archiver";
 import { almacenamientoPrivado } from "./almacenamiento";
 import { enviarCorreoTransaccional, urlExportar, urlPlanes, urlDatosClinica, urlMedioPago } from "./correos";
-import { TABLAS_BORRADO_MANUAL_EN_PURGA } from "./tablasTenant";
+import {
+  TABLAS_BORRADO_MANUAL_EN_PURGA,
+  TABLAS_BORRADO_MANUAL_SIN_TENANT_ID,
+} from "./tablasTenant";
 
 // ---------------------------------------------------------------------
 // Flujos de suscripción, Flujo C — cierre de la prueba, ventana de purga
@@ -697,18 +700,18 @@ export async function ejecutarPurgas(db: Pool): Promise<{ purgadas: number }> {
       for (const tabla of TABLAS_BORRADO_MANUAL_EN_PURGA) {
         await client.query(`DELETE FROM ${tabla} WHERE tenant_id = $1`, [tenant.id]);
       }
-      // notificaciones_callback.cobro_id no tiene ON DELETE CASCADE (es un
-      // log crudo de todo lo que llegó por el callback, sin tenant_id
-      // propio — se atribuye por order_number, ver callbackCobros.ts). Sin
-      // este DELETE, cualquier clínica que haya tenido un intento de cobro
-      // real (que es el caso normal para una que llega a ventana_purga por
-      // impago) hace fallar el DELETE FROM tenants de más abajo — hallazgo
-      // real de la verificación del escenario 5, no algo que este prompt
-      // pidiera cambiar.
-      await client.query(
-        `DELETE FROM notificaciones_callback WHERE cobro_id IN (SELECT id FROM cobros WHERE tenant_id = $1)`,
-        [tenant.id]
-      );
+      // Y las que la purga tiene que borrar a mano pero NO tienen
+      // tenant_id: se llega a sus filas por una FK a una tabla que sí es
+      // del tenant. Son la otra mitad de D-006, y la mitad que la
+      // migración 092 no podía resolver difiriendo las FK — diferir no
+      // sirve cuando la fila que apunta sobrevive al COMMIT.
+      //
+      // El SQL de cada una vive en tablasTenant.ts por el mismo motivo
+      // que la lista de arriba: que la auditoría lea exactamente lo que
+      // la purga borra, y no una copia que puede divergir.
+      for (const { sql } of TABLAS_BORRADO_MANUAL_SIN_TENANT_ID) {
+        await client.query(sql, [tenant.id]);
+      }
 
       await client.query(`DELETE FROM tenants WHERE id = $1`, [tenant.id]);
 

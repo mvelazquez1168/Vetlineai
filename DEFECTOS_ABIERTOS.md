@@ -515,62 +515,103 @@ presencia.
 
 ## D-006 — Una clínica cuyo médico escribió un mensaje no se puede purgar nunca
 
-**ABIERTO** · encontrado 2026-11-25, durante la verificación de
-`vetline-clinic-09a` (facturador de Costa Rica). **No tiene nada que ver con la
-facturación**: apareció porque el barrido de verificadores existentes dejó en rojo
-a `verificar_cambio4_purga_consumo`.
+**CERRADO** · abierto 2026-11-25 durante la verificación de `vetline-clinic-09a`
+(facturador de Costa Rica), cerrado el mismo día por decisión explícita.
+**No tenía nada que ver con la facturación**: apareció porque el barrido de
+verificadores existentes dejó en rojo a `verificar_cambio4_purga_consumo`.
 
-`DELETE FROM tenants` falla con:
+`DELETE FROM tenants` fallaba con:
 
 ```
 mensajes_autor_persona_id_fkey
 Key (id)=(…) is still referenced from table "mensajes".
 ```
 
-Reproducido en aislamiento, con el caso mínimo: una clínica, un médico, un
-propietario, un paciente, un caso y **un** mensaje con
-`autor_persona_id` apuntando a ese médico. El `DELETE FROM tenants` falla.
+`purga.ts::ejecutarPurgas` atrapaba el error y hacía `ROLLBACK` dentro de un
+`catch`, así que **la clínica no se eliminaba y quedaba pendiente
+indefinidamente**, en silencio salvo una línea de log. Y como
+`mensajes.autor_persona_id` se llena en cuanto un médico escribe en el chat —que
+es el uso normal del producto— afectaba a **cualquier** clínica con actividad.
 
-```
-RESULTADO: FALLO -> mensajes_autor_persona_id_fkey |
-Key (id)=(5bc4b039-…) is still referenced from table "mensajes".
-```
+### La decisión
 
-### Por qué importa
+> *«`mensajes.autor_persona_id` mantiene su regla: un médico no se borra en la
+> operación normal, se desactiva, y sus mensajes son historial clínico. Que la
+> purga deje de bloquearse, ordenando el borrado para que los mensajes se
+> eliminen antes que las personas, o haciendo esa restricción DEFERRABLE
+> INITIALLY DEFERRED, lo que sea más simple y seguro.»*
 
-`purga.ts::ejecutarPurgas` atrapa el error y hace `ROLLBACK` dentro de un
-`catch`, así que **la clínica no se elimina y queda pendiente indefinidamente**,
-en silencio salvo una línea de log. Y como `mensajes.autor_persona_id` se llena en
-cuanto un médico escribe en el chat —que es el uso normal del producto— esto
-afecta a **cualquier** clínica con actividad, no a un caso raro.
+Se midió antes de elegir, y la medición cambió la respuesta: **no era una FK,
+eran 42**. Toda FK `NO ACTION` entre dos tablas que la purga borra por cascada
+tiene el mismo problema, porque cada rama de la cascada de `DELETE FROM tenants`
+es **su propia sentencia interna** y `NO ACTION` se chequea al final de cada
+sentencia — así que si la rama que borra `personas` corre antes que la que borra
+`mensajes`, falla, y el orden entre ramas no se controla desde la aplicación.
 
-Es exactamente la misma familia que el hallazgo de `notificaciones_callback`, que
-`purga.ts` ya documenta en un comentario. La diferencia es que ese se encontró
-probando el escenario y este estuvo ahí desde la migración 066.
+Por eso **ordenar los borrados quedó descartado**: habría arreglado 1 de 42 y se
+habría vuelto a romper con la 43ª, que es cualquier tabla nueva de Vetline Clinic.
 
-### Por qué la auditoría de RLS no lo ve
+### Lo que se hizo
 
-`jobs/auditoriaRls.job.ts` reporta FK **a `tenants`** sin `ON DELETE CASCADE`.
-Esta FK no apunta a `tenants`: apunta a `personas`, que es una tabla
-tenant-scoped que se borra por cascada. Y `mensajes` **no tiene `tenant_id`**, así
-que ni siquiera entra en el conjunto de tablas que la auditoría recorre.
+1. **Migración `092_purga_fk_diferidas.sql`** — las 42 constraints pasan a
+   `DEFERRABLE INITIALLY DEFERRED`. El chequeo se corre al `COMMIT`, cuando ya no
+   existe ninguna de las dos filas. Están escritas una por una, no en un bucle
+   `DO`: una migración tiene que hacer siempre lo mismo, corra cuando corra.
+   La migración termina con un bloque que recalcula el cierre de la cascada y
+   **falla** si quedó alguna sin diferir.
+2. **La regla NO se debilitó.** La FK sigue existiendo y sigue siendo `NO ACTION`:
+   borrar un médico que escribió un mensaje sigue prohibido, solo que el error
+   llega en el `COMMIT`. Verificado como aserción, no como comentario.
+3. **`restablecimientos_contrasena`** — encontrada al clasificar las 42: es de la
+   misma familia pero **diferir no la arregla**, porque la fila que apunta
+   sobrevive al `COMMIT`. La purga la borra a mano, como ya hacía con
+   `notificaciones_callback`. Cualquier clínica cuyo usuario alguna vez usó
+   «olvidé mi contraseña» también estaba trabada, y eso **no estaba en el
+   síntoma original**.
+4. **El SQL de esas dos vive en `tablasTenant.ts`**
+   (`TABLAS_BORRADO_MANUAL_SIN_TENANT_ID`), no en `purga.ts`, para que la
+   auditoría lea exactamente lo que la purga borra y no una copia.
 
-El chequeo mide algo más estrecho que el concepto que dice cubrir ("la purga no se
-va a trabar por una FK") — la misma forma que R1, R2 y R4.
+### El segundo criterio de cierre: que la auditoría cubra la familia
 
-### Criterio de cierre
+El chequeo viejo de `auditoriaRls.job.ts` miraba FK **a `tenants`** sin cascada:
+más estrecho que el concepto que decía cubrir, y por eso dejó pasar esto durante
+meses. Ahora calcula qué tablas borra la purga —cierre transitivo de las cascadas
+desde `tenants`, más las que borra a mano— y mira **toda** FK que apunte ahí
+dentro, con el remedio que corresponde a cada caso:
 
-Dos decisiones, y las dos son sobre datos de clínicas reales, así que no se toman
-de paso dentro de otro prompt:
+| Situación | Remedio que reporta |
+|---|---|
+| La fila que apunta también se borra | `DEFERRABLE INITIALLY DEFERRED` |
+| La fila que apunta sobrevive | borrado manual en la purga |
 
-1. **Qué pasa con el mensaje.** O `mensajes` entra en
-   `TABLAS_BORRADO_MANUAL_EN_PURGA` (pero no tiene `tenant_id`, así que el DELETE
-   tendría que ir por `caso_id`), o la FK pasa a `ON DELETE SET NULL` y el mensaje
-   sobrevive sin autor — que para una clínica que se está purgando no tiene
-   sentido, porque el caso se va igual por cascada.
-2. **Que la auditoría cubra esta familia.** Hoy solo mira FK a `tenants`. Para
-   cubrir el concepto entero tendría que mirar toda FK `NO ACTION`/`RESTRICT`
-   cuyo destino sea una tabla que la purga borra por cascada — incluido el caso de
-   una tabla sin `tenant_id` como `mensajes`.
+### Evidencia
 
-Y verificarlo con el caso mínimo de arriba, que falla hoy.
+| Verificador | Resultado |
+|---|---|
+| `verificar_cambio4_purga_consumo` | **TODO OK** — era el que estaba en rojo |
+| `verificar_purga_completa` (nuevo) | **19 OK, 0 FAIL** |
+| `verificar_auditoria_rls_reforzada` | **TODO OK**, con sección 3b nueva |
+
+`verificar_purga_completa` no usa una lista escrita a mano: calcula del esquema
+qué tablas pueden trabar (52 FK de 27 tablas), arma una clínica con una fila en
+cada una, y la purga. La sección 5 confirma que la FK sigue prohibiendo lo que
+prohibía. En `verificar_auditoria_rls_reforzada`, la sección 3b crea los dos
+casos con remedio distinto y confirma que el chequeo los distingue y que diferir
+apaga uno y no el otro — un chequeo que no falla contra el defecto no vale nada.
+
+Correr `verificar_purga_completa` **purgó de paso 3 clínicas de prueba reales**
+que llevaban días atascadas en `ventana_purga`: evidencia directa de que el
+defecto estaba frenando purgas, no solo de que podía.
+
+### Para antes del próximo despliegue
+
+`npm run purga-pendiente` — **solo lectura** (abre `BEGIN TRANSACTION READ ONLY`).
+Lista las clínicas que la purga va a eliminar en la próxima corrida, las que
+tienen fecha futura, cuáles presentan el síntoma de D-006 y si la migración 092
+está aplicada. Se probó que **detecta**, no solo que imprime «ninguna»: se creó
+una clínica pendiente descartable y la listó.
+
+No hay variante `:prod` compilada a propósito: `tsconfig.build.json` excluye
+`src/scripts`, así que `node dist/scripts/…` sería un comando roto justo en el
+momento en que más importa que funcione.

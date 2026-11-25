@@ -13,6 +13,7 @@ import {
   TIPOS_IDENTIFICACION,
   UNIDADES_MEDIDA,
 } from "./catalogos";
+import { ResultadoCargaCabys, cargarCabys } from "./cabys";
 
 // ---------------------------------------------------------------------
 // Carga de los catálogos oficiales en las tablas `fact_cat_*`.
@@ -31,10 +32,11 @@ import {
 //     y siguen sirviendo para leer lo ya emitido. Es el mismo criterio
 //     que el estado "discontinuado" de los agentes (migración 062).
 //
-//   * No carga CABYS. El catálogo de bienes y servicios no viene en los
-//     anexos: Hacienda lo publica aparte, como archivo de datos, y no se
-//     pudo descargar (ver `docs/facturacion/fuentes/LEEME.md`). La tabla
-//     `fact_cat_cabys` queda vacía y esta función lo reporta.
+//   * CABYS se carga, pero de OTRA fuente y por eso tiene su propio
+//     módulo (`cabys.ts`): no viene en los anexos de Hacienda sino en una
+//     planilla del Banco Central. Entra por acá para que sea el mismo
+//     comando idempotente que el resto, que es lo que hace que
+//     actualizarlo sea una sola cosa y no dos.
 // ---------------------------------------------------------------------
 
 export interface ResultadoCarga {
@@ -112,10 +114,16 @@ async function cargarTabla(
   return { tabla, insertados, actualizados, desactivados: desactivados.rowCount ?? 0 };
 }
 
-export async function cargarCatalogosFacturacion(db: Ejecutor): Promise<{
+export interface ResultadoCatalogos {
   resultados: ResultadoCarga[];
+  /** `null` si la planilla del BCCR no está; el detalle de la carga si sí. */
+  cabys: ResultadoCargaCabys | null;
+  /** Por qué no se pudo cargar CABYS, cuando no se pudo. */
+  cabysMotivo?: string;
   cabysVacio: boolean;
-}> {
+}
+
+export async function cargarCatalogosFacturacion(db: Ejecutor): Promise<ResultadoCatalogos> {
   const resultados: ResultadoCarga[] = [];
 
   resultados.push(
@@ -269,6 +277,22 @@ export async function cargarCatalogosFacturacion(db: Ejecutor): Promise<{
     )
   );
 
-  const cabys = await db.query<{ n: string }>("SELECT count(*)::text AS n FROM fact_cat_cabys");
-  return { resultados, cabysVacio: cabys.rows[0].n === "0" };
+  // CABYS va al final: es el más grande (más de veinte mil filas) y
+  // depende de `fact_cat_tarifa_iva`, que se cargó más arriba — la FK de
+  // `codigo_tarifa_iva_sugerido` apunta ahí.
+  let cabys: ResultadoCargaCabys | null = null;
+  let cabysMotivo: string | undefined;
+  try {
+    cabys = await cargarCabys(db);
+  } catch (err) {
+    // Que falte la planilla NO tumba la carga de los otros doce
+    // catálogos: son independientes, y dejar los doce sin cargar por un
+    // archivo ausente convertiría un problema chico en uno grande.
+    cabysMotivo = (err as Error).message;
+  }
+
+  const cuenta = await db.query<{ n: string }>(
+    "SELECT count(*)::text AS n FROM fact_cat_cabys WHERE activo = true"
+  );
+  return { resultados, cabys, cabysMotivo, cabysVacio: cuenta.rows[0].n === "0" };
 }

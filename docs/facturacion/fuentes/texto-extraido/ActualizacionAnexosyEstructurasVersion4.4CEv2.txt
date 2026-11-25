@@ -1,0 +1,54 @@
+Comunica
+Actualización de los Anexos y Estructuras versión 4.4
+y validación de comprobantes electrónicos
+El Ministerio de Hacienda y su Dirección General de Tributación, comunica
+que como parte de los esfuerzos que aseguren la calidad de la
+información que se genera desde los comprobantes electrónicos, para
+fortalecer los procesos para un mejor cumplimiento tributario, se ha
+actualizado el documento de Anexos y Estructuras versión 4.4. incluyendo
+entre sus principales ajustes, las siguientes:
+• Ajuste en la descripción de los campos relacionados con el número
+de identificación, aclarando que se permite el uso de cédulas
+jurídicas alfanuméricas para Sociedades, conforme a las
+disposiciones del Registro Nacional, cuando este así lo comunique.
+• Incorporación de los siguientes nuevos códigos y documentos de
+referencia, con el fin de mejorar la trazabilidad de las operaciones.
+➢ Se incluyen en la nota 9 los códigos 13, 14 y 15, para efectos de
+reflejar su efecto contable en el período que corresponda.
+➢ Se incluyen en la nota 9 los códigos 16 y 17 para la correcta
+referencia a un comprobante electrónico rechazado, así
+como la aplicación de un pago en un Recibo Electrónico.
+➢ Se ajusta el código 12 para la correcta aplicación de los
+efectos contables del crédito.
+
+-- 1 of 2 --
+
+➢ Se incluyen en la nota 10 los códigos 19 y 20 para facilitar la
+correcta referencia a los comprobantes electrónicos “Factura
+Electrónica de Exportación” y “Recibo Electrónico de Pago”
+cuando se requiera.
+➢ Los nuevos códigos deberán implementarse en los sistemas
+de emisión de comprobantes electrónicos a partir del 1.º de
+noviembre del presente año. No obstante, antes de dicha
+fecha, los obligados tributarios que ya tengan
+implementados los cambios en sus sistemas podrán iniciar
+con su uso cuando así lo deseen.
+➢ El ajuste ya se encuentra disponible tanto en el ambiente de
+pruebas (STAG), como en el ambiente de producción.
+• Mejora general en la descripción de campos, con el fin de facilitar
+el correcto llenado y comprensión de uso de estos.
+Los documentos funcionales y técnicos actualizados se encuentran
+disponibles en el portal público de la Oficina Virtual OVi de TRIBUCR, bajo
+el título “Anexos y Estructuras” del apartado “Comprobantes Electrónicos
+y Tico Factura”.
+Se recuerda que, para recibir información y asistencia en el proceso
+operativo de comprobantes electrónicos, se encuentran a su disposición
+el portal público de la Oficina Virtual OVi en TRIBUCR, así como la
+plataforma virtual InfoyAsistencia, su Chatbot, o bien al teléfono 2539
+4000.
+En caso de presentarse cualquier inquietud tecnológica o incidente sobre
+comprobantes electrónicos, puede comunicarse al correo electrónico
+facturati@hacienda.go.cr.
+
+-- 2 of 2 --
+

@@ -1,0 +1,10 @@
+# Las fuentes oficiales de Hacienda y los XSD con que se valida cada
+# comprobante se guardan BYTE A BYTE. `docs/facturacion/fuentes/
+# sumas.sha256` verifica su sha256, y si Git normalizara los finales de
+# línea al clonar en Windows, los hashes dejarían de coincidir y la
+# verificación perdería todo sentido.
+#
+# `-text` desactiva cualquier conversión de finales de línea; no los marca
+# como binarios, así que los XSD siguen apareciendo en los diff.
+docs/facturacion/fuentes/** -text
+backend/esquemas/** -text

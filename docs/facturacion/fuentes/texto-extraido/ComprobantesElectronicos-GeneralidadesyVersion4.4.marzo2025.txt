@@ -1,0 +1,377 @@
+Comprobantes Electrónicos
+y
+Versión 4.4
+Dirección General de Tributación
+Marzo 2025
+
+-- 1 of 20 --
+
+Art. 2, numeral 6: Decreto N° 44739-H del 08/11/2024
+• Es la evolución digital de la factura
+tradicional en papel, a un documento
+electrónico en formato XML, el cual es
+generado, expresado y transmitido en
+formato electrónico.
+• Respalda la venta y compra de
+mercancías así como, la prestación de
+servicios.
+• Garantiza la autenticidad de su origen y
+la integridad de su contenido.
+¿Qué es un
+Comprobante
+Electrónico?
+(CE)
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+
+-- 2 of 20 --
+
+Fundamento Legal
+Decreto N° 44739-H
+MH-DGT-RES-0027-2024
+• Decreto N° 44739-H. “Reglamento de Comprobantes
+Electrónicos para Efectos Tributarios”.
+08 de Noviembre 2024
+• MH-DGT-RES-0027-2024. “Resolución General sobre las
+disposiciones técnicas de los comprobantes electrónicos para
+efectos tributarios”. Estructura versión 4.4
+19 de noviembre de 2024
+• MH-DGT-RES-0001-2025. “Modificación al Transitorio I de
+la resolución MH-DGT-RES-0027-2024”
+13 de febrero del 2025
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Siguiente
+
+-- 3 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+• Se explica el uso del comprobante
+electrónico
+Recibo Electrónico de Pago
+• Privados
+• TICOFACTURA
+Sistemas para la emisión de
+comprobantes electrónicos
+• No requieren Notas de Crédito
+Comprobantes Rechazados
+por el MH
+• Interpretes Indígenas
+• Recibir Donaciones
+Nuevas excepciones de la
+obligación de emitir y
+confirmar Comprobantes
+Electrónicos
+Arts 2,7,9,10 y 16 Decreto N° 44739-H del 08/11/2024
+Ajustes al Reglamento
+
+-- 4 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Resolución Disposiciones Técnicas
+de Comprobantes Electrónicos
+Novedades y Mejoras
+Anexos y
+Estructuras
+con Versión
+4.4
+Detalle de
+estructura
+para clave y
+consecutivo a
+Anexos
+Ajustes
+conceptuales
+generales en
+línea con el
+Reglamento
+Implementación
+Uso obligatorio
+versión 4.4:
+1 de setiembre
+2025
+Uso voluntario
+versión 4.4:
+1 de Abril 2025
+Período de
+convivencia de
+versiones: 1 Abril al
+01 Setiembre
+Plataforma de
+validación:
+Aceptará 4.3 y 4.4
+
+-- 5 of 20 --
+
+Tipos de participantes en CE
+Emisor
+Receptor
+Electrónic
+o
+Emisor
+Receptor
+Electrónic
+o No
+Confirman
+te
+Receptor
+Electrónic
+o No
+Emisor
+Proveedor
+es de
+Sistemas
+de CE
+Receptor
+Manual *
+* Comprador que no es emisor ni receptor de CE
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+
+-- 6 of 20 --
+
+Tipos de comprobantes electrónicos
+Art. 2, numerales 12, 13, 14, 19, 23 y 25: Decreto N°
+44739-H del 08/11/2024
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Factura electrónica	
+Tiquete electrónico
+Factura electrónica de compra
+Factura electrónica de compra
+Factura electrónica de exportación
+Factura electrónica de exportación
+Nota de Crédito y Nota de Débito Electrónicas
+Nota de Crédito y Nota de Débito Electrónicas
+Recibo electrónico de pago
+Recibo electrónico de pago
+Factura electrónica Tiquete electrónico .
+Factura electrónica de
+compra.
+Factura electrónica de
+exportación
+Nota de Crédito y Nota de
+Débito Electrónicas.
+Recibo electrónico de
+pago
+Siguiente
+
+-- 7 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Factura Electrónica
+Encabezado
+Tipo de Identificación
+de No Domiciliados
+•En datos del receptor
+venta Mercancía no
+nacionalizada. Ejemplo:
+Ventas Sucesivas.
+ID del Proveedor del
+Sistema de emisión de
+Comprobantes.
+•Desarrollos propios o
+proveedor internacional,
+se usa la ID del OT
+Actividad Económica
+del Receptor en Factura
+Electrónica
+• Uso opcional
+solamente si el
+receptor lo requiere.
+Registro fiscal de
+bebidas Alcohólicas Ley
+8707
+•Código que asigna
+Aduanas a Fabricantes,
+Importadores y
+Distribuidores.
+Tipos de Condición de
+la Venta
+•Venta Mercancía No
+Nacionalizada
+Plazo del Crédito
+•Para ser usado en días.
+
+-- 8 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Tipo de Transacción
+Opcional
+Operaciones con
+tratamientos
+tributarios
+específicos
+Campos
+especiales
+Número VIN:
+CAByS de
+Vehículos
+Registro
+Medicamentos y
+Forma
+Farmacéutica:
+CAByS
+Factura Electrónica
+Detalle de Mercancía y Servicio Prestado
+Descuentos,
+regalías o
+bonificaciones
+Para calculo del
+IVA
+Desglose de
+Surtidos
+Preparados desde la
+fábrica, distribuidor e
+importador con
+distintas tarifas de IVA.
+
+-- 9 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Impuestos
+específicos y a
+nivel de fábrica
+Campos para
+su cálculo
+Uso Obligatorio
+Apartado de
+Impuestos
+Nuevos códigos
+para No Sujetos
+y Exentos de IVA
+Factura Electrónica
+Detalle de Mercancía y Servicio Prestado
+Campos en
+Exoneraciones
+Se codifican las
+Instituciones
+Ley / Artículo / Inciso
+Campo Impuestos
+Asumidos por el
+Emisor
+Regalías o Bonificaciones
+/ Impuestos Específicos /
+IVA a nivel de Fábrica
+
+-- 10 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Medios de Pago
+Nuevos: SINPE MOVIL y Plataformas
+Digitales.
+Desglose del monto pagado por cada
+medio utilizado.
+Desglose de Impuestos Cobrados
+Se detallarán los montos cobrados por cada tipo de impuesto
+Totales de Mercancías y Servicios
+Se clasificarán por medio del CAByS Condición: Se totalizarán respecto al IVA
+Tipo de Moneda y Tipo de Cambio Obligatorios
+Colones = 1 USD= Tipo Cambio de
+Venta – BCCR
+Otros= Tipo de cambio
+respecto a colones.
+Factura Electrónica
+Totales y Resúmenes
+
+-- 11 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Información de Referencia
+Al aplicar una exoneración por Autorización de Impuesto Local Concreta – DGH-
+Documento que pruebe la Venta de Mercancía No Nacionalizada
+Mecanismos de Seguridad – Firma Electrónica
+Endoso de la Factura (Endosante y Endosatario)
+Factoring y Ventas a Crédito
+Ámbito Comercial – No deben ser enviadas para validar
+Factura Electrónica
+Regresar
+
+-- 12 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Tiquete Electrónico
+Tipo de Identificación de No Domiciliados
+•En datos del receptor para la venta a extranjeros visitantes. Ejemplo: Turistas.
+
+-- 13 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Factura Electrónica de Compra
+Tipo de Identificación de No Domiciliados
+• En datos del emisor
+• Compras de servicios o bienes intangibles
+a Proveedores No Domiciliados (Inversión
+del Sujeto Pasivo).
+Tipo de Identificación de No Contribuyente
+• En datos del emisor
+• Compras de bienes usados a No
+contribuyentes
+
+-- 14 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Información de Referencia
+Este apartado se vuelve estrictamente obligatorio en este comprobante:
+Comprobantes Físicos de Regímenes Especiales
+El tipo de documento de referencia “Comprobante de Proveedor No Domiciliado” habilita el uso del tipo
+de Identificación de Extranjero No Domiciliado es de uso exclusivo para la Factura Electrónica de
+Compra
+Factura Electrónica de Compra
+Regresar
+
+-- 15 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Factura Electrónica de Exportación
+Tipo de Identificación de No
+Domiciliados Sustituye anterior campo de
+Identificación en caso que el receptor
+sea extranjero.
+Partida Arancelaria Sólo CAByS de Mercancías
+
+-- 16 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Notas de Crédito y Débito Electrónicas
+Regresar
+Información de Referencia
+Este apartado se vuelve estrictamente obligatorio en este comprobante:
+Clave Numérica obligatoria en caso de hacer referencia a un CE
+Códigos de Referencia para Notas de Crédito o Debito Financieras
+Código de Referencia para Notas de Crédito y Débito a Factura Electrónica de Compra
+
+-- 17 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Recibo Electrónico de Pago
+Condición de la venta:
+• Contribuyentes en Su condición de trabajadores independientes, prestadores de servicios profesionales,
+micro, pequeñas y medianas empresas o productores inscritos ante el Ministerio de Economía, Industria y
+Comercio o el Ministerio de Agricultura y Ganadería
+Venta a crédito en IVA hasta 90 días (Artículo 27, LIVA)
+• Artículo 3- Momento en que ocurre el hecho generador.
+Servicios prestados al Estado
+
+-- 18 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Recibo Electrónico de Pago
+Regresar
+Información de Referencia
+Este apartado se vuelve estrictamente obligatorio en este comprobante:
+Obligatoria: Clave Numérica de la Factura Original
+Se usa para hacer referencia a un REP que se esté eliminando
+
+-- 19 of 20 --
+
+Ministerio de Hacienda / Gobierno de Costa Rica / Dirección General de Tributación
+Métodos de contingencia en la emisión de C
+Comprobantes Electrónicos
+Planes de contingencia
+y de Continuidad del
+Negocio
+Validador fuera
+de servicio
+Comprobantes
+preimpresos por
+contingencia
+
+-- 20 of 20 --
+

@@ -1,0 +1,381 @@
+Guía de uso para IdP
+Comprobantes Electrónicos
+Este documento intenta apoyar al lector en el proceso de interactuar con el Iden-
+tity Provider (IdP) de la plataforma de Recepción de Comprobantes Electrónicos
+del Ministerio de Hacienda. Le guiará por un paso a paso con información como
+¿dónde se encuentra el IdP?, ¿cómo consumirlo?, ¿cuáles estándares se utilizan?
+Le explicará con imágenes y ejemplos que le permitirán tener una mayor claridad
+del funcionamiento.
+Se le recomienda al lector leer primero la documentación de la plataforma antes
+de continuar con esta guía. La documentación oficial se encuentra en el URL:
+https://tribunet.hacienda.go.cr/FormatosYEstructurasXML.jsp
+La última versión al momento de escribir este documento es la 4.2, dar principal
+atención al Anexo #3 del documento de Anexos.
+1-12
+
+-- 1 of 12 --
+
+¿Qué es el IdP de Comprobantes Electrónicos?
+Un IdP en inglés significa Identity Provider, este se encarga de los procesos de au-
+tenticación en la plataforma. Hay varios tipos de IdP y para varias funciones, por
+ejemplo el IdP se podría utilizar para proteger un sitio web, en este caso, al tratar
+de accesar el sitio web este redireccionaría al IdP para que le solicite los creden-
+ciales y luego el IdP lo envía de regreso al sitio web ya con una sesión creada.
+El funcionamiento con el servicio REST API de Recepción de Comprobantes Elec-
+trónicos sería similar, para poder consumir el servicio se necesita previamente te-
+ner una sesión en el IdP. Esta sesión no sería con una pantalla de login, sino que es
+para interacción con APIs.
+La plataforma trabaja utilizando un modelo de seguridad con OpenID Connect
+(OIDC), este es una capa de identidad arriba del estándar RFC6749 The OAuth
+2.0 Authorization Framework. El OIDC utiliza el estándar RFC7519 JSON Web Token
+(JWT), para almacenar la información de la sesión dentro del token del OAuth 2.0.
+El Grant Type utilizado por el IdP para autenticar usuarios es el Resource Owner
+Password Credential.
+Ahora sí, ¿qué quiere decir el párrafo anterior? Básicamente lo que nos interesa
+entender es que el modelo de seguridad utilizado en la plataforma es una exten-
+sión del OAuth 2.0, y que para la mayoría de los casos se comporta como un OAu-
+th 2.0. El hecho de que sea OpenID Connect agrega funcionalidad interesante
+pero lo único que nos importa de este es usar la función de logout y utilizar los JWT
+dentro de los token del OAuth 2.0.
+OAuth 2.0 	2-12
+
+-- 2 of 12 --
+
+El OAuth 2.0 tiene varios tipos de Grants y funcionalidades, como lo indica la do-
+cumentación del Anexo #3, necesitamos utilizar el Resource Owner Password Cre-
+dential Grant del Auth 2.0. En este es que debemos concentrarnos, sin embargo,
+si les recomiendo por cultura general leer el documento del estándar para que
+tengan una idea más completa, y porque toda la documentación no va a estar
+solamente en la sección de este grant, hay flujos y términos que se encuentran en
+otras secciones y se van complementando conforme se lee el estándar.
+Resource Owner Password Credential Grant
+El OAuth 2.0 tiene varios tipos de Grants, el que se debe utilizar es el Resource Ow-
+ner Password Credential Grant.
+La documentación del OAuth 2.0 indica que para el Resource Owner Password
+Credential Grant se deben utilizar unas credenciales, estos son las credenciales
+que se generan desde el sistema ATV del Ministerio de Hacienda, serían usuario y
+contraseña. Hay dos ambientes, producción y sandbox, las credenciales son dife-
+rentes para cada ambiente y se deben generar para cada uno.
+Utilizando la documentación del OAuth 2.0 y el Anexo #3 de la documentación de
+la plataforma, se obtiene que para obtener un token se debe enviar un payload
+de tipo application/x-www-form-urlencoded que contenga los campos:
+• grant_type
+• client_id
+• username
+• password
+Este debe responder con un payload en application/json;charset=UTF-8 donde se
+indicará al menos los atributos:
+• access_token
+• refresh_token
+Estos dos token son realmente un JSON Web Token, esto es parte de lo que se ex-
+tiende al utilizar el OpenID Connect.
+En una sección más adelante ya se mostrará con ejemplos reales como quedaría
+este payload y la respuesta que se obtiene.
+3-12
+
+-- 3 of 12 --
+
+JSON Web Token
+JSON Web Token es un estándar abierto (RFC 7519) que define una forma segura
+de transmitir información como un JSON Object. La información puede ser valida-
+da y confiable porque está firmada digitalmente, el IdP se encarga de firmarlos.
+Una ventaja muy importante de utilizar JWT es que este contiene toda la informa-
+ción requerida del usuario, evitando que sea necesario consultar un repositorio de
+datos cada vez.
+En este caso para la plataforma, el JWT se utiliza principalmente de forma interna,
+pero es importante entender cómo funciona en caso de querer obtener alguna
+información del JWT como el tiempo de expiración del token, que igualmente se
+puede obtener al momento de generarlo el token en la respuesta del OAuth 2.0.
+eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJlNmE3MDczZS01MjUzLTQyMWEtYjA5ZS1hZmI2NjQ2NmU3YzQiLCJleHAiO-
+jE1MTQ0MDM5MzAsIm5iZiI6MCwiaWF0IjoxNTE0NDAzNjMwLCJpc3MiOiJodHRwczovL2lkcC5jb21wcm9i-
+YW50ZXNlbGVjdHJvbmljb3MuZ28uY3IvYXV0aC9yZWFsbXMvcnV0LXN0YWciLCJhdWQiOiJhcGktc3RhZ-
+yIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtNDg5Zi1iY2VkLWE5OGRkNTE2NzRmMSIsInR5cCI6IkJlYXJlciIsImF6cCI6Im-
+FwaS1zdGFnIiwic2Vzc2lvbl9zdGF0ZSI6Ijc4MWNhMDU3LTE4NGYtNDNjZS1iMzdkLWY3NjY1ZDVhYzA4ZCI-
+sImNsaWVudF9zZXNzaW9uIjoiM2RkYjQzMzYtMWEzMS00ZWJkLTg2OWEtMWE1N2NjOTNjNTlhIiwiYWxsb3d-
+lZC1vcmlnaW5zIjpbXSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWF-
+jY291bnQiLCJ2aWV3LXByb2ZpbGUiXX19LCJuYW1lIjoiRkxFQ0hBIFJPSkEgVEVDSE5PTE9HSUVTIFNPQ0lFRE-
+FEIEFOT05JTUEgIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiY3BqLTMtMTAxLTI2MTUwNkBzdGFnLmNvbXByb-
+2JhbnRlc2VsZWN0cm9uaWNvcy5nby5jciIsImdpdmVuX25hbWUiOiJGTEVDSEEgUk9KQSBURUNITk9MT0d-
+JRVMgU09DSUVEQUQgQU5PTklNQSIsInBvbGljeS1pZCI6IjU4YTYyMDMzNzZlYWUxNDA4Y2U1ZTdkZCIsIm-
+VtYWlsIjoiY3BqLTMtMTAxLTI2MTUwNkBzdGFnLmNvbXByb2JhbnRlc2VsZWN0cm9uaWNvcy5nby5jciJ9.
+GTZ7WXY5bCsBAU-E1OsFglkA38XwmZ82AkAAS4RrMM8VKWJxZG4HvMVm44MMzBmciwBJI6Uu94lp-PRYM-
+GYtoARK3V43SKdx_QLqPEWXa0wkrkNRRhHtimTIX6pvY_e7v6b6UOrPhxBPFyNLiNitW2IsR-o4bQMtEB4d7gJ_Gen-
+gw5Ii_y-Y78eBL2fFGXEQJN-6UFMllmY8oNdTZbq6p-bKhfoqOJ5OAEwbqK5cOXnHUK91POz5axWHyvxGl879wS-
+FaN98CXG_6XdbpiYLNAd_NsDH7Aza1Z40F_Zx1nimIf9Na_1KAKhRW_NbRbwoTKeRx1Z3Y3YuKhHFpfvjMAA
+Para ver la información del JWT se puede utilizar el decoder del sitio web
+https://jwt.io/.
+Interacción con el IdP
+A continuación, se muestra la información necesaria para interactuar con los dos
+ambientes (Realms) que expone el IdP de la plataforma, estos dos ambientes son:
+• Producción
+• Sandbox / Staging
+4-12
+
+-- 4 of 12 --
+
+TIP: Los body o payload a enviar para interactuar con el IdP son de tipo
+x-www-form-urlencoded, y el IdP normalmente va a responder con application/
+json.
+En la siguiente sección se explicará cómo utilizar el token que se obtuvo, esta sec-
+ción se enfoca principalmente en la interacción con el IdP para mayor claridad.
+Para interactuar con el IdP se van a utilizar principalmente 3 procesos:
+• 	Obtener un token
+• 	Refrescar un token
+• 	Cerrar sesión
+Los pasos a continuación se van a explicar utilizando el IdP con el Realm de San-
+dbox, para que funcione para Producción solo sería necesario cambiar el TOKEN_
+URL y el client_id, y lógicamente usar las credenciales adecuados. El password en
+los ejemplos será sustituido al terminar este documento, por favor no ejecutar los
+comandos ya que les darán error, estos son principalmente con fines ilustrativos y
+para que el lector los pueda modificar para sus necesidades.
+TIP: Los password que da el ATV son cadenas de caracteres de aproximadamen-
+te un largo de 20, y pueden tener caracteres especiales. El body o payload que
+se envía al IdP es de tipo x-www-form-urlencoded, esto quiere decir que se debe
+revisar que vayan bien codificados los form fields, los caracteres especiales del
+password si se envían en PLAIN podrían dar errores indicando que los credenciales
+son inválidos.
+Para cada proceso se mostrará la petición HTTP con cURL, HTTPie y el PLAIN HTTP,
+poner atención a como se ve el password en el PLAIN HTTP para tener claro el
+tema del x-www-form-urlencoded. Y se mostrará el output recibido únicamente
+del HTTPie para que sea más visual.
+¿Cómo obtener un token?
+Para obtener un token se debe enviar una petición HTTP POST al TOKEN_URL con
+los siguientes form fields:
+5-12
+
+-- 5 of 12 --
+
+Algunas librerías o plataformas podrían solicitar el scope o el client_secret, en este
+caso se dejan en blanco, no son necesarias.
+cURL, obtener token:
+curl -X “POST” “https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/ope-
+nid-connect/token” \
+-H ‘Content-Type: application/x-www-form-urlencoded; charset=utf-8’ \
+--data-urlencode “client_id=api-stag” \
+--data-urlencode “username=cpj-3-101-261506@stag.comprobanteselectronicos.go.cr” \
+--data-urlencode ‘password=W$/JX/AS@K);1]I;u|+6’ \
+--data-urlencode “grant_type=password”
+HTTPie, obtener token:
+http --form POST ‘https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/ope-
+nid-connect/token’ \
+‘Content-Type’:’application/x-www-form-urlencoded; charset=utf-8’ \
+‘client_id’=’api-stag’ \
+‘username’=’cpj-3-101-261506@stag.comprobanteselectronicos.go.cr’ \
+‘password’=’W$/JX/AS@K);1]I;u|+6’ \
+‘grant_type’=’password’
+PLAIN HTTP, obtener token:
+POST /auth/realms/rut-stag/protocol/openid-connect/token HTTP/1.1
+Content-Type: application/x-www-form-urlencoded; charset=utf-8
+Host: idp.comprobanteselectronicos.go.cr
+Connection: close
+User-Agent: Paw/3.1.5 (Macintosh; OS X/10.13.2) GCDHTTPRequest
+Content-Length: 152
+grant_type=password&client_id=api-stag&username=cpj-3-101-261506%40stag.comprobantese-
+lectronicos.go.cr&password=W%24%2FJX%2FAS%40K%29%3B1%5DI%3Bu%7C%2B6
+Y se obtiene la siguiente respuesta:
+6-12
+
+-- 6 of 12 --
+
+En la respuesta obtenida nos interesa principalmente los siguientes atributos:
+¿Cómo refrescar un token?
+Para refrescar un token se debe enviar una petición HTTP POST al TOKEN_URL con
+los siguientes form fields:
+cURL, refrescar un token:
+curl -X “POST” “https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/ope-
+nid-connect/token” \
+-H ‘Content-Type: application/x-www-form-urlencoded; charset=utf-8’ \
+--data-urlencode “client_id=api-stag” \
+--data-urlencode “refresh_token=eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJjYWU2MGJiMS02OWYxL-
+TQ3MmYtYTE0NC03Y2EzOWI5MjY3NzIiLCJleHAiOjE1MTQ0MDg5MjQsIm5iZiI6MCwiaWF0IjoxN-
+TE0NDA3MTI0LCJpc3MiOiJodHRwczovL2lkcC5jb21wcm9iYW50ZXNlbGVjdHJvbmljb3MuZ28uY3I-
+vYXV0aC9yZWFsbXMvcnV0LXN0YWciLCJhdWQiOiJhcGktc3RhZyIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtN-
+Dg5Zi1iY2VkLWE5OGRkNTE2NzRmMSIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJhcGktc3RhZyIsInNlc3Np-
+b25fc3RhdGUiOiI0ZGUzZjY5Zi00OTFiLTQ1NWEtYmUxYi1iMDYyZTQwNmM5NjIiLCJjbGllbnRfc2Vz-
+c2lvbiI6ImM5NDU5YzlmLTU5OTAtNGY3OC05ZjMyLTUzOTU0OWM2ZmY0OCIsInJlc291cmNlX2F-
+jY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50Iiwidmlldy1wcm9maWxlIl19fX0.
+J8ENu7MMNIMlZTon-wbcGH0CIylfoPlJLjyt6wcvkkbKgdgtPtYQw3vyEBwl23Jos5w0vQKtrJ7CpuUk8H-
+vZbuNUifbf4t8MKystkXdYgT6YnT3uBkL9zPsOVBeBLWRuKM3MFhspssCZ7nafXTxRAmQ0rxs81jZYhCy-
+dzyVu9UIW5VW8bu-YyBPVKpEx6-D5s5cp4132Dp7ZMzPaeNvkRdhQr9UL9KdzOEo5RqZZ85TZZrhQYR-
+XheUPH_JOwuJP3WntNmhReXWzBX6RH4zCnse1yzYnb4DR2LbfikBjPIPU6EH3BzpKBjZdXqGzwQUAhS-
+MJWS_m1rTw0eDDp3Jdi6Q” \
+--data-urlencode “grant_type=refresh_token”
+HTTPie, refrescar un token:
+http --form POST ‘https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/ope-
+nid-connect/token’ \
+‘Content-Type’:’application/x-www-form-urlencoded; charset=utf-8’ \
+‘client_id’=’api-stag’ \ 7-12
+
+-- 7 of 12 --
+
+‘refresh_token’=’eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJjYWU2MGJiMS02OWYxLTQ3MmYtYTE0N-
+C03Y2EzOWI5MjY3NzIiLCJleHAiOjE1MTQ0MDg5MjQsIm5iZiI6MCwiaWF0IjoxNTE0NDA3MTI0L-
+CJpc3MiOiJodHRwczovL2lkcC5jb21wcm9iYW50ZXNlbGVjdHJvbmljb3MuZ28uY3IvYXV0a-
+C9yZWFsbXMvcnV0LXN0YWciLCJhdWQiOiJhcGktc3RhZyIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtND-
+g5Zi1iY2VkLWE5OGRkNTE2NzRmMSIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJhcGktc3RhZyIsInNlc3Np-
+b25fc3RhdGUiOiI0ZGUzZjY5Zi00OTFiLTQ1NWEtYmUxYi1iMDYyZTQwNmM5NjIiLCJjbGllbnRfc2Vz-
+c2lvbiI6ImM5NDU5YzlmLTU5OTAtNGY3OC05ZjMyLTUzOTU0OWM2ZmY0OCIsInJlc291cmNlX2F-
+jY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50Iiwidmlldy1wcm9maWxlIl19fX0.
+J8ENu7MMNIMlZTon-wbcGH0CIylfoPlJLjyt6wcvkkbKgdgtPtYQw3vyEBwl23Jos5w0vQKtrJ7CpuUk8H-
+vZbuNUifbf4t8MKystkXdYgT6YnT3uBkL9zPsOVBeBLWRuKM3MFhspssCZ7nafXTxRAmQ0rxs81jZYhCy-
+dzyVu9UIW5VW8bu-YyBPVKpEx6-D5s5cp4132Dp7ZMzPaeNvkRdhQr9UL9KdzOEo5RqZZ85TZZrhQYR-
+XheUPH_JOwuJP3WntNmhReXWzBX6RH4zCnse1yzYnb4DR2LbfikBjPIPU6EH3BzpKBjZdXqGzwQUAhS-
+MJWS_m1rTw0eDDp3Jdi6Q’ \
+‘grant_type’=’refresh_token’
+PLAIN HTTP, refrescar un token:
+POST /auth/realms/rut-stag/protocol/openid-connect/token HTTP/1.1
+Content-Type: application/x-www-form-urlencoded; charset=utf-8
+Host: idp.comprobanteselectronicos.go.cr
+Connection: close
+User-Agent: Paw/3.1.5 (Macintosh; OS X/10.13.2) GCDHTTPRequest
+Content-Length: 1009
+grant_type=refresh_token&client_id=api-stag&refresh_token=eyJhbGciOiJSUzI1NiJ9.ey-
+JqdGkiOiJjYWU2MGJiMS02OWYxLTQ3MmYtYTE0NC03Y2EzOWI5MjY3NzIiLCJleHAiOjE1M-
+T Q 0 M D g 5 M j Q s I m 5 i Z i I 6 M C w i a W F 0 I j o x N T E 0 N D A 3 M T I 0 L C J p c 3 M i O i J o d H R w c z o v L 2 l k c C -
+5jb21wcm9iYW50ZXNlbGVjdHJvbmljb3MuZ28uY3IvYXV0aC9yZWFsbXMvcnV0LXN0YWciLC-
+JhdWQiOiJhcGktc3RhZyIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtNDg5Zi1iY2VkLWE5OGRkNTE2NzR-
+mMSIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJhcGktc3RhZyIsInNlc3Npb25fc3RhdGUiOiI0ZGUzZ-
+jY5Zi00OTFiLTQ1NWEtYmUxYi1iMDYyZTQwNmM5NjIiLCJjbGllbnRfc2Vzc2lvbiI6ImM5NDU5Yzl-
+mLTU5OTAtNGY3OC05ZjMyLTUzOTU0OWM2ZmY0OCIsInJlc291cmNlX2FjY2VzcyI6eyJhY -
+2 N v d W 5 0 I j p 7 I n J v b G V z I j p b I m 1 h b m F n Z S 1 h Y 2 N v d W 5 0 I i w i d m l l d y 1 w c m 9 m a W x l I l 1 9 f X 0 .
+J8ENu7MMNIMlZTon-wbcGH0CIylfoPlJLjyt6wcvkkbKgdgtPtYQw3vyEBwl23Jos5w0vQKtrJ7CpuUk8H-
+vZbuNUifbf4t8MKystkXdYgT6YnT3uBkL9zPsOVBeBLWRuKM3MFhspssCZ7nafXTxRAmQ0rxs81jZYhCy-
+dzyVu9UIW5VW8bu-YyBPVKpEx6-D5s5cp4132Dp7ZMzPaeNvkRdhQr9UL9KdzOEo5RqZZ85TZZrhQYR-
+XheUPH_JOwuJP3WntNmhReXWzBX6RH4zCnse1yzYnb4DR2LbfikBjPIPU6EH3BzpKBjZdXqGzwQUAhS-
+MJWS_m1rTw0eDDp3Jdi6Q
+Y se obtiene la siguiente respuesta:
+8-12
+
+-- 8 of 12 --
+
+La respuesta obtenida es prácticamente la misma del proceso anterior de obte-
+ner un token, acá lo que se hace es igualmente obtener un token pero por medio
+de un refresh_token. Nos interesa principalmente los siguientes atributos:
+¿Cómo cerrar sesión? (Eliminar el token)
+Para cerrar sesión se debe enviar una petición HTTP POST al LOGOUT_URL con los
+siguientes form fields:
+9-12
+
+-- 9 of 12 --
+
+cURL, cerrar sesión:
+curl -X “POST” “https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/ope-
+nid-connect/logout” \
+-H ‘Content-Type: application/x-www-form-urlencoded; charset=utf-8’ \
+--data-urlencode “client_id=api-stag” \
+--data-urlencode “refresh_token=eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJjYWU2MGJiMS02OWYxL-
+TQ3MmYtYTE0NC03Y2EzOWI5MjY3NzIiLCJleHAiOjE1MTQ0MDg5MjQsIm5iZiI6MCwiaWF0IjoxN-
+TE0NDA3MTI0LCJpc3MiOiJodHRwczovL2lkcC5jb21wcm9iYW50ZXNlbGVjdHJvbmljb3MuZ28uY3I-
+vYXV0aC9yZWFsbXMvcnV0LXN0YWciLCJhdWQiOiJhcGktc3RhZyIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtN-
+Dg5Zi1iY2VkLWE5OGRkNTE2NzRmMSIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJhcGktc3RhZyIsInNlc3Np-
+b25fc3RhdGUiOiI0ZGUzZjY5Zi00OTFiLTQ1NWEtYmUxYi1iMDYyZTQwNmM5NjIiLCJjbGllbnRfc2Vz-
+c2lvbiI6ImM5NDU5YzlmLTU5OTAtNGY3OC05ZjMyLTUzOTU0OWM2ZmY0OCIsInJlc291cmNlX2F-
+jY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50Iiwidmlldy1wcm9maWxlIl19fX0.
+J8ENu7MMNIMlZTon-wbcGH0CIylfoPlJLjyt6wcvkkbKgdgtPtYQw3vyEBwl23Jos5w0vQKtrJ7CpuUk8H-
+vZbuNUifbf4t8MKystkXdYgT6YnT3uBkL9zPsOVBeBLWRuKM3MFhspssCZ7nafXTxRAmQ0rxs81jZYhCy-
+dzyVu9UIW5VW8bu-YyBPVKpEx6-D5s5cp4132Dp7ZMzPaeNvkRdhQr9UL9KdzOEo5RqZZ85TZZrhQYR-
+XheUPH_JOwuJP3WntNmhReXWzBX6RH4zCnse1yzYnb4DR2LbfikBjPIPU6EH3BzpKBjZdXqGzwQUAhS-
+MJWS_m1rTw0eDDp3Jdi6Q”
+HTTPie, cerrar sesión:
+http --form POST ‘https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/ope-
+nid-connect/logout’ \
+‘Content-Type’:’application/x-www-form-urlencoded; charset=utf-8’ \
+‘client_id’=’api-stag’ \
+‘refresh_token’=’eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJjYWU2MGJiMS02OWYxLTQ3MmYtYTE0N-
+C03Y2EzOWI5MjY3NzIiLCJleHAiOjE1MTQ0MDg5MjQsIm5iZiI6MCwiaWF0IjoxNTE0NDA3MTI0L-
+CJpc3MiOiJodHRwczovL2lkcC5jb21wcm9iYW50ZXNlbGVjdHJvbmljb3MuZ28uY3IvYXV0a-
+C9yZWFsbXMvcnV0LXN0YWciLCJhdWQiOiJhcGktc3RhZyIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtND-
+g5Zi1iY2VkLWE5OGRkNTE2NzRmMSIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJhcGktc3RhZyIsInNlc3Np-
+b25fc3RhdGUiOiI0ZGUzZjY5Zi00OTFiLTQ1NWEtYmUxYi1iMDYyZTQwNmM5NjIiLCJjbGllbnRfc2Vz-
+c2lvbiI6ImM5NDU5YzlmLTU5OTAtNGY3OC05ZjMyLTUzOTU0OWM2ZmY0OCIsInJlc291cmNlX2F-
+jY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50Iiwidmlldy1wcm9maWxlIl19fX0.
+J8ENu7MMNIMlZTon-wbcGH0CIylfoPlJLjyt6wcvkkbKgdgtPtYQw3vyEBwl23Jos5w0vQKtrJ7CpuUk8H-
+vZbuNUifbf4t8MKystkXdYgT6YnT3uBkL9zPsOVBeBLWRuKM3MFhspssCZ7nafXTxRAmQ0rxs81jZYhCy-
+dzyVu9UIW5VW8bu-YyBPVKpEx6-D5s5cp4132Dp7ZMzPaeNvkRdhQr9UL9KdzOEo5RqZZ85TZZrhQYR-
+XheUPH_JOwuJP3WntNmhReXWzBX6RH4zCnse1yzYnb4DR2LbfikBjPIPU6EH3BzpKBjZdXqGzwQUAhS-
+MJWS_m1rTw0eDDp3Jdi6Q’
+PLAIN HTTP, cerrar sesión:
+POST /auth/realms/rut-stag/protocol/openid-connect/logout HTTP/1.1
+Content-Type: application/x-www-form-urlencoded; charset=utf-8
+Host: idp.comprobanteselectronicos.go.cr
+Connection: close
+User-Agent: Paw/3.1.5 (Macintosh; OS X/10.13.2) GCDHTTPRequest
+Content-Length: 984
+10-12
+
+-- 10 of 12 --
+
+client_id=api-stag&refresh_token=eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJjYWU2MGJiMS02OWYxLT-
+Q3MmYtYTE0NC03Y2EzOWI5MjY3NzIiLCJleHAiOjE1MTQ0MDg5MjQsIm5iZiI6MCwiaWF0IjoxNTE0N-
+DA3MTI0LCJpc3MiOiJodHRwczovL2lkcC5jb21wcm9iYW50ZXNlbGVjdHJvbmljb3MuZ28uY3IvYX-
+V0aC9yZWFsbXMvcnV0LXN0YWciLCJhdWQiOiJhcGktc3RhZyIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtND-
+g5Zi1iY2VkLWE5OGRkNTE2NzRmMSIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJhcGktc3RhZyIsInNlc3Np-
+b25fc3RhdGUiOiI0ZGUzZjY5Zi00OTFiLTQ1NWEtYmUxYi1iMDYyZTQwNmM5NjIiLCJjbGllbnRfc2Vz-
+c2lvbiI6ImM5NDU5YzlmLTU5OTAtNGY3OC05ZjMyLTUzOTU0OWM2ZmY0OCIsInJlc291cmNlX2F-
+jY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50Iiwidmlldy1wcm9maWxlIl19fX0.
+J8ENu7MMNIMlZTon-wbcGH0CIylfoPlJLjyt6wcvkkbKgdgtPtYQw3vyEBwl23Jos5w0vQKtrJ7CpuUk8H-
+vZbuNUifbf4t8MKystkXdYgT6YnT3uBkL9zPsOVBeBLWRuKM3MFhspssCZ7nafXTxRAmQ0rxs81jZYhCy-
+dzyVu9UIW5VW8bu-YyBPVKpEx6-D5s5cp4132Dp7ZMzPaeNvkRdhQr9UL9KdzOEo5RqZZ85TZZrhQYR-
+XheUPH_JOwuJP3WntNmhReXWzBX6RH4zCnse1yzYnb4DR2LbfikBjPIPU6EH3BzpKBjZdXqGzwQUAhS-
+MJWS_m1rTw0eDDp3Jdi6Q
+Y se obtiene la siguiente respuesta:
+Importante notar de esta respuesta que se obtiene un HTTP 204 No Content, esta es la
+respuesta correcta al cerrar sesión.
+Comunicación con la plataforma de Comprobantes Electrónicos
+En las secciones anteriores se explicó un poco ¿qué es?, ¿cómo funciona? y
+¿cómo interactuar? con el IdP, en esta sección se pretende explicar al lector
+como poner en práctica todo para comunicarse con la plataforma.
+Ya luego de haber entendido las secciones anteriores, esta es muy simple. Para
+interactuar con el API de Recepción de Comprobantes Electrónicos es necesario
+enviar un header en cada request, este header es el Authorization header. El con-
+tenido del Authorization header se obtiene concatenando el bearer_type + [un
+espacio] + access_token. Por ejemplo:
+Authorization: bearer
+eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJkNmVlYmE1OC1jNGNiLTQ4NmItYTZhMy04ZTk5M2ZjY2NlMj-
+giLCJleHAiOjE1MTQ0MDc0MjQsIm5iZiI6MCwiaWF0IjoxNTE0NDA3MTI0LCJpc3MiOiJodHRwczo-
+vL2lkcC5jb21wcm9iYW50ZXNlbGVjdHJvbmljb3MuZ28uY3IvYXV0aC9yZWFsbXMvcnV0LXN0YWc
+iLCJhdWQiOiJhcGktc3RhZyIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtNDg5Zi1iY2VkLWE5OGRkNTE2NzRmMSIsIn-
+R5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1zdGFnIiwic2Vzc2lvbl9zdGF0ZSI6IjRkZTNmNjlmLTQ5MWItNDU1Y-
+S1iZTFiLWIwNjJlNDA2Yzk2MiIsImNsaWVudF9zZXNzaW9uIjoiYzk0NTl 	11-12
+
+-- 11 of 12 --
+
+eyJqdGkiOiJkNmVlYmE1OC1jNGNiLTQ4NmItYTZhMy04ZTk5M2ZjY2NlMjgiLCJleHAiOjE1MT-
+Q0MDc0MjQsIm5iZiI6MCwiaWF0IjoxNTE0NDA3MTI0LCJpc3MiOiJodHRwczovL2lkcC5jb21wcm-
+9iYW50ZXNlbGVjdHJvbmljb3MuZ28uY3IvYXV0aC9yZWFsbXMvcnV0LXN0YWciLCJhdWQiOi-
+JhcGktc3RhZyIsInN1YiI6IjBlMjZlZGIzLTk5Y2YtNDg5Zi1iY2VkLWE5OGRkNTE2NzRmMSIsInR5cCI-
+6IkJlYXJlciIsImF6cCI6ImFwaS1zdGFnIiwic2Vzc2lvbl9zdGF0ZSI6IjRkZTNmNjlmLTQ5MWItNDU1Y-
+S1iZTFiLWIwNjJlNDA2Yzk2MiIsImNsaWVudF9zZXNzaW9uIjoiYzk0NTljOWYtNTk5MC00Zjc4LTlm-
+MzItNTM5NTQ5YzZmZjQ4IiwiYWxsb3dlZC1vcmlnaW5zIjpbXSwicmVzb3VyY2VfYWNjZXNzIjp7Im-
+FjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJ2aWV3LXByb2ZpbGUiXX19LCJu-
+YW1lIjoiRkxFQ0hBIFJPSkEgVEVDSE5PTE9HSUVTIFNPQ0lFREFEIEFOT05JTUEgIiwicHJlZmVycmVkX-
+3VzZXJuYW1lIjoiY3BqLTMtMTAxLTI2MTUwNkBzdGFnLmNvbXByb2JhbnRlc2VsZWN0cm9uaWNv-
+cy5nby5jciIsImdpdmVuX25hbWUiOiJGTEVDSEEgUk9KQSBURUNITk9MT0dJRVMgU09DSUVEQU-
+QgQU5PTklNQSIsInBvbGljeS1pZCI6IjU4YTYyMDMzNzZlYWUxNDA4Y2U1ZTdkZCIsImVtYWlsIjoi-
+Y3BqLTMtMTAxLTI2MTUwNkBzdGFnLmNvbXByb2JhbnRlc2VsZWN0cm9uaWNvcy5nby5jciJ9.
+IhVlTY0be_PjcqR9e0Aekd9STZZlcGz2NyawImaHzpHPX7SiZS_eNhXg8wNLoX0lk36APCyxmdtLE-
+d077ZdVkAUnc5vMiEBSVnFD2v02DXzhCvn3VmT3aTomLxqqpR5n4IHUPQDlT41PTSrvOBIMemoc-
+fm5VIqzNbeBPAS28qhJMYInSkVRyyQ6YLyS0fmGd9Rtqu7bnYx431QbFn5Z2rYXGD2JEZVkGnFptar-
+KXFFUdBzC_XjJQZZnA_I2aaCwS5xpr4ZjBSedPoJAfgkzfuDXCCN49Igt7KFSprN75TU6r3lr_TIS9LvzP-oD-
+lucnRPZRECs-_Qtx-tbbAyW2yJg
+Lo importante acá que se debe tener en cuenta es siempre enviar un access_
+token que no haya expirado, es por esto que desde la aplicación cliente que va
+a interactuar con la plataforma se debe manejar el ciclo de vida de la sesión.
+Ciclo de vida de la sesión
+La sesión se crea la primera vez que se obtiene el access_token, tendrá un tiem-
+po de vida definido por el expires_in, al momento de hacer este documento son
+5 minutos. Esto quiere decir que se debe controlar este tiempo de vida del ac-
+cess_token para saber que antes de enviarlo si ya expiró es necesario refrescarlo.
+Esto se podría hacer de varias maneras, ejemplo se podría tener un proceso que
+cuando va a enviar a la plataforma revisa si tiene un access_token que no haya
+expirado, sino lo tiene entonces revisa que tenga un refresh_token no expirado (el
+refresh_expires_in al momento de hacer el documento son 10 horas), para poder
+refrescar el token, y si tampoco lo tiene entonces crea una sesión.
+La mejor práctica es si ya terminó de usar una sesión que la cierre utilizando el
+proceso de cerrar sesión de la sección anterior. Esto sería similar a cuando se entra
+al portal bancario en un navegador web, la práctica segura es cerrar la sesión al
+terminar para evitar alguna actividad maliciosa.
+12-12Actualizado al 29 de octubre de 2018
+
+-- 12 of 12 --
+

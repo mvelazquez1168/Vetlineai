@@ -15,7 +15,9 @@
     "crear-admin-plataforma": "ts-node --transpile-only src/crearAdminPlataforma.ts",
     "crear-admin-plataforma:prod": "node dist/crearAdminPlataforma.js",
     "habilitar-modulo": "ts-node --transpile-only src/habilitarModulo.ts",
-    "habilitar-modulo:prod": "node dist/habilitarModulo.js"
+    "habilitar-modulo:prod": "node dist/habilitarModulo.js",
+    "cargar-catalogos-fe": "ts-node --transpile-only src/cargarCatalogosFe.ts",
+    "cargar-catalogos-fe:prod": "node dist/cargarCatalogosFe.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

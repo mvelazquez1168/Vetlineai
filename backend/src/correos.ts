@@ -1,6 +1,6 @@
 import { Pool, PoolClient } from "pg";
 import { config } from "./config";
-import { enviarEmail, resendConfigurado } from "./email";
+import { enviarEmail, resendConfigurado, AdjuntoEmail } from "./email";
 import { MarcaCorreo, resolverMarca } from "./marcaCorreo";
 
 // ---------------------------------------------------------------------
@@ -47,7 +47,8 @@ export type TipoCorreo =
   | "cumpleanos"
   | "saldo_proveedor_bajo"
   | "restablecimiento_contrasena"
-  | "contrasena_cambiada";
+  | "contrasena_cambiada"
+  | "comprobante_electronico";
 
 export interface DatosPlantilla {
   invitacion_medico: { nombreClinica: string; enlace: string; vigenciaDias: number; nombreMedico?: string | null };
@@ -92,6 +93,19 @@ export interface DatosPlantilla {
     horaNueva?: string;
   };
   informe_disponible: { nombrePaciente: string };
+  // El comprobante electrónico que se le manda al receptor con su PDF y
+  // su XML adjuntos. `estadoHacienda` va en el cuerpo a propósito: un
+  // comprobante todavía no aceptado es válido para el cliente, pero si
+  // Hacienda lo rechaza después hay que poder rastrear qué se le dijo.
+  comprobante_electronico: {
+    tipoComprobanteNombre: string;
+    consecutivo: string;
+    clave: string;
+    total: string;
+    moneda: string;
+    fecha: string;
+    estadoHacienda: string;
+  };
   cumpleanos: { nombrePaciente: string };
   saldo_proveedor_bajo: { saldoUsd: number; umbralUsd: number };
   restablecimiento_contrasena: { nombre: string | null; enlace: string; vigenciaMinutos: number };
@@ -469,6 +483,32 @@ export function construirCorreo<T extends TipoCorreo>(
         html: envolverLayoutInformativo(d.reprogramada ? "Cita reprogramada" : "Cita cancelada", cuerpo),
       };
     }
+    case "comprobante_electronico": {
+      const d = datos as DatosPlantilla["comprobante_electronico"];
+      const cuerpo =
+        `<p>Adjuntamos tu ${d.tipoComprobanteNombre.toLowerCase()} electrónica por ${d.moneda} ${d.total}, emitida el ${d.fecha}.</p>` +
+        `<p>Van dos archivos: el <strong>PDF</strong> para leerlo, y el <strong>XML</strong>, que es el documento con validez legal ` +
+        `— conservalo si lo necesitás para tu contabilidad.</p>` +
+        `<table style="border-collapse:collapse;font-size:14px;margin:16px 0">` +
+        `<tr><td style="padding:2px 12px 2px 0;color:#5A6B82">Consecutivo</td><td style="padding:2px 0"><code>${d.consecutivo}</code></td></tr>` +
+        `<tr><td style="padding:2px 12px 2px 0;color:#5A6B82">Clave</td><td style="padding:2px 0"><code style="font-size:12px">${d.clave}</code></td></tr>` +
+        `<tr><td style="padding:2px 12px 2px 0;color:#5A6B82">Estado en Hacienda</td><td style="padding:2px 0">${d.estadoHacienda}</td></tr>` +
+        `</table>`;
+      return {
+        asunto: `${d.tipoComprobanteNombre} ${d.consecutivo} — ${d.moneda} ${d.total}`,
+        texto:
+          `Adjuntamos tu ${d.tipoComprobanteNombre.toLowerCase()} electrónica por ${d.moneda} ${d.total}, emitida el ${d.fecha}.
+
+` +
+          `Consecutivo: ${d.consecutivo}
+Clave: ${d.clave}
+Estado en Hacienda: ${d.estadoHacienda}
+
+` +
+          `Van dos archivos adjuntos: el PDF para leerlo y el XML, que es el documento con validez legal.`,
+        html: envolverLayoutInformativo(d.tipoComprobanteNombre, cuerpo),
+      };
+    }
     case "informe_disponible": {
       const d = datos as DatosPlantilla["informe_disponible"];
       const cuerpo = `<p>El veterinario generó un nuevo informe clínico de ${d.nombrePaciente}. Consultalo en tu próxima visita a la clínica.</p>`;
@@ -693,7 +733,12 @@ export async function enviarCorreoTransaccional<T extends TipoCorreo>(
   tenantId: string | null,
   destinatario: string,
   tipo: T,
-  datos: DatosPlantilla[T]
+  datos: DatosPlantilla[T],
+  // Los adjuntos son un dato del ENVÍO, no de la plantilla: la plantilla
+  // dice qué se escribe y esto qué se acompaña. De ahí que vaya como
+  // parámetro aparte y opcional, en vez de meter un Buffer dentro de
+  // DatosPlantilla, donde lo tendrían que ignorar las otras 27.
+  adjuntos?: AdjuntoEmail[]
 ): Promise<{ correoEnviadoId: string | null; proveedorMessageId: string | null; resultado: "enviado" | "fallido" | "no_configurado" }> {
   if (!resendConfigurado()) return { correoEnviadoId: null, proveedorMessageId: null, resultado: "no_configurado" };
   // Quién firma este correo — ver marcaCorreo.ts. En los correos al
@@ -707,6 +752,7 @@ export async function enviarCorreoTransaccional<T extends TipoCorreo>(
     const { id: proveedorMessageId } = await enviarEmail(destinatario, asunto, texto, html, {
       nombreRemitente: marca.esComercio ? marca.nombre : null,
       replyTo: marca.replyTo,
+      adjuntos,
     });
     const insert = await db.query(
       `INSERT INTO correos_enviados (tenant_id, destinatario, tipo, resultado, proveedor_message_id)

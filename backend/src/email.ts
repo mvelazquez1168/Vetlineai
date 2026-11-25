@@ -99,12 +99,31 @@ export function componerRemitente(nombreVisible?: string | null): string {
 // Devuelve el id que Resend asigna al mensaje — verificación de correo
 // (Capa 2, detectar el rebote) lo necesita para correlacionar el webhook
 // de rebotes con el envío exacto, en vez de adivinar por destinatario.
+/**
+ * Un archivo adjunto. `contenido` es el archivo entero en memoria.
+ *
+ * Hay un tope de tamaño y vive acá (ver TOPE_ADJUNTOS_BYTES): Resend
+ * acepta hasta 40 MB por mensaje, y un envío que lo pase falla con un
+ * error del proveedor que no dice cuál de los adjuntos sobraba.
+ */
+export interface AdjuntoEmail {
+  nombreArchivo: string;
+  contenido: Buffer;
+}
+
+/** 20 MB, la mitad del tope de Resend. Un comprobante son ~15 KB de XML y ~40 KB de PDF. */
+const TOPE_ADJUNTOS_BYTES = 20 * 1024 * 1024;
+
 export async function enviarEmail(
   destinatario: string,
   asunto: string,
   contenido: string,
   html?: string,
-  opciones?: { nombreRemitente?: string | null; replyTo?: string | null }
+  opciones?: {
+    nombreRemitente?: string | null;
+    replyTo?: string | null;
+    adjuntos?: AdjuntoEmail[];
+  }
 ): Promise<{ id: string | null }> {
   if (!resendClient) {
     throw new ResendNoConfiguradoError();
@@ -119,6 +138,24 @@ export async function enviarEmail(
   if (!destino) {
     throw new DireccionInvalidaError(destinatario);
   }
+
+  const adjuntos = opciones?.adjuntos ?? [];
+  const bytesAdjuntos = adjuntos.reduce((a, x) => a + x.contenido.length, 0);
+  if (bytesAdjuntos > TOPE_ADJUNTOS_BYTES) {
+    // Se corta ACÁ y no en el proveedor: así el mensaje dice cuánto pesa
+    // y cuál es el tope, en vez de un error genérico de Resend.
+    throw new Error(
+      `Los adjuntos pesan ${(bytesAdjuntos / 1024 / 1024).toFixed(1)} MB y el tope es ${TOPE_ADJUNTOS_BYTES / 1024 / 1024} MB.`
+    );
+  }
+  for (const a of adjuntos) {
+    // Un nombre de archivo con barras o saltos de línea es lo mismo que
+    // una cabecera inyectada: va a un header del adjunto. Se rechaza en
+    // vez de limpiarse, igual que el destinatario.
+    if (/[\r\n/\\]/.test(a.nombreArchivo) || a.nombreArchivo.trim() === "") {
+      throw new Error(`El nombre del adjunto no es utilizable: "${a.nombreArchivo.slice(0, 40)}".`);
+    }
+  }
   const { data, error } = await resendClient.emails.send({
     from: componerRemitente(opciones?.nombreRemitente),
     to: destino,
@@ -130,6 +167,14 @@ export async function enviarEmail(
     // diferencia del destinatario, no impide que el correo se entregue).
     ...(direccionValida(opciones?.replyTo) ? { replyTo: direccionValida(opciones?.replyTo)! } : {}),
     ...(html ? { html } : {}),
+    ...(adjuntos.length > 0
+      ? {
+          attachments: adjuntos.map((a) => ({
+            filename: a.nombreArchivo,
+            content: a.contenido,
+          })),
+        }
+      : {}),
   });
   if (error) {
     throw new Error(error.message);

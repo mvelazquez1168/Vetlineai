@@ -47,6 +47,10 @@ export const TIPOS_MARCA_COMERCIO: ReadonlySet<TipoCorreo> = new Set<TipoCorreo>
   "cumpleanos",
   "seguimiento_faltante",
   "agenda_dia_siguiente",
+  // El comprobante electrónico va al cliente de la clínica, no al
+  // usuario de Vetline: quien lo recibe tiene que ver a su veterinaria
+  // en la bandeja, y responder a la veterinaria si algo está mal.
+  "comprobante_electronico",
 ]);
 
 export interface MarcaCorreo {

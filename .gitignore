@@ -31,3 +31,11 @@ Par claves AWS/
 awscliv2.zip
 
 ~$*
+
+# Salida compilada de frontend/tsconfig.node.json. NO versionar: Vite
+# resuelve vite.config.js ANTES que vite.config.ts, asi que un artefacto
+# compilado viejo en la raiz tapa al fuente (paso: el arreglo del service
+# worker nunca tomo efecto en dev). El emit ahora va a node_modules/.tmp,
+# estas dos lineas son el cinturon por si alguien lo vuelve a generar aca.
+frontend/vite.config.js
+frontend/vite.config.d.ts

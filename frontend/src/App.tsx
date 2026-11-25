@@ -15,6 +15,11 @@ import { SeccionLayout } from "./components/SeccionLayout";
 import { Pacientes } from "./pages/pacientes/Pacientes";
 import { FichaPaciente } from "./pages/pacientes/FichaPaciente";
 import { ClinicEstado } from "./pages/clinic/ClinicEstado";
+import { ComprobanteDetalle } from "./pages/facturacion/ComprobanteDetalle";
+import { ComprobantesLista } from "./pages/facturacion/ComprobantesLista";
+import { ComprobantesRecibidos } from "./pages/facturacion/ComprobantesRecibidos";
+import { ConfiguracionEmisor } from "./pages/facturacion/ConfiguracionEmisor";
+import { EmitirComprobante } from "./pages/facturacion/EmitirComprobante";
 import { Analiticas as AgendaAnaliticas } from "./pages/agenda/Analiticas";
 import { Calendario as AgendaCalendario } from "./pages/agenda/Calendario";
 import { CentroComando as AgendaCentroComando } from "./pages/agenda/CentroComando";
@@ -199,6 +204,27 @@ export default function App() {
         }
       >
         <Route index element={<ClinicEstado />} />
+      </Route>
+
+      {/* Facturador electrónico de Costa Rica — módulo `facturacion` de
+          Vetline Clinic. Mismo layout que /clinic y mismos dos roles: el
+          backend gatea médico y admin_clinica por igual para consultar y
+          emitir, y restringe a admin SOLO el emisor y las credenciales
+          (ver facturacionCr.routes.ts). La entrada al menú solo aparece
+          si el módulo está habilitado — ver useModulos. */}
+      <Route
+        path="/facturacion"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <SeccionLayout titulo="Facturación electrónica" />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<ComprobantesLista />} />
+        <Route path="emitir" element={<EmitirComprobante />} />
+        <Route path="comprobantes/:id" element={<ComprobanteDetalle />} />
+        <Route path="recibidos" element={<ComprobantesRecibidos />} />
+        <Route path="emisor" element={<ConfiguracionEmisor />} />
       </Route>
 
       {/* Vista de detalle de caso de solo lectura — fuera del layout con

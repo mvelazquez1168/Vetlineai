@@ -134,6 +134,24 @@ export const COMANDOS: Comando[] = [
     a: "/admin/clinica",
     roles: ["admin_clinica"],
   },
+  {
+    id: "ir-facturacion",
+    titulo: "Facturación electrónica",
+    sinonimos: ["facturas", "comprobantes", "hacienda", "tiquete", "nota de credito"],
+    icono: "comprobante",
+    grupo: "Ir a",
+    a: "/facturacion",
+    roles: CLINICA,
+  },
+  {
+    id: "ir-facturacion-recibidos",
+    titulo: "Comprobantes recibidos",
+    sinonimos: ["facturas de proveedores", "mensaje receptor", "compras"],
+    icono: "recibidos",
+    grupo: "Ir a",
+    a: "/facturacion/recibidos",
+    roles: CLINICA,
+  },
   // --- Crear ---
   //
   // Van a la pantalla que tiene el formulario, no a un modal abierto por
@@ -148,6 +166,15 @@ export const COMANDOS: Comando[] = [
     grupo: "Crear",
     a: "/agenda/calendario?nueva=1",
     atajo: "n",
+    roles: CLINICA,
+  },
+  {
+    id: "nuevo-comprobante",
+    titulo: "Emitir un comprobante",
+    sinonimos: ["facturar", "nueva factura", "nuevo tiquete"],
+    icono: "comprobante",
+    grupo: "Crear",
+    a: "/facturacion/emitir",
     roles: CLINICA,
   },
   {

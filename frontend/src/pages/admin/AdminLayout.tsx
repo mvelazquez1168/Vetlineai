@@ -82,6 +82,23 @@ export function AdminLayout() {
                 Vetline Clinic
               </NavLink>
             )}
+            {/* Facturación electrónica. Entrada propia y no una pestaña
+                dentro de Vetline Clinic: es la sección que se usa a
+                diario, y esconderla un nivel abajo la vuelve dos clics
+                para lo más frecuente. */}
+            {tieneModulo("facturacion") && (
+              <NavLink
+                to="/facturacion"
+                className={({ isActive }) =>
+                  [
+                    "rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
+                    isActive ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5",
+                  ].join(" ")
+                }
+              >
+                Facturación electrónica
+              </NavLink>
+            )}
             {esMedico && (
               <Link
                 to="/workspace"

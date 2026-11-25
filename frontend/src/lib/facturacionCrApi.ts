@@ -1,0 +1,397 @@
+import { getStoredToken } from "../hooks/useAuth";
+import { apiFetch, apiFetchFile } from "./api";
+
+// ---------------------------------------------------------------------
+// Cliente de la API del facturador electrónico de Costa Rica.
+//
+// El contrato completo —y, sobre todo, qué significa cada estado y qué
+// tiene que hacer quien factura con cada uno— está en
+// `docs/facturacion/contrato-api.md`. Acá solo están los tipos y las
+// llamadas.
+// ---------------------------------------------------------------------
+
+function authedFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  return apiFetch<T>(path, { ...options, token: getStoredToken() });
+}
+
+export type EstadoComprobante =
+  | "borrador"
+  | "firmado"
+  | "en_cola"
+  | "enviado"
+  | "aceptado"
+  | "aceptado_parcial"
+  | "rechazado"
+  | "error";
+
+export interface OpcionCatalogo {
+  codigo: string;
+  nombre: string;
+  exigeDetalle?: boolean;
+}
+
+export interface Catalogos {
+  tiposComprobante: OpcionCatalogo[];
+  tiposIdentificacion: OpcionCatalogo[];
+  condicionesVenta: OpcionCatalogo[];
+  mediosPago: OpcionCatalogo[];
+  tarifasIva: Array<OpcionCatalogo & { tarifa: number }>;
+  unidadesMedida: Array<{ codigo: string; descripcion: string }>;
+  codigosDescuento: OpcionCatalogo[];
+  codigosReferencia: OpcionCatalogo[];
+}
+
+export interface ResultadoCabys {
+  resultados: Array<{ codigo: string; descripcion: string; codigoTarifaIvaSugerido: string | null }>;
+  catalogoVacio: boolean;
+  aviso?: string;
+}
+
+export interface Emisor {
+  id: string;
+  tipoIdentificacion: string;
+  numeroIdentificacion: string;
+  nombre: string;
+  nombreComercial?: string | null;
+  codigoActividadEconomica: string;
+  registroFiscal8707?: string | null;
+  ubicacionProvincia: string;
+  ubicacionCanton: string;
+  ubicacionDistrito: string;
+  ubicacionBarrio?: string | null;
+  ubicacionOtrasSenas: string;
+  telefonoCodigoPais?: string | null;
+  telefonoNumero?: string | null;
+  correo: string;
+  proveedorSistemas: string;
+  sucursal: string;
+  terminal: string;
+  ambienteActivo: "pruebas" | "produccion";
+}
+
+/**
+ * Lo único que la API devuelve de una credencial. No hay campo con la
+ * contraseña, la llave ni el PIN: no es que la pantalla los oculte, es
+ * que el backend no los manda.
+ */
+export interface CredencialPublica {
+  ambiente: "pruebas" | "produccion";
+  usuarioApi: string;
+  llaveNombreArchivo: string | null;
+  llaveVenceEn: string | null;
+  diasParaVencer: number | null;
+  creadoEn: string;
+  actualizadoEn: string;
+}
+
+export interface ComprobanteListado {
+  id: string;
+  tipoComprobante: string;
+  tipoComprobanteNombre: string;
+  clave: string;
+  consecutivo: string;
+  fechaEmision: string;
+  estado: EstadoComprobante;
+  estadoLegible: string;
+  receptorNombre: string | null;
+  receptorIdentificacion: string | null;
+  moneda: string;
+  totalComprobante: string;
+  indEstado: string | null;
+  detalle: string | null;
+}
+
+export interface LineaDetalleApi {
+  numero_linea: number;
+  codigo_cabys: string | null;
+  cantidad: string;
+  unidad_medida: string;
+  detalle: string;
+  precio_unitario: string;
+  subtotal: string;
+  base_imponible: string;
+  impuesto_neto: string;
+  monto_total_linea: string;
+  impuestos: Array<{
+    codigoImpuesto: string;
+    codigoTarifaIva: string | null;
+    tarifa: string | null;
+    monto: string;
+    montoExonerado: string | null;
+  }>;
+  descuentos: Array<{ monto: string; codigo: string; naturaleza: string | null }>;
+}
+
+export interface EventoComprobante {
+  tipo_evento: string;
+  detalle: Record<string, unknown> | null;
+  creado_en: string;
+}
+
+export interface DetalleComprobante {
+  comprobante: Record<string, unknown> & {
+    id: string;
+    clave: string;
+    consecutivo: string;
+    tipo_comprobante: string;
+    estado: EstadoComprobante;
+    estadoLegible: string;
+    fecha_emision: string;
+    moneda: string;
+    total_comprobante: string;
+    total_gravado: string;
+    total_exento: string;
+    total_descuentos: string;
+    total_venta_neta: string;
+    total_impuesto: string;
+    total_otros_cargos: string;
+    receptor_nombre: string | null;
+    receptor_numero_identificacion: string | null;
+    receptor_correo: string | null;
+    respuesta_ind_estado: string | null;
+    respuesta_detalle: string | null;
+    xmlFirmado: string | null;
+    respuestaXml: string | null;
+  };
+  lineas: LineaDetalleApi[];
+  eventos: EventoComprobante[];
+  referencias: Array<{
+    tipo_documento: string;
+    numero: string | null;
+    fecha_emision: string;
+    codigo: string | null;
+    razon: string | null;
+  }>;
+  mediosPago: Array<{ codigo_medio_pago: string; medio_pago_otro: string | null; monto: string | null }>;
+  notas: Array<{
+    id: string;
+    tipo_comprobante: string;
+    consecutivo: string;
+    clave: string;
+    estado: string;
+    total_comprobante: string;
+  }>;
+}
+
+export interface Recibido {
+  id: string;
+  clave: string;
+  tipoComprobante: string | null;
+  tipoComprobanteNombre: string | null;
+  consecutivo: string | null;
+  emisorNombre: string | null;
+  emisorIdentificacion: string | null;
+  fechaEmision: string | null;
+  totalComprobante: string | null;
+  totalImpuesto: string | null;
+  moneda: string | null;
+  validacionOk: boolean | null;
+  validacionDetalle: string | null;
+  mensajeTipo: string | null;
+  mensajeConsecutivo: string | null;
+  mensajeCondicionImpuesto: string | null;
+  mensajeIndEstado: string | null;
+  mensajeEnviadoEn: string | null;
+  creadoEn: string;
+}
+
+/** El documento de venta, igual que lo documenta el contrato. */
+export interface LineaDocumento {
+  codigoCabys?: string;
+  cantidad: string | number;
+  unidadMedida: string;
+  detalle: string;
+  precioUnitario: string | number;
+  descuentos?: Array<{ monto: string | number; codigoDescuento: string; naturaleza?: string }>;
+  impuestos: Array<{ codigo: string; codigoTarifaIva?: string }>;
+}
+
+export interface DocumentoVenta {
+  tipoComprobante: string;
+  condicionVenta: string;
+  condicionVentaDetalle?: string;
+  plazoCreditoDias?: number;
+  moneda?: string;
+  tipoCambio?: string | number;
+  receptor?: {
+    nombre: string;
+    identificacion?: { tipo: string; numero: string };
+    correo?: string;
+  };
+  lineas: LineaDocumento[];
+  mediosPago?: Array<{ codigo: string; otro?: string; monto?: string | number }>;
+  claveIdempotencia?: string;
+}
+
+export interface ResultadoEmision {
+  comprobanteId: string;
+  clave: string;
+  consecutivo: string;
+  estado: EstadoComprobante;
+  yaExistia: boolean;
+  indEstado?: string;
+  detalle?: string;
+  entrega?: { enviado: boolean; motivo?: string };
+}
+
+export interface FiltrosComprobantes {
+  tipo?: string;
+  estado?: string;
+  desde?: string;
+  hasta?: string;
+  receptor?: string;
+  pagina?: number;
+  porPagina?: number;
+}
+
+function queryDe(filtros: FiltrosComprobantes): string {
+  const p = new URLSearchParams();
+  for (const [k, v] of Object.entries(filtros)) {
+    if (v !== undefined && v !== "" && v !== null) p.set(k, String(v));
+  }
+  const s = p.toString();
+  return s ? `?${s}` : "";
+}
+
+export const facturacionCrApi = {
+  catalogos: () => authedFetch<Catalogos>("/facturacion/catalogos"),
+
+  buscarCabys: (q: string) =>
+    authedFetch<ResultadoCabys>(`/facturacion/cabys?q=${encodeURIComponent(q)}`),
+
+  emisor: () =>
+    authedFetch<{ emisor: Emisor | null; credenciales: CredencialPublica[] }>("/facturacion/emisor"),
+
+  guardarEmisor: (datos: Partial<Emisor>) =>
+    authedFetch<{ emisor: Emisor }>("/facturacion/emisor", {
+      method: "PUT",
+      body: JSON.stringify(datos),
+    }),
+
+  /**
+   * La llave `.p12` va como `multipart/form-data`. `apiFetch` ya detecta
+   * un FormData y NO le pone Content-Type, para que el navegador arme su
+   * propio boundary — así que esta llamada usa el mismo cliente que
+   * todas las demás, sin un `fetch` a mano.
+   */
+  guardarCredenciales: (datos: {
+    ambiente: "pruebas" | "produccion";
+    usuarioApi: string;
+    passwordApi: string;
+    pinLlave: string;
+    llave: File;
+  }) => {
+    const form = new FormData();
+    form.set("ambiente", datos.ambiente);
+    form.set("usuarioApi", datos.usuarioApi);
+    form.set("passwordApi", datos.passwordApi);
+    form.set("pinLlave", datos.pinLlave);
+    form.set("llave", datos.llave, datos.llave.name);
+    return authedFetch<{ credencial: CredencialPublica; certificado: Record<string, unknown> }>(
+      "/facturacion/emisor/credenciales",
+      { method: "PUT", body: form }
+    );
+  },
+
+  borrarCredenciales: (ambiente: "pruebas" | "produccion") =>
+    authedFetch<{ borrada: boolean }>(`/facturacion/emisor/credenciales/${ambiente}`, {
+      method: "DELETE",
+    }),
+
+  listar: (filtros: FiltrosComprobantes = {}) =>
+    authedFetch<{
+      total: number;
+      pagina: number;
+      porPagina: number;
+      comprobantes: ComprobanteListado[];
+    }>(`/facturacion/comprobantes${queryDe(filtros)}`),
+
+  detalle: (id: string) => authedFetch<DetalleComprobante>(`/facturacion/comprobantes/${id}`),
+
+  emitir: (documento: DocumentoVenta) =>
+    authedFetch<ResultadoEmision>("/facturacion/comprobantes", {
+      method: "POST",
+      body: JSON.stringify(documento),
+    }),
+
+  nota: (id: string, tipo: "credito" | "debito", datos: { codigoReferencia: string; razon: string }) =>
+    authedFetch<ResultadoEmision>(`/facturacion/comprobantes/${id}/nota-${tipo}`, {
+      method: "POST",
+      body: JSON.stringify(datos),
+    }),
+
+  reenviar: (id: string, destino: "hacienda" | "correo") =>
+    authedFetch<{ destino: string; estado?: string; entrega?: { enviado: boolean; motivo?: string } }>(
+      `/facturacion/comprobantes/${id}/reenviar`,
+      { method: "POST", body: JSON.stringify({ destino }) }
+    ),
+
+  /**
+   * El PDF y el XML se traen como blob autenticado y NO con un `<a
+   * href>`: un enlace directo no manda el header Authorization, así que
+   * la descarga daría 401. `apiFetchFile` además extrae el nombre de
+   * archivo real del Content-Disposition que arma el backend —que es el
+   * de la Nota 3, `clave.pdf`— en vez de inventar uno en el cliente.
+   */
+  descargarPdf: (id: string) =>
+    apiFetchFile(`/facturacion/comprobantes/${id}/pdf`, { token: getStoredToken() }),
+  descargarXml: (id: string) =>
+    apiFetchFile(`/facturacion/comprobantes/${id}/xml`, { token: getStoredToken() }),
+
+  recibidos: () => authedFetch<{ recibidos: Recibido[] }>("/facturacion/recibidos"),
+
+  cargarRecibido: (xml: string) =>
+    authedFetch<{
+      id: string;
+      clave: string;
+      validacionOk: boolean;
+      validacionDetalle?: string;
+      yaEstaba: boolean;
+    }>("/facturacion/recibidos", { method: "POST", body: JSON.stringify({ xml }) }),
+
+  mensajeReceptor: (
+    id: string,
+    datos: { mensaje: "1" | "2" | "3"; condicionImpuesto?: string; detalle?: string }
+  ) =>
+    authedFetch<{ consecutivo: string; estado: string; indEstado?: string }>(
+      `/facturacion/recibidos/${id}/mensaje`,
+      { method: "POST", body: JSON.stringify(datos) }
+    ),
+};
+
+/**
+ * El color del badge según el estado.
+ *
+ * Vive acá y no en cada pantalla porque las tres lo necesitan, y tres
+ * mapas separados divergen: el día que se agregue un estado, dos se
+ * actualizan y el tercero lo pinta gris.
+ *
+ * `en_cola` y `enviado` son INFO y no warning: no hay nada que corregir
+ * —el comprobante está bien y va en camino— y pintarlos de amarillo haría
+ * que una clínica crea que tiene un problema.
+ */
+export function varianteEstado(
+  estado: EstadoComprobante
+): "success" | "warning" | "error" | "info" | "neutral" {
+  switch (estado) {
+    case "aceptado":
+      return "success";
+    case "aceptado_parcial":
+      return "warning";
+    case "rechazado":
+    case "error":
+      return "error";
+    case "enviado":
+    case "en_cola":
+      return "info";
+    default:
+      return "neutral";
+  }
+}
+
+/** Montos con 5 decimales en la base, 2 en pantalla. */
+export function formatearMonto(valor: string | number, moneda = "CRC"): string {
+  const n = Number(valor);
+  if (!Number.isFinite(n)) return String(valor);
+  return `${moneda} ${n.toLocaleString("es-CR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}

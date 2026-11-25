@@ -19,10 +19,12 @@ import {
   LayoutDashboard,
   type LucideIcon,
   Menu,
+  Inbox,
   Package,
   PawPrint,
   Pencil,
   Plus,
+  Receipt,
   Search,
   Settings,
   Stethoscope,
@@ -96,6 +98,9 @@ const ICONOS = {
   cita: Calendar,
   hora: Clock,
   producto: Package,
+  // Facturación electrónica (vetline-clinic-09a)
+  comprobante: Receipt,
+  recibidos: Inbox,
 } satisfies Record<string, LucideIcon>;
 
 export type NombreIcono = keyof typeof ICONOS;

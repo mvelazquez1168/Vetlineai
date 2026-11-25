@@ -35,6 +35,35 @@ export async function obtenerProximoNumeroExpediente(db: EjecutorSql, tenantId: 
   return Number(result.rows[0].expediente_ultimo_numero) + 1;
 }
 
+// ---------------------------------------------------------------------
+// vetline-clinic-01, punto 3.1 — número de expediente DEL PACIENTE
+// (migración 087). Contador propio en `tenants`
+// (`paciente_expediente_ultimo_numero`), independiente del de casos.
+//
+// Vive en este archivo y no en `pacientes.routes.ts` por lo mismo que
+// dice el comentario de arriba: es la misma forma del problema, y ya
+// está consolidada acá. Las dos asignaciones juntas también hacen
+// evidente que son dos contadores distintos y no uno reutilizado — que
+// es justo la confusión que motivó renombrar la etiqueta del número de
+// caso en la interfaz.
+//
+// Mismas garantías que `asignarNumeroExpediente`: el UPDATE...RETURNING
+// toma lock de fila sobre el tenant hasta el COMMIT del llamador, así que
+// dos altas simultáneas NUNCA obtienen el mismo número; y si la
+// transacción del llamador hace ROLLBACK, el incremento se deshace con
+// ella. Se llama SIEMPRE dentro de la misma transacción que el INSERT del
+// paciente.
+// ---------------------------------------------------------------------
+export async function asignarNumeroExpedientePaciente(db: EjecutorSql, tenantId: string): Promise<number> {
+  const result = await db.query(
+    `UPDATE tenants SET paciente_expediente_ultimo_numero = paciente_expediente_ultimo_numero + 1
+     WHERE id = $1
+     RETURNING paciente_expediente_ultimo_numero`,
+    [tenantId]
+  );
+  return result.rows[0].paciente_expediente_ultimo_numero as number;
+}
+
 export type ResultadoConfigurarInicio =
   | { ok: true; proximoNumero: number }
   | { ok: false; motivo: "retrocede"; proximoNumeroActual: number };

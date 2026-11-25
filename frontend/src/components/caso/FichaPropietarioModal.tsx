@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { useAuth } from "../../hooks/useAuth";
@@ -13,12 +14,15 @@ interface FichaPropietarioModalProps {
   onGuardado?: (propietario: Propietario) => void;
 }
 
-// Sin pantalla de "ficha del paciente" tampoco existe una del propietario
-// todavía — este modal cubre el pedido explícito: datos + mascotas,
-// accesible desde el caso (CasoWorkspace), desde el Registro de Atención
-// (RegistroAtencionModal) y desde el listado de propietarios (admin). La
-// identificación se muestra pero nunca se edita acá — ver
-// propietarios.routes.ts, PATCH la ignora aunque venga en el body.
+// Ficha del propietario: datos + mascotas, accesible desde el caso
+// (CasoWorkspace), desde el Registro de Atención (RegistroAtencionModal)
+// y desde el listado de propietarios (admin). La identificación se
+// muestra pero nunca se edita acá — ver propietarios.routes.ts, PATCH la
+// ignora aunque venga en el body.
+//
+// Cada mascota enlaza a su ficha (/pacientes/:id), que existe desde
+// vetline-clinic-01. Antes no había adónde ir y este modal era lo único
+// parecido a una ficha de paciente.
 export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: FichaPropietarioModalProps) {
   const { esMedico, user, zonaHoraria } = useAuth();
   const [propietario, setPropietario] = useState<Propietario | null>(null);
@@ -141,7 +145,11 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
                     {pacientes.map((p) => (
                       <li key={p.id} className="flex items-center justify-between gap-2 py-2 text-sm text-text-primary">
                         <span>
-                          {p.nombre}
+                          {/* vetline-clinic-01, punto 3.3 — enlace a la
+                              ficha del paciente, que antes no existía. */}
+                          <Link to={`/pacientes/${p.id}`} className="font-semibold text-primary hover:underline">
+                            {p.nombre}
+                          </Link>
                           <span className="text-text-muted">
                             {" "}
                             — {p.especie}

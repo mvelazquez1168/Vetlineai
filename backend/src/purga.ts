@@ -3,6 +3,7 @@ import { PassThrough } from "stream";
 import { ZipArchive } from "archiver";
 import { almacenamientoPrivado } from "./almacenamiento";
 import { enviarCorreoTransaccional, urlExportar, urlPlanes, urlDatosClinica, urlMedioPago } from "./correos";
+import { TABLAS_BORRADO_MANUAL_EN_PURGA } from "./tablasTenant";
 
 // ---------------------------------------------------------------------
 // Flujos de suscripción, Flujo C — cierre de la prueba, ventana de purga
@@ -619,12 +620,15 @@ export async function generarPaqueteExportacion(db: EjecutorSql, tenantId: strin
 // oportunidad de capturarla, porque uso_api se borra unas líneas más
 // abajo y no queda otro rastro agregado en ningún lado.
 //
-// 4 tablas tenant-scoped NO tienen ON DELETE CASCADE desde tenants
-// (uso_api, notificaciones_uso, eventos_facturacion, documentos_fiscales
-// — verificado contra el catálogo real de constraints) — todas se
-// borran a mano antes del DELETE FROM tenants final, que se apoya en el
-// resto de las FK con CASCADE para todo lo demás (personas, casos,
-// pacientes, recetas, citas, saldos_ia, movimientos_credito, etc.).
+// Las tablas tenant-scoped que NO tienen ON DELETE CASCADE desde
+// tenants se borran a mano antes del DELETE FROM tenants final, que se
+// apoya en el resto de las FK con CASCADE para todo lo demás (personas,
+// casos, pacientes, recetas, citas, saldos_ia, movimientos_credito…).
+//
+// Cuáles son vive en tablasTenant.ts::TABLAS_BORRADO_MANUAL_EN_PURGA, no
+// en este archivo: jobs/auditoriaRls.job.ts lee la MISMA constante para
+// reportar cualquier FK sin cascada que no esté contemplada ahí. Son dos
+// lecturas de la misma regla y tienen que ser un solo dato.
 // ---------------------------------------------------------------------
 export async function ejecutarPurgas(db: Pool): Promise<{ purgadas: number }> {
   let purgadas = 0;
@@ -681,10 +685,18 @@ export async function ejecutarPurgas(db: Pool): Promise<{ purgadas: number }> {
         ]
       );
 
-      await client.query(`DELETE FROM uso_api WHERE tenant_id = $1`, [tenant.id]);
-      await client.query(`DELETE FROM notificaciones_uso WHERE tenant_id = $1`, [tenant.id]);
-      await client.query(`DELETE FROM eventos_facturacion WHERE tenant_id = $1`, [tenant.id]);
-      await client.query(`DELETE FROM documentos_fiscales WHERE tenant_id = $1`, [tenant.id]);
+      // La lista vive en tablasTenant.ts, no acá: la auditoría de RLS
+      // (jobs/auditoriaRls.job.ts) lee LA MISMA constante para reportar
+      // cualquier FK a `tenants` sin cascada que no esté contemplada.
+      // Antes eran cuatro DELETE escritos a mano acá, invisibles para
+      // cualquier chequeo.
+      //
+      // El nombre de tabla se interpola porque viene de una constante
+      // `as const` del propio código, nunca de un request — no hay
+      // parámetro de Postgres para un identificador.
+      for (const tabla of TABLAS_BORRADO_MANUAL_EN_PURGA) {
+        await client.query(`DELETE FROM ${tabla} WHERE tenant_id = $1`, [tenant.id]);
+      }
       // notificaciones_callback.cobro_id no tiene ON DELETE CASCADE (es un
       // log crudo de todo lo que llegó por el callback, sin tenant_id
       // propio — se atribuye por order_number, ver callbackCobros.ts). Sin

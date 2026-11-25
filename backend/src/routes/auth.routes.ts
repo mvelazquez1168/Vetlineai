@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { modulosHabilitados } from "../tenantModulos";
 
 export const authRouter = Router();
 
@@ -13,8 +14,11 @@ export const authRouter = Router();
 authRouter.get("/me", authenticate, withTenantClient, async (req, res) => {
   try {
     if (!req.auth!.tenantId) {
-      // Staff de plataforma: no hay tenant, respondemos directo.
-      return res.json({ auth: req.auth, persona: null });
+      // Staff de plataforma: no hay tenant, respondemos directo. `modulos`
+      // va vacío y no ausente para que el frontend no tenga que
+      // distinguir dos formas de respuesta — los módulos son de una
+      // clínica, y staff no pertenece a ninguna.
+      return res.json({ auth: req.auth, persona: null, modulos: [] });
     }
 
     const result = await req.db!.query(
@@ -22,7 +26,13 @@ authRouter.get("/me", authenticate, withTenantClient, async (req, res) => {
       [req.auth!.userId]
     );
 
-    res.json({ auth: req.auth, persona: result.rows[0] ?? null });
+    // vetline-clinic-01, punto 2 — qué módulos de Vetline Clinic tiene
+    // habilitada esta clínica. Viaja acá y no en el token de Keycloak a
+    // propósito: habilitar un módulo tiene que surtir efecto sin esperar
+    // a que todas las sesiones abiertas refresquen su token.
+    const modulos = await modulosHabilitados(req.db!, req.auth!.tenantId);
+
+    res.json({ auth: req.auth, persona: result.rows[0] ?? null, modulos });
   } catch (err) {
     console.error("GET /api/auth/me", err);
     res.status(500).json({ error: "Error interno." });

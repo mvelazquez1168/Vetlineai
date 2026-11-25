@@ -11,6 +11,10 @@ import { Unauthorized } from "./pages/Unauthorized";
 import { ClinicaBloqueada } from "./pages/ClinicaBloqueada";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AgendaLayout } from "./pages/agenda/AgendaLayout";
+import { SeccionLayout } from "./components/SeccionLayout";
+import { Pacientes } from "./pages/pacientes/Pacientes";
+import { FichaPaciente } from "./pages/pacientes/FichaPaciente";
+import { ClinicEstado } from "./pages/clinic/ClinicEstado";
 import { Analiticas as AgendaAnaliticas } from "./pages/agenda/Analiticas";
 import { Calendario as AgendaCalendario } from "./pages/agenda/Calendario";
 import { CentroComando as AgendaCentroComando } from "./pages/agenda/CentroComando";
@@ -157,6 +161,37 @@ export default function App() {
         <Route path="horarios" element={<AgendaConfiguracionHorarios />} />
         <Route path="analiticas" element={<AgendaAnaliticas />} />
         <Route path="notificaciones" element={<AgendaNotificaciones />} />
+      </Route>
+
+      {/* Ficha del paciente y su listado — NÚCLEO, no un módulo de
+          Vetline Clinic gateado: Vetline Ai también los necesita (el
+          contexto que recibe el agente clínico sale de acá). Accesible a
+          médico y admin_clinica, igual que /api/pacientes. */}
+      <Route
+        path="/pacientes"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <SeccionLayout titulo="Pacientes" />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Pacientes />} />
+        <Route path=":id" element={<FichaPaciente />} />
+      </Route>
+
+      {/* Vetline Clinic — la sección de gestión. A diferencia de la ficha
+          del paciente, esta SÍ está gateada por tenant_modulos: el
+          backend responde 403 si la clínica no tiene el módulo, y el menú
+          no muestra la entrada (ver useModulos). */}
+      <Route
+        path="/clinic"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <SeccionLayout titulo="Vetline Clinic" />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<ClinicEstado />} />
       </Route>
 
       {/* Vista de detalle de caso de solo lectura — fuera del layout con

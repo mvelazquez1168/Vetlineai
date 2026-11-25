@@ -11,6 +11,11 @@ import { keycloakAuth } from "./keycloakAuth";
 const ACCESS_TOKEN_KEY = "vetplatform_token";
 const REFRESH_TOKEN_KEY = "vetplatform_refresh_token";
 const USER_KEY = "vetplatform_user";
+// Los módulos de Vetline Clinic habilitados en la clínica de la sesión.
+// Clave propia y no un campo dentro de USER_KEY: ahí vive el `req.auth`
+// que devuelve el backend tal cual, y agregarle un campo que ese objeto
+// no tiene haría que el snapshot diga algo que la respuesta no dice.
+const MODULOS_KEY = "vetplatform_modulos";
 
 // Refrescamos un poco antes de que el access_token venza de verdad, para
 // no arriesgarnos a que expire en el viaje de ida al backend.
@@ -64,6 +69,26 @@ export function leerUsuarioGuardado<T>(): T | null {
   }
 }
 
+export function guardarModulos(modulos: string[]): void {
+  localStorage.setItem(MODULOS_KEY, JSON.stringify(modulos));
+}
+
+/**
+ * Devuelve [] cuando no hay nada guardado — nunca null. Un módulo que no
+ * está en la lista está apagado, y "todavía no sé" se trata igual que
+ * "no": el default seguro para un módulo de gestión es no mostrarlo.
+ */
+export function leerModulosGuardados(): string[] {
+  const raw = localStorage.getItem(MODULOS_KEY);
+  if (!raw) return [];
+  try {
+    const valor = JSON.parse(raw);
+    return Array.isArray(valor) ? (valor as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function leerAccessToken(): string | null {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
@@ -76,6 +101,7 @@ export function limpiarSesion(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  localStorage.removeItem(MODULOS_KEY);
 }
 
 function redirigirALogin(): void {

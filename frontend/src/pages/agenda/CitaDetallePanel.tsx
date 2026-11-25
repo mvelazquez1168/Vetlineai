@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { RegistroAtencionModal } from "../../components/caso/RegistroAtencionModal";
@@ -72,7 +73,12 @@ export function CitaDetallePanel({ cita, onClose, onEditar, onActualizada, permi
         <div className="flex items-start justify-between gap-2">
           <div>
             <h3 className="text-lg font-bold text-primary">
-              {cita.paciente_nombre}
+              {/* vetline-clinic-01, punto 3.3 — desde la cita a la ficha
+                  del paciente: es el salto que la recepcion hace todo el
+                  tiempo y que antes no existia. */}
+              <Link to={`/pacientes/${cita.paciente_id}`} className="hover:underline">
+                {cita.paciente_nombre}
+              </Link>
               {cita.especie && <span className="ml-1 font-normal text-text-muted">({cita.especie})</span>}
             </h3>
             {cita.propietario_nombre && <p className="text-sm text-text-muted">Propietario: {cita.propietario_nombre}</p>}

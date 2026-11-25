@@ -33,7 +33,9 @@ type EjecutorSql = Pool | PoolClient;
 
 export async function construirBloqueContextoCaso(db: EjecutorSql, casoId: string): Promise<string> {
   const result = await db.query(
-    `SELECT p.nombre, p.especie, r.nombre AS raza, p.sexo, p.edad_anios, p.fecha_nacimiento, c.motivo
+    `SELECT p.nombre, p.especie, r.nombre AS raza, p.sexo, p.estado_reproductivo,
+            p.edad_anios, p.fecha_nacimiento, p.fecha_nacimiento_estimada,
+            p.alergias, c.motivo
      FROM casos c
      JOIN pacientes p ON p.id = c.paciente_id
      LEFT JOIN razas r ON r.id = p.raza_id
@@ -45,15 +47,40 @@ export async function construirBloqueContextoCaso(db: EjecutorSql, casoId: strin
 
   // Solo se listan los campos que la clínica efectivamente cargó — un
   // campo ausente acá es la señal que el system prompt usa para saber
-  // qué SÍ le falta preguntar. peso y estado reproductivo no existen hoy
-  // en el modelo de datos de pacientes (no hay dónde cargarlos todavía),
-  // así que no pueden inyectarse — quedan pendientes de una fase futura
-  // que agregue esas columnas.
+  // qué SÍ le falta preguntar.
+  //
+  // vetline-clinic-01, punto 3.2 — ahora sí entran sexo y estado
+  // reproductivo. El sexo ya estaba en este SELECT desde siempre, pero
+  // llegaba vacío en todos los casos reales: ningún endpoint escribía
+  // `pacientes.sexo` (el único INSERT que lo completaba estaba en el
+  // seed), así que la línea nunca se agregaba. Con la ficha del paciente
+  // editable, ese dato existe y el agente lo recibe.
+  //
+  // `estado_reproductivo` tiene DEFAULT 'desconocido' (migración 087), así
+  // que a diferencia del resto SIEMPRE tiene valor — se omite cuando es
+  // 'desconocido' por el mismo criterio que los campos vacíos: decirle al
+  // agente "estado reproductivo: desconocido" es ruido, y además le
+  // tapa la señal de que eso es justamente lo que le falta preguntar.
+  //
+  // El peso sigue sin estar: vive en `atenciones` (una por visita), no en
+  // el paciente, y ya llega al modelo por el bloque de atenciones
+  // vinculadas de más abajo.
   const edadEfectiva = calcularEdadEfectiva(fila.fecha_nacimiento, fila.edad_anios);
   const lineas = [`- Paciente: ${fila.nombre}`, `- Especie: ${fila.especie}`];
   if (fila.raza) lineas.push(`- Raza: ${fila.raza}`);
   if (fila.sexo) lineas.push(`- Sexo: ${fila.sexo}`);
-  if (edadEfectiva !== null) lineas.push(`- Edad: ${edadEfectiva} años`);
+  if (fila.estado_reproductivo && fila.estado_reproductivo !== "desconocido") {
+    lineas.push(`- Estado reproductivo: ${fila.estado_reproductivo}`);
+  }
+  if (edadEfectiva !== null) {
+    // Que la edad sea estimada le importa al razonamiento clínico: un
+    // umbral por edad (geriátrico, pediátrico) no se aplica igual sobre
+    // una fecha de nacimiento real que sobre una edad que el tutor
+    // calculó de memoria.
+    const estimada = fila.fecha_nacimiento && fila.fecha_nacimiento_estimada ? " (estimada)" : "";
+    lineas.push(`- Edad: ${edadEfectiva} años${estimada}`);
+  }
+  if (fila.alergias) lineas.push(`- Alergias registradas: ${fila.alergias}`);
   if (fila.motivo) lineas.push(`- Motivo de consulta: ${fila.motivo}`);
 
   const bloqueSignalment =

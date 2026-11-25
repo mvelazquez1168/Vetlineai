@@ -71,6 +71,11 @@ export function AgentSelector() {
               Panel de administración
             </Link>
           )}
+          {/* vetline-clinic-01, punto 3.3 — el médico también necesita
+              llegar al fichero de pacientes sin pasar por un caso. */}
+          <Link to="/pacientes" className="text-sm font-semibold text-accent hover:underline">
+            Pacientes
+          </Link>
           <Link to="/agenda" className="text-sm font-semibold text-accent hover:underline">
             Agenda
           </Link>

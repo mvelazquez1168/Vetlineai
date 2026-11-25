@@ -121,7 +121,7 @@ export function Casos() {
   const columns: TableColumn<CasoAdmin>[] = [
     {
       key: "expediente",
-      header: "Expediente",
+      header: "N.º de caso",
       render: (c) => <span className="font-mono text-sm text-text-muted">N.º {c.numero_expediente}</span>,
     },
     {
@@ -196,7 +196,7 @@ export function Casos() {
           onChange={(e) => actualizarFiltro(setBuscarPaciente)(e.target.value)}
         />
         <Input
-          placeholder="N.º de expediente…"
+          placeholder="N.º de caso…"
           value={numeroExpediente}
           onChange={(e) => actualizarFiltro(setNumeroExpediente)(e.target.value)}
         />

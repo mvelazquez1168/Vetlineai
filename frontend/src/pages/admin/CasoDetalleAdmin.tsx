@@ -85,7 +85,7 @@ export function CasoDetalleAdmin() {
               {caso.edad_anios ? `, ${caso.edad_anios}a` : ""})
               <Badge variant={ESTADO_BADGE[caso.estado] ?? "neutral"}>{caso.estado.replace("_", " ")}</Badge>
             </h2>
-            <p className="text-xs text-text-muted">Expediente N.º {caso.numero_expediente}</p>
+            <p className="text-xs text-text-muted">Caso N.º {caso.numero_expediente}</p>
             <p className="text-sm text-text-muted">{caso.motivo}</p>
             {caso.estado === "completado" && (
               <p className="mt-1 text-xs text-text-muted">

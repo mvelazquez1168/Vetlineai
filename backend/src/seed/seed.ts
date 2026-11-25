@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import { Pool } from "pg";
-import { asignarNumeroExpediente } from "../expediente";
+import { fechaNacimientoDesdeEdad } from "../edadPaciente";
+import { asignarNumeroExpediente, asignarNumeroExpedientePaciente } from "../expediente";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -222,10 +223,20 @@ async function main() {
     // distinta de pacientes.especie ('Canino'/'Felino') — ver el mismo
     // mapeo en pacientes.routes.ts.
     const pacientes = [
-      { nombre: "Toby", especie: "Canino", razaEspecie: "canina", raza: "Caniche", sexo: "Macho", edad: 5, propietario: 0 },
-      { nombre: "Luna", especie: "Felino", razaEspecie: "felina", raza: "Persa", sexo: "Hembra", edad: 3, propietario: 1 },
-      { nombre: "Simba", especie: "Canino", razaEspecie: "canina", raza: "Golden Retriever", sexo: "Macho", edad: 4, propietario: 2 },
-      { nombre: "Rocky", especie: "Canino", razaEspecie: "canina", raza: "Pastor Alemán", sexo: "Macho", edad: 6, propietario: 3 },
+      // `sexo` en el vocabulario cerrado de la columna ('macho'|'hembra',
+      // CHECK validado en la migración 089) y la edad como FECHA DE
+      // NACIMIENTO, no como número: `edad_anios` dejó de escribirse en la
+      // 087 y la edad se deriva siempre de la fecha (ver edadPaciente.ts).
+      //
+      // Este sembrado era el origen de los 'Macho'/'Hembra' que la 089
+      // tuvo que normalizar: escribía valores que la columna no modelaba
+      // porque, hasta vetline-clinic-01, ningún endpoint la escribía y
+      // nada los contrastaba. Con el CHECK validado, un valor así ya
+      // haría fallar el propio `npm run seed`.
+      { nombre: "Toby", especie: "Canino", razaEspecie: "canina", raza: "Caniche", sexo: "macho", estadoReproductivo: "castrado", edad: 5, propietario: 0 },
+      { nombre: "Luna", especie: "Felino", razaEspecie: "felina", raza: "Persa", sexo: "hembra", estadoReproductivo: "entero", edad: 3, propietario: 1 },
+      { nombre: "Simba", especie: "Canino", razaEspecie: "canina", raza: "Golden Retriever", sexo: "macho", estadoReproductivo: "entero", edad: 4, propietario: 2 },
+      { nombre: "Rocky", especie: "Canino", razaEspecie: "canina", raza: "Pastor Alemán", sexo: "macho", estadoReproductivo: "desconocido", edad: 6, propietario: 3 },
     ];
     const pacienteIds: Record<string, string> = {};
     for (const p of pacientes) {
@@ -233,11 +244,30 @@ async function main() {
         `SELECT id FROM razas WHERE especie = $1 AND nombre = $2`,
         [p.razaEspecie, p.raza]
       );
+      // El número de expediente del paciente se asigna por el mismo punto
+      // único que usa el alta real (expediente.ts), no con un contador
+      // propio del sembrado: es NOT NULL desde la migración 087.
+      const numeroExpedientePaciente = await asignarNumeroExpedientePaciente(client, tenantId);
       const result = await client.query(
-        `INSERT INTO pacientes (tenant_id, propietario_id, nombre, especie, raza_id, sexo, edad_anios)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO pacientes
+           (tenant_id, propietario_id, numero_expediente, nombre, especie, raza_id, sexo,
+            estado_reproductivo, fecha_nacimiento, fecha_nacimiento_estimada)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)
          RETURNING id`,
-        [tenantId, propietarioIds[p.propietario], p.nombre, p.especie, razaResult.rows[0]?.id ?? null, p.sexo, p.edad]
+        [
+          tenantId,
+          propietarioIds[p.propietario],
+          numeroExpedientePaciente,
+          p.nombre,
+          p.especie,
+          razaResult.rows[0]?.id ?? null,
+          p.sexo,
+          p.estadoReproductivo,
+          // `fecha_nacimiento_estimada = true` arriba: la edad de estos
+          // pacientes de ejemplo es un número redondo inventado, no una
+          // fecha real, y marcarla estimada es lo que efectivamente es.
+          fechaNacimientoDesdeEdad(p.edad),
+        ]
       );
       pacienteIds[p.nombre] = result.rows[0].id;
     }

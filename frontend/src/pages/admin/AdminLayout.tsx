@@ -7,12 +7,15 @@ import { NotificacionBell } from "../../components/NotificacionBell";
 import { NotificacionesPersonalesBell } from "../../components/NotificacionesPersonalesBell";
 import { useAuth } from "../../hooks/useAuth";
 import { useMenuColapsable } from "../../hooks/useMenuColapsable";
+import { useModulos } from "../../hooks/useModulos";
 
 const NAV_ITEMS = [
   { to: "/admin/medicos", label: "Médicos" },
   { to: "/admin/casos", label: "Casos" },
   { to: "/admin/casos-sin-actividad", label: "Casos sin actividad" },
   { to: "/admin/propietarios", label: "Propietarios" },
+  // Núcleo, no un módulo de Vetline Clinic: siempre visible.
+  { to: "/pacientes", label: "Pacientes" },
   { to: "/agenda", label: "Agenda" },
   { to: "/admin/agentes", label: "Agentes IA" },
   { to: "/admin/plan-consumo", label: "Plan y consumo" },
@@ -25,6 +28,10 @@ const NAV_ITEMS = [
 export function AdminLayout() {
   const { logout, esMedico } = useAuth();
   const { abierto, alternar, cerrar } = useMenuColapsable();
+  // Único hook por el que se pregunta por un módulo de Vetline Clinic.
+  // La entrada del menú no aparece si la clínica no lo tiene habilitado;
+  // el backend igual responde 403 si alguien fuerza la URL.
+  const { tieneModulo } = useModulos();
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -62,6 +69,19 @@ export function AdminLayout() {
                 {item.label}
               </NavLink>
             ))}
+            {tieneModulo("expediente") && (
+              <NavLink
+                to="/clinic"
+                className={({ isActive }) =>
+                  [
+                    "mt-3 rounded-lg border-t border-white/10 px-4 py-2.5 pt-4 text-sm font-medium transition-colors",
+                    isActive ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5",
+                  ].join(" ")
+                }
+              >
+                Vetline Clinic
+              </NavLink>
+            )}
             {esMedico && (
               <Link
                 to="/workspace"

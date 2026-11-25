@@ -143,7 +143,7 @@ export function Clinica() {
       const { expedienteProximoNumero } = await adminApi.configurarNumeracionExpedientes(numeroInicio);
       setTenant((prev) => (prev ? { ...prev, expediente_proximo_numero: expedienteProximoNumero } : prev));
       setNumeroInicioInput("");
-      setMensajeNumeracion(`Listo. El próximo expediente será el N.º ${expedienteProximoNumero}.`);
+      setMensajeNumeracion(`Listo. El próximo caso será el N.º ${expedienteProximoNumero}.`);
     } catch (err: any) {
       setErrorNumeracion(err?.message ?? "No pudimos configurar la numeración.");
     } finally {
@@ -318,17 +318,18 @@ export function Clinica() {
           </div>
 
           <div className="rounded-2xl border border-black/5 bg-surface p-6">
-            <h2 className="text-lg font-bold text-primary">Numeración de Expedientes</h2>
+            <h2 className="text-lg font-bold text-primary">Numeración de Casos</h2>
             <p className="mt-1 text-sm text-text-muted">
-              El próximo caso que se cree va a llevar el expediente N.º{" "}
+              El próximo caso que se cree va a llevar el N.º{" "}
               <span className="font-semibold text-text-primary">{tenant.expediente_proximo_numero}</span>.
               Para saltar la numeración hacia adelante (por ejemplo, para continuar la serie de un
-              sistema anterior), indicá desde qué número seguir. No se puede retroceder sobre
-              expedientes ya emitidos.
+              sistema anterior), indicá desde qué número seguir. No se puede retroceder sobre casos
+              ya emitidos. El número de expediente del paciente es otra serie, propia de cada
+              paciente y asignada automáticamente.
             </p>
             <div className="mt-4 flex max-w-sm items-end gap-3">
               <Input
-                label="El próximo expediente será…"
+                label="El próximo caso será…"
                 type="number"
                 min={1}
                 value={numeroInicioInput}

@@ -170,7 +170,7 @@ export function DashboardGcisPanel({
           <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-text-muted">
             {numeroExpediente != null && (
               <div>
-                <dt className="inline font-semibold text-text-primary">Expediente N.º: </dt>
+                <dt className="inline font-semibold text-text-primary">N.º de caso: </dt>
                 <dd className="inline">{numeroExpediente}</dd>
               </div>
             )}

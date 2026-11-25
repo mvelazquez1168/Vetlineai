@@ -3,9 +3,11 @@ import { ApiError, apiFetch } from "../lib/api";
 import { keycloakAuth, KeycloakTokenResponse } from "../lib/keycloakAuth";
 import {
   decodeJwtPayload,
+  guardarModulos,
   guardarTokens,
   guardarUsuario,
   leerAccessToken,
+  leerModulosGuardados,
   leerRefreshToken,
   leerUsuarioGuardado,
   limpiarSesion,
@@ -49,6 +51,15 @@ export function misRoles(user: Pick<AuthUser, "tenantId" | "rol" | "esAdminClini
   return roles;
 }
 
+/**
+ * Los módulos de Vetline Clinic. Espejo del CHECK de
+ * `tenant_modulos.modulo` y de `MODULOS` en backend/src/tenantModulos.ts.
+ *
+ * `crm` cubre campañas, recordatorios comerciales y oportunidades: son
+ * piezas del CRM, no módulos aparte (guía rectora §7).
+ */
+export type Modulo = "expediente" | "inventario" | "ventas" | "facturacion" | "crm";
+
 interface AuthContextValue {
   user: AuthUser | null;
   tenantId: string | null;
@@ -56,6 +67,8 @@ interface AuthContextValue {
   esAdminClinica: boolean;
   esMedico: boolean;
   zonaHoraria: string | null;
+  /** Módulos de Vetline Clinic habilitados en la clínica de la sesión. [] para staff de plataforma. */
+  modulos: Modulo[];
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthUser>;
   /**
@@ -96,6 +109,7 @@ function isExpired(claims: { exp?: number } | null): boolean {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [modulos, setModulos] = useState<Modulo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Al montar, restauramos el snapshot ya resuelto (evita esperar un
@@ -110,6 +124,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (accessToken && snapshot && claims && !isExpired(claims)) {
       setUser(snapshot);
+      // Mismo criterio que el snapshot del usuario: se restaura lo ya
+      // resuelto para no esperar un viaje de red solo para decidir qué
+      // secciones pintar. La lista se refresca en el próximo login o
+      // refresco de sesión; habilitar un módulo se ve al recargar.
+      setModulos(leerModulosGuardados() as Modulo[]);
     } else {
       limpiarSesion();
     }
@@ -143,16 +162,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // vinculado) antes de dar la sesión por establecida: mejor fallar acá
     // con un mensaje claro que dejar entrar a alguien cuyo primer request
     // real le va a devolver 401 en todos lados.
-    let me: { auth: AuthUser };
+    let me: { auth: AuthUser; modulos?: Modulo[] };
     try {
-      me = await apiFetch<{ auth: AuthUser }>("/auth/me", { token: tokens.access_token });
+      me = await apiFetch<{ auth: AuthUser; modulos?: Modulo[] }>("/auth/me", {
+        token: tokens.access_token,
+      });
     } catch (err) {
       limpiarSesion();
       throw err;
     }
 
     guardarUsuario(me.auth);
+    // `?? []` y no un error: una sesión contra un backend que todavía no
+    // devuelve `modulos` es una sesión sin módulos de Vetline Clinic, no
+    // una sesión inválida.
+    const modulosDeLaSesion = me.modulos ?? [];
+    guardarModulos(modulosDeLaSesion);
     setUser(me.auth);
+    setModulos(modulosDeLaSesion);
     return me.auth;
   };
 
@@ -168,6 +195,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshToken = leerRefreshToken();
     limpiarSesion();
     setUser(null);
+    setModulos([]);
     if (refreshToken) {
       // Best-effort: invalida la sesión del lado de Keycloak, sin bloquear
       // el logout local si falla (ver keycloakAuth.ts).
@@ -183,12 +211,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       esAdminClinica: user?.esAdminClinica ?? false,
       esMedico: user?.esMedico ?? false,
       zonaHoraria: user?.zonaHoraria ?? null,
+      modulos,
       isLoading,
       login,
       iniciarSesionConTokensKeycloak,
       logout,
     }),
-    [user, isLoading]
+    [user, modulos, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

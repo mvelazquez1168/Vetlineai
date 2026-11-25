@@ -40,7 +40,7 @@ export function CasosSinActividad() {
   const columns: TableColumn<CasoSinActividad>[] = [
     {
       key: "expediente",
-      header: "Expediente",
+      header: "N.º de caso",
       render: (c) => <span className="font-mono text-sm text-text-muted">N.º {c.numero_expediente}</span>,
     },
     { key: "paciente", header: "Paciente", render: (c) => c.paciente_nombre },

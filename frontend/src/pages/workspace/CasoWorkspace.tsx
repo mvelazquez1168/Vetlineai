@@ -1168,14 +1168,20 @@ export function CasoWorkspace() {
             <header className="flex flex-wrap items-start justify-between gap-3 border-b border-black/5 bg-surface px-6 py-2.5">
               <div>
                 <h2 className="flex items-center gap-2 text-lg font-bold text-primary">
-                  {detalle.paciente_nombre} — {detalle.especie} ({detalle.sexo}
+                  {/* vetline-clinic-01, punto 3.3 — del caso a la ficha
+                      del paciente. El caso es un episodio; la ficha es el
+                      expediente completo del animal. */}
+                  <Link to={`/pacientes/${detalle.paciente_id}`} className="hover:underline">
+                    {detalle.paciente_nombre}
+                  </Link>{" "}
+                  — {detalle.especie} ({detalle.sexo}
                   {detalle.edad_anios ? `, ${detalle.edad_anios}a` : ""})
                   {detalle.paciente_estado === "fallecido" && <Badge variant="neutral">Fallecido</Badge>}
                   <Badge variant={ESTADO_BADGE[detalle.estado] ?? "neutral"}>
                     {detalle.estado.replace("_", " ")}
                   </Badge>
                 </h2>
-                <p className="text-xs text-text-muted">Expediente N.º {detalle.numero_expediente}</p>
+                <p className="text-xs text-text-muted">Caso N.º {detalle.numero_expediente}</p>
                 <p className="text-sm text-text-muted">{detalle.motivo}</p>
                 {casoCerrado && (
                   <p className="mt-1 text-xs text-text-muted">

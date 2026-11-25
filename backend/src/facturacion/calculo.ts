@@ -8,7 +8,7 @@ import {
   restar,
   sumar,
 } from "./decimal";
-import { CODIGOS_IMPUESTO, TARIFAS_IVA } from "./catalogos";
+import { CODIGOS_IMPUESTO, TARIFAS_IVA, UNIDADES_MEDIDA } from "./catalogos";
 import { DocumentoVenta, LineaDocumento } from "./tipos";
 
 // ---------------------------------------------------------------------
@@ -182,6 +182,16 @@ export function calcularLinea(linea: LineaDocumento, numeroLinea: number): Linea
   if (!linea.impuestos || linea.impuestos.length === 0) {
     throw new Error(
       `La línea ${numeroLinea} no tiene ningún impuesto. El XSD exige al menos uno: una línea exenta va con código de impuesto 01 y código de tarifa 10, no sin impuesto.`
+    );
+  }
+
+  // La unidad de medida se valida ACÁ y no en la base. Con la FK sola, el
+  // error llegaba como "violates foreign key constraint
+  // fact_comprobante_lineas_unidad_medida_fkey", que no le dice nada a
+  // quien factura y encima ya había consumido un consecutivo.
+  if (!UNIDADES_MEDIDA.some((u) => u.codigo === linea.unidadMedida)) {
+    throw new Error(
+      `La línea ${numeroLinea} usa la unidad de medida "${linea.unidadMedida}", que no está en la Nota 15 de Hacienda. Para una clínica las habituales son 'Unid' (unidad), 'Sp' (servicios profesionales), 'Os' (otro tipo de servicio), 'mL', 'G' y 'Kg'.`
     );
   }
 

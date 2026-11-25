@@ -130,6 +130,31 @@ export const config = {
   // origen contra el cual resolverla. Con s3 no se usa: url() ya devuelve
   // una URL absoluta al bucket.
   apiPublicUrl: process.env.API_PUBLIC_URL ?? `http://localhost:${Number(process.env.PORT ?? 4000)}`,
+
+  // --- Facturador electrónico de Costa Rica (módulo `facturacion`) ---
+
+  // Qué implementación del proveedor de Hacienda se usa. En desarrollo,
+  // SIEMPRE la simulada: el prompt que construyó este módulo prohíbe
+  // mandarle algo a los servidores reales, y el default refleja eso en
+  // vez de confiar en que nadie exporte la variable por error.
+  feCrProveedor: (process.env.FE_CR_PROVEEDOR ?? "simulado") as "simulado" | "real",
+
+  // La clave con la que se cifran en reposo las credenciales de Hacienda
+  // (contraseña de la API, llave .p12 y su PIN) — ver la migración 091 y
+  // `facturacion/credenciales.ts`.
+  //
+  // Opcional como Stripe y Tilopay: el backend arranca sin ella y solo
+  // falla el camino que la necesita, con un error que lo dice. Un
+  // `requireEnv` acá tumbaría el proceso entero por un módulo que una
+  // clínica puede no tener habilitado.
+  feCrClaveCifrado: process.env.FE_CR_CLAVE_CIFRADO,
+
+  // La cédula del PROVEEDOR DE SISTEMAS: el campo `ProveedorSistemas`
+  // que el XSD v4.4 exige en cada comprobante. Es quien provee el
+  // software de facturación —nosotros—, no la clínica, así que es el
+  // mismo valor para todos los emisores y no un dato que alguien cargue
+  // por clínica.
+  feCrProveedorSistemas: process.env.FE_CR_PROVEEDOR_SISTEMAS,
 };
 
 // Mismo patrón que validarCredencialesPaisesHabilitados (pagos/credencialesPasarela.ts)

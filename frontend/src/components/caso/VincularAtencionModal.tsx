@@ -113,9 +113,10 @@ export function VincularAtencionModal({ casoId, pacienteId, zonaHoraria, onClose
                       </div>
                       <Button
                         variant={yaVinculada ? "secondary" : "primary"}
+                        size="sm"
                         onClick={() => vincular(a)}
                         disabled={yaVinculada || vinculando === a.atencion_id}
-                        className="shrink-0 px-3 py-1.5 text-xs"
+                        className="shrink-0"
                       >
                         {yaVinculada ? "Vinculada" : vinculando === a.atencion_id ? "Vinculando…" : "Vincular"}
                       </Button>

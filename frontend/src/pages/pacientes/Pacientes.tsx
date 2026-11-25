@@ -1,23 +1,32 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "../../components/ui/Badge";
-import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
-import { Table, TableColumn } from "../../components/ui/Table";
+import {
+  Badge,
+  EmptyState,
+  Input,
+  LoadingState,
+  Pagination,
+  Table,
+  TableColumn,
+} from "../../components/ui";
 import { PacienteListado, pacientesApi } from "../../lib/pacientesApi";
 
-// Misma estructura exacta que pages/admin/Propietarios.tsx: título +
-// descripción, un Input de búsqueda con debounce de 300 ms, la Table
-// compartida con su emptyMessage, y la paginación de 20 abajo. No se
-// inventa un patrón nuevo para la pantalla gemela del fichero de
-// clientes.
-const POR_PAGINA = 20;
+// Misma estructura que pages/admin/Propietarios.tsx: título +
+// descripción, un Input de búsqueda con debounce de 300 ms y la Table
+// compartida.
+//
+// Lo que cambió en la sesión nocturna: la paginación, el estado vacío y
+// la carga ya no están escritos acá. `Pagination` recibe el `porPagina`
+// que devolvió el BACKEND en vez de una constante local — así el rango
+// que se muestra no puede discrepar del que el servidor realmente
+// paginó.
 
 export function Pacientes() {
   const navigate = useNavigate();
   const [pacientes, setPacientes] = useState<PacienteListado[]>([]);
   const [total, setTotal] = useState(0);
   const [pagina, setPagina] = useState(1);
+  const [porPagina, setPorPagina] = useState(20);
   const [q, setQ] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,15 +38,12 @@ export function Pacientes() {
         .then((data) => {
           setPacientes(data.pacientes);
           setTotal(data.total);
+          setPorPagina(data.porPagina);
         })
         .finally(() => setIsLoading(false));
     }, 300);
     return () => clearTimeout(timer);
   }, [q, pagina]);
-
-  const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA));
-  const desdeRegistro = total === 0 ? 0 : (pagina - 1) * POR_PAGINA + 1;
-  const hastaRegistro = Math.min(pagina * POR_PAGINA, total);
 
   const columns: TableColumn<PacienteListado>[] = [
     {
@@ -108,43 +114,29 @@ export function Pacientes() {
 
       <div className="mt-6">
         {isLoading ? (
-          <p className="text-text-muted">Cargando…</p>
-        ) : (
-          <Table
-            columns={columns}
-            data={pacientes}
-            rowKey={(p) => p.id}
-            emptyMessage="No hay pacientes para esta búsqueda."
+          <LoadingState forma="tabla" cantidad={6} etiqueta="Cargando pacientes…" />
+        ) : pacientes.length === 0 ? (
+          <EmptyState
+            icono="paciente"
+            titulo={q ? "Ningún paciente coincide con la búsqueda" : "Todavía no hay pacientes"}
+            texto={
+              q
+                ? "Probá con el nombre del paciente, su número de expediente o el nombre del propietario."
+                : "Los pacientes se dan de alta al crear un caso o al agendar una cita, y aparecen acá."
+            }
           />
+        ) : (
+          <Table columns={columns} data={pacientes} rowKey={(p) => p.id} />
         )}
       </div>
 
-      {total > 0 && (
-        <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-text-muted">
-            Mostrando {desdeRegistro}–{hastaRegistro} de {total} pacientes
-          </p>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setPagina((p) => Math.max(1, p - 1))}
-              disabled={pagina <= 1}
-            >
-              Anterior
-            </Button>
-            <span className="text-sm text-text-muted">
-              Página {pagina} de {totalPaginas}
-            </span>
-            <Button
-              variant="secondary"
-              onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
-              disabled={pagina >= totalPaginas}
-            >
-              Siguiente
-            </Button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        pagina={pagina}
+        total={total}
+        porPagina={porPagina}
+        onPagina={setPagina}
+        sustantivo={{ singular: "paciente", plural: "pacientes" }}
+      />
     </div>
   );
 }

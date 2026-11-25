@@ -57,6 +57,7 @@ import { DetalleClinicaConsumo } from "./pages/platform-admin/DetalleClinicaCons
 import { AgentSelector } from "./pages/workspace/AgentSelector";
 import { CasoWorkspace } from "./pages/workspace/CasoWorkspace";
 import { CasosSinActividad as WorkspaceCasosSinActividad } from "./pages/workspace/CasosSinActividad";
+import { Muestrario } from "./pages/dev/Muestrario";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 function IndexRedirect() {
@@ -83,6 +84,12 @@ export default function App() {
       <Route path="/legal" element={<Legal />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="/bloqueada" element={<ClinicaBloqueada />} />
+
+      {/* Muestrario del sistema de diseño — SOLO en desarrollo. La
+          condición es en tiempo de compilación, así que en el build de
+          producción la ruta no existe y el componente no entra al
+          bundle (Vite lo elimina junto con la rama muerta). */}
+      {import.meta.env.DEV && <Route path="/dev/muestrario" element={<Muestrario />} />}
 
       <Route
         path="/workspace"

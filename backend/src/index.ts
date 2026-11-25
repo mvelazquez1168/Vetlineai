@@ -19,6 +19,7 @@ import { casosRouter } from "./routes/casos.routes";
 import { citasRouter } from "./routes/citas.routes";
 import { atencionesRouter } from "./routes/atenciones.routes";
 import { clinicRouter } from "./routes/clinic.routes";
+import { busquedaRouter } from "./routes/busqueda.routes";
 import { farmacosRouter } from "./routes/farmacos.routes";
 import { horariosRouter } from "./routes/horarios.routes";
 import { informesRouter } from "./routes/informes.routes";
@@ -138,6 +139,8 @@ app.use("/api/citas", citasRouter);
 app.use("/api/atenciones", atencionesRouter);
 // Vetline Clinic — seccion de gestion, gateada por tenant_modulos.
 app.use("/api/clinic", clinicRouter);
+// Busqueda global de la paleta de comandos (Ctrl/Cmd+K).
+app.use("/api/busqueda", busquedaRouter);
 app.use("/api/lista-espera", listaEsperaRouter);
 app.use("/api", agendaRouter);
 

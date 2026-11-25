@@ -56,7 +56,7 @@ function InvitacionInstalar() {
           <p className="font-semibold">Instalá Vetline Ai</p>
           <p className="text-text-muted">Accedé más rápido desde el ícono en tu pantalla de inicio.</p>
         </div>
-        <Button variant="ghost" onClick={descartar} className="shrink-0 px-2">
+        <Button variant="ghost" onClick={descartar} className="shrink-0">
           Ahora no
         </Button>
         <Button variant="primary" onClick={instalar} className="shrink-0">
@@ -98,7 +98,7 @@ function AvisoActualizacion() {
           <p className="font-semibold">Hay una versión nueva de Vetline Ai</p>
           <p className="text-text-muted">Recargá cuando te quede cómodo para actualizar.</p>
         </div>
-        <Button variant="ghost" onClick={() => setOcultoPorAhora(true)} className="shrink-0 px-2">
+        <Button variant="ghost" onClick={() => setOcultoPorAhora(true)} className="shrink-0">
           Más tarde
         </Button>
         <Button variant="primary" onClick={() => updateServiceWorker(true)} className="shrink-0">

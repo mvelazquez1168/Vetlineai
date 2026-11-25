@@ -1,8 +1,5 @@
 import { useState } from "react";
-import { BreedCombobox } from "../ui/BreedCombobox";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { Select } from "../ui/Select";
+import { BreedCombobox, Button, Input, Select, useToast } from "../ui";
 import {
   CamposFichaPaciente,
   EstadoReproductivo,
@@ -14,12 +11,17 @@ import {
 // ---------------------------------------------------------------------
 // vetline-clinic-01, punto 3.3 — edición de la ficha.
 //
-// Modal propio y no el `Modal` compartido: ese es `max-w-md` fijo y este
-// formulario tiene 11 campos en dos columnas. Son las MISMAS clases de
-// superposición que usa `components/ui/Modal.tsx` y que ya copian los
-// otros 8 modales anchos del proyecto (ver el relevamiento §10.4) — no un
-// estilo nuevo. Unificar eso con una prop de ancho está señalado como
-// pendiente del sistema de diseño, y es trabajo de otro prompt.
+// Modal propio y no el `Modal` compartido. El motivo original era que
+// `Modal` era `max-w-md` fijo y este formulario tiene 11 campos en dos
+// columnas; desde la sesión nocturna `Modal` ACEPTA `ancho="lg"`, así
+// que este archivo ya podría usarlo y queda en la lista de candidatos a
+// migrar del reporte, junto con los otros 8 modales escritos a mano.
+//
+// No se migró en esa sesión a propósito: el prompt pedía no migrar
+// pantallas existentes, y cambiar el contenedor de un formulario con 11
+// campos sin poder mirarlo en el navegador es justo lo que conviene
+// hacer con alguien revisando. Las clases de superposición son, de
+// todos modos, las MISMAS que las de `components/ui/Modal.tsx`.
 //
 // `estado` no se edita acá: el fallecimiento tiene su propia acción y no
 // tiene vuelta atrás.
@@ -57,6 +59,9 @@ export interface EditarPacienteModalProps {
 }
 
 export function EditarPacienteModal({ paciente, onClose, onGuardado }: EditarPacienteModalProps) {
+  // El modal se cierra al guardar, así que un mensaje inline se iría con
+  // él: la confirmación va por toast, que sobrevive al cierre.
+  const toast = useToast();
   const [nombre, setNombre] = useState(paciente.nombre);
   const [especie, setEspecie] = useState(paciente.especie);
   const [razaId, setRazaId] = useState<string | null>(paciente.raza_id);
@@ -113,9 +118,13 @@ export function EditarPacienteModal({ paciente, onClose, onGuardado }: EditarPac
     setGuardando(true);
     try {
       await pacientesApi.actualizar(paciente.id, datos);
+      toast.exito(`Ficha de ${datos.nombre} guardada.`);
       onGuardado();
       onClose();
     } catch (err: any) {
+      // El error se queda INLINE a propósito, no en un toast: el modal
+      // sigue abierto con los datos cargados, y el mensaje tiene que
+      // estar al lado del formulario que hay que corregir.
       setError(err.message);
     } finally {
       setGuardando(false);

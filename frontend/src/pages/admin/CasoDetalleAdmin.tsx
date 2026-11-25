@@ -111,16 +111,18 @@ export function CasoDetalleAdmin() {
             {caso.estado !== "completado" ? (
               <Button
                 variant="secondary"
+                size="sm"
                 onClick={() => setCerrarCasoAbierto(true)}
-                className="mt-2 px-3 py-2 text-xs"
+                className="mt-2"
               >
                 Cerrar caso
               </Button>
             ) : (
               <Button
                 variant="secondary"
+                size="sm"
                 onClick={() => setReabrirCasoAbierto(true)}
-                className="mt-2 px-3 py-2 text-xs"
+                className="mt-2"
               >
                 Reabrir caso
               </Button>

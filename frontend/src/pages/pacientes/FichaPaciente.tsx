@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { EditarPacienteModal } from "../../components/paciente/EditarPacienteModal";
-import { Badge, BadgeVariant } from "../../components/ui/Badge";
-import { Button } from "../../components/ui/Button";
-import { Card, CardTitle } from "../../components/ui/Card";
-import { CollapsibleSection } from "../../components/ui/CollapsibleSection";
+import {
+  Badge,
+  BadgeVariant,
+  Button,
+  Card,
+  CardTitle,
+  CollapsibleSection,
+  EmptyState,
+  LoadingState,
+} from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import { formatearFechaCorta } from "../../lib/formatFecha";
 import {
@@ -89,7 +95,17 @@ export function FichaPaciente() {
 
   useEffect(cargar, [cargar]);
 
-  if (isLoading) return <p className="text-text-muted">Cargando…</p>;
+  // Esqueleto en vez de "Cargando…": la ficha tiene encabezado, dos
+  // tarjetas y cuatro secciones, así que la espera se siente como un
+  // salto si no se ocupa el lugar de lo que viene.
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <LoadingState forma="lineas" cantidad={2} etiqueta="Cargando la ficha del paciente…" />
+        <LoadingState forma="tarjetas" cantidad={3} />
+      </div>
+    );
+  }
   if (error) return <p className="text-sm text-error">{error}</p>;
   if (!ficha) return null;
 
@@ -185,10 +201,11 @@ export function FichaPaciente() {
       <div className="mt-6 space-y-4">
         <CollapsibleSection titulo="Cronología">
           {eventos.length === 0 ? (
-            <p className="text-sm text-text-muted">
-              Todavía no hay nada registrado para este paciente. Las atenciones, los casos, las
-              vacunas, las desparasitaciones y las recetas emitidas van a aparecer acá.
-            </p>
+            <EmptyState
+              icono="hora"
+              titulo="Todavía no hay nada registrado"
+              texto="Las atenciones, los casos, las vacunas, las desparasitaciones y las recetas emitidas de este paciente van a aparecer acá, en una sola línea de tiempo."
+            />
           ) : (
             <ol className="space-y-3">
               {eventos.map((e) => (

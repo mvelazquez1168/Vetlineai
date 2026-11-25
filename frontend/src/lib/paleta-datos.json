@@ -1,0 +1,13 @@
+{
+  "_comentario": "FUENTE ÚNICA de los colores de la paleta de datos. La importan tailwind.config.js (tokens datos-1..datos-10), src/lib/paletaDatos.ts (los charts y las leyendas necesitan el hex en tiempo de ejecución) y scripts/verificar-paleta-datos.mjs (que los mide). Es .json y no .ts para que los tres la lean sin duplicar un valor. NO editar a mano: estos diez colores salieron de una búsqueda en espacio LCh que maximiza la peor separación perceptual sujeta a contraste >= 3:1 contra los dos fondos — ver paletaDatos.ts y correr el verificador si se cambia algo.",
+  "datos1": "#37330E",
+  "datos2": "#6D1B1A",
+  "datos3": "#663476",
+  "datos4": "#1F508F",
+  "datos5": "#0F5D69",
+  "datos6": "#386843",
+  "datos7": "#776155",
+  "datos8": "#AE4F7B",
+  "datos9": "#847738",
+  "datos10": "#99859D"
+}

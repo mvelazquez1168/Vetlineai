@@ -404,7 +404,7 @@ export function EmitirComprobante() {
                       actualizarLinea(i, { codigoCabys: e.target.value });
                       setBuscaCabys(null);
                     }}
-                    placeholder="8690100000000"
+                    placeholder="8351000000000"
                     maxLength={13}
                   />
                   {!cabysVacio?.vacio && (

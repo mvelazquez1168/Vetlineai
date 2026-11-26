@@ -3,6 +3,9 @@ import multer from "multer";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { requiereModulo } from "../tenantModulos";
 import { emitir, intentarEnviar, leerEmisor } from "../facturacion/emision";
+import { borrarBorrador, emitirBorrador, guardarBorrador } from "../facturacion/borradores";
+import { calcularComprobante } from "../facturacion/calculo";
+import { buscarPropietariosTolerante } from "../busquedaPropietarios";
 import { emitirNota } from "../facturacion/notas";
 import { entregarComprobante, estadoLegible, pdfDeComprobante } from "../facturacion/entrega";
 import { nombresArchivo } from "../facturacion/claveConsecutivo";
@@ -411,6 +414,153 @@ facturacionCrRouter.delete("/emisor/credenciales/:ambiente", soloAdmin, async (r
 // =====================================================================
 // COMPROBANTES
 // =====================================================================
+
+/**
+ * `POST /comprobantes/vista-previa` — los totales, calculados por el
+ * MISMO motor que emite.
+ *
+ * Existe para que la pantalla no calcule por su cuenta. Un total
+ * calculado en el navegador y otro en el servidor son dos
+ * implementaciones de las reglas del Anexo —redondeo, base imponible,
+ * descuentos, IVA por línea— y la única forma de que no difieran es que
+ * haya una sola. La pantalla muestra lo que devuelve esto.
+ *
+ * No escribe nada y no consume consecutivo.
+ */
+facturacionCrRouter.post("/comprobantes/vista-previa", async (req, res) => {
+  try {
+    const calculo = calcularComprobante(req.body as DocumentoVenta);
+    res.json({
+      resumen: calculo.resumen,
+      lineas: calculo.lineas.map((l) => ({
+        numeroLinea: l.numeroLinea,
+        subtotal: l.subtotal,
+        baseImponible: l.baseImponible,
+        impuestoNeto: l.impuestoNeto,
+        montoTotalLinea: l.montoTotalLinea,
+      })),
+    });
+  } catch (err) {
+    // Un documento a medio llenar da error de cálculo, y eso es
+    // ESPERABLE mientras alguien escribe: se responde 400 con el motivo
+    // y la pantalla muestra el total en blanco, no un error rojo.
+    res.status(400).json({ error: (err as Error).message });
+  }
+});
+
+/**
+ * `GET /receptores?q=` — clientes de la clínica para elegir receptor.
+ *
+ * Es la MISMA búsqueda tolerante de la búsqueda global
+ * (`busquedaPropietarios.ts`), no una copia: nombre con tolerancia a
+ * errores de tipeo, teléfono y número de identificación por prefijo.
+ *
+ * Y es sobre `propietarios`, que ya es el fichero de clientes de la
+ * clínica. Una segunda tabla de "clientes de facturación" obligaría a
+ * mantener dos fichas de la misma persona.
+ */
+facturacionCrRouter.get("/receptores", async (req, res) => {
+  const q = String(req.query.q ?? "").trim();
+  try {
+    const propietarios = q ? await buscarPropietariosTolerante(req.db!, q, 10) : [];
+    res.json({ receptores: propietarios });
+  } catch (err) {
+    console.error("GET /facturacion/receptores", err);
+    res.status(500).json({ error: "Error al buscar clientes." });
+  }
+});
+
+/**
+ * `POST /receptores` — registra un cliente nuevo desde la pantalla de
+ * emisión, y queda guardado como cliente de la clínica.
+ *
+ * No crea nada aparte: inserta en `propietarios`, la misma tabla que
+ * usa el expediente.
+ */
+facturacionCrRouter.post("/receptores", async (req, res) => {
+  const b = req.body ?? {};
+  if (!b.nombre || String(b.nombre).trim() === "") {
+    return res.status(400).json({ error: "El cliente necesita un nombre." });
+  }
+  try {
+    const r = await req.db!.query<{ id: string }>(
+      `INSERT INTO propietarios (tenant_id, nombre, telefono, email,
+                                 tipo_identificacion_id, numero_identificacion)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id`,
+      [
+        req.auth!.tenantId,
+        String(b.nombre).trim(),
+        b.telefono ?? null,
+        b.email ?? null,
+        b.tipoIdentificacionId ?? null,
+        b.numeroIdentificacion ?? null,
+      ]
+    );
+    res.status(201).json({ id: r.rows[0].id });
+  } catch (err) {
+    console.error("POST /facturacion/receptores", err);
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+// =====================================================================
+// BORRADORES
+// =====================================================================
+
+/** `POST /borradores` — guarda un comprobante sin emitirlo. */
+facturacionCrRouter.post("/borradores", async (req, res) => {
+  try {
+    const r = await guardarBorrador(req.auth!.tenantId!, req.body as DocumentoVenta);
+    res.status(201).json(r);
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+/** `PUT /borradores/:id` — reemplaza el contenido de un borrador. */
+facturacionCrRouter.put("/borradores/:id", async (req, res) => {
+  try {
+    const r = await guardarBorrador(
+      req.auth!.tenantId!,
+      req.body as DocumentoVenta,
+      req.params.id
+    );
+    res.json(r);
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+/** `DELETE /borradores/:id` — lo elimina. Solo si sigue siendo borrador. */
+facturacionCrRouter.delete("/borradores/:id", async (req, res) => {
+  try {
+    await borrarBorrador(req.auth!.tenantId!, req.params.id);
+    res.status(204).end();
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+/**
+ * `POST /borradores/:id/emitir` — recién acá el borrador consume su
+ * consecutivo y pasa a existir para Hacienda.
+ */
+facturacionCrRouter.post("/borradores/:id/emitir", async (req, res) => {
+  try {
+    const resultado = await emitirBorrador(req.auth!.tenantId!, req.params.id);
+    const entrega = await entregarComprobante(
+      req.auth!.tenantId!,
+      resultado.comprobanteId
+    ).catch((err) => {
+      console.error("POST /facturacion/borradores/:id/emitir: falló la entrega", err);
+      return { enviado: false, motivo: "No se pudo enviar el correo al receptor." };
+    });
+    res.status(201).json({ ...resultado, entrega });
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
 
 /**
  * `POST /comprobantes` — crea y emite desde un documento de venta.

@@ -221,5 +221,21 @@ export interface DocumentoVenta {
   otrosCargos?: OtroCargoDocumento[];
   referencias?: ReferenciaDocumento[];
 
+  /**
+   * Texto libre del emisor. Sale en el XML como `Otros/OtroTexto`, que
+   * es el campo que el XSD v4.4 define para esto: opcional, repetible y
+   * de hasta 500 caracteres (tipo `restrictedString`). No hay otro
+   * lugar en el esquema para una observación.
+   */
+  observaciones?: string;
+
+  /**
+   * De qué ficha de cliente (`propietarios`) salieron los datos del
+   * receptor. Es una REFERENCIA, no la fuente: lo que vale es la copia
+   * que queda en el comprobante, para que corregir la ficha del cliente
+   * mañana no altere una factura ya emitida.
+   */
+  receptorPropietarioId?: string;
+
   claveIdempotencia?: string;
 }

@@ -149,33 +149,21 @@ async function crearComprobante(
   documento: DocumentoVenta,
   calculo: ComprobanteCalculado,
   fechaEmision: Date
-): Promise<{ id: string; clave: string; consecutivo: string }> {
+): Promise<{ id: string }> {
   const sucursal = documento.sucursal ?? emisor.sucursal;
   const terminal = documento.terminal ?? emisor.terminal;
   const situacion: SituacionComprobante = documento.situacion ?? SITUACION_NORMAL;
 
-  const { consecutivo } = await consumirConsecutivo(db, emisor.tenantId, {
-    emisorId: emisor.id,
-    sucursal,
-    terminal,
-    tipoComprobante: documento.tipoComprobante,
-  });
-
-  const clave = armarClave({
-    fechaEmision,
-    tipoIdentificacionEmisor: emisor.tipoIdentificacion,
-    numeroIdentificacionEmisor: emisor.numeroIdentificacion,
-    consecutivo,
-    situacion,
-    codigoSeguridad: generarCodigoSeguridad(),
-  });
-
+  // NI CLAVE NI CONSECUTIVO todavía: los asigna `asignarIdentidad`, al
+  // emitir. Un borrador que se guarda y después se descarta no puede
+  // llevarse un número — la Nota 3 pide numeración consecutiva, y un
+  // hueco hay que explicárselo a Hacienda.
   const r = calculo.resumen;
   const rec = documento.receptor;
 
   const ins = await db.query<{ id: string }>(
     `INSERT INTO fact_comprobantes (
-       tenant_id, emisor_id, tipo_comprobante, clave, consecutivo, sucursal, terminal,
+       tenant_id, emisor_id, tipo_comprobante, sucursal, terminal,
        situacion, fecha_emision,
        codigo_actividad_emisor, codigo_actividad_receptor,
        receptor_tipo_identificacion, receptor_numero_identificacion, receptor_nombre,
@@ -183,7 +171,8 @@ async function crearComprobante(
        receptor_telefono_codigo_pais, receptor_telefono_numero,
        receptor_ubicacion_provincia, receptor_ubicacion_canton, receptor_ubicacion_distrito,
        receptor_ubicacion_barrio, receptor_ubicacion_otras_senas, receptor_otras_senas_extranjero,
-       condicion_venta, condicion_venta_detalle, plazo_credito_dias,
+       condicion_venta, condicion_venta_detalle, plazo_credito_dias, observaciones,
+       receptor_propietario_id,
        moneda, tipo_cambio,
        total_serv_gravados, total_serv_exentos, total_serv_exonerado, total_serv_no_sujeto,
        total_merc_gravadas, total_merc_exentas, total_merc_exonerada, total_merc_no_sujeta,
@@ -192,11 +181,12 @@ async function crearComprobante(
        total_imp_asum_emisor_fabrica, total_iva_devuelto, total_otros_cargos, total_comprobante,
        estado, clave_idempotencia, comprobante_referencia_id
      ) VALUES (
-       $1, $2, $3, $4, $5, $6, $7, $8, $9,
-       $10, $11,
-       $12, $13, $14, $15, $16, $17, $18,
-       $19, $20, $21, $22, $23, $24,
-       $25, $26, $27, $28, $29,
+       $1, $2, $3, $4, $5, $6, $7,
+       $8, $9,
+       $10, $11, $12, $13, $14, $15, $16,
+       $17, $18, $19, $20, $21, $22,
+       $23, $24, $25, $26, $27,
+       $28, $29,
        $30, $31, $32, $33, $34, $35, $36, $37,
        $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49,
        'borrador', $50, $51
@@ -205,8 +195,6 @@ async function crearComprobante(
       emisor.tenantId,
       emisor.id,
       documento.tipoComprobante,
-      clave,
-      consecutivo,
       sucursal,
       terminal,
       situacion,
@@ -229,6 +217,8 @@ async function crearComprobante(
       documento.condicionVenta,
       documento.condicionVentaDetalle ?? null,
       documento.plazoCreditoDias ?? null,
+      documento.observaciones ?? null,
+      documento.receptorPropietarioId ?? null,
       documento.moneda ?? "CRC",
       String(documento.tipoCambio ?? 1),
       deMonto(r.totalServGravados),
@@ -418,7 +408,7 @@ async function crearComprobante(
     moneda: documento.moneda ?? "CRC",
   });
 
-  return { id: comprobanteId, clave, consecutivo };
+  return { id: comprobanteId };
 }
 
 /**
@@ -430,6 +420,68 @@ async function crearComprobante(
  * UNIQUE cubre la carrera entre dos solicitudes simultáneas, que la
  * consulta previa sola no puede evitar.
  */
+/**
+ * Crea un comprobante en estado borrador, SIN clave ni consecutivo.
+ *
+ * Lo usa `borradores.ts`. Recibe la transacción abierta en vez de
+ * abrirla él: guardar un borrador y reemplazar el anterior tienen que
+ * ser atómicos, y eso lo decide quien llama.
+ */
+export async function crearBorradorEnTransaccion(
+  db: PoolClient,
+  tenantId: string,
+  documento: DocumentoVenta
+): Promise<{ id: string }> {
+  const fechaEmision = documento.fechaEmision ? new Date(documento.fechaEmision) : new Date();
+  const calculo = calcularComprobante(documento);
+  const emisor = await leerEmisor(db, tenantId);
+  return crearComprobante(db, emisor, documento, calculo, fechaEmision);
+}
+
+/**
+ * Le pone al comprobante su clave y su consecutivo. Es EL momento en
+ * que el comprobante empieza a existir para Hacienda.
+ *
+ * Está separado de `crearComprobante` justamente para que un borrador
+ * pueda vivir sin número. Se llama una sola vez por comprobante: el
+ * trigger de la migración 094 admite que la clave pase de NULL a un
+ * valor, y después la congela.
+ */
+async function asignarIdentidad(
+  db: PoolClient,
+  emisor: EmisorCompleto,
+  documento: DocumentoVenta,
+  fechaEmision: Date,
+  comprobanteId: string
+): Promise<{ clave: string; consecutivo: string }> {
+  const sucursal = documento.sucursal ?? emisor.sucursal;
+  const terminal = documento.terminal ?? emisor.terminal;
+  const situacion: SituacionComprobante = documento.situacion ?? SITUACION_NORMAL;
+
+  const { consecutivo } = await consumirConsecutivo(db, emisor.tenantId, {
+    emisorId: emisor.id,
+    sucursal,
+    terminal,
+    tipoComprobante: documento.tipoComprobante,
+  });
+
+  const clave = armarClave({
+    fechaEmision,
+    tipoIdentificacionEmisor: emisor.tipoIdentificacion,
+    numeroIdentificacionEmisor: emisor.numeroIdentificacion,
+    consecutivo,
+    situacion,
+    codigoSeguridad: generarCodigoSeguridad(),
+  });
+
+  await db.query(
+    `UPDATE fact_comprobantes SET clave = $2, consecutivo = $3 WHERE id = $1`,
+    [comprobanteId, clave, consecutivo]
+  );
+
+  return { clave, consecutivo };
+}
+
 async function buscarPorIdempotencia(
   db: PoolClient,
   emisorId: string,
@@ -481,8 +533,41 @@ export async function emitir(
       if (existente) return { yaExistia: true as const, resultado: existente, emisor };
     }
 
-    const r = await crearComprobante(db, emisor, documento, calculo, fechaEmision);
-    return { yaExistia: false as const, resultado: r, emisor };
+    // ENSAYO DEL XML ANTES DE CONSUMIR EL CONSECUTIVO.
+    //
+    // El cálculo de arriba valida los montos, pero NO la forma del XML:
+    // un barrio de cuatro letras, un detalle demasiado largo o
+    // cualquier otra cosa que el XSD rechace recién se descubría
+    // después de haber consumido un número, y eso dejaba un hueco en la
+    // numeración más una fila huérfana. Medido: una emisión que fallaba
+    // por el barrio saltaba del consecutivo 4 al 6.
+    //
+    // Así que se arma y se valida el XML con una clave y un consecutivo
+    // DE RELLENO —cincuenta y veinte ceros, que cumplen el formato del
+    // XSD pero no son de nadie— y recién si eso pasa se consume el
+    // número de verdad. El costo es una validación de más (milisegundos
+    // contra un XSD ya cargado en memoria) y lo que compra es que un
+    // documento mal armado no se lleve un consecutivo.
+    await exigirXmlValido(
+      armarXml({
+        clave: "0".repeat(50),
+        consecutivo: "0".repeat(20),
+        tipoComprobante: documento.tipoComprobante,
+        fechaEmision,
+        emisor,
+        documento,
+        calculo,
+      }),
+      documento.tipoComprobante,
+      { sinFirmar: true }
+    );
+
+    const { id } = await crearComprobante(db, emisor, documento, calculo, fechaEmision);
+    // La identidad se asigna en la MISMA transacción que la creación:
+    // así nunca queda, ni por un instante, un comprobante que se va a
+    // emitir sin consecutivo.
+    const identidad = await asignarIdentidad(db, emisor, documento, fechaEmision, id);
+    return { yaExistia: false as const, resultado: { id, ...identidad }, emisor };
   });
 
   if (creado.yaExistia) return creado.resultado;

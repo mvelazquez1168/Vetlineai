@@ -36,10 +36,22 @@ export async function datosParaPdf(
             e.tipo_identificacion AS emisor_tipo_id, e.numero_identificacion AS emisor_numero_id,
             e.ubicacion_otras_senas, e.ubicacion_barrio,
             e.telefono_codigo_pais, e.telefono_numero, e.correo AS emisor_correo,
-            t.zona_horaria, t.logo_url
+            t.zona_horaria, t.logo_url,
+            -- La ubicación del receptor, resuelta a nombres. LEFT JOIN
+            -- porque los tres campos son opcionales: un tiquete puede
+            -- no tener receptor, y un receptor puede no tener dirección.
+            pr.nombre AS receptor_provincia_nombre,
+            ca.nombre AS receptor_canton_nombre,
+            di.nombre AS receptor_distrito_nombre
        FROM fact_comprobantes c
        JOIN fact_emisores e ON e.id = c.emisor_id
        JOIN tenants t ON t.id = c.tenant_id
+       LEFT JOIN fact_cat_provincia pr ON pr.codigo = c.receptor_ubicacion_provincia
+       LEFT JOIN fact_cat_canton ca ON ca.provincia = c.receptor_ubicacion_provincia
+                                   AND ca.codigo = c.receptor_ubicacion_canton
+       LEFT JOIN fact_cat_distrito di ON di.provincia = c.receptor_ubicacion_provincia
+                                     AND di.canton = c.receptor_ubicacion_canton
+                                     AND di.codigo = c.receptor_ubicacion_distrito
       WHERE c.id = $1`,
     [comprobanteId]
   );
@@ -70,6 +82,20 @@ export async function datosParaPdf(
 
   const senas = [f.ubicacion_barrio, f.ubicacion_otras_senas].filter(Boolean).join(", ");
 
+  // Provincia, cantón y distrito en palabras; después el barrio y las
+  // otras señas. Sin ubicación codificada queda `null` y el PDF
+  // simplemente no imprime la línea.
+  const senasReceptor =
+    [
+      [f.receptor_distrito_nombre, f.receptor_canton_nombre, f.receptor_provincia_nombre]
+        .filter(Boolean)
+        .join(", "),
+      f.receptor_ubicacion_barrio,
+      f.receptor_ubicacion_otras_senas,
+    ]
+      .filter((x) => x && String(x).trim() !== "")
+      .join(" · ") || null;
+
   return {
     tipoComprobante: f.tipo_comprobante,
     clave: f.clave,
@@ -92,6 +118,14 @@ export async function datosParaPdf(
     receptorNombre: f.receptor_nombre,
     receptorIdentificacion: f.receptor_numero_identificacion,
     receptorCorreo: f.receptor_correo,
+    // La dirección del receptor sale RESUELTA A NOMBRES, no como
+    // "1/01/01": el PDF lo lee una persona. Los códigos siguen siendo
+    // lo que viaja en el XML.
+    receptorDireccion: senasReceptor,
+    receptorTelefono:
+      f.receptor_telefono_numero && f.receptor_telefono_codigo_pais
+        ? `+${f.receptor_telefono_codigo_pais} ${f.receptor_telefono_numero}`
+        : f.receptor_telefono_numero,
 
     condicionVenta: f.condicion_venta,
     mediosPago: medios.rows.map((m) => nombreMedioPago(m.codigo_medio_pago)),
@@ -118,6 +152,8 @@ export async function datosParaPdf(
     totalImpuesto: f.total_impuesto,
     totalOtrosCargos: f.total_otros_cargos,
     totalComprobante: f.total_comprobante,
+
+    observaciones: f.observaciones,
 
     estadoHacienda: estadoLegible(f.estado, f.respuesta_ind_estado),
     detalleHacienda: f.respuesta_detalle,

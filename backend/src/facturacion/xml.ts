@@ -186,12 +186,56 @@ export function armarXml(datos: DatosXml): string {
     );
   }
 
+  // Otros/OtroTexto — las observaciones. Va DESPUÉS de
+  // InformacionReferencia y antes de la firma, que es el orden del
+  // XSD. El REP no tiene este nodo.
+  //
+  // `maxLength` 500 lo impone el tipo `restrictedString` del esquema;
+  // se corta acá en vez de dejar que falle la validación, porque el
+  // error del XSD sobre un texto largo no dice qué campo fue.
+  if (!esRep && doc.observaciones && doc.observaciones.trim() !== "") {
+    const otros = raiz.ele("Otros");
+    otros.ele("OtroTexto").txt(doc.observaciones.trim().slice(0, 500));
+  }
+
   // El XML se devuelve SIN la firma: la agrega `firma.ts`, que inserta
   // el nodo `ds:Signature` al final de la secuencia. Devolverlo firmado
   // desde acá mezclaría dos responsabilidades y haría imposible validar
   // contra el XSD antes de firmar, que es justo el orden que la norma
   // pide.
   return raiz.end({ prettyPrint: false });
+}
+
+/**
+ * El `Barrio` del XSD v4.4 admite de 5 a 50 caracteres. Y la propia
+ * lista oficial de barrios de Hacienda tiene 169 nombres de MENOS de 5
+ * ("Amón", "Ana", "Cas"…): elegir un barrio real de su catálogo puede
+ * producir un XML que su propio esquema rechaza.
+ *
+ * Esa contradicción no se resuelve inventando caracteres. Se detiene
+ * acá, con un mensaje que dice qué pasa y qué hacer, en vez de dejar
+ * que el error salga del validador del XSD diciendo "[facet
+ * 'minLength'] The value has a length of '4'", que no le sirve a nadie.
+ *
+ * El campo es OPCIONAL, así que dejarlo vacío siempre es una salida.
+ */
+function exigirBarrioValido(valor: string | null | undefined, deQuien: string): void {
+  if (valor === null || valor === undefined) return;
+  const limpio = valor.trim();
+  if (limpio === "") return;
+  if (limpio.length < 5) {
+    throw new Error(
+      `El barrio ${deQuien} ("${limpio}") tiene ${limpio.length} caracteres y Hacienda exige al menos 5 ` +
+        `(el XSD v4.4 define Barrio de 5 a 50). Es una contradicción del propio Hacienda: su lista oficial ` +
+        `de barrios incluye nombres más cortos. Escribilo completo —por ejemplo "Barrio ${limpio}"— o dejalo ` +
+        `vacío, que el campo es opcional.`
+    );
+  }
+  if (limpio.length > 50) {
+    throw new Error(
+      `El barrio ${deQuien} tiene ${limpio.length} caracteres y el máximo del XSD v4.4 es 50.`
+    );
+  }
 }
 
 /** `FacturaElectronica` → `facturaElectronica`, que es el segmento del namespace. */
@@ -222,6 +266,7 @@ function escribirEmisor(raiz: XMLBuilder, emisor: EmisorXml, esRep: boolean) {
     u.ele("Provincia").txt(emisor.ubicacionProvincia);
     u.ele("Canton").txt(emisor.ubicacionCanton);
     u.ele("Distrito").txt(emisor.ubicacionDistrito);
+    exigirBarrioValido(emisor.ubicacionBarrio, "del emisor");
     opcional(u, "Barrio", emisor.ubicacionBarrio);
     u.ele("OtrasSenas").txt(emisor.ubicacionOtrasSenas);
 
@@ -283,6 +328,7 @@ function escribirReceptor(raiz: XMLBuilder, doc: DocumentoVenta, tipoComprobante
       u.ele("Provincia").txt(receptor.ubicacion.provincia);
       u.ele("Canton").txt(receptor.ubicacion.canton);
       u.ele("Distrito").txt(receptor.ubicacion.distrito);
+      exigirBarrioValido(receptor.ubicacion.barrio, "del receptor");
       opcional(u, "Barrio", receptor.ubicacion.barrio);
       u.ele("OtrasSenas").txt(receptor.ubicacion.otrasSenas);
     }

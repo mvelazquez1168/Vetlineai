@@ -72,6 +72,9 @@ export interface DatosPdfComprobante {
   receptorNombre?: string | null;
   receptorIdentificacion?: string | null;
   receptorCorreo?: string | null;
+  /** Ya resuelta a nombres (provincia, cantón, distrito), no códigos. */
+  receptorDireccion?: string | null;
+  receptorTelefono?: string | null;
 
   condicionVenta: string;
   mediosPago: string[];
@@ -91,6 +94,9 @@ export interface DatosPdfComprobante {
   /** Qué dijo Hacienda. Se muestra tal cual, sin maquillar. */
   estadoHacienda: string;
   detalleHacienda?: string | null;
+
+  /** Texto libre del emisor. Es el mismo que viaja en Otros/OtroTexto. */
+  observaciones?: string | null;
 
   /** Para una nota: a qué comprobante corrige. */
   referencias?: Array<{ numero: string | null; razon: string | null }>;
@@ -217,6 +223,8 @@ export async function generarPdfComprobante(datos: DatosPdfComprobante): Promise
       ? [
           datos.receptorNombre,
           datos.receptorIdentificacion ? `Identificación: ${datos.receptorIdentificacion}` : null,
+          datos.receptorDireccion,
+          datos.receptorTelefono ? `Tel. ${datos.receptorTelefono}` : null,
           datos.receptorCorreo,
         ].filter((x): x is string => !!x)
       : // Un tiquete puede no identificar al receptor, y decirlo es mejor
@@ -336,6 +344,26 @@ export async function generarPdfComprobante(datos: DatosPdfComprobante): Promise
         .strokeColor(COLOR_BORDE)
         .lineWidth(0.5)
         .stroke();
+    }
+
+    // -----------------------------------------------------------------
+    // Observaciones. Debajo del detalle y antes de los totales, que es
+    // donde las busca quien lee una factura. Es el mismo texto que va
+    // en Otros/OtroTexto del XML: uno solo, en dos soportes.
+    // -----------------------------------------------------------------
+    if (datos.observaciones && datos.observaciones.trim() !== "") {
+      if (y > 620) {
+        doc.addPage();
+        y = 50;
+      }
+      y += 6;
+      doc.fontSize(8).fillColor(COLOR_MUTED).text("OBSERVACIONES", izquierda, y);
+      y = doc.y + 2;
+      doc
+        .fontSize(9)
+        .fillColor("#000000")
+        .text(datos.observaciones.trim(), izquierda, y, { width: anchoUtil });
+      y = doc.y + 8;
     }
 
     // -----------------------------------------------------------------

@@ -22,7 +22,7 @@ Antes de construir, el informe parte de una tabla con el estado actual de cada p
 - Tiene observaciones generales, **vigencia** (días, configurable por clínica, 15 por defecto) y un número consecutivo propio.
 - **No es un comprobante electrónico** y no afecta inventario ni caja.
 
-**Estados:** borrador, enviado, aprobado, rechazado, vencido y convertido (total o parcialmente). El paso a vencido es automático cuando pasa la vigencia sin aprobación.
+**Estados:** borrador, enviado, aceptado, rechazado, vencido y convertido. El paso a vencido es automático cuando pasa la vigencia sin aceptación.
 
 **Origen:**
 - Se crea desde Caja, desde la ficha del cliente o **desde la atención en el expediente**. Este último es el caso típico: el médico cotiza una cirugía o un tratamiento.
@@ -31,17 +31,18 @@ Antes de construir, el informe parte de una tabla con el estado actual de cada p
 **Envío y aprobación:**
 - PDF con el logo y los datos de la clínica.
 - Envío por correo o WhatsApp a través de `emitirNotificacion` y `puedeEnviar()`, con el propósito "transaccional".
-- La aprobación la registra el usuario: aprobado por teléfono, por WhatsApp o en persona, con la fecha. No se construye una aprobación en línea del cliente; queda anotada como mejora futura.
+- La aprobación la registra el usuario: aceptado por teléfono, por WhatsApp o en persona, con la fecha. No se construye una aprobación en línea del cliente; queda anotada como mejora futura.
 
 **Conversión:**
-- Un presupuesto aprobado se convierte en cargos de una **cuenta abierta** (o en cargos de la atención ligada), usando la puerta única de cargos de caja.
+- Un presupuesto aceptado se convierte en cargos de una **cuenta abierta** (o en cargos de la atención ligada), usando la puerta única de cargos de caja.
 - Dentro de la vigencia se **respeta el precio cotizado**. Fuera de ella, el sistema avisa y ofrece usar el precio actual o mantener el cotizado (esto último requiere permiso).
-- La conversión puede ser **parcial**: se eligen las líneas, y el presupuesto queda "parcialmente convertido" con su saldo de líneas pendientes.
+- La conversión es **total**. Si el dueño quiere solo una parte, se edita el presupuesto antes de convertirlo. La conversión parcial no se construye en esta versión.
 - Un presupuesto puede tener **anticipos** asociados (los del 08). Al convertir, el anticipo queda disponible para aplicarse en el cobro.
 
 **Pantallas:**
-- Lista de presupuestos con filtros por estado, cliente y vencimiento, e indicadores: abiertos, por vencer en 7 días, tasa de aprobación del período.
-- Detalle del presupuesto. Se pueden **tener varios abiertos en pestañas** del navegador sin conflicto.
+- Lista de presupuestos con filtros por estado, cliente y vencimiento.
+- Detalle del presupuesto.
+- Es la **versión esencial**. No se construyen indicadores de aprobación ni la edición simultánea en pestañas.
 - Acceso desde Caja, desde la ficha del cliente y desde la atención.
 
 ### A2. Arqueo por denominación y vales de caja
@@ -114,11 +115,9 @@ Los dos datos viajan al cobro y quedan disponibles para consultas. Si los cargos
 - Se verifica qué dice la documentación oficial sobre comprobantes con líneas de distinta actividad. Si un comprobante solo admite una actividad, el sistema lo hace cumplir: avisa y propone separar la cuenta en dos comprobantes.
 - **Varios emisores por tenant** (por ejemplo, la sociedad actual y otra): se verifica si el facturador del 09a ya lo soporta. Si no, **no se construye ahora**; se documenta en el informe qué implicaría.
 
-### B2. Recepción automática de comprobantes de proveedores
+### B2. Recepción de comprobantes de proveedores
 
-**Buzón:**
-- Una dirección de recepción por clínica a la que los proveedores envían sus comprobantes (XML firmado, respuesta de Hacienda y PDF).
-- Se implementa detrás de un **proveedor de entrada intercambiable**: en desarrollo, un proveedor simulado y la **carga manual** de los archivos. El proveedor real de correo entrante se elige y se documenta en `docs/facturacion/recepcion-comprobantes.md`, sin conectarlo en desarrollo.
+**Entrada del comprobante:** en esta versión, por **carga manual**: el usuario arrastra el XML del proveedor (y, opcionalmente, su PDF y la respuesta de Hacienda) a la bandeja. Se aceptan varios archivos a la vez. El **buzón de correo automático** (una dirección a la que los proveedores envían sus facturas) **no se construye ahora**. Se deja la carga detrás de una interfaz que permita agregar el buzón después, y se documenta cómo se haría en `docs/facturacion/recepcion-comprobantes.md`.
 
 **Procesamiento:**
 - Se valida la estructura y la firma.
@@ -152,22 +151,29 @@ Los dos datos viajan al cobro y quedan disponibles para consultas. Si los cargos
 
 - Se agregan al producto los campos que la estructura v4.4 contempla para medicamentos y mercancías, **según la documentación oficial**: **registro sanitario del medicamento**, **forma farmacéutica** (catálogo oficial), **código comercial** (tipo y código) y **partida arancelaria** (solo para exportación).
 - Los campos son opcionales en el producto. El comprobante los incluye cuando la estructura los exige para ese tipo de línea, y la validación XSD lo confirma.
-- **Decreto 44863 (precios regulados):** se verifica en la fuente oficial (La Gaceta o SCIJ) qué regula, a qué productos aplica y si tiene un reflejo en el comprobante o en el precio. Si se confirma que aplica a productos que vende una clínica veterinaria, se agrega la bandera "precio regulado" y el comportamiento que la norma exija. Si no aplica o no se puede confirmar, no se construye y se informa.
-- **IVA devuelto:** se verifica en la normativa oficial si la devolución del IVA aplica a **servicios veterinarios** pagados con tarjeta, o solo a servicios de salud humana. Se construye solo si aplica, y se informa en cualquier caso.
+- **Fuera de alcance, pendiente de consulta al contador de Medicavet:** el decreto 44863 de precios regulados y el IVA devuelto (que parece aplicar solo a servicios de salud humana). No se investigan ni se construyen en esta entrega.
 
 ---
+
+## Manual de usuario
+
+Cada funcionalidad de este prompt se documenta en el **manual de usuario** (`docs/ayuda/`, con el formato de la sección 12 de la guía), escrito para una persona que sabe de veterinaria pero no de administración ni de facturación electrónica. Como mínimo:
+
+- **Presupuestos:** para qué sirven (cotizar una cirugía o un tratamiento antes de hacerlo y cobrar el anticipo sobre un monto claro), cómo se crean desde la atención o la caja, cómo se envían, qué significa cada estado, qué pasa al vencer y cómo se convierten en cargos con el anticipo aplicado.
+- **Recepción de comprobantes de proveedores:** qué es el XML que envía el proveedor; por qué hay que **aceptar o rechazar** cada comprobante ante Hacienda (es la base para usar el IVA pagado como crédito en la declaración, con el plazo oficial que corresponda); qué significa una aceptación parcial; cómo se vinculan las líneas a los productos la primera vez y por qué después se vinculan solas; y por qué conviene registrar la compra desde el XML (el costo exacto es la base de los márgenes).
+- **Arqueo por denominación, vales, autorización de descuentos, comisiones de tarjeta y conciliación con el datáfono, actividad económica por comprobante y campos fiscales del producto:** cada uno con su para qué, su paso a paso y un ejemplo con números.
 
 ## Verificación y entrega
 
 Según la sección 12 de la guía, se recorre en el navegador:
 
-- crear un presupuesto desde una atención, enviarlo (simulado), aprobarlo, convertirlo parcialmente con un anticipo y cobrarlo; dejar vencer otro;
+- crear un presupuesto desde una atención, enviarlo (simulado), aprobarlo, aceptarlo, convertirlo con su anticipo aplicado y cobrarlo; dejar vencer otro;
 - un cierre de caja contando por denominación, con un vale;
 - un descuento por encima del tope con autorización inmediata y otro con solicitud pendiente; confirmar el código de descuento en el XML;
 - un cobro con tarjeta con su comisión, y un cierre con diferencia en el datáfono que exige justificación;
 - un cargo con ejecutor distinto del médico y con referente;
 - emitir con cada actividad económica, y una cuenta mixta;
-- recibir un comprobante de proveedor por carga manual, aceptarlo parcialmente y registrar su entrada a inventario con una equivalencia nueva; recibir otro del mismo proveedor y confirmar que la equivalencia se aplica sola;
+- recibir un comprobante de proveedor por carga manual, aceptarlo (y otro parcialmente) y registrar su entrada a inventario con una equivalencia nueva; recibir otro del mismo proveedor y confirmar que la equivalencia se aplica sola;
 - la descarga masiva;
 - un producto con registro sanitario y forma farmacéutica, y su línea en el XML validada contra el XSD.
 
@@ -176,7 +182,7 @@ Según la sección 12 de la guía, se recorre en el navegador:
 - las pantallas nuevas con su camino de clics;
 - las migraciones (con RLS forzado y `ON DELETE CASCADE` en toda tabla nueva de tenant);
 - las fuentes oficiales consultadas para cada dato fiscal, con lo que se confirmó y lo que no;
-- lo documentado sin construir: varios emisores, conciliación bancaria, aprobación en línea del presupuesto, TSE.
+- lo documentado sin construir: varios emisores, conciliación bancaria, aceptación en línea del presupuesto, conversión parcial, buzón de correo de proveedores, TSE.
 
 Este trabajo se detiene solo ante:
 - una contradicción con la guía o con lo construido;

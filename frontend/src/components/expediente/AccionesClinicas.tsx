@@ -430,6 +430,7 @@ export function PanelReceta({
   const [duracionCantidad, setDuracionCantidad] = useState("7");
   const [duracionUnidad, setDuracionUnidad] = useState<"dias" | "semanas" | "meses">("dias");
   const [dispensadoAqui, setDispensadoAqui] = useState(false);
+  const [cantidadDispensada, setCantidadDispensada] = useState("1");
 
   const recargar = () => {
     atencionApi
@@ -475,6 +476,8 @@ export function PanelReceta({
         duracionCantidad: duracionCantidad ? Number(duracionCantidad) : null,
         duracionUnidad,
         dispensadoAqui: origen === "catalogo" ? dispensadoAqui : false,
+        cantidadDispensada:
+          origen === "catalogo" && dispensadoAqui ? Number(cantidadDispensada) || 1 : null,
       });
       setTextoLibre("");
       setPresentacionId("");
@@ -744,6 +747,23 @@ export function PanelReceta({
               </label>
             )}
           </div>
+
+          {/* CUANTO SE ENTREGA, aparte de cuantas tomas son. La cuenta
+              de las tomas no se puede usar como cantidad de la
+              presentacion: 14 tomas no son 14 cajas. */}
+          {origen === "catalogo" && dispensadoAqui && (
+            <div className="mt-3 flex items-end gap-3">
+              <Input
+                label="Cuántas se entregan"
+                value={cantidadDispensada}
+                onChange={(e) => setCantidadDispensada(e.target.value)}
+              />
+              <p className="pb-2 text-xs text-text-muted">
+                Presentaciones (cajas, frascos), no tomas. Esto es lo que se cobra y lo que sale
+                del inventario.
+              </p>
+            </div>
+          )}
 
           {previsualizacion && (
             <p className="mt-2 text-sm font-medium text-primary">{previsualizacion}</p>

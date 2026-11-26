@@ -383,7 +383,14 @@ async function main() {
     ["Amoxicilina 500 mg — Tableta"],
     "en la cuenta está la línea dispensada y NO la de afuera"
   );
-  assert(cuenta.items[0].cantidad === 14, "con la cantidad total de la receta", cuenta.items[0].cantidad);
+  // SE ENTREGA UNA PRESENTACION, no las 14 tomas del tratamiento: 14
+  // tomas no son 14 cajas. Defecto real visto en el navegador, donde
+  // una receta de ₡9 000 se cobraba ₡126 000.
+  assert(
+    cuenta.items[0].cantidad === 1,
+    "y se entrega UNA presentación, no las 14 tomas del tratamiento",
+    cuenta.items[0].cantidad
+  );
 
   // -------------------------------------------------------------------
   console.log("\n=== 5. El aviso de alergia ===");
@@ -429,7 +436,7 @@ async function main() {
   console.log("\n=== 8. El resumen del cierre dice lo que va a pasar ===");
   const resumen = await conAlcanceTenant(tenantId, (db) => resumenDelCierre(db, atencion));
   assert(resumen.cargos.length === 2, "dos cargos: la amoxicilina y el hemograma", resumen.cargos);
-  assert(resumen.total === 14 * 600 + 12000, "con su total", resumen.total);
+  assert(resumen.total === 600 + 12000, "con su total", resumen.total);
   assert(resumen.salidas.length === 1, "una sola salida de inventario: el hemograma es un servicio");
   assert(resumen.receta?.lineas === 1, "y la receta que se va a firmar", resumen.receta);
   igual(

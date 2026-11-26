@@ -509,6 +509,7 @@ export interface LineaRecetaCalculada {
   cantidadTotal?: number | null;
   indicaciones?: string | null;
   dispensadoAqui?: boolean;
+  cantidadDispensada?: number | null;
   pesoBaseKg: number | null;
   dosisTotal: number | null;
   explicacionDosis: string | null;

@@ -39,6 +39,12 @@ export interface LineaReceta {
   indicaciones?: string | null;
   observaciones?: string | null;
   dispensadoAqui?: boolean;
+  /**
+   * Cuántas PRESENTACIONES se entregan (cajas, frascos), cuando la
+   * línea se dispensa acá. No es `cantidadTotal`, que son las tomas de
+   * todo el tratamiento. Por defecto una.
+   */
+  cantidadDispensada?: number | null;
 }
 
 export interface LineaCalculada extends LineaReceta {
@@ -495,6 +501,20 @@ export async function agregarLinea(
   // siempre. `agregarItem` se importa adentro para no crear un ciclo de
   // módulos: atencion.ts ya importa de acá.
   if (linea.dispensadoAqui && linea.presentacionId) {
+    // CUÁNTO SE ENTREGA NO ES CUÁNTAS TOMAS SON.
+    //
+    // Defecto real, visto en el navegador: la receta calculaba 14 tomas
+    // (cada 12 h por 7 días) y se cobraban 14 CAJAS de 20 tabletas,
+    // ₡126 000 en vez de ₡9 000. La cuenta de las tomas es correcta; lo
+    // que estaba mal era usarla como cantidad de la presentación.
+    //
+    // Convertir con `factor` tampoco alcanza: la dosis puede estar en
+    // mg y la presentación en cajas, y ahí no hay conversión posible
+    // sin saber cuántos mg trae cada unidad —un dato que el catálogo no
+    // tiene—. Así que se entrega UNA presentación y el médico ajusta si
+    // hace falta: cobrar de más por una cuenta que el sistema no puede
+    // hacer bien es peor que pedir un número.
+    const cantidadAEntregar = linea.cantidadDispensada ?? 1;
     const { agregarItem } = await import("./atencion");
     const item = await agregarItem(
       db,
@@ -503,7 +523,7 @@ export async function agregarLinea(
       {
         tipo: "receta",
         presentacionId: linea.presentacionId,
-        cantidad: cantidadTotal && cantidadTotal > 0 ? cantidadTotal : 1,
+        cantidad: cantidadAEntregar,
         dispensadoAqui: true,
       },
       personaId

@@ -495,8 +495,17 @@ porque los módulos siguientes se apoyan en ellas desde su primer día:
   sección o una acción de la pantalla desde la que se llega naturalmente. Una pantalla a la que solo
   se llega escribiendo la dirección no existe para el usuario. Cada entrega lista sus pantallas
   nuevas con el camino de clics para llegar a cada una.
-- **Cada entrega actualiza `docs/ayuda/`** con los caminos de clics de sus pantallas nuevas o
-  cambiadas, en lenguaje de usuario: es la fuente de la ayuda del agente.
+- **Manual de usuario: cada entrega actualiza `docs/ayuda/`.** Es a la vez el manual de usuario de
+  Vetline Clinic y la fuente de la ayuda del agente. Está escrito para una persona que sabe de
+  veterinaria pero no de administración, finanzas ni facturación electrónica. Cada funcionalidad
+  tiene, en este orden: **para qué sirve** (el problema que resuelve en la clínica), **cuándo se
+  usa**, **quién puede usarla** (rol), **paso a paso** con el camino de clics, **un ejemplo con
+  números**, **qué pasa después** (qué se cobra, qué se descuenta, qué se avisa, qué ve el cliente),
+  **preguntas frecuentes y errores comunes**, y los términos que usa enlazados a un **glosario**
+  común (margen, anticipo, comprobante, mensaje receptor, FEFO, etc.). Una pantalla sin su página
+  de manual no está terminada. Al cierre de cada bloque se genera el manual consolidado en PDF y
+  Word, con el logo de la clínica, como continuación del manual de usuario de Vetline Ai que ya
+  existe en `docs/`.
 - **Las funciones se verifican desde la interfaz, en un navegador**, no solo desde la API: cada flujo
   nuevo se recorre clic a clic como lo haría el usuario, y el resultado se contrasta contra la base.
   La verificación de la API complementa, no reemplaza.

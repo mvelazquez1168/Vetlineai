@@ -14,6 +14,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import {
   Catalogos,
@@ -191,15 +192,15 @@ export function ComprobanteDetalle() {
 
   return (
     <div>
-      <Link to="/facturacion" className="text-sm text-text-muted hover:text-primary">
-        ← Comprobantes
-      </Link>
-
-      <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-primary">{c.consecutivo}</h2>
-          <p className="mt-1 break-all font-mono text-xs text-text-muted">{c.clave}</p>
-        </div>
+      <PageHeader
+        variante="compacta"
+        titulo={c.consecutivo ?? "Comprobante sin consecutivo"}
+        icono="comprobante"
+        modulo="facturacion"
+        padre={{ a: "/facturacion", etiqueta: "Comprobantes" }}
+        contexto={<span className="break-all font-mono text-xs">{c.clave}</span>}
+      />
+      <div className="mb-4 flex flex-wrap items-start justify-end gap-3">
         <Badge variant={varianteEstado(c.estado)} dot>
           {c.estadoLegible}
         </Badge>

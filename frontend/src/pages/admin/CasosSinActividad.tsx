@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -69,11 +70,12 @@ export function CasosSinActividad() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Casos sin actividad</h1>
-      <p className="mt-1 text-text-muted">
-        Casos abiertos (no cerrados) de toda la clínica que nadie tocó desde hace tiempo — desde acá se pueden
-        abrir y cerrar.
-      </p>
+      <PageHeader
+        titulo="Casos sin actividad"
+        subtitulo="Casos abiertos (no cerrados) de toda la clínica que nadie tocó desde hace tiempo — desde acá se pueden abrir y cerrar."
+        icono="hora"
+        modulo="casos"
+      />
 
       <div className="mt-6 flex flex-wrap items-end gap-4 rounded-2xl border border-black/5 bg-surface p-4">
         <label className="flex items-center gap-2 text-sm text-text-primary">

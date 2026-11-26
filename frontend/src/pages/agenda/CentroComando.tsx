@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Badge } from "../../components/ui/Badge";
 import { Card } from "../../components/ui/Card";
@@ -61,8 +62,12 @@ export function CentroComando() {
 
   return (
     <div className="flex flex-col gap-6">
+      <PageHeader
+        titulo="Centro de comando diario"
+        icono="panel"
+        modulo="agenda"
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-primary">Centro de Comando Diario</h1>
         <input
           type="date"
           value={fecha}

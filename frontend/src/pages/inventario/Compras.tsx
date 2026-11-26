@@ -13,6 +13,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import {
   Bodega,
@@ -248,10 +249,11 @@ export function Compras() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Compras</h2>
+      <PageHeader
+        titulo="Compras"
+        icono="caja"
+        modulo="inventario"
+      />
 
       <Card className="mt-6">
         <CardTitle>Orden sugerida</CardTitle>

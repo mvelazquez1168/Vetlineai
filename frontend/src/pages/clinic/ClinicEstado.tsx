@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Badge } from "../../components/ui/Badge";
 import { Card, CardDescription, CardTitle } from "../../components/ui/Card";
@@ -27,11 +28,12 @@ export function ClinicEstado() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Vetline Clinic</h1>
-      <p className="mt-1 text-text-muted">
-        Los módulos de gestión de la clínica. Se habilitan de a uno; los que todavía no están
-        disponibles no muestran nada.
-      </p>
+      <PageHeader
+        titulo="Vetline Clinic"
+        subtitulo="Los módulos de gestión de la clínica. Se habilitan de a uno; los que todavía no están disponibles no muestran nada."
+        icono="panel"
+        modulo="admin"
+      />
 
       {isLoading && <p className="mt-6 text-text-muted">Cargando…</p>}
       {error && <p className="mt-6 text-sm text-error">{error}</p>}

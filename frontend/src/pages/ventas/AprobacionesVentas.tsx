@@ -9,6 +9,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import { Aprobacion, formatearMonto, ventasApi } from "../../lib/ventasApi";
@@ -151,10 +152,11 @@ export function AprobacionesVentas() {
 
   return (
     <div>
-      <Link to="/ventas" className="text-sm text-text-muted hover:text-primary">
-        ← Caja
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Aprobaciones</h2>
+      <PageHeader
+        titulo="Aprobaciones"
+        icono="aviso"
+        modulo="caja"
+      />
       <p className="mt-1 text-sm text-text-muted">
         {pendientes === 0 ? "Nada pendiente." : `${plural(pendientes, "solicitud", "solicitudes")} esperando.`}
       </p>

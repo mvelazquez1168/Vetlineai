@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { ControlSegmentado } from "../../components/ui";
 import { Select } from "../../components/ui/Select";
 import { useAuth } from "../../hooks/useAuth";
 import {
@@ -444,43 +445,30 @@ export function NuevaCitaModal({
               <Input label="Hora" type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
             </div>
 
-            <div>
-              <p className="text-sm font-semibold text-text-primary">Duración</p>
-              <div className="mt-1.5 flex gap-2">
-                {DURACIONES.map((d) => (
-                  <button
-                    key={d}
-                    type="button"
-                    onClick={() => setDuracion(d)}
-                    className={[
-                      "flex-1 rounded-lg border py-2 text-sm font-semibold",
-                      duracion === d ? "border-accent bg-accent/10 text-accent" : "border-black/10 text-text-muted hover:bg-black/5",
-                    ].join(" ")}
-                  >
-                    {d}m
-                  </button>
-                ))}
-              </div>
-            </div>
+            <ControlSegmentado
+              etiqueta="Duración"
+              valor={duracion}
+              onCambio={setDuracion}
+              opciones={DURACIONES.map((d) => ({ valor: d, etiqueta: `${d} min` }))}
+            />
 
-            <div>
-              <p className="text-sm font-semibold text-text-primary">Prioridad</p>
-              <div className="mt-1.5 flex gap-2">
-                {PRIORIDADES.map((p) => (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => setPrioridad(p.value)}
-                    className={[
-                      "flex-1 rounded-lg border py-2 text-sm font-semibold",
-                      prioridad === p.value ? "border-accent bg-accent/10 text-accent" : "border-black/10 text-text-muted hover:bg-black/5",
-                    ].join(" ")}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* La prioridad se tiñe con SU color de estado y no con el
+                primario: «urgente» en el color de la clínica es un dato
+                mas; en rojo es una advertencia, que es lo que es. */}
+            <ControlSegmentado
+              etiqueta="Prioridad"
+              valor={prioridad}
+              onCambio={setPrioridad}
+              opciones={PRIORIDADES.map((p) => ({
+                valor: p.value,
+                etiqueta: p.label,
+                tono: (p.value === "emergencia"
+                  ? "error"
+                  : p.value === "alta"
+                    ? "aviso"
+                    : "primario") as "error" | "aviso" | "primario",
+              }))}
+            />
 
             <Select
               label="Sala"

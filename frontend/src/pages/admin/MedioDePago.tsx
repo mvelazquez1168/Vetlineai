@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
@@ -76,11 +77,13 @@ export function MedioDePago() {
 
   return (
     <div>
-      <Link to="/admin/plan-consumo" className="text-sm font-medium text-accent hover:underline">
-        ← Volver a Plan y consumo
-      </Link>
-      <h1 className="mt-2 text-2xl font-bold text-primary">Medio de pago</h1>
-      <p className="mt-1 text-text-muted">La tarjeta registrada se usa para recargas, autorecarga y cambios de plan.</p>
+      <PageHeader
+        padre={{ a: "/admin/plan-consumo", etiqueta: "Plan y consumo" }}
+        titulo="Medio de pago"
+        subtitulo="La tarjeta registrada se usa para recargas, autorecarga y cambios de plan."
+        icono="plan"
+        modulo="admin"
+      />
 
       <Card className="mt-6">
         {metodo ? (

@@ -11,6 +11,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { CuentaListada, Provisional, ventasApi } from "../../lib/ventasApi";
 import { plural } from "../../lib/plural";
@@ -107,10 +108,11 @@ export function Contingencia() {
 
   return (
     <div>
-      <Link to="/ventas" className="text-sm text-text-muted hover:text-primary">
-        ← Caja
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Contingencia</h2>
+      <PageHeader
+        titulo="Contingencia"
+        icono="aviso"
+        modulo="caja"
+      />
 
       <div className="mt-4 rounded-xl border border-black/5 bg-surface p-3 text-sm">
         <p className="font-medium text-text-primary">

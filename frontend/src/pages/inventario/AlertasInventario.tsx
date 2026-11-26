@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardDescription, CardTitle, LoadingState, useToast } from "../../components/ui";
+import { Card, CardDescription, CardTitle, LoadingState, useToast,
+  PageHeader,
+} from "../../components/ui";
 import { Alertas, formatearCantidad, inventarioApi } from "../../lib/inventarioApi";
 import { plural } from "../../lib/plural";
 
@@ -144,10 +146,11 @@ export function AlertasInventario() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Alertas de inventario</h2>
+      <PageHeader
+        titulo="Alertas de inventario"
+        icono="aviso"
+        modulo="inventario"
+      />
       <p className="mt-1 text-sm text-text-muted">
         {totalUrgentes === 0
           ? "Nada urgente: no hay vencidos con existencia, envases abiertos vencidos ni productos bajo el mínimo."

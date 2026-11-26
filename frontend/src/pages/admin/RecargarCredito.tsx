@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
@@ -109,11 +110,13 @@ export function RecargarCredito() {
 
   return (
     <div>
-      <Link to="/admin/plan-consumo" className="text-sm font-medium text-accent hover:underline">
-        ← Volver a Plan y consumo
-      </Link>
+      <PageHeader
+        padre={{ a: "/admin/plan-consumo", etiqueta: "Plan y consumo" }}
+        titulo="Recargar crédito"
+        icono="plan"
+        modulo="admin"
+      />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-primary">Recargar crédito</h1>
         <div className="text-right">
           <p className="text-xs font-bold uppercase tracking-wide text-text-muted">Saldo actual</p>
           <p className="text-xl font-bold text-primary">USD {plan.saldo.totalUsd.toFixed(2)}</p>

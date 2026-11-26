@@ -137,6 +137,31 @@ export function CatalogoProductos() {
                 {estado === "bajo" ? `bajo el mínimo (${formatearCantidad(minimo)})` : "en punto de reorden"}
               </span>
             )}
+            {/* LA BARRA CONTRA EL MINIMO (prompt 01c, seccion 4). Dice de
+                un vistazo lo que el numero obliga a comparar de memoria:
+                cuanto queda respecto de lo que deberia haber. Solo se
+                dibuja si el producto TIENE minimo: sin minimo no hay
+                contra que medir, y una barra llena al 100% diria que
+                todo esta bien cuando en realidad no hay regla. */}
+            {minimo > 0 && (
+              <span
+                className="mt-1 block h-1 w-full overflow-hidden rounded-full bg-black/10"
+                role="img"
+                aria-label={`${formatearCantidad(hay)} de un mínimo de ${formatearCantidad(minimo)}`}
+              >
+                <span
+                  className={[
+                    "block h-full rounded-full",
+                    estado === "bajo"
+                      ? "bg-error"
+                      : estado === "reorden"
+                        ? "bg-warning"
+                        : "bg-success",
+                  ].join(" ")}
+                  style={{ width: `${Math.min(100, Math.round((hay / minimo) * 100))}%` }}
+                />
+              </span>
+            )}
           </div>
         );
       },

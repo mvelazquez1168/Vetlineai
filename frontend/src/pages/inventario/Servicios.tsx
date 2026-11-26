@@ -12,6 +12,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import {
   CatalogosInventario,
@@ -195,15 +196,14 @@ export function Servicios() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
+      <PageHeader
+        titulo="Servicios"
+        subtitulo="Con su receta de insumos: qué consume cada vez que se realiza."
+        icono="clinico"
+        modulo="inventario"
+      />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-primary">Servicios</h2>
-          <p className="mt-1 text-sm text-text-muted">
-            Con su receta de insumos: qué consume cada vez que se realiza.
-          </p>
         </div>
         <Button onClick={() => setCreando(true)}>
           <Icono nombre="agregar" className="mr-1 h-4 w-4" />

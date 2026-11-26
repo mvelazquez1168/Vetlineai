@@ -120,4 +120,6 @@ export { PageHeader, TiraIndicadores } from "./PageHeader";
 export type { PageHeaderProps } from "./PageHeader";
 
 export { Tabs, IndicadorPestana, PestanasDeRuta } from "./Tabs";
+export { ControlSegmentado } from "./ControlSegmentado";
+export type { ControlSegmentadoProps, OpcionSegmentada } from "./ControlSegmentado";
 export type { TabsProps, Pestana } from "./Tabs";

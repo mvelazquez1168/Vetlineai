@@ -136,7 +136,7 @@ ventasRouter.get("/sesiones/:id", async (req, res) => {
       esperadoDeSesion(req.db!, req.params.id),
       req.db!.query(
         `SELECT co.*, p.nombre AS cajero, cu.numero AS cuenta_numero, cu.cliente_nombre,
-                cmp.consecutivo
+                cmp.consecutivo, cmp.tipo_comprobante
            FROM vta_cobros co
            LEFT JOIN personas p ON p.id = co.cobrado_por
            LEFT JOIN vta_cuentas cu ON cu.id = co.cuenta_id
@@ -240,8 +240,22 @@ ventasRouter.get("/sesiones/:id", async (req, res) => {
       }
     }
 
+    // CUANTAS FACTURAS Y CUANTOS TIQUETES (prompt 01c, seccion 5). Sale
+    // de los cobros de la sesion, no de `fact_comprobantes` sueltos: lo
+    // que el cajero quiere saber es cuanto de lo que EL cobro salio con
+    // factura. Los cobros sin comprobante —una cuenta saldada contra un
+    // anticipo— se cuentan aparte y no se esconden.
+    const comprobantes = { facturas: 0, tiquetes: 0, sinComprobante: 0 };
+    for (const c of cobros.rows as { estado: string; tipo_comprobante: string | null }[]) {
+      if (c.estado !== "aplicado") continue;
+      if (c.tipo_comprobante === "01") comprobantes.facturas += 1;
+      else if (c.tipo_comprobante === "04") comprobantes.tiquetes += 1;
+      else comprobantes.sinComprobante += 1;
+    }
+
     res.json({
       sesion: s.rows[0],
+      comprobantes,
       esperado,
       cobros: cobros.rows,
       movimientos: movimientos.rows,

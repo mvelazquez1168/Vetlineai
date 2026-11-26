@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -70,7 +71,11 @@ export function PlanConsumo() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Plan y consumo</h1>
+      <PageHeader
+        titulo="Plan y consumo"
+        icono="plan"
+        modulo="admin"
+      />
 
       {/* Tarjeta de plan */}
       <Card className="mt-6">

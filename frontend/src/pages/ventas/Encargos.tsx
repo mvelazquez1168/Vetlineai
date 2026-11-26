@@ -13,6 +13,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { Caja, CuentaListada, Encargo, formatearMonto, ventasApi } from "../../lib/ventasApi";
 import { ProductoListado, inventarioApi } from "../../lib/inventarioApi";
@@ -352,12 +353,13 @@ export function Encargos() {
 
   return (
     <div>
-      <Link to="/ventas" className="text-sm text-text-muted hover:text-primary">
-        ← Caja
-      </Link>
+      <PageHeader
+        titulo="Encargos"
+        icono="inventario"
+        modulo="caja"
+      />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-primary">Encargos</h2>
           <p className="mt-1 text-sm text-text-muted">
             {porAvisar > 0
               ? `${plural(porAvisar, "encargo llegó", "encargos llegaron")} y hay que avisarle al cliente.`

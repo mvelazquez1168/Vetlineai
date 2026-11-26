@@ -8,6 +8,7 @@ import {
   MenuExportar,
   Select,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { guardarComoArchivo } from "../../lib/descargas";
 import { formatearMonto, ventasApi } from "../../lib/ventasApi";
@@ -101,11 +102,12 @@ export function ReportesVentas() {
 
   return (
     <div>
-      <Link to="/ventas" className="text-sm text-text-muted hover:text-primary">
-        ← Caja
-      </Link>
+      <PageHeader
+        titulo="Reportes de ventas"
+        icono="reportes"
+        modulo="caja"
+      />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-bold text-primary">Reportes de ventas</h2>
         <MenuExportar onExportar={exportar} deshabilitado={filas.length === 0} />
       </div>
 

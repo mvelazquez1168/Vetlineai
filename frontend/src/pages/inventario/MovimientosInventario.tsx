@@ -12,6 +12,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import {
@@ -308,10 +309,11 @@ export function MovimientosInventario() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Movimientos</h2>
+      <PageHeader
+        titulo="Movimientos"
+        icono="ajustes"
+        modulo="inventario"
+      />
       <p className="mt-1 text-sm text-text-muted">
         Todo lo que mueve stock sin ser una venta ni una compra. Son siete: <strong>ajuste
         positivo</strong> y <strong>negativo</strong>, <strong>merma</strong>, <strong>consumo

@@ -69,6 +69,7 @@ export function CajaDelDia() {
     movimientos: MovimientoEfectivo[];
     cuentasAbiertas: CuentaListada[];
     porMedio: LineaPorMedio[];
+    comprobantes: { facturas: number; tiquetes: number; sinComprobante: number };
   } | null>(null);
   const [cargando, setCargando] = useState(true);
   const [ocupado, setOcupado] = useState(false);
@@ -385,7 +386,11 @@ export function CajaDelDia() {
               icono="caja"
               modulo="caja"
               variacionPorcentaje={null}
-              detalle={plural(datos.cobros.filter((c) => c.estado === "aplicado").length, "cobro", "cobros")}
+              detalle={[
+                plural(datos.cobros.filter((c) => c.estado === "aplicado").length, "cobro", "cobros"),
+                plural(datos.comprobantes?.facturas ?? 0, "factura", "facturas"),
+                plural(datos.comprobantes?.tiquetes ?? 0, "tiquete", "tiquetes"),
+              ].join(" · ")}
             />
             {(datos.porMedio ?? []).map((l) => (
               <KpiCard

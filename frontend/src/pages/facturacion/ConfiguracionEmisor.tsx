@@ -12,6 +12,7 @@ import {
   LoadingState,
   Select,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { SelectorUbicacion } from "../../components/SelectorUbicacion";
 import { useAuth } from "../../hooks/useAuth";
@@ -155,13 +156,13 @@ export function ConfiguracionEmisor() {
 
   return (
     <div>
-      <Link to="/facturacion" className="text-sm text-text-muted hover:text-primary">
-        ← Comprobantes
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Emisor y credenciales</h2>
-      <p className="mt-1 text-sm text-text-muted">
-        Los datos fiscales con los que se emite, y las credenciales de Hacienda.
-      </p>
+      <PageHeader
+        padre={{ a: "/facturacion", etiqueta: "Comprobantes" }}
+        titulo="Emisor y credenciales"
+        subtitulo="Los datos fiscales con los que se emite, y las credenciales de Hacienda."
+        icono="ajustes"
+        modulo="facturacion"
+      />
 
       {!esAdminClinica && (
         <div className="mt-4 rounded-xl border border-black/5 bg-surface p-3 text-sm text-text-muted">

@@ -4,6 +4,7 @@ import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Modal } from "../../components/ui/Modal";
+import { PageHeader } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import { formatearFecha } from "../../lib/formatFecha";
 import { ApiError } from "../../lib/apiError";
@@ -210,10 +211,14 @@ export function CambiarPlan() {
 
   return (
     <div>
-      <Link to="/admin/plan-consumo" className="text-sm font-medium text-accent hover:underline">
-        ← Volver a Plan y consumo
-      </Link>
-      <h1 className="mt-2 text-2xl font-bold text-primary">{enPrueba ? "Contratar un plan" : "Cambiar plan"}</h1>
+      {/* El «← Volver» suelto desaparece: el enlace al padre va DENTRO
+          del encabezado (prompt 01c, seccion 1). */}
+      <PageHeader
+        titulo={enPrueba ? "Contratar un plan" : "Cambiar plan"}
+        icono="plan"
+        modulo="admin"
+        padre={{ a: "/admin/plan-consumo", etiqueta: "Plan y consumo" }}
+      />
 
       {paso === "catalogo" && (
         <>

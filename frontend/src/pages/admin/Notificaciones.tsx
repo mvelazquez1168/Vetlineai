@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -99,8 +100,12 @@ export function Notificaciones() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Notificaciones</h1>
-      <p className="mt-1 text-text-muted">Estos avisos se envían automáticamente en nombre de tu clínica.</p>
+      <PageHeader
+        titulo="Notificaciones"
+        subtitulo="Estos avisos se envían automáticamente en nombre de tu clínica."
+        icono="campana"
+        modulo="admin"
+      />
 
       <div className="mt-8 max-w-2xl space-y-8">
         <div className="space-y-6">

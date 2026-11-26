@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
@@ -94,9 +95,13 @@ export function Agentes() {
 
   return (
     <div>
+      <PageHeader
+        titulo="Mis agentes"
+        icono="agente"
+        modulo="ia"
+      />
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary">Mis agentes</h1>
           {cupos && (
             <p className="mt-1 text-text-muted">
               {cupos.agentesEnUso} de {cupos.agentesContratados ?? "∞"} agentes en uso

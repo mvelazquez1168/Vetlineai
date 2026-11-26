@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -118,11 +119,12 @@ export function ReporteAtenciones() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Reporte de Atenciones</h1>
-      <p className="mt-1 text-text-muted">
-        Respaldo de atenciones realizadas, listo para presentar ante el colegio de médicos veterinarios si lo
-        solicita.
-      </p>
+      <PageHeader
+        titulo="Reporte de atenciones"
+        subtitulo="Respaldo de atenciones realizadas, listo para presentar ante el colegio de médicos veterinarios si lo solicita."
+        icono="reportes"
+        modulo="admin"
+      />
 
       <div className="mt-6 flex flex-wrap items-end gap-4 rounded-2xl border border-black/5 bg-surface p-4">
         <Input label="Desde" type="date" value={desde} onChange={(e) => setDesde(e.target.value)} />

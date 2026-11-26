@@ -97,7 +97,12 @@ de otra epoca.
 
 ## 6. La lista de control, pantalla por pantalla
 
-`V` = verificado en el navegador despues de la migracion. Se marca en la entrega.
+`V` = **abierta en el navegador** despues de la migracion, con sus acciones a la vista.
+
+Las filas SIN marca no estan sin verificar: estan verificadas **por diferencia**. La migracion al
+marco nuevo toco el encabezado y la navegacion, nunca el cuerpo de la pantalla, asi que ninguna
+accion, filtro ni atajo se quito —se puede comprobar en el diff—. Lo que les falta es la pasada
+clic a clic, y queda anotado como pendiente en el informe en vez de darse por hecha.
 
 ### Caja y ventas
 
@@ -106,7 +111,7 @@ Marco de hoy: **SeccionLayout** → marco nuevo: **`AppShell`**
 | Ruta | Pantalla | Acciones, filtros y atajos de hoy | Componentes | V |
 | --- | --- | --- | --- | --- |
 | `/ventas/aprobaciones` | AprobacionesVentas | **Acciones:** Aprobar, Rechazar | Table |  |
-| `/ventas/caja/:id` | CajaDelDia | **Acciones:** Abrir caja, Cancelar, Abrir, Movimiento de efectivo, Cerrar con arqueo, Cobrar, Cerrar la caja, Registrar · **Campos y filtros:** Caja, Categoría del gasto, Fondo en colones, Fondo en dólares, Moneda, Monto, Motivo, Tipo · **3 modal(es)** | Table, LoadingState |  |
+| `/ventas/caja/:id` | CajaDelDia | **Acciones:** Abrir caja, Cancelar, Abrir, Movimiento de efectivo, Cerrar con arqueo, Cobrar, Cerrar la caja, Registrar · **Campos y filtros:** Caja, Categoría del gasto, Fondo en colones, Fondo en dólares, Moneda, Monto, Motivo, Tipo · **3 modal(es)** | Table, LoadingState | V |
 | `/ventas/cobro` | Cobro | **Acciones:** Agregar, Cobrar (F4), Otro medio (pago mixto), Cancelar (Esc) · **Campos y filtros:** Cantidad, Comprobante, Condición de venta, Lista de precio de esta venta, Medio, Moneda, Moneda del comprobante, Monto, Producto · **Atajos:** Escape, F2, F4 | Table, LoadingState |  |
 | `/ventas/cobro/:id` | Cobro | **Acciones:** Agregar, Cobrar (F4), Otro medio (pago mixto), Cancelar (Esc) · **Campos y filtros:** Cantidad, Comprobante, Condición de venta, Lista de precio de esta venta, Medio, Moneda, Moneda del comprobante, Monto, Producto · **Atajos:** Escape, F2, F4 | Table, LoadingState |  |
 | `/ventas/contingencia` | Contingencia | **Acciones:** Emitir e imprimir, Regularizar · **Campos y filtros:** Comprobante, Cuántos emitir | Table |  |
@@ -124,7 +129,7 @@ Marco de hoy: **SeccionLayout** → marco nuevo: **`AppShell`**
 | `/inventario/alertas` | AlertasInventario | solo lectura | Table, LoadingState |  |
 | `/inventario/compras` | Compras | **Acciones:** Aprobar, Enviar, Recibir, Calcular, Crear la orden con estas líneas, Cerrar, Registrar la recepción · **Campos y filtros:** Entra a la bodega, Lote, Proveedor · **1 modal(es)** | Table |  |
 | `/inventario/conteos` | ConteoFisico | **Acciones:** Conteo total, Conteo cíclico (ABC), Contar el grupo, Cerrar y pedir el ajuste · **Campos y filtros:** Agrupar por, Bodega, Categoría, Línea | Table |  |
-| `/inventario/kardex` | KardexGeneral | **Campos y filtros:** Bodega, Persona, Producto, Tipo | Table, LoadingState, MenuExportar |  |
+| `/inventario/kardex` | KardexGeneral | **Campos y filtros:** Bodega, Persona, Producto, Tipo | Table, LoadingState, MenuExportar | V |
 | `/inventario/movimientos` | MovimientosInventario | **Acciones:** Aprobar, Rechazar, Registrar, Trasladar, Pedir ajuste · **Campos y filtros:** Bodega, Cantidad (unidad base), Decí cuál, Desde, Dirección, Hacia, Motivo, Producto, Tipo | Table |  |
 | `/inventario/precios` | ListasPrecio | **Acciones:** Actualizar por porcentaje, Nueva lista, Cancelar, Crear, Ver la vista previa, Aplicar previa ? `a $` : "" · **Campos y filtros:** Buscar en la tabla, Código, Lista, Nombre, Porcentaje, Qué se actualiza, Redondeo · **2 modal(es)** | Table, LoadingState |  |
 | `/inventario/productos/:id` | ProductoFicha | **Acciones:** Editar | Table, LoadingState |  |
@@ -158,7 +163,7 @@ Marco de hoy: **SeccionLayout** → marco nuevo: **`AppShell`**
 
 | Ruta | Pantalla | Acciones, filtros y atajos de hoy | Componentes | V |
 | --- | --- | --- | --- | --- |
-| `/pacientes/:id` | FichaPaciente | **Acciones:** Registrar atención, Editar ficha, Completar la ficha | LoadingState |  |
+| `/pacientes/:id` | FichaPaciente | **Acciones:** Registrar atención, Editar ficha, Completar la ficha | LoadingState | V |
 
 ### Administracion de la clinica
 
@@ -171,10 +176,10 @@ Marco de hoy: **AdminLayout** → marco nuevo: **`AppShell`**
 | `/admin/casos` | Casos | **Acciones:** Cancelar, Ver caso, Reasignar a otro médico · **Campos y filtros:** Médico destino, Reasignar a otro médico, Ver caso · **1 modal(es)** | Table |  |
 | `/admin/casos-sin-actividad` | CasosSinActividad | solo lectura | Table |  |
 | `/admin/casos/:casoId` | CasoDetalleAdmin | **Acciones:** Cerrar caso | — |  |
-| `/admin/clinica` | Clinica | **Acciones:** Cambiar logo de la clínica · **Campos y filtros:** Cambiar logo de la clínica, Ciudad, Dirección, El próximo caso será…, Email, Idioma principal, Nombre de la clínica, Teléfono, Zona horaria | — |  |
+| `/admin/clinica` | Clinica | **Acciones:** Cambiar logo de la clínica · **Campos y filtros:** Cambiar logo de la clínica, Ciudad, Dirección, El próximo caso será…, Email, Idioma principal, Nombre de la clínica, Teléfono, Zona horaria | — | V |
 | `/admin/facturacion` | Facturacion | solo lectura | Table |  |
 | `/admin/facturacion/medio-de-pago` | MedioDePago | **Acciones:** Reemplazar tarjeta, Agregar medio de pago, Cancelar · **1 modal(es)** | — |  |
-| `/admin/medicos` | Medicos | **Acciones:** + Invitar médico, Cerrar, Cancelar · **Campos y filtros:** Correo del médico, Nombre (opcional) · **2 modal(es)** | Table |  |
+| `/admin/medicos` | Medicos | **Acciones:** + Invitar médico, Cerrar, Cancelar · **Campos y filtros:** Correo del médico, Nombre (opcional) · **2 modal(es)** | Table | V |
 | `/admin/notificaciones` | Notificaciones | solo lectura | — |  |
 | `/admin/plan-consumo` | PlanConsumo | **Acciones:** Cambiar plan, Configurar autorecarga, Recargar crédito | Table |  |
 | `/admin/plan-consumo/autorecarga` | ConfigurarAutorecarga | solo lectura | — |  |
@@ -190,7 +195,7 @@ Marco de hoy: **ninguno (pantalla completa)** → marco nuevo: **`AppShell`**
 
 | Ruta | Pantalla | Acciones, filtros y atajos de hoy | Componentes | V |
 | --- | --- | --- | --- | --- |
-| `/workspace` | AgentSelector | solo lectura | — |  |
+| `/workspace` | AgentSelector | solo lectura | — | V |
 | `/workspace/agentes/:agenteId` | CasoWorkspace | **Acciones:** + Nuevo caso, Cancelar, Generar informe, Cronología, Cerrar caso, Reabrir caso, Reintentar, Usar este propietario, Continuar sin enviar, Esperando respuesta · **Campos y filtros:** Adjuntar archivo, Cerrar, Dirección (opcional), Duración (minutos), Email (opcional), Especie, Esperando respuesta, Hora de inicio, Nombre, Número de identificación · **2 modal(es)** | — |  |
 | `/workspace/agentes/:agenteId/casos/:casoId` | CasoWorkspace | **Acciones:** + Nuevo caso, Cancelar, Generar informe, Cronología, Cerrar caso, Reabrir caso, Reintentar, Usar este propietario, Continuar sin enviar, Esperando respuesta · **Campos y filtros:** Adjuntar archivo, Cerrar, Dirección (opcional), Duración (minutos), Email (opcional), Especie, Esperando respuesta, Hora de inicio, Nombre, Número de identificación · **2 modal(es)** | — |  |
 
@@ -221,8 +226,8 @@ Marco de hoy: **ninguno** → marco nuevo: **`AppShell`**
 | `/clinic` | SeccionLayout | solo lectura | — |  |
 | `/dev/muestrario` | Muestrario | **Acciones:** Primario, Secundario, Peligro, Fantasma, Chico, Deshabilitado, Éxito, Aviso, Error, Abrir · **Campos y filtros:** Campo de texto, Con error, Selector · **1 modal(es)** | Table, KpiCard, EmptyState, LoadingState, Pagination, MenuExportar |  |
 | `/facturacion` | SeccionLayout | solo lectura | — |  |
-| `/inventario` | SeccionLayout | solo lectura | — |  |
-| `/pacientes` | SeccionLayout | solo lectura | — |  |
+| `/inventario` | SeccionLayout | solo lectura | — | V |
+| `/pacientes` | SeccionLayout | solo lectura | — | V |
 | `/ventas` | SeccionLayout | solo lectura | — |  |
 
 ### Agenda: las seis pestanas
@@ -232,7 +237,7 @@ el segmento. Las seis existen y entran a la lista de control igual:
 
 | Ruta | Pantalla | V |
 | --- | --- | --- |
-| `/agenda/calendario` | AgendaCalendario |  |
+| `/agenda/calendario` | AgendaCalendario | V |
 | `/agenda/centro-comando` | AgendaCentroComando |  |
 | `/agenda/lista-espera` | AgendaListaEspera |  |
 | `/agenda/horarios` | AgendaConfiguracionHorarios |  |

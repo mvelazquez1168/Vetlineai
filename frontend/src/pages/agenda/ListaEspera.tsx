@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useMemo, useState } from "react";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -131,8 +132,12 @@ export function ListaEspera() {
 
   return (
     <div className="flex flex-col gap-6">
+      <PageHeader
+        titulo="Lista de espera"
+        icono="hora"
+        modulo="agenda"
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-primary">Lista de Espera</h1>
         <Button onClick={() => setFormAbierto((v) => !v)}>{formAbierto ? "Cerrar" : "+ Agregar a la lista"}</Button>
       </div>
 

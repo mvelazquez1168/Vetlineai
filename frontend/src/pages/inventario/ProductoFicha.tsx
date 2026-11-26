@@ -12,6 +12,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import {
   ConsumoPorOrigen,
@@ -138,36 +139,39 @@ export function ProductoFicha() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
-      <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-primary">{String(p.nombre)}</h2>
-          <p className="mt-1 text-sm text-text-muted">
+      <PageHeader
+        variante="compacta"
+        titulo={String(p.nombre)}
+        icono="producto"
+        modulo="inventario"
+        padre={{ a: "/inventario", etiqueta: "Catálogo" }}
+        contexto={
+          <>
             {String(p.codigo)} · se mide en {String(p.unidad_base)}
             {p.principio_activo ? ` · ${String(p.principio_activo)}` : ""}
             {p.concentracion ? ` ${String(p.concentracion)}` : ""}
-          </p>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {p.requiere_receta && <Badge variant="info">Requiere receta</Badge>}
-            {p.es_controlado && <Badge variant="error">Controlado</Badge>}
-            {p.requiere_refrigeracion && <Badge variant="info">Refrigeración</Badge>}
-            {p.vida_util_apertura_dias && (
-              <Badge variant="warning">
-                Dura {String(p.vida_util_apertura_dias)} días tras abrirse
-              </Badge>
-            )}
-            {p.permite_stock_negativo && <Badge variant="neutral">Admite stock negativo</Badge>}
-          </div>
-        </div>
-        <Link to={`/inventario/productos/${id}/editar`}>
-          <Button variant="secondary">
-            <Icono nombre="editar" className="mr-1 h-4 w-4" />
-            Editar
-          </Button>
-        </Link>
-      </div>
+            <span className="mt-1 flex flex-wrap gap-1">
+              {p.requiere_receta && <Badge variant="info">Requiere receta</Badge>}
+              {p.es_controlado && <Badge variant="error">Controlado</Badge>}
+              {p.requiere_refrigeracion && <Badge variant="info">Refrigeración</Badge>}
+              {p.vida_util_apertura_dias && (
+                <Badge variant="warning">
+                  Dura {String(p.vida_util_apertura_dias)} días tras abrirse
+                </Badge>
+              )}
+              {p.permite_stock_negativo && <Badge variant="neutral">Admite stock negativo</Badge>}
+            </span>
+          </>
+        }
+        accion={
+          <Link to={`/inventario/productos/${id}/editar`}>
+            <Button variant="secondary">
+              <Icono nombre="editar" className="mr-1 h-4 w-4" />
+              Editar
+            </Button>
+          </Link>
+        }
+      />
 
       {/* ------------------------------------------ Existencia */}
       <div className="mt-6 grid gap-4 lg:grid-cols-2">

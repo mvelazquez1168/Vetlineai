@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Badge,
   EmptyState,
+  Icono,
   Input,
   KpiCard,
   LoadingState,
@@ -72,12 +73,19 @@ export function Pacientes() {
     {
       key: "nombre",
       header: "Paciente",
+      // Un icono en la primera columna donde aporta (prompt 01c, 4). El
+      // de la especie: en una lista de treinta, distinguir perros de
+      // gatos a simple vista es mas rapido que leer treinta veces la
+      // columna de al lado. No reemplaza el texto, lo acompana.
       render: (p) => (
         <button
           type="button"
           onClick={() => navigate(`/pacientes/${p.id}`)}
-          className="font-semibold text-primary hover:underline"
+          className="flex items-center gap-2 text-left font-semibold text-primary hover:underline"
         >
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary-suave">
+            <Icono nombre="paciente" tamano={16} className="text-modulo-pacientes" />
+          </span>
           {p.nombre}
         </button>
       ),

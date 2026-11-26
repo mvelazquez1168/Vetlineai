@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -166,8 +167,12 @@ export function ConfiguracionHorarios() {
 
   return (
     <div className="flex flex-col gap-6">
+      <PageHeader
+        titulo="Configuración de horarios"
+        icono="clinica"
+        modulo="agenda"
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-primary">Configuración de Horarios</h1>
         <div className="w-64">
           {esAdminClinica ? (
             <Select

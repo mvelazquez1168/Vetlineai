@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Card } from "../../components/ui/Card";
 import { agendaApi, AnaliticasAgenda } from "../../lib/agendaApi";
@@ -107,8 +108,12 @@ export function Analiticas() {
 
   return (
     <div className="flex flex-col gap-6">
+      <PageHeader
+        titulo="Analíticas y reportes"
+        icono="reportes"
+        modulo="agenda"
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-primary">Analíticas y Reportes</h1>
         <div className="flex items-center gap-2">
           <input type="date" value={desde} max={hasta} onChange={(e) => setDesde(e.target.value)} className="rounded-lg border border-black/10 bg-surface px-3 py-2 text-sm" />
           <span className="text-sm text-text-muted">a</span>

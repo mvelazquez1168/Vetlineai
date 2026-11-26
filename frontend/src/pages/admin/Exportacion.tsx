@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
@@ -96,13 +97,16 @@ export function ExportacionPage() {
 
   return (
     <div className="max-w-3xl">
-      <Link to="/admin/plan-consumo" className="text-sm font-medium text-accent hover:underline">
-        ← Volver a Plan y consumo
-      </Link>
+      <PageHeader
+        variante="compacta"
+        titulo="Exportar datos de la clínica"
+        icono="descargar"
+        modulo="admin"
+        padre={{ a: "/admin/plan-consumo", etiqueta: "Plan y consumo" }}
+      />
 
-      <div className="mt-4 flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Exportar datos de la clínica</h1>
           <CardDescription>
             El archivo incluye todos tus casos con sus datos, los archivos adjuntos y los informes generados.
           </CardDescription>

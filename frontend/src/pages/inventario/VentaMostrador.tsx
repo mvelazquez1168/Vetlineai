@@ -9,6 +9,7 @@ import {
   Icono,
   Select,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import {
   Bodega,
@@ -117,10 +118,11 @@ export function VentaMostrador() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Venta de mostrador</h2>
+      <PageHeader
+        titulo="Venta de mostrador"
+        icono="caja"
+        modulo="inventario"
+      />
 
       <div className="mt-3 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
         <p className="font-medium text-text-primary">Esta pantalla es provisoria.</p>

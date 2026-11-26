@@ -194,20 +194,35 @@ Las capturas están en `docs/diseno/capturas/` (12 archivos).
 
 ---
 
-## 8. Lo que quedó pendiente
+## 8. El cierre del alcance
 
-1. **Las subpantallas de inventario y de facturación** (Movimientos, Kardex, Compras, Precios,
-   Servicios, Emitir, Emisor, Perfiles, Recibidos) están **dentro del marco y con sus pestañas**,
-   pero conservan su encabezado propio: no recibieron `PageHeader` ni indicadores. Funcionan y no
-   perdieron ninguna acción; les falta el patrón visual.
-2. **Las pantallas de administración de la suscripción** (Plan y consumo, Cambiar plan, Facturación
-   de la suscripción, Medio de pago, Recargar crédito) tampoco recibieron el encabezado del patrón.
-3. **Tablas**: no se aplicaron el ícono en la primera columna, la barra de existencia contra el
-   mínimo ni el menú «⋯» donde no estaban ya.
-4. **Controles segmentados** y **selector de paciente en tarjetas**: sin cambios.
-5. **Caja**: falta el desglose de facturas contra tiquetes en la franja (ver §6).
-6. **La lista de control del relevamiento** se verificó por módulo y por camino de clics, no fila
-   por fila con marca individual.
+Lo que el 26 de noviembre a la tarde quedaba pendiente se terminó en la misma entrega:
+
+- **37 pantallas más** recibieron el encabezado del patrón: las nueve subpantallas de inventario,
+  las cinco de caja, las cinco de facturación, las cinco de agenda, las doce de administración y
+  el estado de Vetline Clinic. Cinco de ellas —ficha y editor de producto, detalle del
+  comprobante, emisión y exportación— con la **variante compacta**, por ser pantallas de trabajo
+  largo.
+- **Los 19 «← Volver» sueltos** que quedaban pasaron a `padre` dentro del encabezado, y donde ya
+  había pestañas del módulo se quitaron del todo: un enlace a «Catálogo» justo debajo de una
+  pestaña que dice «Catálogo» es ruido.
+- **La barra de existencia contra el mínimo** en el catálogo, con su `aria-label`, y solo cuando
+  el producto tiene mínimo: sin mínimo no hay contra qué medir.
+- **El ícono de la primera columna** en el listado de pacientes.
+- **`ControlSegmentado`**, con la opción elegida **rellena y con ✓** —no apenas teñida— y la
+  prioridad en su color de estado: «Emergencia» en rojo y no en el color de la clínica.
+- **Facturas y tiquetes** en la franja de caja, contados sobre los cobros de la sesión. Los
+  cobros sin comprobante (una cuenta saldada contra un anticipo) se cuentan aparte y no se
+  esconden.
+
+### Lo que sigue pendiente
+
+1. **La pasada clic a clic de la lista de control.** Están marcadas en
+   `docs/diseno/relevamiento-marco.md` las **9 pantallas abiertas en el navegador**. Las demás
+   están verificadas **por diferencia** —la migración tocó encabezado y navegación, nunca el
+   cuerpo, y el diff lo muestra—, pero eso no es lo mismo que haberlas abierto.
+2. **El selector de paciente en tarjetas** del modal de cita: sigue siendo una lista.
+3. **El menú «⋯» de fila** solo está donde ya estaba (catálogo, movimientos).
 
 ## 9. Dos cosas del ambiente que conviene saber
 

@@ -10,6 +10,7 @@ import {
   LoadingState,
   Select,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { SelectorUbicacion, ValorUbicacion } from "../../components/SelectorUbicacion";
 import { SelectorReceptor } from "../../components/SelectorReceptor";
@@ -422,17 +423,20 @@ export function EmitirComprobante() {
 
   return (
     <div>
-      <Link to="/facturacion" className="text-sm text-text-muted hover:text-primary">
-        ← Comprobantes
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">
-        {borradorId ? "Editar borrador" : "Emitir un comprobante"}
-      </h2>
-      <p className="mt-1 text-sm text-text-muted">
-        {borradorId
-          ? "Este borrador todavía no tiene número. El consecutivo se asigna al emitirlo."
-          : "Para el caso suelto. Lo normal es que caja emita por la API."}
-      </p>
+      <PageHeader
+        variante="compacta"
+        titulo={borradorId ? "Editar borrador" : "Emitir un comprobante"}
+        icono="comprobante"
+        modulo="facturacion"
+        padre={{ a: "/facturacion", etiqueta: "Comprobantes" }}
+        contexto={
+          <>
+            {borradorId
+              ? "Este borrador todavía no tiene número. El consecutivo se asigna al emitirlo."
+              : "Para el caso suelto. Lo normal es que caja emita por la API."}
+          </>
+        }
+      />
 
       {cabysVacio?.vacio && (
         <div className="mt-4 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">

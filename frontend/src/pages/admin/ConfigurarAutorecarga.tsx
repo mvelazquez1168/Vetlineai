@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -74,11 +75,13 @@ export function ConfigurarAutorecarga() {
 
   return (
     <div>
-      <Link to="/admin/plan-consumo" className="text-sm font-medium text-accent hover:underline">
-        ← Volver a Plan y consumo
-      </Link>
-      <h1 className="mt-2 text-2xl font-bold text-primary">Configurar autorecarga</h1>
-      <p className="mt-1 text-text-muted">Recarga su saldo automáticamente cuando cae por debajo de un umbral.</p>
+      <PageHeader
+        padre={{ a: "/admin/plan-consumo", etiqueta: "Plan y consumo" }}
+        titulo="Configurar autorecarga"
+        subtitulo="Recarga su saldo automáticamente cuando cae por debajo de un umbral."
+        icono="plan"
+        modulo="admin"
+      />
 
       {!metodo && (
         <div className="mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">

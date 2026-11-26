@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
@@ -108,8 +109,12 @@ export function Facturacion() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Facturación</h1>
-      <p className="mt-1 text-text-muted">Historial de cobros y datos de facturación de tu clínica.</p>
+      <PageHeader
+        titulo="Facturación"
+        subtitulo="Historial de cobros y datos de facturación de tu clínica."
+        icono="comprobante"
+        modulo="admin"
+      />
 
       <Card className="mt-6">
         <CardTitle>Historial de cobros</CardTitle>

@@ -9,6 +9,7 @@ import {
   Input,
   LoadingState,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import { ReceptorEncontrado, facturacionCrApi } from "../../lib/facturacionCrApi";
@@ -147,10 +148,11 @@ export function CuentaCorriente() {
 
   return (
     <div>
-      <Link to="/ventas" className="text-sm text-text-muted hover:text-primary">
-        ← Caja
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Cuenta corriente del cliente</h2>
+      <PageHeader
+        titulo="Cuenta corriente del cliente"
+        icono="propietario"
+        modulo="caja"
+      />
 
       <Card className="mt-6">
         <div className="relative">

@@ -58,6 +58,7 @@ export interface CobroListado {
   cuenta_numero: number | null;
   cliente_nombre: string | null;
   consecutivo: string | null;
+  tipo_comprobante: string | null;
 }
 
 export interface MovimientoEfectivo {
@@ -166,6 +167,7 @@ export const ventasApi = {
   sesion: (id: string) =>
     pedir<{
       sesion: Sesion;
+      comprobantes: { facturas: number; tiquetes: number; sinComprobante: number };
       esperado: LineaEsperada[];
       cobros: CobroListado[];
       movimientos: MovimientoEfectivo[];

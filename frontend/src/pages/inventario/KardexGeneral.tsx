@@ -10,6 +10,7 @@ import {
   MenuExportar,
   Select,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { guardarComoArchivo } from "../../lib/descargas";
 import {
@@ -111,15 +112,14 @@ export function KardexGeneral() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
+      <PageHeader
+        titulo="Kardex"
+        subtitulo="Todos los movimientos de inventario: entradas, salidas, traslados y ajustes aplicados."
+        icono="reportes"
+        modulo="inventario"
+      />
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-primary">Kardex</h2>
-          <p className="mt-1 text-sm text-text-muted">
-            Todos los movimientos de inventario: entradas, salidas, traslados y ajustes aplicados.
-          </p>
         </div>
         <MenuExportar onExportar={exportar} deshabilitado={movimientos.length === 0} />
       </div>

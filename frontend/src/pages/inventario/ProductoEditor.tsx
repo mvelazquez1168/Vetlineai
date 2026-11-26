@@ -10,6 +10,7 @@ import {
   LoadingState,
   Select,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import {
   CatalogosInventario,
@@ -205,12 +206,13 @@ export function ProductoEditor() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">
-        {esNuevo ? "Nuevo producto" : "Editar producto"}
-      </h2>
+      <PageHeader
+        variante="compacta"
+        titulo={esNuevo ? "Nuevo producto" : "Editar producto"}
+        icono="producto"
+        modulo="inventario"
+        padre={{ a: "/inventario", etiqueta: "Catálogo" }}
+      />
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">

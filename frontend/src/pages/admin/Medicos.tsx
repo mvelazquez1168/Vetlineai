@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
@@ -292,9 +293,13 @@ export function Medicos() {
 
   return (
     <div>
+      <PageHeader
+        titulo="Médicos"
+        icono="personas"
+        modulo="admin"
+      />
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary">Gestión de Médicos</h1>
           <p className="text-text-muted">{nombreClinica}</p>
         </div>
         <Button onClick={() => setModalAbierto(true)}>+ Invitar médico</Button>

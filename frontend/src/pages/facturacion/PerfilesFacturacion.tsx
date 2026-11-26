@@ -15,6 +15,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { SelectorUbicacion, ValorUbicacion } from "../../components/SelectorUbicacion";
 import {
@@ -275,12 +276,14 @@ export function PerfilesFacturacion() {
 
   return (
     <div>
-      <Link to="/facturacion" className="text-sm text-text-muted hover:text-primary">
-        ← Comprobantes
-      </Link>
+      <PageHeader
+        padre={{ a: "/facturacion", etiqueta: "Comprobantes" }}
+        titulo="Perfiles de facturación"
+        icono="propietario"
+        modulo="facturacion"
+      />
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-primary">Perfiles de facturación</h2>
           <p className="mt-1 max-w-2xl text-sm text-text-muted">
             A nombre de quién se factura cuando no es el dueño de la mascota: su empresa, una
             fundación que paga la atención, un familiar. Un perfil puede servir a varios clientes o

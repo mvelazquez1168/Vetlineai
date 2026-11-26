@@ -1,3 +1,4 @@
+import { PageHeader } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
 import { useAuth } from "../../hooks/useAuth";
@@ -70,12 +71,14 @@ export function Notificaciones() {
 
   return (
     <div className="flex flex-col gap-5">
+      <PageHeader
+        titulo="Notificaciones de la plataforma"
+        subtitulo="Historial de alertas y recordatorios automáticos generados por los agentes de IA."
+        icono="campana"
+        modulo="agenda"
+      />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-primary">Notificaciones de la Plataforma</h2>
-          <p className="mt-1 text-sm text-text-muted">
-            Historial de alertas y recordatorios automáticos generados por los agentes de IA.
-          </p>
         </div>
         <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-black/10 bg-surface px-3 py-1.5 text-xs font-semibold text-text-muted">
           <span

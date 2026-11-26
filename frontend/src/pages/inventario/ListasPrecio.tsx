@@ -13,6 +13,7 @@ import {
   Modal,
   Select,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import {
   FilaPrecioMasivo,
@@ -220,12 +221,13 @@ export function ListasPrecio() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
+      <PageHeader
+        titulo="Listas de precio"
+        icono="plan"
+        modulo="inventario"
+      />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-primary">Listas de precio</h2>
           <p className="mt-1 text-sm text-text-muted">
             El precio base vive en el producto y el servicio. Una lista lo <strong>reemplaza</strong>{" "}
             para los ítems que carga, mientras está vigente.

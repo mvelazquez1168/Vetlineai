@@ -14,6 +14,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import { Recibido, facturacionCrApi, formatearMonto } from "../../lib/facturacionCrApi";
 import { plural } from "../../lib/plural";
@@ -208,17 +209,16 @@ export function ComprobantesRecibidos() {
 
   return (
     <div>
-      <Link to="/facturacion" className="text-sm text-text-muted hover:text-primary">
-        ← Comprobantes
-      </Link>
 
+      <PageHeader
+        padre={{ a: "/facturacion", etiqueta: "Comprobantes" }}
+        titulo="Comprobantes recibidos"
+        subtitulo="Las facturas que la clínica recibe de sus proveedores, y el mensaje con el que se aceptan o se rechazan."
+        icono="recibidos"
+        modulo="facturacion"
+      />
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-primary">Comprobantes recibidos</h2>
-          <p className="mt-1 text-sm text-text-muted">
-            Las facturas que la clínica recibe de sus proveedores, y el mensaje con el que se aceptan
-            o se rechazan.
-          </p>
         </div>
         <label className="inline-flex">
           <input

@@ -12,6 +12,7 @@ import {
   Table,
   TableColumn,
   useToast,
+  PageHeader,
 } from "../../components/ui";
 import {
   Bodega,
@@ -190,10 +191,11 @@ export function ConteoFisico() {
 
   return (
     <div>
-      <Link to="/inventario" className="text-sm text-text-muted hover:text-primary">
-        ← Catálogo
-      </Link>
-      <h2 className="mt-2 text-xl font-bold text-primary">Toma física</h2>
+      <PageHeader
+        titulo="Toma física"
+        icono="panel"
+        modulo="inventario"
+      />
 
       <Card className="mt-6">
         <CardTitle>Abrir un conteo</CardTitle>

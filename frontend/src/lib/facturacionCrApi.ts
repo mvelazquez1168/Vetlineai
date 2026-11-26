@@ -88,8 +88,9 @@ export interface ComprobanteListado {
   id: string;
   tipoComprobante: string;
   tipoComprobanteNombre: string;
-  clave: string;
-  consecutivo: string;
+  /** `null` mientras es borrador: la identidad se asigna al emitir. */
+  clave: string | null;
+  consecutivo: string | null;
   fechaEmision: string;
   estado: EstadoComprobante;
   estadoLegible: string;
@@ -131,8 +132,9 @@ export interface EventoComprobante {
 export interface DetalleComprobante {
   comprobante: Record<string, unknown> & {
     id: string;
-    clave: string;
-    consecutivo: string;
+    /** `null` mientras es borrador: la identidad se asigna al emitir. */
+    clave: string | null;
+    consecutivo: string | null;
     tipo_comprobante: string;
     estado: EstadoComprobante;
     estadoLegible: string;
@@ -217,10 +219,49 @@ export interface DocumentoVenta {
     nombre: string;
     identificacion?: { tipo: string; numero: string };
     correo?: string;
+    telefono?: { codigoPais: string; numero: string };
+    ubicacion?: {
+      provincia: string;
+      canton: string;
+      distrito: string;
+      barrio?: string;
+      otrasSenas: string;
+    };
   };
   lineas: LineaDocumento[];
   mediosPago?: Array<{ codigo: string; otro?: string; monto?: string | number }>;
+  /** Sale en el XML como Otros/OtroTexto. Máximo 500 caracteres. */
+  observaciones?: string;
+  /** De qué ficha de cliente salieron los datos del receptor. */
+  receptorPropietarioId?: string;
   claveIdempotencia?: string;
+}
+
+/** Un cliente de la clínica, como lo devuelve la búsqueda de receptores. */
+export interface ReceptorEncontrado {
+  id: string;
+  nombre: string;
+  telefono: string | null;
+  email: string | null;
+  numero_identificacion: string | null;
+  tipo_identificacion_etiqueta: string | null;
+  tipo_identificacion_codigo: string | null;
+  cantidad_pacientes: number;
+}
+
+/**
+ * Los totales calculados por el MISMO motor que emite. Los montos
+ * vienen como cadenas con los decimales que usa el Anexo.
+ */
+export interface VistaPrevia {
+  resumen: Record<string, string | number>;
+  lineas: Array<{
+    numeroLinea: number;
+    subtotal: string | number;
+    baseImponible: string | number;
+    impuestoNeto: string | number;
+    montoTotalLinea: string | number;
+  }>;
 }
 
 export interface ResultadoEmision {
@@ -333,6 +374,42 @@ export const facturacionCrApi = {
       method: "POST",
       body: JSON.stringify(documento),
     }),
+
+  /** Totales exactos, del motor. La pantalla NO calcula por su cuenta. */
+  vistaPrevia: (documento: DocumentoVenta) =>
+    authedFetch<VistaPrevia>("/facturacion/comprobantes/vista-previa", {
+      method: "POST",
+      body: JSON.stringify(documento),
+    }),
+
+  buscarReceptores: (q: string) =>
+    authedFetch<{ receptores: ReceptorEncontrado[] }>(
+      `/facturacion/receptores?q=${encodeURIComponent(q)}`
+    ),
+
+  crearReceptor: (datos: {
+    nombre: string;
+    telefono?: string;
+    email?: string;
+    tipoIdentificacionCodigo?: string;
+    numeroIdentificacion?: string;
+  }) =>
+    authedFetch<{ id: string }>("/facturacion/receptores", {
+      method: "POST",
+      body: JSON.stringify(datos),
+    }),
+
+  guardarBorrador: (documento: DocumentoVenta, id?: string) =>
+    authedFetch<{ id: string; estado: string }>(
+      id ? `/facturacion/borradores/${id}` : "/facturacion/borradores",
+      { method: id ? "PUT" : "POST", body: JSON.stringify(documento) }
+    ),
+
+  borrarBorrador: (id: string) =>
+    authedFetch<void>(`/facturacion/borradores/${id}`, { method: "DELETE" }),
+
+  emitirBorrador: (id: string) =>
+    authedFetch<ResultadoEmision>(`/facturacion/borradores/${id}/emitir`, { method: "POST" }),
 
   nota: (id: string, tipo: "credito" | "debito", datos: { codigoReferencia: string; razon: string }) =>
     authedFetch<ResultadoEmision>(`/facturacion/comprobantes/${id}/nota-${tipo}`, {

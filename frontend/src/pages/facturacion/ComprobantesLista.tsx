@@ -38,7 +38,7 @@ const ESTADOS = [
   { value: "en_cola", label: "Pendiente de transmitir" },
   { value: "rechazado", label: "Rechazado" },
   { value: "error", label: "Con error" },
-  { value: "borrador", label: "Borrador" },
+  { value: "borrador", label: "Borrador (sin numerar)" },
 ];
 
 export function ComprobantesLista() {
@@ -82,12 +82,24 @@ export function ComprobantesLista() {
     {
       key: "consecutivo",
       header: "Comprobante",
-      render: (c) => (
-        <Link to={`/facturacion/comprobantes/${c.id}`} className="block hover:underline">
-          <span className="font-medium text-primary">{c.consecutivo}</span>
-          <span className="block text-xs text-text-muted">{c.tipoComprobanteNombre}</span>
-        </Link>
-      ),
+      // Un BORRADOR todavía no tiene consecutivo —se asigna al
+      // emitir, para no dejar huecos en la numeración— y se abre en la
+      // pantalla de edición, no en la de detalle: lo que se quiere
+      // hacer con un borrador es terminarlo.
+      render: (c) =>
+        c.estado === "borrador" ? (
+          <Link to={`/facturacion/emitir?borrador=${c.id}`} className="block hover:underline">
+            <span className="font-medium text-primary">Borrador sin número</span>
+            <span className="block text-xs text-text-muted">
+              {c.tipoComprobanteNombre} · se numera al emitir
+            </span>
+          </Link>
+        ) : (
+          <Link to={`/facturacion/comprobantes/${c.id}`} className="block hover:underline">
+            <span className="font-medium text-primary">{c.consecutivo}</span>
+            <span className="block text-xs text-text-muted">{c.tipoComprobanteNombre}</span>
+          </Link>
+        ),
     },
     {
       key: "fechaEmision",

@@ -5,6 +5,7 @@ import { requiereModulo } from "../tenantModulos";
 import { emitir, intentarEnviar, leerEmisor } from "../facturacion/emision";
 import { borrarBorrador, emitirBorrador, guardarBorrador } from "../facturacion/borradores";
 import { calcularComprobante } from "../facturacion/calculo";
+import { deMonto } from "../facturacion/decimal";
 import { buscarPropietariosTolerante } from "../busquedaPropietarios";
 import { emitirNota } from "../facturacion/notas";
 import { entregarComprobante, estadoLegible, pdfDeComprobante } from "../facturacion/entrega";
@@ -430,14 +431,34 @@ facturacionCrRouter.delete("/emisor/credenciales/:ambiente", soloAdmin, async (r
 facturacionCrRouter.post("/comprobantes/vista-previa", async (req, res) => {
   try {
     const calculo = calcularComprobante(req.body as DocumentoVenta);
+
+    // `deMonto` en CADA monto, y no `res.json(calculo.resumen)` a secas:
+    // el motor trabaja los montos como `bigint` escalado (ver
+    // decimal.ts) y `JSON.stringify` no sabe serializar un BigInt —
+    // tira "Do not know how to serialize a BigInt" y la pantalla
+    // muestra ese texto donde iba el total. Es además la MISMA
+    // conversión que se usa al guardar en la base, así que lo que ve la
+    // pantalla es carácter por carácter lo que va a quedar guardado.
+    const r = calculo.resumen;
     res.json({
-      resumen: calculo.resumen,
+      resumen: {
+        totalGravado: deMonto(r.totalGravado),
+        totalExento: deMonto(r.totalExento),
+        totalExonerado: deMonto(r.totalExonerado),
+        totalNoSujeto: deMonto(r.totalNoSujeto),
+        totalVenta: deMonto(r.totalVenta),
+        totalDescuentos: deMonto(r.totalDescuentos),
+        totalVentaNeta: deMonto(r.totalVentaNeta),
+        totalImpuesto: deMonto(r.totalImpuesto),
+        totalOtrosCargos: deMonto(r.totalOtrosCargos),
+        totalComprobante: deMonto(r.totalComprobante),
+      },
       lineas: calculo.lineas.map((l) => ({
         numeroLinea: l.numeroLinea,
-        subtotal: l.subtotal,
-        baseImponible: l.baseImponible,
-        impuestoNeto: l.impuestoNeto,
-        montoTotalLinea: l.montoTotalLinea,
+        subtotal: deMonto(l.subtotal),
+        baseImponible: deMonto(l.baseImponible),
+        impuestoNeto: deMonto(l.impuestoNeto),
+        montoTotalLinea: deMonto(l.montoTotalLinea),
       })),
     });
   } catch (err) {
@@ -483,6 +504,27 @@ facturacionCrRouter.post("/receptores", async (req, res) => {
     return res.status(400).json({ error: "El cliente necesita un nombre." });
   }
   try {
+    // El cliente manda el CÓDIGO de Hacienda ("01" cédula física, "02"
+    // jurídica…), que es el que ya tiene en pantalla desde
+    // `/catalogos`. El id de `tipos_identificacion` lo resuelve el
+    // servidor: pedirle al navegador que conozca los UUID de un
+    // catálogo interno sería acoplarlo a algo que no necesita saber.
+    let tipoId: string | null = null;
+    if (b.tipoIdentificacionCodigo) {
+      const t = await req.db!.query<{ id: string }>(
+        `SELECT ti.id FROM tipos_identificacion ti
+           JOIN tenants te ON te.pais_codigo = ti.pais_codigo
+          WHERE te.id = $1 AND ti.codigo = $2 AND ti.activo`,
+        [req.auth!.tenantId, String(b.tipoIdentificacionCodigo)]
+      );
+      if (t.rows.length === 0) {
+        return res.status(400).json({
+          error: `El tipo de identificación "${b.tipoIdentificacionCodigo}" no está en el catálogo del país de la clínica.`,
+        });
+      }
+      tipoId = t.rows[0].id;
+    }
+
     const r = await req.db!.query<{ id: string }>(
       `INSERT INTO propietarios (tenant_id, nombre, telefono, email,
                                  tipo_identificacion_id, numero_identificacion)
@@ -493,7 +535,7 @@ facturacionCrRouter.post("/receptores", async (req, res) => {
         String(b.nombre).trim(),
         b.telefono ?? null,
         b.email ?? null,
-        b.tipoIdentificacionId ?? null,
+        tipoId,
         b.numeroIdentificacion ?? null,
       ]
     );

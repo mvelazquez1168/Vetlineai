@@ -347,3 +347,113 @@ Exportación a Excel y PDF de los reportes (el componente `MenuExportar` la decl
 dashboards), factura denominada en dólares, y el canje de fidelización y el link de pago, que el
 prompt declara fuera de alcance. Del ciclo del encargo quedó afuera **el aviso automático al
 cliente**, que depende del canal del CRM.
+
+---
+
+## Addendum 2 — 2026-11-26: el estado del prompt 08 completo, pedido punto por punto
+
+Se pidió aclarar el estado de **todo** el prompt 08 y construir lo que faltara **antes** del bloque B
+del expediente, porque la atención con cargos entra por la entrada de cargos de la caja. Esta sección
+es ese inventario, con el verificador que lo sostiene. Las secciones citadas son de
+`backend/src/scripts/verificar_ventas_caja.ts`, que corre de punta a punta **sin `--transpile-only`**
+y termina en `TODO OK` con 23 secciones.
+
+| Lo pedido | Estado | Dónde se construyó | Qué lo verifica |
+| --- | --- | --- | --- |
+| Cajas y sesiones | **completo** | `ventas/caja.ts`, pantalla `CajaDelDia` | §1 (fondo en colones y dólares), §5 (dos personas cobrando en la misma sesión) |
+| Arqueo por los cinco medios | **completo** | `ventas/caja.ts` (`esperadoDeSesion`, `cerrarSesion`) | §7, §8 (una diferencia sin justificar no cierra), §9–§11 (umbral, quien pide no aprueba, inmutable), §11b (el conteo por denominación **es** el declarado) |
+| Movimientos de efectivo | **completo** | `vta_movimientos_efectivo` + modal en `CajaDelDia` | §7 |
+| Venta de mostrador | **completo** | `ventas/cuentas.ts` + pantalla `Cobro` | §2 (una caja y una tableta suelta, con descargo FEFO) |
+| Cuentas abiertas | **completo** | `vta_cuentas` | §19 (una cuenta varios días, dos mascotas, una sola cuenta) |
+| Cobros mixtos | **completo** | `ventas/cobros.ts` | §3 (dólares con vuelto en colones + tarjeta), §4 (la tarjeta exige autorización) |
+| Cobros **en dólares** | **nuevo en esta entrega** | `monedaComprobante` en `cobrar`, selector en `Cobro` | §21 |
+| Crédito y abonos | **completo** | `ventas/credito.ts` | §12 (dentro y por encima del límite), §13 (abono con su REP repartido entre dos facturas) |
+| Anticipos | **completo** | `vta_anticipos` | §14 (anticipo aplicado a la cuenta final), y el defecto de §C del addendum anterior |
+| Encargos | **completo** | `ventas/encargos.ts` | §20 (anticipo, orden de compra, reserva, aviso y entrega) |
+| Anulaciones con aprobación | **completo** | `ventas/aprobaciones.ts` | §15 (sin aprobación no pasa nada), §16 (anular emite la nota de crédito) |
+| Tiquete térmico | **completo** | `datosDeTiquete` + `TiqueteTermico` | §17, y la corrección de moneda de esta entrega en §21 |
+| Contingencia | **completo** | `ventas/contingencia.ts` | §18 (provisional regularizado) |
+| **Reportes** | **nuevos en esta entrega** | `ventas/reportes.ts` | §22 (los cinco con sus columnas, y la deuda de un perfil), §23 (el archivo exportado es un archivo de verdad) |
+
+### Lo que faltaba de verdad, y se construyó ahora
+
+1. **Los reportes no tenían ninguna verificación.** Estaban escritos dentro del `switch` de la ruta
+   y ningún verificador los tocaba. Salieron a `ventas/reportes.ts`, con el **título y las columnas
+   declarados al lado de la consulta que los produce**, porque ahora los piden dos caminos —la
+   pantalla y la exportación— y una consulta escrita dos veces es un reporte que un día dice dos
+   cosas distintas.
+2. **La exportación a Excel y PDF no existía.** Se genera en el backend con los mismos filtros, con
+   el exportador que ya tenía el inventario —movido de `inventario/exportacion.ts` a
+   `exportacion/tabla.ts`, porque ya no es del inventario—.
+3. **La factura en dólares no existía**: el cobro siempre emitía en colones. Ahora se elige la moneda
+   del comprobante al cobrar, y los precios de línea y los medios de pago se dividen por el tipo de
+   cambio del día, que queda guardado. Sin eso, una factura en dólares habría dicho 520 veces el
+   monto real.
+
+### Cinco defectos reales encontrados en el camino
+
+1. **Cuentas por cobrar perdía la deuda de los perfiles de facturación.** La consulta unía solo
+   `propietarios` por `receptor_propietario_id`. Desde que el receptor puede ser un perfil (la
+   empresa del dueño, una fundación), **la deuda de un cliente corporativo no aparecía en ningún
+   reporte**. Ahora une las dos y dice de cada deudor qué es. Verificado con una deuda a nombre de
+   «Empresa Deudora S.A.» que antes se perdía.
+2. **El tiquete térmico mezclaba monedas.** El neto y el impuesto salían del comprobante y el total,
+   del cobro. Con una factura en dólares el tiquete decía `Venta neta ₡0,48 · TOTAL ₡282,50`: los
+   dos primeros eran dólares con el signo de colón. El tiquete ahora habla en colones —es el
+   documento de la caja— y la moneda de emisión se informa aparte, para que el cliente reconozca el
+   monto que va a ver en el portal de Hacienda.
+3. **El vuelto se contaba como venta.** El reporte por medio de pago sumaba lo que el cliente
+   *entregó*: una venta de ₡282,50 pagada con un billete de ₡10 000 figuraba como ₡10 000 de
+   efectivo. El arqueo sí descuenta el vuelto, así que el reporte y el arqueo decían cosas distintas
+   del mismo efectivo. Hay una aserción nueva que exige que el reporte **cierre** contra la suma de
+   los cobros del período (₡155 802 = ₡155 802).
+4. **Ninguna descarga llegaba con su nombre.** Sin `exposedHeaders` en CORS el navegador no le deja
+   leer `Content-Disposition` al JavaScript que pide el archivo, así que todo archivo se guardaba
+   como `reporte.xlsx`. Afectaba también a las exportaciones del inventario ya entregadas.
+5. **Cinco pantallas sin camino.** Cuentas de clientes, encargos, aprobaciones, contingencia y
+   reportes estaban en el router y **nada enlazaba a ellas**: la única forma de abrirlas era escribir
+   la URL.
+
+Los defectos 2, 4 y 5 **no los encontró ningún verificador**: aparecieron recién al hacer clic en el
+navegador. Es exactamente lo que pide la regla nueva de la sección 12 de la guía rectora.
+
+### Pantallas y cómo se llega a cada una
+
+| Pantalla | URL | Camino de clics |
+| --- | --- | --- |
+| Caja del día | `/ventas` | Menú lateral → **Caja** |
+| Cobro / venta de mostrador | `/ventas/cobro/:cuenta` | **Caja** → botón `Cobrar`, o una cuenta abierta de la lista |
+| Tiquete térmico | `/ventas/tiquete/:cobro` | **Caja** → columna «Comprobante» de un cobro → `Tiquete` |
+| Cuentas de clientes | `/ventas/cuenta-corriente` | **Caja** → barra → `Cuentas de clientes` |
+| Encargos | `/ventas/encargos` | **Caja** → barra → `Encargos` |
+| Aprobaciones | `/ventas/aprobaciones` | **Caja** → barra → `Aprobaciones` *(solo administrador, con el contador de pendientes)* |
+| Contingencia | `/ventas/contingencia` | **Caja** → barra → `Contingencia` |
+| Reportes de ventas | `/ventas/reportes` | **Caja** → barra → `Reportes`; la exportación, en `Exportar` → Excel/PDF |
+
+La barra está en la pantalla de caja **con sesión abierta y sin ella**: los reportes y la cuenta de
+un cliente se consultan justamente cuando la caja está cerrada.
+
+### Verificado en el navegador (no solo desde la API)
+
+Con `demo.medico@vetlineai-test.com` en la clínica de demostración, en Chrome:
+
+- Los cinco reportes con sus columnas declaradas, y el de cuentas por cobrar con su columna «Qué es»
+  (cliente o perfil de facturación).
+- `Exportar → Excel` y `Exportar → PDF` descargan con su nombre real
+  (`ventas-por-cajero-caja-y-medio-de-pago-2026-11-26.xlsx`).
+- Una **venta de mostrador facturada en dólares**, hecha a mano: producto buscado, cobrada con un
+  billete de ₡10 000, moneda del comprobante en dólares. Contrastado contra la base: comprobante
+  `00100001040000000003`, `moneda = USD`, `tipo_cambio = 521,45`, `total_comprobante = 0,54176`, y
+  XML con `<CodigoMoneda>USD</CodigoMoneda>` y `<PrecioUnitario>0.47943</PrecioUnitario>`.
+- El tiquete de ese cobro: `Venta neta ₡250,00 · Impuesto ₡32,50 · TOTAL ₡282,50` y
+  `Emitido en USD por USD 0,54 · tipo de cambio ₡521,45`.
+- Desde `/ventas`, el botón `Reportes` de la barra abre la pantalla.
+
+Ningún comprobante salió hacia Hacienda (proveedor **simulado**) y no se envió ningún correo.
+
+### Lo que sigue sin estar
+
+Del alcance original quedan afuera, a propósito: el **canje de fidelización** y el **link de pago**
+—el prompt los declara fuera de alcance— y el **aviso automático al cliente** del ciclo del encargo,
+que depende del canal del CRM (prompt 03). El **anticipo sigue sin comprobante**, esperando el
+criterio de un contador, con su fundamento en §1.2.

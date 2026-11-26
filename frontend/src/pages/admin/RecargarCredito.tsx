@@ -122,7 +122,7 @@ export function RecargarCredito() {
 
       {!metodo && (
         <div className="mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
-          <p className="font-semibold text-warning">No tenés un medio de pago registrado.</p>
+          <p className="font-semibold text-warning">No tiene un medio de pago registrado.</p>
           <p className="mt-1 text-text-muted">
             Necesitás agregar uno antes de recargar —{" "}
             <Link to="/admin/facturacion/medio-de-pago" className="font-semibold text-accent hover:underline">

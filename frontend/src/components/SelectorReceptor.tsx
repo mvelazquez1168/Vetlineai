@@ -413,7 +413,7 @@ export function SelectorReceptor({
             </p>
           ) : (
             <p className="text-xs text-text-muted">
-              Un tiquete puede ir sin receptor: si no elegís a nadie, sale así.
+              Un tiquete puede ir sin receptor: si no elige a nadie, sale así.
             </p>
           )}
         </div>

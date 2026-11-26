@@ -14,6 +14,7 @@ import {
 import { workspaceApi } from "../../lib/workspaceApi";
 import { CitaDetallePanel } from "./CitaDetallePanel";
 import { NuevaCitaModal, PrellenadoCita } from "./NuevaCitaModal";
+import { etiqueta } from "../../lib/etiquetas";
 
 type Vista = "dia" | "semana" | "mes";
 
@@ -124,7 +125,7 @@ export function Calendario() {
         }
       }
       const [listaMedicos, salasData] = await Promise.all([
-        listarMedicosLigero(esAdminClinica, user ? { id: user.userId, nombre: nombrePropio ?? "Vos" } : null),
+        listarMedicosLigero(esAdminClinica, user ? { id: user.userId, nombre: nombrePropio ? `${nombrePropio} (usted)` : "Usted" } : null),
         salasApi.listar(),
       ]);
       if (cancelado) return;
@@ -376,7 +377,7 @@ export function Calendario() {
                               style={{ top, height: alto }}
                             >
                               <p className="truncate font-semibold">
-                                {cita.paciente_nombre} · {cita.especie}
+                                {cita.paciente_nombre} · {etiqueta(cita.especie)}
                               </p>
                               <p className="truncate">
                                 {cita.hora_inicio.slice(0, 5)} · {iniciales(cita.medico_nombre)}
@@ -429,7 +430,7 @@ export function Calendario() {
                             {cita.hora_inicio.slice(0, 5)} — {cita.paciente_nombre}
                           </p>
                           <p className="text-xs text-text-muted">
-                            {cita.medico_nombre} · {cita.especie}
+                            {cita.medico_nombre} · {etiqueta(cita.especie)}
                           </p>
                         </div>
                         <Badge variant="info">{etiquetaEstadoCita(cita.estado)}</Badge>

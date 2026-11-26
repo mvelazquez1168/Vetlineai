@@ -64,12 +64,31 @@ export function Modal({
         ].join(" ")}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="modal-title" className="text-xl font-bold text-primary">
-          {title}
-        </h2>
-        {description && <p className="mt-3 text-sm text-text-muted">{description}</p>}
+        {/* ENCABEZADO Y PIE PEGADOS (prompt 01c, seccion 4). La caja
+            entera tiene scroll —hace falta para que el pie no quede
+            fuera de la pantalla—, y eso hacia que en un modal largo el
+            titulo se fuera hacia arriba y el pie no se viera hasta el
+            final. Ahora el contenido se desplaza en medio. */}
+        <div className="sticky top-0 z-10 -mx-8 -mt-8 flex items-start justify-between gap-3 bg-surface px-8 pb-3 pt-8">
+          <h2 id="modal-title" className="text-xl font-bold text-primary">
+            {title}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="-mr-2 -mt-1 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-text-muted hover:bg-black/5"
+          >
+            ✕
+          </button>
+        </div>
+        {description && <p className="mt-1 text-sm text-text-muted">{description}</p>}
         {children && <div className="mt-4">{children}</div>}
-        {footer && <div className="mt-8 flex justify-end gap-3">{footer}</div>}
+        {footer && (
+          <div className="sticky bottom-0 -mx-8 -mb-8 mt-8 flex justify-end gap-3 bg-surface px-8 pb-8 pt-4">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

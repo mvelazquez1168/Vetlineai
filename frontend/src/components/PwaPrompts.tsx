@@ -96,7 +96,7 @@ function AvisoActualizacion() {
       <div className="flex w-full max-w-md items-center gap-3 rounded-xl border border-primary/10 bg-surface p-4 shadow-lg">
         <div className="flex-1 text-sm text-text-primary">
           <p className="font-semibold">Hay una versión nueva de Vetline Ai</p>
-          <p className="text-text-muted">Recargá cuando te quede cómodo para actualizar.</p>
+          <p className="text-text-muted">Recargue cuando le quede cómodo para actualizar.</p>
         </div>
         <Button variant="ghost" onClick={() => setOcultoPorAhora(true)} className="shrink-0">
           Más tarde

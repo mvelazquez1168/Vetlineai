@@ -9,19 +9,23 @@ import {
   Icono,
   Input,
   LoadingState,
+  KpiCard,
   Modal,
+  PageHeader,
   Select,
   Table,
   TableColumn,
+  TiraIndicadores,
   useToast,
 } from "../../components/ui";
-import { BarraCaja } from "./BarraCaja";
+import { plural } from "../../lib/plural";
 import {
   Caja,
   CobroListado,
   CuentaListada,
   ETIQUETA_MEDIO,
   LineaEsperada,
+  LineaPorMedio,
   MovimientoEfectivo,
   QUE_DECLARAR,
   Sesion,
@@ -64,6 +68,7 @@ export function CajaDelDia() {
     cobros: CobroListado[];
     movimientos: MovimientoEfectivo[];
     cuentasAbiertas: CuentaListada[];
+    porMedio: LineaPorMedio[];
   } | null>(null);
   const [cargando, setCargando] = useState(true);
   const [ocupado, setOcupado] = useState(false);
@@ -214,17 +219,19 @@ export function CajaDelDia() {
     }
   };
 
+  // El total cobrado en colones sale de sumar los medios ya convertidos
+  // (`monto_crc`), no de `total` de cada cobro: un cobro en dolares
+  // guarda su total en la moneda del comprobante.
+  const totalCobradoCrc = (datos?.porMedio ?? []).reduce((a, l) => a + Number(l.monto_crc), 0);
+
   if (cargando) return <LoadingState forma="tarjetas" cantidad={3} />;
 
   // ------------------------------------------------ Sin sesión abierta
   if (!sesionId || !datos) {
     return (
       <div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-bold text-primary">Caja</h2>
-          <BarraCaja />
-        </div>
-        <Card className="mt-6">
+        <PageHeader titulo="Caja" icono="caja" modulo="caja" />
+        <Card>
           <CardTitle>No hay ninguna caja abierta</CardTitle>
           <CardDescription>
             Para cobrar hace falta una sesión abierta, con su fondo inicial. El fondo entra al
@@ -326,21 +333,28 @@ export function CajaDelDia() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-primary">{datos.sesion.caja}</h2>
-          <p className="mt-1 text-sm text-text-muted">
-            Abierta por {datos.sesion.abierta_por_nombre ?? "—"} el{" "}
-            {new Date(datos.sesion.abierta_en).toLocaleString("es-CR")} · fondo{" "}
-            {formatearMonto(datos.sesion.fondo_crc)} y {formatearMonto(datos.sesion.fondo_usd, "USD")}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <BarraCaja />
-          <Badge variant={abiertaAun ? "success" : "neutral"} dot>
-            {abiertaAun ? "Abierta" : "Cerrada"}
-          </Badge>
-          {abiertaAun && (
+      <PageHeader
+        titulo={datos.sesion.caja}
+        icono="caja"
+        modulo="caja"
+        subtitulo={`Abierta por ${datos.sesion.abierta_por_nombre ?? "—"} el ${new Date(
+          datos.sesion.abierta_en
+        ).toLocaleString("es-CR")} · fondo ${formatearMonto(
+          datos.sesion.fondo_crc
+        )} y ${formatearMonto(datos.sesion.fondo_usd, "USD")}`}
+        contexto={
+          /* El estado NO va con el `Badge` del sistema: sus variantes
+             estan calculadas para fondo claro, y sobre la franja de
+             color un «success» verde oscuro sobre verde claro no se
+             lee. Sobre la franja, el unico par garantizado es el
+             primario con el texto que va encima. */
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-sobre-primary/20 px-2.5 py-0.5 text-xs font-semibold text-sobre-primary">
+            <span className="h-1.5 w-1.5 rounded-full bg-sobre-primary" aria-hidden="true" />
+            {abiertaAun ? "Caja abierta" : "Caja cerrada"}
+          </span>
+        }
+        secundarias={
+          abiertaAun ? (
             <>
               <Button variant="secondary" onClick={() => setMovimiento(true)}>
                 Movimiento de efectivo
@@ -348,16 +362,61 @@ export function CajaDelDia() {
               <Button variant="secondary" onClick={() => setCerrando(true)}>
                 Cerrar con arqueo
               </Button>
-              <Button onClick={() => navegar(`/ventas/cobro?sesion=${sesionId}`)}>
-                <Icono nombre="agregar" className="mr-1 h-4 w-4" />
-                Cobrar
-              </Button>
             </>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+        accion={
+          abiertaAun ? (
+            <Button onClick={() => navegar(`/ventas/cobro?sesion=${sesionId}`)}>
+              <Icono nombre="agregar" className="mr-1 h-4 w-4" />
+              Cobrar
+            </Button>
+          ) : null
+        }
+        indicadores={
+          /* UNA TARJETA POR MEDIO DE PAGO (prompt 01c, seccion 5), con
+             monto, cantidad de cobros y, en dolares, su equivalente en
+             colones al tipo con el que se cobro. La primera tarjeta es
+             el total del dia: sin ella hay que sumar de memoria. */
+          <TiraIndicadores>
+            <KpiCard
+              titulo="Cobrado hoy"
+              valor={formatearMonto(totalCobradoCrc)}
+              icono="caja"
+              modulo="caja"
+              variacionPorcentaje={null}
+              detalle={plural(datos.cobros.filter((c) => c.estado === "aplicado").length, "cobro", "cobros")}
+            />
+            {(datos.porMedio ?? []).map((l) => (
+              <KpiCard
+                key={`${l.medio}-${l.moneda}`}
+                titulo={`${ETIQUETA_MEDIO[l.medio] ?? l.medio}${l.moneda !== "CRC" ? ` (${l.moneda})` : ""}`}
+                valor={formatearMonto(l.monto, l.moneda)}
+                icono={l.medio === "efectivo" ? "caja" : l.medio === "tarjeta" ? "plan" : "panel"}
+                modulo="caja"
+                variacionPorcentaje={null}
+                detalle={
+                  l.moneda === "CRC"
+                    ? plural(l.cobros, "cobro", "cobros")
+                    : `${plural(l.cobros, "cobro", "cobros")} · ${formatearMonto(l.monto_crc)}`
+                }
+              />
+            ))}
+            {(datos.porMedio ?? []).length === 0 && (
+              <KpiCard
+                titulo="Sin cobros todavía"
+                valor="—"
+                icono="caja"
+                modulo="caja"
+                variacionPorcentaje={null}
+                detalle="Las tarjetas por medio de pago aparecen con el primer cobro."
+              />
+            )}
+          </TiraIndicadores>
+        }
+      />
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         <Card>
           <CardTitle>Lo que debería haber</CardTitle>
           <CardDescription>Calculado por el sistema. Se compara con lo contado al cerrar.</CardDescription>
@@ -378,20 +437,56 @@ export function CajaDelDia() {
           <CardDescription>
             Una cuenta puede quedar abierta varios días acumulando cargos.
           </CardDescription>
-          <ul className="mt-3 space-y-1 text-sm">
-            {datos.cuentasAbiertas.map((c) => (
-              <li key={c.id}>
-                <Link
-                  to={`/ventas/cobro/${c.id}?sesion=${sesionId}`}
-                  className="flex justify-between border-b border-black/5 pb-1 hover:underline"
-                >
-                  <span>
-                    #{c.numero} {c.cliente_nombre ?? "sin cliente"}
-                  </span>
-                  <span className="text-text-muted">{c.cargos} cargo(s)</span>
-                </Link>
-              </li>
-            ))}
+          {/* PACIENTE, PROPIETARIO, CUANTOS CARGOS Y CUANTO SUMAN, con su
+              antiguedad (prompt 01c, seccion 5). Antes decia literalmente
+              «cargo(s)», sin numero: la consulta no traia la cantidad. */}
+          <ul className="mt-3 space-y-2 text-sm">
+            {datos.cuentasAbiertas.map((c) => {
+              const horas = Math.floor(c.antiguedad_segundos / 3600);
+              return (
+                <li key={c.id}>
+                  <Link
+                    to={`/ventas/cobro/${c.id}?sesion=${sesionId}`}
+                    className="block border-b border-black/5 pb-2 hover:bg-black/[0.02]"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-medium">
+                        {c.primer_paciente ?? "Mostrador"}
+                        {c.pacientes > 1 && (
+                          <span className="font-normal text-text-muted">
+                            {" "}
+                            y {plural(c.pacientes - 1, "mascota más", "mascotas más")}
+                          </span>
+                        )}
+                      </span>
+                      <span className="whitespace-nowrap font-medium">
+                        {formatearMonto(c.total)}
+                      </span>
+                    </div>
+                    <div className="flex items-start justify-between gap-2 text-xs text-text-muted">
+                      <span>
+                        #{c.numero} · {c.cliente_nombre ?? "Cliente sin registrar"} ·{" "}
+                        {plural(c.cargos, "cargo", "cargos")}
+                      </span>
+                      {horas >= 24 ? (
+                        <Badge variant="warning">
+                          {plural(Math.floor(horas / 24), "día abierta", "días abierta")}
+                        </Badge>
+                      ) : (
+                        <span className="whitespace-nowrap">
+                          {horas < 1 ? "Abierta hace menos de una hora" : plural(horas, "hora", "horas")}
+                        </span>
+                      )}
+                    </div>
+                    {c.resumen && (
+                      <p className="truncate text-xs text-text-muted" title={c.resumen}>
+                        {c.resumen}
+                      </p>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
             {datos.cuentasAbiertas.length === 0 && (
               <li className="text-text-muted">Ninguna cuenta abierta.</li>
             )}
@@ -538,7 +633,7 @@ export function CajaDelDia() {
           </p>
           <p className="mt-1 text-xs text-text-muted">
             Contar billete por billete es más confiable que sumar de cabeza y deja el detalle
-            guardado. Si escribís cantidades, el efectivo declarado de esa moneda{" "}
+            guardado. Si escribas cantidades, el efectivo declarado de esa moneda{" "}
             <strong>sale de esta suma</strong> y el campo de arriba se bloquea: el mismo número en
             dos lugares es de donde salen los arqueos que no cuadran con su propio detalle.
           </p>

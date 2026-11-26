@@ -97,7 +97,7 @@ export function Pacientes() {
     <div>
       <h1 className="text-2xl font-bold text-primary">Pacientes</h1>
       <p className="mt-1 text-text-muted">
-        Fichero de pacientes de la clínica — buscá por nombre, número de expediente o nombre del
+        Fichero de pacientes de la clínica — busque por nombre, número de expediente o nombre del
         propietario.
       </p>
 

@@ -434,6 +434,39 @@ inventarioRouter.get("/productos/:id/consumo", async (req, res) => {
   }
 });
 
+// EL RESUMEN DEL MODULO, en una sola consulta agregada (prompt 01c,
+// seccion 5). Los cuatro indicadores del catalogo salian, o iban a
+// salir, de tres llamadas distintas; esto es una y respeta RLS como
+// cualquier otra.
+//
+// El VALOR A COSTO se calcula con el costo del lote, no con el costo
+// promedio del producto: dos lotes del mismo producto comprados a
+// precios distintos valen lo que costaron, no su promedio.
+inventarioRouter.get("/resumen", async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT
+         (SELECT COALESCE(sum(l.cantidad * COALESCE(l.costo_unitario, 0)), 0)::text
+            FROM inv_lotes l WHERE l.cantidad > 0) AS valor_costo,
+         (SELECT count(*)::int FROM (
+            SELECT p.id, p.minimo, COALESCE(sum(l.cantidad), 0) AS existencia
+              FROM inv_productos p
+              LEFT JOIN inv_lotes l ON l.producto_id = p.id
+             WHERE p.activo AND p.minimo IS NOT NULL AND p.minimo > 0
+             GROUP BY p.id, p.minimo
+          ) x WHERE x.existencia < x.minimo) AS bajo_minimo,
+         (SELECT count(*)::int FROM inv_lotes
+           WHERE cantidad > 0 AND vencimiento IS NOT NULL
+             AND vencimiento <= CURRENT_DATE + 60) AS por_vencer_60,
+         (SELECT count(*)::int FROM inv_ajustes WHERE estado = 'pendiente')
+           AS ajustes_pendientes`
+    );
+    res.json(r.rows[0]);
+  } catch (err) {
+    fallo(res, err, "GET /inventario/resumen");
+  }
+});
+
 inventarioRouter.get("/alertas", async (req, res) => {
   try {
     res.json(await alertasDeInventario(req.db!));

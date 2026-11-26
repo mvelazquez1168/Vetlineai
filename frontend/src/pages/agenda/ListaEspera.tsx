@@ -15,6 +15,7 @@ import {
 } from "../../lib/agendaApi";
 import { PacienteDePropietario, Propietario, workspaceApi } from "../../lib/workspaceApi";
 import { NuevaCitaModal, PrellenadoCita } from "./NuevaCitaModal";
+import { etiqueta } from "../../lib/etiquetas";
 
 const PRIORIDAD_BADGE: Record<PrioridadListaEspera, BadgeVariant> = {
   alta: "error",
@@ -79,7 +80,7 @@ export function ListaEspera() {
   const abrirAgendar = (item: ItemListaEspera) => {
     setPrellenado({
       pacienteId: item.paciente_id,
-      pacienteNombre: `${item.paciente_nombre} (${item.especie})`,
+      pacienteNombre: `${item.paciente_nombre} (${etiqueta(item.especie)})`,
       propietarioNombre: item.propietario_nombre,
       medicoPreferidoId: item.medico_preferido_id,
       motivo: item.motivo,
@@ -304,7 +305,7 @@ function FormularioNuevoItem({
                   pacienteId === p.id ? "border-accent bg-accent/5" : "border-black/10 hover:bg-black/5",
                 ].join(" ")}
               >
-                {p.nombre} <span className="text-xs text-text-muted">({p.especie})</span>
+                {p.nombre} <span className="text-xs text-text-muted">({etiqueta(p.especie)})</span>
               </button>
             ))}
           </div>

@@ -159,7 +159,7 @@ export function Clinica() {
                   {paisSeleccionado?.nombre ?? tenant.pais_codigo ?? "—"}
                 </p>
                 <span className="text-xs text-text-muted">
-                  El país se fija en el registro. Para cambiarlo, contactá a soporte.
+                  El país se fija en el registro. Para cambiarlo, contacte a soporte.
                 </span>
               </div>
               <Input

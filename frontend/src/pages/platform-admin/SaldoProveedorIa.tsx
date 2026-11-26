@@ -204,7 +204,7 @@ export function SaldoProveedorIa() {
         <div className="mt-6 border-t border-black/5 pt-4">
           <p className="text-sm font-semibold text-text-primary">Registrar control manual</p>
           <p className="mt-1 text-xs text-text-muted">
-            Lo más valioso del panel: cargá el saldo que ves en la consola de Anthropic para esta fecha y comparalo
+            Lo más valioso del panel: cargue el saldo que ves en la consola de Anthropic para esta fecha y comparalo
             contra lo derivado. Si difieren, hay una tarifa mal cargada o consumo sin registrar.
           </p>
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">

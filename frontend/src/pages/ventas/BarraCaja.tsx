@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui";
+import { IndicadorPestana, PestanasDeRuta } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import { ventasApi } from "../../lib/ventasApi";
 
 // ---------------------------------------------------------------------
-// LA BARRA DE LA CAJA: el camino a las pantallas del módulo.
+// LAS SECCIONES DE CAJA — prompt 01c, sección 4.
 //
 // Existe porque cinco pantallas construidas —cuentas corrientes,
 // encargos, aprobaciones, contingencia y reportes— no se podían abrir
@@ -13,14 +13,15 @@ import { ventasApi } from "../../lib/ventasApi";
 // que la única forma de llegar era escribir la URL. Una pantalla a la
 // que no se llega haciendo clic no existe para quien la usa.
 //
-// Va en la pantalla de caja, CON Y SIN sesión abierta: los reportes y la
-// cuenta corriente de un cliente se consultan justamente cuando la caja
-// está cerrada.
+// ERA UNA FILA DE CINCO BOTONES IGUALES, que es exactamente lo que el
+// prompt llama «un menú disfrazado»: cinco secciones del módulo con el
+// peso visual de cinco acciones. Ahora son pestañas, y la activa se ve.
 //
-// Las aprobaciones llevan su contador —y solo las ve un administrador,
-// que es quien puede resolverlas—: una aprobación pendiente detiene un
-// cierre de caja o una anulación, y nadie va a entrar a mirar "por si
-// hay".
+// Las aprobaciones NO son una pestaña más: son un indicador con
+// contador, al costado. Solo las ve un administrador, que es quien puede
+// resolverlas, y el contador en cero no se dibuja. Una aprobación
+// pendiente detiene un cierre de caja o una anulación, y nadie va a
+// entrar a mirar «por si hay».
 // ---------------------------------------------------------------------
 
 export function BarraCaja() {
@@ -37,29 +38,24 @@ export function BarraCaja() {
   }, [esAdminClinica]);
 
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button variant="secondary" onClick={() => navegar("/ventas/cuenta-corriente")}>
-        Cuentas de clientes
-      </Button>
-      <Button variant="secondary" onClick={() => navegar("/ventas/encargos")}>
-        Encargos
-      </Button>
-      {esAdminClinica && (
-        <Button variant="secondary" onClick={() => navegar("/ventas/aprobaciones")}>
-          Aprobaciones
-          {pendientes > 0 && (
-            <span className="ml-1.5 rounded-full bg-warning px-2 py-0.5 text-xs font-semibold text-primary">
-              {pendientes}
-            </span>
-          )}
-        </Button>
-      )}
-      <Button variant="secondary" onClick={() => navegar("/ventas/contingencia")}>
-        Contingencia
-      </Button>
-      <Button variant="secondary" onClick={() => navegar("/ventas/reportes")}>
-        Reportes
-      </Button>
-    </div>
+    <PestanasDeRuta
+      pestanas={[
+        { a: "/ventas", etiqueta: "Caja del día", icono: "caja" },
+        { a: "/ventas/cuenta-corriente", etiqueta: "Cuentas de clientes", icono: "propietario" },
+        { a: "/ventas/encargos", etiqueta: "Encargos", icono: "inventario" },
+        { a: "/ventas/contingencia", etiqueta: "Contingencia", icono: "aviso" },
+        { a: "/ventas/reportes", etiqueta: "Reportes", icono: "reportes" },
+      ]}
+      indicadores={
+        esAdminClinica ? (
+          <IndicadorPestana
+            etiqueta="Aprobaciones"
+            cantidad={pendientes}
+            icono="aviso"
+            onClick={() => navegar("/ventas/aprobaciones")}
+          />
+        ) : null
+      }
+    />
   );
 }

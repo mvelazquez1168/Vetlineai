@@ -99,7 +99,7 @@ export function AgentSelector() {
 
       {!error && agentes.length === 0 && (
         <div className="mt-12 max-w-md rounded-2xl border border-black/5 bg-surface p-8 text-center">
-          <h3 className="text-lg font-bold text-primary">Todavía no tenés agentes asignados</h3>
+          <h3 className="text-lg font-bold text-primary">Todavía no tiene agentes asignados</h3>
           <p className="mt-2 text-sm text-text-muted">
             Tenés acceso a la plataforma, pero ningún agente clínico está habilitado para vos
             todavía. Pedile al administrador de tu clínica que te asigne uno desde Gestión de

@@ -215,7 +215,7 @@ export function KardexGeneral() {
           <LoadingState forma="tabla" cantidad={8} />
         ) : movimientos.length === 0 ? (
           <p className="mt-4 text-sm text-text-muted">
-            Ningún movimiento con esos filtros. Si acabás de registrar uno, revisá el período.
+            Ningún movimiento con esos filtros. Si acabás de registrar uno, revise el período.
           </p>
         ) : (
           <div className="mt-3 overflow-x-auto">

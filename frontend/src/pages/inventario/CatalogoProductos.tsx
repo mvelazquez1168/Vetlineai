@@ -6,20 +6,25 @@ import {
   EmptyState,
   FiltroBar,
   Icono,
+  KpiCard,
   LoadingState,
   MenuAcciones,
+  PageHeader,
   Pagination,
   Table,
   TableColumn,
+  TiraIndicadores,
 } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import {
   Bodega,
   CatalogosInventario,
   ProductoListado,
+  ResumenInventario,
   formatearCantidad,
   inventarioApi,
 } from "../../lib/inventarioApi";
+import { formatearMonto } from "../../lib/ventasApi";
 
 // ---------------------------------------------------------------------
 // Catálogo de productos: la pantalla de aterrizaje del módulo.
@@ -56,8 +61,10 @@ export function CatalogoProductos() {
   // endpoint que la lista, así que el badge y la pantalla de
   // aprobaciones no pueden decir números distintos.
   const [pendientes, setPendientes] = useState(0);
+  const [resumen, setResumen] = useState<ResumenInventario | null>(null);
 
   useEffect(() => {
+    inventarioApi.resumen().then(setResumen).catch(() => setResumen(null));
     inventarioApi.catalogos().then(setCatalogos).catch(() => setCatalogos(null));
     inventarioApi.bodegas().then((r) => setBodegas(r.bodegas)).catch(() => setBodegas([]));
     inventarioApi
@@ -200,56 +207,65 @@ export function CatalogoProductos() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-primary">Catálogo</h2>
-          <p className="mt-1 text-sm text-text-muted">
-            Productos con su existencia. Todo el stock se guarda en unidad base.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={() => navegar("/inventario/movimientos")}>
-            <Icono nombre="ajustes" className="mr-1 h-4 w-4" />
-            Movimientos
-          </Button>
-          <Button variant="secondary" onClick={() => navegar("/inventario/conteos")}>
-            Toma física
-          </Button>
-          <Button variant="secondary" onClick={() => navegar("/inventario/kardex")}>
-            Kardex
-          </Button>
-          {esAdminClinica && (
-            <Button
-              variant="secondary"
-              onClick={() => navegar("/inventario/movimientos?ver=aprobaciones")}
-            >
-              Aprobaciones
-              {pendientes > 0 && (
-                <span className="ml-1.5 rounded-full bg-warning px-2 py-0.5 text-xs font-semibold text-primary">
-                  {pendientes}
-                </span>
-              )}
-            </Button>
-          )}
-          <Button variant="secondary" onClick={() => navegar("/inventario/alertas")}>
-            <Icono nombre="aviso" className="mr-1 h-4 w-4" />
-            Alertas
-          </Button>
-          <Button variant="secondary" onClick={() => navegar("/inventario/servicios")}>
-            Servicios
-          </Button>
-          <Button variant="secondary" onClick={() => navegar("/inventario/precios")}>
-            Precios
-          </Button>
-          <Button variant="secondary" onClick={() => navegar("/inventario/compras")}>
-            Compras
-          </Button>
+      {/* UNA SOLA ACCION PRINCIPAL. Las ocho que la acompanaban eran
+          secciones del modulo disfrazadas de boton y ahora son las
+          pestanas de `SeccionesInventario`. */}
+      <PageHeader
+        titulo="Catálogo"
+        subtitulo="Productos con su existencia. Todo el stock se guarda en unidad base."
+        icono="inventario"
+        modulo="inventario"
+        accion={
           <Button onClick={() => navegar("/inventario/productos/nuevo")}>
             <Icono nombre="agregar" className="mr-1 h-4 w-4" />
             Nuevo producto
           </Button>
-        </div>
-      </div>
+        }
+        indicadores={
+          resumen && (
+            <TiraIndicadores>
+              <KpiCard
+                titulo="Valor del inventario"
+                valor={formatearMonto(resumen.valor_costo)}
+                icono="inventario"
+                modulo="inventario"
+                variacionPorcentaje={null}
+                detalle="A costo, con la existencia de hoy"
+              />
+              <KpiCard
+                titulo="Bajo el mínimo"
+                valor={String(resumen.bajo_minimo)}
+                icono="aviso"
+                modulo="inventario"
+                estado={resumen.bajo_minimo > 0 ? "aviso" : undefined}
+                variacionPorcentaje={null}
+                detalle="Productos que hay que pedir"
+                alClic={() => navegar("/inventario/alertas")}
+              />
+              <KpiCard
+                titulo="Vencen en 60 días"
+                valor={String(resumen.por_vencer_60)}
+                icono="hora"
+                modulo="inventario"
+                estado={resumen.por_vencer_60 > 0 ? "aviso" : undefined}
+                variacionPorcentaje={null}
+                detalle="Lotes con existencia"
+                alClic={() => navegar("/inventario/alertas")}
+              />
+              <KpiCard
+                titulo="Ajustes por aprobar"
+                valor={String(pendientes)}
+                icono="ajustes"
+                modulo="inventario"
+                estado={pendientes > 0 ? "aviso" : undefined}
+                variacionPorcentaje={null}
+                detalle="Esperan a un administrador"
+                alClic={() => navegar("/inventario/movimientos?ver=aprobaciones")}
+              />
+            </TiraIndicadores>
+          )
+        }
+      />
 
       <FiltroBar
         className="mt-4"
@@ -316,7 +332,7 @@ export function CatalogoProductos() {
       ) : !datos || datos.productos.length === 0 ? (
         <EmptyState
           titulo="Todavía no hay productos"
-          texto="Podés cargarlos de a uno o importar el inventario que ya tenés desde una planilla."
+          texto="Podés cargarlos de a uno o importar el inventario que ya tiene desde una planilla."
           accion={
             <div className="flex gap-2">
               <Button onClick={() => navegar("/inventario/productos/nuevo")}>Nuevo producto</Button>

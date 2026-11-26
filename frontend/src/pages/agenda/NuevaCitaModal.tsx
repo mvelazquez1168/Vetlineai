@@ -13,6 +13,7 @@ import {
   Sala,
 } from "../../lib/agendaApi";
 import { PacienteDePropietario, Propietario, workspaceApi } from "../../lib/workspaceApi";
+import { etiqueta } from "../../lib/etiquetas";
 
 export interface PrellenadoCita {
   pacienteId: string;
@@ -274,8 +275,15 @@ export function NuevaCitaModal({
         className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface p-8 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-primary">{editando ? "Editar Cita" : "Nueva Cita"}</h2>
+        {/* El encabezado queda PEGADO arriba (prompt 01c, seccion 4): la
+            caja entera tiene scroll, asi que sin esto el titulo y la X
+            se iban hacia arriba al bajar en el formulario y el modal
+            quedaba sin forma visible de cerrarse. Los margenes
+            negativos compensan el padding de la caja. */}
+        <div className="sticky top-0 z-10 -mx-8 -mt-8 flex items-center justify-between bg-surface px-8 pb-3 pt-8">
+          <h2 className="pr-3 text-xl font-bold text-primary">
+            {editando ? "Editar Cita" : "Nueva Cita"}
+          </h2>
           <button
             onClick={onClose}
             aria-label="Cerrar"
@@ -380,7 +388,7 @@ export function NuevaCitaModal({
                         >
                           <p className="font-semibold text-primary">{p.nombre}</p>
                           <p className="text-xs text-text-muted">
-                            {p.especie}
+                            {etiqueta(p.especie)}
                             {p.raza ? `, ${p.raza}` : ""}
                           </p>
                         </button>

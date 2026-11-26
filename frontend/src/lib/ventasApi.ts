@@ -78,6 +78,23 @@ export interface CuentaListada {
   estado: string;
   abierta_en: string;
   cargos: number;
+  total: string;
+  /** Las descripciones de los cargos, para no tener que abrir la cuenta. */
+  resumen: string | null;
+  /** Cuántas mascotas distintas tienen cargos en la cuenta. */
+  pacientes: number;
+  primer_paciente: string | null;
+  antiguedad_segundos: number;
+}
+
+/** Cuánto entró por cada medio de pago en la sesión. */
+export interface LineaPorMedio {
+  medio: string;
+  moneda: string;
+  es_fiscal: boolean;
+  monto: string;
+  monto_crc: string;
+  cobros: number;
 }
 
 export interface Cargo {
@@ -153,6 +170,7 @@ export const ventasApi = {
       cobros: CobroListado[];
       movimientos: MovimientoEfectivo[];
       cuentasAbiertas: CuentaListada[];
+      porMedio: LineaPorMedio[];
     }>(`/ventas/sesiones/${id}`),
   abrirSesion: (d: { cajaId: string; fondoCrc?: number; fondoUsd?: number }) =>
     json<{ id: string }>("/ventas/sesiones", "POST", d),
@@ -313,6 +331,13 @@ export const ETIQUETA_MEDIO: Record<string, string> = {
   tarjeta: "Tarjetas",
   sinpe: "SINPE Móvil",
   otros: "Otros",
+  // `anticipo` y `credito` NO son medios de Hacienda: son formas
+  // internas de saldar una cuenta, y la tabla las distingue con
+  // `es_fiscal`. Aparecen igual en el resumen del dia porque el cajero
+  // necesita saber cuanto se cobro contra un anticipo o a credito —no
+  // entro plata, pero la cuenta se salda—.
+  anticipo: "Contra anticipo",
+  credito: "A crédito",
 };
 
 /** Qué tiene que declarar el cajero en cada medio, en palabras. */

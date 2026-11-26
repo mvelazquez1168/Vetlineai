@@ -131,6 +131,14 @@ export interface ConsumoPorOrigen {
   pacientes: Array<{ pacienteId: string; nombre: string; atencionId: string | null; cantidad: number }>;
 }
 
+/** Lo que muestra la tira de indicadores del catálogo. */
+export interface ResumenInventario {
+  valor_costo: string;
+  bajo_minimo: number;
+  por_vencer_60: number;
+  ajustes_pendientes: number;
+}
+
 export interface Alertas {
   bajoMinimo: Array<Record<string, string>>;
   enPuntoReorden: Array<Record<string, string>>;
@@ -253,6 +261,9 @@ export const inventarioApi = {
   traslado: (d: Record<string, unknown>) => json<unknown>("/inventario/traslados", "POST", d),
 
   alertas: () => pedir<Alertas>("/inventario/alertas"),
+
+  /** Los cuatro indicadores del catálogo, en una sola consulta. */
+  resumen: () => pedir<ResumenInventario>("/inventario/resumen"),
 
   ajustes: (estado?: string) =>
     pedir<{ ajustes: Ajuste[]; pendientes: number }>(

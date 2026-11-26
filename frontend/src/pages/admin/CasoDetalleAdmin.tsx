@@ -10,6 +10,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { formatearFechaCorta } from "../../lib/formatFecha";
 import { CasoAdminDetalle, adminApi } from "../../lib/adminApi";
 import { Derivacion, Mensaje, workspaceApi } from "../../lib/workspaceApi";
+import { etiqueta } from "../../lib/etiquetas";
 
 const ESTADO_BADGE: Record<string, BadgeVariant> = {
   triage: "neutral",
@@ -81,7 +82,7 @@ export function CasoDetalleAdmin() {
               ← Casos Clínicos
             </Link>
             <h2 className="mt-1 flex items-center gap-2 text-lg font-bold text-primary">
-              {caso.paciente_nombre} — {caso.especie} ({caso.sexo}
+              {caso.paciente_nombre} — {etiqueta(caso.especie)} ({etiqueta(caso.sexo)}
               {caso.edad_anios ? `, ${caso.edad_anios}a` : ""})
               <Badge variant={ESTADO_BADGE[caso.estado] ?? "neutral"}>{caso.estado.replace("_", " ")}</Badge>
             </h2>

@@ -95,7 +95,7 @@ export function EstablecerContrasenaNueva() {
           <span className="text-3xl text-success">✓</span>
         </div>
         <h1 className="mt-6 text-2xl font-bold text-primary">Contraseña actualizada</h1>
-        <p className="mt-3 text-text-muted">Ya podés ingresar con tu contraseña nueva.</p>
+        <p className="mt-3 text-text-muted">Ya puede ingresar con su contraseña nueva.</p>
         <Button className="mt-8" fullWidth onClick={() => (window.location.href = "/login")}>
           Ir a iniciar sesión
         </Button>

@@ -78,15 +78,15 @@ export function ConfigurarAutorecarga() {
         ← Volver a Plan y consumo
       </Link>
       <h1 className="mt-2 text-2xl font-bold text-primary">Configurar autorecarga</h1>
-      <p className="mt-1 text-text-muted">Recargá tu saldo automáticamente cuando caiga por debajo de un umbral.</p>
+      <p className="mt-1 text-text-muted">Recarga su saldo automáticamente cuando cae por debajo de un umbral.</p>
 
       {!metodo && (
         <div className="mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
-          <p className="font-semibold text-warning">No tenés un medio de pago registrado.</p>
+          <p className="font-semibold text-warning">No tiene un medio de pago registrado.</p>
           <p className="mt-1 text-text-muted">
             La autorecarga usa el medio de pago registrado —{" "}
             <Link to="/admin/facturacion/medio-de-pago" className="font-semibold text-accent hover:underline">
-              agregá uno
+              agregue uno
             </Link>{" "}
             para poder activarla.
           </p>

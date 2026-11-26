@@ -166,7 +166,7 @@ export function Facturacion() {
             <p className="mt-1 text-sm text-text-muted">
               {metodoPago
                 ? `${metodoPago.marca} •••• ${metodoPago.ultimos4} — vence ${String(metodoPago.vencimientoMes).padStart(2, "0")}/${metodoPago.vencimientoAnio}`
-                : "No tenés un medio de pago registrado."}
+                : "No tiene un medio de pago registrado."}
             </p>
           </div>
           <Link to="/admin/facturacion/medio-de-pago">
@@ -209,7 +209,7 @@ export function Facturacion() {
             </div>
 
             <p className="text-xs text-text-muted sm:col-span-2">
-              El país y el tipo de persona se fijan en el registro. Para cambiarlos, contactá a soporte.
+              El país y el tipo de persona se fijan en el registro. Para cambiarlos, contacte a soporte.
             </p>
 
             <div className="flex flex-col gap-1.5">

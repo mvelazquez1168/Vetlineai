@@ -32,7 +32,7 @@ export function BarraVentanaPurga() {
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
         <p className="text-text">
           <span className="font-semibold">Tu suscripción está suspendida.</span> No se otorgará crédito nuevo
-          para agentes de inteligencia artificial, pero podés seguir utilizando el saldo existente en tu cuenta.
+          para agentes de inteligencia artificial, pero puede seguir utilizando el saldo existente en su cuenta.
           El acceso a expedientes, agenda, recetas e informes clínicos NO se interrumpe en ningún momento.
         </p>
         <Link
@@ -74,7 +74,7 @@ export function BarraVentanaPurga() {
       ].join(" ")}
     >
       <p className="text-text">
-        <span className="font-semibold">{encabezado}</span> {textoDias} Todavía podés consultar tus casos y
+        <span className="font-semibold">{encabezado}</span> {textoDias} Todavía puede consultar sus casos y
         llevarte tu información.
       </p>
       <div className="flex flex-shrink-0 gap-2">

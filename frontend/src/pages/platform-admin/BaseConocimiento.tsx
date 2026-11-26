@@ -72,7 +72,7 @@ function MenuAcciones({
                 onVistaPrevia();
               }}
               disabled={!puedePreview}
-              title={puedePreview ? undefined : "Vista previa disponible solo para PDF — descargá para verlo."}
+              title={puedePreview ? undefined : "Vista previa disponible solo para PDF — descargue para verlo."}
               className={[
                 "block w-full px-4 py-2 text-left text-sm",
                 puedePreview
@@ -520,7 +520,7 @@ export function BaseConocimiento() {
             ) : (
               <>
                 <span className="font-semibold text-text-primary">
-                  Arrastrá un archivo o hacé clic para elegirlo
+                  Arrastrá un archivo o haga clic para elegirlo
                 </span>
                 <span className="text-text-muted">PDF, DOCX o TXT — máximo 20MB</span>
               </>

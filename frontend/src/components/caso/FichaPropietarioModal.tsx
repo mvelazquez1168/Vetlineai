@@ -9,6 +9,7 @@ import { propietariosApi } from "../../lib/propietariosApi";
 import { PacienteDePropietario, Propietario, workspaceApi } from "../../lib/workspaceApi";
 import { RegistroAtencionModal } from "./RegistroAtencionModal";
 import { ResolverCitaModal } from "./ResolverCitaModal";
+import { etiqueta } from "../../lib/etiquetas";
 
 interface FichaPropietarioModalProps {
   propietarioId: string;
@@ -192,7 +193,7 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
                           </Link>
                           <span className="text-text-muted">
                             {" "}
-                            — {p.especie}
+                            — {etiqueta(p.especie)}
                             {p.raza ? `, ${p.raza}` : ""}
                           </span>
                         </span>

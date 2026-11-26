@@ -74,7 +74,7 @@ export function ConfiguracionHorarios() {
       }
       const lista = await listarMedicosLigero(
         esAdminClinica,
-        user ? { id: user.userId, nombre: nombrePropio ?? "Vos" } : null
+        user ? { id: user.userId, nombre: nombrePropio ? `${nombrePropio} (usted)` : "Usted" } : null
       );
       if (cancelado) return;
       setMedicos(lista);
@@ -177,7 +177,7 @@ export function ConfiguracionHorarios() {
             />
           ) : (
             <p className="rounded-lg bg-background px-4 py-2.5 text-sm font-medium text-text-primary">
-              {medicos.find((m) => m.id === medicoId)?.nombre ?? "Vos"}
+              {medicos.find((m) => m.id === medicoId)?.nombre ?? "Usted"}
             </p>
           )}
         </div>

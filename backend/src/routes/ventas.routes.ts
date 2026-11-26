@@ -7,6 +7,7 @@ import {
   abrirSesion,
   cerrarSesion,
   esperadoDeSesion,
+  grupoDeArqueo,
   registrarMovimientoEfectivo,
   registrarTipoCambio,
   tipoDeCambioDelDia,
@@ -131,7 +132,7 @@ ventasRouter.get("/sesiones/:id", async (req, res) => {
     );
     if (s.rows.length === 0) return res.status(404).json({ error: "No existe esa sesión." });
 
-    const [esperado, cobros, movimientos, cuentas] = await Promise.all([
+    const [esperado, cobros, movimientos, cuentas, porMedio] = await Promise.all([
       esperadoDeSesion(req.db!, req.params.id),
       req.db!.query(
         `SELECT co.*, p.nombre AS cajero, cu.numero AS cuenta_numero, cu.cliente_nombre,
@@ -149,11 +150,95 @@ ventasRouter.get("/sesiones/:id", async (req, res) => {
           WHERE m.sesion_id = $1 ORDER BY m.creado_en DESC`,
         [req.params.id]
       ),
+      // CUENTAS ABIERTAS con lo que la pantalla necesita mostrar
+      // (prompt 01c, seccion 5): paciente, propietario, cuantos cargos
+      // y cuanto suman, con que antiguedad. Antes se devolvian cinco
+      // columnas y la pantalla escribia «{c.cargos} cargo(s)» con
+      // `cargos` siempre indefinido: salia «cargo(s)», sin numero.
+      //
+      // El paciente sale de los cargos, no de la cuenta: una cuenta
+      // puede tener cargos de dos mascotas del mismo dueno, y entonces
+      // se nombra a la primera y se dice cuantas mas hay.
       req.db!.query(
-        `SELECT id, numero, cliente_nombre, estado, abierta_en FROM vta_cuentas
-          WHERE estado = 'abierta' ORDER BY abierta_en`
+        `SELECT c.id, c.numero, c.cliente_nombre, c.estado, c.abierta_en,
+                COALESCE(x.cargos, 0)::int   AS cargos,
+                COALESCE(x.total, 0)::text   AS total,
+                x.resumen,
+                x.pacientes,
+                x.primer_paciente,
+                EXTRACT(EPOCH FROM (now() - c.abierta_en))::bigint AS antiguedad_segundos
+           FROM vta_cuentas c
+           LEFT JOIN LATERAL (
+             SELECT count(*)                                   AS cargos,
+                    sum(g.cantidad * g.precio_unitario - g.descuento) AS total,
+                    string_agg(DISTINCT g.descripcion, ', ')   AS resumen,
+                    count(DISTINCT g.paciente_id)              AS pacientes,
+                    min(pa.nombre)                             AS primer_paciente
+               FROM vta_cargos g
+               LEFT JOIN pacientes pa ON pa.id = g.paciente_id
+              WHERE g.cuenta_id = c.id AND g.anulado_en IS NULL
+           ) x ON true
+          WHERE c.estado = 'abierta' ORDER BY c.abierta_en`
+      ),
+      // UNA LINEA POR MEDIO Y MONEDA, con el monto en su moneda, su
+      // equivalente en colones y cuantos cobros lo usaron (prompt 01c,
+      // seccion 5). El equivalente ya esta calculado en la tabla:
+      // reconvertir con el tipo de cambio de hoy daria otro numero que
+      // el del arqueo.
+      //
+      // El VUELTO no se resta aca, a diferencia del reporte de ventas:
+      // esto es «cuanto entro por cada medio», que es la pregunta del
+      // cajero. Lo que se le debe al arqueo es otra cuenta y la hace
+      // `esperadoDeSesion`.
+      req.db!.query(
+        `SELECT cm.medio, cm.moneda, cm.es_fiscal,
+                sum(cm.monto)::text     AS monto,
+                sum(cm.monto_crc)::text AS monto_crc,
+                count(DISTINCT cm.cobro_id)::int AS cobros
+           FROM vta_cobro_medios cm
+           JOIN vta_cobros c ON c.id = cm.cobro_id
+          WHERE c.sesion_id = $1 AND c.estado = 'aplicado'
+          GROUP BY cm.medio, cm.moneda, cm.es_fiscal
+          ORDER BY cm.es_fiscal DESC, sum(cm.monto_crc) DESC`,
+        [req.params.id]
       ),
     ]);
+
+    // LOS CODIGOS DE HACIENDA NO SE MUESTRAN. La tabla guarda "01",
+    // "02", "06"; la pantalla tiene que decir Efectivo, Tarjetas, SINPE
+    // Movil. Se agrupa con la MISMA funcion que usa el arqueo
+    // (`grupoDeArqueo`) para que las dos listas de la pantalla —lo
+    // cobrado y lo que deberia haber— no partan el dinero distinto.
+    //
+    // `anticipo` y `credito` no son codigos de Hacienda (es_fiscal =
+    // false) y se dejan con su nombre: agruparlos en "otros" diria que
+    // entro plata que no entro.
+    const agrupado = new Map<string, {
+      medio: string; moneda: string; es_fiscal: boolean;
+      monto: number; monto_crc: number; cobros: number;
+    }>();
+    for (const l of porMedio.rows as {
+      medio: string; moneda: string; es_fiscal: boolean;
+      monto: string; monto_crc: string; cobros: number;
+    }[]) {
+      const medio = l.es_fiscal ? grupoDeArqueo(l.medio) : l.medio;
+      const clave = `${medio}|${l.moneda}`;
+      const previo = agrupado.get(clave);
+      if (previo) {
+        previo.monto += Number(l.monto);
+        previo.monto_crc += Number(l.monto_crc);
+        previo.cobros += l.cobros;
+      } else {
+        agrupado.set(clave, {
+          medio,
+          moneda: l.moneda,
+          es_fiscal: l.es_fiscal,
+          monto: Number(l.monto),
+          monto_crc: Number(l.monto_crc),
+          cobros: l.cobros,
+        });
+      }
+    }
 
     res.json({
       sesion: s.rows[0],
@@ -161,6 +246,9 @@ ventasRouter.get("/sesiones/:id", async (req, res) => {
       cobros: cobros.rows,
       movimientos: movimientos.rows,
       cuentasAbiertas: cuentas.rows,
+      porMedio: [...agrupado.values()]
+        .sort((a, b) => Number(b.es_fiscal) - Number(a.es_fiscal) || b.monto_crc - a.monto_crc)
+        .map((l) => ({ ...l, monto: l.monto.toFixed(2), monto_crc: l.monto_crc.toFixed(2) })),
     });
   } catch (err) {
     fallo(res, err, "GET /ventas/sesiones/:id");

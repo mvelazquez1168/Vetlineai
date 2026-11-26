@@ -900,7 +900,7 @@ export function CasoWorkspace() {
       console.error("Error de reconocimiento de voz:", event.error);
       setAvisoVoz(
         event.error === "not-allowed" || event.error === "permission-denied"
-          ? "No se pudo acceder al micrófono — revisá los permisos del navegador."
+          ? "No se pudo acceder al micrófono — revise los permisos del navegador."
           : "Hubo un problema con el dictado por voz. Podés seguir escribiendo normalmente."
       );
       setTimeout(() => setAvisoVoz(null), 5000);
@@ -1733,7 +1733,7 @@ export function CasoWorkspace() {
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center text-text-muted">
-            Seleccioná un caso de la lista, o creá uno nuevo.
+            Seleccioná un caso de la lista, o cree uno nuevo.
           </div>
         )}
       </main>
@@ -1785,7 +1785,7 @@ export function CasoWorkspace() {
 
           {dashboardGcisEstado === "sin_permiso" && (
             <div className="rounded-xl border border-error/30 bg-error/5 p-4 text-sm text-error">
-              No tenés permisos para generar el Dashboard de este caso.
+              No tiene permisos para generar el Dashboard de este caso.
             </div>
           )}
 

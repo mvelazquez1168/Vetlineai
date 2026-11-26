@@ -487,7 +487,7 @@ export function EmitirComprobante() {
           <CardTitle className="mt-6">Receptor</CardTitle>
           <CardDescription>
             {esTiquete
-              ? "Un tiquete puede ir sin receptor. Si lo elegís, sale en el comprobante."
+              ? "Un tiquete puede ir sin receptor. Si lo elige, sale en el comprobante."
               : "Una factura lo exige. Puede ser el cliente, su empresa, una fundación o cualquiera que se registre acá."}
           </CardDescription>
 
@@ -812,7 +812,7 @@ export function EmitirComprobante() {
                         />
                         {l.descuento.codigoDescuento === "99" && (
                           <Input
-                            label="Describí la naturaleza"
+                            label="Describa la naturaleza"
                             className="mt-2"
                             value={l.descuento.naturaleza}
                             onChange={(e) =>

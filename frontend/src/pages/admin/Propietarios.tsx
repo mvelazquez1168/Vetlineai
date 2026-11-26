@@ -68,7 +68,7 @@ export function Propietarios() {
     <div>
       <h1 className="text-2xl font-bold text-primary">Propietarios</h1>
       <p className="mt-1 text-text-muted">
-        Fichero de clientes de la clínica — buscá por nombre, teléfono, correo o número de identificación.
+        Fichero de clientes de la clínica — busque por nombre, teléfono, correo o número de identificación.
       </p>
 
       <div className="mt-6 max-w-md">

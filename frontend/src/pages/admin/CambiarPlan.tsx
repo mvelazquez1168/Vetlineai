@@ -218,7 +218,7 @@ export function CambiarPlan() {
         <>
           {actual.cambioPendiente && (
             <div className="mt-4 rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm text-text-muted">
-              Ya tenés un cambio programado. Cancelalo desde{" "}
+              Ya tiene un cambio programado. Cancélelo desde{" "}
               <Link to="/admin/plan-consumo" className="font-semibold text-accent hover:underline">
                 Plan y consumo
               </Link>{" "}
@@ -283,7 +283,7 @@ export function CambiarPlan() {
               ¿Necesitás más agentes, médicos o crédito de los que ofrece tu plan actual? Elegí un plan superior
               arriba, o{" "}
               <Link to="/admin/plan-consumo/recargar" className="font-semibold text-accent hover:underline">
-                recargá tu saldo
+                recargue su saldo
               </Link>{" "}
               sin cambiar de plan.
             </p>

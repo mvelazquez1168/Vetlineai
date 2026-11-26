@@ -9,6 +9,7 @@ import {
   DashboardGcisReferralRecommendation,
 } from "../../lib/workspaceApi";
 import { formatearFecha } from "../../lib/formatFecha";
+import { etiqueta } from "../../lib/etiquetas";
 
 const CLINICAL_STATE_LABEL: Record<string, string> = {
   remision: "Remisión",
@@ -157,7 +158,7 @@ export function DashboardGcisPanel({
             hour: "2-digit",
             minute: "2-digit",
           })}{" "}
-          — hacé clic en "Actualizar Dashboard" si hay información nueva relevante.
+          — haga clic en "Actualizar Dashboard" si hay información nueva relevante.
         </div>
       )}
 
@@ -181,7 +182,7 @@ export function DashboardGcisPanel({
             <div>
               <dt className="inline font-semibold text-text-primary">Especie/raza: </dt>
               <dd className="inline">
-                {executiveSummary.paciente.especie} · {executiveSummary.paciente.raza}
+                {etiqueta(executiveSummary.paciente.especie)} · {executiveSummary.paciente.raza}
               </dd>
             </div>
             <div>
@@ -190,7 +191,7 @@ export function DashboardGcisPanel({
             </div>
             <div>
               <dt className="inline font-semibold text-text-primary">Sexo: </dt>
-              <dd className="inline">{executiveSummary.paciente.sexo}</dd>
+              <dd className="inline">{etiqueta(executiveSummary.paciente.sexo)}</dd>
             </div>
             {executiveSummary.paciente.peso_actual_kg != null && (
               <div>

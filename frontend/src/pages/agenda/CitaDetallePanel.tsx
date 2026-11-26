@@ -5,6 +5,7 @@ import { Button } from "../../components/ui/Button";
 import { RegistroAtencionModal } from "../../components/caso/RegistroAtencionModal";
 import { useAuth } from "../../hooks/useAuth";
 import { Cita, citasApi, EstadoCita, etiquetaEstadoCita, PrioridadCita, transicionesValidas } from "../../lib/agendaApi";
+import { etiqueta } from "../../lib/etiquetas";
 
 export interface CitaDetallePanelProps {
   cita: Cita | null;
@@ -79,7 +80,7 @@ export function CitaDetallePanel({ cita, onClose, onEditar, onActualizada, permi
               <Link to={`/pacientes/${cita.paciente_id}`} className="hover:underline">
                 {cita.paciente_nombre}
               </Link>
-              {cita.especie && <span className="ml-1 font-normal text-text-muted">({cita.especie})</span>}
+              {cita.especie && <span className="ml-1 font-normal text-text-muted">({etiqueta(cita.especie)})</span>}
             </h3>
             {cita.propietario_nombre && <p className="text-sm text-text-muted">Propietario: {cita.propietario_nombre}</p>}
           </div>

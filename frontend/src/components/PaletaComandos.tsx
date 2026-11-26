@@ -13,6 +13,7 @@ import {
   filtrarComandos,
 } from "../lib/comandos";
 import { PacienteBuscado, PropietarioBuscado, busquedaApi } from "../lib/busquedaApi";
+import { etiqueta } from "../lib/etiquetas";
 
 // ---------------------------------------------------------------------
 // Paleta de comandos global (Ctrl/Cmd+K) + atajos + ayuda (`?`).
@@ -331,7 +332,7 @@ export function PaletaComandos() {
               {resultados.length === 0 && (
                 <p className="px-4 py-6 text-center text-sm text-text-muted">
                   {consulta.trim().length === 0
-                    ? "Escribí para buscar, o elegí algo de la lista."
+                    ? "Escriba para buscar, o elija algo de la lista."
                     : !/^\d+$/.test(consulta.trim()) && consulta.trim().length < 2
                       ? "Escribí al menos dos letras."
                       : "No encontramos nada con eso."}
@@ -377,7 +378,7 @@ export function PaletaComandos() {
                       titulo={p.nombre}
                       detalle={[
                         `N.º ${p.numero_expediente}`,
-                        p.raza ? `${p.especie} · ${p.raza}` : p.especie,
+                        p.raza ? `${etiqueta(p.especie)} · ${p.raza}` : etiqueta(p.especie),
                         p.propietario_nombre,
                         p.estado === "fallecido" ? "fallecido" : null,
                       ]

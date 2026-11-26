@@ -330,7 +330,7 @@ export function Agentes() {
         }
       >
         <p className="text-sm text-text-muted">
-          Por ahora, para agregar un agente nuevo al catálogo global contactá al equipo de desarrollo.
+          Por ahora, para agregar un agente nuevo al catálogo global contacte al equipo de desarrollo.
         </p>
       </Modal>
 

@@ -128,9 +128,21 @@ export function PageHeader({
             )}
             {contexto && <div className="mt-1 text-sm text-sobre-primary/75">{contexto}</div>}
           </div>
+          {/* SOBRE LA FRANJA, LOS BOTONES SE INVIERTEN. Un botón
+              `bg-primary` sobre una franja `bg-primary` es un botón
+              invisible, y eso es exactamente lo que pasaba con
+              «Cobrar» en Caja. Se resuelve acá y no en cada pantalla
+              —con variantes nuevas en cada llamada— porque la regla es
+              del encabezado: el principal va blanco con el texto del
+              color de la clínica, y los secundarios con borde
+              translúcido. Es lo que pide la sección 3 del prompt. */}
           <div className="flex flex-wrap items-center gap-2">
-            {secundarias}
-            {accion}
+            <div className="flex flex-wrap items-center gap-2 [&_button]:border [&_button]:border-sobre-primary/40 [&_button]:bg-transparent [&_button]:text-sobre-primary [&_button:hover]:bg-sobre-primary/15">
+              {secundarias}
+            </div>
+            <div className="[&_button]:bg-sobre-primary [&_button]:text-primary [&_button:hover]:bg-sobre-primary/85">
+              {accion}
+            </div>
           </div>
         </div>
       </div>

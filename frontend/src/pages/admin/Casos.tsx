@@ -9,6 +9,7 @@ import { Table, TableColumn } from "../../components/ui/Table";
 import { useAuth } from "../../hooks/useAuth";
 import { formatearFechaCorta } from "../../lib/formatFecha";
 import { AgenteAdmin, CasoAdmin, Medico, MedicoDisponible, adminApi } from "../../lib/adminApi";
+import { etiqueta } from "../../lib/etiquetas";
 
 const ESTADO_BADGE: Record<string, BadgeVariant> = {
   triage: "neutral",
@@ -131,7 +132,7 @@ export function Casos() {
         <div>
           <p className="font-semibold text-primary">{c.paciente_nombre}</p>
           <p className="text-xs text-text-muted">
-            {c.especie}
+            {etiqueta(c.especie)}
             {c.raza ? ` · ${c.raza}` : ""}
           </p>
         </div>

@@ -14,6 +14,7 @@ import { PestanasExpediente } from "../../components/expediente/PestanasExpedien
 import { useAuth } from "../../hooks/useAuth";
 import { EncabezadoExpediente, expedienteApi } from "../../lib/expedienteApi";
 import { formatearFechaCorta } from "../../lib/formatFecha";
+import { etiqueta } from "../../lib/etiquetas";
 import {
   FichaCompleta,
   pacientesApi,
@@ -150,8 +151,8 @@ export function FichaPaciente() {
             )}
           </div>
           <p className="mt-1 text-text-muted">
-            {p.especie}
-            {p.raza ? ` · ${p.raza}` : ""} · {p.sexo ?? "sexo sin registrar"} ·{" "}
+            {etiqueta(p.especie)}
+            {p.raza ? ` · ${p.raza}` : ""} · {p.sexo ? etiqueta(p.sexo) : "Sexo sin registrar"} ·{" "}
             {ETIQUETA_ESTADO_REPRODUCTIVO[p.estado_reproductivo] ?? p.estado_reproductivo} · {edad}
           </p>
         </div>

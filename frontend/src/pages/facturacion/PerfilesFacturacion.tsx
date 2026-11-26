@@ -367,7 +367,7 @@ export function PerfilesFacturacion() {
           {editando && (
             <p className="text-xs text-text-muted">
               La identificación no se edita: cambiarla reescribiría a quién se le facturó. Si estaba
-              mal, creá el perfil correcto y desactivá este.
+              mal, cree el perfil correcto y desactive este.
             </p>
           )}
           <div className="grid gap-3 sm:grid-cols-2">

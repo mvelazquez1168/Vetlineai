@@ -21,6 +21,7 @@ import { Contingencia } from "./pages/ventas/Contingencia";
 import { CuentaCorriente } from "./pages/ventas/CuentaCorriente";
 import { Encargos } from "./pages/ventas/Encargos";
 import { ReportesVentas } from "./pages/ventas/ReportesVentas";
+import { SeccionesCaja } from "./pages/ventas/SeccionesCaja";
 import { TiqueteTermico } from "./pages/ventas/TiqueteTermico";
 import { AlertasInventario } from "./pages/inventario/AlertasInventario";
 import { CatalogoProductos } from "./pages/inventario/CatalogoProductos";
@@ -31,6 +32,7 @@ import { ConteoFisico } from "./pages/inventario/ConteoFisico";
 import { MovimientosInventario } from "./pages/inventario/MovimientosInventario";
 import { ProductoEditor } from "./pages/inventario/ProductoEditor";
 import { ProductoFicha } from "./pages/inventario/ProductoFicha";
+import { SeccionesInventario } from "./pages/inventario/SeccionesInventario";
 import { Servicios as ServiciosInventario } from "./pages/inventario/Servicios";
 import { VentaMostrador } from "./pages/inventario/VentaMostrador";
 import { ComprobanteDetalle } from "./pages/facturacion/ComprobanteDetalle";
@@ -284,18 +286,23 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<CatalogoProductos />} />
+        {/* La ficha de un producto, su edicion y la venta de mostrador
+            son pantallas de trabajo: llevan su enlace al padre dentro
+            de la pagina, no la barra de secciones del modulo. */}
         <Route path="productos/nuevo" element={<ProductoEditor />} />
         <Route path="productos/:id" element={<ProductoFicha />} />
         <Route path="productos/:id/editar" element={<ProductoEditor />} />
-        <Route path="servicios" element={<ServiciosInventario />} />
-        <Route path="precios" element={<ListasPrecio />} />
-        <Route path="movimientos" element={<MovimientosInventario />} />
-        <Route path="kardex" element={<KardexGeneral />} />
         <Route path="venta-mostrador" element={<VentaMostrador />} />
-        <Route path="compras" element={<Compras />} />
-        <Route path="conteos" element={<ConteoFisico />} />
-        <Route path="alertas" element={<AlertasInventario />} />
+        <Route element={<SeccionesInventario />}>
+          <Route index element={<CatalogoProductos />} />
+          <Route path="servicios" element={<ServiciosInventario />} />
+          <Route path="precios" element={<ListasPrecio />} />
+          <Route path="movimientos" element={<MovimientosInventario />} />
+          <Route path="kardex" element={<KardexGeneral />} />
+          <Route path="compras" element={<Compras />} />
+          <Route path="conteos" element={<ConteoFisico />} />
+          <Route path="alertas" element={<AlertasInventario />} />
+        </Route>
       </Route>
 
       {/* Caja, ventas y cobros — módulo `ventas` de Vetline Clinic.
@@ -312,16 +319,20 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<CajaDelDia />} />
-        <Route path="caja/:id" element={<CajaDelDia />} />
+        {/* El cobro y el tiquete quedan FUERA de las pestañas: son
+            pantallas de trabajo con un solo camino de salida. */}
         <Route path="cobro" element={<Cobro />} />
         <Route path="cobro/:id" element={<Cobro />} />
         <Route path="tiquete/:id" element={<TiqueteTermico />} />
-        <Route path="cuenta-corriente" element={<CuentaCorriente />} />
-        <Route path="encargos" element={<Encargos />} />
-        <Route path="aprobaciones" element={<AprobacionesVentas />} />
-        <Route path="contingencia" element={<Contingencia />} />
-        <Route path="reportes" element={<ReportesVentas />} />
+        <Route element={<SeccionesCaja />}>
+          <Route index element={<CajaDelDia />} />
+          <Route path="caja/:id" element={<CajaDelDia />} />
+          <Route path="cuenta-corriente" element={<CuentaCorriente />} />
+          <Route path="encargos" element={<Encargos />} />
+          <Route path="aprobaciones" element={<AprobacionesVentas />} />
+          <Route path="contingencia" element={<Contingencia />} />
+          <Route path="reportes" element={<ReportesVentas />} />
+        </Route>
       </Route>
 
       {/* Vista de detalle de caso de solo lectura — fuera del layout con

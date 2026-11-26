@@ -96,20 +96,46 @@ export async function reporteDeVentas(
   const base = { titulo: TITULO[cual], columnas: COLUMNAS[cual] };
 
   if (cual === "ventas") {
+    // EL VUELTO SE RESTA DEL EFECTIVO.
+    //
+    // Sumar `monto_crc` a secas cuenta lo que el cliente ENTREGÓ, no lo
+    // que quedó en la caja: una venta de ₡282,50 pagada con un billete
+    // de ₡10 000 aparecía como ₡10 000 de efectivo. El arqueo sí
+    // descuenta el vuelto (ver esperadoDeSesion), así que el reporte y
+    // el arqueo decían dos cosas distintas del mismo efectivo.
+    //
+    // El vuelto es del cobro y no de un medio, así que se le carga a UNA
+    // línea de efectivo del mismo cobro: la de colones si existe, si no
+    // la de efectivo en dólares (una venta en dólares con vuelto en
+    // colones es un caso real de esta caja).
     const r = await db.query(
-      `SELECT p.nombre AS cajero, caja.nombre AS caja, cm.medio,
+      `WITH lineas AS (
+         SELECT cm.cobro_id, cm.medio, cm.monto_crc, co.cobrado_por, co.sesion_id,
+                co.vuelto_crc,
+                row_number() OVER (
+                  PARTITION BY cm.cobro_id
+                  ORDER BY (cm.medio = '01' AND cm.moneda = 'CRC') DESC,
+                           (cm.medio = '01') DESC,
+                           cm.monto_crc DESC
+                ) AS orden
+           FROM vta_cobros co
+           JOIN vta_cobro_medios cm ON cm.cobro_id = co.id
+          WHERE co.estado = 'aplicado'
+            AND co.creado_en >= $1::date AND co.creado_en < ($2::date + interval '1 day')
+       )
+       SELECT p.nombre AS cajero, caja.nombre AS caja, l.medio,
               mp.nombre AS medio_nombre,
-              count(DISTINCT co.id)::int AS cobros,
-              sum(cm.monto_crc)::text AS total
-         FROM vta_cobros co
-         JOIN vta_cobro_medios cm ON cm.cobro_id = co.id
-         JOIN vta_sesiones_caja s ON s.id = co.sesion_id
+              count(DISTINCT l.cobro_id)::int AS cobros,
+              sum(
+                l.monto_crc
+                - CASE WHEN l.orden = 1 AND l.medio = '01' THEN l.vuelto_crc ELSE 0 END
+              )::text AS total
+         FROM lineas l
+         JOIN vta_sesiones_caja s ON s.id = l.sesion_id
          JOIN vta_cajas caja ON caja.id = s.caja_id
-         LEFT JOIN personas p ON p.id = co.cobrado_por
-         LEFT JOIN fact_cat_medio_pago mp ON mp.codigo = cm.medio
-        WHERE co.estado = 'aplicado'
-          AND co.creado_en >= $1::date AND co.creado_en < ($2::date + interval '1 day')
-        GROUP BY p.nombre, caja.nombre, cm.medio, mp.nombre
+         LEFT JOIN personas p ON p.id = l.cobrado_por
+         LEFT JOIN fact_cat_medio_pago mp ON mp.codigo = l.medio
+        GROUP BY p.nombre, caja.nombre, l.medio, mp.nombre
         ORDER BY caja.nombre, p.nombre`,
       rango
     );

@@ -15,6 +15,7 @@ import {
   TableColumn,
   useToast,
 } from "../../components/ui";
+import { BarraCaja } from "./BarraCaja";
 import {
   Caja,
   CobroListado,
@@ -219,7 +220,10 @@ export function CajaDelDia() {
   if (!sesionId || !datos) {
     return (
       <div>
-        <h2 className="text-xl font-bold text-primary">Caja</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-xl font-bold text-primary">Caja</h2>
+          <BarraCaja />
+        </div>
         <Card className="mt-6">
           <CardTitle>No hay ninguna caja abierta</CardTitle>
           <CardDescription>
@@ -331,7 +335,8 @@ export function CajaDelDia() {
             {formatearMonto(datos.sesion.fondo_crc)} y {formatearMonto(datos.sesion.fondo_usd, "USD")}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <BarraCaja />
           <Badge variant={abiertaAun ? "success" : "neutral"} dot>
             {abiertaAun ? "Abierta" : "Cerrada"}
           </Badge>

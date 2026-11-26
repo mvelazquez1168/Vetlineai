@@ -1338,6 +1338,22 @@ async function main() {
     ventas.filas.length
   );
 
+  // LO QUE SE COBRÓ TIENE QUE CERRAR: la suma de los medios del reporte
+  // es igual a la suma de los cobros del período. Si el reporte no
+  // descontara el vuelto, daría de más —y daría distinto del arqueo, que
+  // sí lo descuenta—.
+  const totalDeCobros = await pool.query<{ total: string }>(
+    `SELECT COALESCE(sum(total), 0)::text AS total FROM vta_cobros
+      WHERE tenant_id = $1 AND estado = 'aplicado'`,
+    [tenantId]
+  );
+  const sumaDelReporte = ventas.filas.reduce((a, f) => a + Number(f.total), 0);
+  assert(
+    Math.abs(sumaDelReporte - Number(totalDeCobros.rows[0].total)) < 1,
+    "el reporte de ventas cierra contra los cobros: el vuelto no se cuenta como venta",
+    { enElReporte: sumaDelReporte, cobrado: Number(totalDeCobros.rows[0].total) }
+  );
+
   const porLinea = await conAlcanceTenant(tenantId, (db) =>
     reporteDeVentas(db, "lineas-negocio", hace30, hoy)
   );

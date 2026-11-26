@@ -16,6 +16,7 @@ import {
   TiraIndicadores,
 } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
+import { formatearFechaCorta } from "../../lib/formatFecha";
 import {
   Bodega,
   CatalogosInventario,
@@ -48,7 +49,7 @@ import { formatearMonto } from "../../lib/ventasApi";
 
 export function CatalogoProductos() {
   const navegar = useNavigate();
-  const { esAdminClinica } = useAuth();
+  const { esAdminClinica, zonaHoraria } = useAuth();
   const [catalogos, setCatalogos] = useState<CatalogosInventario | null>(null);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
   const [datos, setDatos] = useState<{ productos: ProductoListado[]; total: number } | null>(null);
@@ -171,12 +172,11 @@ export function CatalogoProductos() {
       header: "Vence",
       render: (p) =>
         p.proximo_vencimiento ? (
+          // Por el formateador unico, no con `toLocaleDateString` suelto:
+          // asi una fecha de calendario no se corre un dia (ver
+          // lib/formatFecha.ts).
           <span className="text-sm">
-            {new Date(p.proximo_vencimiento).toLocaleDateString("es-CR", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
+            {formatearFechaCorta(String(p.proximo_vencimiento).slice(0, 10), zonaHoraria)}
           </span>
         ) : (
           <span className="text-sm text-text-muted">—</span>

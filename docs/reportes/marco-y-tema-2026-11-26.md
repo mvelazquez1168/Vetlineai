@@ -215,6 +215,30 @@ Lo que el 26 de noviembre a la tarde quedaba pendiente se terminó en la misma e
   cobros sin comprobante (una cuenta saldada contra un anticipo) se cuentan aparte y no se
   esconden.
 
+### Los dos hallazgos del punto de retome, cerrados
+
+**«Vencen en 60 días» decía 0 y había un lote venciendo en un mes.** Eran **dos** defectos, no uno:
+
+1. **El indicador leía la columna equivocada.** Filtraba por `inv_lotes.vencimiento`, la fecha
+   impresa en el envase, cuando lo que vale es **`vencimiento_efectivo`**: un frasco abierto vence
+   antes que su etiqueta. La migración 095 lo había dejado escrito —*«la alerta de "por vencer",
+   el FEFO y la pantalla tienen que leer el MISMO número»*— y las dos consultas nuevas lo
+   ignoraron. El alcohol etílico está abierto desde hoy y vence efectivamente el 26 de diciembre.
+   Corregido en `/inicio/indicadores` y `/inventario/resumen`; ahora dice **1**.
+2. **Todas las fechas de calendario se mostraban un día antes.** El catálogo decía que el alcohol
+   vencía el **25** de diciembre y vence el **26**; el algodón el 24 de marzo y es el 25. La causa:
+   `new Date("2026-12-26")` se interpreta como medianoche UTC y, mostrado en Costa Rica (UTC−6),
+   cae el día anterior. Pasaba en **toda** columna de fecha sin hora, y un día de diferencia no se
+   ve raro, así que nadie lo notaba. Se arregló en `lib/formatFecha.ts` —una fecha de calendario no
+   tiene zona horaria y no se convierte— y de paso el catálogo dejó de formatear por su cuenta,
+   que es lo que ese módulo prohíbe en su primer comentario.
+
+**El orden de las pestañas bajo la franja: queda como está, y es una decisión.** Las pestañas del
+módulo van **arriba** de la franja, pegadas a la miga de pan. El criterio: la miga y las pestañas
+son del **módulo** (dónde estoy), la franja es de la **pantalla** (qué estoy viendo y qué puedo
+hacer acá). Lo de afuera va primero. Ponerlas debajo las dejaría después de la tira de
+indicadores, separadas de la navegación a la que pertenecen.
+
 ### Lo que sigue pendiente
 
 1. **La pasada clic a clic de la lista de control.** Están marcadas en

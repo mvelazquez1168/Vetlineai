@@ -455,9 +455,11 @@ inventarioRouter.get("/resumen", async (req, res) => {
              WHERE p.activo AND p.minimo IS NOT NULL AND p.minimo > 0
              GROUP BY p.id, p.minimo
           ) x WHERE x.existencia < x.minimo) AS bajo_minimo,
+         -- vencimiento_efectivo y no vencimiento: ver la nota de
+         -- inicio.routes.ts. Un lote abierto vence antes.
          (SELECT count(*)::int FROM inv_lotes
-           WHERE cantidad > 0 AND vencimiento IS NOT NULL
-             AND vencimiento <= CURRENT_DATE + 60) AS por_vencer_60,
+           WHERE cantidad > 0 AND vencimiento_efectivo IS NOT NULL
+             AND vencimiento_efectivo <= CURRENT_DATE + 60) AS por_vencer_60,
          (SELECT count(*)::int FROM inv_ajustes WHERE estado = 'pendiente')
            AS ajustes_pendientes`
     );

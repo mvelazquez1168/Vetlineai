@@ -15,6 +15,15 @@ import { SeccionLayout } from "./components/SeccionLayout";
 import { Pacientes } from "./pages/pacientes/Pacientes";
 import { FichaPaciente } from "./pages/pacientes/FichaPaciente";
 import { ClinicEstado } from "./pages/clinic/ClinicEstado";
+import { AlertasInventario } from "./pages/inventario/AlertasInventario";
+import { CatalogoProductos } from "./pages/inventario/CatalogoProductos";
+import { Compras } from "./pages/inventario/Compras";
+import { ConteoFisico } from "./pages/inventario/ConteoFisico";
+import { MovimientosInventario } from "./pages/inventario/MovimientosInventario";
+import { ProductoEditor } from "./pages/inventario/ProductoEditor";
+import { ProductoFicha } from "./pages/inventario/ProductoFicha";
+import { Servicios as ServiciosInventario } from "./pages/inventario/Servicios";
+import { VentaMostrador } from "./pages/inventario/VentaMostrador";
 import { ComprobanteDetalle } from "./pages/facturacion/ComprobanteDetalle";
 import { ComprobantesLista } from "./pages/facturacion/ComprobantesLista";
 import { ComprobantesRecibidos } from "./pages/facturacion/ComprobantesRecibidos";
@@ -225,6 +234,32 @@ export default function App() {
         <Route path="comprobantes/:id" element={<ComprobanteDetalle />} />
         <Route path="recibidos" element={<ComprobantesRecibidos />} />
         <Route path="emisor" element={<ConfiguracionEmisor />} />
+      </Route>
+
+      {/* Catálogo, inventario y compras — módulo `inventario` de Vetline
+          Clinic. Mismo layout y mismos dos roles que el facturador: el
+          backend gatea médico y admin_clinica por igual para consultar y
+          mover, y restringe a admin la aprobación de ajustes, los
+          parámetros y la importación (ver inventario.routes.ts). La
+          entrada al menú solo aparece si el módulo está habilitado. */}
+      <Route
+        path="/inventario"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <SeccionLayout titulo="Inventario" />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<CatalogoProductos />} />
+        <Route path="productos/nuevo" element={<ProductoEditor />} />
+        <Route path="productos/:id" element={<ProductoFicha />} />
+        <Route path="productos/:id/editar" element={<ProductoEditor />} />
+        <Route path="servicios" element={<ServiciosInventario />} />
+        <Route path="movimientos" element={<MovimientosInventario />} />
+        <Route path="venta-mostrador" element={<VentaMostrador />} />
+        <Route path="compras" element={<Compras />} />
+        <Route path="conteos" element={<ConteoFisico />} />
+        <Route path="alertas" element={<AlertasInventario />} />
       </Route>
 
       {/* Vista de detalle de caso de solo lectura — fuera del layout con

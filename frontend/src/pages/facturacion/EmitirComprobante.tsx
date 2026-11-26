@@ -934,7 +934,7 @@ export function EmitirComprobante() {
                     <button
                       type="button"
                       aria-label={`Quitar la línea ${i + 1}`}
-                      className="rounded p-1 text-text-muted hover:bg-black/5 hover:text-danger"
+                      className="rounded p-1 text-text-muted hover:bg-black/5 hover:text-error"
                       onClick={() => setLineas((ls) => ls.filter((_, j) => j !== i))}
                     >
                       <Icono nombre="borrar" className="h-4 w-4" />

@@ -7,6 +7,7 @@ import {
   Card,
   CardTitle,
   LoadingState,
+  Icono,
 } from "../../components/ui";
 import { FranjaAlertas } from "../../components/expediente/FranjaAlertas";
 import { PestanasExpediente } from "../../components/expediente/PestanasExpediente";
@@ -51,11 +52,13 @@ export function FichaPaciente() {
   // con una ruta que necesita el agenteId y que la cronología no tiene).
   // Para un médico el caso se muestra como texto: mandarlo a una ruta
   // que lo va a rebotar a /unauthorized es peor que no enlazar.
-  const { zonaHoraria, esAdminClinica } = useAuth();
+  const { zonaHoraria, esAdminClinica, esMedico } = useAuth();
   const [ficha, setFicha] = useState<FichaCompleta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editando, setEditando] = useState(false);
+  // La pestaña abierta vive acá porque el encabezado también la cambia.
+  const [pestana, setPestana] = useState("resumen");
   // El expediente clínico (prompt 07): la franja de alertas, la
   // completitud y las pestañas. Se pide aparte de la ficha porque son
   // dos preguntas distintas —quién es el paciente y qué le pasó— y la
@@ -152,9 +155,22 @@ export function FichaPaciente() {
             {ETIQUETA_ESTADO_REPRODUCTIVO[p.estado_reproductivo] ?? p.estado_reproductivo} · {edad}
           </p>
         </div>
-        <Button variant="secondary" onClick={() => setEditando(true)}>
-          Editar ficha
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {/* ACCIÓN RÁPIDA del prompt 07 §10: registrar la atención es lo
+              que el médico viene a hacer. Lleva a su pestaña en vez de
+              abrir un modal con el mismo formulario: dos lugares para
+              escribir la misma consulta serían dos formularios que un día
+              divergen. */}
+          {esMedico && p.estado !== "fallecido" && (
+            <Button onClick={() => setPestana("atencion")}>
+              <Icono nombre="agregar" className="mr-1 h-4 w-4" />
+              Registrar atención
+            </Button>
+          )}
+          <Button variant="secondary" onClick={() => setEditando(true)}>
+            Editar ficha
+          </Button>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -263,6 +279,8 @@ export function FichaPaciente() {
             pacienteId={id!}
             encabezado={expediente}
             onCambio={cargar}
+            pestanaActiva={pestana}
+            onPestana={setPestana}
           />
         </>
       )}

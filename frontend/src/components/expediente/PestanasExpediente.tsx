@@ -13,6 +13,7 @@ import {
   useToast,
 } from "../ui";
 import { useAuth } from "../../hooks/useAuth";
+import { AtencionActual } from "./AtencionActual";
 import {
   EncabezadoExpediente,
   EstudioLab,
@@ -44,6 +45,7 @@ import {
 
 type Pestana =
   | "resumen"
+  | "atencion"
   | "linea"
   | "visitas"
   | "vacunas"
@@ -57,6 +59,9 @@ type Pestana =
 
 const PESTANAS: Array<{ clave: Pestana; etiqueta: string; tipoEvento?: string }> = [
   { clave: "resumen", etiqueta: "Resumen" },
+  // La atención va segunda y no última: cuando el médico abre esta
+  // pantalla, el paciente está delante.
+  { clave: "atencion", etiqueta: "Atención actual" },
   { clave: "linea", etiqueta: "Línea de tiempo" },
   { clave: "visitas", etiqueta: "Visitas", tipoEvento: "visita" },
   { clave: "vacunas", etiqueta: "Vacunas", tipoEvento: "vacuna" },
@@ -92,16 +97,30 @@ export interface PestanasExpedienteProps {
   pacienteId: string;
   encabezado: EncabezadoExpediente;
   onCambio: () => void;
+  /**
+   * La pestaña abierta, cuando la manda la pantalla de arriba. Existe
+   * para que las acciones rápidas del encabezado —"registrar atención"—
+   * lleven a su pestaña en vez de duplicar el formulario en un modal.
+   */
+  pestanaActiva?: string;
+  onPestana?: (clave: string) => void;
 }
 
 export function PestanasExpediente({
   pacienteId,
   encabezado,
   onCambio,
+  pestanaActiva,
+  onPestana,
 }: PestanasExpedienteProps) {
   const toast = useToast();
   const { esMedico } = useAuth();
-  const [pestana, setPestana] = useState<Pestana>("resumen");
+  const [propia, setPropia] = useState<Pestana>("resumen");
+  const pestana = (pestanaActiva as Pestana) ?? propia;
+  const setPestana = (clave: Pestana) => {
+    setPropia(clave);
+    onPestana?.(clave);
+  };
 
   return (
     <div className="mt-6">
@@ -134,6 +153,14 @@ export function PestanasExpediente({
             encabezado={encabezado}
             esMedico={!!esMedico}
             onCambio={onCambio}
+          />
+        )}
+        {pestana === "atencion" && (
+          <AtencionActual
+            pacienteId={pacienteId}
+            pacienteNombre={String(encabezado.paciente.nombre ?? "el paciente")}
+            esMedico={!!esMedico}
+            onCerrada={onCambio}
           />
         )}
         {pestana === "linea" && <LineaDeTiempo pacienteId={pacienteId} />}

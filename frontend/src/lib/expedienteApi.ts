@@ -249,3 +249,134 @@ export const expedienteApi = {
   firmarConsentimiento: (pacienteId: string, d: Record<string, unknown>) =>
     json<{ id: string }>(`/expediente/pacientes/${pacienteId}/consentimientos`, "POST", d),
 };
+
+// ---------------------------------------------------------------------
+// LA ATENCIÓN QUE GENERA CARGOS — bloque B
+// ---------------------------------------------------------------------
+
+export interface SistemaExaminado {
+  sistema: string;
+  estado: "normal" | "anormal" | "no_evaluado";
+  nota: string | null;
+}
+
+export interface DiagnosticoAtencion {
+  id: string;
+  tipo: "presuntivo" | "definitivo";
+  descripcion: string;
+  problema_id: string | null;
+  creado_por_nombre: string | null;
+}
+
+export interface ItemAtencion {
+  id: string;
+  tipo: string;
+  descripcion: string;
+  cantidad: number;
+  precio_unitario: number;
+  descuento: number;
+  total: number;
+  cobrado: boolean;
+  dispensado_aqui: boolean;
+}
+
+export interface AtencionDetalle {
+  atencion: Record<string, string | number | null>;
+  sistemas: SistemaExaminado[];
+  diagnosticos: DiagnosticoAtencion[];
+  items: ItemAtencion[];
+  total: number;
+}
+
+export const atencionApi = {
+  plantillas: () =>
+    pedir<{
+      plantillas: Array<{
+        id: string;
+        tipo_consulta: string;
+        nombre: string;
+        sistemas: string[];
+        de_la_plataforma: boolean;
+      }>;
+    }>("/expediente/atenciones/plantillas"),
+
+  abrir: (d: Record<string, unknown>) =>
+    json<{ atencion: { id: string; citaId: string; estado: string; creada: boolean } }>(
+      "/expediente/atenciones",
+      "POST",
+      d
+    ),
+
+  detalle: (atencionId: string) => pedir<AtencionDetalle>(`/expediente/atenciones/${atencionId}`),
+
+  /** La atención empezada de este paciente, si hay alguna. */
+  enCurso: (pacienteId: string) =>
+    pedir<{ atencionId: string | null; detalle: AtencionDetalle | null }>(
+      `/expediente/pacientes/${pacienteId}/atencion-en-curso`
+    ),
+
+  guardar: (atencionId: string, campos: Record<string, unknown>) =>
+    json<{ guardado: true }>(`/expediente/atenciones/${atencionId}`, "PATCH", campos),
+
+  aplicarPlantilla: (atencionId: string, tipoConsulta: string) =>
+    json<{ plantillaId: string | null; sistemas: string[] }>(
+      `/expediente/atenciones/${atencionId}/plantilla`,
+      "POST",
+      { tipoConsulta }
+    ),
+
+  marcarSistema: (
+    atencionId: string,
+    sistema: string,
+    estado: string,
+    nota?: string | null
+  ) =>
+    json<{ guardado: true }>(
+      `/expediente/atenciones/${atencionId}/sistemas/${encodeURIComponent(sistema)}`,
+      "PUT",
+      { estado, nota }
+    ),
+
+  agregarDiagnostico: (atencionId: string, d: Record<string, unknown>) =>
+    json<{ id: string; problemaId: string | null }>(
+      `/expediente/atenciones/${atencionId}/diagnosticos`,
+      "POST",
+      d
+    ),
+
+  agregarItem: (atencionId: string, d: Record<string, unknown>) =>
+    json<{ id: string; descripcion: string; precioUnitario: number; total: number }>(
+      `/expediente/atenciones/${atencionId}/items`,
+      "POST",
+      d
+    ),
+
+  quitarItem: (atencionId: string, itemId: string) =>
+    json<{ quitado: true }>(
+      `/expediente/atenciones/${atencionId}/items/${itemId}`,
+      "DELETE",
+      {}
+    ),
+
+  cuenta: (atencionId: string) =>
+    pedir<{ items: ItemAtencion[]; total: number; yaCobrado: number }>(
+      `/expediente/atenciones/${atencionId}/cuenta`
+    ),
+
+  avisosReceta: (pacienteId: string, presentacionId: string) =>
+    pedir<{ avisos: Array<{ porque: string; severidad: string; detalle: string }> }>(
+      `/expediente/pacientes/${pacienteId}/avisos-receta?presentacionId=${presentacionId}`
+    ),
+
+  cerrar: (atencionId: string, d: Record<string, unknown> = {}) =>
+    json<{
+      cuentaId: string;
+      cuentaNumero: number;
+      cargos: number;
+      total: number;
+      movimientos: number;
+      preventivos: number;
+      controlCitaId: string | null;
+      yaEstabaCerrada: boolean;
+    }>(`/expediente/atenciones/${atencionId}/cerrar`, "POST", d),
+};

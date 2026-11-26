@@ -34,7 +34,7 @@ import {
   marcarSistema,
   quitarItem,
 } from "../expediente/atencion";
-import { registrarAlergia } from "../expediente/clinico";
+import { cerrarYFirmarAtencion, registrarAlergia } from "../expediente/clinico";
 import { registrarMovimiento } from "../inventario/movimientos";
 import { totalDeCuenta } from "../ventas/cuentas";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
@@ -247,6 +247,24 @@ async function main() {
   assert(
     sistemas.every((s) => s.estado !== "normal"),
     "y NINGUNO arranca en 'normal': no haberlos mirado no es haberlos encontrado bien"
+  );
+  // EL ORDEN ES EL DE LA PLANTILLA y no cambia entre dos lecturas: los
+  // doce se insertan en la misma transacción, así que ordenar por
+  // `creado_en` devolvía un orden distinto cada vez. Se vio en el
+  // navegador (migración 106).
+  igual(
+    sistemas[0].sistema,
+    "Actitud y estado general",
+    "el examen se lee en el orden de la plantilla, de lo general a lo particular"
+  );
+  const otraLectura = (
+    (await conAlcanceTenant(tenantId, (db) => atencionCompleta(db, atencion.id)))
+      .sistemas as Array<{ sistema: string }>
+  ).map((s) => s.sistema);
+  igual(
+    otraLectura,
+    sistemas.map((s) => s.sistema),
+    "y dos lecturas seguidas devuelven el MISMO orden"
   );
 
   // Reaplicar la plantilla no puede borrar lo escrito.
@@ -496,6 +514,28 @@ async function main() {
   );
 
   await conAlcanceTenant(tenantId, (db) => quitarItem(db, atencion.id, itemImposible.id));
+
+  // -------------------------------------------------------------------
+  console.log("\n=== 5b. Firmar sin cobrar: la base no lo deja ===");
+  //
+  // Defecto real: el bloque A tenia su propia ruta de cierre que SOLO
+  // firmaba, y al llegar el bloque B quedaron dos rutas con la misma
+  // URL. Express atendio la primera: la atencion quedo firmada y los
+  // cargos afuera, con `cuenta_id` en NULL. La ruta duplicada ya no
+  // esta, y ademas la base lo impide por cualquier camino (migracion
+  // 107).
+  await debeFallar("firmar la atencion salteando el cierre completo", () =>
+    conAlcanceTenant(tenantId, (db) => cerrarYFirmarAtencion(db, atencion.id, medicoId))
+  );
+  const siguenEnBorrador = await pool.query<{ estado: string }>(
+    `SELECT estado FROM atenciones WHERE id = $1`,
+    [atencion.id]
+  );
+  igual(
+    siguenEnBorrador.rows[0].estado,
+    "borrador",
+    "y la atencion sigue en borrador: no quedo firmada a medias"
+  );
 
   // -------------------------------------------------------------------
   console.log("\n=== 6. El cierre, en una sola operación ===");

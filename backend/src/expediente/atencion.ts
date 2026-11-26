@@ -206,12 +206,16 @@ export async function aplicarPlantilla(
     ]
   );
 
-  for (const sistema of plantilla.sistemas) {
+  // EL ORDEN SE GUARDA: el array de la plantilla está ordenado de lo
+  // general a lo particular, y es el orden en el que el médico examina.
+  // Sin la columna, los doce sistemas comparten `creado_en` y la lista
+  // se reordenaba sola entre dos cargas de la pantalla.
+  for (const [i, sistema] of plantilla.sistemas.entries()) {
     await db.query(
-      `INSERT INTO exp_examen_sistemas (tenant_id, atencion_id, sistema, estado)
-       VALUES ($1,$2,$3,'no_evaluado')
-       ON CONFLICT (atencion_id, sistema) DO NOTHING`,
-      [tenantId, atencionId, sistema]
+      `INSERT INTO exp_examen_sistemas (tenant_id, atencion_id, sistema, estado, orden)
+       VALUES ($1,$2,$3,'no_evaluado',$4)
+       ON CONFLICT (atencion_id, sistema) DO UPDATE SET orden = EXCLUDED.orden`,
+      [tenantId, atencionId, sistema, i]
     );
   }
 
@@ -957,6 +961,27 @@ async function exigirEnBorrador(
   return r.rows[0];
 }
 
+/**
+ * La atención EN CURSO de un paciente, si hay alguna.
+ *
+ * Es lo primero que la pantalla necesita saber al abrir el expediente:
+ * si el paciente ya tiene una consulta empezada, el médico sigue en esa
+ * y no abre una segunda. Dos atenciones en borrador del mismo paciente
+ * serían dos mitades de la misma visita.
+ */
+export async function atencionEnCurso(
+  db: PoolClient,
+  pacienteId: string
+): Promise<string | null> {
+  const r = await db.query<{ id: string }>(
+    `SELECT id FROM atenciones
+      WHERE paciente_id = $1 AND estado = 'borrador'
+      ORDER BY creado_en DESC LIMIT 1`,
+    [pacienteId]
+  );
+  return r.rows[0]?.id ?? null;
+}
+
 // ---------------------------------------------------------------------
 // LECTURA: la atención completa, para la pantalla
 // ---------------------------------------------------------------------
@@ -980,7 +1005,8 @@ export async function atencionCompleta(
 
   const sistemas = await db.query(
     `SELECT sistema, estado, nota FROM exp_examen_sistemas
-      WHERE atencion_id = $1 ORDER BY creado_en`,
+      WHERE atencion_id = $1
+      ORDER BY orden NULLS LAST, sistema`,
     [atencionId]
   );
   const diagnosticos = await db.query(

@@ -7,7 +7,6 @@ import {
   alergiasDePaciente,
   avisosDeAlergia,
   cambiarEstadoProblema,
-  cerrarYFirmarAtencion,
   ligarProblemaAAtencion,
   problemasDePaciente,
   registrarAlergia,
@@ -43,6 +42,7 @@ import {
   agregarItem,
   aplicarPlantilla,
   atencionCompleta,
+  atencionEnCurso,
   avisosAlRecetar,
   cerrarAtencion,
   cuentaViva,
@@ -263,16 +263,15 @@ expedienteRouter.get("/pacientes/:id/avisos-alergia", async (req, res) => {
 });
 
 // =====================================================================
-// ATENCIÓN: cierre, firma y adendas
+// ATENCIÓN: adendas
+//
+// EL CIERRE NO ESTÁ ACÁ. El bloque A tenía su propio
+// `POST /atenciones/:id/cerrar` que solo firmaba, y al llegar el bloque
+// B quedaron DOS rutas con la misma URL: Express atiende la primera, así
+// que la pantalla nueva firmaba la atención y los cargos se quedaban
+// afuera. Una atención cerrada sin su cuenta es plata que nadie va a
+// cobrar. Ahora hay una sola, la de abajo, que hace el cierre completo.
 // =====================================================================
-expedienteRouter.post("/atenciones/:id/cerrar", soloMedico, async (req, res) => {
-  try {
-    await cerrarYFirmarAtencion(req.db!, req.params.id, req.auth!.userId!);
-    res.json({ ok: true });
-  } catch (err) {
-    fallo(res, err, "POST /expediente/atenciones/:id/cerrar");
-  }
-});
 
 expedienteRouter.get("/atenciones/:id/adendas", async (req, res) => {
   try {
@@ -515,6 +514,20 @@ expedienteRouter.post("/atenciones", soloMedico, async (req, res) => {
     res.status(atencion.creada ? 201 : 200).json({ atencion });
   } catch (err) {
     fallo(res, err, "POST /expediente/atenciones");
+  }
+});
+
+/**
+ * ¿Hay una atención empezada de este paciente? Va ANTES de
+ * `/atenciones/:id` por el orden de rutas de Express: con el orden al
+ * revés, "plantillas" entraría como un id.
+ */
+expedienteRouter.get("/pacientes/:id/atencion-en-curso", async (req, res) => {
+  try {
+    const id = await atencionEnCurso(req.db!, req.params.id);
+    res.json({ atencionId: id, detalle: id ? await atencionCompleta(req.db!, id) : null });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/atencion-en-curso");
   }
 });
 

@@ -32,8 +32,21 @@ export interface TemaCalculado {
   /** `true` si hubo que oscurecerlo. La pantalla lo avisa. */
   ajustado: boolean;
   contrasteConBlanco: number;
+  /** Contraste real entre el primario y el texto que va ENCIMA de él. */
+  contrasteDelTextoEncima: number;
   /** Blanco o casi negro, según cuál se lea mejor sobre el primario. */
   sobrePrimario: string;
+  /**
+   * El primario usado COMO TEXTO sobre fondos claros (enlaces, pestaña
+   * activa, títulos de sección). No es el mismo color: el primario está
+   * calculado para que se lea lo que va encima de él, y eso no dice nada
+   * sobre si él mismo se lee sobre blanco. Un amarillo puro cumple
+   * holgadamente como fondo —texto oscuro encima— y es invisible como
+   * texto. Se oscurece hasta llegar a 4,5:1 contra la superficie.
+   */
+  primarioTexto: string;
+  /** Contraste de `primarioTexto` contra la superficie blanca. */
+  contrasteComoTexto: number;
   primarioHover: string;
   primarioSuave: string;
   primarioOscuro: string;
@@ -194,6 +207,17 @@ export function calcularTema(primarioElegido: string): TemaCalculado {
   // El fondo suave es el primario casi llevado al blanco, y el oscuro es
   // el que se usa para TEXTO sobre ese fondo. Es el otro par que el
   // prompt exige legible, así que se ajusta hasta que lo sea.
+  // EL PRIMARIO COMO TEXTO. Defecto real encontrado en el navegador con
+  // #FFFF00: la franja quedaba perfecta (amarillo con texto oscuro
+  // encima, 16:1) y la pestaña activa, los enlaces y el boton secundario
+  // quedaban amarillos sobre blanco, es decir invisibles. El color de
+  // fondo y el color de texto son dos preguntas distintas y hasta acá
+  // habia una sola respuesta.
+  let texto = primario;
+  if (contraste(texto, BLANCO) < AA_TEXTO_NORMAL) {
+    texto = ajustarHasta(primario, NEGRO, BLANCO) ?? NEGRO;
+  }
+
   const suave = mezclar(primario, BLANCO, 0.93);
   let oscuro = mezclar(primario, NEGRO, 0.25);
   for (let paso = 0; paso <= 100 && contraste(oscuro, suave) < AA_TEXTO_NORMAL; paso++) {
@@ -205,7 +229,10 @@ export function calcularTema(primarioElegido: string): TemaCalculado {
     primario: aHex(primario),
     ajustado,
     contrasteConBlanco: Math.round(contraste(primario, BLANCO) * 100) / 100,
+    contrasteDelTextoEncima: Math.round(contraste(primario, sobrePrimario) * 100) / 100,
     sobrePrimario: aHex(sobrePrimario),
+    primarioTexto: aHex(texto),
+    contrasteComoTexto: Math.round(contraste(texto, BLANCO) * 100) / 100,
     primarioHover: aHex(mezclar(primario, NEGRO, 0.12)),
     primarioSuave: aHex(suave),
     primarioOscuro: aHex(oscuro),
@@ -226,5 +253,6 @@ export function variablesCss(tema: TemaCalculado): Record<string, string> {
     "--color-primary-oscuro": triple(tema.primarioOscuro),
     "--color-primary-borde": triple(tema.primarioBorde),
     "--color-sobre-primary": triple(tema.sobrePrimario),
+    "--color-primary-texto": triple(tema.primarioTexto),
   };
 }

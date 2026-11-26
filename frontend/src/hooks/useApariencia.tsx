@@ -26,7 +26,10 @@ export interface TemaCalculado {
   primario: string;
   ajustado: boolean;
   contrasteConBlanco: number;
+  contrasteDelTextoEncima: number;
   sobrePrimario: string;
+  primarioTexto: string;
+  contrasteComoTexto: number;
   primarioHover: string;
   primarioSuave: string;
   primarioOscuro: string;
@@ -55,6 +58,7 @@ function variablesDe(t: TemaCalculado): Record<string, string> {
     "--color-primary-oscuro": triple(t.primarioOscuro),
     "--color-primary-borde": triple(t.primarioBorde),
     "--color-sobre-primary": triple(t.sobrePrimario),
+    "--color-primary-texto": triple(t.primarioTexto),
   };
 }
 

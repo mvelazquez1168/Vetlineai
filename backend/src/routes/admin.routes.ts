@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { apariencia, guardarApariencia, restablecerApariencia } from "../apariencia";
+import { calcularTema } from "../tema";
 import { Router } from "express";
 import multer from "multer";
 import path from "path";
@@ -572,6 +573,20 @@ adminRouter.get("/apariencia", async (req, res) => {
   } catch (err) {
     console.error("GET /admin/apariencia", err);
     res.status(500).json({ error: "Error al leer la apariencia de la clinica." });
+  }
+});
+
+// La VISTA PREVIA pide el calculo de un color SIN guardarlo. Existe por
+// la misma razon por la que el navegador no deriva tonos: si la pantalla
+// de configuracion calculara su propia previsualizacion, mostraria un
+// color y guardaria otro el dia que las dos cuentas se separen. Es la
+// misma funcion que usa el guardado.
+adminRouter.get("/apariencia/previsualizar", (req, res) => {
+  const primario = String(req.query.primario ?? "");
+  try {
+    res.json(calcularTema(primario));
+  } catch (err) {
+    res.status(400).json({ error: err instanceof Error ? err.message : "Color invalido." });
   }
 });
 

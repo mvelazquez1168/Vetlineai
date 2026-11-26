@@ -125,8 +125,11 @@ async function main() {
   //
   // No se prueba con tres colores: se barre el espacio de color. 4 096
   // combinaciones (16 pasos por canal) y se exige AA en los dos pares
-  // que el prompt nombra: el texto sobre el primario, y el texto oscuro
-  // sobre el fondo suave.
+  // que el prompt nombra —el texto sobre el primario, y el texto oscuro
+  // sobre el fondo suave— mas un TERCERO que faltaba: el primario usado
+  // COMO TEXTO sobre fondo claro. Ese tercer par no se medía, y por eso
+  // un amarillo puro pasaba el barrido entero y en el navegador dejaba
+  // la pestaña activa y los enlaces invisibles.
   let probados = 0;
   const fallan: string[] = [];
   for (let r = 0; r < 256; r += 17) {
@@ -137,9 +140,11 @@ async function main() {
         probados += 1;
         const sobre = contraste(aRgb(t.primario), aRgb(t.sobrePrimario));
         const enSuave = contraste(aRgb(t.primarioOscuro), aRgb(t.primarioSuave));
-        if (sobre < AA || enSuave < AA) {
+        const comoTexto = contraste(aRgb(t.primarioTexto), { r: 255, g: 255, b: 255 });
+        if (sobre < AA || enSuave < AA || comoTexto < AA) {
           fallan.push(
-            `${hex} -> sobre=${sobre.toFixed(2)} enSuave=${enSuave.toFixed(2)} (usado ${t.primario})`
+            `${hex} -> sobre=${sobre.toFixed(2)} enSuave=${enSuave.toFixed(2)} ` +
+              `comoTexto=${comoTexto.toFixed(2)} (usado ${t.primario})`
           );
         }
       }
@@ -147,7 +152,7 @@ async function main() {
   }
   assert(
     fallan.length === 0,
-    `${probados} colores barridos y todos legibles en los dos pares`,
+    `${probados} colores barridos y todos legibles en los TRES pares`,
     fallan.slice(0, 5)
   );
 
@@ -162,9 +167,10 @@ async function main() {
       "--color-primary-hover",
       "--color-primary-oscuro",
       "--color-primary-suave",
+      "--color-primary-texto",
       "--color-sobre-primary",
     ],
-    "son seis, y todas del primario: el resto del tema no se toca"
+    "son siete, y todas del primario: el resto del tema no se toca"
   );
   assert(
     Object.values(vars).every((v) => /^\d{1,3} \d{1,3} \d{1,3}$/.test(v)),

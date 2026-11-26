@@ -24,6 +24,26 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      // `text-primary` NO es el mismo color que `bg-primary`.
+      //
+      // Defecto real, visto en el navegador con un amarillo puro: la
+      // franja quedaba perfecta (amarillo con texto oscuro encima) y la
+      // pestaña activa, los enlaces y los títulos de sección quedaban
+      // amarillo sobre blanco, es decir invisibles. El color de fondo y
+      // el color de texto son dos preguntas distintas.
+      //
+      // Se resuelve acá, en el tema, y no pantalla por pantalla: hay
+      // cientos de `text-primary` en el sistema y ninguno tiene por qué
+      // saber de esto. `backend/src/tema.ts` calcula el tono.
+      textColor: {
+        primary: {
+          DEFAULT: "rgb(var(--color-primary-texto) / <alpha-value>)",
+          hover: "rgb(var(--color-primary-hover) / <alpha-value>)",
+          suave: "rgb(var(--color-primary-suave) / <alpha-value>)",
+          oscuro: "rgb(var(--color-primary-oscuro) / <alpha-value>)",
+          borde: "rgb(var(--color-primary-borde) / <alpha-value>)",
+        },
+      },
       colors: {
         // Los colores salen de variables CSS (`src/index.css`), no de
         // hexadecimales compilados: es lo que permite que el tema cambie

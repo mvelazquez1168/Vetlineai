@@ -40,6 +40,10 @@
   /* El texto que va ENCIMA del primario. Blanco o casi negro según el
      contraste: un primario amarillo claro con texto blanco no se lee. */
   --color-sobre-primary: 255 255 255;
+  /* El primario USADO COMO TEXTO sobre fondos claros. Con el teal de
+     fabrica coincide con el primario (5,33:1 sobre blanco); con un
+     amarillo no coincidiria en absoluto. Ver backend/src/tema.ts. */
+  --color-primary-texto: 15 118 110;
 
   --color-secondary: 58 78 122;
   --color-accent: 74 144 217;

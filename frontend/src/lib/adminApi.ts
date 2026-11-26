@@ -300,6 +300,28 @@ export interface LimiteUso {
 
 export type UmbralNotificacion = "80_plan" | "100_plan" | "limite_propio";
 
+/** Lo que devuelven las tres rutas de apariencia. */
+export interface AparienciaApi {
+  primario: string;
+  tema: "marca" | "sereno" | "vibrante";
+  logoUrl: string | null;
+  nombreClinica: string;
+  calculado: {
+    primarioElegido: string;
+    primario: string;
+    ajustado: boolean;
+    contrasteConBlanco: number;
+    contrasteDelTextoEncima: number;
+    sobrePrimario: string;
+    primarioTexto: string;
+    contrasteComoTexto: number;
+    primarioHover: string;
+    primarioSuave: string;
+    primarioOscuro: string;
+    primarioBorde: string;
+  };
+}
+
 export interface NotificacionUso {
   id: string;
   umbral: UmbralNotificacion;
@@ -466,6 +488,30 @@ export const adminApi = {
       body: formData,
     });
   },
+
+  // --- Apariencia de la clinica (prompt 01c) ---------------------------
+  // El tema CALCULADO viene del servidor: el navegador no deriva tonos
+  // (ver useApariencia.tsx). `previsualizar` pide el calculo de un color
+  // sin guardarlo, que es lo que hace la vista previa fiel.
+  obtenerApariencia: () => authedFetch<AparienciaApi>("/admin/apariencia"),
+
+  previsualizarApariencia: (primario: string) =>
+    authedFetch<AparienciaApi["calculado"]>(
+      `/admin/apariencia/previsualizar?primario=${encodeURIComponent(primario)}`
+    ),
+
+  guardarApariencia: (datos: { primario?: string; tema?: string }) =>
+    apiFetch<AparienciaApi>("/admin/apariencia", {
+      method: "PUT",
+      token: getStoredToken(),
+      body: JSON.stringify(datos),
+    }),
+
+  restablecerApariencia: () =>
+    apiFetch<AparienciaApi>("/admin/apariencia/restablecer", {
+      method: "POST",
+      token: getStoredToken(),
+    }),
 
   obtenerConfiguracionNotificaciones: () =>
     authedFetch<ConfiguracionNotificaciones>("/admin/clinica/configuracion-notificaciones"),

@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ModalCorregirCorreo } from "../../components/ModalCorregirCorreo";
+import { PageHeader, Tabs } from "../../components/ui";
+import { PanelApariencia } from "./PanelApariencia";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { adminApi, EstadoMiCorreo, PlanInfo, TenantInfo } from "../../lib/adminApi";
 import { API_ORIGIN } from "../../lib/api";
 import { Pais, paisesApi } from "../../lib/paisesApi";
-
-const TIPOS_LOGO_VALIDOS = ["image/png", "image/jpeg"];
-const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 
 // Etiqueta legible con offset ("Argentina (GMT-3)"), armada acá con el
 // Intl del browser a partir del identificador IANA crudo que da el backend
@@ -35,11 +34,6 @@ export function Clinica() {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [errorGuardar, setErrorGuardar] = useState<string | null>(null);
-
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
-  const [errorLogo, setErrorLogo] = useState<string | null>(null);
-  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const [numeroInicioInput, setNumeroInicioInput] = useState("");
   const [guardandoNumeracion, setGuardandoNumeracion] = useState(false);
@@ -68,33 +62,6 @@ export function Clinica() {
     [paises, tenant?.pais_codigo]
   );
 
-  // El object URL de la preview es solo del File local pendiente — se
-  // libera al reemplazarlo o al desmontar, nunca se usa para el logo ya
-  // persistido (ese se muestra directo desde /uploads vía API_ORIGIN).
-  useEffect(() => {
-    return () => {
-      if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
-    };
-  }, [logoPreviewUrl]);
-
-  const elegirLogo = (archivo: File | null) => {
-    if (!archivo) return;
-    setErrorLogo(null);
-
-    if (!TIPOS_LOGO_VALIDOS.includes(archivo.type)) {
-      setErrorLogo("Solo se aceptan archivos PNG o JPG.");
-      return;
-    }
-    if (archivo.size > LOGO_MAX_BYTES) {
-      setErrorLogo("El archivo supera el máximo de 2MB.");
-      return;
-    }
-
-    if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
-    setLogoFile(archivo);
-    setLogoPreviewUrl(URL.createObjectURL(archivo));
-  };
-
   const actualizarCampo = (campo: keyof TenantInfo, valor: string) => {
     setTenant((prev) => (prev ? { ...prev, [campo]: valor } : prev));
   };
@@ -105,12 +72,6 @@ export function Clinica() {
     setMensaje(null);
     setErrorGuardar(null);
     try {
-      let logoUrl = tenant.logo_url;
-      if (logoFile) {
-        const resultado = await adminApi.subirLogo(logoFile);
-        logoUrl = resultado.logoUrl;
-      }
-
       const { tenant: actualizado } = await adminApi.actualizarClinica({
         nombre: tenant.nombre,
         ciudad: tenant.ciudad ?? undefined,
@@ -120,11 +81,7 @@ export function Clinica() {
         direccion: tenant.direccion ?? undefined,
         zona_horaria: tenant.zona_horaria,
       });
-      setTenant({ ...actualizado, logo_url: logoUrl });
-
-      if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
-      setLogoFile(null);
-      setLogoPreviewUrl(null);
+      setTenant({ ...actualizado, logo_url: tenant.logo_url });
       setMensaje("Cambios guardados.");
     } catch (err: any) {
       setErrorGuardar(err?.message ?? "No pudimos guardar los cambios.");
@@ -166,56 +123,28 @@ export function Clinica() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Datos de la Clínica</h1>
-      <p className="mt-1 text-text-muted">
-        Administra la información de tu establecimiento, datos de contacto y revisa el estado de
-        tu suscripción.
-      </p>
+      <PageHeader
+        titulo="Clínica y usuarios"
+        subtitulo="Los datos del establecimiento, y cómo lo ve todo el personal."
+        icono="clinica"
+        modulo="admin"
+      />
 
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+      <Tabs
+        pestanas={[
+          { clave: "datos", etiqueta: "Datos de la clínica", icono: "clinica" },
+          { clave: "apariencia", etiqueta: "Apariencia", icono: "panel" },
+        ]}
+      >
+        {(activa) =>
+          activa === "apariencia" ? (
+            <PanelApariencia />
+          ) : (
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           <div className="rounded-2xl border border-black/5 bg-surface p-6">
             <h2 className="text-lg font-bold text-primary">Información General</h2>
 
-            <div className="mt-4 flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => logoInputRef.current?.click()}
-                className="flex h-16 w-40 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-background hover:opacity-80"
-                aria-label="Cambiar logo de la clínica"
-              >
-                {logoPreviewUrl ? (
-                  <img src={logoPreviewUrl} alt="Logo de la clínica" className="h-full w-full object-contain" />
-                ) : tenant.logo_url ? (
-                  <img
-                    src={tenant.logo_url.startsWith("http") ? tenant.logo_url : `${API_ORIGIN}${tenant.logo_url}`}
-                    alt="Logo de la clínica"
-                    className="h-full w-full object-contain"
-                  />
-                ) : (
-                  <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 text-accent">
-                    <path
-                      d="M4 8a2 2 0 0 1 2-2h1.17a2 2 0 0 0 1.6-.8l.66-.88a2 2 0 0 1 1.6-.8h1.94a2 2 0 0 1 1.6.8l.66.88a2 2 0 0 0 1.6.8H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                    />
-                    <circle cx="12" cy="13" r="3" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
-                )}
-              </button>
-              <input
-                ref={logoInputRef}
-                type="file"
-                accept="image/png, image/jpeg"
-                className="hidden"
-                onChange={(e) => elegirLogo(e.target.files?.[0] ?? null)}
-              />
-              <div>
-                <p className="text-sm font-semibold text-text-primary">Logotipo de la Clínica</p>
-                <p className="text-xs text-text-muted">PNG o JPG. Máximo 2MB.</p>
-                {errorLogo && <p className="mt-1 text-xs text-error">{errorLogo}</p>}
-              </div>
-            </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
@@ -380,6 +309,9 @@ export function Clinica() {
           </div>
         </div>
       </div>
+          )
+        }
+      </Tabs>
 
       {miCorreo && (
         <ModalCorregirCorreo

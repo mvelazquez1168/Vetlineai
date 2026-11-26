@@ -16,6 +16,8 @@ import {
   TipoClinico,
   atencionApi,
 } from "../../lib/expedienteApi";
+import { apiFetchFile } from "../../lib/api";
+import { getStoredToken } from "../../hooks/useAuth";
 import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
@@ -496,6 +498,45 @@ export function PanelReceta({
     }
   };
 
+  const imprimir = async () => {
+    setOcupado(true);
+    try {
+      const { blob, filename } = await apiFetchFile(
+        `/expediente/atenciones/${atencionId}/receta.pdf`,
+        { token: getStoredToken() }
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename ?? "receta.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  };
+
+  const enviar = async () => {
+    setOcupado(true);
+    try {
+      const r = await atencionApi.enviarReceta(atencionId);
+      if (r.enviado) {
+        toast.exito(`Receta enviada a ${r.destinatario}.`);
+      } else {
+        // NO se dice "enviado" cuando no salio: el bloqueo por
+        // consentimiento o por falta de correo es informacion que la
+        // clinica necesita, no un detalle que esconder.
+        toast.error(r.motivo ?? "No se pudo enviar.");
+      }
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  };
+
   const repetir = async (recetaId: string) => {
     setOcupado(true);
     try {
@@ -530,7 +571,24 @@ export function PanelReceta({
       }
       ancho="xl"
       footer={
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {/* IMPRIMIR Y ENVIAR. Se pueden usar con la receta en
+              borrador: el propietario a veces se lleva el papel antes
+              de que la atencion se cierre, y negarselo por un estado
+              interno del sistema no tiene sentido. Lo que la firma
+              cambia es que despues solo admite adendas. */}
+          {(receta?.lineas.length ?? 0) > 0 && (
+            <>
+              <Button variant="secondary" onClick={() => void imprimir()} disabled={ocupado}>
+                <Icono nombre="pdf" className="mr-1 h-4 w-4" />
+                Imprimir
+              </Button>
+              <Button variant="secondary" onClick={() => void enviar()} disabled={ocupado}>
+                <Icono nombre="campana" className="mr-1 h-4 w-4" />
+                Enviar al propietario
+              </Button>
+            </>
+          )}
           <Button variant="secondary" onClick={onCerrar}>
             Listo
           </Button>

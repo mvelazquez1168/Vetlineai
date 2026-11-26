@@ -264,6 +264,39 @@ async function main() {
     proxCanino?.origen
   );
 
+  // EL CASO QUE FALLO EN EL NAVEGADOR: el producto se llama "Vacuna
+  // polivalente canina" y el protocolo "Polivalente". El nombre no
+  // coincide exacto, y antes eso dejaba al medico sin sugerencia.
+  const porNombreParcial = await conAlcanceTenant(tenantId, (db) =>
+    proximaSugerida(db, {
+      tipo: "vacunacion",
+      especie: "canino",
+      nombre: "Vacuna polivalente canina",
+    })
+  );
+  assert(
+    porNombreParcial !== null,
+    "un nombre que no coincide exacto NO deja al médico sin sugerencia: cae al de la especie",
+    porNombreParcial
+  );
+
+  // Y LA ESPECIE SE COMPARA SIN MAYUSCULAS. La ficha guarda "Canino" y
+  // el protocolo "canino": con la comparacion exacta, una
+  // desparasitacion interna de un perro sugeria un mes —el protocolo
+  // general— en vez de tres. Se vio en el navegador.
+  const conMayuscula = await conAlcanceTenant(tenantId, (db) =>
+    proximaSugerida(db, {
+      tipo: "desparasitacion",
+      especie: "Canino",
+      nombre: "Desparasitante interno (praziquantel)",
+    })
+  );
+  assert(
+    conMayuscula?.meses === 3 && (conMayuscula?.origen ?? "").includes("especie"),
+    "«Canino» con mayúscula encuentra el protocolo de «canino»",
+    conMayuscula
+  );
+
   // -------------------------------------------------------------------
   console.log("\n=== 3. La receta: dosis por kilo, cantidad y texto ===");
   const atencion = await nuevaAtencion("Control con receta");

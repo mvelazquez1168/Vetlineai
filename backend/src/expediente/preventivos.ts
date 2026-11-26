@@ -123,15 +123,32 @@ export async function proximaSugerida(
   }
 ): Promise<{ fecha: string; meses: number; origen: string } | null> {
   const r = await db.query<{ meses_hasta_proxima: number; nombre: string; especie: string | null; producto_id: string | null }>(
+    // EL NOMBRE ORDENA, NO FILTRA. Era un filtro y el efecto fue que un
+    // producto llamado "Vacuna polivalente canina" no encontraba el
+    // protocolo "Polivalente" —ni ningun otro— y la pantalla pedia la
+    // fecha a mano. Un nombre que no coincide no quiere decir que no
+    // haya protocolo: quiere decir que hay que caer al de la especie, y
+    // si no, al general.
+    //
+    // El orden es de lo mas especifico a lo mas general: el del
+    // producto, el del nombre exacto, el de la especie, el general; y
+    // entre dos iguales, el de la clinica le gana al de fabrica.
     `SELECT meses_hasta_proxima, nombre, especie, producto_id
        FROM exp_protocolos_preventivos
       WHERE activo AND tipo = $1
         AND (producto_id IS NULL OR producto_id = $2::uuid)
-        AND (especie IS NULL OR especie = $3)
-        AND ($4::text IS NULL OR nombre = $4 OR producto_id = $2::uuid)
+        -- lower() en los dos lados: la ficha guarda "Canino" con
+        -- mayuscula y el protocolo "canino", y la comparacion exacta
+        -- hacia que el protocolo de la especie no se encontrara nunca.
+        -- Se vio en el navegador: una desparasitacion interna de un
+        -- perro sugeria un mes (el protocolo general) en vez de tres.
+        AND (especie IS NULL OR lower(especie) = lower($3))
       ORDER BY (producto_id IS NOT NULL) DESC,
+               ($4::text IS NOT NULL AND nombre = $4) DESC,
+               ($4::text IS NOT NULL AND $4 ILIKE '%' || nombre || '%') DESC,
                (especie IS NOT NULL) DESC,
-               (tenant_id IS NOT NULL) DESC
+               (tenant_id IS NOT NULL) DESC,
+               meses_hasta_proxima
       LIMIT 1`,
     [datos.tipo, datos.productoId ?? null, datos.especie ?? null, datos.nombre ?? null]
   );

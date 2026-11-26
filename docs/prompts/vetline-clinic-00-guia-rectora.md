@@ -410,6 +410,21 @@ Reglas del análisis:
 - Todo consumo de IA pasa por la compuerta de crédito existente.
 - Autonomía graduada: informa, sugiere, ejecuta con confirmación o ejecuta solo, según la acción.
   Nunca escribe ni modifica contenido clínico. Nunca mueve saldo de medicamentos controlados.
+- **Sin dato no hay recomendación.** Toda sugerencia del agente trae el hecho que la sostiene (con su
+  fuente), la lista concreta sobre la que se actúa (clientes, productos, presupuestos) con su acción, y
+  cómo se medirá; al ejecutarse queda como iniciativa con su resultado a 30, 60 o 90 días. Las
+  estimaciones dicen su supuesto; no se inventan comparaciones con "la industria".
+- **Diagnósticos deterministas en su módulo.** Cada pregunta de gestión (rentabilidad, no rentables,
+  inventario, ingresos por línea, ventas del mes, recuperación) tiene un diagnóstico en código con su
+  pantalla, dentro del módulo dueño del dato: rentabilidad y no rentables en el 10b, inventario en el
+  06/12, ingresos y ventas del mes en el 12/13, recuperación en el 14. El agente los ejecuta y
+  explica; no los reemplaza.
+- **Simulador de escenarios** (10b, Finanzas › Simulador): motor determinista del resultado
+  operativo del período (volumen, precio, costo, costos fijos, capacidad, mezcla), con cascada,
+  punto de equilibrio y sensibilidad. El agente traduce la pregunta a parámetros, los muestra para
+  confirmar y explica el resultado; nunca hace la aritmética.
+- **Ayuda del sistema:** el agente responde cómo se usa Vetline Clinic desde `docs/ayuda/`, que
+  cada entrega mantiene actualizado con sus caminos de clics.
 
 ## 10. Rendimiento
 
@@ -450,7 +465,9 @@ porque los módulos siguientes se apoyan en ellas desde su primer día:
     por cliente y bandeja del día.
 15. `15` — Fidelización (sección 7.1): planes de salud por suscripción, paquetes prepagados,
     puntos, niveles, referidos, NPS, recuperación de clientes y autoservicio por WhatsApp.
-16. `16` — Agente de IA de gestión.
+16. `16` — Agente de IA de gestión: `16a` ayuda del sistema (puede adelantarse a la puesta en
+    marcha) y `16b` asesor de gestión con diagnósticos, simulador e iniciativas (después del 10b,
+    12, 13 y 14).
 
 ## 12. Cómo se trabaja
 
@@ -465,6 +482,8 @@ porque los módulos siguientes se apoyan en ellas desde su primer día:
   sección o una acción de la pantalla desde la que se llega naturalmente. Una pantalla a la que solo
   se llega escribiendo la dirección no existe para el usuario. Cada entrega lista sus pantallas
   nuevas con el camino de clics para llegar a cada una.
+- **Cada entrega actualiza `docs/ayuda/`** con los caminos de clics de sus pantallas nuevas o
+  cambiadas, en lenguaje de usuario: es la fuente de la ayuda del agente.
 - **Las funciones se verifican desde la interfaz, en un navegador**, no solo desde la API: cada flujo
   nuevo se recorre clic a clic como lo haría el usuario, y el resultado se contrasta contra la base.
   La verificación de la API complementa, no reemplaza.

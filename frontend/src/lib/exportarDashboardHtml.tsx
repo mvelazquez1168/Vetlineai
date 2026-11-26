@@ -3,6 +3,7 @@ import { DashboardGcisPanel } from "../components/caso/DashboardGcisPanel";
 import { DashboardGcis } from "./workspaceApi";
 import { API_ORIGIN } from "./api";
 import { formatearFecha, ZONA_HORARIA_PLATAFORMA } from "./formatFecha";
+import { guardarComoArchivo } from "./descargas";
 
 interface ExportarDashboardHtmlParams {
   dashboard: DashboardGcis;
@@ -53,16 +54,8 @@ export async function exportarDashboardHtml({
   });
 
   const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
   const nombreArchivo = `Dashboard_${sanitizarNombreArchivo(pacienteNombre)}_${nombreFechaArchivo(ahoraIso, zonaHoraria)}.html`;
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = nombreArchivo;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 30_000);
+  guardarComoArchivo(blob, nombreArchivo);
 }
 
 async function obtenerLogoBase64(tenantLogoUrl: string | null): Promise<string | null> {

@@ -24,38 +24,84 @@ export interface ConteoAbierto {
   lineas: number;
 }
 
+/** Por qué se agrupó un conteo parcial. */
+export type CriterioGrupo = "linea_negocio" | "categoria" | "controlados";
+
 /**
  * Abre un conteo y toma la foto de la existencia.
  *
- * `clasificacion` solo aplica al conteo cíclico (ABC). El total toma
- * todos los productos con existencia de la bodega.
+ * Tres alcances:
+ *   * `total`: todos los lotes de la bodega;
+ *   * `grupo`: los de una línea de negocio, una categoría o los
+ *     controlados — es el que la clínica usa cuando cuenta por partes
+ *     ("hoy, farmacia");
+ *   * `ciclico`: por clasificación ABC. Sigue existiendo en el modelo y
+ *     la pantalla lo deja deshabilitado con su motivo: la clasificación
+ *     se calcula con la rotación y llega con los dashboards.
+ *
+ * EL GRUPO SE RESUELVE ACÁ, en SQL, y no recibe una lista de ids desde
+ * la pantalla: si la pantalla mandara los ids, contaría los productos
+ * que tenía cargados —su primera página— y el conteo diría que abarcó
+ * la línea entera.
  */
 export async function abrirConteo(
   db: PoolClient,
   tenantId: string,
   datos: {
     bodegaId: string;
-    tipo: "total" | "ciclico";
+    tipo: "total" | "ciclico" | "grupo";
     clasificacion?: "A" | "B" | "C";
     creadoPor?: string;
     /** Para el cíclico: qué productos entran. */
     productoIds?: string[];
+    /** Para el grupo: por qué se agrupa y con qué valor. */
+    grupoCriterio?: CriterioGrupo;
+    grupoValor?: string;
   }
 ): Promise<ConteoAbierto> {
   if (datos.tipo === "ciclico" && (!datos.productoIds || datos.productoIds.length === 0)) {
     throw new Error("Un conteo cíclico tiene que decir qué productos se cuentan.");
   }
+  if (datos.tipo === "grupo") {
+    if (!datos.grupoCriterio) {
+      throw new Error("Un conteo por grupo tiene que decir por qué se agrupa.");
+    }
+    if (datos.grupoCriterio !== "controlados" && !datos.grupoValor) {
+      throw new Error(`Un conteo por ${datos.grupoCriterio} tiene que decir cuál.`);
+    }
+  }
 
   const c = await db.query<{ id: string }>(
-    `INSERT INTO inv_conteos (tenant_id, bodega_id, tipo, clasificacion, creado_por)
-     VALUES ($1,$2,$3,$4,$5) RETURNING id`,
-    [tenantId, datos.bodegaId, datos.tipo, datos.clasificacion ?? null, datos.creadoPor ?? null]
+    `INSERT INTO inv_conteos (tenant_id, bodega_id, tipo, clasificacion, creado_por,
+                              grupo_criterio, grupo_valor)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+    [
+      tenantId,
+      datos.bodegaId,
+      datos.tipo,
+      datos.clasificacion ?? null,
+      datos.creadoPor ?? null,
+      datos.tipo === "grupo" ? datos.grupoCriterio : null,
+      datos.tipo === "grupo" ? datos.grupoValor ?? null : null,
+    ]
   );
   const conteoId = c.rows[0].id;
 
   const valores: unknown[] = [tenantId, conteoId, datos.bodegaId];
-  const filtroProducto = datos.tipo === "ciclico" ? "AND l.producto_id = ANY($4::uuid[])" : "";
-  if (datos.tipo === "ciclico") valores.push(datos.productoIds);
+  let filtroProducto = "";
+  if (datos.tipo === "ciclico") {
+    valores.push(datos.productoIds);
+    filtroProducto = `AND l.producto_id = ANY($${valores.length}::uuid[])`;
+  } else if (datos.tipo === "grupo") {
+    if (datos.grupoCriterio === "controlados") {
+      filtroProducto =
+        "AND l.producto_id IN (SELECT id FROM inv_productos WHERE es_controlado)";
+    } else {
+      valores.push(datos.grupoValor);
+      const columna = datos.grupoCriterio === "categoria" ? "categoria" : "linea_negocio";
+      filtroProducto = `AND l.producto_id IN (SELECT id FROM inv_productos WHERE ${columna} = $${valores.length})`;
+    }
+  }
 
   const insertadas = await db.query(
     `INSERT INTO inv_conteo_lineas (tenant_id, conteo_id, producto_id, lote_id, cantidad_sistema)

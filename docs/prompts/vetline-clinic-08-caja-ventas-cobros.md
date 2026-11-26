@@ -79,12 +79,45 @@ se envía nada a Hacienda real y no salen correos reales.
   dólares se convierte al tipo del día y el vuelto se da en colones. El comprobante sigue en colones
   salvo que el cliente pida factura en dólares.
 - **Pagos parciales:** una cuenta puede pagarse en varios cobros.
-- **Comprobante al cobrar:** factura electrónica a nombre del cliente o tiquete, emitido por la API
-  del facturador, e impreso y enviado según la elección del momento.
+- **Comprobante al cobrar:** factura electrónica o tiquete, emitido por la API del facturador, e
+  impreso y enviado según la elección del momento. A nombre de quién sale la factura se resuelve
+  como indica la sección 3 bis.
+
+## 3 bis. El receptor de la factura
+
+El dueño de la mascota y el receptor de la factura son dos cosas distintas: muchas veces la factura
+sale a nombre de la empresa del dueño, de una fundación que paga la atención o de un familiar.
+
+1. **Perfiles de facturación como entidad propia:** nombre o razón social, tipo y número de
+   identificación, dirección codificada (provincia, cantón y distrito según la codificación oficial,
+   más otras señas), correo y teléfono. Un perfil puede estar ligado a uno o varios clientes (una
+   empresa que paga por varios empleados, una fundación con varios rescatados) o a ninguno. Tabla
+   propia, con RLS forzado, separada de `propietarios`.
+2. **Al emitir, cuatro opciones:**
+   - el propio dueño, con sus datos fiscales;
+   - un perfil de facturación ya guardado de ese cliente;
+   - buscar cualquier persona o empresa existente (entre clientes y perfiles de facturación), con
+     búsqueda tolerante a errores de tipeo;
+   - registrar uno nuevo ahí mismo, con la opción de dejarlo guardado para ese cliente la próxima
+     vez.
+
+   Si nadie da datos, se emite tiquete. Si al dueño o al perfil elegido le faltan datos que la
+   factura exige, se piden en ese momento, sin salir del cobro.
+3. **La cuenta sigue siendo del dueño, la factura es del receptor.** La atención, el gasto del
+   cliente en el CRM y su historial quedan ligados al dueño de la mascota, aunque la factura salga a
+   nombre de una empresa. El comprobante guarda una copia de los datos del receptor tal como se
+   emitieron, para que un cambio posterior en el perfil no altere una factura emitida.
+4. **En una venta a crédito, el deudor es el receptor.** Si la factura sale a nombre de la empresa,
+   la cuenta por cobrar es de la empresa, no del dueño. La cuenta corriente y el límite de crédito
+   pueden pertenecer a un cliente o a un perfil de facturación.
+
+La pantalla "Emitir" del facturador usa exactamente el mismo selector de receptor que la caja: un
+único componente, no dos. Si hoy busca el receptor solo entre los dueños, se ajusta a este modelo.
 
 ## 4. Crédito, abonos y anticipos
 
-- **Crédito a clientes:** un cliente puede tener crédito habilitado, con límite y plazo en días. La
+- **Crédito a clientes:** un cliente o un perfil de facturación puede tener crédito habilitado, con
+  límite y plazo en días; el deudor es siempre el receptor de la factura (sección 3 bis). La
   venta a crédito se emite con la condición de venta y el plazo que correspondan según el Anexo
   4.4. Si la venta supera el límite disponible, se pide autorización.
 - **Cuenta corriente del cliente:** saldo, facturas pendientes con antigüedad y vencimiento, y
@@ -171,6 +204,11 @@ para asignarlo después al rol de caja.
 - Dos personas cobrando en la misma sesión; cada cobro con su responsable.
 - Venta a crédito dentro del límite; otra sobre el límite que pide autorización; abono parcial a dos
   facturas con su documento fiscal.
+- Receptor: una factura a nombre del dueño, otra a un perfil guardado de su empresa, otra a una
+  persona existente que no es el dueño, y otra a un receptor nuevo guardado para el cliente; en las
+  cuatro, la cuenta y el gasto en el CRM quedan del dueño y el comprobante conserva los datos del
+  receptor aunque el perfil cambie después. Una venta a crédito a nombre de una empresa deja la
+  cuenta por cobrar en la empresa.
 - Anticipo de una cirugía aplicado a la cuenta final; encargo con anticipo que llega, reserva stock,
   se avisa y se entrega.
 - Cuenta abierta de hospitalización con cargos de tres días y dos mascotas en una sola cuenta.

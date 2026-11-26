@@ -69,6 +69,17 @@ estado actual.
   quirófano no lo tienen.
 - **El cliente es `propietarios`, con sus mascotas.** No existe una segunda tabla de clientes o
   contactos en ningún módulo, tampoco en el CRM.
+- **El receptor de la factura no es necesariamente el cliente.** Los perfiles de facturación (empresa
+  del dueño, fundación, familiar) son una entidad propia, ligable a uno o varios clientes o a
+  ninguno. La cuenta, la atención y el gasto en el CRM son del dueño de la mascota; la factura es del
+  receptor, y en una venta a crédito el deudor es el receptor. El comprobante guarda una copia de
+  los datos del receptor tal como se emitió.
+- **Clientes y pacientes: una sola lógica, distintos niveles de completitud.** Vetline Ai y Vetline
+  Clinic crean y editan clientes y pacientes por los mismos endpoints y con las mismas reglas, con un
+  único componente de alta usado desde ambos lados. Vetline Ai pide lo mínimo; Vetline Clinic ofrece
+  el formulario completo. Los datos se exigen cuando una acción los necesita (por ejemplo, la
+  identificación al emitir una factura), no al crear el registro. El registro de clientes y
+  pacientes es núcleo y no depende de ningún módulo.
 - **La línea de tiempo de interacciones es el pegamento entre módulos.** Todo lo que le pasa a un
   cliente o a su mascota (cita, atención, compra, cobro, recordatorio, campaña recibida o
   respondida, conversación, encuesta, reclamo) se registra como un evento con su tipo, fecha, el
@@ -90,7 +101,7 @@ Vetline Clinic solamente, para que Vetline Ai lo adopte y no quede divergente.
 - **Gráficos:** una sola librería de charts para React. Elegila con el mismo criterio. Todos los
   charts pasan por componentes propios (`ChartBarras`, `ChartLinea`, `ChartDona`, `ChartArea`,
   `Sparkline`) para que la librería quede detrás de una sola puerta.
-- **Paleta de datos en colores:** una paleta categórica de 8 colores, agregada como tokens junto a
+- **Paleta de datos en colores:** una paleta categórica de 10 colores (uno por línea de negocio; la separación mínima entre ellos queda en ΔE2000 ≈ 19 por la exigencia de contraste, así que en un mismo chart conviene no poner juntos los dos más parecidos), agregada como tokens junto a
   la paleta actual, con contraste suficiente sobre `surface` y `background`. **Cada línea de negocio
   tiene un color fijo**, definido en un solo mapa y usado en todo chart, badge y leyenda: la
   consulta es del mismo color en todas las pantallas. Los semánticos (`success`, `warning`,

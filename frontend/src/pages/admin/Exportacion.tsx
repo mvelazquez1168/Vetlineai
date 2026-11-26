@@ -7,6 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { formatearFecha } from "../../lib/formatFecha";
 import { ApiError } from "../../lib/apiError";
 import { adminApi, Exportacion } from "../../lib/adminApi";
+import { guardarComoArchivo } from "../../lib/descargas";
 
 // Pantallas faltantes, Prompt B, Paso 3 — pantalla de exportación.
 // Disponible siempre (no solo en ventana_purga/cancelada/finalizada, ver
@@ -82,14 +83,7 @@ export function ExportacionPage() {
     setDescargandoId(exportacion.id);
     try {
       const { blob, filename } = await adminApi.descargarExportacion(exportacion.id);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename ?? `exportacion_${exportacion.id}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      guardarComoArchivo(blob, filename ?? `exportacion_${exportacion.id}.zip`);
       cargar();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No pudimos descargar la exportación.");

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 
 export interface SelectOption {
   value: string;
@@ -13,7 +13,14 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, options, error, className = "", id, ...rest }, ref) => {
-    const selectId = id ?? rest.name;
+    // DEFECTO QUE ESTO CIERRA: cuando no venia ni `id` ni `name`, el
+    // htmlFor quedaba vacio y la etiqueta no apuntaba a nada —
+    // clickearla no enfocaba el campo y un lector de pantalla no podia
+    // decir de que campo se trata. `useId` da un id estable por
+    // instancia, asi que la asociacion existe siempre sin obligar a
+    // cada pantalla a inventar un id.
+    const generado = useId();
+    const selectId = id ?? rest.name ?? generado;
 
     return (
       <div className="flex flex-col gap-1.5">

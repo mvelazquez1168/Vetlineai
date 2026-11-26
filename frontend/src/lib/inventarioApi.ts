@@ -1,5 +1,5 @@
 import { getStoredToken } from "../hooks/useAuth";
-import { apiFetch } from "./api";
+import { apiFetch, apiFetchFile } from "./api";
 
 // ---------------------------------------------------------------------
 // Cliente de la API del módulo `inventario`.
@@ -55,6 +55,31 @@ export interface ProductoListado {
   medicamento_id: string | null;
   existencia: string;
   proximo_vencimiento: string | null;
+  /** La existencia en presentacion natural, armada por el backend: "6 cajas y 4 tabletas (124 tabletas)". */
+  existencia_presentada: string;
+  presentacion_mayor: string | null;
+}
+
+export interface LineaKardex {
+  id: string;
+  tipo: string;
+  tipo_nombre: string;
+  direccion: "entrada" | "salida";
+  producto: string;
+  producto_id: string;
+  unidad_base: string;
+  cantidad_base: string;
+  costo_unitario: string | null;
+  creado_en: string;
+  bodega: string;
+  lote: string | null;
+  presentacion: string | null;
+  cantidad_presentacion: string | null;
+  motivo: string | null;
+  motivo_detalle: string | null;
+  persona: string | null;
+  paciente: string | null;
+  atencion_id: string | null;
 }
 
 export interface Presentacion {
@@ -97,24 +122,6 @@ export interface DetalleProducto {
   existencias: ExistenciaPresentada[];
 }
 
-export interface MovimientoKardex {
-  id: string;
-  tipo: string;
-  tipo_nombre: string;
-  direccion: "entrada" | "salida";
-  cantidad_base: string;
-  costo_unitario: string;
-  creado_en: string;
-  bodega: string;
-  lote: string | null;
-  presentacion: string | null;
-  cantidad_presentacion: string | null;
-  motivo: string | null;
-  motivo_detalle: string | null;
-  persona: string | null;
-  paciente: string | null;
-  atencion_id: string | null;
-}
 
 export interface ConsumoPorOrigen {
   tipo: string;
@@ -185,7 +192,10 @@ export interface LineaOrdenDetalle {
 export interface Conteo {
   id: string;
   bodega: string;
-  tipo: "total" | "ciclico";
+  tipo: "total" | "ciclico" | "grupo";
+  /** Por qué se agrupó, cuando el conteo es de un grupo. */
+  grupo_criterio: string | null;
+  grupo_valor: string | null;
   estado: "abierto" | "cerrado" | "cancelado";
   creado_en: string;
   lineas: number;
@@ -229,7 +239,7 @@ export const inventarioApi = {
   kardex: (id: string, f: Record<string, string | undefined> = {}) => {
     const q = new URLSearchParams();
     for (const [k, v] of Object.entries(f)) if (v) q.set(k, v);
-    return pedir<{ movimientos: MovimientoKardex[] }>(
+    return pedir<{ movimientos: LineaKardex[] }>(
       `/inventario/productos/${id}/kardex?${q.toString()}`
     );
   },
@@ -245,7 +255,9 @@ export const inventarioApi = {
   alertas: () => pedir<Alertas>("/inventario/alertas"),
 
   ajustes: (estado?: string) =>
-    pedir<{ ajustes: Ajuste[] }>(`/inventario/ajustes${estado ? `?estado=${estado}` : ""}`),
+    pedir<{ ajustes: Ajuste[]; pendientes: number }>(
+      `/inventario/ajustes${estado ? `?estado=${estado}` : ""}`
+    ),
   solicitarAjuste: (d: Record<string, unknown>) =>
     json<{ id: string; estado: string; requiereAprobacion: boolean; valor: string; umbral: string }>(
       "/inventario/ajustes",
@@ -294,9 +306,16 @@ export const inventarioApi = {
 
   conteos: () => pedir<{ conteos: Conteo[] }>("/inventario/conteos"),
   conteo: (id: string) =>
-    pedir<{ conteo: Conteo; lineas: Array<Record<string, string | null>> }>(
-      `/inventario/conteos/${id}`
-    ),
+    pedir<{
+      conteo: Conteo;
+      lineas: Array<Record<string, string | null>>;
+      presentaciones: Array<{
+        id: string;
+        producto_id: string;
+        nombre: string;
+        factor: string;
+      }>;
+    }>(`/inventario/conteos/${id}`),
   abrirConteo: (d: Record<string, unknown>) =>
     json<{ id: string; lineas: number }>("/inventario/conteos", "POST", d),
   anotarConteo: (conteoId: string, lineaId: string, d: Record<string, unknown>) =>
@@ -318,6 +337,25 @@ export const inventarioApi = {
     ),
   guardarParametros: (d: Record<string, unknown>) =>
     json<{ ok: true }>("/inventario/parametros", "PUT", d),
+
+  /** El kardex general: el producto es un filtro mas, no un requisito. */
+  kardexGeneral: (f: Record<string, string>) =>
+    pedir<{ movimientos: LineaKardex[]; tope: number; topeAlcanzado: boolean }>(
+      `/inventario/kardex?${new URLSearchParams(f).toString()}`
+    ),
+  kardexPersonas: () =>
+    pedir<{ personas: Array<{ id: string; nombre: string }> }>("/inventario/kardex/personas"),
+  /**
+   * La exportacion sale del BACKEND con los filtros aplicados, y se
+   * trae como blob autenticado: un <a href> no puede mandar el header
+   * Authorization, y un CSV armado en el navegador exportaria solo lo
+   * que la pantalla tiene cargado.
+   */
+  exportarKardex: (formato: "excel" | "pdf", f: Record<string, string>) =>
+    apiFetchFile(
+      `/inventario/kardex/exportar?${new URLSearchParams({ ...f, formato }).toString()}`,
+      { token: getStoredToken() }
+    ),
 
   listasPrecio: () => pedir<{ listas: ListaPrecio[] }>("/inventario/listas-precio"),
   crearListaPrecio: (d: Record<string, unknown>) =>

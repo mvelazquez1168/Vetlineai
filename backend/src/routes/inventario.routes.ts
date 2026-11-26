@@ -8,11 +8,20 @@ import { requiereModulo } from "../tenantModulos";
 import { registrarMovimiento, registrarTraslado } from "../inventario/movimientos";
 import { aprobarAjuste, rechazarAjuste, solicitarAjuste } from "../inventario/ajustes";
 import {
+  FiltrosKardex,
   alertasDeInventario,
   consumoDeProducto,
   existenciasDeProducto,
+  kardex,
   kardexDeProducto,
+  presentarExistencia,
 } from "../inventario/consultas";
+import {
+  ColumnaExportable,
+  aExcel,
+  aPdf,
+  nombreDeArchivo,
+} from "../inventario/exportacion";
 import {
   crearOrden,
   devolverAProveedor,
@@ -195,7 +204,16 @@ inventarioRouter.get("/productos", async (req, res) => {
               COALESCE((SELECT sum(l.cantidad) FROM inv_lotes l
                          WHERE l.producto_id = p.id ${paramBodega}), 0)::text AS existencia,
               (SELECT min(l.vencimiento_efectivo) FROM inv_lotes l
-                WHERE l.producto_id = p.id AND l.cantidad > 0) AS proximo_vencimiento
+                WHERE l.producto_id = p.id AND l.cantidad > 0) AS proximo_vencimiento,
+              -- La presentacion natural para leer la existencia (6 cajas
+              -- y 4 tabletas). MISMO criterio que existenciasDeProducto:
+              -- la de mayor factor que sirva para vender.
+              (SELECT pr.nombre FROM inv_presentaciones pr
+                WHERE pr.producto_id = p.id AND pr.activo AND pr.para_venta AND pr.factor > 1
+                ORDER BY pr.factor DESC LIMIT 1) AS presentacion_mayor,
+              (SELECT pr.factor FROM inv_presentaciones pr
+                WHERE pr.producto_id = p.id AND pr.activo AND pr.para_venta AND pr.factor > 1
+                ORDER BY pr.factor DESC LIMIT 1) AS presentacion_factor
          FROM inv_productos p
         WHERE ${where}
         ORDER BY p.nombre
@@ -218,7 +236,29 @@ inventarioRouter.get("/productos", async (req, res) => {
       );
     }
 
-    res.json({ productos, total: Number(total.rows[0].n), pagina, porPagina });
+    // El texto de la existencia lo arma el BACKEND, con la misma
+    // función que la ficha: si la pantalla lo recalculara, habría dos
+    // formas de decir "6 cajas y 4 tabletas" y un día dirían distinto.
+    const conTexto = productos.map((f: Record<string, unknown>) => ({
+      ...f,
+      existencia_presentada: presentarExistencia(
+        Number(f.existencia),
+        String(f.unidad_base),
+        f.presentacion_mayor
+          ? {
+              nombre: String(f.presentacion_mayor),
+              factor: Number(f.presentacion_factor),
+            }
+          : null
+      ).texto,
+    }));
+
+    res.json({
+      productos: conTexto,
+      total: Number(total.rows[0].n),
+      pagina,
+      porPagina,
+    });
   } catch (err) {
     fallo(res, err, "GET /inventario/productos");
   }
@@ -425,7 +465,13 @@ inventarioRouter.get("/ajustes", async (req, res) => {
       ORDER BY a.solicitado_en DESC LIMIT 200`,
     valores
   );
-  res.json({ ajustes: r.rows });
+  // El CONTADOR de pendientes viaja con el listado y no en un endpoint
+  // aparte: el badge del catálogo y esta pantalla tienen que decir el
+  // mismo número, y dos consultas distintas se desincronizan.
+  const pendientes = await req.db!.query<{ n: string }>(
+    `SELECT count(*)::text AS n FROM inv_ajustes WHERE estado = 'pendiente'`
+  );
+  res.json({ ajustes: r.rows, pendientes: Number(pendientes.rows[0].n) });
 });
 
 inventarioRouter.post("/ajustes", async (req, res) => {
@@ -715,7 +761,18 @@ inventarioRouter.get("/conteos/:id", async (req, res) => {
       WHERE cl.conteo_id = $1 ORDER BY p.nombre`,
     [req.params.id]
   );
-  res.json({ conteo: c.rows[0], lineas: lineas.rows });
+  // Las presentaciones de los productos del conteo, para poder anotar
+  // "2 cajas" en vez de obligar a multiplicar por 20 de cabeza. La
+  // conversión a unidad base la hace `anotarConteo`, no la pantalla.
+  const presentaciones = await req.db!.query(
+    `SELECT pr.id, pr.producto_id, pr.nombre, pr.factor
+       FROM inv_presentaciones pr
+      WHERE pr.activo
+        AND pr.producto_id IN (SELECT producto_id FROM inv_conteo_lineas WHERE conteo_id = $1)
+      ORDER BY pr.factor DESC`,
+    [req.params.id]
+  );
+  res.json({ conteo: c.rows[0], lineas: lineas.rows, presentaciones: presentaciones.rows });
 });
 
 inventarioRouter.post("/conteos", async (req, res) => {
@@ -939,3 +996,152 @@ function cuerpoMasivo(b: Record<string, unknown> | undefined): AlcanceMasivo {
     redondeo: (c.redondeo as AlcanceMasivo["redondeo"]) ?? "colon",
   };
 }
+
+// ---------------------------------------------------------------------
+// KARDEX GENERAL Y EXPORTACIÓN
+//
+// El kardex de un producto ya existía en la ficha. Lo que no había era
+// la vista general —"todas las mermas del mes", "qué movió esta
+// persona"—, y sin eso la única forma de auditar era entrar producto
+// por producto.
+//
+// La exportación sale del backend con los MISMOS filtros: un archivo
+// armado en el navegador exportaría la página que está cargada y nadie
+// se daría cuenta.
+// ---------------------------------------------------------------------
+
+const COLUMNAS_KARDEX: ColumnaExportable[] = [
+  { clave: "creado_en", titulo: "Fecha", tipo: "fecha" },
+  { clave: "tipo_nombre", titulo: "Tipo" },
+  { clave: "direccion", titulo: "E/S" },
+  { clave: "producto", titulo: "Producto" },
+  { clave: "cantidad_base", titulo: "Cantidad", tipo: "numero" },
+  { clave: "unidad_base", titulo: "Unidad" },
+  { clave: "bodega", titulo: "Bodega" },
+  { clave: "lote", titulo: "Lote" },
+  { clave: "costo_unitario", titulo: "Costo unit.", tipo: "dinero" },
+  { clave: "motivo", titulo: "Motivo" },
+  { clave: "motivo_detalle", titulo: "Detalle" },
+  { clave: "persona", titulo: "Persona" },
+  { clave: "paciente", titulo: "Paciente" },
+];
+
+function filtrosDeKardex(req: Request): FiltrosKardex {
+  const q = req.query as Record<string, string | undefined>;
+  return {
+    productoId: q.producto || undefined,
+    tipo: q.tipo || undefined,
+    bodegaId: q.bodega || undefined,
+    personaId: q.persona || undefined,
+    desde: q.desde || undefined,
+    hasta: q.hasta || undefined,
+  };
+}
+
+/** Cómo se describieron los filtros, para que el archivo se pueda releer. */
+async function textoDeFiltros(req: Request, f: FiltrosKardex): Promise<string> {
+  const partes: string[] = [];
+  if (f.desde || f.hasta) partes.push(`del ${f.desde ?? "inicio"} al ${f.hasta ?? "hoy"}`);
+  if (f.tipo) {
+    const r = await req.db!.query<{ nombre: string }>(
+      `SELECT nombre FROM inv_tipos_movimiento WHERE codigo = $1`,
+      [f.tipo]
+    );
+    partes.push(`tipo: ${r.rows[0]?.nombre ?? f.tipo}`);
+  }
+  if (f.productoId) {
+    const r = await req.db!.query<{ nombre: string }>(
+      `SELECT nombre FROM inv_productos WHERE id = $1`,
+      [f.productoId]
+    );
+    if (r.rows[0]) partes.push(`producto: ${r.rows[0].nombre}`);
+  }
+  if (f.bodegaId) {
+    const r = await req.db!.query<{ nombre: string }>(
+      `SELECT nombre FROM inv_bodegas WHERE id = $1`,
+      [f.bodegaId]
+    );
+    if (r.rows[0]) partes.push(`bodega: ${r.rows[0].nombre}`);
+  }
+  if (f.personaId) {
+    const r = await req.db!.query<{ nombre: string }>(
+      `SELECT nombre FROM personas WHERE id = $1`,
+      [f.personaId]
+    );
+    if (r.rows[0]) partes.push(`persona: ${r.rows[0].nombre}`);
+  }
+  return partes.length > 0 ? partes.join(" · ") : "sin filtros: todo el histórico";
+}
+
+inventarioRouter.get("/kardex", async (req, res) => {
+  try {
+    const filtros = filtrosDeKardex(req);
+    const movimientos = await kardex(req.db!, filtros);
+    res.json({
+      movimientos,
+      // El tope se dice en vez de esconderse: una tabla cortada en
+      // silencio se lee como "no hay más".
+      tope: 500,
+      topeAlcanzado: movimientos.length >= 500,
+    });
+  } catch (err) {
+    fallo(res, err, "GET /inventario/kardex");
+  }
+});
+
+/** Quiénes movieron inventario, para el filtro de persona. */
+inventarioRouter.get("/kardex/personas", async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT DISTINCT per.id, per.nombre
+         FROM inv_movimientos m JOIN personas per ON per.id = m.persona_id
+        ORDER BY per.nombre`
+    );
+    res.json({ personas: r.rows });
+  } catch (err) {
+    fallo(res, err, "GET /inventario/kardex/personas");
+  }
+});
+
+inventarioRouter.get("/kardex/exportar", async (req, res) => {
+  const formato = String(req.query.formato ?? "excel");
+  try {
+    const filtros = { ...filtrosDeKardex(req), limite: 20000 };
+    const movimientos = await kardex(req.db!, filtros);
+    const tabla = {
+      titulo: "Kardex de inventario",
+      subtitulo: await textoDeFiltros(req, filtros),
+      columnas: COLUMNAS_KARDEX,
+      filas: movimientos as unknown as Array<Record<string, unknown>>,
+      aviso:
+        movimientos.length >= 20000
+          ? "AVISO: se alcanzó el tope de 20 000 filas. Acotá el período para exportar el resto."
+          : undefined,
+    };
+
+    if (formato === "pdf") {
+      const pdf = await aPdf(tabla);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${nombreDeArchivo("kardex", "pdf")}"`
+      );
+      return res.send(pdf);
+    }
+    if (formato !== "excel") {
+      return res.status(400).json({ error: `Formato "${formato}" no soportado: excel o pdf.` });
+    }
+    const xlsx = aExcel(tabla);
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${nombreDeArchivo("kardex", "xlsx")}"`
+    );
+    res.send(xlsx);
+  } catch (err) {
+    fallo(res, err, "GET /inventario/kardex/exportar");
+  }
+});

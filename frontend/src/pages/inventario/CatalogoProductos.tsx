@@ -7,10 +7,12 @@ import {
   FiltroBar,
   Icono,
   LoadingState,
+  MenuAcciones,
   Pagination,
   Table,
   TableColumn,
 } from "../../components/ui";
+import { useAuth } from "../../hooks/useAuth";
 import {
   Bodega,
   CatalogosInventario,
@@ -26,13 +28,22 @@ import {
 // así que los dos filtros que importan —bajo mínimo y por vencer— están
 // a la vista y no escondidos en un panel.
 //
-// La existencia se muestra en UNIDAD BASE porque es la columna que se
-// compara entre filas; la lectura en presentación ("3 cajas y 7
-// tabletas") vive en la ficha, donde hay espacio para decirla bien.
+// LA EXISTENCIA SE LEE EN PRESENTACIÓN NATURAL ("6 cajas y 4 tabletas")
+// con la unidad base entre paréntesis. Antes mostraba solo la unidad
+// base, con el argumento de que es la que se compara entre filas; el
+// problema es que nadie cuenta el estante en tabletas, así que había
+// que dividir de cabeza en cada fila. El texto lo arma el backend con
+// la misma función que la ficha.
+//
+// EL MENÚ DE ACCIONES de cada fila lleva a lo que se hace con un
+// producto —ajustar, registrar una merma, trasladar, ver su kardex— con
+// el producto ya elegido. Antes había que ir a Movimientos y buscarlo
+// otra vez en un selector de cien productos.
 // ---------------------------------------------------------------------
 
 export function CatalogoProductos() {
   const navegar = useNavigate();
+  const { esAdminClinica } = useAuth();
   const [catalogos, setCatalogos] = useState<CatalogosInventario | null>(null);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
   const [datos, setDatos] = useState<{ productos: ProductoListado[]; total: number } | null>(null);
@@ -41,10 +52,18 @@ export function CatalogoProductos() {
 
   const [filtros, setFiltros] = useState<Record<string, string>>({});
   const [pagina, setPagina] = useState(1);
+  // El contador de ajustes esperando aprobación. Lo trae el mismo
+  // endpoint que la lista, así que el badge y la pantalla de
+  // aprobaciones no pueden decir números distintos.
+  const [pendientes, setPendientes] = useState(0);
 
   useEffect(() => {
     inventarioApi.catalogos().then(setCatalogos).catch(() => setCatalogos(null));
     inventarioApi.bodegas().then((r) => setBodegas(r.bodegas)).catch(() => setBodegas([]));
+    inventarioApi
+      .ajustes("pendiente")
+      .then((r) => setPendientes(r.pendientes))
+      .catch(() => setPendientes(0));
   }, []);
 
   useEffect(() => {
@@ -104,7 +123,7 @@ export function CatalogoProductos() {
                     : "font-medium"
               }
             >
-              {formatearCantidad(hay)} {p.unidad_base}
+              {p.existencia_presentada ?? `${formatearCantidad(hay)} ${p.unidad_base}`}
             </span>
             {estado !== "ok" && (
               <span className="block text-xs text-text-muted">
@@ -132,6 +151,40 @@ export function CatalogoProductos() {
         ),
     },
     {
+      key: "acciones",
+      header: "",
+      render: (p) => (
+        <MenuAcciones
+          acciones={[
+            {
+              etiqueta: "Ajustar existencia",
+              icono: "ajustes",
+              ayuda: "Sube o baja el stock con su motivo",
+              onClick: () => navegar(`/inventario/movimientos?accion=ajuste&producto=${p.id}`),
+            },
+            {
+              etiqueta: "Registrar merma",
+              icono: "aviso",
+              ayuda: "Rotura, derrame, pérdida",
+              onClick: () =>
+                navegar(`/inventario/movimientos?accion=movimiento&tipo=merma&producto=${p.id}`),
+            },
+            {
+              etiqueta: "Trasladar entre bodegas",
+              icono: "producto",
+              onClick: () => navegar(`/inventario/movimientos?accion=traslado&producto=${p.id}`),
+            },
+            {
+              etiqueta: "Ver kardex",
+              icono: "panel",
+              ayuda: "Todos sus movimientos",
+              onClick: () => navegar(`/inventario/kardex?producto=${p.id}`),
+            },
+          ]}
+        />
+      ),
+    },
+    {
       key: "marcas",
       header: "",
       render: (p) => (
@@ -155,6 +208,29 @@ export function CatalogoProductos() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" onClick={() => navegar("/inventario/movimientos")}>
+            <Icono nombre="ajustes" className="mr-1 h-4 w-4" />
+            Movimientos
+          </Button>
+          <Button variant="secondary" onClick={() => navegar("/inventario/conteos")}>
+            Toma física
+          </Button>
+          <Button variant="secondary" onClick={() => navegar("/inventario/kardex")}>
+            Kardex
+          </Button>
+          {esAdminClinica && (
+            <Button
+              variant="secondary"
+              onClick={() => navegar("/inventario/movimientos?ver=aprobaciones")}
+            >
+              Aprobaciones
+              {pendientes > 0 && (
+                <span className="ml-1.5 rounded-full bg-warning px-2 py-0.5 text-xs font-semibold text-primary">
+                  {pendientes}
+                </span>
+              )}
+            </Button>
+          )}
           <Button variant="secondary" onClick={() => navegar("/inventario/alertas")}>
             <Icono nombre="aviso" className="mr-1 h-4 w-4" />
             Alertas
@@ -232,7 +308,7 @@ export function CatalogoProductos() {
       />
 
       {error && (
-        <div className="mt-4 rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm">{error}</div>
+        <div className="mt-4 rounded-xl border border-error/40 bg-error/10 p-3 text-sm">{error}</div>
       )}
 
       {cargando ? (

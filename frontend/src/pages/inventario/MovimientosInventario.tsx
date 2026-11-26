@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Badge,
   Button,
@@ -46,6 +46,15 @@ const TIPOS_MANUALES = ["merma", "consumo_interno", "vencimiento", "devolucion_p
 export function MovimientosInventario() {
   const toast = useToast();
   const { esAdminClinica } = useAuth();
+  // El menú de acciones del catálogo entra acá con el producto y el
+  // tipo ya elegidos, y lleva a la tarjeta que corresponde. Sin esto,
+  // "Registrar merma" sobre un producto obligaba a buscarlo de nuevo en
+  // un selector de cien.
+  const [params] = useSearchParams();
+  const refSalida = useRef<HTMLDivElement>(null);
+  const refTraslado = useRef<HTMLDivElement>(null);
+  const refAjuste = useRef<HTMLDivElement>(null);
+  const refAprobaciones = useRef<HTMLDivElement>(null);
   const [catalogos, setCatalogos] = useState<CatalogosInventario | null>(null);
   const [bodegas, setBodegas] = useState<Bodega[]>([]);
   const [productos, setProductos] = useState<ProductoListado[]>([]);
@@ -97,6 +106,38 @@ export function MovimientosInventario() {
       .catch(() => setProductos([]));
     recargarAjustes();
   }, []);
+
+  useEffect(() => {
+    const producto = params.get("producto");
+    const tipoPedido = params.get("tipo");
+    const accion = params.get("accion");
+
+    if (producto) {
+      setProductoId(producto);
+      setAProducto(producto);
+      setTProducto(producto);
+    }
+    if (tipoPedido && (TIPOS_MANUALES as readonly string[]).includes(tipoPedido)) {
+      setTipo(tipoPedido);
+    }
+
+    const destino =
+      params.get("ver") === "aprobaciones"
+        ? refAprobaciones
+        : accion === "traslado"
+          ? refTraslado
+          : accion === "ajuste"
+            ? refAjuste
+            : accion === "movimiento"
+              ? refSalida
+              : null;
+    // El `setTimeout` espera a que las tarjetas estén en el DOM: sin
+    // eso, el scroll se dispara contra una pantalla todavía vacía y no
+    // se mueve nada.
+    if (destino) {
+      setTimeout(() => destino.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
+    }
+  }, [params]);
 
   const opcionesProducto = productos.map((p) => ({
     value: p.id,
@@ -271,11 +312,16 @@ export function MovimientosInventario() {
       </Link>
       <h2 className="mt-2 text-xl font-bold text-primary">Movimientos</h2>
       <p className="mt-1 text-sm text-text-muted">
-        Merma, consumo interno, traslados y ajustes. Lo que no viene de una venta ni de una compra.
+        Todo lo que mueve stock sin ser una venta ni una compra. Son siete: <strong>ajuste
+        positivo</strong> y <strong>negativo</strong>, <strong>merma</strong>, <strong>consumo
+        interno</strong>, <strong>traslado entre bodegas</strong>, <strong>baja por
+        vencimiento</strong> y <strong>devolución a proveedor</strong>. Cada uno lleva su motivo, y
+        los ajustes por encima del umbral de la clínica esperan aprobación antes de mover nada.
       </p>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         {/* ------------------------------------- Movimiento simple */}
+        <div ref={refSalida}>
         <Card>
           <CardTitle>Salida manual</CardTitle>
           <CardDescription>
@@ -283,6 +329,7 @@ export function MovimientosInventario() {
           </CardDescription>
           <div className="mt-3 space-y-3">
             <Select
+              name="mov-tipo"
               label="Tipo"
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
@@ -291,24 +338,28 @@ export function MovimientosInventario() {
                 .map((t) => ({ value: t.codigo, label: t.nombre }))}
             />
             <Select
+              name="mov-producto"
               label="Producto"
               value={productoId}
               onChange={(e) => setProductoId(e.target.value)}
               options={[{ value: "", label: "Elegí un producto" }, ...opcionesProducto]}
             />
             <Select
+              name="mov-bodega"
               label="Bodega"
               value={bodegaId}
               onChange={(e) => setBodegaId(e.target.value)}
               options={opcionesBodega}
             />
             <Input
+              name="mov-cantidad"
               label="Cantidad (unidad base)"
               value={cantidad}
               onChange={(e) => setCantidad(e.target.value)}
               placeholder="5"
             />
             <Select
+              name="mov-motivo"
               label="Motivo"
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
@@ -316,6 +367,7 @@ export function MovimientosInventario() {
             />
             {motivoElegido?.exige_detalle && (
               <Input
+                name="mov-detalle"
                 label="Decí cuál"
                 value={motivoDetalle}
                 onChange={(e) => setMotivoDetalle(e.target.value)}
@@ -336,8 +388,10 @@ export function MovimientosInventario() {
             </Button>
           </div>
         </Card>
+          </div>
 
         {/* ------------------------------------- Traslado */}
+        <div ref={refTraslado}>
         <Card>
           <CardTitle>Traslado entre bodegas</CardTitle>
           <CardDescription>
@@ -346,24 +400,28 @@ export function MovimientosInventario() {
           </CardDescription>
           <div className="mt-3 space-y-3">
             <Select
+              name="tras-producto"
               label="Producto"
               value={tProducto}
               onChange={(e) => setTProducto(e.target.value)}
               options={[{ value: "", label: "Elegí un producto" }, ...opcionesProducto]}
             />
             <Select
+              name="tras-origen"
               label="Desde"
               value={tOrigen}
               onChange={(e) => setTOrigen(e.target.value)}
               options={opcionesBodega}
             />
             <Select
+              name="tras-destino"
               label="Hacia"
               value={tDestino}
               onChange={(e) => setTDestino(e.target.value)}
               options={[{ value: "", label: "Elegí la bodega destino" }, ...opcionesBodega]}
             />
             <Input
+              name="tras-cantidad"
               label="Cantidad (unidad base)"
               value={tCantidad}
               onChange={(e) => setTCantidad(e.target.value)}
@@ -388,8 +446,10 @@ export function MovimientosInventario() {
             )}
           </div>
         </Card>
+          </div>
 
         {/* ------------------------------------- Ajuste */}
+        <div ref={refAjuste}>
         <Card>
           <CardTitle>Ajuste</CardTitle>
           <CardDescription>
@@ -398,6 +458,7 @@ export function MovimientosInventario() {
           </CardDescription>
           <div className="mt-3 space-y-3">
             <Select
+              name="aj-direccion"
               label="Dirección"
               value={aTipo}
               onChange={(e) => setATipo(e.target.value as "positivo" | "negativo")}
@@ -407,31 +468,35 @@ export function MovimientosInventario() {
               ]}
             />
             <Select
+              name="aj-producto"
               label="Producto"
               value={aProducto}
               onChange={(e) => setAProducto(e.target.value)}
               options={[{ value: "", label: "Elegí un producto" }, ...opcionesProducto]}
             />
             <Select
+              name="aj-bodega"
               label="Bodega"
               value={aBodega}
               onChange={(e) => setABodega(e.target.value)}
               options={opcionesBodega}
             />
             <Input
+              name="aj-cantidad"
               label="Cantidad (unidad base)"
               value={aCantidad}
               onChange={(e) => setACantidad(e.target.value)}
               placeholder="3"
             />
             <Select
+              name="aj-motivo"
               label="Motivo"
               value={aMotivo}
               onChange={(e) => setAMotivo(e.target.value)}
               options={(catalogos?.motivos ?? []).map((m) => ({ value: m.codigo, label: m.nombre }))}
             />
             {aMotivoElegido?.exige_detalle && (
-              <Input label="Decí cuál" value={aDetalle} onChange={(e) => setADetalle(e.target.value)} />
+              <Input name="aj-detalle" label="Decí cuál" value={aDetalle} onChange={(e) => setADetalle(e.target.value)} />
             )}
             <Button
               className="w-full"
@@ -448,9 +513,11 @@ export function MovimientosInventario() {
             </Button>
           </div>
         </Card>
+          </div>
       </div>
 
       {/* ------------------------------------- Ajustes */}
+      <div ref={refAprobaciones}>
       <Card className="mt-4">
         <CardTitle>Ajustes</CardTitle>
         <CardDescription>
@@ -466,6 +533,7 @@ export function MovimientosInventario() {
           />
         </div>
       </Card>
+        </div>
     </div>
   );
 }

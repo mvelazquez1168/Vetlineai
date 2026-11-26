@@ -13,6 +13,7 @@ import {
   platformAdminApi,
   TipoDocumento,
 } from "../../lib/platformAdminApi";
+import { guardarComoArchivo } from "../../lib/descargas";
 
 const TIPO_LABEL: Record<TipoDocumento, string> = {
   banderas_rojas: "Banderas rojas",
@@ -316,15 +317,8 @@ export function BaseConocimiento() {
 
   const descargarDocumento = async (d: DocumentoConocimiento) => {
     const blob = await platformAdminApi.obtenerArchivo(d.id, true);
-    const url = URL.createObjectURL(blob);
     const ext = d.archivo_ref.slice(d.archivo_ref.lastIndexOf("."));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${d.nombre}${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    guardarComoArchivo(blob, `${d.nombre}${ext}`);
   };
 
   const columns: TableColumn<DocumentoConocimiento>[] = [

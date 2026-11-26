@@ -6,6 +6,7 @@ import { Table, TableColumn } from "../../components/ui/Table";
 import { AtencionReporte, Medico, ReporteAtenciones as ReporteAtencionesData, adminApi } from "../../lib/adminApi";
 import { fechaHoyEnZona } from "../../lib/formatFecha";
 import { useAuth } from "../../hooks/useAuth";
+import { guardarComoArchivo } from "../../lib/descargas";
 
 function formatoFechaISO(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -89,14 +90,7 @@ export function ReporteAtenciones() {
     setDescargando(true);
     try {
       const { blob, filename } = await adminApi.descargarReporteAtencionesPdf(desde, hasta, medicoId || undefined);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename ?? "reporte-atenciones.pdf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      guardarComoArchivo(blob, filename ?? "reporte-atenciones.pdf");
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos generar el PDF.");
     } finally {

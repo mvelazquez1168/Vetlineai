@@ -15,7 +15,7 @@ import {
 import {
   ConsumoPorOrigen,
   DetalleProducto,
-  MovimientoKardex,
+  LineaKardex,
   formatearCantidad,
   formatearMonto,
   inventarioApi,
@@ -47,7 +47,7 @@ export function ProductoFicha() {
   const { id = "" } = useParams();
   const toast = useToast();
   const [datos, setDatos] = useState<DetalleProducto | null>(null);
-  const [kardex, setKardex] = useState<MovimientoKardex[]>([]);
+  const [kardex, setKardex] = useState<LineaKardex[]>([]);
   const [consumo, setConsumo] = useState<ConsumoPorOrigen[]>([]);
   const [desde, setDesde] = useState(haceUnAnio());
   const [hasta, setHasta] = useState(HOY);
@@ -76,7 +76,7 @@ export function ProductoFicha() {
 
   const p = datos.producto as Record<string, string | number | boolean | null>;
 
-  const columnasKardex: TableColumn<MovimientoKardex>[] = [
+  const columnasKardex: TableColumn<LineaKardex>[] = [
     {
       key: "fecha",
       header: "Fecha",

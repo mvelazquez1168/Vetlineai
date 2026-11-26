@@ -50,6 +50,7 @@ import {
   TipoIdentificacion,
   workspaceApi,
 } from "../../lib/workspaceApi";
+import { guardarComoArchivo } from "../../lib/descargas";
 
 const ESPECIE_OPTIONS = [
   { value: "Canino", label: "Canino" },
@@ -480,14 +481,7 @@ export function CasoWorkspace() {
     setInformeMotivo(undefined);
     try {
       const { blob, filename } = await workspaceApi.generarInforme(casoId, destinatario);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename ?? "Informe.docx";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      guardarComoArchivo(blob, filename ?? "Informe.docx");
       setDestinatarioPreferido(destinatario);
       cargarInformes(casoId);
       cargarConsumo();
@@ -512,14 +506,7 @@ export function CasoWorkspace() {
     setDescargandoInformeId(informe.id);
     try {
       const { blob, filename } = await workspaceApi.descargarInforme(informe.id);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename ?? informe.nombre_archivo;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      guardarComoArchivo(blob, filename ?? informe.nombre_archivo);
     } catch (err) {
       console.error("Error al descargar el informe anterior:", err);
       setErrorInforme(err instanceof Error ? err.message : "No pudimos descargar el informe.");

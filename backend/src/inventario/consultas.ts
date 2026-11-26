@@ -18,6 +18,107 @@ export interface ExistenciaPresentada {
   texto: string;
 }
 
+// ---------------------------------------------------------------------
+// CÓMO SE NOMBRA UNA CANTIDAD: plural y núcleo de la presentación.
+//
+// "124 tableta" y "6 Caja de 20 tabletas y 4 tableta" son lo que sale
+// de concatenar el nombre crudo, y las dos se leen mal. Lo que hace
+// falta es el NÚCLEO del nombre ("Caja de 20 tabletas" → caja) y su
+// plural ("tableta" → tabletas, "unidad" → unidades).
+//
+// POR QUÉ SE DERIVA Y NO SE GUARDA UN CAMPO: agregarle a cada producto
+// un "nombre en plural" y a cada presentación un "nombre corto" sería
+// pedirle a la clínica que escriba dos veces lo que ya escribió, y el
+// día que no coincidan no se rompe nada visible — simplemente la
+// pantalla miente. Las reglas del español alcanzan para esto.
+//
+// LOS SÍMBOLOS NO SE PLURALIZAN. "ml", "g", "kg", "mg" y los demás son
+// símbolos de unidad, no palabras: se escriben igual en singular y en
+// plural ("400 ml", nunca "400 mles"). Por eso hay una lista explícita
+// y no un intento de adivinarlo por la forma.
+// ---------------------------------------------------------------------
+
+/** Símbolos de unidad: invariables por norma, no por excepción. */
+const SIMBOLOS_INVARIABLES = new Set([
+  "ml",
+  "l",
+  "cc",
+  "g",
+  "kg",
+  "mg",
+  "mcg",
+  "ug",
+  "ui",
+  "mm",
+  "cm",
+  "m",
+  "oz",
+  "lb",
+]);
+
+/**
+ * El plural castellano de un nombre de unidad o de presentación.
+ *
+ * Reglas aplicadas, en orden:
+ *   1. cantidad 1 (o −1) → singular, sin tocar nada;
+ *   2. símbolo de unidad → invariable;
+ *   3. ya termina en -s o -x → invariable (dosis, tórax);
+ *   4. termina en -z → -ces (lápiz → lápices);
+ *   5. termina en vocal no acentuada → +s;
+ *   6. termina en consonante → +es (unidad → unidades);
+ *   7. más de una palabra → se pluraliza SOLO la primera, que es el
+ *      núcleo ("bolsa de suero" → "bolsas de suero").
+ */
+export function pluralizar(nombre: string, cantidad: number): string {
+  const limpio = (nombre ?? "").trim();
+  if (!limpio) return limpio;
+  if (Math.abs(cantidad) === 1) return limpio;
+
+  const palabras = limpio.split(/\s+/);
+  if (palabras.length > 1) {
+    return [pluralizar(palabras[0], cantidad), ...palabras.slice(1)].join(" ");
+  }
+
+  const palabra = palabras[0];
+  if (SIMBOLOS_INVARIABLES.has(palabra.toLowerCase())) return palabra;
+
+  const ultima = palabra.slice(-1).toLowerCase();
+  if (ultima === "s" || ultima === "x") return palabra;
+  if (ultima === "z") return `${palabra.slice(0, -1)}ces`;
+  if ("aeio".includes(ultima)) return `${palabra}s`;
+  if (ultima === "u") return `${palabra}s`;
+  return `${palabra}es`;
+}
+
+/**
+ * El núcleo de un nombre de presentación: "Caja de 20 tabletas" → caja.
+ *
+ * Se corta en la primera preposición o en el primer número, que es
+ * donde el nombre pasa de decir QUÉ ES a decir CUÁNTO TRAE. Lo que
+ * queda se pone en minúscula porque va en medio de una frase
+ * ("6 cajas y 4 tabletas"), no al principio.
+ *
+ * Si el corte deja algo vacío, se devuelve el nombre completo: es mejor
+ * un nombre largo que una cantidad sin unidad.
+ */
+export function nucleoDePresentacion(nombre: string): string {
+  const limpio = (nombre ?? "").trim();
+  if (!limpio) return limpio;
+
+  const palabras = limpio.split(/\s+/);
+  const nucleo: string[] = [];
+  for (const palabra of palabras) {
+    const sinPuntuacion = palabra.replace(/[.,;:]+$/, "");
+    if (/^(de|del|por|con|x)$/i.test(sinPuntuacion)) break;
+    if (/^[0-9]/.test(sinPuntuacion)) break;
+    nucleo.push(sinPuntuacion);
+  }
+  const texto = (nucleo.length > 0 ? nucleo : palabras).join(" ");
+  // Solo se baja la primera letra si la palabra no es una sigla: "UI"
+  // en minúscula deja de ser una unidad.
+  return texto === texto.toUpperCase() && texto.length <= 3 ? texto : texto.toLowerCase();
+}
+
 /**
  * La existencia en la presentación natural MÁS la unidad base.
  *
@@ -34,7 +135,7 @@ export function presentarExistencia(
   unidadBase: string,
   presentacionMayor?: { nombre: string; factor: number } | null
 ): ExistenciaPresentada {
-  const base = `${formatearCantidad(cantidadBase)} ${unidadBase}`;
+  const base = `${formatearCantidad(cantidadBase)} ${pluralizar(unidadBase, cantidadBase)}`;
   if (!presentacionMayor || presentacionMayor.factor <= 1) {
     return { cantidadBase, unidadBase, texto: base };
   }
@@ -46,8 +147,11 @@ export function presentarExistencia(
 
   if (enteras === 0) return { cantidadBase, unidadBase, texto: base };
 
-  const partes = [`${signo * enteras} ${presentacionMayor.nombre}`];
-  if (resto > 0) partes.push(`${formatearCantidad(resto)} ${unidadBase}`);
+  const cuantas = signo * enteras;
+  const partes = [
+    `${cuantas} ${pluralizar(nucleoDePresentacion(presentacionMayor.nombre), cuantas)}`,
+  ];
+  if (resto > 0) partes.push(`${formatearCantidad(resto)} ${pluralizar(unidadBase, resto)}`);
   return { cantidadBase, unidadBase, texto: `${partes.join(" y ")} (${base})` };
 }
 
@@ -203,25 +307,75 @@ export async function consumoDeProducto(
   }));
 }
 
-/** El kardex de un producto: la historia, con filtros. */
-export async function kardexDeProducto(
+export interface FiltrosKardex {
+  productoId?: string;
+  desde?: string;
+  hasta?: string;
+  tipo?: string;
+  bodegaId?: string;
+  personaId?: string;
+  /** Para la exportación, que no se corta en 500. */
+  limite?: number;
+}
+
+export interface LineaKardex {
+  id: string;
+  tipo: string;
+  tipo_nombre: string;
+  direccion: "entrada" | "salida";
+  producto: string;
+  producto_id: string;
+  unidad_base: string;
+  cantidad_base: string;
+  costo_unitario: string | null;
+  creado_en: Date;
+  bodega: string;
+  lote: string | null;
+  presentacion: string | null;
+  cantidad_presentacion: string | null;
+  motivo: string | null;
+  motivo_detalle: string | null;
+  persona: string | null;
+  paciente: string | null;
+  atencion_id: string | null;
+}
+
+/**
+ * EL KARDEX, con el producto como UN FILTRO MÁS.
+ *
+ * Antes esta consulta exigía un producto, y por eso no había forma de
+ * ver "todos los movimientos de ayer" ni "todas las mermas del mes":
+ * había que entrar producto por producto. El producto pasó a ser
+ * opcional y se agregaron los filtros de persona y producto; la
+ * consulta es la MISMA para la pantalla, la ficha del producto y la
+ * exportación, así que las tres no pueden mostrar números distintos.
+ *
+ * El tope por defecto es 500 filas para la pantalla; la exportación
+ * pide el suyo, porque un archivo cortado en silencio es peor que uno
+ * grande.
+ */
+export async function kardex(
   db: PoolClient,
-  productoId: string,
-  filtros: { desde?: string; hasta?: string; tipo?: string; bodegaId?: string } = {}
-) {
-  const condiciones = ["m.producto_id = $1"];
-  const valores: unknown[] = [productoId];
+  filtros: FiltrosKardex = {}
+): Promise<LineaKardex[]> {
+  const condiciones: string[] = ["true"];
+  const valores: unknown[] = [];
   const agregar = (sql: string, valor: unknown) => {
     valores.push(valor);
     condiciones.push(sql.replace("$?", `$${valores.length}`));
   };
+  if (filtros.productoId) agregar("m.producto_id = $?", filtros.productoId);
   if (filtros.desde) agregar("m.creado_en >= $?::date", filtros.desde);
   if (filtros.hasta) agregar("m.creado_en < ($?::date + interval '1 day')", filtros.hasta);
   if (filtros.tipo) agregar("m.tipo = $?", filtros.tipo);
   if (filtros.bodegaId) agregar("m.bodega_id = $?", filtros.bodegaId);
+  if (filtros.personaId) agregar("m.persona_id = $?", filtros.personaId);
 
-  const r = await db.query(
+  const limite = Math.min(Math.max(filtros.limite ?? 500, 1), 20000);
+
+  const r = await db.query<LineaKardex>(
     `SELECT m.id, m.tipo, t.nombre AS tipo_nombre, t.direccion,
+            p.nombre AS producto, p.id AS producto_id, p.unidad_base,
             m.cantidad_base, m.costo_unitario, m.creado_en,
             b.nombre AS bodega, l.numero AS lote,
             pr.nombre AS presentacion, m.cantidad_presentacion,
@@ -229,6 +383,7 @@ export async function kardexDeProducto(
             per.nombre AS persona, pa.nombre AS paciente, m.atencion_id
        FROM inv_movimientos m
        JOIN inv_tipos_movimiento t ON t.codigo = m.tipo
+       JOIN inv_productos p ON p.id = m.producto_id
        JOIN inv_bodegas b ON b.id = m.bodega_id
        LEFT JOIN inv_lotes l ON l.id = m.lote_id
        LEFT JOIN inv_presentaciones pr ON pr.id = m.presentacion_id
@@ -237,10 +392,19 @@ export async function kardexDeProducto(
        LEFT JOIN pacientes pa ON pa.id = m.paciente_id
       WHERE ${condiciones.join(" AND ")}
       ORDER BY m.creado_en DESC, m.id DESC
-      LIMIT 500`,
+      LIMIT ${limite}`,
     valores
   );
   return r.rows;
+}
+
+/** El kardex de un producto. Es el general con el producto fijado. */
+export async function kardexDeProducto(
+  db: PoolClient,
+  productoId: string,
+  filtros: { desde?: string; hasta?: string; tipo?: string; bodegaId?: string } = {}
+) {
+  return kardex(db, { ...filtros, productoId });
 }
 
 // ---------------------------------------------------------------------

@@ -70,6 +70,8 @@ export type { KpiCardProps } from "./KpiCard";
 export { LoadingState } from "./LoadingState";
 export type { FormaCarga, LoadingStateProps } from "./LoadingState";
 
+export { MenuAcciones } from "./MenuAcciones";
+export type { AccionDeMenu, MenuAccionesProps } from "./MenuAcciones";
 export { MenuExportar } from "./MenuExportar";
 export type { FormatoExportacion, MenuExportarProps } from "./MenuExportar";
 

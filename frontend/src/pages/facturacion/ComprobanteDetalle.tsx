@@ -23,6 +23,7 @@ import {
   formatearMonto,
   varianteEstado,
 } from "../../lib/facturacionCrApi";
+import { guardarComoArchivo } from "../../lib/descargas";
 
 // ---------------------------------------------------------------------
 // Detalle de un comprobante: sus datos, sus líneas, su historia de
@@ -82,12 +83,7 @@ export function ComprobanteDetalle() {
       const { blob, filename } = await (tipo === "pdf"
         ? facturacionCrApi.descargarPdf(id)
         : facturacionCrApi.descargarXml(id));
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename ?? `comprobante.${tipo}`;
-      a.click();
-      URL.revokeObjectURL(url);
+      guardarComoArchivo(blob, filename ?? `comprobante.${tipo}`);
     } catch (err) {
       toast.error((err as Error).message);
     }

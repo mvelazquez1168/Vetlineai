@@ -30,9 +30,15 @@ function assert(cond: boolean, msg: string, detalle?: unknown) {
   console.log(`[${cond ? "OK" : "FALLO"}] ${msg}`, detalle ?? "");
   if (!cond) ok = false;
 }
-function igual(obtenido: unknown, esperado: unknown, msg: string) {
+function igual(obtenido: unknown, esperado: unknown, msg: string, contexto?: unknown) {
   const mismo = JSON.stringify(obtenido) === JSON.stringify(esperado);
-  assert(mismo, msg, mismo ? `= ${JSON.stringify(obtenido)}` : { obtenido, esperado });
+  assert(
+    mismo,
+    msg,
+    mismo
+      ? `= ${JSON.stringify(obtenido)}`
+      : { obtenido, esperado, ...(contexto === undefined ? {} : { contexto }) }
+  );
 }
 
 let tenantId = "";

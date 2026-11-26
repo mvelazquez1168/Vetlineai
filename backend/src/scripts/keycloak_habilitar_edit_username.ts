@@ -31,7 +31,7 @@ async function main() {
   const auth = { Authorization: `Bearer ${t}`, "Content-Type": "application/json" };
 
   const leer = await fetch(config.keycloakAdminUrl, { headers: auth });
-  const realm = await leer.json();
+  const realm = (await leer.json()) as Record<string, unknown>;
   console.log("editUsernameAllowed actual:", realm.editUsernameAllowed);
 
   if (realm.editUsernameAllowed === true) {
@@ -47,7 +47,7 @@ async function main() {
   console.log("PUT status:", put.status);
 
   const releer = await fetch(config.keycloakAdminUrl, { headers: auth });
-  const realmActualizado = await releer.json();
+  const realmActualizado = (await releer.json()) as Record<string, unknown>;
   console.log("editUsernameAllowed ahora:", realmActualizado.editUsernameAllowed);
 }
 

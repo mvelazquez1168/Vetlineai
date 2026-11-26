@@ -1,5 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { Pool, PoolClient } from "pg";
+// `req.auth` y `req.db` los declara el `declare global` de este módulo.
+// La importación es SOLO de tipos (no emite nada, así que no hay ciclo
+// en tiempo de ejecución) y hace falta para que un script que importe
+// este archivo sin pasar por las rutas compile igual: sin ella, el
+// aumento de Express no entra en el programa y `req.auth` no existe.
+import type {} from "./middleware/auth";
 
 // ---------------------------------------------------------------------
 // vetline-clinic-01, punto 2 — PUNTO ÚNICO de consulta de los módulos

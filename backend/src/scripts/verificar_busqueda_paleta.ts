@@ -177,13 +177,16 @@ async function main() {
     console.log("\n=== 4. Prefijos: microchip, teléfono, número de expediente ===");
     const porMicrochip = await buscar("900111", a.token);
     tiempos.push(porMicrochip.ms);
+    // El paciente de A se saca a una constante: dentro del callback TS
+    // ya no sabe que `a` dejó de ser null.
+    const pacienteDeA = a.pacienteId;
     assert(
-      porMicrochip.json?.pacientes?.some((p: any) => p.id === a.pacienteId),
+      porMicrochip.json?.pacientes?.some((p: any) => p.id === pacienteDeA),
       "el prefijo del microchip encuentra al paciente",
       porMicrochip.json?.pacientes?.map((p: any) => p.microchip)
     );
     assert(
-      !porMicrochip.json?.pacientes?.some((p: any) => p.id === b!.pacienteId),
+      !porMicrochip.json?.pacientes?.some((p: any) => p.id === b?.pacienteId),
       "y NO trae el de la otra clínica (que tiene un microchip parecido)"
     );
 

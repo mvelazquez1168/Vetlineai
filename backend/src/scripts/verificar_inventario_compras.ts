@@ -428,7 +428,7 @@ async function main() {
   const porAtencion = consumo.find((c) => c.tipo === "atencion");
   const porVenta = consumo.find((c) => c.tipo === "venta");
   assert(
-    porAtencion?.pacientes.some((p) => p.nombre === "Nina"),
+    porAtencion !== undefined && porAtencion.pacientes.some((p) => p.nombre === "Nina"),
     "el consumo por atención lista al paciente que lo usó",
     porAtencion?.pacientes
   );

@@ -53,6 +53,17 @@ export interface EstudioLab {
   }>;
 }
 
+/**
+ * 'canino' → 'Canino'. El vocabulario del sistema es con mayúscula
+ * inicial; los datos viejos no siempre.
+ */
+export function normalizarEspecie(especie: string | null | undefined): string {
+  const e = (especie ?? "").trim().toLowerCase();
+  if (e.startsWith("can") || e === "perro") return "Canino";
+  if (e.startsWith("fel") || e === "gato") return "Felino";
+  return especie ?? "";
+}
+
 /** Alto, bajo o normal. Sin rango no hay bandera, y eso se dice. */
 export function banderaDe(
   valor: number | null,
@@ -149,7 +160,12 @@ export async function cargarResultados(
   const p = await db.query<{ especie: string }>(`SELECT especie FROM pacientes WHERE id = $1`, [
     e.rows[0].paciente_id,
   ]);
-  const especie = p.rows[0]?.especie ?? "perro";
+  // LA ESPECIE SE NORMALIZA. El catálogo la guarda como 'Canino' y
+  // 'Felino', y en `pacientes` hay filas viejas con 'canino' en
+  // minúscula. Comparar crudo dejaría a esos pacientes sin rango y sin
+  // bandera —sin fallar— que es justo el defecto que la migración 103
+  // vino a cerrar.
+  const especie = normalizarEspecie(p.rows[0]?.especie);
 
   // Se reemplazan los resultados del estudio: cargar dos veces el mismo
   // PDF no tiene que duplicar las filas (y pasa, porque el laboratorio

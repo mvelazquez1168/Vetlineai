@@ -21,6 +21,7 @@ import { casosRouter } from "./routes/casos.routes";
 import { citasRouter } from "./routes/citas.routes";
 import { atencionesRouter } from "./routes/atenciones.routes";
 import { clinicRouter } from "./routes/clinic.routes";
+import { expedienteRouter } from "./routes/expediente.routes";
 import { facturacionCrRouter } from "./routes/facturacionCr.routes";
 import { inventarioRouter } from "./routes/inventario.routes";
 import { ventasRouter } from "./routes/ventas.routes";
@@ -148,6 +149,7 @@ app.use("/api/clinic", clinicRouter);
 // `requiereModulo("facturacion")`, así que una clínica sin el módulo
 // recibe 403 con code MODULO_NO_HABILITADO en cualquiera de sus rutas.
 app.use("/api/facturacion", facturacionCrRouter);
+app.use("/api/expediente", expedienteRouter);
 app.use("/api/inventario", inventarioRouter);
 app.use("/api/ventas", ventasRouter);
 // Busqueda global de la paleta de comandos (Ctrl/Cmd+K).

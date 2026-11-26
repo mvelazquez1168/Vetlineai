@@ -25,10 +25,16 @@ import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
 async function main() {
   exigirEntornoDeDesarrollo("crear_usuario_demo");
 
-  const [tenantId, email, password, nombre] = process.argv.slice(2);
+  const [tenantId, email, password, nombre, rolPedido] = process.argv.slice(2);
+  // EL ROL ES UN ARGUMENTO y no dos scripts: "medico" crea a la persona
+  // como administradora Y médica. El rol en este sistema no es
+  // excluyente —ver el bug del rol binario que ya costó una sesión— y
+  // un usuario de demostración que no puede escribir nada clínico no
+  // sirve para revisar el expediente.
+  const esMedico = (rolPedido ?? "").toLowerCase() === "medico";
   if (!tenantId || !email || !password || !nombre) {
     console.error(
-      'Uso: npx ts-node --transpile-only src/scripts/crear_usuario_demo.ts <tenantId> <email> <password> "<nombre>"'
+      'Uso: npx ts-node src/scripts/crear_usuario_demo.ts <tenantId> <email> <password> "<nombre>" [medico]'
     );
     process.exit(1);
   }
@@ -69,11 +75,21 @@ async function main() {
   const hash = await bcrypt.hash(password, 10);
 
   const p = await pool.query<{ id: string }>(
+    // La colegiatura es obligatoria para un médico (CHECK en la tabla):
+    // un médico sin número de colegio no puede firmar un registro.
     `INSERT INTO personas (tenant_id, nombre, email, password_hash, es_admin_clinica, es_medico,
-                           keycloak_user_id, correo_verificado_en)
-     VALUES ($1, $2, $3, $4, true, false, $5, now())
+                           colegiatura, keycloak_user_id, correo_verificado_en)
+     VALUES ($1, $2, $3, $4, true, $6, $7, $5, now())
      RETURNING id`,
-    [tenantId, nombre, email, hash, keycloakUserId]
+    [
+      tenantId,
+      nombre,
+      email,
+      hash,
+      keycloakUserId,
+      esMedico,
+      esMedico ? "DEMO-0001" : null,
+    ]
   );
 
   console.log("");
@@ -82,7 +98,9 @@ async function main() {
   console.log(`Keycloak:   ${keycloakUserId}`);
   console.log(`Usuario:    ${email}`);
   console.log(`Contraseña: ${password}`);
-  console.log(`Rol:        admin de clínica (es_medico = false)`);
+  console.log(
+    `Rol:        admin de clínica${esMedico ? " + médico (colegiatura DEMO-0001)" : " (es_medico = false)"}`
+  );
 }
 
 main()

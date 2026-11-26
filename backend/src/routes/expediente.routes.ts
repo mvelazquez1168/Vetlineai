@@ -1,0 +1,485 @@
+import { NextFunction, Request, Response, Router } from "express";
+import { authenticate, withTenantClient } from "../middleware/auth";
+import {
+  adendasDeAtencion,
+  agregarAdenda,
+  agregarProblema,
+  alergiasDePaciente,
+  avisosDeAlergia,
+  cambiarEstadoProblema,
+  cerrarYFirmarAtencion,
+  ligarProblemaAAtencion,
+  problemasDePaciente,
+  registrarAlergia,
+} from "../expediente/clinico";
+import {
+  analitosConHistoria,
+  cambiarEstadoEstudio,
+  cargarResultados,
+  estudiosDePaciente,
+  estudiosSinVer,
+  marcarEstudioVisto,
+  solicitarEstudio,
+  tendenciaDeAnalito,
+} from "../expediente/laboratorio";
+import {
+  atenderHallazgo,
+  groomingDePaciente,
+  hallazgosPendientes,
+  registrarGrooming,
+} from "../expediente/grooming";
+import {
+  consentimiento,
+  consentimientosDePaciente,
+  firmarConsentimiento,
+  guardarPlantilla,
+  plantillas,
+  prepararConsentimiento,
+  sembrarPlantillasBase,
+} from "../expediente/consentimientos";
+import {
+  buscarEnHistoria,
+  encabezadoDeExpediente,
+  evolucion,
+  fichaRacial,
+  lineaDeTiempo,
+} from "../expediente/resumen";
+
+// ---------------------------------------------------------------------
+// API del EXPEDIENTE CLÍNICO (prompt 07, bloque A).
+//
+// PERMISOS, siguiendo la sección 1 del prompt ("lo clínico es del
+// médico"):
+//
+//   * LEER el expediente: médico o administrador. La recepción necesita
+//     el resumen, los preventivos y las alertas para atender el
+//     teléfono.
+//   * ESCRIBIR CONTENIDO CLÍNICO (problemas, alergias, adendas, cierre
+//     de atención, laboratorio): SOLO médico. `soloMedico` lo impone.
+//   * GROOMING: cualquiera del personal. Hoy el rol de groomer no
+//     existe —el modelo de personas tiene médico y administrador— y
+//     cuando el prompt 04 lo cree, este gate pasa a ser su permiso
+//     nombrado. Está dicho acá para que ese día se encuentre.
+//
+// EL SALDO DEL CLIENTE en la franja de alertas va solo si quien mira es
+// administrador: es un dato del cliente, no del paciente.
+// ---------------------------------------------------------------------
+export const expedienteRouter = Router();
+
+expedienteRouter.use(authenticate, withTenantClient);
+
+expedienteRouter.use((req, res, next) => {
+  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
+    return res.status(403).json({ error: "El expediente clínico es del personal de la clínica." });
+  }
+  next();
+});
+
+function soloMedico(req: Request, res: Response, next: NextFunction) {
+  if (!req.auth?.esMedico) {
+    return res.status(403).json({
+      error:
+        "Esto es contenido clínico y lo escribe un médico. Un administrador puede verlo, no registrarlo.",
+    });
+  }
+  next();
+}
+
+function fallo(res: Response, err: unknown, contexto: string) {
+  const e = err as { message?: string; code?: string };
+  if (e.code && /^[0-9A-Z]{5}$/.test(e.code)) {
+    console.error(contexto, err);
+    return res.status(400).json({ error: e.message ?? "No se pudo completar la operación." });
+  }
+  res.status(400).json({ error: e.message ?? "No se pudo completar la operación." });
+}
+
+// =====================================================================
+// EL EXPEDIENTE: encabezado, línea de tiempo, búsqueda, evolución
+// =====================================================================
+expedienteRouter.get("/pacientes/:id", async (req, res) => {
+  try {
+    res.json(
+      await encabezadoDeExpediente(req.db!, req.params.id, {
+        verSaldo: !!req.auth!.esAdminClinica,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id");
+  }
+});
+
+expedienteRouter.get("/pacientes/:id/linea-de-tiempo", async (req, res) => {
+  const q = req.query as Record<string, string | undefined>;
+  try {
+    res.json({
+      eventos: await lineaDeTiempo(req.db!, req.params.id, {
+        tipo: q.tipo || undefined,
+        desde: q.desde || undefined,
+        hasta: q.hasta || undefined,
+        medicoId: q.medico || undefined,
+      }),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/linea-de-tiempo");
+  }
+});
+
+expedienteRouter.get("/pacientes/:id/buscar", async (req, res) => {
+  try {
+    res.json({
+      coincidencias: await buscarEnHistoria(req.db!, req.params.id, String(req.query.q ?? "")),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/buscar");
+  }
+});
+
+expedienteRouter.get("/pacientes/:id/evolucion", async (req, res) => {
+  try {
+    res.json({ puntos: await evolucion(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/evolucion");
+  }
+});
+
+expedienteRouter.get("/pacientes/:id/ficha-racial", async (req, res) => {
+  try {
+    res.json(await fichaRacial(req.db!, req.params.id));
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/ficha-racial");
+  }
+});
+
+// =====================================================================
+// LISTA DE PROBLEMAS
+// =====================================================================
+expedienteRouter.get("/pacientes/:id/problemas", async (req, res) => {
+  try {
+    res.json({ problemas: await problemasDePaciente(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/problemas");
+  }
+});
+
+expedienteRouter.post("/pacientes/:id/problemas", soloMedico, async (req, res) => {
+  try {
+    res.status(201).json(
+      await agregarProblema(req.db!, req.auth!.tenantId!, {
+        ...req.body,
+        pacienteId: req.params.id,
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/pacientes/:id/problemas");
+  }
+});
+
+expedienteRouter.put("/problemas/:id", soloMedico, async (req, res) => {
+  try {
+    await cambiarEstadoProblema(req.db!, req.auth!.tenantId!, req.params.id, req.body ?? {});
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "PUT /expediente/problemas/:id");
+  }
+});
+
+expedienteRouter.post("/problemas/:id/atenciones", soloMedico, async (req, res) => {
+  try {
+    if (!req.body?.atencionId) return res.status(400).json({ error: "Falta la atención." });
+    await ligarProblemaAAtencion(
+      req.db!,
+      req.auth!.tenantId!,
+      req.params.id,
+      req.body.atencionId
+    );
+    res.status(201).json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "POST /expediente/problemas/:id/atenciones");
+  }
+});
+
+// =====================================================================
+// ALERGIAS
+// =====================================================================
+expedienteRouter.get("/pacientes/:id/alergias", async (req, res) => {
+  try {
+    res.json({ alergias: await alergiasDePaciente(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/alergias");
+  }
+});
+
+expedienteRouter.post("/pacientes/:id/alergias", soloMedico, async (req, res) => {
+  try {
+    res.status(201).json(
+      await registrarAlergia(req.db!, req.auth!.tenantId!, {
+        ...req.body,
+        pacienteId: req.params.id,
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/pacientes/:id/alergias");
+  }
+});
+
+/**
+ * `GET /pacientes/:id/avisos-alergia?nombre=&grupo=` — ¿es alérgico a
+ * esto?
+ *
+ * Lo consulta la pantalla ANTES de confirmar una receta. Es una
+ * consulta y no una validación que bloquee: la decisión de recetar
+ * igual es del médico, y el aviso existe para que la tome sabiendo.
+ */
+expedienteRouter.get("/pacientes/:id/avisos-alergia", async (req, res) => {
+  const q = req.query as Record<string, string | undefined>;
+  try {
+    res.json({
+      avisos: await avisosDeAlergia(req.db!, req.params.id, {
+        medicamentoId: q.medicamentoId || undefined,
+        nombre: q.nombre || undefined,
+        principioActivo: q.principioActivo || undefined,
+        grupo: q.grupo || undefined,
+      }),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/avisos-alergia");
+  }
+});
+
+// =====================================================================
+// ATENCIÓN: cierre, firma y adendas
+// =====================================================================
+expedienteRouter.post("/atenciones/:id/cerrar", soloMedico, async (req, res) => {
+  try {
+    await cerrarYFirmarAtencion(req.db!, req.params.id, req.auth!.userId!);
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/cerrar");
+  }
+});
+
+expedienteRouter.get("/atenciones/:id/adendas", async (req, res) => {
+  try {
+    res.json({ adendas: await adendasDeAtencion(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id/adendas");
+  }
+});
+
+expedienteRouter.post("/atenciones/:id/adendas", soloMedico, async (req, res) => {
+  try {
+    res.status(201).json(
+      await agregarAdenda(req.db!, req.auth!.tenantId!, {
+        ...req.body,
+        atencionId: req.params.id,
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/adendas");
+  }
+});
+
+// =====================================================================
+// LABORATORIO
+// =====================================================================
+expedienteRouter.get("/pacientes/:id/laboratorio", async (req, res) => {
+  try {
+    res.json({
+      estudios: await estudiosDePaciente(req.db!, req.params.id),
+      analitos: await analitosConHistoria(req.db!, req.params.id),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/laboratorio");
+  }
+});
+
+expedienteRouter.get("/pacientes/:id/laboratorio/tendencia/:codigo", async (req, res) => {
+  try {
+    res.json(await tendenciaDeAnalito(req.db!, req.params.id, req.params.codigo));
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/laboratorio/tendencia/:codigo");
+  }
+});
+
+expedienteRouter.post("/pacientes/:id/laboratorio", soloMedico, async (req, res) => {
+  try {
+    res.status(201).json(
+      await solicitarEstudio(req.db!, req.auth!.tenantId!, {
+        ...req.body,
+        pacienteId: req.params.id,
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/pacientes/:id/laboratorio");
+  }
+});
+
+expedienteRouter.put("/laboratorio/:id/estado", soloMedico, async (req, res) => {
+  try {
+    await cambiarEstadoEstudio(req.db!, req.params.id, req.body?.estado);
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "PUT /expediente/laboratorio/:id/estado");
+  }
+});
+
+expedienteRouter.post("/laboratorio/:id/resultados", soloMedico, async (req, res) => {
+  const b = req.body ?? {};
+  try {
+    if (!Array.isArray(b.resultados) || b.resultados.length === 0) {
+      return res.status(400).json({ error: "No hay resultados que cargar." });
+    }
+    res.json(
+      await cargarResultados(req.db!, req.auth!.tenantId!, req.params.id, b.resultados, {
+        archivoId: b.archivoId,
+        observaciones: b.observaciones,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/laboratorio/:id/resultados");
+  }
+});
+
+expedienteRouter.post("/laboratorio/:id/visto", soloMedico, async (req, res) => {
+  try {
+    await marcarEstudioVisto(req.db!, req.params.id, req.auth!.userId!);
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "POST /expediente/laboratorio/:id/visto");
+  }
+});
+
+/** Los resultados que llegaron y nadie miró: el aviso al médico. */
+expedienteRouter.get("/laboratorio/sin-ver", async (req, res) => {
+  try {
+    res.json({ estudios: await estudiosSinVer(req.db!) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/laboratorio/sin-ver");
+  }
+});
+
+// =====================================================================
+// GROOMING
+// =====================================================================
+expedienteRouter.get("/pacientes/:id/grooming", async (req, res) => {
+  try {
+    res.json({ grooming: await groomingDePaciente(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/grooming");
+  }
+});
+
+expedienteRouter.post("/pacientes/:id/grooming", async (req, res) => {
+  try {
+    res.status(201).json(
+      await registrarGrooming(req.db!, req.auth!.tenantId!, {
+        ...req.body,
+        pacienteId: req.params.id,
+        groomerId: req.body?.groomerId ?? req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/pacientes/:id/grooming");
+  }
+});
+
+expedienteRouter.get("/grooming/hallazgos", async (req, res) => {
+  try {
+    res.json({
+      hallazgos: await hallazgosPendientes(
+        req.db!,
+        (req.query.paciente as string) || undefined
+      ),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/grooming/hallazgos");
+  }
+});
+
+expedienteRouter.post("/grooming/hallazgos/:id/atender", soloMedico, async (req, res) => {
+  try {
+    await atenderHallazgo(req.db!, req.params.id, req.auth!.userId!, req.body?.atencionId);
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "POST /expediente/grooming/hallazgos/:id/atender");
+  }
+});
+
+// =====================================================================
+// CONSENTIMIENTOS
+// =====================================================================
+expedienteRouter.get("/consentimientos/plantillas", async (req, res) => {
+  try {
+    res.json({ plantillas: await plantillas(req.db!, req.auth!.tenantId!) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/consentimientos/plantillas");
+  }
+});
+
+expedienteRouter.post("/consentimientos/plantillas", async (req, res) => {
+  try {
+    res.status(201).json(await guardarPlantilla(req.db!, req.auth!.tenantId!, req.body ?? {}));
+  } catch (err) {
+    fallo(res, err, "POST /expediente/consentimientos/plantillas");
+  }
+});
+
+/** Siembra las cuatro plantillas base. Idempotente. */
+expedienteRouter.post("/consentimientos/plantillas/base", async (req, res) => {
+  try {
+    res.json(await sembrarPlantillasBase(req.db!, req.auth!.tenantId!));
+  } catch (err) {
+    fallo(res, err, "POST /expediente/consentimientos/plantillas/base");
+  }
+});
+
+expedienteRouter.get("/pacientes/:id/consentimientos", async (req, res) => {
+  try {
+    res.json({ consentimientos: await consentimientosDePaciente(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/consentimientos");
+  }
+});
+
+/** El texto ya resuelto, para mostrarlo antes de firmar. */
+expedienteRouter.get("/pacientes/:id/consentimientos/preparar", async (req, res) => {
+  try {
+    res.json(
+      await prepararConsentimiento(req.db!, req.auth!.tenantId!, {
+        plantillaId: String(req.query.plantilla ?? ""),
+        pacienteId: req.params.id,
+        procedimiento: (req.query.procedimiento as string) || undefined,
+        medicoId: req.auth!.esMedico ? req.auth!.userId : undefined,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/consentimientos/preparar");
+  }
+});
+
+expedienteRouter.post("/pacientes/:id/consentimientos", async (req, res) => {
+  try {
+    res.status(201).json(
+      await firmarConsentimiento(req.db!, req.auth!.tenantId!, {
+        ...req.body,
+        pacienteId: req.params.id,
+        testigoId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/pacientes/:id/consentimientos");
+  }
+});
+
+expedienteRouter.get("/consentimientos/:id", async (req, res) => {
+  try {
+    res.json({ consentimiento: await consentimiento(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/consentimientos/:id");
+  }
+});

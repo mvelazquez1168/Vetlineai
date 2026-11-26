@@ -141,7 +141,7 @@ async function main() {
   ).rows[0].id;
 
   const razaGolden = await pool.query<{ id: string }>(
-    `SELECT id FROM razas WHERE especie = 'perro' AND nombre ILIKE '%golden%' LIMIT 1`
+    `SELECT id FROM razas WHERE especie = 'canina' AND nombre ILIKE '%golden%' LIMIT 1`
   );
   golden = (
     await pool.query<{ id: string }>(
@@ -150,7 +150,7 @@ async function main() {
       // NULL: un paciente sin número no existe para la clínica.
       `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie, raza,
                               raza_id, sexo, estado_reproductivo, alerta_manejo)
-       VALUES ($1,$2,1,'Toby','perro','Golden Retriever',$3,'macho','entero',
+       VALUES ($1,$2,1,'Toby','Canino','Golden Retriever',$3,'macho','entero',
                'Muerde al cortarle las uñas') RETURNING id`,
       [tenantId, propietarioId, razaGolden.rows[0]?.id ?? null]
     )
@@ -158,7 +158,7 @@ async function main() {
   mestizo = (
     await pool.query<{ id: string }>(
       `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie, raza)
-       VALUES ($1,$2,2,'Nube','gato','Mestizo') RETURNING id`,
+       VALUES ($1,$2,2,'Nube','Felino','Mestizo') RETURNING id`,
       [tenantId, propietarioId]
     )
   ).rows[0].id;
@@ -478,7 +478,7 @@ async function main() {
 
   const inventada = await pool.query<{ id: string }>(
     `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie, raza)
-     VALUES ($1,$2,3,'Rayo','perro','Perro de los Andes') RETURNING id`,
+     VALUES ($1,$2,3,'Rayo','Canino','Perro de los Andes') RETURNING id`,
     [tenantId, propietarioId]
   );
   const fichaSinCobertura = await conAlcanceTenant(tenantId, (db) =>
@@ -675,7 +675,7 @@ async function main() {
   );
   const ajeno = await pool.query<{ id: string }>(
     `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie)
-     VALUES ($1,$2,1,'Ajeno','perro') RETURNING id`,
+     VALUES ($1,$2,1,'Ajeno','Canino') RETURNING id`,
     [otroTenantId, duenoAjeno.rows[0].id]
   );
   await conAlcanceTenant(otroTenantId, (db) =>

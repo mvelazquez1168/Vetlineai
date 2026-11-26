@@ -461,5 +461,12 @@ porque los módulos siguientes se apoyan en ellas desde su primer día:
   bueno.
 - Verificar que el código nuevo está realmente dentro del contenedor antes de creerle a una
   medición.
+- **Toda pantalla nueva tiene que ser accesible desde la navegación**: el menú, la barra de la
+  sección o una acción de la pantalla desde la que se llega naturalmente. Una pantalla a la que solo
+  se llega escribiendo la dirección no existe para el usuario. Cada entrega lista sus pantallas
+  nuevas con el camino de clics para llegar a cada una.
+- **Las funciones se verifican desde la interfaz, en un navegador**, no solo desde la API: cada flujo
+  nuevo se recorre clic a clic como lo haría el usuario, y el resultado se contrasta contra la base.
+  La verificación de la API complementa, no reemplaza.
 - Producción no se toca desde el desarrollo. Cada entrega termina con un reporte de lo construido,
   lo que no se pudo y por qué, y las contradicciones encontradas.

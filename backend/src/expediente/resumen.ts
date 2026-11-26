@@ -1,6 +1,7 @@
 import { PoolClient } from "pg";
 import { NOMBRE_DOCUMENTO_PREDISPOSICIONES, seleccionarSeccionRaza } from "../razaDocumento";
 import { alergiasDePaciente, problemasDePaciente } from "./clinico";
+import { normalizarEspecie } from "./laboratorio";
 import { hallazgosPendientes } from "./grooming";
 
 // ---------------------------------------------------------------------
@@ -564,7 +565,10 @@ export async function fichaRacial(db: PoolClient, pacienteId: string): Promise<F
 
   const resultado = seleccionarSeccionRaza(
     doc.rows[0].contenido_texto,
-    especie,
+    // El selector del documento mapea 'Canino' → "PERROS" con la clave
+    // exacta: un paciente guardado como 'canino' no coincidiría y la
+    // ficha diría "sin cobertura" sobre una raza que sí está.
+    normalizarEspecie(especie),
     raza,
     alias?.rows[0]?.titulo_seccion ?? null,
     alias?.rows[0]?.nota ?? null

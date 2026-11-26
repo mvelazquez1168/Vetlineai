@@ -3,20 +3,18 @@ import { Link, useParams } from "react-router-dom";
 import { EditarPacienteModal } from "../../components/paciente/EditarPacienteModal";
 import {
   Badge,
-  BadgeVariant,
   Button,
   Card,
   CardTitle,
-  CollapsibleSection,
-  EmptyState,
   LoadingState,
 } from "../../components/ui";
+import { FranjaAlertas } from "../../components/expediente/FranjaAlertas";
+import { PestanasExpediente } from "../../components/expediente/PestanasExpediente";
 import { useAuth } from "../../hooks/useAuth";
+import { EncabezadoExpediente, expedienteApi } from "../../lib/expedienteApi";
 import { formatearFechaCorta } from "../../lib/formatFecha";
 import {
-  EventoCronologiaPaciente,
   FichaCompleta,
-  TipoEventoCronologia,
   pacientesApi,
 } from "../../lib/pacientesApi";
 
@@ -30,26 +28,6 @@ import {
 // Accesible para médico y admin de clínica, el mismo gate que tiene
 // `/api/pacientes` en el backend.
 // ---------------------------------------------------------------------
-
-const ETIQUETA_TIPO_EVENTO: Record<TipoEventoCronologia, string> = {
-  atencion: "Atención",
-  caso_apertura: "Caso abierto",
-  caso_cierre: "Caso cerrado",
-  vacunacion: "Vacunación",
-  desparasitacion: "Desparasitación",
-  receta: "Receta",
-};
-
-// Las variantes son las genéricas del Badge compartido, no colores
-// propios de esta pantalla.
-const VARIANTE_TIPO_EVENTO: Record<TipoEventoCronologia, BadgeVariant> = {
-  atencion: "info",
-  caso_apertura: "warning",
-  caso_cierre: "success",
-  vacunacion: "success",
-  desparasitacion: "success",
-  receta: "neutral",
-};
 
 const ETIQUETA_ESTADO_REPRODUCTIVO: Record<string, string> = {
   entero: "Entero",
@@ -75,20 +53,37 @@ export function FichaPaciente() {
   // que lo va a rebotar a /unauthorized es peor que no enlazar.
   const { zonaHoraria, esAdminClinica } = useAuth();
   const [ficha, setFicha] = useState<FichaCompleta | null>(null);
-  const [eventos, setEventos] = useState<EventoCronologiaPaciente[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editando, setEditando] = useState(false);
+  // El expediente clínico (prompt 07): la franja de alertas, la
+  // completitud y las pestañas. Se pide aparte de la ficha porque son
+  // dos preguntas distintas —quién es el paciente y qué le pasó— y la
+  // ficha tiene que poder dibujarse aunque el expediente tarde.
+  const [expediente, setExpediente] = useState<EncabezadoExpediente | null>(null);
 
   const cargar = useCallback(() => {
     if (!id) return;
     setIsLoading(true);
     setError(null);
     Promise.all([pacientesApi.obtener(id), pacientesApi.cronologia(id)])
-      .then(([fichaData, cronoData]) => {
+      .then(([fichaData]) => {
+        // La cronología que esta pantalla pedía aparte la trae ahora la
+        // línea de tiempo del expediente, con filtros y búsqueda. Se
+        // sigue pidiendo `cronologia` en el Promise.all porque es el
+        // endpoint que valida que el paciente es de esta clínica y
+        // porque sus datos siguen siendo los de la ficha del prompt 01.
         setFicha(fichaData);
-        setEventos(cronoData.eventos);
       })
+      .then(() =>
+        expedienteApi
+          .encabezado(id)
+          .then(setExpediente)
+          // Si el expediente falla, la ficha se muestra igual: lo que
+          // no se puede es que un error en las alertas deje al médico
+          // sin los datos del paciente.
+          .catch(() => setExpediente(null))
+      )
       .catch((err) => setError(err.message))
       .finally(() => setIsLoading(false));
   }, [id]);
@@ -121,12 +116,23 @@ export function FichaPaciente() {
         ← Pacientes
       </Link>
 
-      {/* La alerta de manejo va ANTES de todo lo demás: su razón de ser es
-          que se lea antes de tocar al animal. */}
-      {p.alerta_manejo && (
-        <p className="mt-4 rounded-lg bg-warning/20 px-4 py-3 text-sm font-semibold text-text-primary">
-          Alerta de manejo: {p.alerta_manejo}
-        </p>
+      {/* LA FRANJA DE ALERTAS va antes de todo lo demás: su razón de ser
+          es que se lea antes de tocar al animal (prompt 07 §2).
+          Reemplaza a la línea suelta de "alerta de manejo" que había
+          acá: la franja ya la incluye, junto con las alergias, los
+          preventivos vencidos, los hallazgos del groomer y los
+          resultados de laboratorio sin revisar. Mostrar las dos cosas
+          sería decir dos veces lo mismo.
+          Si el expediente no cargó, se cae a la línea de antes: es
+          mejor una alerta sola que ninguna. */}
+      {expediente ? (
+        <FranjaAlertas alertas={expediente.alertas} />
+      ) : (
+        p.alerta_manejo && (
+          <p className="mt-4 rounded-lg bg-warning/20 px-4 py-3 text-sm font-semibold text-text-primary">
+            Alerta de manejo: {p.alerta_manejo}
+          </p>
+        )
       )}
 
       <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
@@ -198,110 +204,43 @@ export function FichaPaciente() {
         </Card>
       </div>
 
-      <div className="mt-6 space-y-4">
-        <CollapsibleSection titulo="Cronología">
-          {eventos.length === 0 ? (
-            <EmptyState
-              icono="hora"
-              titulo="Todavía no hay nada registrado"
-              texto="Las atenciones, los casos, las vacunas, las desparasitaciones y las recetas emitidas de este paciente van a aparecer acá, en una sola línea de tiempo."
-            />
-          ) : (
-            <ol className="space-y-3">
-              {eventos.map((e) => (
-                <li
-                  key={`${e.tipo}-${e.referencia_id}`}
-                  className="flex flex-wrap items-start gap-3 border-b border-black/5 pb-3 last:border-0 last:pb-0"
-                >
-                  <span className="w-28 flex-shrink-0 font-mono text-xs text-text-muted">
-                    {formatearFechaCorta(e.fecha, zonaHoraria)}
-                  </span>
-                  <Badge variant={VARIANTE_TIPO_EVENTO[e.tipo]}>{ETIQUETA_TIPO_EVENTO[e.tipo]}</Badge>
-                  <div className="min-w-[200px] flex-1">
-                    <p className="text-sm font-semibold text-text-primary">
-                      {e.caso_id && esAdminClinica ? (
-                        <Link to={`/admin/casos/${e.caso_id}`} className="hover:underline">
-                          {e.titulo}
-                        </Link>
-                      ) : (
-                        e.titulo
-                      )}
-                    </p>
-                    {e.detalle && <p className="text-sm text-text-muted">{e.detalle}</p>}
-                    {e.medico_nombre && <p className="text-xs text-text-muted">{e.medico_nombre}</p>}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          )}
-        </CollapsibleSection>
+      {/* EL INDICADOR DE COMPLETITUD y LAS PESTAÑAS del expediente
+          (prompt 07, §2 y §3).
 
-        <CollapsibleSection titulo={`Cuidados preventivos (${ficha.cuidadosPreventivos.length})`} defaultAbierto={false}>
-          {ficha.cuidadosPreventivos.length === 0 ? (
-            <p className="text-sm text-text-muted">No hay vacunas ni desparasitaciones registradas.</p>
-          ) : (
-            <ul className="space-y-2">
-              {ficha.cuidadosPreventivos.map((c) => (
-                <li key={c.id} className="text-sm text-text-primary">
-                  <span className="font-semibold">
-                    {c.tipo === "vacunacion" ? c.vacuna : `Desparasitación ${c.subtipo_desparasitacion ?? ""}`}
-                  </span>{" "}
-                  <span className="text-text-muted">
-                    · aplicada {formatearFechaCorta(c.fecha_aplicacion, zonaHoraria)} · próxima{" "}
-                    {formatearFechaCorta(c.fecha_proxima_recomendada, zonaHoraria)} · {c.registrado_por_nombre}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          Las pestañas REEMPLAZAN a las cuatro secciones colapsables que
+          había acá (Cronología, Cuidados preventivos, Casos y Recetas):
+          mostraban lo mismo que ahora muestran la línea de tiempo y sus
+          pestañas por tipo, pero sin filtros, sin búsqueda y sin
+          laboratorio, grooming ni consentimientos. Dejar las dos cosas
+          sería dos vistas de la misma historia, que es justo lo que la
+          guía rectora no quiere. Lo único que esas secciones tenían y
+          las pestañas no —el enlace al detalle del caso— se conservó en
+          la línea de tiempo. */}
+      {expediente && (
+        <>
+          {expediente.completitud.faltan.length > 0 && (
+            <div className="mt-6 rounded-xl border border-black/5 bg-surface p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-text-primary">
+                  Expediente completo al {expediente.completitud.porcentaje}%
+                </p>
+                <Button variant="secondary" onClick={() => setEditando(true)}>
+                  Completar la ficha
+                </Button>
+              </div>
+              <p className="mt-1 text-sm text-text-muted">
+                Faltan: {expediente.completitud.faltan.join(", ")}.
+              </p>
+            </div>
           )}
-        </CollapsibleSection>
 
-        <CollapsibleSection titulo={`Casos (${ficha.casos.length})`} defaultAbierto={false}>
-          {ficha.casos.length === 0 ? (
-            <p className="text-sm text-text-muted">Este paciente todavía no tiene casos clínicos.</p>
-          ) : (
-            <ul className="space-y-2">
-              {ficha.casos.map((c) => (
-                <li key={c.id} className="text-sm">
-                  {esAdminClinica ? (
-                    <Link to={`/admin/casos/${c.id}`} className="font-semibold text-primary hover:underline">
-                      Caso N.º {c.numero_expediente}
-                    </Link>
-                  ) : (
-                    <span className="font-semibold text-text-primary">Caso N.º {c.numero_expediente}</span>
-                  )}{" "}
-                  <span className="text-text-muted">
-                    · {c.agente_nombre} · {c.motivo}
-                    {c.cerrado_en
-                      ? ` · cerrado ${formatearFechaCorta(c.cerrado_en, zonaHoraria)}${
-                          c.diagnostico_final ? `: ${c.diagnostico_final}` : ""
-                        }${c.desenlace ? ` (${c.desenlace})` : ""}`
-                      : ` · ${c.estado}`}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CollapsibleSection>
-
-        <CollapsibleSection titulo={`Recetas emitidas (${ficha.recetas.length})`} defaultAbierto={false}>
-          {ficha.recetas.length === 0 ? (
-            <p className="text-sm text-text-muted">No hay recetas emitidas para este paciente.</p>
-          ) : (
-            <ul className="space-y-2">
-              {ficha.recetas.map((r) => (
-                <li key={r.id} className="text-sm text-text-primary">
-                  <span className="font-semibold">{formatearFechaCorta(r.emitido_en, zonaHoraria)}</span>{" "}
-                  <span className="text-text-muted">
-                    · {r.medicamentos ?? "sin items"} · {r.medico_nombre} ·{" "}
-                    {r.con_visita ? "con visita" : "sin visita"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CollapsibleSection>
-      </div>
+          <PestanasExpediente
+            pacienteId={id!}
+            encabezado={expediente}
+            onCambio={cargar}
+          />
+        </>
+      )}
 
       {editando && (
         <EditarPacienteModal

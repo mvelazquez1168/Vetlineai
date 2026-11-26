@@ -248,6 +248,15 @@ export const expedienteApi = {
     }>(`/expediente/pacientes/${pacienteId}/consentimientos`),
   firmarConsentimiento: (pacienteId: string, d: Record<string, unknown>) =>
     json<{ id: string }>(`/expediente/pacientes/${pacienteId}/consentimientos`, "POST", d),
+
+  // --- Anexo del 07 -------------------------------------------------
+
+  /** Peso, temperatura y condición corporal por visita (A1). */
+  tendenciaSignos: (pacienteId: string) =>
+    pedir<{ tendencias: TendenciaSigno[] }>(`/expediente/pacientes/${pacienteId}/tendencia-signos`),
+
+  /** Quién está en la clínica ahora (A2). No es del paciente: es de la clínica. */
+  enLaClinica: () => pedir<{ pacientes: PacienteEnLaClinica[] }>("/expediente/en-la-clinica"),
 };
 
 // ---------------------------------------------------------------------
@@ -286,6 +295,39 @@ export interface AtencionDetalle {
   diagnosticos: DiagnosticoAtencion[];
   items: ItemAtencion[];
   total: number;
+}
+
+
+/** Anexo del 07, A1 — la serie de un signo a lo largo de las visitas. */
+export interface TendenciaSigno {
+  signo: "peso" | "temperatura" | "condicion_corporal";
+  etiqueta: string;
+  unidad: string;
+  puntos: Array<{ fecha: string; valor: number }>;
+}
+
+/** Anexo del 07, A1 — el examen ordenado para leerlo. */
+export interface ResumenExamen {
+  anormales: Array<{ sistema: string; hallazgo: string | null }>;
+  normales: string[];
+  noEvaluados: string[];
+  textoCorrido: string;
+  sinExaminar: boolean;
+}
+
+/** Anexo del 07, A2 — quién está adentro ahora. */
+export interface PacienteEnLaClinica {
+  atencionId: string;
+  pacienteId: string;
+  paciente: string;
+  especie: string | null;
+  propietario: string;
+  medico: string | null;
+  ingresoEn: string;
+  minutosAdentro: number;
+  esEstancia: boolean;
+  estanciaMotivo: string | null;
+  estadoAtencion: string;
 }
 
 export const atencionApi = {
@@ -475,6 +517,20 @@ export const atencionApi = {
       "POST",
       d
     ),
+
+  // --- Anexo del 07, A1 y A2 ----------------------------------------
+
+  /** El examen ordenado: primero lo anormal. */
+  examen: (atencionId: string) => pedir<ResumenExamen>(`/expediente/atenciones/${atencionId}/examen`),
+
+  registrarSalida: (atencionId: string) =>
+    json<{ salidaEn: string }>(`/expediente/atenciones/${atencionId}/salida`, "POST", {}),
+
+  deshacerSalida: (atencionId: string) =>
+    pedir<{ ok: true }>(`/expediente/atenciones/${atencionId}/salida`, { method: "DELETE" }),
+
+  marcarEstancia: (atencionId: string, esEstancia: boolean, motivo?: string | null) =>
+    json<{ ok: true }>(`/expediente/atenciones/${atencionId}/estancia`, "PUT", { esEstancia, motivo }),
 };
 
 // --- Tipos del prompt 07c ---------------------------------------------

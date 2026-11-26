@@ -36,6 +36,8 @@ import {
   prepararConsentimiento,
   sembrarPlantillasBase,
 } from "../expediente/consentimientos";
+import { enLaClinicaAhora, deshacerSalida, marcarEstancia, registrarSalida } from "../expediente/estancia";
+import { resumenDelExamen, tendenciaDeSignos } from "../expediente/examen";
 import {
   abrirAtencion,
   agregarDiagnostico,
@@ -870,6 +872,80 @@ expedienteRouter.get("/pacientes/:id/avisos-receta", async (req, res) => {
     res.json({ avisos: await avisosAlRecetar(req.db!, req.params.id, presentacionId) });
   } catch (err) {
     fallo(res, err, "GET /expediente/pacientes/:id/avisos-receta");
+  }
+});
+
+
+// =====================================================================
+// EL EXAMEN QUE SE LEE Y LAS TENDENCIAS — anexo del 07, A1
+// =====================================================================
+
+/** El examen ordenado: primero lo anormal, después el resto. */
+expedienteRouter.get("/atenciones/:id/examen", async (req, res) => {
+  try {
+    res.json(await resumenDelExamen(req.db!, req.params.id));
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id/examen");
+  }
+});
+
+/**
+ * Peso, temperatura y condición corporal a lo largo de las visitas.
+ *
+ * No es soloMedico: la recepción ve la ficha, y el peso de un paciente
+ * no es información que haya que esconderle a quien lo pesa.
+ */
+expedienteRouter.get("/pacientes/:id/tendencia-signos", async (req, res) => {
+  try {
+    res.json({ tendencias: await tendenciaDeSignos(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/tendencia-signos");
+  }
+});
+
+// =====================================================================
+// INGRESO, SALIDA Y ESTANCIA — anexo del 07, A2
+// =====================================================================
+
+/**
+ * Quién está en la clínica ahora.
+ *
+ * NO es soloMedico, y es el punto: la pregunta la hace la recepción.
+ */
+expedienteRouter.get("/en-la-clinica", async (req, res) => {
+  try {
+    res.json({ pacientes: await enLaClinicaAhora(req.db!) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/en-la-clinica");
+  }
+});
+
+/** Marcar la salida del paciente. La registra quien lo ve irse. */
+expedienteRouter.post("/atenciones/:id/salida", async (req, res) => {
+  try {
+    res.json(await registrarSalida(req.db!, req.params.id, req.body?.cuando ?? null));
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/salida");
+  }
+});
+
+/** Deshacerla: alguien la marcó y el paciente seguía adentro. */
+expedienteRouter.delete("/atenciones/:id/salida", async (req, res) => {
+  try {
+    await deshacerSalida(req.db!, req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "DELETE /expediente/atenciones/:id/salida");
+  }
+});
+
+/** El paciente se queda: observación, preparación quirúrgica, grooming. */
+expedienteRouter.put("/atenciones/:id/estancia", soloMedico, async (req, res) => {
+  try {
+    await marcarEstancia(req.db!, req.params.id, Boolean(req.body?.esEstancia), req.body?.motivo);
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "PUT /expediente/atenciones/:id/estancia");
   }
 });
 

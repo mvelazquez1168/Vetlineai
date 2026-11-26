@@ -454,6 +454,16 @@ citasRouter.patch("/:id/estado", async (req, res) => {
        SET estado = $1,
            motivo_cancelacion = CASE WHEN $1::varchar = 'cancelada' THEN $2 ELSE motivo_cancelacion END,
            caso_id = COALESCE($3, caso_id),
+           -- LA HORA DE LLEGADA SE SELLA UNA VEZ (anexo del 07, A2).
+           -- COALESCE y no asignacion directa: si la cita vuelve a pasar
+           -- por 'registrada', el paciente no llegó dos veces. Tambien se
+           -- sella al pasar a 'en_consulta' sin haber pasado por
+           -- 'registrada' —el paciente que entra directo al consultorio—,
+           -- porque ésa también es su llegada.
+           check_in_en = CASE
+             WHEN $1::varchar IN ('registrada', 'en_consulta') THEN COALESCE(check_in_en, now())
+             ELSE check_in_en
+           END,
            actualizado_en = now()
        WHERE id = $4
        RETURNING *`,

@@ -30,6 +30,7 @@ import {
   ResumenDelCierre,
 } from "./AccionesClinicas";
 import { DictadoConsulta } from "./DictadoConsulta";
+import { IngresoYSalida } from "./IngresoYSalida";
 
 // ---------------------------------------------------------------------
 // LA ATENCIÓN EN EL EXPEDIENTE — sección 9 del prompt 07.
@@ -543,6 +544,22 @@ export function AtencionActual({
               {cerrada && <Badge variant="success">Firmada</Badge>}
             </div>
           </div>
+
+          {/* INGRESO, SALIDA Y ESTANCIA (anexo del 07, A2). Va en la
+              cabecera de la atencion y no en una pestaña aparte: es el
+              dato de ESTA visita, y quien lo mira es el mismo que mira
+              si ya esta firmada. */}
+          {atencionId && (
+            <IngresoYSalida
+              atencionId={atencionId}
+              ingresoEn={(a?.ingreso_en as string | null) ?? null}
+              salidaEn={(a?.salida_en as string | null) ?? null}
+              esEstancia={Boolean(a?.es_estancia)}
+              estanciaMotivo={(a?.estancia_motivo as string | null) ?? null}
+              esMedico={esMedico}
+              onCambio={() => void cargar(atencionId)}
+            />
+          )}
         </Card>
 
         {/* EL DICTADO VA PRIMERO, antes de los campos: el flujo del

@@ -12,6 +12,7 @@ import {
 } from "../../components/ui";
 import { FranjaAlertas } from "../../components/expediente/FranjaAlertas";
 import { PestanasExpediente } from "../../components/expediente/PestanasExpediente";
+import { TendenciaSignos } from "../../components/expediente/TendenciaSignos";
 import { useAuth } from "../../hooks/useAuth";
 import { EncabezadoExpediente, expedienteApi } from "../../lib/expedienteApi";
 import { formatearFechaCorta } from "../../lib/formatFecha";
@@ -287,6 +288,13 @@ export function FichaPaciente() {
               </p>
             </div>
           )}
+
+          {/* Las tendencias de los signos van ANTES de las pestañas, con
+              el resto de la cabecera: son del paciente, no de una
+              visita (anexo del 07, A1). */}
+          <div className="mt-4">
+            <TendenciaSignos pacienteId={id!} />
+          </div>
 
           <PestanasExpediente
             pacienteId={id!}

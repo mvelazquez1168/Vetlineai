@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { sellarIngreso } from "./estancia";
 import { registrarInteraccion } from "../crm/interacciones";
 import { TRANSICIONES_VALIDAS, crearCita } from "../routes/citas.routes";
 import { precioVigente } from "../inventario/precios";
@@ -142,6 +143,12 @@ export async function abrirAtencion(
   if (datos.tipoConsulta) {
     await aplicarPlantilla(db, tenantId, creada.rows[0].id, datos.tipoConsulta);
   }
+
+  // La hora de ingreso del paciente, del check-in de la cita si pasó por
+  // recepción (anexo del 07, A2). Acá y no en la pantalla: abrir la
+  // atención ES el momento, y dejarlo al cliente sería una hora de
+  // llegada con el reloj de la computadora del consultorio.
+  await sellarIngreso(db, creada.rows[0].id, citaId!);
 
   return {
     id: creada.rows[0].id,

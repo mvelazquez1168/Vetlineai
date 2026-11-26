@@ -4,6 +4,12 @@ import { strToU8, zipSync } from "fflate";
 // ---------------------------------------------------------------------
 // EXPORTACIÓN DE UNA TABLA A EXCEL Y A PDF.
 //
+// Vivía en `inventario/` porque ahí nació (el kardex). Se mudó a su
+// propio módulo cuando los reportes de CAJA necesitaron exactamente lo
+// mismo: dejarlo donde estaba habría hecho que ventas importara de
+// inventario para exportar una tabla de cobros, y el próximo módulo
+// habría copiado el archivo.
+//
 // Una sola definición de "tabla exportable" —columnas con su tipo y
 // filas— y dos escritores. El motivo de que sea genérico y no "exportar
 // el kardex" es que las otras tablas del módulo (existencias

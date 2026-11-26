@@ -60,7 +60,19 @@ import { workspaceRouter } from "./routes/workspace.routes";
 
 const app = express();
 
-app.use(cors({ origin: config.corsOrigin, credentials: true }));
+// `exposedHeaders` con Content-Disposition: sin eso el navegador NO le
+// deja leer esa cabecera al JavaScript que pide la descarga, y todo
+// archivo exportado se guarda con un nombre genérico ("reporte.xlsx")
+// en vez del que mandó el backend. Se vio al verificar la exportación de
+// reportes en el navegador, y afectaba también a las exportaciones del
+// inventario que ya estaban entregadas.
+app.use(
+  cors({
+    origin: config.corsOrigin,
+    credentials: true,
+    exposedHeaders: ["Content-Disposition"],
+  })
+);
 
 // El webhook de Stripe va ANTES de express.json(): necesita el body crudo
 // para verificar la firma (ver nota en webhooks.routes.ts). Cualquier ruta

@@ -21,7 +21,7 @@ import {
   aExcel,
   aPdf,
   nombreDeArchivo,
-} from "../inventario/exportacion";
+} from "../exportacion/tabla";
 import {
   crearOrden,
   devolverAProveedor,

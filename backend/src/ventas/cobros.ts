@@ -55,6 +55,17 @@ export interface SolicitudCobro {
   eleccionReceptor?: EleccionReceptor;
   /** `01` factura (exige receptor identificado) o `04` tiquete. */
   tipoComprobante?: "01" | "04";
+  /**
+   * LA MONEDA DEL COMPROBANTE. Por defecto colones, "salvo que el
+   * cliente pida factura en dólares" (prompt 08, §3).
+   *
+   * Es independiente de la moneda con la que PAGA: se puede pagar en
+   * colones una factura en dólares y al revés. Los montos del
+   * comprobante se convierten con el tipo de cambio del día, el mismo
+   * que usa el arqueo, y ese tipo queda guardado en el comprobante —
+   * Hacienda lo exige y además es lo que hace la factura reconstruible.
+   */
+  monedaComprobante?: string;
   /** Para una venta a crédito: condición 02 o 10, con su plazo. */
   condicionVenta?: string;
   plazoCreditoDias?: number;
@@ -223,8 +234,36 @@ export async function cobrar(
           "cargale la identificación, o emití un tiquete."
       );
     }
+    // El tipo de cambio del comprobante se resuelve ANTES de armarlo:
+    // si la clínica no lo cargó hoy, se dice en vez de emitir una
+    // factura en dólares con un tipo inventado.
+    const monedaDoc = (s.monedaComprobante ?? "CRC").toUpperCase();
+    let tipoCambioDoc = 1;
+    if (monedaDoc !== "CRC") {
+      tipoCambioDoc = await tipoDeCambioDelDia(db, tenantId, monedaDoc);
+    }
+
+    // LOS MONTOS DEL COMPROBANTE VAN EN SU MONEDA. Hacienda lee los
+    // importes del XML en la moneda declarada y usa `TipoCambio` para
+    // llevarlos a colones; poner el precio en colones con
+    // CodigoMoneda=USD facturaría 520 veces el valor. Los cargos de la
+    // cuenta están en colones, así que se dividen.
+    const lineasEnMoneda =
+      tipoCambioDoc === 1
+        ? lineas
+        : lineas.map((l) => ({
+            ...l,
+            precioUnitario: Math.round((Number(l.precioUnitario) / tipoCambioDoc) * 100000) / 100000,
+            descuentos: l.descuentos?.map((d) => ({
+              ...d,
+              monto: Math.round((Number(d.monto) / tipoCambioDoc) * 100000) / 100000,
+            })),
+          }));
+
     const documento: DocumentoVenta = {
       tipoComprobante: tipo,
+      moneda: monedaDoc,
+      tipoCambio: tipoCambioDoc,
       condicionVenta: s.condicionVenta ?? "01",
       plazoCreditoDias: esCredito ? s.plazoCreditoDias : undefined,
       receptor: receptorFinal,
@@ -240,7 +279,7 @@ export async function cobrar(
       receptorPropietarioId: deudor?.tipo === "cliente" ? deudor.id : undefined,
       receptorPerfilId: resuelto?.perfilId,
       observaciones: s.observaciones,
-      lineas,
+      lineas: lineasEnMoneda,
       // Los medios que van al XML son los FISCALES. El anticipo y el
       // crédito no son medios de pago de Hacienda.
       //
@@ -261,7 +300,16 @@ export async function cobrar(
             monto = Math.round((monto - quita) * 100) / 100;
             porDescontar = Math.round((porDescontar - quita) * 100) / 100;
           }
-          return { codigo: m.medio, monto };
+          // En la moneda del COMPROBANTE: Hacienda valida que los
+          // medios sumen su total, y ese total está en dólares cuando
+          // la factura es en dólares.
+          return {
+            codigo: m.medio,
+            monto:
+              tipoCambioDoc === 1
+                ? monto
+                : Math.round((monto / tipoCambioDoc) * 100000) / 100000,
+          };
         });
 
         // Un medio que quedó en cero tras el vuelto no se declara: el
@@ -335,6 +383,7 @@ export async function datosDeTiquete(db: PoolClient, cobroId: string) {
             caja.nombre AS caja,
             cmp.clave, cmp.consecutivo, cmp.tipo_comprobante, cmp.estado AS estado_comprobante,
             cmp.total_impuesto, cmp.total_venta_neta, cmp.total_descuentos,
+            cmp.total_comprobante, cmp.moneda AS moneda_comprobante, cmp.tipo_cambio,
             t.nombre AS clinica, t.logo_url,
             e.nombre AS emisor_nombre, e.numero_identificacion AS emisor_identificacion,
             e.ubicacion_otras_senas, e.telefono_numero, e.correo AS emisor_correo
@@ -370,5 +419,26 @@ export async function datosDeTiquete(db: PoolClient, cobroId: string) {
       )
     : { rows: [] };
 
-  return { cobro: c.rows[0], medios: medios.rows, lineas: lineas.rows };
+  // EL TIQUETE TÉRMICO HABLA EN COLONES, porque es el documento de la
+  // caja: las líneas salen de los cargos (colones) y el total, de lo que
+  // se cobró (colones). Pero el neto, el impuesto y los descuentos salen
+  // del COMPROBANTE, y el comprobante puede estar emitido en dólares.
+  //
+  // Con una factura en dólares eso daba un tiquete que decía
+  // «Venta neta ₡0,48 · Impuesto ₡0,06 · TOTAL ₡282,50»: los dos
+  // primeros eran dólares con el signo de colón. Se vio en el navegador,
+  // no en la API. Acá se llevan a colones con el tipo de cambio del
+  // propio comprobante, y la moneda de emisión se informa aparte.
+  const cobro = c.rows[0];
+  const tc = Number(cobro.tipo_cambio ?? 1) || 1;
+  if (cobro.moneda_comprobante && cobro.moneda_comprobante !== "CRC") {
+    for (const columna of ["total_venta_neta", "total_impuesto", "total_descuentos"]) {
+      const valor = cobro[columna];
+      if (valor !== null && valor !== undefined) {
+        cobro[columna] = Math.round(Number(valor) * tc * 100) / 100;
+      }
+    }
+  }
+
+  return { cobro, medios: medios.rows, lineas: lineas.rows };
 }

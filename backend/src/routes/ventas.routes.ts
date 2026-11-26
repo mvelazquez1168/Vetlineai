@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { aExcel, aPdf, nombreDeArchivo } from "../exportacion/tabla";
+import { esReporteConocido, reporteDeVentas } from "../ventas/reportes";
 import { requiereModulo } from "../tenantModulos";
 import {
   abrirSesion,
@@ -601,11 +603,15 @@ ventasRouter.put("/parametros", permisoConfig, async (req, res) => {
 });
 
 /**
- * Los cuatro reportes del prompt, en un endpoint con un parámetro.
+ * LOS CINCO REPORTES, en un endpoint con un parámetro.
  *
- * Uno y no cuatro porque los cuatro son la misma forma —agrupar los
- * cobros de un período por una dimensión— y cuatro endpoints serían
- * cuatro filtros de fecha que se implementan distinto.
+ * Uno y no cinco porque los cinco son la misma forma —agrupar lo cobrado
+ * de un período por una dimensión— y cinco endpoints serían cinco
+ * filtros de fecha implementados distinto.
+ *
+ * El cálculo NO vive acá: vive en `ventas/reportes.ts`, porque lo piden
+ * dos caminos —esta pantalla y la exportación— y una consulta escrita
+ * dos veces es un reporte que un día dice dos cosas distintas.
  */
 ventasRouter.get("/reportes/:cual", async (req, res) => {
   const desde = String(req.query.desde ?? "");
@@ -613,98 +619,60 @@ ventasRouter.get("/reportes/:cual", async (req, res) => {
   if (!desde || !hasta) {
     return res.status(400).json({ error: "El reporte se pide para un período: desde y hasta." });
   }
-  const rango = [desde, hasta];
-
+  if (!esReporteConocido(req.params.cual)) {
+    return res.status(404).json({ error: "Ese reporte no existe." });
+  }
   try {
-    switch (req.params.cual) {
-      case "ventas": {
-        const r = await req.db!.query(
-          `SELECT p.nombre AS cajero, caja.nombre AS caja, cm.medio,
-                  mp.nombre AS medio_nombre,
-                  count(DISTINCT co.id)::int AS cobros,
-                  sum(cm.monto_crc)::text AS total
-             FROM vta_cobros co
-             JOIN vta_cobro_medios cm ON cm.cobro_id = co.id
-             JOIN vta_sesiones_caja s ON s.id = co.sesion_id
-             JOIN vta_cajas caja ON caja.id = s.caja_id
-             LEFT JOIN personas p ON p.id = co.cobrado_por
-             LEFT JOIN fact_cat_medio_pago mp ON mp.codigo = cm.medio
-            WHERE co.estado = 'aplicado'
-              AND co.creado_en >= $1::date AND co.creado_en < ($2::date + interval '1 day')
-            GROUP BY p.nombre, caja.nombre, cm.medio, mp.nombre
-            ORDER BY caja.nombre, p.nombre`,
-          rango
-        );
-        return res.json({ filas: r.rows });
-      }
-      case "lineas-negocio": {
-        const r = await req.db!.query(
-          `SELECT COALESCE(ln.nombre, 'Sin línea') AS linea,
-                  sum(g.cantidad * g.precio_unitario - g.descuento)::text AS neto,
-                  count(*)::int AS lineas
-             FROM vta_cargos g
-             JOIN vta_cuentas cu ON cu.id = g.cuenta_id
-             LEFT JOIN lineas_negocio ln ON ln.codigo = g.linea_negocio
-            WHERE g.anulado_en IS NULL AND cu.estado = 'cobrada'
-              AND g.creado_en >= $1::date AND g.creado_en < ($2::date + interval '1 day')
-            GROUP BY ln.nombre ORDER BY 2 DESC`,
-          rango
-        );
-        return res.json({ filas: r.rows });
-      }
-      case "arqueos": {
-        const r = await req.db!.query(
-          `SELECT s.id, c.nombre AS caja, p.nombre AS cajero, s.cerrada_en,
-                  sum(al.diferencia)::text AS diferencia_total,
-                  count(*) FILTER (WHERE al.diferencia <> 0)::int AS medios_con_diferencia
-             FROM vta_sesiones_caja s
-             JOIN vta_cajas c ON c.id = s.caja_id
-             LEFT JOIN personas p ON p.id = s.cerrada_por
-             LEFT JOIN vta_arqueo_lineas al ON al.sesion_id = s.id
-            WHERE s.estado = 'cerrada'
-              AND s.cerrada_en >= $1::date AND s.cerrada_en < ($2::date + interval '1 day')
-            GROUP BY s.id, c.nombre, p.nombre ORDER BY s.cerrada_en DESC`,
-          rango
-        );
-        return res.json({ filas: r.rows });
-      }
-      case "aprobaciones": {
-        const r = await req.db!.query(
-          `SELECT a.tipo, a.estado, a.monto, a.motivo, a.solicitada_en, a.resuelta_en,
-                  ps.nombre AS solicitada_por, pr.nombre AS resuelta_por
-             FROM vta_aprobaciones a
-             LEFT JOIN personas ps ON ps.id = a.solicitada_por
-             LEFT JOIN personas pr ON pr.id = a.resuelta_por
-            WHERE a.solicitada_en >= $1::date AND a.solicitada_en < ($2::date + interval '1 day')
-            ORDER BY a.solicitada_en DESC`,
-          rango
-        );
-        return res.json({ filas: r.rows });
-      }
-      case "por-cobrar": {
-        const r = await req.db!.query(
-          `SELECT p.id AS propietario_id, p.nombre AS cliente,
-                  sum(f.total_comprobante
-                      - COALESCE((SELECT sum(aa.monto) FROM vta_abono_aplicaciones aa
-                                   WHERE aa.comprobante_id = f.id), 0))::text AS pendiente,
-                  min(f.fecha_emision)::date AS mas_antigua,
-                  max(CURRENT_DATE - f.fecha_emision::date)::int AS antiguedad_max_dias
-             FROM fact_comprobantes f
-             JOIN propietarios p ON p.id = f.receptor_propietario_id
-            WHERE f.tipo_comprobante = '01' AND f.condicion_venta IN ('02','10')
-              AND f.estado IN ('aceptado','aceptado_parcial','enviado','en_cola')
-            GROUP BY p.id, p.nombre
-           HAVING sum(f.total_comprobante
-                      - COALESCE((SELECT sum(aa.monto) FROM vta_abono_aplicaciones aa
-                                   WHERE aa.comprobante_id = f.id), 0)) > 0
-            ORDER BY 3 DESC`
-        );
-        return res.json({ filas: r.rows });
-      }
-      default:
-        return res.status(404).json({ error: "Ese reporte no existe." });
-    }
+    res.json(await reporteDeVentas(req.db!, req.params.cual, desde, hasta));
   } catch (err) {
     fallo(res, err, `GET /ventas/reportes/${req.params.cual}`);
+  }
+});
+
+/**
+ * El mismo reporte, como archivo.
+ *
+ * Se arma EN EL BACKEND y con los mismos filtros que la pantalla: un
+ * Excel armado en el navegador con las filas que alcanzó a traer la
+ * tabla es un archivo que no coincide con el reporte.
+ */
+ventasRouter.get("/reportes/:cual/exportar", async (req, res) => {
+  const desde = String(req.query.desde ?? "");
+  const hasta = String(req.query.hasta ?? "");
+  const formato = String(req.query.formato ?? "excel");
+  if (!desde || !hasta) {
+    return res.status(400).json({ error: "El reporte se pide para un período: desde y hasta." });
+  }
+  if (!esReporteConocido(req.params.cual)) {
+    return res.status(404).json({ error: "Ese reporte no existe." });
+  }
+  if (formato !== "excel" && formato !== "pdf") {
+    return res.status(400).json({ error: "Formato: excel o pdf." });
+  }
+  try {
+    const r = await reporteDeVentas(req.db!, req.params.cual, desde, hasta);
+    const tabla = {
+      titulo: r.titulo,
+      // El período va en el archivo: un reporte sin su período es un
+      // número que nadie puede volver a reproducir. Si el reporte lo
+      // ignora, el archivo lo dice.
+      subtitulo: r.ignoraPeriodo
+        ? "Saldos al día de hoy (este reporte no depende del período)"
+        : `Del ${desde} al ${hasta}`,
+      columnas: r.columnas,
+      filas: r.filas,
+    };
+    const nombre = nombreDeArchivo(r.titulo, formato === "excel" ? "xlsx" : "pdf");
+    const cuerpo = formato === "excel" ? aExcel(tabla) : await aPdf(tabla);
+    res.setHeader(
+      "Content-Type",
+      formato === "excel"
+        ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        : "application/pdf"
+    );
+    res.setHeader("Content-Disposition", `attachment; filename="${nombre}"`);
+    res.send(cuerpo);
+  } catch (err) {
+    fallo(res, err, `GET /ventas/reportes/${req.params.cual}/exportar`);
   }
 });

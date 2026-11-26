@@ -1,5 +1,5 @@
 import { getStoredToken } from "../hooks/useAuth";
-import { apiFetch } from "./api";
+import { apiFetch, apiFetchFile } from "./api";
 
 // ---------------------------------------------------------------------
 // Cliente de la API del módulo `ventas`.
@@ -275,10 +275,30 @@ export const ventasApi = {
   guardarParametros: (d: Record<string, unknown>) =>
     json<{ ok: true }>("/ventas/parametros", "PUT", d),
 
-  reporte: (cual: string, desde: string, hasta: string) =>
-    pedir<{ filas: Array<Record<string, string | number | null>> }>(
-      `/ventas/reportes/${cual}?desde=${desde}&hasta=${hasta}`
+  /**
+   * La exportación del reporte sale del BACKEND con el mismo cálculo que
+   * la pantalla, y se trae como blob autenticado: un <a href> no puede
+   * mandar el header Authorization.
+   */
+  exportarReporte: (cual: string, desde: string, hasta: string, formato: "excel" | "pdf") =>
+    apiFetchFile(
+      `/ventas/reportes/${cual}/exportar?desde=${desde}&hasta=${hasta}&formato=${formato}`,
+      { token: getStoredToken() }
     ),
+
+  reporte: (cual: string, desde: string, hasta: string) =>
+    pedir<{
+      titulo: string;
+      // El backend declara las columnas al lado de su consulta, y la
+      // exportación usa las mismas: una sola lista para los dos caminos.
+      columnas: Array<{
+        clave: string;
+        titulo: string;
+        tipo?: "texto" | "numero" | "dinero" | "fecha";
+      }>;
+      filas: Array<Record<string, string | number | null>>;
+      ignoraPeriodo?: boolean;
+    }>(`/ventas/reportes/${cual}?desde=${desde}&hasta=${hasta}`),
 };
 
 export function formatearMonto(valor: string | number, moneda = "CRC"): string {

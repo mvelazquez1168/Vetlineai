@@ -183,6 +183,18 @@ export function TiqueteTermico() {
             <p className="text-center text-[10px]">Comprobante electrónico</p>
             <p className="text-center text-[10px]">{String(c.consecutivo)}</p>
             <p className="break-all text-center text-[9px]">{String(c.clave)}</p>
+            {/* LA MONEDA DE EMISIÓN, cuando no es la de la caja. El
+                tiquete está todo en colones —es lo que entró al cajón—,
+                pero el comprobante puede estar emitido en dólares, y el
+                cliente que lo va a consultar en el portal de Hacienda
+                tiene que poder reconocer el monto que va a ver ahí. */}
+            {c.moneda_comprobante && String(c.moneda_comprobante) !== "CRC" && (
+              <p className="mt-1 text-center text-[9px]">
+                Emitido en {String(c.moneda_comprobante)} por{" "}
+                {formatearMonto(String(c.total_comprobante), String(c.moneda_comprobante))} · tipo
+                de cambio {formatearMonto(String(c.tipo_cambio))}
+              </p>
+            )}
             <p className="mt-1 text-center text-[9px]">
               {String(c.estado_comprobante) === "aceptado"
                 ? "Aceptado por Hacienda"

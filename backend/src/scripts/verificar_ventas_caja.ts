@@ -33,6 +33,9 @@ import {
   saldoAFavor,
 } from "../ventas/credito";
 import { resolverAprobacion, solicitarAprobacion } from "../ventas/aprobaciones";
+import { aExcel, aPdf } from "../exportacion/tabla";
+import { reporteDeVentas } from "../ventas/reportes";
+import { crearPerfil } from "../facturacion/perfilesFacturacion";
 import {
   cancelar,
   crearEncargo,
@@ -1174,6 +1177,291 @@ async function main() {
   await conAlcanceTenant(tenantId, (db) =>
     cerrarSesion(db, tenantId, sesionEnc.id, { lineas: lineasEnc, personaId: cajero })
   );
+
+  // -------------------------------------------------------------------
+  console.log("\n=== 21. Factura en DÓLARES, con sus montos en dólares ===");
+  const sesionUsd = await conAlcanceTenant(tenantId, (db) =>
+    abrirSesion(db, tenantId, { cajaId, fondoCrc: 10000, personaId: cajero })
+  );
+  const cuentaUsd = await conAlcanceTenant(tenantId, (db) =>
+    abrirCuenta(db, tenantId, { propietarioId: clienteId, sesionId: sesionUsd.id })
+  );
+  await conAlcanceTenant(tenantId, (db) =>
+    agregarCargo(db, tenantId, {
+      cuentaId: cuentaUsd.id,
+      origen: "manual",
+      descripcion: "Consulta para cliente que pide factura en dólares",
+      cantidad: 1,
+      precioUnitario: 52000,
+      personaId: cajero,
+      codigoCabys: "8351000000000",
+      codigoTarifaIva: "04",
+      unidadMedida: "Sp",
+      lineaNegocio: "consulta",
+    })
+  );
+  const totalUsd = await conAlcanceTenant(tenantId, (db) => totalDeCuenta(db, cuentaUsd.id));
+
+  const cobroUsd = await conAlcanceTenant(tenantId, (db) =>
+    cobrar(db, tenantId, {
+      cuentaId: cuentaUsd.id,
+      sesionId: sesionUsd.id,
+      tipoComprobante: "01",
+      monedaComprobante: "USD",
+      receptor: {
+        nombre: "Ana María Rodríguez Jiménez",
+        identificacion: { tipo: "01", numero: "112345678" },
+      },
+      // Paga en colones una factura en dólares: son dos cosas
+      // distintas y el sistema no las confunde.
+      medios: [{ medio: "01", monto: totalUsd.total }],
+      personaId: cajero,
+    })
+  );
+  igual(cobroUsd.estadoComprobante, "aceptado", "la factura en dólares se emite y Hacienda la acepta");
+
+  const enDolares = await pool.query<{
+    moneda: string;
+    tipo_cambio: string;
+    total_comprobante: string;
+  }>(
+    `SELECT moneda, tipo_cambio, total_comprobante FROM fact_comprobantes WHERE id = $1`,
+    [cobroUsd.comprobanteId]
+  );
+  igual(
+    [enDolares.rows[0].moneda, Number(enDolares.rows[0].tipo_cambio)],
+    ["USD", 520],
+    "el comprobante queda en USD con el tipo de cambio del día guardado"
+  );
+  // 54 080 colones / 520 = 104 dólares. El total del comprobante tiene
+  // que estar EN DÓLARES: si se hubiera dejado en colones, la factura
+  // diría 54 080 dólares.
+  const totalEnDolares = Number(enDolares.rows[0].total_comprobante);
+  assert(
+    Math.abs(totalEnDolares - totalUsd.total / 520) < 0.05,
+    "y su total está en dólares, no en colones",
+    { enElComprobante: totalEnDolares, esperado: totalUsd.total / 520 }
+  );
+  assert(
+    totalEnDolares < 200,
+    "control de sanidad: un total de tres cifras en dólares, no de cinco",
+    totalEnDolares
+  );
+
+  // EL TIQUETE TÉRMICO DE UNA FACTURA EN DÓLARES — defecto encontrado
+  // revisándolo en el navegador: el neto y el impuesto salían del
+  // comprobante (en dólares) y el total, del cobro (en colones), así que
+  // el tiquete decía «Venta neta ₡0,48 · TOTAL ₡282,50».
+  const tiqueteUsd = await conAlcanceTenant(tenantId, (db) =>
+    datosDeTiquete(db, cobroUsd.cobroId)
+  );
+  assert(
+    Math.abs(Number(tiqueteUsd.cobro.total_venta_neta) - 52000) < 1,
+    "el tiquete de una factura en dólares muestra el neto EN COLONES",
+    {
+      enElTiquete: Number(tiqueteUsd.cobro.total_venta_neta),
+      enElComprobante: totalEnDolares,
+    }
+  );
+  igual(
+    tiqueteUsd.cobro.moneda_comprobante,
+    "USD",
+    "y dice en qué moneda se emitió, para que el cliente reconozca el monto en el portal"
+  );
+
+  const cobrada = await conAlcanceTenant(tenantId, (db) => totalDeCuenta(db, cuentaUsd.id));
+  igual(
+    cobrada.saldo,
+    0,
+    "la cuenta se cobró completa en colones aunque la factura sea en dólares"
+  );
+
+  const lineasEnUsd = await pool.query<{ xml: string }>(
+    `SELECT convert_from(xml_firmado, 'UTF8') AS xml FROM fact_comprobantes WHERE id = $1`,
+    [cobroUsd.comprobanteId]
+  );
+  assert(
+    lineasEnUsd.rows[0].xml.includes("<CodigoMoneda>USD</CodigoMoneda>"),
+    "el XML declara la moneda USD"
+  );
+  assert(
+    !lineasEnUsd.rows[0].xml.includes("<TotalComprobante>54080"),
+    "y NO lleva el monto en colones con la etiqueta de dólares"
+  );
+
+  const lineasUsd = (
+    await conAlcanceTenant(tenantId, (db) => esperadoDeSesion(db, sesionUsd.id))
+  ).map((e) => ({ medio: e.medio, moneda: e.moneda, declarado: e.esperado }));
+  await conAlcanceTenant(tenantId, (db) =>
+    cerrarSesion(db, tenantId, sesionUsd.id, { lineas: lineasUsd, personaId: cajero })
+  );
+
+  // -------------------------------------------------------------------
+  console.log("\n=== 22. Los cinco reportes, con sus columnas ===");
+  const hoy = new Date().toISOString().slice(0, 10);
+  const hace30 = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+
+  for (const cual of [
+    "ventas",
+    "lineas-negocio",
+    "arqueos",
+    "aprobaciones",
+    "por-cobrar",
+  ] as const) {
+    const r = await conAlcanceTenant(tenantId, (db) =>
+      reporteDeVentas(db, cual, hace30, hoy)
+    );
+    assert(
+      r.columnas.length > 0 && !!r.titulo,
+      `el reporte "${cual}" tiene título y columnas`,
+      `${r.filas.length} fila(s)`
+    );
+    // Toda columna declarada tiene que existir en las filas: una
+    // columna que el SQL no devuelve sale vacía en el Excel y nadie lo
+    // nota hasta que alguien suma esa columna.
+    if (r.filas.length > 0) {
+      const faltantes = r.columnas.filter((c) => !(c.clave in r.filas[0]));
+      igual(
+        faltantes.map((c) => c.clave),
+        [],
+        `y todas sus columnas existen en los datos de "${cual}"`
+      );
+    }
+  }
+
+  const ventas = await conAlcanceTenant(tenantId, (db) =>
+    reporteDeVentas(db, "ventas", hace30, hoy)
+  );
+  assert(
+    ventas.filas.length > 0 && ventas.filas.some((f) => Number(f.total) > 0),
+    "el reporte de ventas trae los cobros del período con su total",
+    ventas.filas.length
+  );
+
+  const porLinea = await conAlcanceTenant(tenantId, (db) =>
+    reporteDeVentas(db, "lineas-negocio", hace30, hoy)
+  );
+  assert(
+    porLinea.filas.length > 0,
+    "el de líneas de negocio agrupa lo cobrado",
+    porLinea.filas.map((f) => `${f.linea}:${f.neto}`)
+  );
+
+  const arqueos = await conAlcanceTenant(tenantId, (db) =>
+    reporteDeVentas(db, "arqueos", hace30, hoy)
+  );
+  assert(
+    arqueos.filas.length > 0,
+    "el de arqueos trae las sesiones cerradas con su diferencia",
+    arqueos.filas.length
+  );
+
+  const aprobaciones = await conAlcanceTenant(tenantId, (db) =>
+    reporteDeVentas(db, "aprobaciones", hace30, hoy)
+  );
+  assert(
+    aprobaciones.filas.length > 0,
+    "el de aprobaciones trae lo pedido y lo resuelto",
+    aprobaciones.filas.map((f) => `${f.tipo}:${f.estado}`)
+  );
+
+  // EL QUE TENÍA EL DEFECTO: cuentas por cobrar tiene que incluir a los
+  // perfiles de facturación, no solo a los clientes.
+  const perfilDeudor = await conAlcanceTenant(tenantId, (db) =>
+    crearPerfil(db, tenantId, {
+      nombre: "Empresa Deudora S.A.",
+      tipoIdentificacion: "02",
+      numeroIdentificacion: "3101000111",
+      propietarioId: clienteId,
+    })
+  );
+  await pool.query(
+    `INSERT INTO vta_credito_cliente (perfil_id, tenant_id, habilitado, limite, plazo_dias)
+     VALUES ($1,$2,true,500000,30)`,
+    [perfilDeudor.id, tenantId]
+  );
+  const sesionEmpresa = await conAlcanceTenant(tenantId, (db) =>
+    abrirSesion(db, tenantId, { cajaId, fondoCrc: 1000, personaId: cajero })
+  );
+  const cuentaEmpresa = await conAlcanceTenant(tenantId, (db) =>
+    abrirCuenta(db, tenantId, { propietarioId: clienteId, sesionId: sesionEmpresa.id })
+  );
+  await conAlcanceTenant(tenantId, (db) =>
+    agregarCargo(db, tenantId, {
+      cuentaId: cuentaEmpresa.id,
+      origen: "manual",
+      descripcion: "Atención facturada a la empresa",
+      cantidad: 1,
+      precioUnitario: 40000,
+      personaId: cajero,
+      codigoCabys: "8351000000000",
+      codigoTarifaIva: "04",
+      unidadMedida: "Sp",
+      lineaNegocio: "consulta",
+    })
+  );
+  await conAlcanceTenant(tenantId, (db) =>
+    cobrar(db, tenantId, {
+      cuentaId: cuentaEmpresa.id,
+      sesionId: sesionEmpresa.id,
+      tipoComprobante: "01",
+      condicionVenta: "10",
+      plazoCreditoDias: 30,
+      eleccionReceptor: { modo: "perfil", perfilId: perfilDeudor.id },
+      medios: [{ medio: "credito", monto: 41600 }],
+      personaId: cajero,
+    })
+  );
+
+  const porCobrar = await conAlcanceTenant(tenantId, (db) =>
+    reporteDeVentas(db, "por-cobrar", hace30, hoy)
+  );
+  assert(
+    porCobrar.filas.some(
+      (f) => f.deudor === "Empresa Deudora S.A." && f.tipo_deudor === "perfil de facturación"
+    ),
+    "LA DEUDA DE UN PERFIL aparece en cuentas por cobrar (antes se perdía)",
+    porCobrar.filas.map((f) => `${f.tipo_deudor}:${f.deudor}:${f.pendiente}`)
+  );
+  igual(
+    porCobrar.ignoraPeriodo,
+    true,
+    "y el reporte dice que el saldo no depende del período"
+  );
+
+  const lineasEmpresa = (
+    await conAlcanceTenant(tenantId, (db) => esperadoDeSesion(db, sesionEmpresa.id))
+  ).map((e) => ({ medio: e.medio, moneda: e.moneda, declarado: e.esperado }));
+  await conAlcanceTenant(tenantId, (db) =>
+    cerrarSesion(db, tenantId, sesionEmpresa.id, { lineas: lineasEmpresa, personaId: cajero })
+  );
+
+  // -------------------------------------------------------------------
+  console.log("\n=== 23. La exportación de un reporte es un archivo de verdad ===");
+  const tablaVentas = await conAlcanceTenant(tenantId, (db) =>
+    reporteDeVentas(db, "ventas", hace30, hoy)
+  );
+  const xlsx = aExcel({
+    titulo: tablaVentas.titulo,
+    subtitulo: `Del ${hace30} al ${hoy}`,
+    columnas: tablaVentas.columnas,
+    filas: tablaVentas.filas,
+  });
+  igual(
+    xlsx.slice(0, 2).toString("hex"),
+    "504b",
+    "el .xlsx empieza con la firma PK de un zip"
+  );
+  const pdf = await aPdf({
+    titulo: tablaVentas.titulo,
+    columnas: tablaVentas.columnas,
+    filas: tablaVentas.filas,
+  });
+  igual(pdf.slice(0, 4).toString(), "%PDF", "y el PDF con su firma %PDF");
+  assert(xlsx.length > 2000 && pdf.length > 1000, "los dos con contenido", {
+    xlsx: xlsx.length,
+    pdf: pdf.length,
+  });
 
   await pool.query(`DELETE FROM tenants WHERE nombre LIKE $1`, [`${PREFIJO}%`]);
   console.log(ok ? "\nTODO OK" : "\nHAY FALLAS");

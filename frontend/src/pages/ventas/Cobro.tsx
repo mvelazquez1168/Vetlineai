@@ -104,6 +104,11 @@ export function Cobro() {
   const [eleccionReceptor, setEleccionReceptor] = useState<EleccionReceptor | null>(null);
   const [resumenReceptor, setResumenReceptor] = useState<ResumenReceptor | null>(null);
   const [condicionVenta, setCondicionVenta] = useState("01");
+  // LA MONEDA DEL COMPROBANTE es otra cosa que la moneda con la que paga.
+  // Se puede facturar en dólares y cobrar en colones, y al revés: el
+  // comprobante lleva sus montos en su moneda con el tipo de cambio del
+  // día, y el arqueo cuenta lo que de verdad entró a la caja.
+  const [monedaComprobante, setMonedaComprobante] = useState<"CRC" | "USD">("CRC");
   const [tipoCambio, setTipoCambio] = useState<number | null>(null);
 
   const refBusqueda = useRef<HTMLInputElement>(null);
@@ -278,6 +283,7 @@ export function Cobro() {
       const r = await ventasApi.cobrar(cuentaId, {
         sesionId,
         tipoComprobante,
+        monedaComprobante,
         condicionVenta,
         plazoCreditoDias: condicionVenta === "10" ? 30 : undefined,
         // La ELECCIÓN, no el receptor armado: el backend lo resuelve
@@ -550,6 +556,26 @@ export function Cobro() {
                     </p>
                   )}
                 </div>
+                <Select
+                  label="Moneda del comprobante"
+                  value={monedaComprobante}
+                  onChange={(e) => setMonedaComprobante(e.target.value as "CRC" | "USD")}
+                  options={[
+                    { value: "CRC", label: "Colones" },
+                    {
+                      value: "USD",
+                      label: tipoCambio
+                        ? `Dólares (al tipo de cambio ₡${tipoCambio})`
+                        : "Dólares (sin tipo de cambio: no se puede)",
+                    },
+                  ]}
+                />
+                {monedaComprobante === "USD" && (
+                  <p className="text-xs text-text-muted">
+                    El comprobante sale con sus montos en dólares y el tipo de cambio del día
+                    guardado. Lo que el cliente paga puede ser en colones: son dos cosas distintas.
+                  </p>
+                )}
                 <Select
                   label="Condición de venta"
                   value={condicionVenta}

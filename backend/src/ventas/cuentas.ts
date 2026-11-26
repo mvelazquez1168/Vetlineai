@@ -43,6 +43,20 @@ export interface SolicitudCargo {
   /** Para un cargo que NO debe descontar inventario (un servicio). */
   sinDescargo?: boolean;
   /**
+   * La atención que originó el cargo (prompt 07, bloque B).
+   *
+   * Cambia el TIPO del movimiento de inventario: lo que sale en una
+   * consulta es un movimiento de tipo `atencion` con su atención y su
+   * paciente, no una `venta` de mostrador. El kardex de ese lote tiene
+   * que poder decir en qué visita y a qué paciente se aplicó.
+   */
+  atencionId?: string;
+  /**
+   * Para forzar un lote en la salida, en vez de FEFO: una vacuna se
+   * registra con el lote que el médico tiene en la mano.
+   */
+  loteId?: string;
+  /**
    * La lista de precio que rige esta venta (nocturno, convenio…). Si no
    * viene, se usa la preseleccionada de la caja, y si tampoco hay, el
    * precio base del catálogo. Un `precioUnitario` explícito gana sobre
@@ -308,12 +322,14 @@ export async function agregarCargo(
     if (!bodegaId) throw new Error("No hay bodega de la que descontar: la caja necesita una.");
 
     const movimientos = await registrarMovimiento(db, tenantId, {
-      tipo: "venta",
+      tipo: s.atencionId ? "atencion" : "venta",
       productoId: que.productoId,
       bodegaId,
       presentacionId: s.presentacionId,
       cantidadPresentacion: s.cantidad,
+      loteId: s.loteId,
       pacienteId: s.pacienteId,
+      atencionId: s.atencionId,
       personaId: s.personaId,
     });
     movimientoId = movimientos[0]?.id;

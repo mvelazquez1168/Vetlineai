@@ -38,6 +38,19 @@ import {
   sembrarPlantillasBase,
 } from "../expediente/consentimientos";
 import {
+  abrirAtencion,
+  agregarDiagnostico,
+  agregarItem,
+  aplicarPlantilla,
+  atencionCompleta,
+  avisosAlRecetar,
+  cerrarAtencion,
+  cuentaViva,
+  guardarSoap,
+  marcarSistema,
+  quitarItem,
+} from "../expediente/atencion";
+import {
   buscarEnHistoria,
   encabezadoDeExpediente,
   evolucion,
@@ -481,5 +494,179 @@ expedienteRouter.get("/consentimientos/:id", async (req, res) => {
     res.json({ consentimiento: await consentimiento(req.db!, req.params.id) });
   } catch (err) {
     fallo(res, err, "GET /expediente/consentimientos/:id");
+  }
+});
+
+// =====================================================================
+// LA ATENCIÓN QUE GENERA CARGOS — bloque B
+//
+// Todo acá es `soloMedico`: registrar lo que pasó en una consulta y
+// firmarlo es un acto clínico. La única lectura abierta a la
+// administración es la cuenta viva, que la recepción necesita para
+// decirle al cliente cuánto va a pagar.
+// =====================================================================
+
+expedienteRouter.post("/atenciones", soloMedico, async (req, res) => {
+  try {
+    const atencion = await abrirAtencion(req.db!, req.auth!.tenantId!, {
+      ...req.body,
+      medicoId: req.auth!.userId,
+    });
+    res.status(atencion.creada ? 201 : 200).json({ atencion });
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones");
+  }
+});
+
+expedienteRouter.get("/atenciones/plantillas", async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT id, tipo_consulta, nombre, sistemas, tenant_id IS NULL AS de_la_plataforma
+         FROM exp_plantillas_atencion
+        WHERE activo
+        ORDER BY (tenant_id IS NOT NULL) DESC, nombre`
+    );
+    res.json({ plantillas: r.rows });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/plantillas");
+  }
+});
+
+expedienteRouter.get("/atenciones/:id", async (req, res) => {
+  try {
+    res.json(await atencionCompleta(req.db!, req.params.id));
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id");
+  }
+});
+
+/**
+ * Guardado automático del SOAP. La pantalla manda solo lo que cambió, y
+ * esto no exige nada: una atención a medio escribir es el estado normal
+ * de una consulta en curso.
+ */
+expedienteRouter.patch("/atenciones/:id", soloMedico, async (req, res) => {
+  try {
+    await guardarSoap(req.db!, req.params.id, req.body);
+    res.json({ guardado: true });
+  } catch (err) {
+    fallo(res, err, "PATCH /expediente/atenciones/:id");
+  }
+});
+
+expedienteRouter.post("/atenciones/:id/plantilla", soloMedico, async (req, res) => {
+  try {
+    res.json(
+      await aplicarPlantilla(
+        req.db!,
+        req.auth!.tenantId!,
+        req.params.id,
+        String(req.body.tipoConsulta ?? "")
+      )
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/plantilla");
+  }
+});
+
+expedienteRouter.put("/atenciones/:id/sistemas/:sistema", soloMedico, async (req, res) => {
+  try {
+    await marcarSistema(
+      req.db!,
+      req.auth!.tenantId!,
+      req.params.id,
+      decodeURIComponent(req.params.sistema),
+      req.body.estado,
+      req.body.nota
+    );
+    res.json({ guardado: true });
+  } catch (err) {
+    fallo(res, err, "PUT /expediente/atenciones/:id/sistemas/:sistema");
+  }
+});
+
+expedienteRouter.post("/atenciones/:id/diagnosticos", soloMedico, async (req, res) => {
+  try {
+    res.status(201).json(
+      await agregarDiagnostico(req.db!, req.auth!.tenantId!, {
+        ...req.body,
+        atencionId: req.params.id,
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/diagnosticos");
+  }
+});
+
+expedienteRouter.post("/atenciones/:id/items", soloMedico, async (req, res) => {
+  try {
+    res
+      .status(201)
+      .json(
+        await agregarItem(
+          req.db!,
+          req.auth!.tenantId!,
+          req.params.id,
+          req.body,
+          req.auth!.userId
+        )
+      );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/items");
+  }
+});
+
+expedienteRouter.delete("/atenciones/:id/items/:itemId", soloMedico, async (req, res) => {
+  try {
+    await quitarItem(req.db!, req.params.id, req.params.itemId);
+    res.json({ quitado: true });
+  } catch (err) {
+    fallo(res, err, "DELETE /expediente/atenciones/:id/items/:itemId");
+  }
+});
+
+/** La cuenta viva: la recepción también la lee, así que no es soloMedico. */
+expedienteRouter.get("/atenciones/:id/cuenta", async (req, res) => {
+  try {
+    res.json(await cuentaViva(req.db!, req.params.id));
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id/cuenta");
+  }
+});
+
+/**
+ * El aviso de alergia ANTES de confirmar la receta. Es una consulta, no
+ * un freno: el médico puede tener una razón para recetar igual, pero no
+ * puede no saberlo.
+ */
+expedienteRouter.get("/pacientes/:id/avisos-receta", async (req, res) => {
+  try {
+    const presentacionId = String(req.query.presentacionId ?? "");
+    if (!presentacionId) {
+      return res.status(400).json({ error: "Falta la presentación a recetar." });
+    }
+    res.json({ avisos: await avisosAlRecetar(req.db!, req.params.id, presentacionId) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/avisos-receta");
+  }
+});
+
+/**
+ * EL CIERRE. Una sola llamada, una sola transacción: o pasa todo o no
+ * pasa nada. Si falta stock devuelve el error de inventario tal cual —el
+ * médico necesita saber de qué producto se trata, no un «no se pudo
+ * cerrar»—.
+ */
+expedienteRouter.post("/atenciones/:id/cerrar", soloMedico, async (req, res) => {
+  try {
+    res.json(
+      await cerrarAtencion(req.db!, req.auth!.tenantId!, req.params.id, {
+        ...req.body,
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/cerrar");
   }
 });

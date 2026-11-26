@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -102,7 +103,7 @@ export function VentaMostrador() {
         });
       }
       toast.exito(
-        `${completas.length} salida(s) registrada(s). Esto descontó inventario; no cobró ni facturó.`
+        `${plural(completas.length, "salida registrada", "salidas registradas")}. Esto descontó inventario; no cobró ni facturó.`
       );
       setLineas([{ productoId: "", presentacionId: "", cantidad: "1" }]);
       const r = await inventarioApi.productos({ porPagina: 100 });
@@ -233,7 +234,7 @@ export function VentaMostrador() {
             El total es informativo: esta pantalla no cobra.
           </CardDescription>
           <p className="mt-4 text-2xl font-bold">{formatearMonto(totalEstimado)}</p>
-          <p className="text-xs text-text-muted">{completas.length} línea(s) listas</p>
+          <p className="text-xs text-text-muted">{plural(completas.length, "línea lista", "líneas listas")}</p>
           <Button
             className="mt-4 w-full"
             disabled={ocupado || completas.length === 0 || !bodegaId}

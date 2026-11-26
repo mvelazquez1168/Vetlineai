@@ -8,6 +8,7 @@ import {
   CardTitle,
   LoadingState,
   Icono,
+  PageHeader,
 } from "../../components/ui";
 import { FranjaAlertas } from "../../components/expediente/FranjaAlertas";
 import { PestanasExpediente } from "../../components/expediente/PestanasExpediente";
@@ -116,10 +117,6 @@ export function FichaPaciente() {
 
   return (
     <div>
-      <Link to="/pacientes" className="text-sm text-text-muted hover:text-primary">
-        ← Pacientes
-      </Link>
-
       {/* LA FRANJA DE ALERTAS va antes de todo lo demás: su razón de ser
           es que se lea antes de tocar al animal (prompt 07 §2).
           Reemplaza a la línea suelta de "alerta de manejo" que había
@@ -139,40 +136,53 @@ export function FichaPaciente() {
         )
       )}
 
-      <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold text-primary">{p.nombre}</h1>
-            <span className="font-mono text-sm text-text-muted">Expediente N.º {p.numero_expediente}</span>
+      {/* VARIANTE COMPACTA (prompt 01c, seccion 3): el expediente es
+          una pantalla de trabajo largo. Al bajar, la franja queda como
+          una barra delgada con el nombre del paciente, que es el dato
+          que no se puede perder de vista mientras se escribe. El
+          enlace al padre va DENTRO del encabezado y reemplaza el
+          «← Pacientes» suelto que habia arriba de todo. */}
+      <PageHeader
+        variante="compacta"
+        titulo={p.nombre}
+        icono="paciente"
+        modulo="expediente"
+        padre={{ a: "/pacientes", etiqueta: "Pacientes" }}
+        contexto={
+          <span className="flex flex-wrap items-center gap-x-2">
+            <span className="font-mono">N.º {p.numero_expediente}</span>
+            <span aria-hidden="true">·</span>
+            <span>
+              {etiqueta(p.especie)}
+              {p.raza ? ` · ${p.raza}` : ""} · {p.sexo ? etiqueta(p.sexo) : "Sexo sin registrar"} ·{" "}
+              {ETIQUETA_ESTADO_REPRODUCTIVO[p.estado_reproductivo] ?? p.estado_reproductivo} · {edad}
+            </span>
             {p.estado === "fallecido" && (
               <Badge variant="neutral">
                 Fallecido{p.fecha_fallecimiento ? ` · ${formatearFechaCorta(p.fecha_fallecimiento, zonaHoraria)}` : ""}
               </Badge>
             )}
-          </div>
-          <p className="mt-1 text-text-muted">
-            {etiqueta(p.especie)}
-            {p.raza ? ` · ${p.raza}` : ""} · {p.sexo ? etiqueta(p.sexo) : "Sexo sin registrar"} ·{" "}
-            {ETIQUETA_ESTADO_REPRODUCTIVO[p.estado_reproductivo] ?? p.estado_reproductivo} · {edad}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {/* ACCIÓN RÁPIDA del prompt 07 §10: registrar la atención es lo
-              que el médico viene a hacer. Lleva a su pestaña en vez de
-              abrir un modal con el mismo formulario: dos lugares para
-              escribir la misma consulta serían dos formularios que un día
-              divergen. */}
-          {esMedico && p.estado !== "fallecido" && (
+          </span>
+        }
+        secundarias={
+          <Button variant="secondary" onClick={() => setEditando(true)}>
+            Editar ficha
+          </Button>
+        }
+        accion={
+          /* ACCIÓN RÁPIDA del prompt 07 §10: registrar la atención es lo
+             que el médico viene a hacer. Lleva a su pestaña en vez de
+             abrir un modal con el mismo formulario: dos lugares para
+             escribir la misma consulta serían dos formularios que un día
+             divergen. */
+          esMedico && p.estado !== "fallecido" ? (
             <Button onClick={() => setPestana("atencion")}>
               <Icono nombre="agregar" className="mr-1 h-4 w-4" />
               Registrar atención
             </Button>
-          )}
-          <Button variant="secondary" onClick={() => setEditando(true)}>
-            Editar ficha
-          </Button>
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -206,7 +216,9 @@ export function FichaPaciente() {
                     ? expediente.alergias
                         .map(
                           (a) =>
-                            `${a.medicamento_nombre ?? a.sustancia}${a.grupo ? ` (grupo ${a.grupo})` : ""} — ${a.severidad}`
+                            `${etiqueta(a.medicamento_nombre ?? a.sustancia)}${
+                              a.grupo ? ` (grupo ${a.grupo})` : ""
+                            } — ${etiqueta(a.severidad)}`
                         )
                         .join(" · ")
                     : "Sin alergias registradas"

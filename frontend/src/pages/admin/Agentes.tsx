@@ -7,6 +7,7 @@ import { formatearFecha } from "../../lib/formatFecha";
 import { useAuth } from "../../hooks/useAuth";
 import { ApiError } from "../../lib/api";
 import { adminApi, AgenteAdmin, ConteoCupos, EstadoSuscripcionResumen, MotivoRechazoCupo } from "../../lib/adminApi";
+import { plural } from "../../lib/plural";
 
 // Implementación de pantallas, prompt 2, paso 3 — Mis agentes. Reemplaza
 // la pantalla vieja de "Solicitar activación" (dada de baja, ver flujo de
@@ -117,7 +118,7 @@ export function Agentes() {
       {cupos && cupos.agentesExceso > 0 && (
         <div className="mt-4 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
           <p className="font-semibold text-warning">
-            Tenés {cupos.agentesExceso} agente(s) más de los que incluye tu plan.
+            Tiene {plural(cupos.agentesExceso, "agente", "agentes")} más de los que incluye su plan.
           </p>
           <p className="mt-1 text-text-muted">
             El uso no se interrumpe — para ajustarlo, deshabilitá alguno o cambiá a un plan superior.
@@ -278,7 +279,7 @@ export function Agentes() {
         open={catalogoAbierto}
         onClose={() => setCatalogoAbierto(false)}
         title="Agregar agente"
-        description="Elegí un agente del catálogo para ocupar el cupo disponible."
+        description="Elija un agente del catálogo para ocupar el cupo disponible."
       >
         <div className="max-h-80 divide-y divide-black/5 overflow-y-auto">
           {agentes

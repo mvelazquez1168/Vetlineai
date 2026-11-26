@@ -12,6 +12,7 @@ import {
 } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import { Aprobacion, formatearMonto, ventasApi } from "../../lib/ventasApi";
+import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
 // Aprobaciones pendientes.
@@ -155,7 +156,7 @@ export function AprobacionesVentas() {
       </Link>
       <h2 className="mt-2 text-xl font-bold text-primary">Aprobaciones</h2>
       <p className="mt-1 text-sm text-text-muted">
-        {pendientes === 0 ? "Nada pendiente." : `${pendientes} solicitud(es) esperando.`}
+        {pendientes === 0 ? "Nada pendiente." : `${plural(pendientes, "solicitud", "solicitudes")} esperando.`}
       </p>
 
       <Card className="mt-6">

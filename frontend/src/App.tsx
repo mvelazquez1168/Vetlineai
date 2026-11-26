@@ -10,6 +10,7 @@ import { EstablecerContrasenaNueva } from "./pages/EstablecerContrasenaNueva";
 import { Unauthorized } from "./pages/Unauthorized";
 import { ClinicaBloqueada } from "./pages/ClinicaBloqueada";
 import { AppShell } from "./components/AppShell";
+import { rutaDeEntrada } from "./lib/pantallaDeEntrada";
 import { Inicio } from "./pages/Inicio";
 import { Pacientes } from "./pages/pacientes/Pacientes";
 import { FichaPaciente } from "./pages/pacientes/FichaPaciente";
@@ -88,19 +89,26 @@ import { Muestrario } from "./pages/dev/Muestrario";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 function IndexRedirect() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, modulos, pantallaInicio } = useAuth();
 
   if (isLoading) return null;
   if (!user) return <Navigate to="/login" replace />;
 
-  // Toda sesion de clinica aterriza en Inicio (prompt 01c): antes el
-  // medico caia en su workspace y el administrador en la lista de
-  // medicos, y una lista no es un inicio. La plataforma sigue en la
-  // suya: no es una clinica.
-  if (user.rol === "medico" || user.rol === "admin_clinica") {
-    return <Navigate to="/inicio" replace />;
-  }
-  return <Navigate to="/platform-admin" replace />;
+  // La entrada depende del rol, de los modulos habilitados y de lo que
+  // el usuario haya elegido. La regla vive en un solo lugar
+  // (`rutaDeEntrada`) porque el Login resuelve exactamente lo mismo.
+  return (
+    <Navigate
+      to={rutaDeEntrada({
+        rol: user.rol ?? "",
+        esMedico: user.esMedico,
+        esAdminClinica: user.esAdminClinica,
+        modulos,
+        pantallaElegida: pantallaInicio,
+      })}
+      replace
+    />
+  );
 }
 
 export default function App() {

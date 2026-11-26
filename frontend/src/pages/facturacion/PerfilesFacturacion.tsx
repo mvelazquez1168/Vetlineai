@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -240,7 +241,7 @@ export function PerfilesFacturacion() {
       header: "Clientes",
       render: (p) => (
         <span className="text-sm">
-          {p.clientes === 0 ? "ninguno" : `${p.clientes} ligado(s)`}
+          {p.clientes === 0 ? "ninguno" : `${plural(p.clientes, "ligado", "ligados")}`}
         </span>
       ),
     },
@@ -440,7 +441,7 @@ export function PerfilesFacturacion() {
             ))}
             {clientes.length === 0 && (
               <li className="px-3 py-2 text-sm text-text-muted">
-                Escribí al menos dos letras para buscar.
+                Escriba al menos dos letras para buscar.
               </li>
             )}
           </ul>

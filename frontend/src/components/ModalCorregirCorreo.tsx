@@ -39,7 +39,7 @@ export function ModalCorregirCorreo({
       setListo(true);
     } catch (err) {
       setError(
-        err instanceof ApiError ? err.message : "No pudimos cambiar tu correo. Intentá de nuevo."
+        err instanceof ApiError ? err.message : "No pudimos cambiar tu correo. Inténtelo de nuevo."
       );
     } finally {
       setGuardando(false);

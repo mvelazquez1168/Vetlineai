@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -335,8 +336,8 @@ export function ProductoFicha() {
                   <span className="font-medium">
                     {c.tipoNombre}
                     <span className="ml-2 text-xs text-text-muted">
-                      {c.movimientos} movimiento(s)
-                      {c.pacientes.length === 0 ? " · sin paciente" : ` · ${c.pacientes.length} paciente(s)`}
+                      {plural(c.movimientos, "movimiento", "movimientos")}
+                      {c.pacientes.length === 0 ? " · sin paciente" : ` · ${plural(c.pacientes.length, "paciente", "pacientes")}`}
                     </span>
                   </span>
                   <span className="font-semibold">

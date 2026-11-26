@@ -10,6 +10,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { formatearFechaCorta } from "../../lib/formatFecha";
 import { AgenteAdmin, CasoAdmin, Medico, MedicoDisponible, adminApi } from "../../lib/adminApi";
 import { etiqueta } from "../../lib/etiquetas";
+import { PageHeader } from "../../components/ui";
 
 const ESTADO_BADGE: Record<string, BadgeVariant> = {
   triage: "neutral",
@@ -185,10 +186,12 @@ export function Casos() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Casos Clínicos</h1>
-      <p className="mt-1 text-text-muted">
-        Todos los casos de la clínica, de todos los médicos — abrilos o reasignalos a otro médico.
-      </p>
+      <PageHeader
+        titulo="Casos clínicos"
+        subtitulo="Todos los casos de la clínica, de todos los médicos. Ábralos o reasígnelos a otro médico."
+        icono="clinico"
+        modulo="casos"
+      />
 
       <div className="mt-6 grid grid-cols-1 gap-4 rounded-2xl border border-black/5 bg-surface p-4 sm:grid-cols-5">
         <Input

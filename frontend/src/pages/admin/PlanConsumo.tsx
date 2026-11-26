@@ -6,6 +6,7 @@ import { Table } from "../../components/ui/Table";
 import { useAuth } from "../../hooks/useAuth";
 import { formatearFecha } from "../../lib/formatFecha";
 import { adminApi, AvisoConsumo, ConsumoPeriodoItem, PlanConsumo as PlanConsumoData } from "../../lib/adminApi";
+import { plural } from "../../lib/plural";
 
 // Implementación de pantallas, prompt 2, paso 2 — Mi plan y consumo.
 // Pantalla principal de la sección; alimentada por una sola llamada
@@ -167,8 +168,8 @@ export function PlanConsumo() {
         <div className="mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
           <p className="font-semibold text-warning">Tu clínica tiene más recursos en uso que los contratados.</p>
           <p className="mt-1 text-text-muted">
-            {cupos.agentesExceso > 0 && `${cupos.agentesExceso} agente(s) de más. `}
-            {cupos.medicosExceso > 0 && `${cupos.medicosExceso} médico(s) de más. `}
+            {cupos.agentesExceso > 0 && `${plural(cupos.agentesExceso, "agente", "agentes")} de más. `}
+            {cupos.medicosExceso > 0 && `${plural(cupos.medicosExceso, "médico", "médicos")} de más. `}
             El uso no se interrumpe — considerá cambiar a un plan superior.
           </p>
         </div>

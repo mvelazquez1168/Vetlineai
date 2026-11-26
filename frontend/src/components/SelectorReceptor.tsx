@@ -382,7 +382,7 @@ export function SelectorReceptor({
                 )}
                 {!buscando && encontrados.length === 0 && (
                   <li className="px-3 py-2 text-sm text-text-muted">
-                    Nadie coincide. Podés registrarlo abajo.
+                    Nadie coincide. Puede registrarlo abajo.
                   </li>
                 )}
                 {encontrados.map((r) => (

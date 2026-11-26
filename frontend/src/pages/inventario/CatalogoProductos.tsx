@@ -332,7 +332,7 @@ export function CatalogoProductos() {
       ) : !datos || datos.productos.length === 0 ? (
         <EmptyState
           titulo="Todavía no hay productos"
-          texto="Podés cargarlos de a uno o importar el inventario que ya tiene desde una planilla."
+          texto="Puede cargarlos de a uno o importar el inventario que ya tiene desde una planilla."
           accion={
             <div className="flex gap-2">
               <Button onClick={() => navegar("/inventario/productos/nuevo")}>Nuevo producto</Button>

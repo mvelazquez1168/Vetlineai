@@ -213,7 +213,15 @@ export async function encabezadoDeExpediente(
       alertas.push({
         tipo: "saldo",
         severidad: "media",
-        texto: `El cliente tiene ${total} pendiente`,
+        // Con formato de moneda: «El cliente tiene 20510 pendiente» se
+        // lee como un numero de referencia, no como plata. El resto de
+        // la interfaz muestra colones formateados y esta alerta era la
+        // unica que no.
+        texto: `El cliente tiene ${new Intl.NumberFormat("es-CR", {
+          style: "currency",
+          currency: "CRC",
+          maximumFractionDigits: 0,
+        }).format(total)} pendiente`,
       });
     }
   }

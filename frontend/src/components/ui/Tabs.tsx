@@ -159,12 +159,17 @@ export function PestanasDeRuta({
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-black/5">
-      <div className="-mb-px flex gap-1 overflow-x-auto" role="tablist" aria-label="Secciones">
+      {/* Es un <nav>, NO un `role="tablist"`: estas pestanas navegan a
+          otra ruta, no muestran un panel de la misma pantalla. Un
+          lector de pantalla anunciando «pestaña 3 de 7» para algo que
+          en realidad cambia de pagina describe mal lo que va a pasar.
+          Las de `Tabs` si son tablist, porque ahi si hay paneles. */}
+      <nav className="-mb-px flex gap-1 overflow-x-auto" aria-label="Secciones del módulo">
         {pestanas.map((p) => (
           <NavLink
             key={p.a}
             to={p.a}
-            role="tab"
+            end={p.a.split("/").length <= 2}
             className={({ isActive }) =>
               [
                 "flex min-h-11 items-center gap-2 whitespace-nowrap border-b-2 px-3 text-sm transition-colors",
@@ -178,7 +183,7 @@ export function PestanasDeRuta({
             {p.etiqueta}
           </NavLink>
         ))}
-      </div>
+      </nav>
       {indicadores && <div className="flex items-center gap-2 pb-1">{indicadores}</div>}
     </div>
   );

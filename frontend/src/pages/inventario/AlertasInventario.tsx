@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardDescription, CardTitle, LoadingState, useToast } from "../../components/ui";
 import { Alertas, formatearCantidad, inventarioApi } from "../../lib/inventarioApi";
+import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
 // Alertas de inventario: las seis del prompt, en una sola pantalla.
@@ -150,7 +151,7 @@ export function AlertasInventario() {
       <p className="mt-1 text-sm text-text-muted">
         {totalUrgentes === 0
           ? "Nada urgente: no hay vencidos con existencia, envases abiertos vencidos ni productos bajo el mínimo."
-          : `${totalUrgentes} cosa(s) para atender hoy.`}
+          : `${plural(totalUrgentes, "cosa", "cosas")} para atender hoy.`}
       </p>
 
       <div className="mt-6 space-y-4">

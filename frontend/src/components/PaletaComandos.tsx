@@ -334,7 +334,7 @@ export function PaletaComandos() {
                   {consulta.trim().length === 0
                     ? "Escriba para buscar, o elija algo de la lista."
                     : !/^\d+$/.test(consulta.trim()) && consulta.trim().length < 2
-                      ? "Escribí al menos dos letras."
+                      ? "Escriba al menos dos letras."
                       : "No encontramos nada con eso."}
                 </p>
               )}
@@ -493,7 +493,7 @@ export function PaletaComandos() {
 
             <p className="mt-6 text-xs text-text-muted">
               Los atajos de dos teclas se escriben en secuencia: primero <Tecla>G</Tecla>, después la
-              segunda. Tenés poco más de un segundo entre las dos.
+              segunda. Tiene poco más de un segundo entre las dos.
             </p>
           </div>
         </div>

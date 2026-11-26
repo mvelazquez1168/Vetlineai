@@ -73,7 +73,7 @@ export function CasosSinActividad() {
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-primary">Casos sin actividad</h1>
       <p className="mt-1 text-text-muted">
-        Tus casos abiertos (no cerrados) que no tocaste desde hace tiempo — desde acá se pueden abrir y cerrar.
+        Sus casos abiertos (no cerrados) que no toca desde hace tiempo. Desde acá se pueden abrir y cerrar.
       </p>
 
       <div className="mt-6 flex flex-wrap items-end gap-4 rounded-2xl border border-black/5 bg-surface p-4">

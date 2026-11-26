@@ -66,7 +66,7 @@ export function EstablecerContrasenaNueva() {
         setEstado("invalido");
         return;
       }
-      setError(err instanceof ApiError ? err.message : "No pudimos restablecer tu contraseña. Intentá de nuevo.");
+      setError(err instanceof ApiError ? err.message : "No pudimos restablecer tu contraseña. Inténtelo de nuevo.");
       setEstado("listo");
     }
   };
@@ -104,7 +104,7 @@ export function EstablecerContrasenaNueva() {
   } else {
     contenido = (
       <>
-        <h1 className="text-2xl font-bold text-primary">Elegí tu contraseña nueva</h1>
+        <h1 className="text-2xl font-bold text-primary">Elija su contraseña nueva</h1>
         <p className="mt-2 text-sm text-text-muted">
           Al confirmar, vamos a cerrar cualquier sesión activa de tu cuenta.
         </p>

@@ -154,7 +154,7 @@ export function EditarPacienteModal({ paciente, onClose, onGuardado }: EditarPac
         {sexoViejoSinMigrar && (
           <p className="mt-4 rounded-lg bg-warning/15 px-4 py-3 text-sm text-text-primary">
             Esta ficha tiene el sexo cargado como <strong>«{paciente.sexo}»</strong>, de un formato
-            anterior. Elegí macho o hembra para poder guardar; si corresponde, usá además el estado
+            anterior. Elija macho o hembra para poder guardar; si corresponde, usá además el estado
             reproductivo.
           </p>
         )}

@@ -16,6 +16,7 @@ import {
   adminApi,
 } from "../../lib/adminApi";
 import { CotizacionUpgrade, pagosApi } from "../../lib/pagosApi";
+import { plural } from "../../lib/plural";
 
 // Implementación de pantallas, prompt 2, paso 4 — Cambiar plan.
 // Pantallas de pago, paso 5 — completa el upgrade, que hasta ahora
@@ -280,7 +281,7 @@ export function CambiarPlan() {
 
           <div className="mt-10 rounded-xl border border-black/5 p-4">
             <p className="text-sm text-text-muted">
-              ¿Necesitás más agentes, médicos o crédito de los que ofrece tu plan actual? Elegí un plan superior
+              ¿Necesitás más agentes, médicos o crédito de los que ofrece tu plan actual? Elija un plan superior
               arriba, o{" "}
               <Link to="/admin/plan-consumo/recargar" className="font-semibold text-accent hover:underline">
                 recargue su saldo
@@ -302,7 +303,7 @@ export function CambiarPlan() {
 
       {paso === "seleccion" && planDestino && (
         <Card className="mt-6">
-          <CardTitle>Elegí qué conservar al pasar a {planDestino.nombre}</CardTitle>
+          <CardTitle>Elija qué conservar al pasar a {planDestino.nombre}</CardTitle>
           <p className="mt-1 text-sm text-text-muted">
             Lo que no selecciones quedará desactivado (no eliminado) cuando el cambio entre en vigencia.
           </p>
@@ -373,7 +374,8 @@ export function CambiarPlan() {
               Nuevo precio: <span className="font-semibold text-text-primary">USD {planDestino.precioMensualUsd.toFixed(2)} / mes</span>
             </p>
             <p>
-              Quedarán activos {agentesSeleccionados.size} agente(s) y {medicosSeleccionados.size} médico(s); el resto se
+              Quedarán activos {plural(agentesSeleccionados.size, "agente", "agentes")} y{" "}
+              {plural(medicosSeleccionados.size, "médico", "médicos")}; el resto se
               desactivará (los datos se conservan).
             </p>
             <p>Tu saldo de crédito comprado no se ve afectado por este cambio.</p>
@@ -482,7 +484,7 @@ export function CambiarPlan() {
             <p className="text-error font-semibold">
               {errorUpgrade ?? (motivoFalla ? MOTIVO_LABEL_UPGRADE[motivoFalla] : "No se pudo procesar el cobro.")}
             </p>
-            <p className="text-text-muted">Tu plan sigue siendo el mismo. Revisá tu medio de pago e intentá de nuevo.</p>
+            <p className="text-text-muted">Tu plan sigue siendo el mismo. Revise su medio de pago e inténtelo de nuevo.</p>
           </div>
         )}
       </Modal>

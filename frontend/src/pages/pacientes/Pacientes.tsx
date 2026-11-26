@@ -4,11 +4,16 @@ import {
   Badge,
   EmptyState,
   Input,
+  KpiCard,
   LoadingState,
+  PageHeader,
   Pagination,
   Table,
   TableColumn,
+  TiraIndicadores,
 } from "../../components/ui";
+import { getStoredToken } from "../../hooks/useAuth";
+import { apiFetch } from "../../lib/api";
 import { PacienteListado, pacientesApi } from "../../lib/pacientesApi";
 
 // Misma estructura que pages/admin/Propietarios.tsx: título +
@@ -21,7 +26,20 @@ import { PacienteListado, pacientesApi } from "../../lib/pacientesApi";
 // que se muestra no puede discrepar del que el servidor realmente
 // paginó.
 
+interface IndicadoresPacientes {
+  pacientes_activos: number;
+  vacunas_por_vencer: number;
+}
+
 export function Pacientes() {
+  const [indicadores, setIndicadores] = useState<IndicadoresPacientes | null>(null);
+
+  useEffect(() => {
+    apiFetch<IndicadoresPacientes>("/inicio/indicadores", { token: getStoredToken() })
+      .then(setIndicadores)
+      .catch(() => setIndicadores(null));
+  }, []);
+
   const navigate = useNavigate();
   const [pacientes, setPacientes] = useState<PacienteListado[]>([]);
   const [total, setTotal] = useState(0);
@@ -95,11 +113,40 @@ export function Pacientes() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Pacientes</h1>
-      <p className="mt-1 text-text-muted">
-        Fichero de pacientes de la clínica — busque por nombre, número de expediente o nombre del
-        propietario.
-      </p>
+      {/* Los dos indicadores que los datos de hoy respaldan (prompt 01c,
+          seccion 5). Salen de `/inicio/indicadores`, la misma consulta
+          agregada del marco, y no de un endpoint nuevo: el numero tiene
+          que ser el mismo que el de Inicio, y dos consultas distintas
+          para el mismo numero terminan dando dos numeros. */}
+      <PageHeader
+        titulo="Pacientes"
+        subtitulo="Fichero de pacientes de la clínica. Busque por nombre, número de expediente o nombre del propietario."
+        icono="paciente"
+        modulo="pacientes"
+        indicadores={
+          indicadores && (
+            <TiraIndicadores>
+              <KpiCard
+                titulo="Pacientes activos"
+                valor={String(indicadores.pacientes_activos)}
+                icono="paciente"
+                modulo="pacientes"
+                variacionPorcentaje={null}
+                detalle="Sin contar los fallecidos ni los dados de baja"
+              />
+              <KpiCard
+                titulo="Vacunas por vencer"
+                valor={String(indicadores.vacunas_por_vencer)}
+                icono="vacuna"
+                modulo="pacientes"
+                estado={indicadores.vacunas_por_vencer > 0 ? "aviso" : undefined}
+                variacionPorcentaje={null}
+                detalle="Vencidas o que vencen en 30 días"
+              />
+            </TiraIndicadores>
+          )
+        }
+      />
 
       <div className="mt-6 max-w-md">
         <Input

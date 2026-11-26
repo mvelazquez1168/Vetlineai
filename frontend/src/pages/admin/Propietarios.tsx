@@ -4,6 +4,7 @@ import { Input } from "../../components/ui/Input";
 import { Table, TableColumn } from "../../components/ui/Table";
 import { FichaPropietarioModal } from "../../components/caso/FichaPropietarioModal";
 import { PropietarioListado, propietariosApi } from "../../lib/propietariosApi";
+import { PageHeader } from "../../components/ui";
 
 const POR_PAGINA = 20;
 
@@ -66,10 +67,12 @@ export function Propietarios() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary">Propietarios</h1>
-      <p className="mt-1 text-text-muted">
-        Fichero de clientes de la clínica — busque por nombre, teléfono, correo o número de identificación.
-      </p>
+      <PageHeader
+        titulo="Propietarios"
+        subtitulo="Fichero de clientes de la clínica. Busque por nombre, teléfono, correo o número de identificación."
+        icono="propietario"
+        modulo="propietarios"
+      />
 
       <div className="mt-6 max-w-md">
         <Input

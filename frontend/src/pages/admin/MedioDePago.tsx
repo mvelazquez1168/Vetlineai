@@ -117,7 +117,7 @@ export function MedioDePago() {
           <>
             <CardTitle>No tiene un medio de pago registrado</CardTitle>
             <p className="mt-1 text-sm text-text-muted">
-              Agregá una tarjeta para poder recargar crédito, activar la autorecarga o cambiar de plan.
+              Agregue una tarjeta para poder recargar crédito, activar la autorecarga o cambiar de plan.
             </p>
             <Button className="mt-4" onClick={abrirModal}>
               Agregar medio de pago

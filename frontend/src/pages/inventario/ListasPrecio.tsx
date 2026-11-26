@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -194,7 +195,7 @@ export function ListasPrecio() {
     setOcupado(true);
     try {
       const r = await inventarioApi.aplicarPrecios(cuerpoMasivo());
-      toast.exito(`${r.aplicadas} precio(s) actualizado(s).`);
+      toast.exito(`${plural(r.aplicadas, "precio actualizado", "precios actualizados")}.`);
       setMasiva(false);
       setPrevia(null);
       if (elegida) {

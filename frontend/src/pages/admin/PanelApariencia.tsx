@@ -4,7 +4,7 @@ import { Icono } from "../../components/ui/Icono";
 import { aplicarTema, useApariencia } from "../../hooks/useApariencia";
 import { useAuth } from "../../hooks/useAuth";
 import { adminApi, AparienciaApi } from "../../lib/adminApi";
-import { API_ORIGIN } from "../../lib/api";
+import { urlDeArchivo } from "../../lib/api";
 
 // ---------------------------------------------------------------------
 // APARIENCIA DE LA CLÍNICA — prompt 01c, sección 2.
@@ -182,11 +182,7 @@ export function PanelApariencia() {
   }
 
   const hayCambios = color !== datos.primario || tema !== datos.tema;
-  const srcLogo = datos.logoUrl
-    ? datos.logoUrl.startsWith("http")
-      ? datos.logoUrl
-      : `${API_ORIGIN}${datos.logoUrl}`
-    : null;
+  const srcLogo = urlDeArchivo(datos.logoUrl);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_380px]">

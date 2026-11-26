@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -84,7 +85,7 @@ export function ConteoFisico() {
           : {}),
       });
       toast.exito(
-        `Conteo abierto con ${r.lineas} línea(s). La existencia quedó congelada: lo que se venda ahora no va a aparecer como diferencia.`
+        `Conteo abierto con ${plural(r.lineas, "línea", "líneas")}. La existencia quedó congelada: lo que se venda ahora no va a aparecer como diferencia.`
       );
       await recargar();
       await abrir(r.id);
@@ -134,8 +135,8 @@ export function ConteoFisico() {
       const r = await inventarioApi.cerrarConteo(abierto.conteo.id);
       toast.exito(
         r.diferencias.length === 0
-          ? `Conteo cerrado sin diferencias.${r.sinContar > 0 ? ` Quedaron ${r.sinContar} línea(s) sin contar, que no se tocaron.` : ""}`
-          : `Conteo cerrado con ${r.diferencias.length} diferencia(s). Se pidió el ajuste correspondiente; si supera el umbral, espera aprobación.`
+          ? `Conteo cerrado sin diferencias.${r.sinContar > 0 ? ` Quedaron ${plural(r.sinContar, "línea", "líneas")} sin contar, que no se tocaron.` : ""}`
+          : `Conteo cerrado con ${plural(r.diferencias.length, "diferencia", "diferencias")}. Se pidió el ajuste correspondiente; si supera el umbral, espera aprobación.`
       );
       setAbierto(null);
       await recargar();
@@ -172,7 +173,7 @@ export function ConteoFisico() {
       header: "Avance",
       render: (c) => (
         <span className="text-sm">
-          {c.contadas} de {c.lineas} línea(s)
+          {c.contadas} de {plural(c.lineas, "línea", "líneas")}
         </span>
       ),
     },

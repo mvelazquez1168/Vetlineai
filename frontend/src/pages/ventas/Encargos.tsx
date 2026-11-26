@@ -17,6 +17,7 @@ import {
 import { Caja, CuentaListada, Encargo, formatearMonto, ventasApi } from "../../lib/ventasApi";
 import { ProductoListado, inventarioApi } from "../../lib/inventarioApi";
 import { ReceptorEncontrado, facturacionCrApi } from "../../lib/facturacionCrApi";
+import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
 // ENCARGOS ESPECIALES: alimentos o medicamentos que se piden para un
@@ -215,7 +216,7 @@ export function Encargos() {
       const r = await ventasApi.estadoEncargo(e.id, estado);
       toast.exito(
         estado === "recibido"
-          ? `Llegó y queda reservado: ${r.reservado ?? ""} unidad(es) apartadas, no se le venden a otro cliente.`
+          ? `Llegó y queda reservado: ${plural(Number(r.reservado ?? 0), "unidad apartada", "unidades apartadas")}, no se le venden a otro cliente.`
           : "Marcado como avisado. El aviso automático llega con el CRM."
       );
       await recargar();
@@ -299,7 +300,7 @@ export function Encargos() {
           </Badge>
           {Number(e.cantidad_reservada) > 0 && (
             <span className="mt-1 block text-xs text-text-muted">
-              {Number(e.cantidad_reservada)} reservada(s)
+              {plural(Number(e.cantidad_reservada), "reservada", "reservadas")}
             </span>
           )}
         </>
@@ -359,7 +360,7 @@ export function Encargos() {
           <h2 className="text-xl font-bold text-primary">Encargos</h2>
           <p className="mt-1 text-sm text-text-muted">
             {porAvisar > 0
-              ? `${porAvisar} encargo(s) llegaron y hay que avisarle al cliente.`
+              ? `${plural(porAvisar, "encargo llegó", "encargos llegaron")} y hay que avisarle al cliente.`
               : "Nada pendiente de avisar."}
           </p>
         </div>

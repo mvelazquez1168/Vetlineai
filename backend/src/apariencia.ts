@@ -1,4 +1,5 @@
 import { Pool, PoolClient } from "pg";
+import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "./almacenamiento";
 import {
   PRIMARIO_POR_DEFECTO,
   TEMAS,
@@ -53,10 +54,17 @@ export async function apariencia(db: EjecutorSql, tenantId: string): Promise<Apa
   const primario = r.rows[0].primario ?? PRIMARIO_POR_DEFECTO;
   const tema = (r.rows[0].tema ?? "marca") as TemaPredefinido;
 
+  // `tenants.logo_url` guarda la CLAVE del almacenamiento
+  // ("logos/x.jpg"), no una URL. Devolverla tal cual dejaba el logo
+  // roto en el marco y en la pantalla de apariencia: el navegador
+  // pedia "http://localhost:4000logos/x.jpg", sin la barra. Se resuelve
+  // con el mismo helper que usa GET /admin/clinica.
+  const logo = r.rows[0].logo_url;
+
   return {
     primario,
     tema,
-    logoUrl: r.rows[0].logo_url,
+    logoUrl: logo ? almacenamientoPublico.url(claveLogoDesdeValorGuardado(logo)) : null,
     nombreClinica: r.rows[0].nombre,
     calculado: calcularTema(primario),
   };

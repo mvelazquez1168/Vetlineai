@@ -89,6 +89,25 @@ export function leerModulosGuardados(): string[] {
   }
 }
 
+const PANTALLA_INICIO_KEY = "vetline:pantalla-inicio";
+
+/**
+ * La pantalla de entrada elegida, espejada acá desde la base.
+ *
+ * La fuente es `personas.pantalla_inicio`; esto es solo una copia para
+ * que el redirect del login no tenga que esperar un render. Se reescribe
+ * en cada `GET /auth/me`, asi que no puede quedar desincronizada mas
+ * alla de una sesion.
+ */
+export function guardarPantallaInicio(ruta: string | null): void {
+  if (ruta) localStorage.setItem(PANTALLA_INICIO_KEY, ruta);
+  else localStorage.removeItem(PANTALLA_INICIO_KEY);
+}
+
+export function leerPantallaInicioGuardada(): string | null {
+  return localStorage.getItem(PANTALLA_INICIO_KEY);
+}
+
 export function leerAccessToken(): string | null {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }

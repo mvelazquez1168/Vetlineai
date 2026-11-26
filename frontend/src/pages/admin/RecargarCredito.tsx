@@ -255,7 +255,7 @@ export function RecargarCredito() {
             <p className="text-error font-semibold">
               {resultado.mensajeError ?? (resultado.motivoFalla ? MOTIVO_LABEL[resultado.motivoFalla] : "No se pudo procesar el cobro.")}
             </p>
-            <p className="text-text-muted">Tu saldo no cambió. Revisá tu medio de pago e intentá de nuevo.</p>
+            <p className="text-text-muted">Tu saldo no cambió. Revise su medio de pago e inténtelo de nuevo.</p>
           </div>
         )}
       </Modal>

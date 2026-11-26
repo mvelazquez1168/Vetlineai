@@ -16,6 +16,7 @@ import {
   useToast,
 } from "../../components/ui";
 import { Recibido, facturacionCrApi, formatearMonto } from "../../lib/facturacionCrApi";
+import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
 // Comprobantes recibidos de proveedores, y el mensaje receptor con el
@@ -240,7 +241,7 @@ export function ComprobantesRecibidos() {
       {pendientes > 0 && (
         <div className="mt-4 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
           <p className="font-medium text-text">
-            {pendientes} comprobante(s) sin mensaje receptor.
+            {plural(pendientes, "comprobante", "comprobantes")} sin mensaje receptor.
           </p>
           <p className="text-text-muted">
             El mensaje receptor tiene plazo y es lo que define si el IVA de esa factura es
@@ -257,7 +258,7 @@ export function ComprobantesRecibidos() {
           className="mt-4"
           icono="recibidos"
           titulo="Todavía no hay comprobantes de proveedores"
-          texto="Cargá el XML que te manda tu proveedor. El sistema lo valida contra el esquema de Hacienda y después se le responde con el mensaje receptor."
+          texto="Cargue el XML que le manda su proveedor. El sistema lo valida contra el esquema de Hacienda y después se le responde con el mensaje receptor."
         />
       )}
 

@@ -7,7 +7,6 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Select } from "../../components/ui/Select";
 import { adminApi, EstadoMiCorreo, PlanInfo, TenantInfo } from "../../lib/adminApi";
-import { API_ORIGIN } from "../../lib/api";
 import { Pais, paisesApi } from "../../lib/paisesApi";
 
 // Etiqueta legible con offset ("Argentina (GMT-3)"), armada acá con el

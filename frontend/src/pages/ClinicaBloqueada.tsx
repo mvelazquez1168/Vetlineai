@@ -39,7 +39,7 @@ export function ClinicaBloqueada() {
         href="mailto:soporte@vetlineai.com"
         className="rounded-lg bg-primary px-4 py-2 font-semibold text-white hover:bg-secondary"
       >
-        Contactá al soporte de Vetline Ai
+        Contacte al soporte de Vetline Ai
       </a>
     </div>
   );

@@ -42,7 +42,7 @@ export function InvitacionMedico() {
         // propio médico, no quien lo invitó.
         if (datos.nombre) setNombre(datos.nombre);
       })
-      .catch(() => setErrorCarga("No pudimos consultar esta invitación. Intentá de nuevo."))
+      .catch(() => setErrorCarga("No pudimos consultar esta invitación. Inténtelo de nuevo."))
       .finally(() => setCargando(false));
   }, [token]);
 
@@ -75,7 +75,7 @@ export function InvitacionMedico() {
           invitacionesApi.obtener(token).then(setInvitacion);
         }
       } else {
-        setError("No pudimos completar el alta. Intentá de nuevo.");
+        setError("No pudimos completar el alta. Inténtelo de nuevo.");
       }
     } finally {
       setEnviando(false);

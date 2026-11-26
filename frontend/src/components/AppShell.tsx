@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { BackdropMenuMovil } from "./BackdropMenuMovil";
+import { urlDeArchivo } from "../lib/api";
+import { pantallasDisponibles } from "../lib/pantallaDeEntrada";
 import { BarraVentanaPurga } from "./BarraVentanaPurga";
 import { BarraVerificacionCorreo } from "./BarraVerificacionCorreo";
 import { NotificacionesPersonalesBell } from "./NotificacionesPersonalesBell";
@@ -129,7 +131,8 @@ const CLAVE_GRUPOS = "vetline:menu-grupos";
 const CLAVE_COLAPSADO = "vetline:menu-colapsado";
 
 export function AppShell() {
-  const { user, logout, esMedico, esAdminClinica } = useAuth();
+  const { user, logout, esMedico, esAdminClinica, modulos, pantallaInicio, elegirPantallaInicio } =
+    useAuth();
   const { tieneModulo } = useModulos();
   const { apariencia, colorDeModulo } = useApariencia();
   const { abierto, alternar, cerrar } = useMenuColapsable();
@@ -199,7 +202,7 @@ export function AppShell() {
           <Link to="/inicio" className="flex items-center gap-3" onClick={cerrar}>
             {apariencia?.logoUrl ? (
               <img
-                src={apariencia.logoUrl}
+                src={urlDeArchivo(apariencia.logoUrl) ?? ""}
                 alt={apariencia.nombreClinica}
                 className="h-9 w-9 flex-shrink-0 rounded-lg bg-surface object-contain p-0.5"
               />
@@ -282,12 +285,44 @@ export function AppShell() {
                     : "Medicina"}
               </p>
               <p className="text-xs text-sobre-primary/75">Sesión activa</p>
+
+              {/* LA PANTALLA DE ENTRADA, elegida por el usuario (prompt
+                  01c). Va acá, en su bloque, y no en una pantalla de
+                  preferencias: es una sola decisión y abrir una pantalla
+                  entera para una decisión es como no tenerla.
+
+                  «La que corresponda» no es un valor más de la lista: es
+                  volver a que la decida el sistema, que es lo correcto
+                  el día que la clínica habilita caja y aparece Inicio. */}
+              <label className="mt-3 block text-xs text-sobre-primary/75" htmlFor="pantalla-entrada">
+                Al entrar, ir a
+              </label>
+              <select
+                id="pantalla-entrada"
+                value={pantallaInicio ?? ""}
+                onChange={(e) => void elegirPantallaInicio(e.target.value || null)}
+                className="mt-1 min-h-11 w-full rounded-lg border border-sobre-primary/20 bg-sobre-primary/10 px-2 text-sm text-sobre-primary"
+              >
+                <option value="" className="text-text-primary">
+                  La que corresponda
+                </option>
+                {pantallasDisponibles({ esMedico, esAdminClinica, modulos }).map((p) => (
+                  <option key={p.ruta} value={p.ruta} className="text-text-primary">
+                    {p.etiqueta}
+                  </option>
+                ))}
+              </select>
             </>
           )}
           <div className={["mt-3 flex items-center gap-2", colapsado ? "flex-col" : ""].join(" ")}>
             <button
               type="button"
               onClick={logout}
+              // Con el menu colapsado este boton queda solo con el
+              // icono, asi que el nombre accesible va siempre: ponerlo
+              // solo cuando esta colapsado seria un nombre que aparece
+              // y desaparece.
+              aria-label="Cerrar sesión"
               className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-sobre-primary/10 px-3 text-sm font-medium hover:bg-sobre-primary/20"
             >
               <Icono nombre="salir" tamano={16} />

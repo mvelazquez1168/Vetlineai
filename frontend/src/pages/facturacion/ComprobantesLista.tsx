@@ -1,6 +1,8 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  PageHeader,
   Badge,
   Button,
   EmptyState,
@@ -156,13 +158,13 @@ export function ComprobantesLista() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-primary">Comprobantes electrónicos</h2>
-          <p className="mt-1 text-sm text-text-muted">
-            Lo que se le emitió a Hacienda, con el estado que Hacienda devolvió.
-          </p>
-        </div>
+      <PageHeader
+        titulo="Comprobantes electrónicos"
+        subtitulo="Lo que se le emitió a Hacienda, con el estado que Hacienda devolvió."
+        icono="comprobante"
+        modulo="facturacion"
+      />
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           <Link to="/facturacion/emisor">
             <Button variant="ghost">
@@ -190,7 +192,8 @@ export function ComprobantesLista() {
       {pendientes && pendientes.enCola > 0 && (
         <div className="mt-4 rounded-xl border border-black/5 bg-surface p-3 text-sm">
           <p className="font-medium text-text">
-            {pendientes.enCola} comprobante(s) pendientes de transmitir a Hacienda.
+            {plural(pendientes.enCola, "comprobante pendiente", "comprobantes pendientes")} de transmitir a
+            Hacienda.
           </p>
           <p className="text-text-muted">
             Se reintentan solos cada minuto. La venta no se bloquea: el comprobante ya está firmado.
@@ -200,7 +203,7 @@ export function ComprobantesLista() {
       {pendientes && pendientes.conError > 0 && (
         <div className="mt-3 rounded-xl border border-error/30 bg-error/5 p-3 text-sm">
           <p className="font-medium text-error">
-            {pendientes.conError} comprobante(s) con error.
+            {plural(pendientes.conError, "comprobante", "comprobantes")} con error.
           </p>
           <p className="text-text-muted">
             Ya no se reintentan solos: hay que abrirlos y reenviarlos a mano, o corregir lo que

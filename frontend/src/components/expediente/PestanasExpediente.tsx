@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useMemo, useState } from "react";
 import {
   Badge,
@@ -290,7 +291,7 @@ function Resumen({
               <span className="block text-xs text-text-muted">
                 desde {fechaCorta(p.fecha_inicio)}
                 {p.fecha_resolucion ? ` · resuelto el ${fechaCorta(p.fecha_resolucion)}` : ""}
-                {p.atenciones > 0 ? ` · ${p.atenciones} visita(s)` : ""}
+                {p.atenciones > 0 ? ` · ${plural(p.atenciones, "visita", "visitas")}` : ""}
               </span>
               {esMedico && p.estado !== "resuelto" && (
                 <div className="mt-1 flex gap-2">
@@ -591,7 +592,7 @@ function LineaDeTiempo({
       {coincidencias.length > 0 && (
         <div className="mt-3 rounded-lg border border-accent/30 bg-accent/5 p-3">
           <p className="text-sm font-semibold text-text-primary">
-            {coincidencias.length} coincidencia(s) de «{busqueda}» en toda la historia
+            {plural(coincidencias.length, "coincidencia", "coincidencias")} de «{busqueda}» en toda la historia
           </p>
           <ul className="mt-2 space-y-1 text-sm">
             {coincidencias.map((c, i) => (
@@ -1196,7 +1197,7 @@ function Consentimientos({
       const r = await expedienteApi.sembrarPlantillasBase();
       toast.exito(
         r.creadas > 0
-          ? `${r.creadas} plantilla(s) creada(s). Son un punto de partida: el texto es de la clínica y se edita.`
+          ? `${plural(r.creadas, "plantilla creada", "plantillas creadas")}. Son un punto de partida: el texto es de la clínica y se edita.`
           : "Las plantillas base ya estaban."
       );
       recargar();
@@ -1320,7 +1321,7 @@ function Consentimientos({
               value={elegida}
               onChange={(e) => preparar(e.target.value)}
               options={[
-                { value: "", label: "Elegí la plantilla" },
+                { value: "", label: "Elija la plantilla" },
                 ...plantillas.map((p) => ({ value: p.id, label: p.titulo })),
               ]}
             />

@@ -121,3 +121,18 @@ export async function apiFetchFile(
 
   return { blob: await response.blob(), filename: match ? match[1] : null };
 }
+
+/**
+ * La URL de un archivo servido por el backend (logos, adjuntos).
+ *
+ * Con S3 el servidor ya devuelve una URL absoluta y esto no la toca.
+ * En desarrollo devuelve una ruta relativa ("/uploads/logos/x.png"),
+ * que hay que colgar del origen de la API y no del de la interfaz:
+ * son puertos distintos. Vive acá y no en cada pantalla porque ya
+ * habia dos copias de este `if` y una de las dos se olvidaba la barra.
+ */
+export function urlDeArchivo(valor: string | null | undefined): string | null {
+  if (!valor) return null;
+  if (/^https?:\/\//.test(valor)) return valor;
+  return `${API_ORIGIN}${valor.startsWith("/") ? "" : "/"}${valor}`;
+}

@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
+import { KpiCard, PageHeader, TiraIndicadores } from "../../components/ui";
+import { apiFetch } from "../../lib/api";
+import { getStoredToken } from "../../hooks/useAuth";
 import { useAuth } from "../../hooks/useAuth";
 import {
   Cita,
@@ -92,6 +95,15 @@ function hashColor(medicoId: string): string {
 }
 
 export function Calendario() {
+  // Los tres indicadores salen de `/inicio/indicadores`, la misma
+  // consulta agregada del marco: el numero de citas de hoy tiene que
+  // ser el mismo que muestra Inicio y que el contador del menu.
+  const [indicadores, setIndicadores] = useState<{
+    citas_hoy: number;
+    citas_por_confirmar: number;
+    en_sala_de_espera: number;
+  } | null>(null);
+
   const { rol, user } = useAuth();
   const esAdminClinica = rol === "admin_clinica";
 
@@ -111,6 +123,15 @@ export function Calendario() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [citaEnEdicion, setCitaEnEdicion] = useState<Cita | null>(null);
   const [slotPrellenado, setSlotPrellenado] = useState<{ fecha: string; hora: string } | null>(null);
+
+  useEffect(() => {
+    apiFetch<{ citas_hoy: number; citas_por_confirmar: number; en_sala_de_espera: number }>(
+      "/inicio/indicadores",
+      { token: getStoredToken() }
+    )
+      .then(setIndicadores)
+      .catch(() => setIndicadores(null));
+  }, []);
 
   useEffect(() => {
     let cancelado = false;
@@ -236,9 +257,46 @@ export function Calendario() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* «Confirmadas por WhatsApp» NO esta: el canal de WhatsApp sigue
+          con el proveedor simulado (prompt 03) y no ha confirmado una
+          sola cita. Un indicador que siempre dice cero ensena a ignorar
+          los numeros. Queda dicho en el informe. */}
+      <PageHeader
+        titulo="Calendario"
+        icono="cita"
+        modulo="agenda"
+        accion={<Button onClick={() => abrirNuevaCita()}>+ Nueva Cita</Button>}
+        indicadores={
+          indicadores && (
+            <TiraIndicadores>
+              <KpiCard
+                titulo="Citas de hoy"
+                valor={String(indicadores.citas_hoy)}
+                icono="cita"
+                modulo="agenda"
+                variacionPorcentaje={null}
+                detalle={
+                  indicadores.citas_por_confirmar > 0
+                    ? `${indicadores.citas_por_confirmar} sin confirmar`
+                    : "Todas confirmadas"
+                }
+              />
+              <KpiCard
+                titulo="En sala de espera"
+                valor={String(indicadores.en_sala_de_espera)}
+                icono="hora"
+                modulo="agenda"
+                estado={indicadores.en_sala_de_espera > 0 ? "aviso" : undefined}
+                variacionPorcentaje={null}
+                detalle="Llegaron y todavía no entran a consulta"
+              />
+            </TiraIndicadores>
+          )
+        }
+      />
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-primary">Calendario</h1>
           <div className="flex rounded-lg border border-black/10 bg-surface p-1">
             {(["dia", "semana", "mes"] as Vista[]).map((v) => (
               <button
@@ -265,7 +323,6 @@ export function Calendario() {
             </button>
           </div>
         </div>
-        <Button onClick={() => abrirNuevaCita()}>+ Nueva Cita</Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[240px_1fr]">

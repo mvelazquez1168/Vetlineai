@@ -48,14 +48,14 @@ export function BarraVerificacionCorreo() {
         const disponibleEn = (err.data as { disponibleEn?: string } | null)?.disponibleEn;
         setMensajeReenvio(
           disponibleEn
-            ? `Ya pediste el máximo de reenvíos por ahora. Podés volver a intentarlo a partir de las ${formatearHora(
+            ? `Ya pediste el máximo de reenvíos por ahora. Puede volver a intentarlo a partir de las ${formatearHora(
                 disponibleEn,
                 zonaHoraria
               )}.`
-            : "Ya pediste el máximo de reenvíos por ahora — probá de nuevo en un rato."
+            : "Ya pediste el máximo de reenvíos por ahora — vuelva a intentarlo en un rato."
         );
       } else {
-        setMensajeReenvio(err instanceof ApiError ? err.message : "No pudimos reenviar el correo. Intentá de nuevo.");
+        setMensajeReenvio(err instanceof ApiError ? err.message : "No pudimos reenviar el correo. Inténtelo de nuevo.");
       }
     } finally {
       setReenviando(false);
@@ -76,7 +76,7 @@ export function BarraVerificacionCorreo() {
           <p className="text-text">
             {estado.rebotado ? (
               <>
-                <span className="font-semibold">El correo de verificación rebotó.</span> Revisá si{" "}
+                <span className="font-semibold">El correo de verificación rebotó.</span> Revise si{" "}
                 <strong>{estado.email}</strong> está bien escrito — si lo está, pedí que te lo reenvíen.
               </>
             ) : (
@@ -100,7 +100,7 @@ export function BarraVerificacionCorreo() {
             onClick={() => setModalAbierto(true)}
             className="rounded-lg border border-primary px-3 py-1.5 font-semibold text-primary hover:bg-primary/5"
           >
-            Lo escribí mal — corregir
+            Lo escribió mal — corregir
           </button>
         </div>
       </div>

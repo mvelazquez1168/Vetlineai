@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -182,7 +183,7 @@ export function Compras() {
       toast.exito(
         r.estado === "recibida"
           ? "Orden recibida completa."
-          : `Recepción parcial. Falta recibir ${faltan.length} línea(s).`
+          : `Recepción parcial. Falta recibir ${plural(faltan.length, "línea", "líneas")}.`
       );
       await recargar();
       await abrirOrden(ordenAbierta.orden.id);
@@ -200,7 +201,7 @@ export function Compras() {
       render: (o) => (
         <button type="button" className="text-left hover:underline" onClick={() => abrirOrden(o.id)}>
           <span className="font-medium text-primary">#{o.numero}</span>
-          <span className="block text-xs text-text-muted">{o.lineas} línea(s)</span>
+          <span className="block text-xs text-text-muted">{plural(o.lineas, "línea", "líneas")}</span>
         </button>
       ),
     },

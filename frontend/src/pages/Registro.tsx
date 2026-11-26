@@ -754,7 +754,7 @@ export function Registro() {
       if ("listaEspera" in respuesta) {
         // Defensa en profundidad: el país dejó de estar habilitado entre
         // el paso 1 y este envío. Volvemos al paso de país con el mensaje.
-        setError("Este país dejó de estar disponible. Volvé a seleccionar tu país.");
+        setError("Este país dejó de estar disponible. Vuelva a seleccionar su país.");
         setPaso("pais");
         return;
       }
@@ -771,7 +771,7 @@ export function Registro() {
 
       setPaso("bienvenida");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No pudimos completar el registro. Intentá de nuevo.");
+      setError(err instanceof ApiError ? err.message : "No pudimos completar el registro. Inténtelo de nuevo.");
     } finally {
       setRegistrando(false);
     }

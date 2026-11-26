@@ -6,6 +6,7 @@ import { Card, CardTitle } from "../../components/ui/Card";
 import { Modal } from "../../components/ui/Modal";
 import { formatearFecha } from "../../lib/formatFecha";
 import { DetalleClinicaConsumo as DetalleData, EventoCicloVida, platformAdminApi } from "../../lib/platformAdminApi";
+import { plural } from "../../lib/plural";
 
 // Prompt A (platform_admin_registro), Paso 6 — Detalle de clínica (consumo).
 // El ajuste manual de saldo es la operación más sensible del panel: motivo
@@ -222,7 +223,7 @@ export function DetalleClinicaConsumo() {
               <div key={d.tipo} className="flex items-center justify-between border-b border-black/5 pb-2 last:border-0">
                 <div>
                   <p className="font-semibold text-text-primary">{d.etiqueta}</p>
-                  <p className="text-sm text-text-muted">{d.cantidad} registro(s)</p>
+                  <p className="text-sm text-text-muted">{plural(d.cantidad, "registro", "registros")}</p>
                 </div>
                 <p className="font-semibold text-text-primary">USD {d.montoUsd.toFixed(2)}</p>
               </div>
@@ -452,7 +453,7 @@ export function DetalleClinicaConsumo() {
           clínica sin borrar datos históricos de la base.
         </p>
         <div className="mt-4 rounded-lg bg-error/10 p-3 text-sm text-error">
-          <span className="font-bold">{detalle.usuariosActivos} usuario(s) quedarán sin acceso</span> de forma
+          <span className="font-bold">{plural(detalle.usuariosActivos, "usuario quedará", "usuarios quedarán")} sin acceso</span> de forma
           inmediata.
         </div>
         <div className="mt-4 flex flex-col gap-1.5">

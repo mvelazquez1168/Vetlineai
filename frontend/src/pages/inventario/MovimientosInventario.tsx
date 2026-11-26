@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -247,7 +248,7 @@ export function MovimientosInventario() {
           {a.motivo_detalle && (
             <span className="block text-xs text-text-muted">{a.motivo_detalle}</span>
           )}
-          <span className="block text-xs text-text-muted">{a.lineas} línea(s)</span>
+          <span className="block text-xs text-text-muted">{plural(a.lineas, "línea", "líneas")}</span>
         </>
       ),
     },

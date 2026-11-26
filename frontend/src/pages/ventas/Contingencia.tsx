@@ -13,6 +13,7 @@ import {
   useToast,
 } from "../../components/ui";
 import { CuentaListada, Provisional, ventasApi } from "../../lib/ventasApi";
+import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
 // CONTINGENCIA SIN INTERNET.
@@ -177,7 +178,7 @@ export function Contingencia() {
                 { value: "", label: "Elegí la cuenta" },
                 ...cuentas.map((c) => ({
                   value: c.id,
-                  label: `#${c.numero} ${c.cliente_nombre ?? "sin cliente"} (${c.cargos} cargo(s))`,
+                  label: `#${c.numero} ${c.cliente_nombre ?? "Cliente sin registrar"} (${plural(c.cargos, "cargo", "cargos")})`,
                 })),
               ]}
             />

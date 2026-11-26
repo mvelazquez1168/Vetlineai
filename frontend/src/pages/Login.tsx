@@ -3,7 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { ApiError } from "../lib/api";
-import { useAuth } from "../hooks/useAuth";
+import { Modulo, useAuth } from "../hooks/useAuth";
+import { leerModulosGuardados, leerPantallaInicioGuardada } from "../lib/session";
+import { rutaDeEntrada } from "../lib/pantallaDeEntrada";
 
 export function Login() {
   const { login } = useAuth();
@@ -21,13 +23,20 @@ export function Login() {
     setIsSubmitting(true);
     try {
       const user = await login(email, password);
-      // Toda sesión de clínica aterriza en Inicio, igual que `IndexRedirect`
-      // (prompt 01c): antes el médico caía en su área de trabajo y el
-      // administrador en la lista de médicos.
-      if (user.rol === "medico" || user.rol === "admin_clinica") navigate("/inicio");
-      else navigate("/platform-admin");
+      // La misma regla que `IndexRedirect`, en la misma función: la
+      // entrada sale del rol, de los módulos de la clínica y de lo que
+      // el usuario eligió. Acá se vuelve a leer la sesión recién
+      // establecida —`login` ya actualizó el contexto— en vez de
+      // confiar en el estado del render anterior.
+      navigate(rutaDeEntrada({
+        rol: user.rol ?? "",
+        esMedico: user.esMedico,
+        esAdminClinica: user.esAdminClinica,
+        modulos: leerModulosGuardados() as Modulo[],
+        pantallaElegida: leerPantallaInicioGuardada(),
+      }));
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "No pudimos iniciar sesión. Intentá de nuevo.";
+      const message = err instanceof ApiError ? err.message : "No pudimos iniciar sesión. Inténtelo de nuevo.";
       setError(message);
     } finally {
       setIsSubmitting(false);

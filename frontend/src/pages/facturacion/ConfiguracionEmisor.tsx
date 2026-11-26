@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -164,7 +165,7 @@ export function ConfiguracionEmisor() {
 
       {!esAdminClinica && (
         <div className="mt-4 rounded-xl border border-black/5 bg-surface p-3 text-sm text-text-muted">
-          Solo un administrador de la clínica puede cambiar estos datos. Podés verlos.
+          Solo un administrador de la clínica puede cambiar estos datos. Puede verlos.
         </div>
       )}
 
@@ -318,7 +319,7 @@ export function ConfiguracionEmisor() {
                   )}
                   {c && porVencer && (
                     <Badge variant="warning" dot>
-                      Vence en {c.diasParaVencer} día(s)
+                      Vence en {plural(c.diasParaVencer ?? 0, "día", "días")}
                     </Badge>
                   )}
                   {c && !vencida && !porVencer && (

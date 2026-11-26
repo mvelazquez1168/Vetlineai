@@ -1,3 +1,4 @@
+import { plural } from "../../lib/plural";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -196,7 +197,7 @@ export function KardexGeneral() {
 
       <Card className="mt-4">
         <CardTitle>
-          {cargando ? "Movimientos" : `${movimientos.length} movimiento(s)`}
+          {cargando ? "Movimientos" : `${plural(movimientos.length, "movimiento", "movimientos")}`}
         </CardTitle>
         <CardDescription>
           Ordenados del más reciente al más viejo. Un movimiento no se edita ni se borra: una

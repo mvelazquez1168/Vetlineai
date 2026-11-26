@@ -123,7 +123,7 @@ export function SelectorUbicacion({
         id={`${idPrefijo}-provincia`}
         value={valor.provincia ?? ""}
         disabled={disabled}
-        options={opciones(provincias, "Elegí una provincia")}
+        options={opciones(provincias, "Elija una provincia")}
         onChange={(e) =>
           onChange({ provincia: e.target.value, canton: "", distrito: "", barrio: "" })
         }
@@ -133,7 +133,7 @@ export function SelectorUbicacion({
         id={`${idPrefijo}-canton`}
         value={valor.canton ?? ""}
         disabled={disabled || !valor.provincia}
-        options={opciones(cantones, valor.provincia ? "Elegí un cantón" : "Elegí la provincia primero")}
+        options={opciones(cantones, valor.provincia ? "Elija un cantón" : "Elija la provincia primero")}
         onChange={(e) =>
           onChange({ ...valor, canton: e.target.value, distrito: "", barrio: "" })
         }
@@ -143,7 +143,7 @@ export function SelectorUbicacion({
         id={`${idPrefijo}-distrito`}
         value={valor.distrito ?? ""}
         disabled={disabled || !valor.canton}
-        options={opciones(distritos, valor.canton ? "Elegí un distrito" : "Elegí el cantón primero")}
+        options={opciones(distritos, valor.canton ? "Elija un distrito" : "Elija el cantón primero")}
         onChange={(e) => onChange({ ...valor, distrito: e.target.value, barrio: "" })}
       />
       {conBarrio && (
@@ -155,7 +155,7 @@ export function SelectorUbicacion({
             value={valor.barrio ?? ""}
             disabled={disabled}
             maxLength={50}
-            placeholder={barrios.length > 0 ? "Elegí o escribí" : "Barrio Escalante"}
+            placeholder={barrios.length > 0 ? "Elija o escriba" : "Barrio Escalante"}
             onChange={(e) => onChange({ ...valor, barrio: e.target.value })}
           />
           <datalist id={listaBarrios}>

@@ -37,7 +37,7 @@ export function AgentSelector() {
       if (agentesData.status === "fulfilled") {
         setAgentes(agentesData.value.agentes);
       } else {
-        setError("No pudimos cargar tus agentes. Intentá de nuevo.");
+        setError("No pudimos cargar sus agentes. Inténtelo de nuevo.");
       }
       setIsLoading(false);
     }
@@ -91,7 +91,7 @@ export function AgentSelector() {
 
       <h1 className="mt-16 font-display text-5xl text-primary">{saludoMedico(nombrePersona)}</h1>
       <p className="mt-4 max-w-xl text-center text-text-muted">
-        Selecciona tu área de trabajo para activar el copiloto clínico de inteligencia
+        Seleccione su área de trabajo para activar el copiloto clínico de inteligencia
         artificial.
       </p>
 
@@ -101,8 +101,8 @@ export function AgentSelector() {
         <div className="mt-12 max-w-md rounded-2xl border border-black/5 bg-surface p-8 text-center">
           <h3 className="text-lg font-bold text-primary">Todavía no tiene agentes asignados</h3>
           <p className="mt-2 text-sm text-text-muted">
-            Tenés acceso a la plataforma, pero ningún agente clínico está habilitado para vos
-            todavía. Pedile al administrador de tu clínica que te asigne uno desde Gestión de
+            Tiene acceso a la plataforma, pero todavía no hay ningún agente clínico habilitado
+            para usted. Pídale al administrador de su clínica que le asigne uno desde Gestión de
             Médicos.
           </p>
         </div>

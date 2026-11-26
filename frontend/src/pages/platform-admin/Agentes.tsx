@@ -224,7 +224,7 @@ export function Agentes() {
                   )}
 
                   <p className="text-xs text-text-muted">
-                    {a.clinicas_activas} {Number(a.clinicas_activas) === 1 ? "clínica" : "clínicas"} habilitada(s) ·{" "}
+                    {a.clinicas_activas} {Number(a.clinicas_activas) === 1 ? "clínica" : "clínicas"} habilitada ·{" "}
                     {a.casos_totales} casos totales
                   </p>
 

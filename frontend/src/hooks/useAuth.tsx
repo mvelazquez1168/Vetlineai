@@ -4,6 +4,8 @@ import { keycloakAuth, KeycloakTokenResponse } from "../lib/keycloakAuth";
 import {
   decodeJwtPayload,
   guardarModulos,
+  guardarPantallaInicio,
+  leerPantallaInicioGuardada,
   guardarTokens,
   guardarUsuario,
   leerAccessToken,
@@ -69,6 +71,14 @@ interface AuthContextValue {
   zonaHoraria: string | null;
   /** Módulos de Vetline Clinic habilitados en la clínica de la sesión. [] para staff de plataforma. */
   modulos: Modulo[];
+  /**
+   * La pantalla de entrada que ESTE usuario eligió, o null para «la que
+   * corresponda». Vive en la base (`personas.pantalla_inicio`) y no en
+   * el navegador: es del usuario, no del equipo desde el que entra.
+   */
+  pantallaInicio: string | null;
+  /** Guarda la elección. `null` vuelve a la derivada del rol y los módulos. */
+  elegirPantallaInicio: (ruta: string | null) => Promise<void>;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthUser>;
   /**
@@ -110,6 +120,7 @@ function isExpired(claims: { exp?: number } | null): boolean {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [modulos, setModulos] = useState<Modulo[]>([]);
+  const [pantallaInicio, setPantallaInicio] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Al montar, restauramos el snapshot ya resuelto (evita esperar un
@@ -129,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // secciones pintar. La lista se refresca en el próximo login o
       // refresco de sesión; habilitar un módulo se ve al recargar.
       setModulos(leerModulosGuardados() as Modulo[]);
+      setPantallaInicio(leerPantallaInicioGuardada());
     } else {
       limpiarSesion();
     }
@@ -162,9 +174,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // vinculado) antes de dar la sesión por establecida: mejor fallar acá
     // con un mensaje claro que dejar entrar a alguien cuyo primer request
     // real le va a devolver 401 en todos lados.
-    let me: { auth: AuthUser; modulos?: Modulo[] };
+    let me: {
+      auth: AuthUser;
+      modulos?: Modulo[];
+      persona?: { pantalla_inicio?: string | null } | null;
+    };
     try {
-      me = await apiFetch<{ auth: AuthUser; modulos?: Modulo[] }>("/auth/me", {
+      me = await apiFetch<{
+        auth: AuthUser;
+        modulos?: Modulo[];
+        persona?: { pantalla_inicio?: string | null } | null;
+      }>("/auth/me", {
         token: tokens.access_token,
       });
     } catch (err) {
@@ -180,6 +200,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     guardarModulos(modulosDeLaSesion);
     setUser(me.auth);
     setModulos(modulosDeLaSesion);
+    guardarPantallaInicio(me.persona?.pantalla_inicio ?? null);
+    setPantallaInicio(me.persona?.pantalla_inicio ?? null);
     return me.auth;
   };
 
@@ -196,10 +218,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     limpiarSesion();
     setUser(null);
     setModulos([]);
+    setPantallaInicio(null);
     if (refreshToken) {
       // Best-effort: invalida la sesión del lado de Keycloak, sin bloquear
       // el logout local si falla (ver keycloakAuth.ts).
       keycloakAuth.logout(refreshToken).catch(() => {});
+    }
+  };
+
+  const elegirPantallaInicio = async (ruta: string | null) => {
+    // Optimista: el menu se cierra con la eleccion ya puesta. Si el
+    // guardado falla, se vuelve atras — la alternativa, esperar la
+    // respuesta, hace que el clic parezca no haber pasado (es el mismo
+    // problema que tenian las casillas de consentimientos del CRM).
+    const previo = pantallaInicio;
+    setPantallaInicio(ruta);
+    guardarPantallaInicio(ruta);
+    try {
+      await apiFetch("/auth/mi-pantalla-inicio", {
+        method: "PUT",
+        token: getStoredToken(),
+        body: JSON.stringify({ pantalla: ruta }),
+      });
+    } catch (err) {
+      setPantallaInicio(previo);
+      guardarPantallaInicio(previo);
+      console.error("No se pudo guardar la pantalla de entrada:", err);
     }
   };
 
@@ -212,12 +256,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       esMedico: user?.esMedico ?? false,
       zonaHoraria: user?.zonaHoraria ?? null,
       modulos,
+      pantallaInicio,
+      elegirPantallaInicio,
       isLoading,
       login,
       iniciarSesionConTokensKeycloak,
       logout,
     }),
-    [user, modulos, isLoading]
+    [user, modulos, pantallaInicio, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

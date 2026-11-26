@@ -105,9 +105,15 @@ inicioRouter.get("/indicadores", async (req, res) => {
                WHERE p.activo AND p.minimo IS NOT NULL AND p.minimo > 0
                GROUP BY p.id, p.minimo
              ) x WHERE x.existencia < x.minimo) AS bajo_minimo,
+           -- vencimiento_efectivo, NO vencimiento: un lote abierto
+           -- vence antes que su fecha impresa, y esa es la fecha que
+           -- usan el FEFO y la pantalla. La migracion 095 lo dice: los
+           -- tres tienen que leer el MISMO numero. Leyendo la columna
+           -- cruda, este indicador decia 0 con un frasco abierto
+           -- venciendo en un mes.
            (SELECT count(*)::int FROM inv_lotes
-             WHERE cantidad > 0 AND vencimiento IS NOT NULL
-               AND vencimiento <= CURRENT_DATE + 60) AS vencen_60_dias,
+             WHERE cantidad > 0 AND vencimiento_efectivo IS NOT NULL
+               AND vencimiento_efectivo <= CURRENT_DATE + 60) AS vencen_60_dias,
            (SELECT count(*)::int FROM inv_ajustes
              WHERE estado = 'pendiente') AS ajustes_por_aprobar`
       );

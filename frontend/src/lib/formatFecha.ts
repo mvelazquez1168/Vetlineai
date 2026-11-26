@@ -8,11 +8,32 @@ export const ZONA_HORARIA_PLATAFORMA = "America/Costa_Rica";
  * strings ni usar toLocaleDateString/toLocaleTimeString sueltos — todos
  * pasan por acá, con una zona horaria explícita (nunca implícita/UTC).
  */
+const SOLO_FECHA = /^\d{4}-\d{2}-\d{2}$/;
+
 export function formatearFecha(
   fecha: string,
   zonaHoraria: string | null | undefined,
   opciones: Intl.DateTimeFormatOptions
 ): string {
+  // UNA FECHA DE CALENDARIO NO TIENE ZONA HORARIA, y convertirla es el
+  // error. "2026-12-26" es el 26 de diciembre en todas partes; pero
+  // `new Date("2026-12-26")` lo interpreta como medianoche UTC, y al
+  // mostrarlo en Costa Rica (UTC-6) da el 25.
+  //
+  // DEFECTO REAL, visto en el catálogo de inventario: un lote que vence
+  // el 26 se mostraba venciendo el 25. Pasaba en TODA columna de fecha
+  // sin hora —vencimientos, fechas de aplicación, fechas de nacimiento—
+  // y nadie lo notaba porque un día de diferencia no se ve raro.
+  //
+  // Se arregla acá y no en cada pantalla, que es para lo que existe
+  // este módulo.
+  if (SOLO_FECHA.test(fecha)) {
+    const [anio, mes, dia] = fecha.split("-").map(Number);
+    return new Intl.DateTimeFormat("es", {
+      timeZone: "UTC",
+      ...opciones,
+    }).format(new Date(Date.UTC(anio, mes - 1, dia)));
+  }
   return new Intl.DateTimeFormat("es", {
     timeZone: zonaHoraria ?? ZONA_HORARIA_PLATAFORMA,
     ...opciones,

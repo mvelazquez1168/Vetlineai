@@ -695,6 +695,12 @@ const CONFIG_NOTIFICACIONES_DEFAULT = {
   // prompt_code_paciente_nacimiento_estado.md, Parte B3 — 10º aviso, el
   // único puramente comercial: la clínica lo apaga sin pensarlo dos veces.
   cumpleanosActivo: true,
+  // prompt 07d fase 2 — el dictado de la consulta con IA. APAGADO por
+  // omisión, al revés que los diez avisos de arriba: los avisos son
+  // gratis y el dictado consume crédito de IA. Encenderlo tiene que ser
+  // una decisión de la clínica, no algo que descubre en la factura.
+  dictadoIaActivo: false,
+  dictadoRetencionAudioHoras: 0,
 };
 
 const HORAS_AVISO_MIN = 1;
@@ -703,6 +709,10 @@ const DIAS_AVISO_MIN = 1;
 const DIAS_AVISO_MAX = 90;
 const DIAS_SEGUIMIENTO_MIN = 1;
 const DIAS_SEGUIMIENTO_MAX = 30;
+// El techo lo pone el CHECK de la migración 119; acá se repite para que
+// el error sea el del formulario y no una violación de constraint.
+const RETENCION_AUDIO_MIN = 0;
+const RETENCION_AUDIO_MAX = 720;
 
 const COLUMNAS_CONFIG_NOTIFICACIONES = `
   recordatorio_cita_activo, horas_aviso_recordatorio_cita,
@@ -711,7 +721,8 @@ const COLUMNAS_CONFIG_NOTIFICACIONES = `
   vacunacion_activo, dias_aviso_vacunacion,
   seguimiento_posterior_activo, dias_seguimiento_posterior,
   agenda_dia_siguiente_activo, confirmacion_cita_activo,
-  cancelacion_cita_activo, informe_disponible_activo, cumpleanos_activo`;
+  cancelacion_cita_activo, informe_disponible_activo, cumpleanos_activo,
+  dictado_ia_activo, dictado_retencion_audio_horas`;
 
 function filaAJson(fila: any) {
   return {
@@ -730,6 +741,8 @@ function filaAJson(fila: any) {
     cancelacionCitaActivo: fila.cancelacion_cita_activo,
     informeDisponibleActivo: fila.informe_disponible_activo,
     cumpleanosActivo: fila.cumpleanos_activo,
+    dictadoIaActivo: fila.dictado_ia_activo,
+    dictadoRetencionAudioHoras: fila.dictado_retencion_audio_horas,
   };
 }
 
@@ -751,7 +764,7 @@ adminRouter.get("/clinica/configuracion-notificaciones", async (req, res) => {
     const creado = await req.db!.query(
       `INSERT INTO configuracion_notificaciones
          (tenant_id, ${COLUMNAS_CONFIG_NOTIFICACIONES})
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
        ON CONFLICT (tenant_id) DO UPDATE SET tenant_id = EXCLUDED.tenant_id
        RETURNING ${COLUMNAS_CONFIG_NOTIFICACIONES}`,
       [
@@ -771,6 +784,8 @@ adminRouter.get("/clinica/configuracion-notificaciones", async (req, res) => {
         d.cancelacionCitaActivo,
         d.informeDisponibleActivo,
         d.cumpleanosActivo,
+        d.dictadoIaActivo,
+        d.dictadoRetencionAudioHoras,
       ]
     );
     res.json(filaAJson(creado.rows[0]));
@@ -797,6 +812,8 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
     cancelacionCitaActivo,
     informeDisponibleActivo,
     cumpleanosActivo,
+    dictadoIaActivo,
+    dictadoRetencionAudioHoras,
   } = req.body as {
     recordatorioCitaActivo?: boolean;
     horasAvisoRecordatorioCita?: number;
@@ -813,6 +830,8 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
     cancelacionCitaActivo?: boolean;
     informeDisponibleActivo?: boolean;
     cumpleanosActivo?: boolean;
+    dictadoIaActivo?: boolean;
+    dictadoRetencionAudioHoras?: number;
   };
 
   const enteroValido = (n: unknown, min: number, max: number) =>
@@ -833,12 +852,15 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
     typeof confirmacionCitaActivo !== "boolean" ||
     typeof cancelacionCitaActivo !== "boolean" ||
     typeof informeDisponibleActivo !== "boolean" ||
-    typeof cumpleanosActivo !== "boolean"
+    typeof cumpleanosActivo !== "boolean" ||
+    typeof dictadoIaActivo !== "boolean" ||
+    !enteroValido(dictadoRetencionAudioHoras, RETENCION_AUDIO_MIN, RETENCION_AUDIO_MAX)
   ) {
     return res.status(400).json({
       error: `Datos inválidos. horasAvisoRecordatorioCita: ${HORAS_AVISO_MIN}-${HORAS_AVISO_MAX}. ` +
         `diasAvisoDesparasitacion / diasAvisoVacunacion: ${DIAS_AVISO_MIN}-${DIAS_AVISO_MAX}. ` +
-        `diasAvisoSeguimientoFaltante / diasSeguimientoPosterior: ${DIAS_SEGUIMIENTO_MIN}-${DIAS_SEGUIMIENTO_MAX}.`,
+        `diasAvisoSeguimientoFaltante / diasSeguimientoPosterior: ${DIAS_SEGUIMIENTO_MIN}-${DIAS_SEGUIMIENTO_MAX}. ` +
+        `dictadoRetencionAudioHoras: ${RETENCION_AUDIO_MIN}-${RETENCION_AUDIO_MAX}.`,
     });
   }
 
@@ -846,7 +868,7 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
     const result = await req.db!.query(
       `INSERT INTO configuracion_notificaciones
          (tenant_id, ${COLUMNAS_CONFIG_NOTIFICACIONES})
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
        ON CONFLICT (tenant_id) DO UPDATE SET
          recordatorio_cita_activo = EXCLUDED.recordatorio_cita_activo,
          horas_aviso_recordatorio_cita = EXCLUDED.horas_aviso_recordatorio_cita,
@@ -862,7 +884,9 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
          confirmacion_cita_activo = EXCLUDED.confirmacion_cita_activo,
          cancelacion_cita_activo = EXCLUDED.cancelacion_cita_activo,
          informe_disponible_activo = EXCLUDED.informe_disponible_activo,
-         cumpleanos_activo = EXCLUDED.cumpleanos_activo
+         cumpleanos_activo = EXCLUDED.cumpleanos_activo,
+         dictado_ia_activo = EXCLUDED.dictado_ia_activo,
+         dictado_retencion_audio_horas = EXCLUDED.dictado_retencion_audio_horas
        RETURNING ${COLUMNAS_CONFIG_NOTIFICACIONES}`,
       [
         req.auth!.tenantId,
@@ -881,6 +905,8 @@ adminRouter.patch("/clinica/configuracion-notificaciones", async (req, res) => {
         cancelacionCitaActivo,
         informeDisponibleActivo,
         cumpleanosActivo,
+        dictadoIaActivo,
+        dictadoRetencionAudioHoras,
       ]
     );
     res.json(filaAJson(result.rows[0]));

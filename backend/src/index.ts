@@ -10,6 +10,7 @@ import { iniciarJobTarjetaPorVencer } from "./jobs/tarjetaPorVencer.job";
 import { iniciarJobAuditoriaRls } from "./jobs/auditoriaRls.job";
 import { iniciarJobSaldoProveedorIa } from "./jobs/saldoProveedorIa.job";
 import { iniciarJobColaFacturacion } from "./jobs/facturacionCola.job";
+import { iniciarJobAudioDictado } from "./jobs/dictadoAudio.job";
 import { anunciarProveedorHacienda } from "./facturacion/proveedorActivo";
 import { validarCredencialesPaisesHabilitados } from "./pagos/credencialesPasarela";
 import { pool } from "./db";
@@ -23,6 +24,7 @@ import { atencionesRouter } from "./routes/atenciones.routes";
 import { clinicRouter } from "./routes/clinic.routes";
 import { crmRouter } from "./routes/crm.routes";
 import { inicioRouter } from "./routes/inicio.routes";
+import { dictadoRouter } from "./routes/dictado.routes";
 import { expedienteRouter } from "./routes/expediente.routes";
 import { facturacionCrRouter } from "./routes/facturacionCr.routes";
 import { inventarioRouter } from "./routes/inventario.routes";
@@ -167,6 +169,7 @@ app.use("/api/clinic", clinicRouter);
 // recibe 403 con code MODULO_NO_HABILITADO en cualquiera de sus rutas.
 app.use("/api/facturacion", facturacionCrRouter);
 app.use("/api/expediente", expedienteRouter);
+app.use("/api/dictado", dictadoRouter);
 // Base del CRM (prompt 03): la linea de tiempo de interacciones, los
 // consentimientos y el punto unico antes de enviar. NO esta gateado por
 // `tenant_modulos`: la linea de tiempo y el permiso para escribirle a un
@@ -192,6 +195,7 @@ const server = app.listen(config.port, () => {
   iniciarJobAuditoriaRls();
   iniciarJobSaldoProveedorIa();
   iniciarJobColaFacturacion();
+  iniciarJobAudioDictado();
   anunciarProveedorHacienda();
   validarFrontendUrlConfigurada();
   validarCredencialesPaisesHabilitados(pool).catch((err) =>

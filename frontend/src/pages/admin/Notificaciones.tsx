@@ -369,6 +369,52 @@ export function Notificaciones() {
           </Card>
         </div>
 
+        {/* ---------------------------------------------------------
+            SERVICIOS DE IA — prompt 07d fase 2.
+            Va en esta pantalla porque es la fila única por clínica que
+            ya se edita acá; el 04 reubica los servicios de IA y esto se
+            mueve con él, no se duplica. Sección aparte de los avisos a
+            propósito: los avisos son gratis y esto consume crédito. */}
+        <div className="space-y-6">
+          <SeccionHeader titulo="Servicios de IA" activos={config.dictadoIaActivo ? 1 : 0} total={1} />
+
+          <Card>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <CardTitle>Dictado de la consulta</CardTitle>
+                  <Badge variant="warning">consume crédito de IA</Badge>
+                </div>
+                <CardDescription className="mt-1">
+                  El médico dicta la consulta de corrido y la IA la ordena como borrador en la
+                  atención: motivo, signos, examen, evaluación, plan, receta y estudios. Nada se
+                  registra, se firma ni se cobra sin que el médico lo acepte campo por campo.
+                </CardDescription>
+              </div>
+              <ToggleDestinatario
+                activo={config.dictadoIaActivo}
+                onChange={(v) => actualizarCampo("dictadoIaActivo", v)}
+              />
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-black/5 pt-4">
+              <label className="text-sm font-semibold text-text-primary">Guardar el audio</label>
+              <input
+                type="number"
+                min={0}
+                max={720}
+                value={config.dictadoRetencionAudioHoras}
+                disabled={!config.dictadoIaActivo}
+                onChange={(e) => actualizarCampo("dictadoRetencionAudioHoras", Number(e.target.value))}
+                className="w-20 rounded-lg border border-black/10 bg-background px-3 py-1.5 text-sm disabled:opacity-50"
+              />
+              <span className="text-sm text-text-muted">
+                horas después de transcribirlo. <strong>0 = no se guarda</strong>, que es lo
+                recomendado: el texto queda en el expediente igual.
+              </span>
+            </div>
+          </Card>
+        </div>
+
         <div className="flex items-center gap-4">
           <Button onClick={guardar} disabled={guardando}>
             {guardando ? "Guardando…" : "Guardar cambios"}

@@ -40,6 +40,10 @@ export const TABLAS_BORRADO_MANUAL_EN_PURGA = [
   "notificaciones_uso",
   "eventos_facturacion",
   "documentos_fiscales",
+  // Misma naturaleza que uso_api y por el mismo motivo: es rastro de
+  // consumo de IA (minutos de audio transcritos, migración 119), y su FK
+  // a tenants no tiene cascada a propósito.
+  "uso_transcripcion",
 ] as const;
 
 /**

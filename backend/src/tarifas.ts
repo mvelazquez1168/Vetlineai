@@ -272,8 +272,17 @@ async function descontarSaldo(
   db: PoolClient,
   tenantId: string,
   costoUsd: number,
-  usoApiId: string,
-  creadoPor: string | null
+  consumoId: string,
+  creadoPor: string | null,
+  // De qué tabla es la fila de consumo que motiva el descuento. Dejó de
+  // estar escrito a mano adentro cuando apareció `uso_transcripcion`
+  // (prompt 07d fase 2): el audio transcrito descuenta del MISMO saldo
+  // que los tokens, y el libro mayor tiene que poder decir cuál de los
+  // dos consumos fue.
+  referencia: { tabla: "uso_api" | "uso_transcripcion"; descripcion: string } = {
+    tabla: "uso_api",
+    descripcion: "Consumo de IA",
+  }
 ): Promise<ResultadoDescuento> {
   const saldoResult = await db.query(
     `SELECT credito_plan_usd, credito_comprado_usd FROM saldos_ia WHERE tenant_id = $1 FOR UPDATE`,
@@ -312,14 +321,15 @@ async function descontarSaldo(
       `INSERT INTO movimientos_credito
          (tenant_id, tipo, bolsa, monto_usd, referencia_tabla, referencia_id,
           saldo_plan_post, saldo_comprado_post, descripcion, creado_por)
-       VALUES ($1, 'consumo', 'plan', $2, 'uso_api', $3, $4, $5, $6, $7)`,
+       VALUES ($1, 'consumo', 'plan', $2, $3, $4, $5, $6, $7, $8)`,
       [
         tenantId,
         (-debitoPlan).toFixed(4),
-        usoApiId,
+        referencia.tabla,
+        consumoId,
         nuevoCreditoPlan.toFixed(4),
         nuevoCreditoComprado.toFixed(4),
-        "Consumo de IA",
+        referencia.descripcion,
         creadoPor,
       ]
     );
@@ -329,14 +339,15 @@ async function descontarSaldo(
       `INSERT INTO movimientos_credito
          (tenant_id, tipo, bolsa, monto_usd, referencia_tabla, referencia_id,
           saldo_plan_post, saldo_comprado_post, descripcion, creado_por)
-       VALUES ($1, 'consumo', 'comprado', $2, 'uso_api', $3, $4, $5, $6, $7)`,
+       VALUES ($1, 'consumo', 'comprado', $2, $3, $4, $5, $6, $7, $8)`,
       [
         tenantId,
         (-debitoComprado).toFixed(4),
-        usoApiId,
+        referencia.tabla,
+        consumoId,
         nuevoCreditoPlan.toFixed(4),
         nuevoCreditoComprado.toFixed(4),
-        "Consumo de IA",
+        referencia.descripcion,
         creadoPor,
       ]
     );
@@ -380,7 +391,7 @@ async function descontarSaldo(
 // sin mantener ningún lock abierto durante la llamada al modelo.
 // ---------------------------------------------------------------------
 
-export type TipoOperacionGeneracion = "chat" | "dashboard" | "informe" | "receta";
+export type TipoOperacionGeneracion = "chat" | "dashboard" | "informe" | "receta" | "dictado";
 
 export type MotivoRechazoGeneracion =
   | "sin_saldo"
@@ -397,7 +408,21 @@ export interface VerificacionPrevia {
 
 export interface VerificarAntesDeGenerarParams {
   tenantId: string;
-  agenteId: string;
+  /**
+   * El agente de Vetline Ai que genera, o `null` cuando el consumo no
+   * sale de un agente.
+   *
+   * Nació como obligatorio porque los cuatro consumidores originales
+   * (chat, Dashboard, Informe, receta) son todos de un agente, y la
+   * verificación chequea que ESE agente esté habilitado para la clínica.
+   * El dictado de la consulta (prompt 07d) no es un agente: es un
+   * servicio del módulo de expediente de Vetline Clinic, y lo que lo
+   * habilita es `configuracion_notificaciones.dictado_ia_activo`. Con
+   * `null` se saltean los dos chequeos de agente y se corren todos los
+   * demás —suscripción, ventana de purga, saldo y colchón—, que son los
+   * que protegen el crédito.
+   */
+  agenteId: string | null;
   tipoOperacion: TipoOperacionGeneracion;
   disparadoPor: DisparadoPor;
 }
@@ -442,17 +467,19 @@ export async function verificarAntesDeGenerar(
   // algo que el administrador de la clínica pueda resolver deshabilitando
   // y volviendo a habilitar — de ahí el motivo distinto (ver prompt
   // agentes_paises_v2, Paso 2).
-  const agenteGlobalResult = await db.query(`SELECT estado FROM agentes WHERE id = $1`, [params.agenteId]);
-  if (agenteGlobalResult.rows[0]?.estado === "mantenimiento") {
-    return { permitido: false, motivo: "agente_en_mantenimiento" };
-  }
+  if (params.agenteId !== null) {
+    const agenteGlobalResult = await db.query(`SELECT estado FROM agentes WHERE id = $1`, [params.agenteId]);
+    if (agenteGlobalResult.rows[0]?.estado === "mantenimiento") {
+      return { permitido: false, motivo: "agente_en_mantenimiento" };
+    }
 
-  const agenteResult = await db.query(
-    `SELECT estado FROM tenant_agentes WHERE tenant_id = $1 AND agente_id = $2`,
-    [params.tenantId, params.agenteId]
-  );
-  if (agenteResult.rows[0]?.estado !== "habilitado") {
-    return { permitido: false, motivo: "agente_no_habilitado" };
+    const agenteResult = await db.query(
+      `SELECT estado FROM tenant_agentes WHERE tenant_id = $1 AND agente_id = $2`,
+      [params.tenantId, params.agenteId]
+    );
+    if (agenteResult.rows[0]?.estado !== "habilitado") {
+      return { permitido: false, motivo: "agente_no_habilitado" };
+    }
   }
 
   if (params.disparadoPor !== "usuario") {
@@ -548,7 +575,15 @@ export function mensajeRechazoGeneracion(motivo: MotivoRechazoGeneracion): strin
 
 export interface RegistrarUsoApiParams {
   tenantId: string;
-  casoId: string;
+  /**
+   * El caso de Vetline Ai del que sale el consumo, o `null` cuando no
+   * sale de un caso: `uso_api.caso_id` es nullable desde siempre, y el
+   * dictado de la consulta (prompt 07d) es el primer consumidor que
+   * nace de una atención de Vetline Clinic y no de un caso. El tipo
+   * decía `string` nada más porque los cuatro consumidores originales
+   * eran todos de un caso.
+   */
+  casoId: string | null;
   medicoAgenteId: string | null;
   personaId: string | null;
   modelo: string;
@@ -680,4 +715,119 @@ export async function registrarUsoApi(db: PoolClient, params: RegistrarUsoApiPar
   } catch (err) {
     console.error("Error al verificar umbrales de uso", err);
   }
+}
+
+// ---------------------------------------------------------------------
+// EL CONSUMO POR MINUTO DE AUDIO — prompt 07d, fase 2.
+//
+// Hermana de registrarUsoApi(), con la misma forma y los mismos
+// criterios, pero con otra unidad: la transcripción se cobra por minuto
+// y no por token.
+//
+// POR QUÉ NO ES UNA LLAMADA MAS A registrarUsoApi(): esa función exige
+// cuatro conteos de tokens y resuelve el precio contra tarifas_modelo,
+// que cobra por millón de tokens. Un minuto de audio no es un token.
+// Escribir ceros en esas columnas para que entre sería exactamente el
+// tipo de dato que después nadie sabe leer.
+//
+// LO QUE SÍ COMPARTE, Y ES LO QUE IMPORTA: el saldo. Descuenta de la
+// misma saldos_ia, por el mismo descontarSaldo(), y deja su movimiento
+// en el mismo movimientos_credito con referencia_tabla =
+// 'uso_transcripcion'. El cliente ve un solo crédito de IA, porque es
+// un solo crédito de IA.
+// ---------------------------------------------------------------------
+
+export interface RegistrarUsoTranscripcionParams {
+  tenantId: string;
+  personaId: string | null;
+  dictadoId: string | null;
+  proveedor: string;
+  segundos: number;
+}
+
+export interface ConsumoTranscripcion {
+  costoUsd: number;
+  cobrable: boolean;
+  /** Null si el proveedor no tiene tarifa vigente cargada. */
+  tarifaId: string | null;
+  precioPorMinuto: number | null;
+}
+
+export async function registrarUsoTranscripcion(
+  db: PoolClient,
+  params: RegistrarUsoTranscripcionParams
+): Promise<ConsumoTranscripcion> {
+  const tarifaResult = await db.query<{
+    id: string;
+    precio_usd_por_minuto: string;
+    facturable: boolean;
+  }>(
+    `SELECT id, precio_usd_por_minuto, facturable
+       FROM tarifas_transcripcion
+      WHERE proveedor = $1 AND vigente_desde <= CURRENT_DATE
+        AND (vigente_hasta IS NULL OR vigente_hasta >= CURRENT_DATE)
+      ORDER BY vigente_desde DESC
+      LIMIT 1`,
+    [params.proveedor]
+  );
+
+  const tarifa = tarifaResult.rows[0] ?? null;
+  if (!tarifa) {
+    // SIN TARIFA NO SE INVENTA UN PRECIO. Se registra el consumo en cero
+    // y no cobrable, y queda el log: un proveedor nuevo sin tarifa
+    // cargada es un dato que falta en la plataforma, y cobrar un número
+    // supuesto sería peor que no cobrar.
+    console.error(
+      `[tarifas] El proveedor de transcripción "${params.proveedor}" no tiene tarifa vigente — ` +
+        `el consumo se registra sin costo. Cargala en tarifas_transcripcion.`
+    );
+  }
+
+  const precioPorMinuto = tarifa === null ? null : Number(tarifa.precio_usd_por_minuto);
+  const cobrable = tarifa !== null && tarifa.facturable;
+  const costoUsd = precioPorMinuto === null ? 0 : (params.segundos / 60) * precioPorMinuto;
+  const hayAlgoQueDescontar = cobrable && costoUsd > 0;
+
+  let usoId: string;
+  try {
+    const insertResult = await db.query<{ id: string }>(
+      `INSERT INTO uso_transcripcion
+         (tenant_id, persona_id, dictado_id, proveedor, segundos, costo_usd_calculado,
+          tarifa_id, cobrable, bolsa_afectada)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       RETURNING id`,
+      [
+        params.tenantId,
+        params.personaId,
+        params.dictadoId,
+        params.proveedor,
+        params.segundos.toFixed(2),
+        costoUsd.toFixed(6),
+        tarifa?.id ?? null,
+        cobrable,
+        hayAlgoQueDescontar ? null : "ninguna",
+      ]
+    );
+    usoId = insertResult.rows[0].id;
+  } catch (err) {
+    console.error("Error al registrar uso_transcripcion", err);
+    return { costoUsd, cobrable, tarifaId: tarifa?.id ?? null, precioPorMinuto };
+  }
+
+  // Best-effort, mismo criterio que registrarUsoApi: el audio ya se
+  // transcribió y ya se pagó afuera; perder el registro del descuento es
+  // preferible a tirar abajo la transaccion y perder el dictado.
+  if (hayAlgoQueDescontar) {
+    try {
+      const { bolsaAfectada } = await descontarSaldo(db, params.tenantId, costoUsd, usoId, params.personaId, {
+        tabla: "uso_transcripcion",
+        descripcion: "Transcripción de dictado",
+      });
+      await db.query(`UPDATE uso_transcripcion SET bolsa_afectada = $1 WHERE id = $2`, [bolsaAfectada, usoId]);
+    } catch (err) {
+      console.error("Error al descontar el saldo por transcripción — revisar movimientos_credito a mano", err);
+    }
+  }
+
+  return { costoUsd, cobrable, tarifaId: tarifa?.id ?? null, precioPorMinuto };
 }

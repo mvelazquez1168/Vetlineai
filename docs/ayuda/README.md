@@ -31,12 +31,20 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | [Cerrar la atención](atencion-cierre.md) | Lo que pasa al firmar: los cargos, el inventario, los avisos y la receta. |
 | [Registrar algo histórico](registro-historico.md) | Una vacuna puesta antes de usar el sistema, o en otra clínica. |
 
+## El dictado por voz
+
+| Página | De qué trata |
+|---|---|
+| [Dictar en un campo](dictado-en-un-campo.md) | El micrófono de cada campo, los comandos de puntuación y en qué navegadores funciona. |
+| [Dictar la consulta completa](dictado-consulta-completa.md) | Hablar de corrido y revisar el borrador que ordena la IA, campo por campo. |
+
 ---
 
 ## Lo que todavía no está en este manual
 
-Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la atención). Faltan
-las de caja, inventario, facturación electrónica, agenda y administración, que se irán sumando.
+Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la atención) y las del
+**07d** (el dictado por voz). Faltan las de caja, inventario, facturación electrónica, agenda y
+administración, que se irán sumando.
 
 El manual consolidado en PDF y Word, con el logo de la clínica, se genera **al cierre de cada
 bloque**, no en cada entrega.

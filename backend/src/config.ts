@@ -155,6 +155,21 @@ export const config = {
   // mismo valor para todos los emisores y no un dato que alguien cargue
   // por clínica.
   feCrProveedorSistemas: process.env.FE_CR_PROVEEDOR_SISTEMAS,
+
+  // --- Dictado de la consulta (prompt 07d, fase 2) ---
+
+  // Qué implementación de transcripción se usa. Mismo criterio que
+  // `feCrProveedor` de arriba: en desarrollo SIEMPRE la simulada, y el
+  // default lo refleja en vez de confiar en que nadie exporte la
+  // variable por error. El simulado no manda audio a ningún servidor.
+  transcripcionProveedor: (process.env.TRANSCRIPCION_PROVEEDOR ?? "simulado") as
+    | "simulado"
+    | "deepgram",
+
+  // Credencial del proveedor real. Opcional igual que las de Stripe,
+  // Tilopay y Hacienda: sin ella el backend arranca y solo falla el
+  // camino que la necesita, diciendo que falta.
+  deepgramApiKey: process.env.DEEPGRAM_API_KEY,
 };
 
 // Mismo patrón que validarCredencialesPaisesHabilitados (pagos/credencialesPasarela.ts)

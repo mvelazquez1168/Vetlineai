@@ -29,6 +29,7 @@ import {
   PanelReceta,
   ResumenDelCierre,
 } from "./AccionesClinicas";
+import { DictadoConsulta } from "./DictadoConsulta";
 
 // ---------------------------------------------------------------------
 // LA ATENCIÓN EN EL EXPEDIENTE — sección 9 del prompt 07.
@@ -543,6 +544,19 @@ export function AtencionActual({
             </div>
           </div>
         </Card>
+
+        {/* EL DICTADO VA PRIMERO, antes de los campos: el flujo del
+            07d fase 2 es dictar de corrido y despues revisar lo que la
+            IA reparto. Si estuviera abajo, habria que bajar a buscarlo
+            con el paciente encima de la mesa. */}
+        {atencionId && (
+          <DictadoConsulta
+            atencionId={atencionId}
+            cerrada={cerrada}
+            esMedico={esMedico}
+            onAplicado={() => void cargar(atencionId)}
+          />
+        )}
 
         <Card>
           <CardTitle>Subjetivo</CardTitle>

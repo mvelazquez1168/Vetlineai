@@ -126,6 +126,10 @@ export interface ConfiguracionNotificaciones {
   cancelacionCitaActivo: boolean;
   informeDisponibleActivo: boolean;
   cumpleanosActivo: boolean;
+  /** Dictado de la consulta con IA (prompt 07d fase 2). */
+  dictadoIaActivo: boolean;
+  /** Horas que se guarda el audio tras transcribirlo. 0 = no se guarda. */
+  dictadoRetencionAudioHoras: number;
 }
 
 export type EstadoSuscripcion = "trial" | "activa" | "trial_expirado" | "suspendida" | "cancelada";

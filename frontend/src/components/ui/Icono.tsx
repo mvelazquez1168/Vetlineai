@@ -1,5 +1,15 @@
 import {
   AlertTriangle,
+  Banknote,
+  Bot,
+  Boxes,
+  Building2,
+  ChartColumn,
+  CreditCard,
+  Home,
+  LogOut,
+  Megaphone,
+  Stethoscope as IconoClinico,
   ArrowDown,
   ArrowRight,
   ArrowUp,
@@ -101,6 +111,18 @@ const ICONOS = {
   // Facturación electrónica (vetline-clinic-09a)
   comprobante: Receipt,
   recibidos: Inbox,
+  // El menú único del marco (vetline-clinic-01c). Misma biblioteca: el
+  // prompt prohíbe agregar una nueva, y lucide ya está acá.
+  inicio: Home,
+  caja: Banknote,
+  inventario: Boxes,
+  crm: Megaphone,
+  reportes: ChartColumn,
+  clinica: Building2,
+  plan: CreditCard,
+  agente: Bot,
+  clinico: IconoClinico,
+  salir: LogOut,
 } satisfies Record<string, LucideIcon>;
 
 export type NombreIcono = keyof typeof ICONOS;

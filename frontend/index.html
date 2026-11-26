@@ -24,6 +24,32 @@
     />
 </head>
   <body class="bg-background text-text-primary font-sans">
+    <!-- EL TEMA, ANTES DEL PRIMER RENDER (prompt 01c, seccion 2).
+         Sin esto la pantalla aparece con el teal por defecto y cambia al
+         color de la clinica un instante despues: el destello que el
+         prompt pide evitar. Este script corre antes de que React
+         monte, lee lo ultimo que se aplico en ESTA clinica y escribe las
+         variables. Si el servidor despues devuelve algo distinto, se
+         corrige sin destello porque ya hay color.
+         Es deliberadamente diminuto y sin dependencias: cualquier cosa
+         que falle aca bloquea el arranque, asi que va dentro de un
+         try/catch y el peor caso es el tema por defecto. -->
+    <script>
+      try {
+        var guardado = localStorage.getItem("vetline:apariencia");
+        if (guardado) {
+          var t = JSON.parse(guardado);
+          if (t && t.variables) {
+            for (var k in t.variables) {
+              document.documentElement.style.setProperty(k, t.variables[k]);
+            }
+          }
+          if (t && t.tema) document.documentElement.setAttribute("data-tema", t.tema);
+        }
+      } catch (e) {
+        /* tema por defecto */
+      }
+    </script>
     <div id="root"></div>
     <!-- Generado por el contenedor de nginx en cada arranque (ver
          frontend/docker-entrypoint.sh) a partir de las variables de

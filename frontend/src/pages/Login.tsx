@@ -21,8 +21,10 @@ export function Login() {
     setIsSubmitting(true);
     try {
       const user = await login(email, password);
-      if (user.rol === "medico") navigate("/workspace");
-      else if (user.rol === "admin_clinica") navigate("/admin");
+      // Toda sesión de clínica aterriza en Inicio, igual que `IndexRedirect`
+      // (prompt 01c): antes el médico caía en su área de trabajo y el
+      // administrador en la lista de médicos.
+      if (user.rol === "medico" || user.rol === "admin_clinica") navigate("/inicio");
       else navigate("/platform-admin");
     } catch (err) {
       const message = err instanceof ApiError ? err.message : "No pudimos iniciar sesión. Intentá de nuevo.";

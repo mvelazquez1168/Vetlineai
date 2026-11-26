@@ -9,9 +9,8 @@ import { RestablecerContrasena } from "./pages/RestablecerContrasena";
 import { EstablecerContrasenaNueva } from "./pages/EstablecerContrasenaNueva";
 import { Unauthorized } from "./pages/Unauthorized";
 import { ClinicaBloqueada } from "./pages/ClinicaBloqueada";
-import { AdminLayout } from "./pages/admin/AdminLayout";
-import { AgendaLayout } from "./pages/agenda/AgendaLayout";
-import { SeccionLayout } from "./components/SeccionLayout";
+import { AppShell } from "./components/AppShell";
+import { Inicio } from "./pages/Inicio";
 import { Pacientes } from "./pages/pacientes/Pacientes";
 import { FichaPaciente } from "./pages/pacientes/FichaPaciente";
 import { ClinicEstado } from "./pages/clinic/ClinicEstado";
@@ -40,6 +39,7 @@ import { ComprobantesRecibidos } from "./pages/facturacion/ComprobantesRecibidos
 import { PerfilesFacturacion } from "./pages/facturacion/PerfilesFacturacion";
 import { ConfiguracionEmisor } from "./pages/facturacion/ConfiguracionEmisor";
 import { EmitirComprobante } from "./pages/facturacion/EmitirComprobante";
+import { SeccionesAgenda } from "./pages/agenda/SeccionesAgenda";
 import { Analiticas as AgendaAnaliticas } from "./pages/agenda/Analiticas";
 import { Calendario as AgendaCalendario } from "./pages/agenda/Calendario";
 import { CentroComando as AgendaCentroComando } from "./pages/agenda/CentroComando";
@@ -91,8 +91,13 @@ function IndexRedirect() {
   if (isLoading) return null;
   if (!user) return <Navigate to="/login" replace />;
 
-  if (user.rol === "medico") return <Navigate to="/workspace" replace />;
-  if (user.rol === "admin_clinica") return <Navigate to="/admin" replace />;
+  // Toda sesion de clinica aterriza en Inicio (prompt 01c): antes el
+  // medico caia en su workspace y el administrador en la lista de
+  // medicos, y una lista no es un inicio. La plataforma sigue en la
+  // suya: no es una clinica.
+  if (user.rol === "medico" || user.rol === "admin_clinica") {
+    return <Navigate to="/inicio" replace />;
+  }
   return <Navigate to="/platform-admin" replace />;
 }
 
@@ -149,11 +154,24 @@ export default function App() {
         }
       />
 
+      {/* INICIO: la primera opcion del menu y donde aterriza toda
+          sesion de clinica. */}
+      <Route
+        path="/inicio"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <AppShell />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Inicio />} />
+      </Route>
+
       <Route
         path="/admin"
         element={
           <ProtectedRoute allowedRoles={["admin_clinica"]}>
-            <AdminLayout />
+            <AppShell />
           </ProtectedRoute>
         }
       >
@@ -175,17 +193,20 @@ export default function App() {
         <Route path="facturacion/medio-de-pago" element={<MedioDePago />} />
       </Route>
 
-      {/* Agenda de Citas — layout propio, accesible tanto a medico como a
-          admin_clinica (el backend gatea ambos roles por igual en todos
-          los endpoints del módulo). */}
+      {/* Agenda de Citas — accesible tanto a medico como a admin_clinica
+          (el backend gatea ambos roles por igual en todos los endpoints
+          del módulo). Las seis secciones siguen siendo rutas propias: se
+          navegan con las pestañas de `SeccionesAgenda`, dentro del marco
+          único. */}
       <Route
         path="/agenda"
         element={
           <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
-            <AgendaLayout />
+            <AppShell />
           </ProtectedRoute>
         }
       >
+        <Route element={<SeccionesAgenda />}>
         <Route index element={<Navigate to="calendario" replace />} />
         <Route path="calendario" element={<AgendaCalendario />} />
         <Route path="centro-comando" element={<AgendaCentroComando />} />
@@ -193,6 +214,7 @@ export default function App() {
         <Route path="horarios" element={<AgendaConfiguracionHorarios />} />
         <Route path="analiticas" element={<AgendaAnaliticas />} />
         <Route path="notificaciones" element={<AgendaNotificaciones />} />
+        </Route>
       </Route>
 
       {/* Ficha del paciente y su listado — NÚCLEO, no un módulo de
@@ -203,7 +225,7 @@ export default function App() {
         path="/pacientes"
         element={
           <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
-            <SeccionLayout titulo="Pacientes" />
+            <AppShell />
           </ProtectedRoute>
         }
       >
@@ -219,7 +241,7 @@ export default function App() {
         path="/clinic"
         element={
           <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
-            <SeccionLayout titulo="Vetline Clinic" />
+            <AppShell />
           </ProtectedRoute>
         }
       >
@@ -236,7 +258,7 @@ export default function App() {
         path="/facturacion"
         element={
           <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
-            <SeccionLayout titulo="Facturación electrónica" />
+            <AppShell />
           </ProtectedRoute>
         }
       >
@@ -258,7 +280,7 @@ export default function App() {
         path="/inventario"
         element={
           <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
-            <SeccionLayout titulo="Inventario" />
+            <AppShell />
           </ProtectedRoute>
         }
       >
@@ -286,7 +308,7 @@ export default function App() {
         path="/ventas"
         element={
           <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
-            <SeccionLayout titulo="Caja" />
+            <AppShell />
           </ProtectedRoute>
         }
       >
@@ -303,7 +325,7 @@ export default function App() {
       </Route>
 
       {/* Vista de detalle de caso de solo lectura — fuera del layout con
-          padding de AdminLayout porque necesita el mismo diseño full-height
+          padding del marco porque necesita el mismo diseño full-height
           de 2 columnas que usa el workspace del médico. */}
       <Route
         path="/admin/casos/:casoId"

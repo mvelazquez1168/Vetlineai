@@ -19,7 +19,7 @@
 // siempre la que sirve.
 import bcrypt from "bcrypt";
 import { pool } from "./../db";
-import { crearUsuarioKeycloak, eliminarUsuarioKeycloak } from "../keycloakAdmin";
+import { buscarUsuarioKeycloakPorEmail, crearUsuarioKeycloak, eliminarUsuarioKeycloak } from "../keycloakAdmin";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
 
 async function main() {
@@ -59,6 +59,36 @@ async function main() {
     console.log(`Se borró el usuario de demostración anterior (${email}).`);
   }
 
+  // Huerfano: existe en Keycloak pero no en la base. Pasa cuando un
+  // intento anterior creo el usuario y despues fallo el insert. Sin esto,
+  // el script queda muerto para ese correo con un 409 de Keycloak.
+  const huerfano = await buscarUsuarioKeycloakPorEmail(email);
+  if (huerfano) {
+    await eliminarUsuarioKeycloak(huerfano);
+    console.log(`Se borró un usuario huérfano de Keycloak (${email}).`);
+  }
+
+  // La colegiatura es unica entre administradores (indice
+  // `colegiatura_admin_unica`), asi que no puede ser una constante: con
+  // DEMO-0001 fija, el SEGUNDO usuario de demostracion medico fallaba con
+  // una violacion de unicidad despues de haber creado ya su usuario en
+  // Keycloak, dejandolo huerfano. Se busca el primer numero libre.
+  let colegiatura: string | null = null;
+  if (esMedico) {
+    const usadas = await pool.query<{ colegiatura: string }>(
+      `SELECT colegiatura FROM personas WHERE colegiatura LIKE 'DEMO-%'`
+    );
+    const tomadas = new Set(usadas.rows.map((r) => r.colegiatura));
+    for (let n = 1; n <= 9999 && colegiatura === null; n += 1) {
+      const candidata = `DEMO-${String(n).padStart(4, "0")}`;
+      if (!tomadas.has(candidata)) colegiatura = candidata;
+    }
+    if (colegiatura === null) {
+      console.error("No queda ninguna colegiatura DEMO-#### libre.");
+      process.exit(1);
+    }
+  }
+
   const keycloakUserId = await crearUsuarioKeycloak({
     email,
     nombreCompleto: nombre,
@@ -88,7 +118,7 @@ async function main() {
       hash,
       keycloakUserId,
       esMedico,
-      esMedico ? "DEMO-0001" : null,
+      colegiatura,
     ]
   );
 
@@ -99,7 +129,7 @@ async function main() {
   console.log(`Usuario:    ${email}`);
   console.log(`Contraseña: ${password}`);
   console.log(
-    `Rol:        admin de clínica${esMedico ? " + médico (colegiatura DEMO-0001)" : " (es_medico = false)"}`
+    `Rol:        admin de clínica${esMedico ? ` + médico (colegiatura ${colegiatura})` : " (es_medico = false)"}`
   );
 }
 

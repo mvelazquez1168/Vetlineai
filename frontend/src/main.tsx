@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { AuthProvider } from "./hooks/useAuth";
+import { AparienciaProvider } from "./hooks/useApariencia";
 import { PaletaComandos } from "./components/PaletaComandos";
 import { PwaPrompts } from "./components/PwaPrompts";
 import { ToastProvider } from "./components/ui/Toast";
@@ -17,6 +18,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
+        {/* El tema de la clinica va DENTRO de AuthProvider —necesita
+            saber de que clinica es la sesion— y ENVOLVIENDO a App, para
+            que cualquier pantalla pueda leer el logo, el nombre y el
+            color del modulo. No re-renderiza: aplica variables CSS. */}
+        <AparienciaProvider>
         <ToastProvider>
           <App />
           {/* Una sola vez, arriba del router: así Ctrl/Cmd+K y los
@@ -26,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <PaletaComandos />
           <PwaPrompts />
         </ToastProvider>
+        </AparienciaProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

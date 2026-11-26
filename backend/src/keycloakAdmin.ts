@@ -223,6 +223,21 @@ export async function crearUsuarioKeycloak(datos: DatosNuevoUsuarioKeycloak): Pr
  * No lanza si el usuario ya no existe (404): borrar algo que ya no está
  * no es un error para quien llama esto como parte de un rollback.
  */
+/**
+ * Busca un usuario de Keycloak por su correo y devuelve su id, o null.
+ *
+ * Hace falta para limpiar HUERFANOS: si la creacion en Keycloak sale bien
+ * y el insert en la base falla despues, queda un usuario de Keycloak sin
+ * persona, y el siguiente intento muere con 409 sin forma de salir salvo
+ * entrando a la consola de Keycloak a mano.
+ */
+export async function buscarUsuarioKeycloakPorEmail(email: string): Promise<string | null> {
+  const r = await adminFetch(`/users?email=${encodeURIComponent(email)}&exact=true`);
+  if (!r.ok) return null;
+  const encontrados = (await r.json()) as { id: string }[];
+  return encontrados[0]?.id ?? null;
+}
+
 export async function eliminarUsuarioKeycloak(keycloakUserId: string): Promise<void> {
   const response = await adminFetch(`/users/${keycloakUserId}`, { method: "DELETE" });
   if (!response.ok && response.status !== 404) {

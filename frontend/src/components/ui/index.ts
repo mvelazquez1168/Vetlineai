@@ -115,3 +115,9 @@ export type {
   SerieDato,
   SparklineProps,
 } from "./charts";
+
+export { PageHeader, TiraIndicadores } from "./PageHeader";
+export type { PageHeaderProps } from "./PageHeader";
+
+export { Tabs, IndicadorPestana, PestanasDeRuta } from "./Tabs";
+export type { TabsProps, Pestana } from "./Tabs";

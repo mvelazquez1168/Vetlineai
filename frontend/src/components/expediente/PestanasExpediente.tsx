@@ -158,6 +158,9 @@ export function PestanasExpediente({
         )}
         {pestana === "atencion" && (
           <AtencionActual
+            pacienteEspecie={
+              encabezado?.paciente?.especie ? String(encabezado.paciente.especie) : null
+            }
             pacienteId={pacienteId}
             pacienteNombre={String(encabezado.paciente.nombre ?? "el paciente")}
             esMedico={!!esMedico}

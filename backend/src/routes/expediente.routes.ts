@@ -51,6 +51,7 @@ import {
   quitarItem,
   resumenDelCierre,
 } from "../expediente/atencion";
+import { todosLosCatalogos } from "../expediente/catalogosClinicos";
 import {
   TipoClinico,
   estudiosDeAtencion,
@@ -666,6 +667,16 @@ expedienteRouter.delete("/atenciones/:id/items/:itemId", soloMedico, async (req,
 // por donde salian: lo que cambia es que ahora se puede NOMBRAR lo que
 // se hizo.
 // =====================================================================
+
+/** Los catalogos clinicos de la clinica: vias, frecuencias, unidades de
+ *  dosis, sistemas del examen. Los usa la receta y el examen fisico. */
+expedienteRouter.get("/catalogos-clinicos", async (req, res) => {
+  try {
+    res.json(await todosLosCatalogos(req.db!));
+  } catch (err) {
+    fallo(res, err, "GET /expediente/catalogos-clinicos");
+  }
+});
 
 /** Los productos que ofrece cada accion, ya filtrados por su tipo clinico. */
 expedienteRouter.get("/catalogo-clinico", async (req, res) => {

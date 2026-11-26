@@ -21,6 +21,13 @@ import {
 } from "../../lib/expedienteApi";
 import { inventarioApi } from "../../lib/inventarioApi";
 import { formatearMonto } from "../../lib/ventasApi";
+import { plural } from "../../lib/plural";
+import {
+  ModalEstudio,
+  ModalPreventivo,
+  PanelReceta,
+  ResumenDelCierre,
+} from "./AccionesClinicas";
 
 // ---------------------------------------------------------------------
 // LA ATENCIÓN EN EL EXPEDIENTE — sección 9 del prompt 07.
@@ -46,6 +53,8 @@ import { formatearMonto } from "../../lib/ventasApi";
 interface Props {
   pacienteId: string;
   pacienteNombre: string;
+  /** Para sugerir la próxima fecha según el protocolo de la especie. */
+  pacienteEspecie?: string | null;
   esMedico: boolean;
   /** Para refrescar la franja de alertas y la línea de tiempo al cerrar. */
   onCerrada?: () => void;
@@ -67,7 +76,13 @@ const ESTADOS_SISTEMA: Array<{ valor: SistemaExaminado["estado"]; etiqueta: stri
   { valor: "anormal", etiqueta: "Anormal" },
 ];
 
-export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada }: Props) {
+export function AtencionActual({
+  pacienteId,
+  pacienteNombre,
+  pacienteEspecie,
+  esMedico,
+  onCerrada,
+}: Props) {
   const toast = useToast();
   const navegar = useNavigate();
 
@@ -87,7 +102,17 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
   >([]);
   const [presentaciones, setPresentaciones] = useState<PresentacionElegible[]>([]);
 
-  const [panel, setPanel] = useState<null | "servicio" | "producto" | "cerrar" | "diagnostico">(
+  const [panel, setPanel] = useState<
+    | null
+    | "servicio"
+    | "producto"
+    | "vacuna"
+    | "desparasitacion"
+    | "receta"
+    | "estudio"
+    | "cerrar"
+    | "diagnostico"
+  >(
     null
   );
   const [busqueda, setBusqueda] = useState("");
@@ -97,8 +122,6 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
     Array<{ id: string; numero: string; vencimiento: string | null; cantidad: string }>
   >([]);
   const [loteId, setLoteId] = useState("");
-  const [comoPreventivo, setComoPreventivo] = useState<"" | "vacunacion" | "desparasitacion">("");
-  const [proxima, setProxima] = useState("");
   const [dispensadoAqui, setDispensadoAqui] = useState(true);
   const [avisos, setAvisos] = useState<
     Array<{ porque: string; severidad: string; detalle: string }>
@@ -207,21 +230,38 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
 
   // --- Atajos ---------------------------------------------------------
   useEffect(() => {
+    // LOS ATAJOS SON Alt + letra, NO las teclas de funcion que pedia el
+    // prompt. El motivo es que no alcanzan: de F1 a F12, el navegador
+    // ya usa F1 (ayuda), F3 (buscar), F5 (recargar), F7 (cursor de
+    // texto en Firefox), F10 (barra de menu), F11 (pantalla completa) y
+    // F12 (herramientas). Quedan cinco libres y hacen falta siete.
+    //
+    // Se podia hacer un remiendo —algunas de funcion y otras con Alt—
+    // pero un juego de atajos a medias es peor que uno distinto y
+    // consistente: nadie recuerda cual es de cada clase. Queda dicho en
+    // el informe, que es lo que el prompt pide cuando un atajo esta
+    // ocupado.
     const atajo = (e: KeyboardEvent) => {
       if (!atencionId || !esMedico) return;
-      if (e.key === "F2") {
-        e.preventDefault();
-        setPanel("servicio");
-      } else if (e.key === "F3") {
-        e.preventDefault();
-        setPanel("producto");
-        setTimeout(() => refBusqueda.current?.focus(), 50);
-      } else if (e.key === "F4") {
-        e.preventDefault();
-        setPanel("cerrar");
-      } else if (e.key === "Escape") {
+      if (e.key === "Escape") {
         setPanel(null);
+        return;
       }
+      if (!e.altKey || e.ctrlKey || e.metaKey) return;
+      const destino: Record<string, typeof panel> = {
+        s: "servicio",
+        p: "producto",
+        v: "vacuna",
+        d: "desparasitacion",
+        r: "receta",
+        e: "estudio",
+        c: "cerrar",
+      };
+      const elegido = destino[e.key.toLowerCase()];
+      if (!elegido) return;
+      e.preventDefault();
+      setPanel(elegido);
+      if (elegido === "producto") setTimeout(() => refBusqueda.current?.focus(), 50);
     };
     window.addEventListener("keydown", atajo);
     return () => window.removeEventListener("keydown", atajo);
@@ -264,6 +304,37 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
       await atencionApi.marcarSistema(atencionId, sistema, estado, nota);
     } catch (err) {
       toast.error((err as Error).message);
+    }
+  };
+
+  // TODO NORMAL: marca de una vez lo que sigue sin evaluar. No toca lo
+  // que el medico ya marco —ni los anormales ni los normales— porque
+  // "todo normal" quiere decir "lo que no mire estaba bien", no "borra
+  // lo que escribi".
+  const todoNormal = async () => {
+    if (!atencionId || !detalle) return;
+    const pendientes = detalle.sistemas.filter((s) => s.estado === "no_evaluado");
+    if (pendientes.length === 0) return;
+    setOcupado(true);
+    try {
+      for (const s of pendientes) {
+        await atencionApi.marcarSistema(atencionId, s.sistema, "normal", null);
+      }
+      setDetalle((d) =>
+        d
+          ? {
+              ...d,
+              sistemas: d.sistemas.map((s) =>
+                s.estado === "no_evaluado" ? { ...s, estado: "normal" as const, nota: null } : s
+              ),
+            }
+          : d
+      );
+      toast.exito(`${plural(pendientes.length, "sistema", "sistemas")} sin evaluar: marcados normales.`);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setOcupado(false);
     }
   };
 
@@ -316,20 +387,15 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
     if (!atencionId || !elegido) return;
     setOcupado(true);
     try {
+      // Esta accion es la de PRODUCTO, y nada mas. La vacuna, la
+      // desparasitacion y la receta tienen la suya: el tipo ya no se
+      // elige en una casilla escondida (prompt 07c, seccion 1).
       const r = await atencionApi.agregarItem(atencionId, {
-        tipo: comoPreventivo === "vacunacion" ? "vacuna" : comoPreventivo === "desparasitacion" ? "desparasitacion" : "receta",
+        tipo: "producto",
         presentacionId: elegido.id,
         loteId: loteId || undefined,
         cantidad: Number(cantidad.replace(",", ".")) || 1,
         dispensadoAqui,
-        preventivo: comoPreventivo
-          ? {
-              tipo: comoPreventivo,
-              nombre: elegido.producto,
-              subtipo: comoPreventivo === "desparasitacion" ? "interna" : undefined,
-              proxima: proxima || null,
-            }
-          : undefined,
       });
       toast.exito(`${r.descripcion} · ${formatearMonto(r.total)}`);
       await cargar(atencionId);
@@ -337,8 +403,6 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
       setElegido(null);
       setBusqueda("");
       setCantidad("1");
-      setComoPreventivo("");
-      setProxima("");
       setDispensadoAqui(true);
     } catch (err) {
       toast.error((err as Error).message);
@@ -469,7 +533,7 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
               <CardDescription>
                 {cerrada
                   ? `Firmada por ${a?.firmada_nombre ?? "—"}. Lo que ya se firmó no se edita: la corrección es una adenda.`
-                  : "F2 servicio · F3 producto · F4 cerrar · se guarda solo"}
+                  : "Alt+S servicio · Alt+P producto · Alt+V vacuna · Alt+D desparasitación · Alt+R receta · Alt+E estudio · Alt+C cerrar · se guarda solo"}
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -541,63 +605,131 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
             />
           </div>
 
+          {/* EL ESTADO SE VE (prompt 07c, seccion 5). Antes los tres
+              estados se leian igual y la fila repetia "Sin evaluar" al
+              lado del boton que ya lo decia. Ahora la TARJETA toma el
+              color del estado, con su icono, asi que al recorrer el
+              examen lo anormal salta a la vista y lo no evaluado se
+              distingue de lo revisado.
+
+              Los colores son los TOKENS DE ESTADO del sistema de
+              diseno, que no son configurables por clinica: un hallazgo
+              anormal tiene que leerse igual en todas. */}
           <div className="mt-4 space-y-2">
-            {detalle.sistemas.map((s) => (
-              <div
-                key={s.sistema}
-                className="grid items-center gap-2 rounded-lg border border-black/5 p-2 sm:grid-cols-[1fr_auto_1fr]"
-              >
-                <span className="text-sm font-medium text-text-primary">{s.sistema}</span>
-                <div className="flex gap-1">
-                  {ESTADOS_SISTEMA.map((e) => (
-                    <button
-                      key={e.valor}
-                      type="button"
-                      disabled={cerrada || !esMedico}
-                      onClick={() => marcar(s.sistema, e.valor, s.nota)}
-                      className={[
-                        "rounded-md px-2 py-1 text-xs font-semibold",
-                        s.estado === e.valor
-                          ? e.valor === "anormal"
-                            ? "bg-error text-white"
-                            : e.valor === "normal"
-                              ? "bg-success text-white"
-                              : "bg-black/10 text-text-primary"
-                          : "bg-black/5 text-text-muted hover:bg-black/10",
-                      ].join(" ")}
-                    >
-                      {e.etiqueta}
-                    </button>
-                  ))}
-                </div>
-                {s.estado === "anormal" ? (
-                  <Input
-                    label=""
-                    placeholder="Qué se encontró"
-                    value={s.nota ?? ""}
-                    disabled={cerrada || !esMedico}
-                    onChange={(e) =>
-                      setDetalle((d) =>
-                        d
-                          ? {
-                              ...d,
-                              sistemas: d.sistemas.map((x) =>
-                                x.sistema === s.sistema ? { ...x, nota: e.target.value } : x
-                              ),
-                            }
-                          : d
-                      )
-                    }
-                    onBlur={() => marcar(s.sistema, "anormal", s.nota)}
-                  />
-                ) : (
-                  <span className="text-xs text-text-muted">
-                    {s.estado === "no_evaluado" ? "Sin evaluar" : "Sin hallazgos"}
+            {detalle.sistemas.map((s) => {
+              const faltaDetalle = s.estado === "anormal" && !(s.nota ?? "").trim();
+              return (
+                <div
+                  key={s.sistema}
+                  className={[
+                    "grid items-center gap-2 rounded-lg border p-2 sm:grid-cols-[1fr_auto_1fr]",
+                    s.estado === "anormal"
+                      ? faltaDetalle
+                        ? "border-error bg-error/10"
+                        : "border-warning/40 bg-warning/10"
+                      : s.estado === "normal"
+                        ? "border-success/30 bg-success/5"
+                        : "border-black/5",
+                  ].join(" ")}
+                >
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-text-primary">
+                    {s.estado === "normal" && (
+                      <Icono nombre="check" tamano={14} className="text-success" />
+                    )}
+                    {s.estado === "anormal" && (
+                      <Icono nombre="aviso" tamano={14} className="text-error" />
+                    )}
+                    {s.sistema}
                   </span>
-                )}
-              </div>
-            ))}
+                  <div className="flex gap-1">
+                    {ESTADOS_SISTEMA.map((e) => (
+                      <button
+                        key={e.valor}
+                        type="button"
+                        disabled={cerrada || !esMedico}
+                        aria-pressed={s.estado === e.valor}
+                        onClick={() => marcar(s.sistema, e.valor, s.nota)}
+                        className={[
+                          "rounded-md px-2 py-1 text-xs font-semibold",
+                          s.estado === e.valor
+                            ? e.valor === "anormal"
+                              ? "bg-error text-white"
+                              : e.valor === "normal"
+                                ? "bg-success text-white"
+                                : "bg-black/20 text-text-primary"
+                            : "border border-black/10 bg-transparent text-text-muted hover:bg-black/5",
+                        ].join(" ")}
+                      >
+                        {e.etiqueta}
+                      </button>
+                    ))}
+                  </div>
+                  {s.estado === "anormal" ? (
+                    <div>
+                      <Input
+                        label=""
+                        placeholder="Qué se encontró (obligatorio)"
+                        value={s.nota ?? ""}
+                        disabled={cerrada || !esMedico}
+                        onChange={(e) =>
+                          setDetalle((d) =>
+                            d
+                              ? {
+                                  ...d,
+                                  sistemas: d.sistemas.map((x) =>
+                                    x.sistema === s.sistema ? { ...x, nota: e.target.value } : x
+                                  ),
+                                }
+                              : d
+                          )
+                        }
+                        onBlur={() => marcar(s.sistema, "anormal", s.nota)}
+                      />
+                      {faltaDetalle && (
+                        <p className="mt-1 text-xs text-error">
+                          Un sistema anormal sin describir no se puede cerrar.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    /* El estado lo dice el control: no se repite en texto. */
+                    <span />
+                  )}
+                </div>
+              );
+            })}
           </div>
+
+          {/* EL RESUMEN EN VIVO y "Todo normal". Sin esto hay que contar
+              trece filas a ojo para saber si falta mirar algo. */}
+          {detalle.sistemas.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-black/5 pt-3">
+              <p className="text-sm text-text-muted">
+                {[
+                  plural(
+                    detalle.sistemas.filter((x) => x.estado === "normal").length,
+                    "normal",
+                    "normales"
+                  ),
+                  plural(
+                    detalle.sistemas.filter((x) => x.estado === "anormal").length,
+                    "anormal",
+                    "anormales"
+                  ),
+                  plural(
+                    detalle.sistemas.filter((x) => x.estado === "no_evaluado").length,
+                    "sin evaluar",
+                    "sin evaluar"
+                  ),
+                ].join(" · ")}
+              </p>
+              {!cerrada && esMedico && (
+                <Button variant="secondary" onClick={() => void todoNormal()} disabled={ocupado}>
+                  Todo normal
+                </Button>
+              )}
+            </div>
+          )}
         </Card>
 
         <Card>
@@ -688,10 +820,14 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
         <Card>
           <div className="flex items-center justify-between gap-2">
             <CardTitle>Lo realizado</CardTitle>
+            {/* UNA ACCION POR CADA COSA QUE EL MEDICO HACE (prompt 07c,
+                seccion 1). Antes eran dos, y la vacuna, la
+                desparasitacion y la receta estaban escondidas dentro de
+                "Producto" detras de una casilla. */}
             {!cerrada && esMedico && (
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 <Button variant="secondary" onClick={() => setPanel("servicio")}>
-                  Servicio
+                  Servicio <Atajo>Alt+S</Atajo>
                 </Button>
                 <Button
                   variant="secondary"
@@ -700,7 +836,19 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
                     setTimeout(() => refBusqueda.current?.focus(), 50);
                   }}
                 >
-                  Producto
+                  Producto <Atajo>Alt+P</Atajo>
+                </Button>
+                <Button variant="secondary" onClick={() => setPanel("vacuna")}>
+                  Vacuna <Atajo>Alt+V</Atajo>
+                </Button>
+                <Button variant="secondary" onClick={() => setPanel("desparasitacion")}>
+                  Desparasitación <Atajo>Alt+D</Atajo>
+                </Button>
+                <Button variant="secondary" onClick={() => setPanel("receta")}>
+                  Receta <Atajo>Alt+R</Atajo>
+                </Button>
+                <Button variant="secondary" onClick={() => setPanel("estudio")}>
+                  Estudio <Atajo>Alt+E</Atajo>
                 </Button>
               </div>
             )}
@@ -806,7 +954,7 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
           setAvisos([]);
         }}
         title="Agregar un producto"
-        description="Vacuna, desparasitante, medicamento aplicado o receta dispensada en la clínica."
+        description="Lo que se aplica o se vende y no es vacuna, desparasitación ni receta: cada una de esas tiene su propia acción."
         ancho="lg"
         footer={
           elegido && (
@@ -893,29 +1041,6 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
                   })),
                 ]}
               />
-              <Select
-                label="¿Es un preventivo?"
-                value={comoPreventivo}
-                onChange={(e) =>
-                  setComoPreventivo(e.target.value as "" | "vacunacion" | "desparasitacion")
-                }
-                options={[
-                  { value: "", label: "No" },
-                  { value: "vacunacion", label: "Vacuna" },
-                  { value: "desparasitacion", label: "Desparasitación" },
-                ]}
-              />
-              {comoPreventivo && (
-                <div>
-                  <label className="text-sm font-semibold text-text-primary">Próxima</label>
-                  <input
-                    type="date"
-                    className="mt-1.5 w-full rounded-lg border border-black/10 bg-surface px-3 py-2 text-sm"
-                    value={proxima}
-                    onChange={(e) => setProxima(e.target.value)}
-                  />
-                </div>
-              )}
             </div>
 
             <label className="flex items-center gap-2 text-sm text-text-muted">
@@ -974,6 +1099,45 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
         </div>
       </Modal>
 
+      {atencionId && (
+        <>
+          <ModalPreventivo
+            abierto={panel === "vacuna"}
+            tipo="vacunacion"
+            atencionId={atencionId}
+            pacienteEspecie={pacienteEspecie ?? ""}
+            onCerrar={() => setPanel(null)}
+            onAgregado={() => atencionId && void cargar(atencionId)}
+          />
+          <ModalPreventivo
+            abierto={panel === "desparasitacion"}
+            tipo="desparasitacion"
+            atencionId={atencionId}
+            pacienteEspecie={pacienteEspecie ?? ""}
+            onCerrar={() => setPanel(null)}
+            onAgregado={() => atencionId && void cargar(atencionId)}
+          />
+          <PanelReceta
+            abierto={panel === "receta"}
+            atencionId={atencionId}
+            pacienteId={pacienteId}
+            onCerrar={() => setPanel(null)}
+            onCambio={() => atencionId && void cargar(atencionId)}
+          />
+          <ModalEstudio
+            abierto={panel === "estudio"}
+            atencionId={atencionId}
+            servicios={servicios.map((x) => ({
+              id: x.id,
+              nombre: x.nombre,
+              precio: x.precio === null ? null : Number(x.precio),
+            }))}
+            onCerrar={() => setPanel(null)}
+            onPedido={() => atencionId && void cargar(atencionId)}
+          />
+        </>
+      )}
+
       <Modal
         open={panel === "cerrar"}
         onClose={() => setPanel(null)}
@@ -990,19 +1154,15 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
           </div>
         }
       >
-        <ul className="space-y-2 text-sm text-text-muted">
-          <li>
-            · Lo realizado pasa a la cuenta del cliente en caja:{" "}
-            <strong className="text-text-primary">{formatearMonto(detalle.total)}</strong> más IVA.
-          </li>
-          <li>· El inventario se descarga por lote, con esta atención y este paciente.</li>
-          <li>· Las vacunas y desparasitaciones quedan con su fecha próxima, y avisan solas.</li>
-          <li>· El control recomendado se agenda como cita.</li>
-          <li>· La cita de hoy queda completada y la atención, firmada.</li>
-          <li className="text-text-primary">
-            · Después de firmar no se edita: la corrección es una adenda.
-          </li>
-        </ul>
+        {/* LO QUE VA A PASAR, con nombre y monto (prompt 07c, seccion
+            6). Antes era una lista de frases generales —"el inventario
+            se descarga por lote"— que no decia QUE sale ni por cual
+            lote. Ahora lo dice, leido del servidor. */}
+        {panel === "cerrar" && atencionId && <ResumenDelCierre atencionId={atencionId} />}
+        <p className="mt-3 text-sm text-text-primary">
+          Después de firmar no se edita: la corrección es una adenda. Pasa todo junto o no pasa
+          nada.
+        </p>
       </Modal>
     </div>
   );
@@ -1013,6 +1173,15 @@ export function AtencionActual({ pacienteId, pacienteNombre, esMedico, onCerrada
 // diseño porque el guardado con retardo es de esta pantalla: en un
 // formulario normal, guardar al tipear sería peor.
 // ---------------------------------------------------------------------
+/** El atajo, al lado de su acción. Visible, que es como se aprende. */
+function Atajo({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="ml-1.5 rounded border border-current/30 px-1 text-[10px] font-normal opacity-70">
+      {children}
+    </kbd>
+  );
+}
+
 function Campo({
   etiqueta,
   valor,

@@ -182,6 +182,35 @@ export async function cantidadTotalSugerida(
 // receta vacía en la historia del paciente es ruido.
 // ---------------------------------------------------------------------
 
+/**
+ * El peso con el que se calculan las dosis: el de la atención, y si no
+ * hay, el último registrado del paciente.
+ *
+ * Vive aparte porque lo necesitan DOS momentos: cuando se crea la
+ * receta (para congelarlo) y cuando se abre el panel sin ninguna línea
+ * todavía (para poder mostrar la cuenta en vivo mientras se escribe).
+ * Sin esto, el panel decía «falta el peso» con el peso a la vista en la
+ * pantalla de atrás, porque la receta aún no existía.
+ */
+export async function pesoParaDosis(
+  db: PoolClient,
+  atencionId: string
+): Promise<number | null> {
+  const a = await db.query<{ paciente_id: string; peso: string | null }>(
+    `SELECT paciente_id, peso FROM atenciones WHERE id = $1`,
+    [atencionId]
+  );
+  if (a.rows.length === 0) return null;
+  if (a.rows[0].peso !== null) return Number(a.rows[0].peso);
+  const ultimo = await db.query<{ peso: string }>(
+    `SELECT peso FROM atenciones
+      WHERE paciente_id = $1 AND peso IS NOT NULL
+      ORDER BY creado_en DESC LIMIT 1`,
+    [a.rows[0].paciente_id]
+  );
+  return ultimo.rows[0] ? Number(ultimo.rows[0].peso) : null;
+}
+
 async function recetaDeAtencion(
   db: PoolClient,
   tenantId: string,
@@ -208,18 +237,8 @@ async function recetaDeAtencion(
   ]);
   if (a.rows.length === 0) throw new Error("Esa atención no existe.");
 
-  // EL PESO: el de la atención, y si no hay, el último registrado del
-  // paciente. El prompt lo pide así, y la receta guarda cuál usó.
-  let peso = a.rows[0].peso === null ? null : Number(a.rows[0].peso);
-  if (peso === null) {
-    const ultimo = await db.query<{ peso: string }>(
-      `SELECT peso FROM atenciones
-        WHERE paciente_id = $1 AND peso IS NOT NULL
-        ORDER BY creado_en DESC LIMIT 1`,
-      [a.rows[0].paciente_id]
-    );
-    peso = ultimo.rows[0] ? Number(ultimo.rows[0].peso) : null;
-  }
+  // El peso con el que se calculan las dosis, congelado en la receta.
+  const peso = await pesoParaDosis(db, atencionId);
 
   const nueva = await db.query<{ id: string }>(
     `INSERT INTO recetas (tenant_id, caso_id, atencion_id, paciente_id, medico_id, peso_kg, estado)
@@ -247,6 +266,21 @@ export interface RecetaDeAtencion {
   lineas: LineaCalculada[];
   /** Los avisos de alergia de todas las líneas juntos. */
   avisos: Array<{ porque: string; severidad: string; detalle: string; linea: string }>;
+  /**
+   * Las líneas cuyo producto NO está ligado al catálogo de medicamentos.
+   *
+   * Importa decirlo: el aviso de alergia POR GRUPO FARMACOLÓGICO sale de
+   * `medicamentos.clase`, y un producto de inventario sin medicamento
+   * ligado no tiene grupo. Entonces «no hay aviso» puede querer decir
+   * dos cosas muy distintas —no hay alergia, o no se pudo comprobar— y
+   * el médico tiene derecho a saber cuál de las dos.
+   *
+   * Caso real de la clínica de demostración: el paciente es alérgico a
+   * la penicilina (grupo penicilinas) y la amoxicilina del inventario no
+   * está ligada, así que el aviso no se dispara. No es un defecto del
+   * aviso: es un dato que falta en el catálogo.
+   */
+  sinGrupoFarmacologico: string[];
 }
 
 export async function verReceta(
@@ -259,12 +293,22 @@ export async function verReceta(
     [atencionId]
   );
   if (cab.rows.length === 0) {
-    return { id: null, pesoKg: null, estado: "borrador", lineas: [], avisos: [] };
+    // Sin receta todavía, el peso igual se informa: es lo que permite
+    // que la cuenta en vivo funcione desde la primera línea.
+    return {
+      id: null,
+      pesoKg: await pesoParaDosis(db, atencionId),
+      estado: "borrador",
+      lineas: [],
+      avisos: [],
+      sinGrupoFarmacologico: [],
+    };
   }
   const pesoKg = cab.rows[0].peso_kg === null ? null : Number(cab.rows[0].peso_kg);
   const lineas = await lineasDeReceta(db, cab.rows[0].id);
 
   const avisos: RecetaDeAtencion["avisos"] = [];
+  const sinGrupoFarmacologico: string[] = [];
   const paciente = await db.query<{ paciente_id: string }>(
     `SELECT paciente_id FROM atenciones WHERE id = $1`,
     [atencionId]
@@ -273,9 +317,24 @@ export async function verReceta(
     if (!l.presentacionId) continue;
     const a = await avisosAlRecetar(db, paciente.rows[0].paciente_id, l.presentacionId);
     for (const x of a) avisos.push({ ...x, linea: l.nombre });
+
+    const ligado = await db.query<{ tiene: boolean }>(
+      `SELECT p.medicamento_id IS NOT NULL AS tiene
+         FROM inv_presentaciones pr JOIN inv_productos p ON p.id = pr.producto_id
+        WHERE pr.id = $1`,
+      [l.presentacionId]
+    );
+    if (ligado.rows[0] && !ligado.rows[0].tiene) sinGrupoFarmacologico.push(l.nombre);
   }
 
-  return { id: cab.rows[0].id, pesoKg, estado: cab.rows[0].estado, lineas, avisos };
+  return {
+    id: cab.rows[0].id,
+    pesoKg,
+    estado: cab.rows[0].estado,
+    lineas,
+    avisos,
+    sinGrupoFarmacologico,
+  };
 }
 
 async function lineasDeReceta(db: PoolClient, recetaId: string): Promise<LineaCalculada[]> {

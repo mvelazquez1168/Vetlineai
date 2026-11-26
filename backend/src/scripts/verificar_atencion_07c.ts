@@ -301,6 +301,16 @@ async function main() {
   console.log("\n=== 3. La receta: dosis por kilo, cantidad y texto ===");
   const atencion = await nuevaAtencion("Control con receta");
 
+  // EL PESO SE CONOCE ANTES DE LA PRIMERA LINEA. Sin esto el panel
+  // decia "falta el peso" con el peso a la vista en la pantalla de
+  // atras, porque la receta todavia no existia. Se vio en el navegador.
+  const vacia = await conAlcanceTenant(tenantId, (db) => verReceta(db, tenantId, atencion));
+  assert(
+    vacia.id === null && vacia.pesoKg === 18,
+    "una receta sin líneas ya informa el peso: la cuenta en vivo funciona desde la primera",
+    vacia.pesoKg
+  );
+
   const sinPeso = calcularDosis({ dosisCantidad: 12.5, dosisUnidad: "mg", dosisPorKg: true }, null);
   assert(
     sinPeso.total === null && (sinPeso.explicacion ?? "").includes("Falta el peso"),

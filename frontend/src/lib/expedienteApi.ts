@@ -521,6 +521,7 @@ export interface RecetaDeAtencion {
   estado: string;
   lineas: LineaRecetaCalculada[];
   avisos: Array<{ porque: string; severidad: string; detalle: string; linea: string }>;
+  sinGrupoFarmacologico: string[];
 }
 
 export interface ResumenCierre {

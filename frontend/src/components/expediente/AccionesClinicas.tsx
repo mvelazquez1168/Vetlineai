@@ -612,6 +612,20 @@ export function PanelReceta({
           </div>
         )}
 
+        {/* «NO HAY AVISO» PUEDE QUERER DECIR DOS COSAS. El aviso por
+            grupo farmacológico sale del catálogo de medicamentos, y un
+            producto del inventario sin medicamento ligado no tiene
+            grupo. Callarlo haría creer que se comprobó. */}
+        {receta && receta.sinGrupoFarmacologico.length > 0 && (
+          <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-text-primary">
+            <p className="font-semibold">El aviso por grupo farmacológico no se pudo comprobar</p>
+            <p className="mt-0.5 text-text-muted">
+              {receta.sinGrupoFarmacologico.join(", ")} — sin medicamento ligado en el catálogo, el
+              sistema no sabe a qué grupo pertenece. Las alergias por sustancia sí se revisaron.
+            </p>
+          </div>
+        )}
+
         {/* --- Las líneas que ya están --- */}
         {receta && receta.lineas.length > 0 && (
           <div className="space-y-2">

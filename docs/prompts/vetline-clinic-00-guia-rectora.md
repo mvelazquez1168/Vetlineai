@@ -262,6 +262,19 @@ calculados con consultas y siempre explicables ("riesgo alto: 14 meses sin venir
 4"), y una **bandeja del día** para la recepción: a quién contactar hoy y por qué, con la acción a un
 clic.
 
+**Notificaciones existentes de Vetline Ai — se mantienen y se extienden, no se reemplazan.** Vetline
+Ai ya tiene su configuración de avisos por clínica (Administración › Notificaciones, interruptores
+leídos con `avisoActivo`), el trabajo diario `notificaciones.job.ts` y `emitirNotificacion` con sus
+tipos: recordatorio de cita, vacunación y desparasitación próximas, seguimiento posterior a la
+consulta, seguimiento faltante, agenda del día siguiente y cumpleaños. Todo aviso nuevo de Vetline
+Clinic (recompra, informe posvisita, resultados, dosis, control, campañas, fidelización, app del
+cliente) se agrega como **un tipo más de ese mismo mecanismo**: su interruptor en la misma pantalla
+de configuración, su plantilla editable, su registro en `notificaciones`, el paso por
+`puedeEnviar()` y su evento en la línea de tiempo. Lo que Vetline Clinic registra (vacunas y
+desparasitaciones de la atención, controles agendados) alimenta las tablas que ese trabajo ya lee
+(`cuidados_preventivos`, citas), para que los avisos existentes sigan funcionando sin duplicarse. Una
+clínica solo con Vetline Ai conserva sus avisos exactamente como hoy.
+
 ### 7.1 Fidelización
 
 Que el cliente vuelva, compre más en la clínica que afuera y recomiende a otros. Todo programa es

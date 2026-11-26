@@ -14,6 +14,7 @@ import {
   UNIDADES_MEDIDA,
 } from "./catalogos";
 import { ResultadoCargaCabys, cargarCabys } from "./cabys";
+import { ResultadoCargaUbicacion, cargarUbicacion } from "./ubicacion";
 
 // ---------------------------------------------------------------------
 // Carga de los catálogos oficiales en las tablas `fact_cat_*`.
@@ -121,6 +122,10 @@ export interface ResultadoCatalogos {
   /** Por qué no se pudo cargar CABYS, cuando no se pudo. */
   cabysMotivo?: string;
   cabysVacio: boolean;
+  /** `null` si la planilla de Hacienda no está; el detalle de la carga si sí. */
+  ubicacion: ResultadoCargaUbicacion | null;
+  /** Por qué no se pudo cargar la codificación de ubicación, cuando no se pudo. */
+  ubicacionMotivo?: string;
 }
 
 export async function cargarCatalogosFacturacion(db: Ejecutor): Promise<ResultadoCatalogos> {
@@ -291,8 +296,26 @@ export async function cargarCatalogosFacturacion(db: Ejecutor): Promise<Resultad
     cabysMotivo = (err as Error).message;
   }
 
+  // La codificación de ubicación, con el mismo trato que el CABYS: es
+  // otra planilla oficial que puede no estar, y su ausencia no puede
+  // tumbar la carga de los catálogos que sí están.
+  let ubicacion: ResultadoCargaUbicacion | null = null;
+  let ubicacionMotivo: string | undefined;
+  try {
+    ubicacion = await cargarUbicacion(db);
+  } catch (err) {
+    ubicacionMotivo = (err as Error).message;
+  }
+
   const cuenta = await db.query<{ n: string }>(
     "SELECT count(*)::text AS n FROM fact_cat_cabys WHERE activo = true"
   );
-  return { resultados, cabys, cabysMotivo, cabysVacio: cuenta.rows[0].n === "0" };
+  return {
+    resultados,
+    cabys,
+    cabysMotivo,
+    cabysVacio: cuenta.rows[0].n === "0",
+    ubicacion,
+    ubicacionMotivo,
+  };
 }

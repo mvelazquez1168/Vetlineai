@@ -164,11 +164,46 @@ Cuando el BCCR publique una versión nueva: se descarga la planilla al mismo lug
 `sumas.sha256`, se corre el comando y se corre `verificar_cabys.ts`. El lector **detiene la carga** si
 el encabezado de la planilla cambió, en vez de cargar columnas corridas.
 
+## Codificación de ubicación — `backend/catalogos/ubicacion/`
+
+`Codificacionubicacion_V4.4.xlsx`, descargada el **2026-11-25** de
+`https://www.hacienda.go.cr/docs/Codificacionubicacion_V4.4.xlsx`.
+
+Provincia, cantón, distrito y barrio, que son tres de los campos obligatorios de la ubicación del
+emisor y del receptor. La carga `npm run cargar-catalogos-fe` en `fact_cat_provincia`,
+`fact_cat_canton`, `fact_cat_distrito` y `fact_cat_barrio` (migración 093), y desde entonces los
+tres códigos se validan **contra la lista** con una clave foránea, no solo por formato.
+
+### Este archivo reemplaza al `.rar` que antes no se pudo bajar
+
+El portal de ATV enlaza `docs/esquemas/2024/v4.4/Codificacionubicacion_V4.4.rar`, y en la primera
+pasada quedó reportado como no descargable por ser `.rar`. **No hizo falta ningún extractor**:
+Hacienda sirve la misma codificación como `.xlsx` en `https://www.hacienda.go.cr/docs/`, que es la
+base donde están los demás documentos. El `.rar` devuelve 404 en todas sus rutas —las del portal,
+las de `www.hacienda.go.cr/docs/` y las variantes de mayúsculas—, así que el `.xlsx` no es un
+atajo: es el único que existe.
+
+### El archivo se contradice a sí mismo en los nombres
+
+Los **códigos** son consistentes: 7 provincias, 84 cantones, 492 distritos y 7 087 barrios, y cada
+nivel cuelga bien del anterior. Los **nombres** no: 554 códigos aparecen con dos usos de mayúsculas
+("Quepos" y "QUEPOS"), y en 16 la diferencia es mayor — acentos (`CONCEPCION` / `Concepción`),
+artículos (`LA FORTUNA` / `Fortuna`), un error de tipeo del propio archivo (`SAN FRANCISO` /
+`San Francisco`) y un nombre con una aclaración adentro.
+
+El cargador toma **el nombre más frecuente** de cada código y **reporta** cada desacuerdo al
+correrlo. No se eligió "el que parece mejor": el nombre es un dato de presentación, lo que Hacienda
+valida es el código, y un criterio inventado escondería que la fuente oficial no se pone de acuerdo
+consigo misma.
+
+### El barrio es texto, no código
+
+En la versión 4.4 el campo `Barrio` del XML es **texto libre de 5 a 50 caracteres** (en 4.3 era un
+código). Por eso `fact_cat_barrio` se carga pero **no** es destino de ninguna clave foránea: sirve
+para sugerir en la pantalla, y atarlo restringiría más que el XSD.
+
 ## Lo que NO se encontró en estas fuentes
 
-- **La codificación de ubicación** (provincia / cantón / distrito / barrio) se publica como
-  `Codificacionubicacion_V4.4.rar`. No se descargó: es un `.rar` y el repo no tiene con qué
-  descomprimirlo de forma reproducible. Queda reportado.
 - **El JSON Schema de la API de recepción y los ejemplos de mensajes**: el Anexo 3 los describe en
   prosa y remite a "la documentación Web" del portal de Hacienda para el esquema exacto. Lo que sí
   está en el anexo, y alcanza para integrar, son las URIs, el modelo de seguridad, los recursos y la

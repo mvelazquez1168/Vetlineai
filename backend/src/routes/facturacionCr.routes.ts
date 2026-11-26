@@ -168,6 +168,70 @@ facturacionCrRouter.get("/cabys", async (req, res) => {
   }
 });
 
+/**
+ * La codificación oficial de ubicación, un nivel por vez.
+ *
+ * UN SOLO ENDPOINT y no cuatro: los cuatro niveles son la misma
+ * pregunta ("qué hay debajo de esto") y el nivel se deduce de lo que
+ * venga en la query. Con cuatro rutas habría cuatro contratos que
+ * mantener sincronizados para devolver siempre `{ codigo, nombre }`.
+ *
+ * Sin `provincia` devuelve las provincias; con `provincia`, sus
+ * cantones; con `provincia` y `canton`, sus distritos; con los tres,
+ * sus barrios.
+ */
+facturacionCrRouter.get("/ubicacion", async (req, res) => {
+  const provincia = String(req.query.provincia ?? "").trim();
+  const canton = String(req.query.canton ?? "").trim();
+  const distrito = String(req.query.distrito ?? "").trim();
+
+  try {
+    let nivel: string;
+    let filas;
+    if (!provincia) {
+      nivel = "provincia";
+      filas = await req.db!.query(
+        `SELECT codigo, nombre FROM fact_cat_provincia ORDER BY codigo`
+      );
+    } else if (!canton) {
+      nivel = "canton";
+      filas = await req.db!.query(
+        `SELECT codigo, nombre FROM fact_cat_canton WHERE provincia = $1 ORDER BY codigo`,
+        [provincia]
+      );
+    } else if (!distrito) {
+      nivel = "distrito";
+      filas = await req.db!.query(
+        `SELECT codigo, nombre FROM fact_cat_distrito
+          WHERE provincia = $1 AND canton = $2 ORDER BY codigo`,
+        [provincia, canton]
+      );
+    } else {
+      nivel = "barrio";
+      filas = await req.db!.query(
+        `SELECT codigo, nombre FROM fact_cat_barrio
+          WHERE provincia = $1 AND canton = $2 AND distrito = $3 ORDER BY nombre`,
+        [provincia, canton, distrito]
+      );
+    }
+
+    // `catalogoVacio` se informa igual que en /cabys: la pantalla tiene
+    // que poder decir "esto no está cargado en el servidor" en vez de
+    // mostrar un selector vacío que parece un error de la clínica.
+    const hay = await req.db!.query<{ n: string }>(
+      "SELECT count(*)::text AS n FROM fact_cat_provincia"
+    );
+    res.json({
+      nivel,
+      resultados: filas.rows,
+      catalogoVacio: hay.rows[0].n === "0",
+    });
+  } catch (err) {
+    console.error("GET /facturacion/ubicacion", err);
+    res.status(500).json({ error: "Error al leer la codificación de ubicación." });
+  }
+});
+
 // =====================================================================
 // EMISOR Y CREDENCIALES
 // =====================================================================
@@ -702,10 +766,21 @@ facturacionCrRouter.post("/recibidos/:id/mensaje", async (req, res) => {
  * sirve a nadie en una pantalla.
  */
 function mensajeDeError(err: unknown): string {
-  const e = err as { message?: string; code?: string };
+  const e = err as { message?: string; code?: string; constraint?: string };
   if (e.code && /^[0-9A-Z]{5}$/.test(e.code)) {
     if (e.code === "23505") return "Ese comprobante ya existe (clave o consecutivo repetido).";
-    if (e.code === "23503") return "Hay un código que no existe en los catálogos de Hacienda.";
+    if (e.code === "23503") {
+      // La ubicación es, de lejos, la FK que más se viola: son tres
+      // códigos que hay que combinar bien entre sí. Decir "un código"
+      // a secas obligaría a adivinar cuál de los tres está mal.
+      if (e.constraint?.includes("ubicacion")) {
+        return (
+          "Esa combinación de provincia, cantón y distrito no existe en la codificación " +
+          "oficial de Hacienda. Los tres códigos tienen que corresponderse entre sí."
+        );
+      }
+      return "Hay un código que no existe en los catálogos de Hacienda.";
+    }
     if (e.code === "23514") return "Un dato no cumple el formato que exige Hacienda.";
     if (e.code === "23001") return e.message ?? "La operación no está permitida sobre este comprobante.";
     return "No se pudo completar la operación por un problema de datos.";

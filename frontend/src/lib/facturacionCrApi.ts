@@ -253,11 +253,31 @@ function queryDe(filtros: FiltrosComprobantes): string {
   return s ? `?${s}` : "";
 }
 
+/** Un nivel de la codificación de ubicación de Hacienda. */
+export interface NivelUbicacion {
+  nivel: "provincia" | "canton" | "distrito" | "barrio";
+  resultados: Array<{ codigo: string; nombre: string }>;
+  /** `true` si la codificación no está cargada en este servidor. */
+  catalogoVacio: boolean;
+}
+
 export const facturacionCrApi = {
   catalogos: () => authedFetch<Catalogos>("/facturacion/catalogos"),
 
   buscarCabys: (q: string) =>
     authedFetch<ResultadoCabys>(`/facturacion/cabys?q=${encodeURIComponent(q)}`),
+
+  /**
+   * Un nivel de la codificación oficial de ubicación. Sin argumentos
+   * da las provincias; con provincia, sus cantones; y así.
+   */
+  ubicacion: (padre: { provincia?: string; canton?: string; distrito?: string } = {}) => {
+    const q = new URLSearchParams();
+    if (padre.provincia) q.set("provincia", padre.provincia);
+    if (padre.canton) q.set("canton", padre.canton);
+    if (padre.distrito) q.set("distrito", padre.distrito);
+    return authedFetch<NivelUbicacion>(`/facturacion/ubicacion?${q.toString()}`);
+  },
 
   emisor: () =>
     authedFetch<{ emisor: Emisor | null; credenciales: CredencialPublica[] }>("/facturacion/emisor"),

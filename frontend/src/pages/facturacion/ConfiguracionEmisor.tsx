@@ -12,6 +12,7 @@ import {
   Select,
   useToast,
 } from "../../components/ui";
+import { SelectorUbicacion } from "../../components/SelectorUbicacion";
 import { useAuth } from "../../hooks/useAuth";
 import {
   Catalogos,
@@ -197,12 +198,29 @@ export function ConfiguracionEmisor() {
 
         <CardTitle className="mt-6">Ubicación</CardTitle>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {campo("Provincia (1 dígito)", "ubicacionProvincia", { placeholder: "1", maxLength: 1 })}
-          {campo("Cantón (2 dígitos)", "ubicacionCanton", { placeholder: "01", maxLength: 2 })}
-          {campo("Distrito (2 dígitos)", "ubicacionDistrito", { placeholder: "01", maxLength: 2 })}
-          {/* En v4.4 el barrio es TEXTO de 5 a 50 caracteres, no un
-              código de dos dígitos como provincia/cantón/distrito. */}
-          {campo("Barrio (texto)", "ubicacionBarrio", { placeholder: "Barrio Escalante", maxLength: 50 })}
+          {/* Los tres códigos salen de la codificación oficial de
+              Hacienda, encadenados, en vez de tres campos numéricos
+              sueltos: la combinación tiene que existir, y ahora la base
+              lo exige con una clave foránea (migración 093). */}
+          <SelectorUbicacion
+            idPrefijo="emisor"
+            disabled={!esAdminClinica}
+            valor={{
+              provincia: form.ubicacionProvincia,
+              canton: form.ubicacionCanton,
+              distrito: form.ubicacionDistrito,
+              barrio: form.ubicacionBarrio,
+            }}
+            onChange={(u) =>
+              setForm((f) => ({
+                ...f,
+                ubicacionProvincia: u.provincia ?? "",
+                ubicacionCanton: u.canton ?? "",
+                ubicacionDistrito: u.distrito ?? "",
+                ubicacionBarrio: u.barrio ?? "",
+              }))
+            }
+          />
           <div className="sm:col-span-2 lg:col-span-4">
             {campo("Otras señas", "ubicacionOtrasSenas", {
               placeholder: "200 metros norte de la iglesia, local 3",

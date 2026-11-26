@@ -1,7 +1,6 @@
-import fs from "fs";
 import path from "path";
-import { unzipSync } from "fflate";
 import { Pool, PoolClient } from "pg";
+import { abrirLibro, celdasDeFila, filasDeHoja } from "./xlsx";
 
 // ---------------------------------------------------------------------
 // El catálogo CABYS: leerlo de la planilla oficial del BCCR y cargarlo.
@@ -128,33 +127,6 @@ export interface LecturaCabys {
   tarifasDesconocidas: Array<{ valor: string; filas: number; ejemplo: string }>;
 }
 
-/** Celdas de una fila del XML de la hoja, por letra de columna. */
-function celdasDeFila(xmlFila: string, textos: string[]): Record<string, string> {
-  const celdas: Record<string, string> = {};
-  const re =
-    /<c r="([A-Z]+)\d+"(?:[^>]*?t="(\w+)")?[^>]*>(?:<v>(.*?)<\/v>|<is><t[^>]*>(.*?)<\/t><\/is>)?<\/c>/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(xmlFila)) !== null) {
-    const [, columna, tipo, valor, enLinea] = m;
-    let contenido: string | undefined;
-    if (enLinea !== undefined) contenido = enLinea;
-    else if (tipo === "s" && valor !== undefined) contenido = textos[Number(valor)];
-    else contenido = valor;
-    if (contenido !== undefined) celdas[columna] = desescapar(contenido);
-  }
-  return celdas;
-}
-
-/** Las cinco entidades XML que aparecen en texto de celdas. */
-function desescapar(s: string): string {
-  return s
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&amp;/g, "&");
-}
-
 /**
  * Lee la planilla oficial y devuelve las filas del catálogo.
  *
@@ -165,44 +137,19 @@ function desescapar(s: string): string {
  * parecería no existir.
  */
 export function leerCabys(ruta: string = RUTA_CABYS): LecturaCabys {
-  if (!fs.existsSync(ruta)) {
-    throw new Error(
-      `No está la planilla del catálogo CABYS en ${ruta}. Se descarga del Banco Central — ver docs/facturacion/fuentes/LEEME.md.`
-    );
-  }
-
-  const zip = unzipSync(new Uint8Array(fs.readFileSync(ruta)));
-  const leerEntrada = (nombre: string): string => {
-    const datos = zip[nombre];
-    if (!datos) {
-      throw new Error(
-        `La planilla CABYS no tiene "${nombre}": no parece un .xlsx válido (entradas: ${Object.keys(zip).slice(0, 8).join(", ")}…).`
-      );
-    }
-    return Buffer.from(datos).toString("utf-8");
-  };
-
-  // Los textos de las celdas viven en una tabla compartida y las celdas
-  // la referencian por índice.
-  const textos = Array.from(
-    leerEntrada("xl/sharedStrings.xml").matchAll(/<si>([\s\S]*?)<\/si>/g)
-  ).map(([, si]) =>
-    desescapar(Array.from(si.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)).map(([, t]) => t).join(""))
-  );
+  const libro = abrirLibro(ruta, "el catálogo CABYS");
+  const textos = libro.textos;
 
   // La hoja `Catálogo` es la primera del libro. Se comprueba leyendo el
   // nombre, no se asume: el libro trae cinco hojas y una se llama
   // `FuzzyLookup_AddIn_Undo_Sheet`.
-  const libro = leerEntrada("xl/workbook.xml");
-  const nombres = Array.from(libro.matchAll(/<sheet name="([^"]+)"/g)).map(([, n]) => desescapar(n));
-  if (nombres[0] !== "Catálogo") {
+  if (libro.nombresDeHoja[0] !== "Catálogo") {
     throw new Error(
-      `La primera hoja de la planilla CABYS se llama "${nombres[0]}" y se esperaba "Catálogo". Hojas: ${nombres.join(", ")}.`
+      `La primera hoja de la planilla CABYS se llama "${libro.nombresDeHoja[0]}" y se esperaba "Catálogo". Hojas: ${libro.nombresDeHoja.join(", ")}.`
     );
   }
 
-  const hoja = leerEntrada("xl/worksheets/sheet1.xml");
-  const filasXml = Array.from(hoja.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)).map(([, f]) => f);
+  const filasXml = filasDeHoja(libro.xmlDeHoja(0));
 
   // Fila 1 vacía, fila 2 encabezado, de la 3 en adelante los datos.
   const indiceEncabezado = filasXml.findIndex((f) => {

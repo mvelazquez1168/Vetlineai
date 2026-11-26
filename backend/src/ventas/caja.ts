@@ -11,7 +11,8 @@ import { PoolClient } from "pg";
 //
 // Los cinco medios del cuadro del cliente se calculan así:
 //
-//   efectivo CRC = fondo + cobros en efectivo CRC − vueltos
+//   efectivo CRC = fondo + cobros en efectivo CRC + anticipos y abonos
+//                  en efectivo CRC − vueltos
 //                  + ingresos de cambio − retiros − gastos de caja chica
 //   efectivo USD = fondo + cobros en efectivo USD ± movimientos en USD
 //   tarjeta      = suma de los cobros con tarjeta
@@ -81,6 +82,28 @@ export async function esperadoDeSesion(
     [sesionId]
   );
 
+  // LOS ANTICIPOS Y LOS ABONOS TAMBIÉN SON PLATA QUE ENTRÓ A ESTA CAJA.
+  //
+  // Faltaban, y el efecto era que un anticipo de ₡6 000 en billetes
+  // aparecía como un sobrante que el cajero tenía que justificar. Las
+  // dos tablas ya guardaban `sesion_id`; lo que no se guardaba era el
+  // medio, y por eso hizo falta la migración 098.
+  const anticipos = await db.query<{ medio: string; moneda: string; total: string }>(
+    `SELECT medio, moneda, sum(monto)::text AS total
+       FROM vta_anticipos WHERE sesion_id = $1
+      GROUP BY medio, moneda`,
+    [sesionId]
+  );
+
+  const abonos = await db.query<{ medio: string; moneda: string; total: string }>(
+    `SELECT am.medio, am.moneda, sum(am.monto)::text AS total
+       FROM vta_abono_medios am
+       JOIN vta_abonos a ON a.id = am.abono_id
+      WHERE a.sesion_id = $1
+      GROUP BY am.medio, am.moneda`,
+    [sesionId]
+  );
+
   const efectivoExtra = await db.query<{ moneda: string; tipo: string; total: string }>(
     `SELECT moneda, tipo, sum(monto)::text AS total
        FROM vta_movimientos_efectivo WHERE sesion_id = $1
@@ -99,6 +122,10 @@ export async function esperadoDeSesion(
 
   for (const m of medios.rows) {
     sumar(grupoDeArqueo(m.medio), m.moneda, Number(m.total));
+  }
+
+  for (const a of [...anticipos.rows, ...abonos.rows]) {
+    sumar(grupoDeArqueo(a.medio), a.moneda, Number(a.total));
   }
 
   // El vuelto sale del efectivo en colones.

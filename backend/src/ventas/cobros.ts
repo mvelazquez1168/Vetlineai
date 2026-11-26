@@ -4,6 +4,7 @@ import { emitir } from "../facturacion/emision";
 import { DocumentoVenta } from "../facturacion/tipos";
 import { tipoDeCambioDelDia } from "./caja";
 import { lineasParaFacturar, totalDeCuenta } from "./cuentas";
+import { aplicarAnticipos, saldoAFavor } from "./credito";
 
 // ---------------------------------------------------------------------
 // COBROS.
@@ -116,6 +117,31 @@ export async function cobrar(
     });
   }
 
+  // EL ANTICIPO SE VERIFICA Y SE CONSUME ACÁ.
+  //
+  // DEFECTO REAL QUE ESTO CIERRA: `anticipo` era un medio interno que
+  // saldaba la cuenta sin mirar si el cliente tenía ese saldo a favor y
+  // sin descontarlo. Es decir: se podía cerrar una cuenta con plata
+  // imaginaria, emitir la factura, y el saldo a favor del cliente
+  // quedaba intacto para volver a "usarlo" la próxima vez.
+  const porAnticipo =
+    Math.round(
+      convertidos.filter((m) => m.medio === "anticipo").reduce((a, m) => a + m.montoCrc, 0) * 100
+    ) / 100;
+  if (porAnticipo > 0) {
+    if (!cuenta.rows[0].propietario_id) {
+      throw new Error(
+        "Para pagar con anticipo la cuenta tiene que estar a nombre de un cliente: el saldo a favor es de alguien."
+      );
+    }
+    const disponible = await saldoAFavor(db, cuenta.rows[0].propietario_id);
+    if (porAnticipo > disponible + 0.01) {
+      throw new Error(
+        `Se quiere aplicar ${porAnticipo} de anticipo y el cliente tiene ${disponible} a favor.`
+      );
+    }
+  }
+
   const recibidoCrc = Math.round(convertidos.reduce((a, m) => a + m.montoCrc, 0) * 100) / 100;
 
   // Lo que se aplica a la cuenta nunca supera el saldo: si el cliente
@@ -211,6 +237,13 @@ export async function cobrar(
     [tenantId, s.cuentaId, s.sesionId, s.personaId ?? null, aplicado, vueltoCrc, comprobanteId ?? null]
   );
   const cobroId = c.rows[0].id;
+
+  // Consumido DESPUÉS de que el cobro existe: si la emisión del
+  // comprobante hubiera fallado, el anticipo del cliente seguiría
+  // disponible.
+  if (porAnticipo > 0) {
+    await aplicarAnticipos(db, cuenta.rows[0].propietario_id!, Math.min(porAnticipo, aplicado));
+  }
 
   for (const m of convertidos) {
     await db.query(

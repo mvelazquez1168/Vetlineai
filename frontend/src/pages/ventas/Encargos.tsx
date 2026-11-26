@@ -14,26 +14,35 @@ import {
   TableColumn,
   useToast,
 } from "../../components/ui";
-import { Encargo, ventasApi } from "../../lib/ventasApi";
+import { Caja, CuentaListada, Encargo, formatearMonto, ventasApi } from "../../lib/ventasApi";
 import { ProductoListado, inventarioApi } from "../../lib/inventarioApi";
 import { ReceptorEncontrado, facturacionCrApi } from "../../lib/facturacionCrApi";
 
 // ---------------------------------------------------------------------
 // ENCARGOS ESPECIALES: alimentos o medicamentos que se piden para un
-// cliente concreto.
+// cliente concreto. El ciclo entero, no solo el estado:
 //
-// El estado `recibido` **reserva el stock**: si no se reservara, el
-// producto que se pidió para alguien se le vende al primero que entre y
-// hay que volver a pedirlo.
+//   * **anticipo** al registrarlo: entra a la caja antes de que el
+//     producto exista, y queda ligado a este encargo;
+//   * **pedido al proveedor** = una orden de compra del inventario, con
+//     su consecutivo y su recepción. Opcional: quien pide por WhatsApp
+//     cambia el estado y no carga orden;
+//   * **recibido** reserva el stock. La reserva la respeta
+//     `registrarMovimiento`, así que el producto apartado NO se le
+//     vende a otro: el intento falla nombrando al cliente;
+//   * **entregado** descarga el lote reservado, deja el cargo en una
+//     cuenta y aplica el anticipo.
 //
-// EL AVISO AL CLIENTE todavía no sale solo: el canal lo va a dar el
-// CRM. Mientras tanto el encargo en estado `recibido` **queda visible
-// en caja** como tarea pendiente, que es exactamente lo que el prompt
-// pide para el intertanto. La pantalla lo dice en vez de simular que
-// manda algo.
+// EL AVISO AL CLIENTE no sale solo: el canal lo da el CRM. Mientras
+// tanto los que están en «Recibido» son la lista de a quién llamar, y
+// «Avisado» registra que se llamó. La pantalla lo dice en vez de
+// simular que manda algo.
 // ---------------------------------------------------------------------
 
-const ESTADOS: Record<string, { etiqueta: string; variante: "neutral" | "info" | "warning" | "success" | "error" }> = {
+const ESTADOS: Record<
+  string,
+  { etiqueta: string; variante: "neutral" | "info" | "warning" | "success" | "error" }
+> = {
   pendiente: { etiqueta: "Pendiente de pedir", variante: "warning" },
   pedido: { etiqueta: "Pedido al proveedor", variante: "info" },
   recibido: { etiqueta: "Recibido — avisar al cliente", variante: "warning" },
@@ -49,20 +58,56 @@ const SIGUIENTE: Record<string, string[]> = {
   avisado: ["entregado", "cancelado"],
 };
 
+const ACCION: Record<string, string> = {
+  pedido: "Pedir",
+  recibido: "Llegó",
+  avisado: "Avisé al cliente",
+  entregado: "Entregar",
+  cancelado: "Cancelar",
+};
+
 export function Encargos() {
   const toast = useToast();
   const [encargos, setEncargos] = useState<Encargo[]>([]);
   const [productos, setProductos] = useState<ProductoListado[]>([]);
+  const [cuentas, setCuentas] = useState<CuentaListada[]>([]);
+  const [cajas, setCajas] = useState<Caja[]>([]);
+  const [proveedores, setProveedores] = useState<Array<Record<string, string>>>([]);
   const [ocupado, setOcupado] = useState(false);
 
   const [creando, setCreando] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [clientes, setClientes] = useState<ReceptorEncontrado[]>([]);
   const [cliente, setCliente] = useState<ReceptorEncontrado | null>(null);
-  const [nuevo, setNuevo] = useState({ productoId: "", descripcion: "", cantidad: "1" });
+  const [nuevo, setNuevo] = useState({
+    productoId: "",
+    descripcion: "",
+    cantidad: "1",
+    anticipo: "",
+  });
+
+  // El paso que necesita datos extra abre su propio panel. `cual` es el
+  // encargo y `paso` lo que se está haciendo con él.
+  const [paso, setPaso] = useState<{ encargo: Encargo; estado: string } | null>(null);
+  const [datosPaso, setDatosPaso] = useState({
+    proveedorId: "",
+    presentacionId: "",
+    costoUnitario: "",
+    cuentaId: "",
+    precioUnitario: "",
+    motivo: "",
+  });
+  const [presentaciones, setPresentaciones] = useState<
+    Array<{ id: string; nombre: string; precio_venta: string | null }>
+  >([]);
+
+  const sesionAbierta = cajas.find((c) => c.sesion_abierta)?.sesion_abierta ?? "";
 
   const recargar = () =>
-    ventasApi.encargos().then((r) => setEncargos(r.encargos)).catch(() => setEncargos([]));
+    ventasApi
+      .encargos()
+      .then((r) => setEncargos(r.encargos))
+      .catch(() => setEncargos([]));
 
   useEffect(() => {
     recargar();
@@ -70,6 +115,18 @@ export function Encargos() {
       .productos({ porPagina: 100 })
       .then((r) => setProductos(r.productos))
       .catch(() => setProductos([]));
+    inventarioApi
+      .proveedores()
+      .then((r) => setProveedores(r.proveedores))
+      .catch(() => setProveedores([]));
+    ventasApi
+      .cuentas("abierta")
+      .then((r) => setCuentas(r.cuentas))
+      .catch(() => setCuentas([]));
+    ventasApi
+      .cajas()
+      .then((r) => setCajas(r.cajas))
+      .catch(() => setCajas([]));
   }, []);
 
   useEffect(() => {
@@ -86,11 +143,32 @@ export function Encargos() {
     return () => clearTimeout(t);
   }, [busqueda]);
 
+  /** Las presentaciones del producto del encargo, para pedir y entregar. */
+  const cargarPresentaciones = async (productoId: string | null) => {
+    if (!productoId) {
+      setPresentaciones([]);
+      return;
+    }
+    try {
+      const d = await inventarioApi.producto(productoId);
+      setPresentaciones(d.presentaciones);
+    } catch {
+      setPresentaciones([]);
+    }
+  };
+
   const crear = async () => {
     if (!cliente) return;
+    const anticipo = Number(nuevo.anticipo.replace(",", ".")) || 0;
+    if (anticipo > 0 && !sesionAbierta) {
+      toast.error(
+        "Un anticipo entra a una caja y no hay ninguna sesión abierta. Abrí la caja primero o registrá el encargo sin anticipo."
+      );
+      return;
+    }
     setOcupado(true);
     try {
-      await ventasApi.crearEncargo({
+      const r = await ventasApi.crearEncargo({
         propietarioId: cliente.id,
         productoId: nuevo.productoId || undefined,
         descripcion:
@@ -98,11 +176,17 @@ export function Encargos() {
           productos.find((p) => p.id === nuevo.productoId)?.nombre ||
           "Encargo",
         cantidad: Number(nuevo.cantidad.replace(",", ".")) || 1,
+        anticipo: anticipo > 0 ? anticipo : undefined,
+        sesionId: anticipo > 0 ? sesionAbierta : undefined,
       });
-      toast.exito("Encargo registrado.");
+      toast.exito(
+        r.anticipoId
+          ? `Encargo registrado con un anticipo de ${formatearMonto(anticipo)}, que queda como saldo a favor del cliente.`
+          : "Encargo registrado."
+      );
       setCreando(false);
       setCliente(null);
-      setNuevo({ productoId: "", descripcion: "", cantidad: "1" });
+      setNuevo({ productoId: "", descripcion: "", cantidad: "1", anticipo: "" });
       await recargar();
     } catch (err) {
       toast.error((err as Error).message);
@@ -111,17 +195,78 @@ export function Encargos() {
     }
   };
 
-  const cambiar = async (id: string, estado: string) => {
+  /** Los pasos que no necesitan datos se hacen de una. */
+  const avanzar = async (e: Encargo, estado: string) => {
+    if (estado === "pedido" || estado === "entregado" || estado === "cancelado") {
+      setDatosPaso({
+        proveedorId: "",
+        presentacionId: "",
+        costoUnitario: "",
+        cuentaId: "",
+        precioUnitario: "",
+        motivo: "",
+      });
+      await cargarPresentaciones(e.producto_id);
+      setPaso({ encargo: e, estado });
+      return;
+    }
     setOcupado(true);
     try {
-      await ventasApi.estadoEncargo(id, estado);
+      const r = await ventasApi.estadoEncargo(e.id, estado);
       toast.exito(
         estado === "recibido"
-          ? "Recibido y reservado: no se le vende a otro cliente."
-          : estado === "avisado"
-            ? "Marcado como avisado. El aviso automático llega con el CRM."
-            : "Encargo actualizado."
+          ? `Llegó y queda reservado: ${r.reservado ?? ""} unidad(es) apartadas, no se le venden a otro cliente.`
+          : "Marcado como avisado. El aviso automático llega con el CRM."
       );
+      await recargar();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  };
+
+  const confirmarPaso = async () => {
+    if (!paso) return;
+    setOcupado(true);
+    try {
+      const cuerpo: Record<string, unknown> =
+        paso.estado === "pedido"
+          ? {
+              proveedorId: datosPaso.proveedorId || undefined,
+              presentacionId: datosPaso.presentacionId || undefined,
+              bodegaId: cajas.find((c) => c.sesion_abierta)?.bodega_id,
+              costoUnitario: Number(datosPaso.costoUnitario.replace(",", ".")) || undefined,
+            }
+          : paso.estado === "entregado"
+            ? {
+                cuentaId: datosPaso.cuentaId,
+                presentacionId: datosPaso.presentacionId || undefined,
+                precioUnitario: Number(datosPaso.precioUnitario.replace(",", ".")) || undefined,
+              }
+            : { motivo: datosPaso.motivo };
+
+      const r = await ventasApi.estadoEncargo(paso.encargo.id, paso.estado, cuerpo);
+
+      if (paso.estado === "pedido") {
+        toast.exito(
+          r.numeroOrden
+            ? `Pedido con la orden de compra #${r.numeroOrden}. Al recibirla, el stock entra por Compras.`
+            : "Marcado como pedido, sin orden de compra en el sistema."
+        );
+      } else if (paso.estado === "entregado") {
+        toast.exito(
+          `Entregado. Quedó el cargo en la cuenta` +
+            (r.anticipoDisponible
+              ? `. Al cobrarla, aplicá ${formatearMonto(r.anticipoDisponible)} con el medio «anticipo»: el saldo a favor se descuenta ahí, no acá.`
+              : ". El cliente no tenía anticipo pendiente.")
+        );
+      } else {
+        toast.exito(
+          `Encargo cancelado. El anticipo NO se borra: le quedan ${formatearMonto(r.saldoAFavorDelCliente ?? 0)} a favor.`
+        );
+      }
+      setPaso(null);
       await recargar();
     } catch (err) {
       toast.error((err as Error).message);
@@ -139,6 +284,7 @@ export function Encargos() {
           <span className="font-medium">{e.descripcion}</span>
           <span className="block text-xs text-text-muted">
             {Number(e.cantidad)} · {e.cliente}
+            {e.orden_numero ? ` · orden #${e.orden_numero}` : ""}
           </span>
         </>
       ),
@@ -147,10 +293,34 @@ export function Encargos() {
       key: "estado",
       header: "Estado",
       render: (e) => (
-        <Badge variant={ESTADOS[e.estado]?.variante ?? "neutral"} dot>
-          {ESTADOS[e.estado]?.etiqueta ?? e.estado}
-        </Badge>
+        <>
+          <Badge variant={ESTADOS[e.estado]?.variante ?? "neutral"} dot>
+            {ESTADOS[e.estado]?.etiqueta ?? e.estado}
+          </Badge>
+          {Number(e.cantidad_reservada) > 0 && (
+            <span className="mt-1 block text-xs text-text-muted">
+              {Number(e.cantidad_reservada)} reservada(s)
+            </span>
+          )}
+        </>
       ),
+    },
+    {
+      key: "anticipo",
+      header: "Anticipo",
+      render: (e) =>
+        Number(e.anticipo) > 0 ? (
+          <>
+            {formatearMonto(e.anticipo)}
+            <span className="block text-xs text-text-muted">
+              {Number(e.anticipo_disponible) > 0
+                ? `${formatearMonto(e.anticipo_disponible)} sin aplicar`
+                : "ya aplicado"}
+            </span>
+          </>
+        ) : (
+          <span className="text-text-muted">—</span>
+        ),
     },
     {
       key: "fecha",
@@ -167,9 +337,9 @@ export function Encargos() {
               key={s}
               variant={s === "cancelado" ? "secondary" : "primary"}
               disabled={ocupado}
-              onClick={() => cambiar(e.id, s)}
+              onClick={() => avanzar(e, s)}
             >
-              {ESTADOS[s]?.etiqueta.split(" —")[0] ?? s}
+              {ACCION[s] ?? s}
             </Button>
           ))}
         </div>
@@ -201,8 +371,9 @@ export function Encargos() {
 
       <Card className="mt-6">
         <CardDescription>
-          Al marcarlo recibido se reserva el stock. El aviso automático al cliente llega con el
-          CRM; mientras tanto, los que están en «Recibido» son la lista de a quién hay que llamar.
+          Al marcarlo recibido se reserva el stock, y el reservado no se le puede vender a otro: el
+          intento falla nombrando al cliente que lo espera. El aviso automático llega con el CRM;
+          mientras tanto, los que están en «Recibido» son la lista de a quién hay que llamar.
         </CardDescription>
         <div className="mt-3">
           <Table
@@ -214,6 +385,7 @@ export function Encargos() {
         </div>
       </Card>
 
+      {/* ------------------------------------------- Nuevo encargo */}
       <Modal
         open={creando}
         onClose={() => setCreando(false)}
@@ -275,12 +447,154 @@ export function Encargos() {
             onChange={(e) => setNuevo({ ...nuevo, descripcion: e.target.value })}
             placeholder="Alimento renal 7,5 kg"
           />
-          <Input
-            label="Cantidad"
-            value={nuevo.cantidad}
-            onChange={(e) => setNuevo({ ...nuevo, cantidad: e.target.value })}
-          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input
+              label="Cantidad"
+              value={nuevo.cantidad}
+              onChange={(e) => setNuevo({ ...nuevo, cantidad: e.target.value })}
+            />
+            <Input
+              label="Anticipo (opcional)"
+              value={nuevo.anticipo}
+              onChange={(e) => setNuevo({ ...nuevo, anticipo: e.target.value })}
+              placeholder="0"
+            />
+          </div>
+          <p className="text-xs text-text-muted">
+            El anticipo entra a la caja y queda como <strong>saldo a favor</strong> del cliente,
+            ligado a este encargo: no emite comprobante al recibirse y se aplica al entregarlo.
+            {sesionAbierta ? "" : " Hace falta una sesión de caja abierta para recibirlo."}
+          </p>
         </div>
+      </Modal>
+
+      {/* -------------------------------- Pedir / entregar / cancelar */}
+      <Modal
+        open={paso !== null}
+        onClose={() => setPaso(null)}
+        title={
+          paso?.estado === "pedido"
+            ? "Pedir al proveedor"
+            : paso?.estado === "entregado"
+              ? "Entregar el encargo"
+              : "Cancelar el encargo"
+        }
+        ancho="lg"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setPaso(null)}>
+              Volver
+            </Button>
+            <Button
+              disabled={ocupado || (paso?.estado === "entregado" && !datosPaso.cuentaId)}
+              onClick={confirmarPaso}
+            >
+              {paso ? (ACCION[paso.estado] ?? "Confirmar") : "Confirmar"}
+            </Button>
+          </div>
+        }
+      >
+        {paso?.estado === "pedido" && (
+          <div className="space-y-3">
+            <p className="text-sm text-text-muted">
+              Si decís proveedor y presentación, se crea la <strong>orden de compra</strong> del
+              inventario y queda ligada al encargo, así el pedido no se carga dos veces. Si pedís
+              por fuera del sistema, dejalo vacío y solo se cambia el estado.
+            </p>
+            <Select
+              label="Proveedor"
+              value={datosPaso.proveedorId}
+              onChange={(e) => setDatosPaso({ ...datosPaso, proveedorId: e.target.value })}
+              options={[
+                { value: "", label: "Sin orden en el sistema" },
+                ...proveedores.map((p) => ({ value: p.id, label: p.nombre ?? p.id })),
+              ]}
+            />
+            {datosPaso.proveedorId && (
+              <>
+                <Select
+                  label="Presentación de compra"
+                  value={datosPaso.presentacionId}
+                  onChange={(e) => setDatosPaso({ ...datosPaso, presentacionId: e.target.value })}
+                  options={[
+                    { value: "", label: "Elegí la presentación" },
+                    ...presentaciones.map((p) => ({ value: p.id, label: p.nombre })),
+                  ]}
+                />
+                <Input
+                  label="Costo unitario (opcional)"
+                  value={datosPaso.costoUnitario}
+                  onChange={(e) => setDatosPaso({ ...datosPaso, costoUnitario: e.target.value })}
+                />
+                {!paso.encargo.producto_id && (
+                  <p className="text-sm text-error">
+                    Este encargo no apunta a un producto del catálogo, así que no se puede armar la
+                    orden. Se pide por fuera.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {paso?.estado === "entregado" && (
+          <div className="space-y-3">
+            <p className="text-sm text-text-muted">
+              Entregar <strong>descarga el lote reservado</strong>, deja el cargo en una cuenta y
+              aplica el anticipo. Después se cobra desde la pantalla de cobro, como cualquier venta.
+            </p>
+            <Select
+              label="Cuenta donde queda el cargo"
+              value={datosPaso.cuentaId}
+              onChange={(e) => setDatosPaso({ ...datosPaso, cuentaId: e.target.value })}
+              options={[
+                { value: "", label: "Elegí la cuenta" },
+                ...cuentas.map((c) => ({
+                  value: c.id,
+                  label: `#${c.numero} ${c.cliente_nombre ?? "sin cliente"}`,
+                })),
+              ]}
+            />
+            {presentaciones.length > 0 && (
+              <Select
+                label="Presentación que se entrega"
+                value={datosPaso.presentacionId}
+                onChange={(e) => setDatosPaso({ ...datosPaso, presentacionId: e.target.value })}
+                options={[
+                  { value: "", label: "En unidad base" },
+                  ...presentaciones.map((p) => ({ value: p.id, label: p.nombre })),
+                ]}
+              />
+            )}
+            <Input
+              label="Precio unitario (vacío = el del catálogo)"
+              value={datosPaso.precioUnitario}
+              onChange={(e) => setDatosPaso({ ...datosPaso, precioUnitario: e.target.value })}
+            />
+            {Number(paso.encargo.anticipo_disponible) > 0 && (
+              <p className="rounded-lg bg-background p-3 text-sm">
+                El cliente tiene {formatearMonto(paso.encargo.anticipo_disponible)} de anticipo sin
+                aplicar: se descuentan de este cargo.
+              </p>
+            )}
+          </div>
+        )}
+
+        {paso?.estado === "cancelado" && (
+          <div className="space-y-3">
+            <Input
+              label="Motivo"
+              value={datosPaso.motivo}
+              onChange={(e) => setDatosPaso({ ...datosPaso, motivo: e.target.value })}
+              placeholder="El proveedor lo discontinuó"
+            />
+            <p className="text-sm text-text-muted">
+              Se libera la reserva. El anticipo <strong>no se borra</strong>: queda como saldo a
+              favor del cliente, porque eso es lo que es. Devolverlo en efectivo es una devolución
+              y pasa por su aprobación.
+            </p>
+          </div>
+        )}
       </Modal>
     </div>
   );

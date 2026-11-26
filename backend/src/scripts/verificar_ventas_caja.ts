@@ -32,6 +32,14 @@ import {
   saldoAFavor,
 } from "../ventas/credito";
 import { resolverAprobacion, solicitarAprobacion } from "../ventas/aprobaciones";
+import {
+  cancelar,
+  crearEncargo,
+  entregar,
+  marcarAvisado,
+  marcarRecibido,
+  pedirAlProveedor,
+} from "../ventas/encargos";
 import { emitirTalonario, regularizarProvisional } from "../ventas/contingencia";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
 
@@ -668,10 +676,19 @@ async function main() {
     })
   );
   const totCirugia = await conAlcanceTenant(tenantId, (db) => totalDeCuenta(db, cuentaCirugia.id));
-  const aplicado = await conAlcanceTenant(tenantId, (db) =>
-    aplicarAnticipos(db, clienteId, 25000)
+
+  // Pagar con un anticipo que el cliente NO tiene: rechazado. Antes se
+  // aceptaba, saldaba la cuenta y emitia la factura con plata
+  // imaginaria, sin tocar el saldo a favor.
+  await debeFallar("pagar con mas anticipo del que el cliente tiene", () =>
+    conAlcanceTenant(tenantId, (db) =>
+      cobrar(db, tenantId, {
+        cuentaId: cuentaCirugia.id, sesionId: sesion2.id, tipoComprobante: "04",
+        medios: [{ medio: "anticipo", monto: 99999 }],
+        personaId: cajero,
+      })
+    )
   );
-  igual(aplicado, 25000, "se aplican los 25 000 del anticipo");
   const cobroCirugia = await conAlcanceTenant(tenantId, (db) =>
     cobrar(db, tenantId, {
       cuentaId: cuentaCirugia.id, sesionId: sesion2.id, tipoComprobante: "01",
@@ -686,7 +703,11 @@ async function main() {
       personaId: cajero,
     })
   );
-  igual(cobroCirugia.total, totCirugia.total, "la cuenta se salda con el anticipo más el efectivo");
+  igual(cobroCirugia.total, totCirugia.total, "la cuenta se salda con el anticipo mas el efectivo");
+  const totCirugiaFinal = await conAlcanceTenant(tenantId, (db) =>
+    totalDeCuenta(db, cuentaCirugia.id)
+  );
+  igual(totCirugiaFinal.saldo, 0, "y la cuenta queda en cero: el anticipo bajo el saldo de verdad");
   igual(await conAlcanceTenant(tenantId, (db) => saldoAFavor(db, clienteId)), 0,
     "y el saldo a favor queda en cero");
 
@@ -867,6 +888,291 @@ async function main() {
   );
   const totHosp = await conAlcanceTenant(tenantId, (db) => totalDeCuenta(db, hosp.id));
   igual(totHosp.total, 56160, "y suma 56 160 (54 000 más el 4% de servicios veterinarios)");
+
+  // -------------------------------------------------------------------
+  console.log("\n=== 20. Encargo: anticipo, orden de compra, reserva, aviso y entrega ===");
+  // La sesion del credito sigue abierta y una caja no admite dos: se
+  // cierra cuadrada antes de empezar.
+  const lineasSesion2 = (
+    await conAlcanceTenant(tenantId, (db) => esperadoDeSesion(db, sesion2.id))
+  ).map((e) => ({ medio: e.medio, moneda: e.moneda, declarado: e.esperado }));
+  await conAlcanceTenant(tenantId, (db) =>
+    cerrarSesion(db, tenantId, sesion2.id, { lineas: lineasSesion2, personaId: cajero })
+  );
+
+  const sesionEnc = await conAlcanceTenant(tenantId, (db) =>
+    abrirSesion(db, tenantId, { cajaId, fondoCrc: 5000, personaId: cajero })
+  );
+
+  const proveedorId = (
+    await pool.query<{ id: string }>(
+      `INSERT INTO inv_proveedores (tenant_id, nombre) VALUES ($1,'Distribuidora de prueba')
+       RETURNING id`,
+      [tenantId]
+    )
+  ).rows[0].id;
+
+  const encargo = await conAlcanceTenant(tenantId, (db) =>
+    crearEncargo(db, tenantId, {
+      propietarioId: clienteId,
+      productoId,
+      descripcion: "Amoxicilina para Nina",
+      cantidad: 20,
+      anticipo: 6000,
+      sesionId: sesionEnc.id,
+      personaId: cajero,
+    })
+  );
+  assert(!!encargo.anticipoId, "el encargo nace con su anticipo", encargo.anticipoId);
+  const saldoTrasAnticipo = await conAlcanceTenant(tenantId, (db) =>
+    saldoAFavor(db, clienteId)
+  );
+  igual(saldoTrasAnticipo, 6000, "y los 6 000 quedan como saldo a favor del cliente");
+  const sinComprobante = await pool.query<{ n: string }>(
+    `SELECT count(*)::text AS n FROM vta_anticipos
+      WHERE id = $1 AND comprobante_id IS NOT NULL`,
+    [encargo.anticipoId]
+  );
+  igual(sinComprobante.rows[0].n, "0", "el anticipo NO emite comprobante al recibirse");
+
+  // Un anticipo es plata que entra a la gaveta: el arqueo TIENE que
+  // contarlo. No contarlo era un defecto real (ver la migración 098):
+  // el billete estaba en la caja y el arqueo decía que sobraba.
+  const espEnc = await conAlcanceTenant(tenantId, (db) => esperadoDeSesion(db, sesionEnc.id));
+  const efEnc = espEnc.find((e) => e.medio === "efectivo" && e.moneda === "CRC")!;
+  igual(
+    efEnc.esperado,
+    11000,
+    "el anticipo en efectivo entra al esperado de la caja: 5 000 de fondo + 6 000"
+  );
+
+  await debeFallar("registrar un anticipo sin sesión de caja", () =>
+    conAlcanceTenant(tenantId, (db) =>
+      crearEncargo(db, tenantId, {
+        propietarioId: clienteId,
+        descripcion: "Encargo sin caja",
+        cantidad: 1,
+        anticipo: 1000,
+      })
+    )
+  );
+
+  // --- Pedido al proveedor = orden de compra de verdad
+  const pedido = await conAlcanceTenant(tenantId, (db) =>
+    pedirAlProveedor(db, tenantId, encargo.id, {
+      proveedorId,
+      bodegaId,
+      presentacionId: presCaja,
+      costoUnitario: 4000,
+      personaId: cajero,
+    })
+  );
+  assert(!!pedido.ordenCompraId, "pedirlo crea la orden de compra", pedido.numeroOrden);
+  const ligada = await pool.query<{ orden: string | null; estado: string }>(
+    `SELECT orden_compra_id AS orden, estado FROM vta_encargos WHERE id = $1`,
+    [encargo.id]
+  );
+  igual(
+    [ligada.rows[0].orden === pedido.ordenCompraId, ligada.rows[0].estado],
+    [true, "pedido"],
+    "y la orden queda ligada al encargo: el pedido no se carga dos veces"
+  );
+  const lineaOrden = await pool.query<{ cantidad_pedida: string; producto: string }>(
+    `SELECT l.cantidad_pedida, l.producto_id AS producto FROM inv_orden_compra_lineas l
+      WHERE l.orden_id = $1`,
+    [pedido.ordenCompraId]
+  );
+  igual(
+    [Number(lineaOrden.rows[0].cantidad_pedida), lineaOrden.rows[0].producto === productoId],
+    [20, true],
+    "la orden pide las 20 del encargo, del producto del encargo"
+  );
+
+  await debeFallar("saltar de 'pedido' a 'pedido' otra vez", () =>
+    conAlcanceTenant(tenantId, (db) => pedirAlProveedor(db, tenantId, encargo.id, {}))
+  );
+
+  // --- Llegó: reserva
+  const recibido = await conAlcanceTenant(tenantId, (db) =>
+    marcarRecibido(db, encargo.id, { bodegaId })
+  );
+  igual(recibido.reservado, 20, "al recibirlo se reservan las 20 unidades");
+
+  const existenciaAntes = await pool.query<{ t: string }>(
+    `SELECT sum(cantidad)::text AS t FROM inv_lotes WHERE id = $1`,
+    [recibido.loteId]
+  );
+
+  // --- Y lo reservado NO se le vende a otro
+  await debeFallar("vender el stock reservado para el encargo", () =>
+    conAlcanceTenant(tenantId, (db) =>
+      registrarMovimiento(db, tenantId, {
+        tipo: "venta",
+        productoId,
+        bodegaId,
+        loteId: recibido.loteId,
+        cantidadBase: Number(existenciaAntes.rows[0].t),
+        personaId: cajero,
+      })
+    )
+  );
+  const intactoTrasIntento = await pool.query<{ t: string }>(
+    `SELECT sum(cantidad)::text AS t FROM inv_lotes WHERE id = $1`,
+    [recibido.loteId]
+  );
+  igual(
+    intactoTrasIntento.rows[0].t,
+    existenciaAntes.rows[0].t,
+    "y el intento no movió una sola unidad"
+  );
+
+  // Lo que NO está reservado sigue vendiéndose: la reserva aparta 20, no el lote.
+  const libres = Number(existenciaAntes.rows[0].t) - 20;
+  if (libres > 0) {
+    const vendeLibre = await conAlcanceTenant(tenantId, (db) =>
+      registrarMovimiento(db, tenantId, {
+        tipo: "venta",
+        productoId,
+        bodegaId,
+        loteId: recibido.loteId,
+        cantidadBase: 1,
+        personaId: cajero,
+      })
+    );
+    assert(vendeLibre.length === 1, "lo NO reservado del mismo lote se sigue vendiendo");
+  }
+
+  await conAlcanceTenant(tenantId, (db) => marcarAvisado(db, encargo.id));
+  const avisado = await pool.query<{ estado: string; avisado_en: Date | null }>(
+    `SELECT estado, avisado_en FROM vta_encargos WHERE id = $1`,
+    [encargo.id]
+  );
+  igual(
+    [avisado.rows[0].estado, avisado.rows[0].avisado_en !== null],
+    ["avisado", true],
+    "avisar queda registrado con su fecha (el aviso automático llega con el CRM)"
+  );
+
+  // --- Entrega: descarga el lote reservado, cobra y aplica el anticipo
+  const cuentaEnc = await conAlcanceTenant(tenantId, (db) =>
+    abrirCuenta(db, tenantId, { propietarioId: clienteId, sesionId: sesionEnc.id })
+  );
+  const antesDeEntregar = Number(
+    (
+      await pool.query<{ t: string }>(`SELECT sum(cantidad)::text AS t FROM inv_lotes WHERE id = $1`, [
+        recibido.loteId,
+      ])
+    ).rows[0].t
+  );
+  const entrega = await conAlcanceTenant(tenantId, (db) =>
+    entregar(db, tenantId, encargo.id, {
+      cuentaId: cuentaEnc.id,
+      presentacionId: presTableta,
+      precioUnitario: 500,
+      bodegaId,
+      personaId: cajero,
+    })
+  );
+  const despuesDeEntregar = Number(
+    (
+      await pool.query<{ t: string }>(`SELECT sum(cantidad)::text AS t FROM inv_lotes WHERE id = $1`, [
+        recibido.loteId,
+      ])
+    ).rows[0].t
+  );
+  igual(
+    antesDeEntregar - despuesDeEntregar,
+    20,
+    "la entrega descarga las 20 del lote RESERVADO, no por FEFO"
+  );
+  igual(
+    entrega.anticipoDisponible,
+    6000,
+    "y deja los 6 000 del anticipo listos para aplicar al cobrar"
+  );
+  const totEnc = await conAlcanceTenant(tenantId, (db) => totalDeCuenta(db, cuentaEnc.id));
+  igual(totEnc.total, 11300, "la cuenta suma 11 300: 20 tabletas a 500 más el 13% de IVA");
+  igual(
+    totEnc.cobrado,
+    0,
+    "entregar NO cobra: el saldo a favor se descuenta al cobrar, no al entregar"
+  );
+
+  // El anticipo se aplica EN EL COBRO, que es donde queda el registro
+  // que baja el saldo de la cuenta.
+  const cobroEnc = await conAlcanceTenant(tenantId, (db) =>
+    cobrar(db, tenantId, {
+      cuentaId: cuentaEnc.id,
+      sesionId: sesionEnc.id,
+      tipoComprobante: "04",
+      medios: [
+        { medio: "anticipo", monto: 6000 },
+        { medio: "01", monto: 5300 },
+      ],
+      personaId: cajero,
+    })
+  );
+  igual(cobroEnc.total, 11300, "el cobro aplica los 11 300 entre el anticipo y el efectivo");
+  const totEncFinal = await conAlcanceTenant(tenantId, (db) => totalDeCuenta(db, cuentaEnc.id));
+  igual(totEncFinal.saldo, 0, "y la cuenta del encargo queda en cero");
+  const reservaLiberada = await pool.query<{ reservada: string; estado: string }>(
+    `SELECT cantidad_reservada AS reservada, estado FROM vta_encargos WHERE id = $1`,
+    [encargo.id]
+  );
+  igual(
+    [Number(reservaLiberada.rows[0].reservada), reservaLiberada.rows[0].estado],
+    [0, "entregado"],
+    "la reserva se libera al entregar: si sobreviviera, inmovilizaría stock que ya no está"
+  );
+  const saldoTrasEntrega = await conAlcanceTenant(tenantId, (db) => saldoAFavor(db, clienteId));
+  igual(saldoTrasEntrega, 0, "y despues del cobro al cliente no le queda saldo a favor");
+
+  await debeFallar("entregar dos veces el mismo encargo", () =>
+    conAlcanceTenant(tenantId, (db) =>
+      entregar(db, tenantId, encargo.id, { cuentaId: cuentaEnc.id, personaId: cajero })
+    )
+  );
+
+  // --- Cancelar: libera la reserva y NO se come el anticipo
+  const encargo2 = await conAlcanceTenant(tenantId, (db) =>
+    crearEncargo(db, tenantId, {
+      propietarioId: clienteId,
+      productoId,
+      descripcion: "Alimento renal que el proveedor discontinuó",
+      cantidad: 2,
+      anticipo: 3000,
+      sesionId: sesionEnc.id,
+      personaId: cajero,
+    })
+  );
+  const cancelado = await conAlcanceTenant(tenantId, (db) =>
+    cancelar(db, encargo2.id, "El proveedor lo discontinuó")
+  );
+  igual(
+    cancelado.saldoAFavorDelCliente,
+    3000,
+    "cancelar NO se come el anticipo: queda como saldo a favor del cliente"
+  );
+  const estadoCancelado = await pool.query<{ estado: string; reservada: string }>(
+    `SELECT estado, cantidad_reservada AS reservada FROM vta_encargos WHERE id = $1`,
+    [encargo2.id]
+  );
+  igual(
+    [estadoCancelado.rows[0].estado, Number(estadoCancelado.rows[0].reservada)],
+    ["cancelado", 0],
+    "y queda cancelado sin reserva"
+  );
+  await debeFallar("revivir un encargo cancelado", () =>
+    conAlcanceTenant(tenantId, (db) => marcarRecibido(db, encargo2.id, { bodegaId }))
+  );
+
+  // La sesión se cierra para no dejar la caja abierta.
+  const lineasEnc = (
+    await conAlcanceTenant(tenantId, (db) => esperadoDeSesion(db, sesionEnc.id))
+  ).map((e) => ({ medio: e.medio, moneda: e.moneda, declarado: e.esperado }));
+  await conAlcanceTenant(tenantId, (db) =>
+    cerrarSesion(db, tenantId, sesionEnc.id, { lineas: lineasEnc, personaId: cajero })
+  );
 
   await pool.query(`DELETE FROM tenants WHERE nombre LIKE $1`, [`${PREFIJO}%`]);
   console.log(ok ? "\nTODO OK" : "\nHAY FALLAS");

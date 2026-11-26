@@ -306,6 +306,17 @@ export async function registrarAbono(
 
   await db.query(`UPDATE vta_abonos SET rep_id = $2 WHERE id = $1`, [abonoId, emitido.comprobanteId]);
 
+  // LOS MEDIOS SE GUARDAN, no solo viajan en el XML del REP: el arqueo
+  // de la caja tiene que poder sumar el efectivo que entró por un
+  // abono, y no puede leerlo de un comprobante firmado.
+  for (const m of medios) {
+    await db.query(
+      `INSERT INTO vta_abono_medios (tenant_id, abono_id, medio, moneda, monto, referencia)
+       VALUES ($1,$2,$3,$4,$5,$6)`,
+      [tenantId, abonoId, m.codigo, "CRC", m.monto, m.referencia ?? null]
+    );
+  }
+
   return {
     abonoId,
     repId: emitido.comprobanteId,
@@ -329,6 +340,9 @@ export async function registrarAnticipo(
     monto: number;
     encargoId?: string;
     personaId?: string;
+    /** Medio de pago de Hacienda (Nota 6). Por defecto efectivo. */
+    medio?: string;
+    moneda?: string;
   }
 ): Promise<{ id: string }> {
   if (!(datos.monto > 0)) throw new Error("El anticipo tiene que ser mayor que cero.");
@@ -337,11 +351,12 @@ export async function registrarAnticipo(
   }
   const r = await db.query<{ id: string }>(
     `INSERT INTO vta_anticipos (tenant_id, propietario_id, sesion_id, motivo, monto,
-                                encargo_id, recibido_por)
-     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+                                encargo_id, recibido_por, medio, moneda)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
     [
       tenantId, datos.propietarioId, datos.sesionId ?? null, datos.motivo.trim(), datos.monto,
-      datos.encargoId ?? null, datos.personaId ?? null,
+      datos.encargoId ?? null, datos.personaId ?? null, datos.medio ?? "01",
+      datos.moneda ?? "CRC",
     ]
   );
   return { id: r.rows[0].id };

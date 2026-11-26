@@ -86,6 +86,14 @@ export interface SolicitudMovimiento {
   motivoDetalle?: string;
   personaId?: string;
 
+  /**
+   * Deja salir stock RESERVADO para un encargo. Lo usa la entrega del
+   * encargo, que es la única salida legítima de lo reservado; para
+   * cualquier otra salida la reserva es un freno, y eso es el punto de
+   * reservar.
+   */
+  ignorarReservas?: boolean;
+
   /** Los cuatro vínculos opcionales. Que no haya paciente es normal. */
   pacienteId?: string;
   atencionId?: string;
@@ -259,6 +267,42 @@ interface LoteDisponible {
 }
 
 /**
+ * CUÁNTO DE CADA LOTE ESTÁ RESERVADO PARA UN ENCARGO, y para quién.
+ *
+ * Esta consulta mira una tabla de ventas (`vta_encargos`) desde el
+ * módulo de inventario, y es a propósito: la reserva es un hecho SOBRE
+ * EL LOTE, y el único lugar por donde sale stock es `registrarMovimiento`.
+ * La alternativa —que cada quien consulte la reserva antes de mover—
+ * es exactamente la regla escrita en varios lugares que la guía
+ * rectora prohíbe, y el día que alguien se olvide, el producto que se
+ * pidió para un cliente se le vende a otro sin que nada avise.
+ */
+async function reservasPorLote(
+  db: PoolClient,
+  loteIds: string[]
+): Promise<Map<string, { cantidad: number; para: string }>> {
+  const reservas = new Map<string, { cantidad: number; para: string }>();
+  if (loteIds.length === 0) return reservas;
+
+  const r = await db.query<{ lote: string; cantidad: string; para: string }>(
+    `SELECT e.lote_reservado_id AS lote,
+            sum(e.cantidad_reservada)::text AS cantidad,
+            string_agg(DISTINCT p.nombre, ', ') AS para
+       FROM vta_encargos e
+       JOIN propietarios p ON p.id = e.propietario_id
+      WHERE e.lote_reservado_id = ANY($1::uuid[])
+        AND e.estado IN ('recibido', 'avisado')
+        AND e.cantidad_reservada > 0
+      GROUP BY e.lote_reservado_id`,
+    [loteIds]
+  );
+  for (const f of r.rows) {
+    reservas.set(f.lote, { cantidad: Number(f.cantidad), para: f.para });
+  }
+  return reservas;
+}
+
+/**
  * Los lotes de los que puede salir, en orden FEFO: primero el que vence
  * antes. Los que no tienen vencimiento van al final — no vencer no es
  * razón para salir primero.
@@ -401,9 +445,25 @@ export async function registrarMovimiento(
       `No hay existencia de ese producto en esa bodega, así que no puede salir ${base} ${producto.unidad_base}.`
     );
   }
+
+  // Lo reservado para un encargo no está disponible para nadie más.
+  const reservas = solicitud.ignorarReservas
+    ? new Map<string, { cantidad: number; para: string }>()
+    : await reservasPorLote(db, disponibles.map((l) => l.id));
+  const libreEn = (lote: LoteDisponible) =>
+    Number(lote.cantidad) - (reservas.get(lote.id)?.cantidad ?? 0);
+  const libre = disponibles.reduce((a, l) => a + Math.max(0, libreEn(l)), 0);
+  const reservadoTotal = total - disponibles.reduce((a, l) => a + Math.min(Number(l.cantidad), Math.max(0, libreEn(l))), 0);
+
   if (total < base && !producto.permite_stock_negativo) {
     throw new Error(
       `Hay ${total} ${producto.unidad_base} y la salida es de ${base}. El producto no admite stock negativo: si la salida es correcta, primero hay que registrar la entrada que falta.`
+    );
+  }
+  if (libre < base && reservadoTotal > 0 && !producto.permite_stock_negativo) {
+    const para = [...reservas.values()].map((v) => v.para).join(", ");
+    throw new Error(
+      `De los ${total} ${producto.unidad_base} que hay, ${reservadoTotal} están reservados para un encargo de ${para}, así que quedan ${libre} libres y la salida es de ${base}. Si hay que entregarle el encargo, se hace desde Encargos; si el encargo se cayó, hay que cancelarlo primero.`
     );
   }
 
@@ -412,7 +472,7 @@ export async function registrarMovimiento(
 
   for (const lote of disponibles) {
     if (porRepartir <= 0) break;
-    const hay = Number(lote.cantidad);
+    const hay = Math.max(0, libreEn(lote));
     // El último lote absorbe el resto aunque quede negativo: solo se
     // llega acá si el producto lo permite, porque si no ya se lanzó.
     const esUltimo = lote === disponibles[disponibles.length - 1];

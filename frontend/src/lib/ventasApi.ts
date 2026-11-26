@@ -117,11 +117,21 @@ export interface Aprobacion {
 export interface Encargo {
   id: string;
   cliente: string;
+  propietario_id: string;
   producto: string | null;
+  producto_id: string | null;
   descripcion: string;
   cantidad: string;
   estado: string;
   creado_en: string;
+  /** Lo que el cliente dejó al encargarlo, y lo que todavía no se aplicó. */
+  anticipo: string;
+  anticipo_disponible: string;
+  /** La orden de compra con la que se pidió, si se armó una. */
+  orden_numero: number | null;
+  orden_compra_id: string | null;
+  lote_reservado_id: string | null;
+  cantidad_reservada: string;
 }
 
 export interface Provisional {
@@ -209,17 +219,26 @@ export const ventasApi = {
       d
     ),
   anticipo: (d: Record<string, unknown>) => json<{ id: string }>("/ventas/anticipos", "POST", d),
-  aplicarAnticipos: (propietarioId: string, monto: number) =>
-    json<{ aplicado: number; saldoAFavor: number }>(
-      `/ventas/clientes/${propietarioId}/aplicar-anticipos`,
-      "POST",
-      { monto }
-    ),
 
   encargos: () => pedir<{ encargos: Encargo[] }>("/ventas/encargos"),
-  crearEncargo: (d: Record<string, unknown>) => json<{ id: string }>("/ventas/encargos", "POST", d),
-  estadoEncargo: (id: string, estado: string, loteId?: string) =>
-    json<{ ok: true }>(`/ventas/encargos/${id}/estado`, "POST", { estado, loteId }),
+  crearEncargo: (d: Record<string, unknown>) =>
+    json<{ id: string; anticipoId?: string }>("/ventas/encargos", "POST", d),
+  /**
+   * Cada transición lleva sus datos: la orden de compra al pedir, el
+   * lote al recibir, la cuenta al entregar. Por eso el cuerpo es
+   * abierto y no tres parámetros fijos.
+   */
+  estadoEncargo: (id: string, estado: string, datos: Record<string, unknown> = {}) =>
+    json<{
+      ok?: true;
+      ordenCompraId?: string | null;
+      numeroOrden?: number;
+      loteId?: string;
+      reservado?: number;
+      cargoId?: string;
+      anticipoDisponible?: number;
+      saldoAFavorDelCliente?: number;
+    }>(`/ventas/encargos/${id}/estado`, "POST", { estado, ...datos }),
 
   aprobaciones: () => pedir<{ aprobaciones: Aprobacion[] }>("/ventas/aprobaciones"),
   solicitarAprobacion: (d: Record<string, unknown>) =>

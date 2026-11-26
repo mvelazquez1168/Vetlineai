@@ -12,7 +12,14 @@ import {
 import { abrirCuenta, agregarCargo, totalDeCuenta } from "../ventas/cuentas";
 import { cobrar, datosDeTiquete } from "../ventas/cobros";
 import {
-  aplicarAnticipos,
+  cancelar,
+  crearEncargo,
+  entregar,
+  marcarAvisado,
+  marcarRecibido,
+  pedirAlProveedor,
+} from "../ventas/encargos";
+import {
   cuentaCorriente,
   estadoDeCredito,
   puedeComprarACredito,
@@ -363,24 +370,31 @@ ventasRouter.post("/anticipos", async (req, res) => {
   }
 });
 
-ventasRouter.post("/clientes/:id/aplicar-anticipos", async (req, res) => {
-  try {
-    const aplicado = await aplicarAnticipos(req.db!, req.params.id, Number(req.body?.monto ?? 0));
-    res.json({ aplicado, saldoAFavor: await saldoAFavor(req.db!, req.params.id) });
-  } catch (err) {
-    fallo(res, err, "POST /ventas/clientes/:id/aplicar-anticipos");
-  }
-});
+// NO HAY ENDPOINT PARA "APLICAR ANTICIPOS" SUELTO, y lo hubo: consumía
+// el saldo a favor del cliente sin tocar ninguna cuenta, así que la
+// plata desaparecía del saldo y la cuenta seguía debiendo el total.
+//
+// Un anticipo se aplica COBRANDO, con el medio `anticipo` en
+// `POST /ventas/cuentas/:id/cobrar`: ahí queda el `vta_cobros` que baja
+// el saldo, el comprobante que lo respalda y la verificación de que el
+// cliente tenga ese saldo a favor.
 
 // =====================================================================
 // ENCARGOS
 // =====================================================================
 ventasRouter.get("/encargos", async (req, res) => {
   const r = await req.db!.query(
-    `SELECT e.*, p.nombre AS cliente, pr.nombre AS producto
+    `SELECT e.*, p.nombre AS cliente, pr.nombre AS producto,
+            oc.numero AS orden_numero,
+            COALESCE((SELECT sum(a.monto) FROM vta_anticipos a
+                       WHERE a.encargo_id = e.id), 0)::text AS anticipo,
+            COALESCE((SELECT sum(a.monto - a.aplicado) FROM vta_anticipos a
+                       WHERE a.encargo_id = e.id AND a.estado = 'disponible'), 0)::text
+              AS anticipo_disponible
        FROM vta_encargos e
        JOIN propietarios p ON p.id = e.propietario_id
        LEFT JOIN inv_productos pr ON pr.id = e.producto_id
+       LEFT JOIN inv_ordenes_compra oc ON oc.id = e.orden_compra_id
       WHERE e.estado <> 'entregado' OR e.entregado_en > now() - interval '30 days'
       ORDER BY e.creado_en DESC LIMIT 200`
   );
@@ -388,44 +402,59 @@ ventasRouter.get("/encargos", async (req, res) => {
 });
 
 ventasRouter.post("/encargos", async (req, res) => {
-  const b = req.body ?? {};
   try {
-    const r = await req.db!.query<{ id: string }>(
-      `INSERT INTO vta_encargos (tenant_id, propietario_id, producto_id, descripcion, cantidad,
-                                 creado_por)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-      [
-        req.auth!.tenantId, b.propietarioId, b.productoId ?? null, b.descripcion, b.cantidad,
-        req.auth!.userId,
-      ]
-    );
-    res.status(201).json({ id: r.rows[0].id });
+    const r = await crearEncargo(req.db!, req.auth!.tenantId!, {
+      ...req.body,
+      personaId: req.auth!.userId,
+    });
+    res.status(201).json(r);
   } catch (err) {
     fallo(res, err, "POST /ventas/encargos");
   }
 });
 
+/**
+ * Las transiciones de estado, cada una con lo que pasa alrededor: la
+ * orden de compra al pedir, la reserva al recibir, el cargo y el
+ * anticipo al entregar. La tabla de transiciones válidas vive en el
+ * módulo de dominio, no acá: la ruta no decide qué estado sigue a cuál.
+ */
 ventasRouter.post("/encargos/:id/estado", async (req, res) => {
   const b = req.body ?? {};
   const estado = String(b.estado ?? "");
-  if (!["pedido", "recibido", "avisado", "entregado", "cancelado"].includes(estado)) {
-    return res.status(400).json({ error: "Ese no es un estado de encargo." });
-  }
   try {
-    // Al RECIBIRLO se reserva el stock: si no, el producto que se pidió
-    // para un cliente se le vende al primero que entre.
-    await req.db!.query(
-      `UPDATE vta_encargos
-          SET estado = $2::varchar,
-              lote_reservado_id = COALESCE($3, lote_reservado_id),
-              cantidad_reservada = CASE WHEN $2::varchar = 'recibido'
-                                        THEN cantidad ELSE cantidad_reservada END,
-              avisado_en = CASE WHEN $2::varchar = 'avisado' THEN now() ELSE avisado_en END,
-              entregado_en = CASE WHEN $2::varchar = 'entregado' THEN now() ELSE entregado_en END
-        WHERE id = $1`,
-      [req.params.id, estado, b.loteId ?? null]
-    );
-    res.json({ ok: true });
+    switch (estado) {
+      case "pedido":
+        return res.json(
+          await pedirAlProveedor(req.db!, req.auth!.tenantId!, req.params.id, {
+            ...b,
+            personaId: req.auth!.userId,
+          })
+        );
+      case "recibido":
+        return res.json(await marcarRecibido(req.db!, req.params.id, b));
+      case "avisado":
+        await marcarAvisado(req.db!, req.params.id);
+        return res.json({ ok: true });
+      case "entregado":
+        if (!b.cuentaId) {
+          return res.status(400).json({
+            error:
+              "Para entregar el encargo hace falta la cuenta donde queda el cargo: la entrega " +
+              "descarga el stock reservado y cobra, no solo cambia el estado.",
+          });
+        }
+        return res.json(
+          await entregar(req.db!, req.auth!.tenantId!, req.params.id, {
+            ...b,
+            personaId: req.auth!.userId,
+          })
+        );
+      case "cancelado":
+        return res.json(await cancelar(req.db!, req.params.id, b.motivo));
+      default:
+        return res.status(400).json({ error: "Ese no es un estado de encargo." });
+    }
   } catch (err) {
     fallo(res, err, "POST /ventas/encargos/:id/estado");
   }

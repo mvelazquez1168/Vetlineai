@@ -252,3 +252,113 @@ quedó afuera.
 sigue leyendo el precio base y no ofrece elegir lista. Esa pantalla solo mueve stock —no cobra ni
 factura, y lo dice—, así que su total es informativo; el cobro real, que es el que usa la lista,
 está en `/ventas/cobro`.
+
+---
+
+## Addendum 2 — 2026-11-26, el módulo visible
+
+Reclamo del usuario después de revisar en el navegador: *"no encuentro dónde registrar los
+movimientos que no son compra ni venta"*. Tenía razón, y el diagnóstico es incómodo: **estaba todo
+construido y nada enlazado.**
+
+### Lo que ya existía (y dónde)
+
+| Qué | Dónde | Estado |
+|---|---|---|
+| Movimientos manuales: merma, consumo interno, baja por vencimiento, devolución a proveedor | `/inventario/movimientos`, tarjeta «Salida manual» | construido y verificado |
+| Traslado entre bodegas | misma pantalla, tarjeta «Traslado» | construido y verificado |
+| Ajuste positivo y negativo con motivo y umbral de aprobación | misma pantalla, tarjeta «Ajuste» | construido y verificado |
+| Aprobación de ajustes | misma pantalla, tabla de abajo (solo administrador) | construido, sin acceso directo ni contador |
+| Conteo físico total | `/inventario/conteos` | construido y verificado |
+| Venta de mostrador mínima | `/inventario/venta-mostrador` | construido; el prompt 08 la reemplazó por la caja real |
+| Kardex de un producto | ficha del producto | construido |
+
+**El problema no era que faltara: era que desde el catálogo no había un solo botón que llevara
+ahí.** Una pantalla a la que solo se llega escribiendo la URL no existe.
+
+### Lo que se hizo visible
+
+- **Cuatro botones en la barra del catálogo**: Movimientos, Toma física, Kardex y —solo para el
+  administrador— **Aprobaciones con el contador de pendientes**. El contador viaja con el mismo
+  endpoint que la lista, así que el número del badge y el de la pantalla no pueden diferir.
+- **Menú de acciones en cada fila**: Ajustar existencia · Registrar merma · Trasladar · Ver kardex.
+  Cada uno entra a la tarjeta que corresponde **con el producto ya elegido** y hace scroll hasta
+  ella; antes, "registrar una merma" obligaba a buscar el producto otra vez en un selector de cien.
+  Es un menú y no cuatro botones por fila porque cuatro botones × veinticinco filas son cien
+  botones y la fila deja de poder leerse (`MenuAcciones`, nuevo en el sistema de diseño).
+
+### Lo que faltaba de verdad, y se construyó
+
+1. **El kardex general** (`/inventario/kardex`). El producto pasó de requisito a filtro y se
+   agregaron los de **persona** y fecha; la consulta es **la misma** para la ficha, la pantalla y la
+   exportación. Los filtros viven en la URL, así que un kardex filtrado se puede pegar en un
+   mensaje. El tope de 500 filas **se dice en pantalla** en vez de cortar en silencio.
+2. **La exportación a Excel y PDF, de verdad.** Se genera en el backend **con los filtros
+   aplicados**: un archivo armado en el navegador exportaría la página cargada y nadie lo notaría
+   hasta contar las filas. El `.xlsx` se escribe con `fflate` —que ya estaba en el proyecto para
+   leer planillas— porque un xlsx es un zip con cuatro XML y traer una librería de escritura sería
+   una dependencia nueva a cambio de treinta líneas; el PDF usa `pdfkit`, que ya genera el reporte
+   de atenciones. El archivo lleva impreso **qué filtros tenía**, y avisa si llegó al tope de 20 000
+   filas.
+3. **La toma física por grupo** (migración **099**). Contar todo de una vez es raro: lo normal es
+   "hoy, farmacia". Se puede agrupar por línea de negocio, por categoría o por los controlados, y
+   **el conteo guarda su criterio**. Se podría haber guardado como `ciclico` reusando el motor que
+   ya acepta una lista de productos, pero entonces la columna diría "cíclico" en un conteo por línea
+   de negocio: el tipo mentiría. El cíclico (ABC) sigue deshabilitado con su motivo a la vista.
+4. **La captura de lo contado por presentación**: se cuenta "8 cajas" y el backend convierte a
+   unidad base; la fila muestra el equivalente y la diferencia **siempre en unidad base**, que es la
+   única comparable con lo que decía el sistema.
+5. **La existencia en presentación natural con plurales correctos**, en el catálogo y en la ficha:
+   «6 cajas y 4 tabletas (124 tabletas)», «88 unidades», «2 litros y 400 ml». El plural se deriva de
+   las reglas del español (vocal → +s, consonante → +es, -z → -ces, -s/-x invariable) y **los
+   símbolos de unidad quedan invariables** porque "ml" no se escribe "mles". Pedirle a la clínica un
+   campo "nombre en plural" y otro "nombre corto" sería pedirle que escriba dos veces lo que ya
+   escribió, y el día que no coincidan la pantalla miente sin romperse.
+
+### Dos defectos corregidos de paso
+
+- **`Input` y `Select` no asociaban su etiqueta.** Cuando no venía ni `id` ni `name` —el caso de casi
+  todas las pantallas— `htmlFor` quedaba vacío: clickear la etiqueta no enfocaba el campo y un
+  lector de pantalla no podía decir de qué campo se trata. Ahora caen a `useId()`, y eso arregla
+  **todas** las pantallas de una vez, no solo las de inventario.
+- **Cinco copias del mismo bloque de descarga** (crear object URL, `<a>` invisible, click, revocar)
+  con tiempos de revocación distintos, y una que revocaba de inmediato —lo que puede cancelar la
+  descarga—. Quedó una sola función: `lib/descargas.ts`.
+
+### Verificación: desde la interfaz, no desde la API
+
+El pedido fue explícito, así que los siete movimientos se registraron **con el navegador**, y cada
+uno se contrastó contra la base (tipo, cantidad, motivo, persona y bodega):
+
+| Movimiento | Cómo se hizo | Resultado en la base |
+|---|---|---|
+| Merma | 2 tabletas, motivo rotura | `merma` 2, rotura, Demo Facturacion, Farmacia |
+| Consumo interno | 150 ml, motivo otro + detalle | `consumo_interno` 150, otro, "Limpieza de la sala de cirugía" |
+| Baja por vencimiento | 40 g de algodón, motivo vencido | `vencimiento` 40, vencido |
+| Devolución a proveedor | 3 tabletas, motivo otro + detalle | `devolucion_proveedor` 3, "Lote con empaque dañado" |
+| Traslado | 5 tabletas de Farmacia a Quirófano | `traslado_saliente` + `traslado_entrante`, 5 cada uno, **ligados** |
+| Ajuste negativo (bajo el umbral) | 1 tableta, diferencia de conteo | ₡337,50 → **aplicado directo** |
+| Ajuste positivo (sobre el umbral) | 60 tabletas, producto encontrado | ₡20 250 → **pendiente**; aprobado desde «Aprobaciones» → aplicado |
+| Toma física por grupo | línea farmacia, 9 líneas, contadas **8 cajas** | 8 × 20 = **160** base contra 80 del sistema → ajuste pendiente |
+
+La existencia quedó cuadrada a mano: 124 − 2 (merma) − 3 (devolución) − 5 (traslado) − 1 (ajuste)
++ 60 (ajuste aprobado) = **173 en Farmacia** y 5 en Quirófano, y el catálogo muestra «8 cajas y 18
+tabletas (178 tabletas)» sumando las dos bodegas.
+
+La exportación se probó con un token real: el `.xlsx` (4 773 bytes, firma `PK`) se **volvió a leer
+con el propio lector de planillas del proyecto** —40 filas: título, filtros, encabezados y los 37
+movimientos— y el PDF salió con firma `%PDF`. Las cinco pantallas cargan con **cero errores de
+página**.
+
+**Verificadores:** `verificar_inventario_movimientos`, `verificar_inventario_compras` y
+`verificar_listas_precio` siguen en TODO OK; `tsc` limpio en backend y frontend.
+
+### URL
+
+| Pantalla | URL |
+|---|---|
+| Movimientos y ajustes | `/inventario/movimientos` |
+| Aprobaciones pendientes | `/inventario/movimientos?ver=aprobaciones` |
+| Toma física | `/inventario/conteos` |
+| Kardex general | `/inventario/kardex` (filtrable: `?tipo=merma`, `?producto=…`, `?persona=…`) |
+| Listas de precio | `/inventario/precios` |

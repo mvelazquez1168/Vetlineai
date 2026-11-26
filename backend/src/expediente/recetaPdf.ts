@@ -187,7 +187,7 @@ export async function enviarReceta(
     [atencionId]
   );
 
-  await emitirNotificacion(db, {
+  const notificacionId = await emitirNotificacion(db, {
     tenantId,
     tipo: "receta_emitida",
     destinatarioTipo: "propietario",
@@ -206,5 +206,20 @@ export async function enviarReceta(
     ],
   });
 
-  return { enviado: true, motivo: null, destinatario: receta.propietarioEmail };
+  // QUE PASO DE VERDAD. `emitirNotificacion` SIEMPRE deja el registro
+  // interno, salga o no salga el correo: puede quedar bloqueado por el
+  // consentimiento del cliente o por la franja horaria. Devolver
+  // "enviado" sin mirar era mentir, y se vio en el navegador: la receta
+  // quedo bloqueada por la franja de las 20:00 y la pantalla decia que
+  // habia salido.
+  const estado = await db.query<{ estado: string; error: string | null }>(
+    `SELECT estado, error FROM notificaciones WHERE id = $1`,
+    [notificacionId]
+  );
+  const enviado = estado.rows[0]?.estado === "enviada";
+  return {
+    enviado,
+    motivo: enviado ? null : (estado.rows[0]?.error ?? "No se pudo enviar."),
+    destinatario: receta.propietarioEmail,
+  };
 }

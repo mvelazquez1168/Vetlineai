@@ -1,0 +1,61 @@
+# Registrar algo histórico
+
+## Para qué sirve
+
+Cargar una vacuna o una desparasitación que se aplicó **antes de empezar a usar el sistema, o en
+otra clínica**, para que el expediente del paciente esté completo y los avisos salgan cuando
+corresponde.
+
+## Cuándo se usa
+
+Cuando un cliente llega con la cartilla de otra clínica, o al cargar los pacientes que ya tenía
+antes de empezar a usar Vetline Clinic.
+
+## Quién puede usarla
+
+Solo un **médico**: es contenido clínico.
+
+## Paso a paso
+
+1. **Pacientes** › la ficha del paciente › pestaña **Vacunas** (o **Desparasitaciones**).
+2. Arriba de la lista, clic en **Registrar histórico**.
+3. Complete:
+   - **Vacuna** o **producto** — el nombre, tal como figura en la cartilla.
+   - **Fecha de aplicación** — no puede ser futura: esto es algo que ya pasó.
+   - **Próxima** — opcional. Si la deja vacía, se calcula con el
+     [protocolo](glosario.md#protocolo-preventivo) **contando desde la aplicación**, no desde hoy.
+   - **Lote** — opcional, si la cartilla lo trae.
+   - **Dónde se aplicó** — la otra clínica, una campaña, el propio dueño.
+4. **Registrar**.
+
+## Un ejemplo con números
+
+Hoy es **26 de noviembre de 2026**. El dueño de Toby trae una cartilla que dice que le pusieron la
+antirrábica el **10 de mayo de 2026** en una clínica de otro cantón.
+
+Se registra con esa fecha y sin próxima. El sistema calcula la próxima con el protocolo de 12
+meses **desde el 10 de mayo**: queda para el **10 de mayo de 2027**, no para noviembre de 2027.
+Esa diferencia de seis meses es justamente el punto.
+
+## Qué pasa después
+
+- Queda en la pestaña **Vacunas** (o **Desparasitaciones**) del paciente, marcada como
+  [histórica](glosario.md#preventivo-histórico).
+- **No genera ningún cargo y no toca el inventario.** Acá no se aplicó nada: no hay nada que
+  cobrar ni que descontar.
+- El aviso al dueño sí se programa con la próxima fecha, como cualquier otro.
+- No cuenta como producción de la clínica en los reportes, porque no lo fue.
+
+## Preguntas frecuentes y errores comunes
+
+**«Un registro histórico es de algo que ya pasó: la fecha no puede ser futura».**
+Si lo que quiere es agendar algo, eso no es un histórico. Las próximas fechas se programan solas
+al aplicar la vacuna, y las citas se agendan desde la **Agenda**.
+
+**«No hay protocolo para eso, así que la próxima fecha hay que indicarla».**
+El nombre que escribió no corresponde a ningún protocolo cargado y no hay uno general para esa
+especie. Escriba la próxima fecha a mano; si no, el aviso no se dispara nunca.
+
+**¿Y si la aplicamos nosotros pero me olvidé de registrarla en el momento?**
+Entonces no es histórica: es producción de la clínica y debería ir con su cargo y su descuento de
+inventario. Regístrela en una atención, aunque sea tarde.

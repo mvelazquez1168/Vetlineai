@@ -15,6 +15,14 @@ import { SeccionLayout } from "./components/SeccionLayout";
 import { Pacientes } from "./pages/pacientes/Pacientes";
 import { FichaPaciente } from "./pages/pacientes/FichaPaciente";
 import { ClinicEstado } from "./pages/clinic/ClinicEstado";
+import { AprobacionesVentas } from "./pages/ventas/AprobacionesVentas";
+import { CajaDelDia } from "./pages/ventas/CajaDelDia";
+import { Cobro } from "./pages/ventas/Cobro";
+import { Contingencia } from "./pages/ventas/Contingencia";
+import { CuentaCorriente } from "./pages/ventas/CuentaCorriente";
+import { Encargos } from "./pages/ventas/Encargos";
+import { ReportesVentas } from "./pages/ventas/ReportesVentas";
+import { TiqueteTermico } from "./pages/ventas/TiqueteTermico";
 import { AlertasInventario } from "./pages/inventario/AlertasInventario";
 import { CatalogoProductos } from "./pages/inventario/CatalogoProductos";
 import { Compras } from "./pages/inventario/Compras";
@@ -260,6 +268,32 @@ export default function App() {
         <Route path="compras" element={<Compras />} />
         <Route path="conteos" element={<ConteoFisico />} />
         <Route path="alertas" element={<AlertasInventario />} />
+      </Route>
+
+      {/* Caja, ventas y cobros — módulo `ventas` de Vetline Clinic.
+          Mismos dos roles que los otros dos módulos: el backend gatea
+          médico y admin_clinica para cobrar, y restringe a admin la
+          aprobación, la configuración de cajas y el tipo de cambio
+          (ver ventas.routes.ts, donde cada permiso tiene nombre propio
+          para asignarlo al rol de caja cuando exista). */}
+      <Route
+        path="/ventas"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <SeccionLayout titulo="Caja" />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<CajaDelDia />} />
+        <Route path="caja/:id" element={<CajaDelDia />} />
+        <Route path="cobro" element={<Cobro />} />
+        <Route path="cobro/:id" element={<Cobro />} />
+        <Route path="tiquete/:id" element={<TiqueteTermico />} />
+        <Route path="cuenta-corriente" element={<CuentaCorriente />} />
+        <Route path="encargos" element={<Encargos />} />
+        <Route path="aprobaciones" element={<AprobacionesVentas />} />
+        <Route path="contingencia" element={<Contingencia />} />
+        <Route path="reportes" element={<ReportesVentas />} />
       </Route>
 
       {/* Vista de detalle de caso de solo lectura — fuera del layout con

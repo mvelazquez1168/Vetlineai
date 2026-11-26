@@ -1,0 +1,279 @@
+import { getStoredToken } from "../hooks/useAuth";
+import { apiFetch } from "./api";
+
+// ---------------------------------------------------------------------
+// Cliente de la API del módulo `ventas`.
+//
+// Mismo criterio que los otros dos: tipos y llamadas, nada de lógica.
+// La conversión de dólares, el vuelto, el umbral del arqueo y la
+// política de descuentos viven en el backend, y la pantalla no los
+// replica.
+// ---------------------------------------------------------------------
+
+function pedir<T>(path: string, options: RequestInit = {}): Promise<T> {
+  return apiFetch<T>(path, { ...options, token: getStoredToken() });
+}
+function json<T>(path: string, metodo: string, cuerpo: unknown): Promise<T> {
+  return pedir<T>(path, { method: metodo, body: JSON.stringify(cuerpo) });
+}
+
+export type MedioArqueo = "efectivo" | "tarjeta" | "sinpe" | "otros";
+
+export interface Caja {
+  id: string;
+  nombre: string;
+  bodega: string;
+  bodega_id: string;
+  sucursal: string;
+  terminal: string;
+  imprime_tiquete: boolean;
+  sesion_abierta: string | null;
+}
+
+export interface Sesion {
+  id: string;
+  caja: string;
+  estado: "abierta" | "cerrada";
+  fondo_crc: string;
+  fondo_usd: string;
+  abierta_en: string;
+  abierta_por_nombre: string | null;
+  cerrada_en: string | null;
+  cerrada_por_nombre: string | null;
+}
+
+export interface LineaEsperada {
+  medio: MedioArqueo;
+  moneda: string;
+  esperado: number;
+}
+
+export interface CobroListado {
+  id: string;
+  total: string;
+  vuelto_crc: string;
+  creado_en: string;
+  estado: string;
+  cajero: string | null;
+  cuenta_numero: number | null;
+  cliente_nombre: string | null;
+  consecutivo: string | null;
+}
+
+export interface MovimientoEfectivo {
+  id: string;
+  tipo: string;
+  moneda: string;
+  monto: string;
+  categoria_gasto: string | null;
+  motivo: string;
+  persona: string | null;
+  creado_en: string;
+}
+
+export interface CuentaListada {
+  id: string;
+  numero: number;
+  cliente_nombre: string | null;
+  estado: string;
+  abierta_en: string;
+  cargos: number;
+}
+
+export interface Cargo {
+  id: string;
+  descripcion: string;
+  cantidad: string;
+  precio_unitario: string;
+  descuento: string;
+  paciente: string | null;
+  creado_por_nombre: string | null;
+  anulado_en: string | null;
+}
+
+export interface TotalesCuenta {
+  neto: number;
+  descuentos: number;
+  impuesto: number;
+  total: number;
+  cobrado: number;
+  saldo: number;
+}
+
+export interface Aprobacion {
+  id: string;
+  tipo: string;
+  estado: "pendiente" | "aprobada" | "rechazada";
+  monto: string | null;
+  motivo: string;
+  solicitada_en: string;
+  resuelta_en: string | null;
+  solicitada_por_nombre: string | null;
+  resuelta_por_nombre: string | null;
+}
+
+export interface Encargo {
+  id: string;
+  cliente: string;
+  producto: string | null;
+  descripcion: string;
+  cantidad: string;
+  estado: string;
+  creado_en: string;
+}
+
+export interface Provisional {
+  id: string;
+  numero: number;
+  estado: string;
+  caja: string | null;
+  fecha_venta: string | null;
+}
+
+export const ventasApi = {
+  cajas: () => pedir<{ cajas: Caja[] }>("/ventas/cajas"),
+  crearCaja: (d: Record<string, unknown>) => json<{ id: string }>("/ventas/cajas", "POST", d),
+
+  sesion: (id: string) =>
+    pedir<{
+      sesion: Sesion;
+      esperado: LineaEsperada[];
+      cobros: CobroListado[];
+      movimientos: MovimientoEfectivo[];
+      cuentasAbiertas: CuentaListada[];
+    }>(`/ventas/sesiones/${id}`),
+  abrirSesion: (d: { cajaId: string; fondoCrc?: number; fondoUsd?: number }) =>
+    json<{ id: string }>("/ventas/sesiones", "POST", d),
+  cerrarSesion: (id: string, d: Record<string, unknown>) =>
+    json<{
+      cerrada: boolean;
+      lineas: Array<LineaEsperada & { declarado: number; diferencia: number }>;
+      diferenciaTotalCrc: number;
+      umbral: number;
+      aprobacionId?: string;
+    }>(`/ventas/sesiones/${id}/cerrar`, "POST", d),
+  movimientoEfectivo: (sesionId: string, d: Record<string, unknown>) =>
+    json<{ id: string }>(`/ventas/sesiones/${sesionId}/efectivo`, "POST", d),
+
+  tipoCambio: () => pedir<{ valor: number | null; aviso?: string }>("/ventas/tipo-cambio"),
+  guardarTipoCambio: (valor: number) => json<{ ok: true }>("/ventas/tipo-cambio", "PUT", { valor }),
+
+  cuentas: (estado = "abierta") =>
+    pedir<{ cuentas: CuentaListada[] }>(`/ventas/cuentas?estado=${estado}`),
+  cuenta: (id: string) =>
+    pedir<{ cuenta: CuentaListada; cargos: Cargo[]; totales: TotalesCuenta }>(
+      `/ventas/cuentas/${id}`
+    ),
+  abrirCuenta: (d: { propietarioId?: string; sesionId?: string }) =>
+    json<{ id: string; numero: number }>("/ventas/cuentas", "POST", d),
+  agregarCargo: (cuentaId: string, d: Record<string, unknown>) =>
+    json<{ id: string; descripcion: string; total: number; totales: TotalesCuenta }>(
+      `/ventas/cuentas/${cuentaId}/cargos`,
+      "POST",
+      d
+    ),
+  cobrar: (cuentaId: string, d: Record<string, unknown>) =>
+    json<{
+      cobroId: string;
+      total: number;
+      recibidoCrc: number;
+      vueltoCrc: number;
+      comprobanteId?: string;
+      consecutivo?: string;
+      estadoComprobante?: string;
+    }>(`/ventas/cuentas/${cuentaId}/cobrar`, "POST", d),
+
+  tiquete: (cobroId: string) =>
+    pedir<{
+      cobro: Record<string, string | number | null>;
+      medios: Array<Record<string, string | null>>;
+      lineas: Array<Record<string, string>>;
+    }>(`/ventas/cobros/${cobroId}/tiquete`),
+
+  cuentaCorriente: (propietarioId: string) =>
+    pedir<{
+      facturas: Array<Record<string, string | number | null>>;
+      abonos: Array<Record<string, string | null>>;
+      anticipos: Array<Record<string, string | null>>;
+      credito: { habilitado: boolean; limite: number; plazoDias: number; usado: number; disponible: number };
+      saldoAFavor: number;
+    }>(`/ventas/clientes/${propietarioId}/cuenta-corriente`),
+  guardarCredito: (propietarioId: string, d: Record<string, unknown>) =>
+    json<{ ok: true }>(`/ventas/clientes/${propietarioId}/credito`, "PUT", d),
+  abonar: (d: Record<string, unknown>) =>
+    json<{ abonoId: string; repConsecutivo?: string; repEstado?: string; aplicado: number }>(
+      "/ventas/abonos",
+      "POST",
+      d
+    ),
+  anticipo: (d: Record<string, unknown>) => json<{ id: string }>("/ventas/anticipos", "POST", d),
+  aplicarAnticipos: (propietarioId: string, monto: number) =>
+    json<{ aplicado: number; saldoAFavor: number }>(
+      `/ventas/clientes/${propietarioId}/aplicar-anticipos`,
+      "POST",
+      { monto }
+    ),
+
+  encargos: () => pedir<{ encargos: Encargo[] }>("/ventas/encargos"),
+  crearEncargo: (d: Record<string, unknown>) => json<{ id: string }>("/ventas/encargos", "POST", d),
+  estadoEncargo: (id: string, estado: string, loteId?: string) =>
+    json<{ ok: true }>(`/ventas/encargos/${id}/estado`, "POST", { estado, loteId }),
+
+  aprobaciones: () => pedir<{ aprobaciones: Aprobacion[] }>("/ventas/aprobaciones"),
+  solicitarAprobacion: (d: Record<string, unknown>) =>
+    json<{ id: string }>("/ventas/aprobaciones", "POST", d),
+  resolverAprobacion: (id: string, aprobar: boolean, nota?: string) =>
+    json<{ aplicada: boolean; detalle?: Record<string, unknown> }>(
+      `/ventas/aprobaciones/${id}/resolver`,
+      "POST",
+      { aprobar, nota }
+    ),
+
+  provisionales: () => pedir<{ provisionales: Provisional[] }>("/ventas/provisionales"),
+  emitirTalonario: (cantidad: number, cajaId?: string) =>
+    json<{ desde: number; hasta: number; numeros: number[] }>(
+      "/ventas/provisionales/talonario",
+      "POST",
+      { cantidad, cajaId }
+    ),
+  regularizar: (d: Record<string, unknown>) =>
+    json<{ comprobanteId: string; consecutivo: string; estado: string }>(
+      "/ventas/provisionales/regularizar",
+      "POST",
+      d
+    ),
+
+  parametros: () =>
+    pedir<{ parametros: { umbral_diferencia_arqueo: string; descuento_maximo_pct: string } }>(
+      "/ventas/parametros"
+    ),
+  guardarParametros: (d: Record<string, unknown>) =>
+    json<{ ok: true }>("/ventas/parametros", "PUT", d),
+
+  reporte: (cual: string, desde: string, hasta: string) =>
+    pedir<{ filas: Array<Record<string, string | number | null>> }>(
+      `/ventas/reportes/${cual}?desde=${desde}&hasta=${hasta}`
+    ),
+};
+
+export function formatearMonto(valor: string | number, moneda = "CRC"): string {
+  const n = Number(valor);
+  if (!Number.isFinite(n)) return String(valor);
+  return new Intl.NumberFormat("es-CR", { style: "currency", currency: moneda }).format(n);
+}
+
+/** Etiquetas de los medios del arqueo, en el orden del cuadro del cliente. */
+export const ETIQUETA_MEDIO: Record<string, string> = {
+  efectivo: "Efectivo",
+  tarjeta: "Tarjetas",
+  sinpe: "SINPE Móvil",
+  otros: "Otros",
+};
+
+/** Qué tiene que declarar el cajero en cada medio, en palabras. */
+export const QUE_DECLARAR: Record<string, string> = {
+  efectivo: "Lo contado",
+  tarjeta: "El total del cierre del datáfono",
+  sinpe: "El total confirmado",
+  otros: "El total confirmado",
+};

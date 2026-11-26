@@ -86,6 +86,19 @@ export function AdminLayout() {
                 dentro de Vetline Clinic: es la sección que se usa a
                 diario, y esconderla un nivel abajo la vuelve dos clics
                 para lo más frecuente. */}
+            {tieneModulo("ventas") && (
+              <NavLink
+                to="/ventas"
+                className={({ isActive }) =>
+                  [
+                    "rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
+                    isActive ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5",
+                  ].join(" ")
+                }
+              >
+                Caja
+              </NavLink>
+            )}
             {tieneModulo("inventario") && (
               <NavLink
                 to="/inventario"

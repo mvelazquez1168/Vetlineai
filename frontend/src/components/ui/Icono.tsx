@@ -8,6 +8,8 @@ import {
   CreditCard,
   Home,
   LogOut,
+  Mic,
+  MicOff,
   Megaphone,
   Stethoscope as IconoClinico,
   ArrowDown,
@@ -123,6 +125,8 @@ const ICONOS = {
   agente: Bot,
   clinico: IconoClinico,
   salir: LogOut,
+  microfono: Mic,
+  "microfono-apagado": MicOff,
 } satisfies Record<string, LucideIcon>;
 
 export type NombreIcono = keyof typeof ICONOS;

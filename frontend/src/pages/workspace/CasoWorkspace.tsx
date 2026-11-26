@@ -27,6 +27,7 @@ import { RegistroAtencionModal } from "../../components/caso/RegistroAtencionMod
 import { ResolverCitaModal } from "../../components/caso/ResolverCitaModal";
 import { MensajesLista } from "../../components/caso/MensajesLista";
 import { RecetaPanel } from "../../components/caso/RecetaPanel";
+import { useDictado } from "../../components/ui";
 import { useAuth } from "../../hooks/useAuth";
 import { ApiError } from "../../lib/api";
 import { citasApi } from "../../lib/agendaApi";
@@ -166,12 +167,7 @@ export function CasoWorkspace() {
   // de tocar el micrófono (para no borrarlo); textoFinalVozRef acumula los
   // resultados "final" de esta sesión de grabación para no repetirlos en
   // cada evento onresult (que reenvía todo el resultIndex hacia adelante).
-  const [grabandoVoz, setGrabandoVoz] = useState(false);
-  const [avisoVoz, setAvisoVoz] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const recognitionRef = useRef<any>(null);
-  const textoBaseVozRef = useRef("");
-  const textoFinalVozRef = useRef("");
   // Ids de mensajes del médico que llegaron a guardarse pero NO generaron
   // respuesta de IA (límite de uso alcanzado con limite_accion='bloquear')
   // — se renderiza un aviso en su lugar en vez de la burbuja de la IA.
@@ -842,82 +838,24 @@ export function CasoWorkspace() {
     el.style.height = `${el.scrollHeight}px`;
   }, [nuevoMensaje]);
 
-  // Soporte de navegador para Web Speech API — solo Chrome/Edge
-  // (Chromium). Si no existe ninguno de los dos constructores, el botón de
-  // dictado directamente no se renderiza (ver JSX más abajo), nunca se
-  // muestra deshabilitado ni con mensaje de error.
-  const soportaDictado =
-    typeof window !== "undefined" &&
-    Boolean((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
-
-  // Se apaga la grabación si el médico cambia de caso a mitad de un
-  // dictado, para no dejar un micrófono abierto en el caso viejo.
-  useEffect(() => {
-    return () => {
-      recognitionRef.current?.stop();
-    };
-  }, [casoId]);
-
-  const alternarDictado = () => {
-    if (grabandoVoz) {
-      recognitionRef.current?.stop();
-      return;
-    }
-
-    const SpeechRecognitionCtor =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognitionCtor) return;
-
-    const recognition = new SpeechRecognitionCtor();
-    recognition.lang = "es-ES";
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    // Lo que ya había escrito el médico antes de tocar el micrófono se
-    // conserva — el dictado se agrega a continuación, nunca lo pisa.
-    textoBaseVozRef.current =
-      nuevoMensaje && !/\s$/.test(nuevoMensaje) ? `${nuevoMensaje} ` : nuevoMensaje;
-    textoFinalVozRef.current = "";
-
-    recognition.onresult = (event: any) => {
-      let interim = "";
-      let finalNuevo = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalNuevo += transcript;
-        } else {
-          interim += transcript;
-        }
-      }
-      if (finalNuevo) {
-        textoFinalVozRef.current += finalNuevo;
-      }
-      setNuevoMensaje(textoBaseVozRef.current + textoFinalVozRef.current + interim);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error("Error de reconocimiento de voz:", event.error);
-      setAvisoVoz(
-        event.error === "not-allowed" || event.error === "permission-denied"
-          ? "No se pudo acceder al micrófono — revise los permisos del navegador."
-          : "Hubo un problema con el dictado por voz. Podés seguir escribiendo normalmente."
-      );
-      setTimeout(() => setAvisoVoz(null), 5000);
-    };
-
-    // onend cubre tanto el corte automático por silencio (comportamiento
-    // nativo del motor) como el clic manual en el micrófono para detener
-    // antes — en ambos casos el texto ya quedó consolidado en nuevoMensaje.
-    recognition.onend = () => {
-      setGrabandoVoz(false);
-      recognitionRef.current = null;
-    };
-
-    recognitionRef.current = recognition;
-    setGrabandoVoz(true);
-    recognition.start();
-  };
+  // EL DICTADO AHORA ES EL COMPONENTE COMPARTIDO (prompt 07d, fase 1).
+  //
+  // Esta pantalla tenia su propia implementacion de la Web Speech API y
+  // era la unica del sistema. Al llevarla a `useDictado` la usa tambien
+  // la atencion, y las reglas que ya estaban —el texto se agrega y no
+  // reemplaza, el boton no se dibuja si el navegador no soporta, el
+  // microfono se cierra al salir— pasaron tal cual.
+  //
+  // Lo unico que cambia para esta pantalla es que ahora entiende la
+  // puntuacion dictada ("punto", "coma"), que es una mejora, no una
+  // regresion.
+  const mensajeRef = useRef(nuevoMensaje);
+  mensajeRef.current = nuevoMensaje;
+  const dictado = useDictado(() => mensajeRef.current, setNuevoMensaje);
+  const soportaDictado = dictado.soportado;
+  const grabandoVoz = dictado.grabando;
+  const alternarDictado = dictado.alternar;
+  const avisoVoz = dictado.aviso;
 
   // Sube un archivo individual y actualiza SOLO su propio chip al terminar
   // — un fallo acá nunca toca el estado de los demás chips en curso. Recibe

@@ -21,6 +21,7 @@ import {
 } from "../../lib/expedienteApi";
 import { inventarioApi } from "../../lib/inventarioApi";
 import { formatearMonto } from "../../lib/ventasApi";
+import { BotonDictado, IndicadorMicrofono, useDictado } from "../ui";
 import { plural } from "../../lib/plural";
 import {
   ModalEstudio,
@@ -666,24 +667,26 @@ export function AtencionActual({
                   </div>
                   {s.estado === "anormal" ? (
                     <div>
-                      <Input
-                        label=""
-                        placeholder="Qué se encontró (obligatorio)"
-                        value={s.nota ?? ""}
-                        disabled={cerrada || !esMedico}
-                        onChange={(e) =>
+                      {/* El hallazgo tambien se dicta (prompt 07d): es el
+                          campo que mas se escribe con el animal encima
+                          de la mesa. */}
+                      <CampoHallazgo
+                        sistema={s.sistema}
+                        valor={s.nota ?? ""}
+                        deshabilitado={cerrada || !esMedico}
+                        onCambio={(v) =>
                           setDetalle((d) =>
                             d
                               ? {
                                   ...d,
                                   sistemas: d.sistemas.map((x) =>
-                                    x.sistema === s.sistema ? { ...x, nota: e.target.value } : x
+                                    x.sistema === s.sistema ? { ...x, nota: v } : x
                                   ),
                                 }
                               : d
                           )
                         }
-                        onBlur={() => marcar(s.sistema, "anormal", s.nota)}
+                        onConfirmar={() => marcar(s.sistema, "anormal", s.nota)}
                       />
                       {faltaDetalle && (
                         <p className="mt-1 text-xs text-error">
@@ -1173,6 +1176,59 @@ export function AtencionActual({
 // diseño porque el guardado con retardo es de esta pantalla: en un
 // formulario normal, guardar al tipear sería peor.
 // ---------------------------------------------------------------------
+/**
+ * El hallazgo de un sistema anormal, con su micrófono.
+ *
+ * Es un componente aparte y no un `Campo` porque la fila del examen es
+ * compacta: acá la etiqueta ya la pone el nombre del sistema y el campo
+ * va sin título propio.
+ */
+function CampoHallazgo({
+  sistema,
+  valor,
+  deshabilitado,
+  onCambio,
+  onConfirmar,
+}: {
+  sistema: string;
+  valor: string;
+  deshabilitado?: boolean;
+  onCambio: (v: string) => void;
+  onConfirmar: () => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const valorRef = useRef(valor);
+  valorRef.current = valor;
+  const dictado = useDictado(
+    () => valorRef.current,
+    onCambio,
+    ref as React.RefObject<HTMLElement>
+  );
+
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        ref={ref}
+        className="min-h-11 w-full rounded-lg border border-black/10 bg-surface px-3 text-sm disabled:opacity-60"
+        placeholder="Qué se encontró (obligatorio)"
+        value={valor}
+        disabled={deshabilitado}
+        onChange={(e) => onCambio(e.target.value)}
+        onBlur={onConfirmar}
+      />
+      {!deshabilitado && (
+        <BotonDictado
+          grabando={dictado.grabando}
+          soportado={dictado.soportado}
+          onAlternar={dictado.alternar}
+          etiquetaCampo={`el hallazgo de ${sistema.toLowerCase()}`}
+        />
+      )}
+      {dictado.grabando && <IndicadorMicrofono campo={`Hallazgo · ${sistema}`} />}
+    </div>
+  );
+}
+
 /** El atajo, al lado de su acción. Visible, que es como se aprende. */
 function Atajo({ children }: { children: React.ReactNode }) {
   return (
@@ -1196,6 +1252,7 @@ function Campo({
   onCambio: (v: string) => void;
 }) {
   const [texto, setTexto] = useState(String(valor ?? ""));
+  const refCampo = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   useEffect(() => {
     setTexto(String(valor ?? ""));
     // Solo cuando cambia desde afuera (carga o plantilla): mientras se
@@ -1203,29 +1260,53 @@ function Campo({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deshabilitado]);
 
+  // DICTADO (prompt 07d, fase 1). `textoRef` y no `texto` a secas: el
+  // hook pregunta el valor actual cuando se toca el microfono, y con la
+  // variable capturada se quedaria con el de cuando se monto el
+  // componente, borrando lo que el medico escribio despues.
+  const textoRef = useRef(texto);
+  textoRef.current = texto;
+  const escribir = (v: string) => {
+    setTexto(v);
+    onCambio(v);
+  };
+  const dictado = useDictado(
+    () => textoRef.current,
+    escribir,
+    refCampo as React.RefObject<HTMLElement>
+  );
+
   return (
     <div>
-      <label className="text-sm font-semibold text-text-primary">{etiqueta}</label>
+      <div className="flex items-center justify-between gap-2">
+        <label className="text-sm font-semibold text-text-primary">{etiqueta}</label>
+        {!deshabilitado && (
+          <BotonDictado
+            grabando={dictado.grabando}
+            soportado={dictado.soportado}
+            onAlternar={dictado.alternar}
+            etiquetaCampo={etiqueta.toLowerCase()}
+          />
+        )}
+      </div>
+      {dictado.aviso && <p className="text-xs text-error">{dictado.aviso}</p>}
+      {dictado.grabando && <IndicadorMicrofono campo={etiqueta} />}
       {filas > 1 ? (
         <textarea
+          ref={refCampo as React.RefObject<HTMLTextAreaElement>}
           rows={filas}
           className="mt-1.5 w-full rounded-lg border border-black/10 bg-surface px-3 py-2 text-sm disabled:opacity-60"
           value={texto}
           disabled={deshabilitado}
-          onChange={(e) => {
-            setTexto(e.target.value);
-            onCambio(e.target.value);
-          }}
+          onChange={(e) => escribir(e.target.value)}
         />
       ) : (
         <input
+          ref={refCampo as React.RefObject<HTMLInputElement>}
           className="mt-1.5 w-full rounded-lg border border-black/10 bg-surface px-3 py-2 text-sm disabled:opacity-60"
           value={texto}
           disabled={deshabilitado}
-          onChange={(e) => {
-            setTexto(e.target.value);
-            onCambio(e.target.value);
-          }}
+          onChange={(e) => escribir(e.target.value)}
         />
       )}
     </div>

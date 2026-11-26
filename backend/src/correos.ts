@@ -48,7 +48,8 @@ export type TipoCorreo =
   | "saldo_proveedor_bajo"
   | "restablecimiento_contrasena"
   | "contrasena_cambiada"
-  | "comprobante_electronico";
+  | "comprobante_electronico"
+  | "receta_emitida";
 
 export interface DatosPlantilla {
   invitacion_medico: { nombreClinica: string; enlace: string; vigenciaDias: number; nombreMedico?: string | null };
@@ -97,6 +98,16 @@ export interface DatosPlantilla {
   // su XML adjuntos. `estadoHacienda` va en el cuerpo a propósito: un
   // comprobante todavía no aceptado es válido para el cliente, pero si
   // Hacienda lo rechaza después hay que poder rastrear qué se le dijo.
+  // La receta de la atencion, con su PDF adjunto (prompt 07c). El
+  // cuerpo NO repite la posologia: esta en el PDF, que es el documento
+  // que el propietario lleva a la farmacia, y dos copias del mismo
+  // texto son dos textos que un dia dicen cosas distintas.
+  receta_emitida: {
+    nombrePaciente: string;
+    medicoNombre: string;
+    fecha: string;
+    lineas: number;
+  };
   comprobante_electronico: {
     tipoComprobanteNombre: string;
     consecutivo: string;
@@ -481,6 +492,25 @@ export function construirCorreo<T extends TipoCorreo>(
           ? `La cita de ${d.nombrePaciente} del ${d.fechaOriginal} a las ${d.horaOriginal} se reprogramó para el ${d.fechaNueva} a las ${d.horaNueva}.`
           : `La cita de ${d.nombrePaciente} del ${d.fechaOriginal} a las ${d.horaOriginal} fue cancelada.`,
         html: envolverLayoutInformativo(d.reprogramada ? "Cita reprogramada" : "Cita cancelada", cuerpo),
+      };
+    }
+    case "receta_emitida": {
+      const d = datos as DatosPlantilla["receta_emitida"];
+      const cuerpo =
+        `<p>Adjuntamos la receta de ${d.nombrePaciente}, emitida el ${d.fecha} por ${d.medicoNombre}.</p>` +
+        `<p>Son ${d.lineas === 1 ? "una indicación" : `${d.lineas} indicaciones`}. ` +
+        `El PDF tiene la dosis, cada cuánto y por cuántos días de cada una.</p>` +
+        `<p>Si algo no se entiende, consúltelo antes de administrarlo.</p>`;
+      return {
+        asunto: `Receta de ${d.nombrePaciente}`,
+        texto:
+          `Adjuntamos la receta de ${d.nombrePaciente}, emitida el ${d.fecha} por ${d.medicoNombre}.
+
+` +
+          `El PDF tiene la dosis, cada cuánto y por cuántos días de cada indicación.
+` +
+          `Si algo no se entiende, consúltelo antes de administrarlo.`,
+        html: envolverLayoutInformativo("Receta médica", cuerpo),
       };
     }
     case "comprobante_electronico": {

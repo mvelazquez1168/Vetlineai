@@ -528,7 +528,7 @@ recetasRouter.post("/:id/emitir", async (req, res) => {
   }
 });
 
-function sanitizarNombreArchivo(nombre: string): string {
+export function sanitizarNombreArchivo(nombre: string): string {
   const limpio = nombre
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
@@ -537,7 +537,11 @@ function sanitizarNombreArchivo(nombre: string): string {
   return limpio || "paciente";
 }
 
-interface DatosPdfReceta {
+// EXPORTADOS para el prompt 07c: la receta de la atencion imprime con
+// ESTE generador y no con uno propio. Dos generadores serian dos
+// recetas con distinto aspecto para el mismo paciente, y la que vale es
+// la que el propietario tiene en la mano.
+export interface DatosPdfReceta {
   pacienteNombre: string;
   especie: string;
   raza: string | null;
@@ -546,6 +550,8 @@ interface DatosPdfReceta {
   propietarioNombre: string;
   medicoNombre: string;
   medicoColegiatura: string | null;
+  /** El peso con el que se calcularon las dosis (prompt 07c). */
+  pesoKg?: number | null;
   zonaHoraria: string | null;
   logoBuffer: Buffer;
   instruccionesGenerales: string | null;
@@ -564,7 +570,7 @@ const PDF_COLOR_PRIMARIO = "#1B2A4A";
 const PDF_COLOR_ACENTO = "#4A90D9";
 const PDF_COLOR_MUTED = "#5A6B82";
 
-function generarPdfReceta(datos: DatosPdfReceta): Promise<Buffer> {
+export function generarPdfReceta(datos: DatosPdfReceta): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: "LETTER" });
     const buffers: Buffer[] = [];
@@ -580,7 +586,16 @@ function generarPdfReceta(datos: DatosPdfReceta): Promise<Buffer> {
     }).format(new Date());
 
     // Header: logo + título.
-    doc.image(datos.logoBuffer, 50, 45, { width: 130 });
+    //
+    // UN LOGO VACIO NO PUEDE ROMPER LA RECETA. La ruta del agente exige
+    // que la clinica tenga logo antes de emitir; la receta de la
+    // atencion no, porque es un documento clinico que el propietario
+    // necesita y no entregarlo por un archivo de marca es poner la
+    // marca por encima del paciente. pdfkit tira "Unknown image format"
+    // con un buffer vacio, asi que el caso se contempla aca.
+    if (datos.logoBuffer.length > 0) {
+      doc.image(datos.logoBuffer, 50, 45, { width: 130 });
+    }
     doc
       .fontSize(20)
       .fillColor(PDF_COLOR_PRIMARIO)
@@ -605,6 +620,11 @@ function generarPdfReceta(datos: DatosPdfReceta): Promise<Buffer> {
       ["Edad", edadTexto],
       ["Propietario", datos.propietarioNombre],
     ];
+    // EL PESO va en la receta cuando hay dosis calculadas por kilo: sin
+    // el, «225 mg» no se puede revisar. Solo aparece si se conoce.
+    if (datos.pesoKg !== null && datos.pesoKg !== undefined) {
+      filasPaciente.push(["Peso", `${datos.pesoKg} kg`]);
+    }
     for (const [campo, valor] of filasPaciente) {
       doc.font("Helvetica-Bold").text(`${campo}: `, 50, doc.y, { continued: true });
       doc.font("Helvetica").text(valor);

@@ -612,6 +612,137 @@ export async function cuentaViva(
 // aparece en la pantalla de caja con su total. No hay una tabla de
 // avisos nueva porque no hace falta otra cosa que una cuenta abierta.
 // ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// EL RESUMEN DEL CIERRE — prompt 07c, seccion 6.
+//
+// Lo que VA A PASAR, antes de confirmar. No es un adorno: el cierre
+// mueve plata y stock, agenda una cita y dispara recordatorios, y todo
+// eso es irreversible desde la pantalla. Quien confirma tiene derecho a
+// leer la lista antes.
+//
+// Se calcula con las MISMAS consultas que el cierre usa después. Si el
+// resumen se armara por su cuenta, el dia que las dos cuentas se
+// separen el resumen diria una cosa y el cierre haria otra, y nadie lo
+// notaria hasta que la caja no cuadre.
+// ---------------------------------------------------------------------
+
+export interface ResumenDelCierre {
+  cargos: Array<{ descripcion: string; cantidad: number; total: number }>;
+  total: number;
+  salidas: Array<{ descripcion: string; cantidad: number; lote: string | null }>;
+  recordatorios: Array<{ que: string; cuando: string }>;
+  control: { fecha: string; motivo: string | null } | null;
+  receta: { lineas: number; dispensadas: number } | null;
+  /** Lo que impide cerrar. Vacio = se puede. */
+  impedimentos: string[];
+}
+
+export async function resumenDelCierre(
+  db: PoolClient,
+  atencionId: string
+): Promise<ResumenDelCierre> {
+  const a = await db.query<{
+    estado: string;
+    control_fecha: string | null;
+    control_motivo: string | null;
+    peso: string | null;
+    nota_medica: string | null;
+    evaluacion: string | null;
+  }>(
+    `SELECT estado, control_fecha::text AS control_fecha, control_motivo, peso,
+            nota_medica, evaluacion
+       FROM atenciones WHERE id = $1`,
+    [atencionId]
+  );
+  if (a.rows.length === 0) throw new Error("Esa atención no existe.");
+
+  const items = await db.query(
+    `SELECT i.descripcion, i.cantidad, i.precio_unitario, i.descuento, i.tipo,
+            i.presentacion_id, i.preventivo_tipo, i.preventivo_nombre,
+            i.preventivo_proxima::text AS preventivo_proxima, i.dispensado_aqui,
+            l.numero AS lote
+       FROM exp_atencion_items i
+       LEFT JOIN inv_lotes l ON l.id = i.lote_id
+      WHERE i.atencion_id = $1 AND i.cargo_id IS NULL
+      ORDER BY i.creado_en`,
+    [atencionId]
+  );
+
+  const cargos: ResumenDelCierre["cargos"] = [];
+  const salidas: ResumenDelCierre["salidas"] = [];
+  const recordatorios: ResumenDelCierre["recordatorios"] = [];
+  let total = 0;
+
+  for (const x of items.rows as Record<string, unknown>[]) {
+    const cantidad = Number(x.cantidad);
+    const neto = cantidad * Number(x.precio_unitario) - Number(x.descuento ?? 0);
+    // Lo que se compra afuera no se cobra ni sale del stock: la linea de
+    // receta esta, pero no genera nada. Mostrarla entre los cargos seria
+    // prometer un cobro que no va a pasar.
+    if (x.dispensado_aqui === false) continue;
+    cargos.push({ descripcion: x.descripcion as string, cantidad, total: neto });
+    total += neto;
+    if (x.presentacion_id) {
+      salidas.push({
+        descripcion: x.descripcion as string,
+        cantidad,
+        lote: (x.lote as string) ?? null,
+      });
+    }
+    if (x.preventivo_tipo) {
+      recordatorios.push({
+        que: `${x.preventivo_tipo === "vacunacion" ? "Vacuna" : "Desparasitación"}: ${x.preventivo_nombre}`,
+        cuando: (x.preventivo_proxima as string) ?? "sin fecha próxima",
+      });
+    }
+  }
+
+  const receta = await db.query<{ lineas: string; dispensadas: string }>(
+    `SELECT count(*)::text AS lineas,
+            count(*) FILTER (WHERE ri.dispensado_aqui)::text AS dispensadas
+       FROM receta_items ri JOIN recetas r ON r.id = ri.receta_id
+      WHERE r.atencion_id = $1`,
+    [atencionId]
+  );
+
+  const impedimentos: string[] = [];
+  if (a.rows[0].estado !== "borrador") impedimentos.push("La atención ya está cerrada.");
+  // La MISMA condicion que `cerrarAtencion` exige, dicha antes. Un
+  // resumen que dice "nada impide cerrar" y despues falla es peor que
+  // no tener resumen: enseña a no leerlo.
+  if (!a.rows[0].nota_medica && !a.rows[0].evaluacion) {
+    impedimentos.push("Falta la evaluación o la nota médica: es lo que queda en el expediente.");
+  }
+  // Lo que el bloque B ya exigia, dicho ANTES de intentar cerrar en vez
+  // de como un error despues del clic.
+  const sistemasAnormalesSinDetalle = await db.query<{ c: string }>(
+    `SELECT count(*)::text AS c FROM exp_examen_sistemas
+      WHERE atencion_id = $1 AND estado = 'anormal'
+        AND (nota IS NULL OR btrim(nota) = '')`,
+    [atencionId]
+  );
+  if (Number(sistemasAnormalesSinDetalle.rows[0].c) > 0) {
+    impedimentos.push(
+      `Hay ${sistemasAnormalesSinDetalle.rows[0].c} sistema(s) marcados anormales sin describir el hallazgo.`
+    );
+  }
+
+  return {
+    cargos,
+    total: Math.round(total * 100) / 100,
+    salidas,
+    recordatorios,
+    control: a.rows[0].control_fecha
+      ? { fecha: a.rows[0].control_fecha, motivo: a.rows[0].control_motivo }
+      : null,
+    receta:
+      Number(receta.rows[0].lineas) > 0
+        ? { lineas: Number(receta.rows[0].lineas), dispensadas: Number(receta.rows[0].dispensadas) }
+        : null,
+    impedimentos,
+  };
+}
+
 export interface ResultadoCierre {
   cuentaId: string;
   cuentaNumero: number;
@@ -621,6 +752,9 @@ export interface ResultadoCierre {
   preventivos: number;
   controlCitaId: string | null;
   yaEstabaCerrada: boolean;
+  /** La receta de la atencion, firmada con ella (prompt 07c). */
+  recetaFirmada: boolean;
+  recetaLineas: number;
 }
 
 export async function cerrarAtencion(
@@ -677,6 +811,8 @@ export async function cerrarAtencion(
       preventivos: 0,
       controlCitaId: atencion.control_cita_id,
       yaEstabaCerrada: true,
+      recetaFirmada: false,
+      recetaLineas: 0,
     };
   }
 
@@ -901,6 +1037,12 @@ export async function cerrarAtencion(
     });
   }
 
+  // LA RECETA SE FIRMA CON LA ATENCION (prompt 07c). Va DESPUES de
+  // `cerrarYFirmarAtencion` y en la misma transaccion: si el cierre
+  // falla, la receta no queda firmada sola.
+  const { firmarRecetaDeAtencion } = await import("./receta");
+  const receta = await firmarRecetaDeAtencion(db, atencionId, datos.personaId);
+
   return {
     cuentaId,
     cuentaNumero,
@@ -910,6 +1052,8 @@ export async function cerrarAtencion(
     preventivos,
     controlCitaId,
     yaEstabaCerrada: false,
+    recetaFirmada: receta.firmada,
+    recetaLineas: receta.lineas,
   };
 }
 

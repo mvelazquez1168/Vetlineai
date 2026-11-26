@@ -2,6 +2,7 @@ import { Pool, PoolClient } from "pg";
 import { anotarCorreoDeNotificacion } from "./crm/mensajeria";
 import { puedeEnviar } from "./crm/consentimientos";
 import { DatosPlantilla, TipoCorreo, enviarCorreoTransaccional } from "./correos";
+import { AdjuntoEmail } from "./email";
 
 // ---------------------------------------------------------------------
 // prompt_code_notificaciones_pendientes.md — punto único de emisión.
@@ -31,7 +32,8 @@ export async function enviarNotificacionPorCorreo<T extends TipoCorreo>(
   destinatarioTipo: "propietario" | "medico",
   destinatarioId: string,
   tipo: T,
-  datos: DatosPlantilla[T]
+  datos: DatosPlantilla[T],
+  adjuntos?: AdjuntoEmail[]
 ): Promise<void> {
   try {
     const tabla = destinatarioTipo === "propietario" ? "propietarios" : "personas";
@@ -45,7 +47,14 @@ export async function enviarNotificacionPorCorreo<T extends TipoCorreo>(
       return;
     }
 
-    const { correoEnviadoId, resultado } = await enviarCorreoTransaccional(db, tenantId, email, tipo, datos);
+    const { correoEnviadoId, resultado } = await enviarCorreoTransaccional(
+      db,
+      tenantId,
+      email,
+      tipo,
+      datos,
+      adjuntos
+    );
     if (resultado === "no_configurado") return; // Resend no configurado: se mantiene 'simulada'.
     await db.query(`UPDATE notificaciones SET estado = $2, correo_enviado_id = $3 WHERE id = $1`, [
       notificacionId,
@@ -73,6 +82,13 @@ export interface EmitirNotificacionParams<T extends TipoCorreo> {
   pacienteId?: string | null;
   citaId?: string | null;
   cuidadoPreventivoId?: string | null;
+  /**
+   * Lo que viaja con el correo. Va acá y no en `datosCorreo` por lo
+   * mismo que en `enviarCorreoTransaccional`: la plantilla dice qué se
+   * escribe y esto qué se acompaña. Lo necesita la receta (prompt 07c),
+   * que sin su PDF es un correo que no sirve para nada.
+   */
+  adjuntos?: AdjuntoEmail[];
 }
 
 // Inserta la notificación (registro interno — campanita, historial) y
@@ -148,7 +164,8 @@ export async function emitirNotificacion<T extends TipoCorreo>(
     params.destinatarioTipo,
     params.destinatarioId,
     params.tipo,
-    params.datosCorreo
+    params.datosCorreo,
+    params.adjuntos
   );
 
   // El correo, anotado en el registro del CRM: es sobre esa tabla que se

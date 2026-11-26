@@ -252,9 +252,15 @@ async function main() {
   // doce se insertan en la misma transacción, así que ordenar por
   // `creado_en` devolvía un orden distinto cada vez. Se vio en el
   // navegador (migración 106).
+  // El primer sistema CAMBIO DE NOMBRE con la migracion 112: la
+  // plantilla de consulta general pasa a usar los trece sistemas del
+  // catalogo clinico, y el primero es "Apariencia general". No es una
+  // regresion del bloque B: es el catalogo mandando, que es lo que el
+  // anexo del 07 pidio y el 07c trajo. Lo que se verifica sigue siendo
+  // lo mismo: que el orden sea el de la plantilla y no el de insercion.
   igual(
     sistemas[0].sistema,
-    "Actitud y estado general",
+    "Apariencia general",
     "el examen se lee en el orden de la plantilla, de lo general a lo particular"
   );
   const otraLectura = (

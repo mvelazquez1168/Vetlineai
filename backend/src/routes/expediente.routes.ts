@@ -49,7 +49,26 @@ import {
   guardarSoap,
   marcarSistema,
   quitarItem,
+  resumenDelCierre,
 } from "../expediente/atencion";
+import {
+  TipoClinico,
+  estudiosDeAtencion,
+  pedirEstudio,
+  productosParaAtencion,
+  protocolos,
+  proximaSugerida,
+  registrarHistorico,
+} from "../expediente/preventivos";
+import { enviarReceta, recetaDeAtencionEnPdf } from "../expediente/recetaPdf";
+import {
+  agregarLinea,
+  medicacionActiva,
+  quitarLinea,
+  recetasAnteriores,
+  repetirReceta,
+  verReceta,
+} from "../expediente/receta";
 import {
   buscarEnHistoria,
   encabezadoDeExpediente,
@@ -636,6 +655,193 @@ expedienteRouter.delete("/atenciones/:id/items/:itemId", soloMedico, async (req,
     res.json({ quitado: true });
   } catch (err) {
     fallo(res, err, "DELETE /expediente/atenciones/:id/items/:itemId");
+  }
+});
+
+// =====================================================================
+// LAS ACCIONES EXPLICITAS DE LA ATENCION — prompt 07c
+//
+// Una ruta por cada cosa que el medico hace, en vez de una sola puerta
+// con una casilla escondida adentro. El cargo y el stock siguen saliendo
+// por donde salian: lo que cambia es que ahora se puede NOMBRAR lo que
+// se hizo.
+// =====================================================================
+
+/** Los productos que ofrece cada accion, ya filtrados por su tipo clinico. */
+expedienteRouter.get("/catalogo-clinico", async (req, res) => {
+  try {
+    const tipo = req.query.tipo as TipoClinico | undefined;
+    res.json({
+      productos: await productosParaAtencion(req.db!, {
+        tipoClinico: tipo,
+        // La accion "Producto" muestra lo que NO tiene accion propia.
+        excluir: tipo ? undefined : ["vacuna", "antiparasitario"],
+        busqueda: (req.query.q as string) || undefined,
+      }),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/catalogo-clinico");
+  }
+});
+
+/** Cuando toca la proxima, segun el protocolo de la clinica. */
+expedienteRouter.get("/proxima-sugerida", async (req, res) => {
+  try {
+    res.json(
+      (await proximaSugerida(req.db!, {
+        tipo: req.query.tipo as "vacunacion" | "desparasitacion",
+        especie: (req.query.especie as string) || null,
+        productoId: (req.query.productoId as string) || null,
+        nombre: (req.query.nombre as string) || null,
+      })) ?? { fecha: null, meses: null, origen: null }
+    );
+  } catch (err) {
+    fallo(res, err, "GET /expediente/proxima-sugerida");
+  }
+});
+
+expedienteRouter.get("/protocolos", async (req, res) => {
+  try {
+    res.json({ protocolos: await protocolos(req.db!) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/protocolos");
+  }
+});
+
+/** El registro historico: una vacuna puesta antes o en otro lugar. */
+expedienteRouter.post("/pacientes/:id/preventivo-historico", soloMedico, async (req, res) => {
+  try {
+    res.status(201).json(
+      await registrarHistorico(
+        req.db!,
+        req.auth!.tenantId!,
+        { ...req.body, pacienteId: req.params.id },
+        req.auth!.userId!
+      )
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/pacientes/:id/preventivo-historico");
+  }
+});
+
+// --- La receta -------------------------------------------------------
+
+expedienteRouter.get("/atenciones/:id/receta", async (req, res) => {
+  try {
+    res.json(await verReceta(req.db!, req.auth!.tenantId!, req.params.id));
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id/receta");
+  }
+});
+
+expedienteRouter.post("/atenciones/:id/receta/lineas", soloMedico, async (req, res) => {
+  try {
+    res
+      .status(201)
+      .json(
+        await agregarLinea(req.db!, req.auth!.tenantId!, req.params.id, req.body, req.auth!.userId)
+      );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/receta/lineas");
+  }
+});
+
+expedienteRouter.delete("/atenciones/:id/receta/lineas/:lineaId", soloMedico, async (req, res) => {
+  try {
+    await quitarLinea(req.db!, req.params.id, req.params.lineaId);
+    res.json({ quitada: true });
+  } catch (err) {
+    fallo(res, err, "DELETE /expediente/atenciones/:id/receta/lineas/:lineaId");
+  }
+});
+
+expedienteRouter.post("/atenciones/:id/receta/repetir", soloMedico, async (req, res) => {
+  try {
+    res.json(
+      await repetirReceta(
+        req.db!,
+        req.auth!.tenantId!,
+        req.params.id,
+        req.body?.recetaId,
+        req.auth!.userId
+      )
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/receta/repetir");
+  }
+});
+
+expedienteRouter.get("/pacientes/:id/recetas", async (req, res) => {
+  try {
+    res.json({
+      recetas: await recetasAnteriores(
+        req.db!,
+        req.params.id,
+        (req.query.excluirAtencion as string) || undefined
+      ),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/recetas");
+  }
+});
+
+expedienteRouter.get("/pacientes/:id/medicacion-activa", async (req, res) => {
+  try {
+    res.json({ medicacion: await medicacionActiva(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/medicacion-activa");
+  }
+});
+
+/** El PDF. Lo puede bajar cualquiera de la clinica: es el documento que
+ *  se le entrega al propietario en el mostrador. */
+expedienteRouter.get("/atenciones/:id/receta.pdf", async (req, res) => {
+  try {
+    const r = await recetaDeAtencionEnPdf(req.db!, req.params.id);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${r.nombreArchivo}"`);
+    res.send(r.buffer);
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id/receta.pdf");
+  }
+});
+
+expedienteRouter.post("/atenciones/:id/receta/enviar", async (req, res) => {
+  try {
+    res.json(await enviarReceta(req.db!, req.auth!.tenantId!, req.params.id));
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/receta/enviar");
+  }
+});
+
+// --- El estudio ------------------------------------------------------
+
+expedienteRouter.post("/atenciones/:id/estudios", soloMedico, async (req, res) => {
+  try {
+    res
+      .status(201)
+      .json(
+        await pedirEstudio(req.db!, req.auth!.tenantId!, req.params.id, req.body, req.auth!.userId!)
+      );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/estudios");
+  }
+});
+
+expedienteRouter.get("/atenciones/:id/estudios", async (req, res) => {
+  try {
+    res.json({ estudios: await estudiosDeAtencion(req.db!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id/estudios");
+  }
+});
+
+/** Lo que va a pasar al cerrar. Se lee ANTES de confirmar. */
+expedienteRouter.get("/atenciones/:id/resumen-cierre", async (req, res) => {
+  try {
+    res.json(await resumenDelCierre(req.db!, req.params.id));
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id/resumen-cierre");
   }
 });
 

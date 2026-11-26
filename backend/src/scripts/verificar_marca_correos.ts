@@ -75,11 +75,12 @@ function sinImagenes(html: string): string {
   });
 }
 
-// Un ejemplar de cada uno de los 28 tipos, con datos de relleno. El
+// Un ejemplar de cada uno de los 29 tipos, con datos de relleno. El
 // objetivo no es el texto (ya verificado en otros arneses) sino que
 // TODOS pasen por el layout nuevo sin romperse.
 const MUESTRAS: { [K in TipoCorreo]: DatosPlantilla[K] } = {
   invitacion_medico: { nombreClinica: "Clínica Demo", enlace: "https://x/i", vigenciaDias: 7, nombreMedico: "Ana" },
+  receta_emitida: { nombrePaciente: "Toby", medicoNombre: "Dra. Demo", fecha: "26/11/2026", lineas: 2 },
   prueba_por_terminar: { diasRestantes: 3, enlacePlanes: "https://x/p" },
   prueba_terminada: { fechaEliminacion: "01/09/2026", enlaceExportar: "https://x/e", enlacePlanes: "https://x/p" },
   recordatorio_eliminacion: { fechaEliminacion: "01/09/2026", enlaceExportar: "https://x/e", enlacePlanes: "https://x/p" },

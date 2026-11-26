@@ -1,4 +1,5 @@
 import { Pool, PoolClient } from "pg";
+import { alergiasDePaciente } from "./expediente/clinico";
 import { calcularEdadEfectiva } from "./edadPaciente";
 
 // ---------------------------------------------------------------------
@@ -35,7 +36,7 @@ export async function construirBloqueContextoCaso(db: EjecutorSql, casoId: strin
   const result = await db.query(
     `SELECT p.nombre, p.especie, r.nombre AS raza, p.sexo, p.estado_reproductivo,
             p.edad_anios, p.fecha_nacimiento, p.fecha_nacimiento_estimada,
-            p.alergias, c.motivo
+            p.alergias, p.id AS paciente_id, c.motivo
      FROM casos c
      JOIN pacientes p ON p.id = c.paciente_id
      LEFT JOIN razas r ON r.id = p.raza_id
@@ -80,7 +81,29 @@ export async function construirBloqueContextoCaso(db: EjecutorSql, casoId: strin
     const estimada = fila.fecha_nacimiento && fila.fecha_nacimiento_estimada ? " (estimada)" : "";
     lineas.push(`- Edad: ${edadEfectiva} años${estimada}`);
   }
-  if (fila.alergias) lineas.push(`- Alergias registradas: ${fila.alergias}`);
+  // LAS ALERGIAS DEL EXPEDIENTE, no solo el texto libre de la ficha.
+  //
+  // `pacientes.alergias` es una nota en texto libre que existe desde
+  // antes. El expediente (prompt 07) agregó `exp_alergias`, que es lo
+  // estructurado —fármaco o grupo, severidad, reacción— y lo que dispara
+  // el aviso al prescribir. El agente leía SOLO el texto libre: una
+  // alergia registrada en el expediente era invisible para él, que es la
+  // peor forma de tener el dato. Se mandan las dos, y se dice de dónde
+  // viene cada una.
+  const alergias = await alergiasDePaciente(db, fila.paciente_id);
+  if (alergias.length > 0) {
+    const texto = alergias
+      .map((a) => {
+        // La sustancia primero y el grupo como aclaración: el grupo solo
+        // no le dice al modelo a qué reaccionó este paciente.
+        const que = a.medicamento_nombre ?? a.sustancia;
+        const grupo = a.grupo ? ` (grupo ${a.grupo})` : "";
+        return `${que}${grupo} — ${a.tipo}, ${a.severidad}${a.reaccion ? `, ${a.reaccion}` : ""}`;
+      })
+      .join("; ");
+    lineas.push(`- Alergias del expediente: ${texto}`);
+  }
+  if (fila.alergias) lineas.push(`- Alergias anotadas en la ficha: ${fila.alergias}`);
   if (fila.motivo) lineas.push(`- Motivo de consulta: ${fila.motivo}`);
 
   const bloqueSignalment =

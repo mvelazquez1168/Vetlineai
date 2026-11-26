@@ -1,4 +1,8 @@
-import { PoolClient } from "pg";
+import { Pool, PoolClient } from "pg";
+
+/** La lectura de alergias también la hace el contexto del caso, que
+ *  trabaja con el pool y no con un cliente de transacción. */
+type EjecutorSql = Pool | PoolClient;
 
 // ---------------------------------------------------------------------
 // LO CLÍNICO DEL EXPEDIENTE que no estaba: la lista de problemas, las
@@ -156,7 +160,7 @@ export function normalizarSustancia(texto: string): string {
 }
 
 export async function alergiasDePaciente(
-  db: PoolClient,
+  db: EjecutorSql,
   pacienteId: string
 ): Promise<Alergia[]> {
   const r = await db.query<Alergia>(

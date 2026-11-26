@@ -173,9 +173,34 @@ export function FichaPaciente() {
             />
             <Dato etiqueta="Microchip" valor={p.microchip ?? "—"} />
             <Dato etiqueta="Color" valor={p.color ?? "—"} />
+            {/* LAS ALERGIAS SALEN DEL EXPEDIENTE, no del campo de texto
+                libre de la ficha. Esta fila mostraba `p.alergias` y
+                decía «Sin alergias registradas» mientras la franja de
+                arriba avisaba de una alergia a penicilina cargada en el
+                expediente: el mismo dato en dos lugares, y el que decía
+                que no hay nada era el más visible. El texto libre sigue
+                existiendo —es una nota anterior al expediente— y se
+                muestra como lo que es. */}
             <div className="sm:col-span-3">
-              <Dato etiqueta="Alergias" valor={p.alergias ?? "Sin alergias registradas"} />
+              <Dato
+                etiqueta="Alergias"
+                valor={
+                  expediente && expediente.alergias.length > 0
+                    ? expediente.alergias
+                        .map(
+                          (a) =>
+                            `${a.medicamento_nombre ?? a.sustancia}${a.grupo ? ` (grupo ${a.grupo})` : ""} — ${a.severidad}`
+                        )
+                        .join(" · ")
+                    : "Sin alergias registradas"
+                }
+              />
             </div>
+            {p.alergias && (
+              <div className="sm:col-span-3">
+                <Dato etiqueta="Nota de alergias en la ficha" valor={p.alergias} />
+              </div>
+            )}
           </dl>
         </Card>
 

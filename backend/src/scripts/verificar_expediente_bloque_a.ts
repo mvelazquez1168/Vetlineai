@@ -63,6 +63,7 @@ import {
   fichaRacial,
   lineaDeTiempo,
 } from "../expediente/resumen";
+import { construirBloqueContextoCaso } from "../contextoCaso";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
 
 const PREFIJO = "probe-expediente";
@@ -306,6 +307,32 @@ async function main() {
     avisosDeAlergia(db, mestizo, { nombre: "Penicilina" })
   );
   igual(otroPaciente.length, 0, "la alergia es del paciente, no de la clínica");
+
+  // EL AGENTE TIENE QUE VER LA ALERGIA DEL EXPEDIENTE.
+  //
+  // El bloque de contexto del caso leía solo `pacientes.alergias`, el
+  // campo de texto libre anterior al expediente. Una alergia cargada en
+  // `exp_alergias` —la que dispara el aviso al prescribir— era invisible
+  // para el modelo: el dato existía y el agente clínico no lo tenía.
+  const agente = await pool.query<{ id: string }>(`SELECT id FROM agentes LIMIT 1`);
+  const caso = await pool.query<{ id: string }>(
+    `INSERT INTO casos (tenant_id, paciente_id, agente_id, medico_id, motivo, numero_expediente)
+     VALUES ($1, $2, $3, $4, 'Control por creatinina alta',
+             (SELECT COALESCE(max(numero_expediente), 0) + 1 FROM casos WHERE tenant_id = $1))
+     RETURNING id`,
+    [tenantId, golden, agente.rows[0].id, medicoId]
+  );
+  const bloque = await construirBloqueContextoCaso(pool, caso.rows[0].id);
+  assert(
+    bloque.includes("Alergias del expediente") &&
+      bloque.toLowerCase().includes("penicilina") &&
+      bloque.includes("grave"),
+    "el contexto que recibe el agente incluye la alergia del EXPEDIENTE",
+    bloque
+      .split(String.fromCharCode(10))
+      .filter((l) => l.includes("Alergia"))
+      .join(" | ") || "(ninguna línea)"
+  );
 
   // -------------------------------------------------------------------
   console.log("\n=== 4. Laboratorio: rango por especie, bandera y tendencia ===");

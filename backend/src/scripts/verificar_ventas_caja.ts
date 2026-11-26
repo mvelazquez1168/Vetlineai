@@ -395,7 +395,6 @@ async function main() {
           ? { ...l, justificacion: "Faltante que no se explica" }
           : l
       ),
-      denominaciones: [{ moneda: "CRC", valor: 10000, cantidad: 2 }],
       personaId: cajero,
       aprobadoPor: admin,
     })
@@ -415,6 +414,98 @@ async function main() {
       `INSERT INTO vta_cobros (tenant_id, sesion_id, total) VALUES ($1,$2,100)`,
       [tenantId, sesion.id]
     )
+  );
+
+  // -------------------------------------------------------------------
+  console.log("\n=== 11b. Conteo por denominación: el conteo ES el declarado ===");
+  const sesionConteo = await conAlcanceTenant(tenantId, (db) =>
+    abrirSesion(db, tenantId, { cajaId, fondoCrc: 25000, fondoUsd: 40, personaId: cajero })
+  );
+  const espConteo = await conAlcanceTenant(tenantId, (db) =>
+    esperadoDeSesion(db, sesionConteo.id)
+  );
+
+  // Se declara a mano un número EQUIVOCADO a propósito, y además se
+  // cuentan los billetes: lo que tiene que valer es el conteo.
+  const cierreConteo = await conAlcanceTenant(tenantId, (db) =>
+    cerrarSesion(db, tenantId, sesionConteo.id, {
+      lineas: espConteo.map((e) => ({
+        medio: e.medio,
+        moneda: e.moneda,
+        declarado: e.medio === "efectivo" && e.moneda === "CRC" ? 99999 : e.esperado,
+      })),
+      denominaciones: [
+        { moneda: "CRC", valor: 10000, cantidad: 2 },
+        { moneda: "CRC", valor: 5000, cantidad: 1 },
+        { moneda: "USD", valor: 20, cantidad: 2 },
+      ],
+      personaId: cajero,
+    })
+  );
+  const efConteo = cierreConteo.lineas.find(
+    (l) => l.medio === "efectivo" && l.moneda === "CRC"
+  )!;
+  igual(
+    [efConteo.declarado, efConteo.diferencia, efConteo.contadoPorDenominacion],
+    [25000, 0, true],
+    "2×10 000 + 1×5 000 = 25 000 declarados, y los 99 999 escritos a mano se ignoran"
+  );
+  const usdConteo = cierreConteo.lineas.find(
+    (l) => l.medio === "efectivo" && l.moneda === "USD"
+  )!;
+  igual([usdConteo.declarado, usdConteo.diferencia], [40, 0], "y 2×$20 cuadran con el fondo");
+  igual(cierreConteo.cerrada, true, "la caja cierra: el conteo cuadra con lo esperado");
+
+  const guardadas = await pool.query<{ moneda: string; valor: string; cantidad: number }>(
+    `SELECT moneda, valor, cantidad FROM vta_arqueo_denominaciones
+      WHERE sesion_id = $1 ORDER BY moneda, valor DESC`,
+    [sesionConteo.id]
+  );
+  igual(
+    guardadas.rows.map((d) => `${d.moneda} ${Number(d.valor)}x${d.cantidad}`),
+    ["CRC 10000x2", "CRC 5000x1", "USD 20x2"],
+    "el detalle del conteo queda guardado, no solo el total"
+  );
+
+  const sesionMala = await conAlcanceTenant(tenantId, (db) =>
+    abrirSesion(db, tenantId, { cajaId, fondoCrc: 1000, personaId: cajero })
+  );
+  const lineasMalas = (
+    await conAlcanceTenant(tenantId, (db) => esperadoDeSesion(db, sesionMala.id))
+  ).map((e) => ({ medio: e.medio, moneda: e.moneda, declarado: e.esperado }));
+
+  await debeFallar("una denominación con cantidad fraccionaria", () =>
+    conAlcanceTenant(tenantId, (db) =>
+      cerrarSesion(db, tenantId, sesionMala.id, {
+        lineas: lineasMalas,
+        denominaciones: [{ moneda: "CRC", valor: 1000, cantidad: 1.5 }],
+        personaId: cajero,
+      })
+    )
+  );
+  await debeFallar("una denominación de valor cero", () =>
+    conAlcanceTenant(tenantId, (db) =>
+      cerrarSesion(db, tenantId, sesionMala.id, {
+        lineas: lineasMalas,
+        denominaciones: [{ moneda: "CRC", valor: 0, cantidad: 3 }],
+        personaId: cajero,
+      })
+    )
+  );
+  const siguePendiente = await pool.query<{ estado: string }>(
+    `SELECT estado FROM vta_sesiones_caja WHERE id = $1`,
+    [sesionMala.id]
+  );
+  igual(
+    siguePendiente.rows[0].estado,
+    "abierta",
+    "y ninguno de los dos intentos dejó la sesión a medio cerrar"
+  );
+
+  // Esa sesión se cierra cuadrada: una caja no admite dos sesiones
+  // abiertas, y dejarla abierta rompería la sección siguiente.
+  await conAlcanceTenant(tenantId, (db) =>
+    cerrarSesion(db, tenantId, sesionMala.id, { lineas: lineasMalas, personaId: cajero })
   );
 
   // -------------------------------------------------------------------

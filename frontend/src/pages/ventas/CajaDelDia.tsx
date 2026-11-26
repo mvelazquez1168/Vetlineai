@@ -41,6 +41,15 @@ import {
 // columna.
 // ---------------------------------------------------------------------
 
+// Las denominaciones que circulan en Costa Rica (billetes y monedas) y
+// los billetes de dólar que una clínica recibe. Están acá y no en la
+// base porque son un hecho del país, no una configuración de la
+// clínica: el día que el BCCR emita otra, se agrega una línea.
+const DENOMINACIONES: Record<string, number[]> = {
+  CRC: [20000, 10000, 5000, 2000, 1000, 500, 100, 50, 25, 10, 5],
+  USD: [100, 50, 20, 10, 5, 1],
+};
+
 export function CajaDelDia() {
   const { id: sesionIdParam } = useParams();
   const navegar = useNavigate();
@@ -66,6 +75,12 @@ export function CajaDelDia() {
   const [cerrando, setCerrando] = useState(false);
   const [declarado, setDeclarado] = useState<Record<string, string>>({});
   const [justificacion, setJustificacion] = useState<Record<string, string>>({});
+  // EL CONTEO POR DENOMINACIÓN, opcional. Clave `moneda|valor` →
+  // cantidad escrita. Cuando una moneda tiene al menos una cantidad
+  // escrita, su efectivo declarado SALE de la suma y el campo manual
+  // pasa a solo lectura: contar los billetes y además escribir el total
+  // serían dos fuentes del mismo número.
+  const [conteo, setConteo] = useState<Record<string, string>>({});
 
   const [movimiento, setMovimiento] = useState(false);
   const [mov, setMov] = useState({
@@ -131,6 +146,22 @@ export function CajaDelDia() {
 
   const clave = (l: LineaEsperada) => `${l.medio}|${l.moneda}`;
 
+  /** Las denominaciones escritas, listas para el backend. */
+  const denominacionesEscritas = () =>
+    Object.entries(conteo)
+      .map(([k, texto]) => {
+        const [moneda, valor] = k.split("|");
+        return { moneda, valor: Number(valor), cantidad: Number(texto.replace(/\D/g, "")) || 0 };
+      })
+      .filter((d) => d.cantidad > 0);
+
+  /** Lo contado por denominación en una moneda, o null si no se contó. */
+  const contadoEn = (moneda: string): number | null => {
+    const propias = denominacionesEscritas().filter((d) => d.moneda === moneda);
+    if (propias.length === 0) return null;
+    return propias.reduce((a, d) => a + d.valor * d.cantidad, 0);
+  };
+
   const cerrar = async () => {
     if (!datos) return;
     setOcupado(true);
@@ -142,6 +173,7 @@ export function CajaDelDia() {
           declarado: Number((declarado[clave(l)] ?? "").replace(",", ".")) || 0,
           justificacion: justificacion[clave(l)]?.trim() || undefined,
         })),
+        denominaciones: denominacionesEscritas(),
       });
       if (!r.cerrada) {
         toast.aviso(
@@ -428,7 +460,9 @@ export function CajaDelDia() {
             <tbody>
               {datos.esperado.map((l) => {
                 const k = clave(l);
-                const valor = declarado[k] ?? "";
+                const porConteo = l.medio === "efectivo" ? contadoEn(l.moneda) : null;
+                const valor =
+                  porConteo !== null ? String(porConteo) : declarado[k] ?? "";
                 const dif =
                   valor === "" ? null : Number(valor.replace(",", ".")) - l.esperado;
                 return (
@@ -445,11 +479,22 @@ export function CajaDelDia() {
                     <td className="py-2 text-right">{formatearMonto(l.esperado, l.moneda)}</td>
                     <td className="py-2 text-right">
                       <input
-                        className="w-32 rounded-lg border border-black/10 bg-surface px-2 py-1 text-right"
+                        className={`w-32 rounded-lg border border-black/10 px-2 py-1 text-right ${
+                          porConteo !== null ? "bg-background text-text-muted" : "bg-surface"
+                        }`}
                         value={valor}
                         placeholder="0"
+                        readOnly={porConteo !== null}
+                        title={
+                          porConteo !== null
+                            ? "Sale del conteo por denominación de abajo"
+                            : undefined
+                        }
                         onChange={(e) => setDeclarado((d) => ({ ...d, [k]: e.target.value }))}
                       />
+                      {porConteo !== null && (
+                        <span className="block text-xs text-text-muted">del conteo</span>
+                      )}
                     </td>
                     <td className="py-2 text-right">
                       {dif === null ? (
@@ -481,6 +526,78 @@ export function CajaDelDia() {
             </tbody>
           </table>
         </div>
+        {/* --------------------------------- Conteo por denominación */}
+        <div className="mt-5 rounded-xl border border-black/5 p-3">
+          <p className="text-sm font-semibold text-text-primary">
+            Conteo por denominación <span className="font-normal text-text-muted">(opcional)</span>
+          </p>
+          <p className="mt-1 text-xs text-text-muted">
+            Contar billete por billete es más confiable que sumar de cabeza y deja el detalle
+            guardado. Si escribís cantidades, el efectivo declarado de esa moneda{" "}
+            <strong>sale de esta suma</strong> y el campo de arriba se bloquea: el mismo número en
+            dos lugares es de donde salen los arqueos que no cuadran con su propio detalle.
+          </p>
+
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            {Object.entries(DENOMINACIONES).map(([moneda, valores]) => {
+              const total = contadoEn(moneda);
+              return (
+                <div key={moneda}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{moneda}</span>
+                    <span className="text-sm">
+                      {total === null ? (
+                        <span className="text-text-muted">sin contar</span>
+                      ) : (
+                        <strong>{formatearMonto(total, moneda)}</strong>
+                      )}
+                    </span>
+                  </div>
+                  <div className="mt-2 space-y-1">
+                    {valores.map((v) => {
+                      const k = `${moneda}|${v}`;
+                      const cantidad = Number((conteo[k] ?? "").replace(/\D/g, "")) || 0;
+                      return (
+                        <div key={k} className="flex items-center gap-2 text-sm">
+                          <span className="w-20 text-right text-text-muted">
+                            {formatearMonto(v, moneda)}
+                          </span>
+                          <span className="text-text-muted">×</span>
+                          <input
+                            className="w-16 rounded-lg border border-black/10 bg-surface px-2 py-1 text-right"
+                            value={conteo[k] ?? ""}
+                            placeholder="0"
+                            inputMode="numeric"
+                            onChange={(e) => setConteo((c) => ({ ...c, [k]: e.target.value }))}
+                          />
+                          <span className="w-24 text-right text-xs text-text-muted">
+                            {cantidad > 0 ? formatearMonto(v * cantidad, moneda) : ""}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {total !== null && (
+                    <button
+                      type="button"
+                      className="mt-2 text-xs text-text-muted underline hover:text-primary"
+                      onClick={() =>
+                        setConteo((c) => {
+                          const limpio = { ...c };
+                          for (const v of valores) delete limpio[`${moneda}|${v}`];
+                          return limpio;
+                        })
+                      }
+                    >
+                      Borrar el conteo de {moneda} y volver a declarar el total a mano
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         <p className="mt-3 text-xs text-text-muted">
           Cada diferencia lleva su justificación. Si la diferencia total supera el umbral de la
           clínica, la caja no cierra hasta que un administrador lo apruebe.

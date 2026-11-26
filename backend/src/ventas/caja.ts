@@ -164,7 +164,14 @@ export interface LineaDeclarada {
 export interface ResultadoCierre {
   cerrada: boolean;
   /** Las líneas con su diferencia, para mostrar. */
-  lineas: Array<LineaEsperada & { declarado: number; diferencia: number }>;
+  lineas: Array<
+    LineaEsperada & {
+      declarado: number;
+      diferencia: number;
+      /** true si el declarado salió del conteo por denominación. */
+      contadoPorDenominacion?: boolean;
+    }
+  >;
   diferenciaTotalCrc: number;
   umbral: number;
   /** Cuando la diferencia supera el umbral y nadie la aprobó. */
@@ -202,12 +209,40 @@ export async function cerrarSesion(
 
   const esperadas = await esperadoDeSesion(db, sesionId);
 
+  // EL CONTEO POR DENOMINACIÓN, CUANDO LO HAY, ES EL DECLARADO.
+  //
+  // Contar los billetes y además escribir el total a mano serían dos
+  // fuentes del mismo número, y el día que no coincidan gana el que
+  // escribió el campo —es decir, el menos confiable—. Así que si para
+  // una moneda vinieron denominaciones, el efectivo declarado de esa
+  // moneda SALE de la suma, y el campo de la pantalla queda de solo
+  // lectura mostrándola.
+  const contado = new Map<string, number>();
+  for (const d of datos.denominaciones ?? []) {
+    const valor = Number(d.valor);
+    const cantidad = Number(d.cantidad);
+    if (!Number.isFinite(valor) || valor <= 0) {
+      throw new Error(`Una denominación de ${d.valor} no es un valor de billete o moneda.`);
+    }
+    if (!Number.isInteger(cantidad) || cantidad < 0) {
+      throw new Error(`La cantidad de la denominación ${valor} tiene que ser un entero ≥ 0.`);
+    }
+    contado.set(d.moneda, (contado.get(d.moneda) ?? 0) + valor * cantidad);
+  }
+
   const lineas = esperadas.map((e) => {
     const d = datos.lineas.find((x) => x.medio === e.medio && x.moneda === e.moneda);
-    const declarado = d ? Number(d.declarado) : 0;
+    const porDenominacion = e.medio === "efectivo" ? contado.get(e.moneda) : undefined;
+    const declarado =
+      porDenominacion !== undefined
+        ? Math.round(porDenominacion * 100) / 100
+        : d
+          ? Number(d.declarado)
+          : 0;
     return {
       ...e,
       declarado,
+      contadoPorDenominacion: porDenominacion !== undefined,
       diferencia: Math.round((declarado - e.esperado) * 100) / 100,
       justificacion: d?.justificacion,
     };

@@ -89,6 +89,30 @@ export function aplicarTema(
   }
 }
 
+/**
+ * Devuelve el documento al tema de fábrica: borra las variables puestas
+ * a mano y lo guardado. Lo que queda es lo que declara `index.css`.
+ */
+export function limpiarTema(): void {
+  for (const clave of [
+    "--color-primary",
+    "--color-primary-hover",
+    "--color-primary-suave",
+    "--color-primary-oscuro",
+    "--color-primary-borde",
+    "--color-sobre-primary",
+    "--color-primary-texto",
+  ]) {
+    document.documentElement.style.removeProperty(clave);
+  }
+  document.documentElement.setAttribute("data-tema", "marca");
+  try {
+    localStorage.removeItem(CLAVE);
+  } catch {
+    /* sin localStorage no hay nada que borrar */
+  }
+}
+
 interface Contexto {
   apariencia: Apariencia | null;
   cargando: boolean;
@@ -129,6 +153,19 @@ export function AparienciaProvider({ children }: { children: React.ReactNode }) 
     // Sin sesión no hay clínica: las pantallas públicas se quedan con el
     // tema por defecto, que es lo correcto —el login no es de nadie—.
     if (!user) {
+      setCargando(false);
+      return;
+    }
+
+    // STAFF DE PLATAFORMA: ninguna clínica, ningún tema. Y hay que
+    // BORRAR el que haya quedado, no solo no pedir uno nuevo: en la
+    // computadora donde antes entró alguien de una clínica, el script
+    // de arranque ya pintó con el color de esa clínica antes de que
+    // esto corriera. El prompt lo dice explícito: una pantalla de
+    // plataforma no muestra el tema de una clínica.
+    if (!user.tenantId) {
+      limpiarTema();
+      setApariencia(null);
       setCargando(false);
       return;
     }

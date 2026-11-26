@@ -18,7 +18,7 @@ import {
   formatearMonto,
   ventasApi,
 } from "../../lib/ventasApi";
-import { ProductoListado, inventarioApi } from "../../lib/inventarioApi";
+import { ListaPrecio, ProductoListado, inventarioApi } from "../../lib/inventarioApi";
 import { ReceptorEncontrado, facturacionCrApi } from "../../lib/facturacionCrApi";
 
 // ---------------------------------------------------------------------
@@ -75,6 +75,12 @@ export function Cobro() {
   >([]);
   const [busqueda, setBusqueda] = useState("");
   const [cantidad, setCantidad] = useState("1");
+  // LA LISTA DE PRECIO que rige esta venta (nocturno, convenio…). Se
+  // precarga con la de la clínica y se puede cambiar antes de agregar
+  // líneas: cambiarla DESPUÉS no retasa lo ya cargado, porque un cargo
+  // ya emitido a un precio es un hecho, no una preferencia.
+  const [listas, setListas] = useState<ListaPrecio[]>([]);
+  const [listaId, setListaId] = useState<string>("");
   const [presentacionId, setPresentacionId] = useState("");
 
   const [cliente, setCliente] = useState<ReceptorEncontrado | null>(null);
@@ -92,6 +98,19 @@ export function Cobro() {
   const refBusqueda = useRef<HTMLInputElement>(null);
 
   // --- Carga inicial --------------------------------------------------
+  useEffect(() => {
+    // Las listas vigentes y la que la clínica dejó preseleccionada.
+    Promise.all([inventarioApi.listasPrecio(), ventasApi.parametros()])
+      .then(([l, p]) => {
+        setListas(l.listas.filter((x) => x.vigenteHoy));
+        const preferida = p.parametros.lista_precio_id ?? "";
+        if (preferida && l.listas.some((x) => x.id === preferida && x.vigenteHoy)) {
+          setListaId(preferida);
+        }
+      })
+      .catch(() => setListas([]));
+  }, []);
+
   useEffect(() => {
     ventasApi.tipoCambio().then((r) => setTipoCambio(r.valor)).catch(() => setTipoCambio(null));
     inventarioApi
@@ -216,6 +235,10 @@ export function Cobro() {
         origen: "mostrador",
         presentacionId: presId,
         cantidad: cant,
+        // `null` explícito = a precio base. Sin esto el backend usaría
+        // la preseleccionada de la clínica y el cajero no podría
+        // volver al base para una línea.
+        listaPrecioId: listaId || null,
       });
       setTotales(r.totales);
       await recargarCuenta(cuentaId);
@@ -344,6 +367,26 @@ export function Cobro() {
             </div>
           </div>
 
+          {listas.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-end gap-3">
+              <div className="w-64">
+                <Select
+                  label="Lista de precio de esta venta"
+                  value={listaId}
+                  onChange={(e) => setListaId(e.target.value)}
+                  options={[
+                    { value: "", label: "Precio base del catálogo" },
+                    ...listas.map((l) => ({ value: l.id, label: l.nombre })),
+                  ]}
+                />
+              </div>
+              <p className="pb-2 text-xs text-text-muted">
+                Rige las líneas que se agreguen de acá en adelante. Las ya cargadas no se retasan:
+                el precio con el que entró una línea es un hecho.
+              </p>
+            </div>
+          )}
+
           {coincidencias.length > 0 && (
             <ul className="mt-2 max-h-48 overflow-auto rounded-lg border border-black/10">
               {coincidencias.map((p) => (
@@ -391,7 +434,14 @@ export function Cobro() {
                       )}
                     </td>
                     <td className="py-2 text-right">{Number(c.cantidad)}</td>
-                    <td className="py-2 text-right">{formatearMonto(c.precio_unitario)}</td>
+                    <td className="py-2 text-right">
+                      {formatearMonto(c.precio_unitario)}
+                      {c.lista_precio_nombre && (
+                        <span className="block text-xs text-text-muted">
+                          {c.lista_precio_nombre}
+                        </span>
+                      )}
+                    </td>
                     <td className="py-2 text-right">
                       {Number(c.descuento) > 0 ? `−${formatearMonto(c.descuento)}` : "—"}
                     </td>

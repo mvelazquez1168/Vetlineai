@@ -25,6 +25,16 @@ import {
   analizarImportacion,
   importarInventario,
 } from "../inventario/importacion";
+import {
+  AlcanceMasivo,
+  aplicarMasiva,
+  crearLista,
+  editarLista,
+  fijarItem,
+  itemsDeLista,
+  listas,
+  vistaPreviaMasiva,
+} from "../inventario/precios";
 
 // ---------------------------------------------------------------------
 // API del módulo `inventario`. Todo bajo `requiereModulo('inventario')`.
@@ -833,3 +843,99 @@ inventarioRouter.put("/parametros", soloAdmin, async (req, res) => {
     fallo(res, err, "PUT /inventario/parametros");
   }
 });
+
+// ---------------------------------------------------------------------
+// Listas de precio (prompt 06, sección 2).
+//
+// Consultar la lista vigente lo puede hacer cualquiera del personal —la
+// caja necesita saber a qué precio cobrar—, pero CREARLAS, editar
+// precios y correr la actualización masiva es solo del administrador:
+// un porcentaje aplicado a todo el catálogo mueve el ingreso de la
+// clínica, y no es una decisión de mostrador.
+// ---------------------------------------------------------------------
+
+inventarioRouter.get("/listas-precio", async (req, res) => {
+  try {
+    res.json({ listas: await listas(req.db!, req.auth!.tenantId!) });
+  } catch (err) {
+    fallo(res, err, "GET /inventario/listas-precio");
+  }
+});
+
+inventarioRouter.post("/listas-precio", soloAdmin, async (req, res) => {
+  try {
+    res.status(201).json(await crearLista(req.db!, req.auth!.tenantId!, req.body ?? {}));
+  } catch (err) {
+    fallo(res, err, "POST /inventario/listas-precio");
+  }
+});
+
+inventarioRouter.put("/listas-precio/:id", soloAdmin, async (req, res) => {
+  try {
+    await editarLista(req.db!, req.auth!.tenantId!, req.params.id, req.body ?? {});
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "PUT /inventario/listas-precio/:id");
+  }
+});
+
+inventarioRouter.get("/listas-precio/:id/items", async (req, res) => {
+  try {
+    res.json({ items: await itemsDeLista(req.db!, req.auth!.tenantId!, req.params.id) });
+  } catch (err) {
+    fallo(res, err, "GET /inventario/listas-precio/:id/items");
+  }
+});
+
+inventarioRouter.put("/listas-precio/:id/items", soloAdmin, async (req, res) => {
+  const b = req.body ?? {};
+  try {
+    const precio = b.precio === null || b.precio === "" ? null : Number(b.precio);
+    if (precio !== null && !Number.isFinite(precio)) {
+      return res.status(400).json({ error: "El precio no es un número." });
+    }
+    await fijarItem(
+      req.db!,
+      req.auth!.tenantId!,
+      req.params.id,
+      b.presentacionId
+        ? { presentacionId: b.presentacionId, precio }
+        : { servicioId: b.servicioId, precio }
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "PUT /inventario/listas-precio/:id/items");
+  }
+});
+
+// La vista previa y la aplicación llaman al MISMO cálculo en el módulo
+// de dominio. Son dos rutas porque una escribe y la otra no.
+inventarioRouter.post("/precios/vista-previa", soloAdmin, async (req, res) => {
+  try {
+    res.json(await vistaPreviaMasiva(req.db!, req.auth!.tenantId!, cuerpoMasivo(req.body)));
+  } catch (err) {
+    fallo(res, err, "POST /inventario/precios/vista-previa");
+  }
+});
+
+inventarioRouter.post("/precios/aplicar", soloAdmin, async (req, res) => {
+  try {
+    res.json(await aplicarMasiva(req.db!, req.auth!.tenantId!, cuerpoMasivo(req.body)));
+  } catch (err) {
+    fallo(res, err, "POST /inventario/precios/aplicar");
+  }
+});
+
+function cuerpoMasivo(b: Record<string, unknown> | undefined): AlcanceMasivo {
+  const c = b ?? {};
+  return {
+    destino: c.destino === "lista" ? "lista" : "base",
+    listaId: (c.listaId as string) ?? null,
+    porcentaje: Number(c.porcentaje),
+    lineaNegocio: (c.lineaNegocio as string) || null,
+    categoria: (c.categoria as string) || null,
+    incluirProductos: c.incluirProductos !== false,
+    incluirServicios: c.incluirServicios !== false,
+    redondeo: (c.redondeo as AlcanceMasivo["redondeo"]) ?? "colon",
+  };
+}

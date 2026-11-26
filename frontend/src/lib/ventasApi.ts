@@ -89,6 +89,8 @@ export interface Cargo {
   paciente: string | null;
   creado_por_nombre: string | null;
   anulado_en: string | null;
+  /** Nombre de la lista de precio que determinó el precio, si hubo una. */
+  lista_precio_nombre?: string | null;
 }
 
 export interface TotalesCuenta {
@@ -244,9 +246,13 @@ export const ventasApi = {
     ),
 
   parametros: () =>
-    pedir<{ parametros: { umbral_diferencia_arqueo: string; descuento_maximo_pct: string } }>(
-      "/ventas/parametros"
-    ),
+    pedir<{
+      parametros: {
+        umbral_diferencia_arqueo: string;
+        descuento_maximo_pct: string;
+        lista_precio_id?: string | null;
+      };
+    }>("/ventas/parametros"),
   guardarParametros: (d: Record<string, unknown>) =>
     json<{ ok: true }>("/ventas/parametros", "PUT", d),
 

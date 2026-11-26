@@ -318,7 +318,58 @@ export const inventarioApi = {
     ),
   guardarParametros: (d: Record<string, unknown>) =>
     json<{ ok: true }>("/inventario/parametros", "PUT", d),
+
+  listasPrecio: () => pedir<{ listas: ListaPrecio[] }>("/inventario/listas-precio"),
+  crearListaPrecio: (d: Record<string, unknown>) =>
+    json<{ id: string }>("/inventario/listas-precio", "POST", d),
+  editarListaPrecio: (id: string, d: Record<string, unknown>) =>
+    json<{ ok: true }>(`/inventario/listas-precio/${id}`, "PUT", d),
+  itemsListaPrecio: (id: string) =>
+    pedir<{ items: ItemListaPrecio[] }>(`/inventario/listas-precio/${id}/items`),
+  fijarItemListaPrecio: (id: string, d: Record<string, unknown>) =>
+    json<{ ok: true }>(`/inventario/listas-precio/${id}/items`, "PUT", d),
+  vistaPreviaPrecios: (d: Record<string, unknown>) =>
+    json<{ filas: FilaPrecioMasivo[]; cuantos: number; sinPrecio: number }>(
+      "/inventario/precios/vista-previa",
+      "POST",
+      d
+    ),
+  aplicarPrecios: (d: Record<string, unknown>) =>
+    json<{ aplicadas: number; filas: FilaPrecioMasivo[] }>(
+      "/inventario/precios/aplicar",
+      "POST",
+      d
+    ),
 };
+
+export interface ListaPrecio {
+  id: string;
+  codigo: string;
+  nombre: string;
+  vigenteDesde: string | null;
+  vigenteHasta: string | null;
+  activo: boolean;
+  items: number;
+  vigenteHoy: boolean;
+}
+
+export interface ItemListaPrecio {
+  id: string | null;
+  presentacionId: string | null;
+  servicioId: string | null;
+  etiqueta: string;
+  lineaNegocio: string | null;
+  precioBase: number;
+  precioLista: number | null;
+}
+
+export interface FilaPrecioMasivo {
+  presentacionId: string | null;
+  servicioId: string | null;
+  etiqueta: string;
+  actual: number;
+  nuevo: number;
+}
 
 /** Montos en colones, con el mismo formato que usa el facturador. */
 export function formatearMonto(valor: string | number, moneda = "CRC"): string {

@@ -238,10 +238,12 @@ ventasRouter.get("/cuentas/:id", async (req, res) => {
     const c = await req.db!.query(`SELECT * FROM vta_cuentas WHERE id = $1`, [req.params.id]);
     if (c.rows.length === 0) return res.status(404).json({ error: "No existe esa cuenta." });
     const cargos = await req.db!.query(
-      `SELECT g.*, pa.nombre AS paciente, per.nombre AS creado_por_nombre
+      `SELECT g.*, pa.nombre AS paciente, per.nombre AS creado_por_nombre,
+              lp.nombre AS lista_precio_nombre
          FROM vta_cargos g
          LEFT JOIN pacientes pa ON pa.id = g.paciente_id
          LEFT JOIN personas per ON per.id = g.creado_por
+         LEFT JOIN inv_listas_precio lp ON lp.id = g.lista_precio_id
         WHERE g.cuenta_id = $1 ORDER BY g.creado_en`,
       [req.params.id]
     );
@@ -509,12 +511,19 @@ ventasRouter.put("/parametros", permisoConfig, async (req, res) => {
   const b = req.body ?? {};
   try {
     await req.db!.query(
-      `INSERT INTO vta_parametros (tenant_id, umbral_diferencia_arqueo, descuento_maximo_pct)
-       VALUES ($1,$2,$3)
+      `INSERT INTO vta_parametros (tenant_id, umbral_diferencia_arqueo, descuento_maximo_pct,
+                                  lista_precio_id)
+       VALUES ($1,$2,$3,$4)
        ON CONFLICT (tenant_id) DO UPDATE SET
          umbral_diferencia_arqueo = EXCLUDED.umbral_diferencia_arqueo,
-         descuento_maximo_pct = EXCLUDED.descuento_maximo_pct, actualizado_en = now()`,
-      [req.auth!.tenantId, b.umbralDiferenciaArqueo ?? 2000, b.descuentoMaximoPct ?? 10]
+         descuento_maximo_pct = EXCLUDED.descuento_maximo_pct,
+         lista_precio_id = EXCLUDED.lista_precio_id, actualizado_en = now()`,
+      [
+        req.auth!.tenantId,
+        b.umbralDiferenciaArqueo ?? 2000,
+        b.descuentoMaximoPct ?? 10,
+        b.listaPrecioId || null,
+      ]
     );
     res.json({ ok: true });
   } catch (err) {

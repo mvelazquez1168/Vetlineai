@@ -162,6 +162,9 @@ export function CatalogoProductos() {
           <Button variant="secondary" onClick={() => navegar("/inventario/servicios")}>
             Servicios
           </Button>
+          <Button variant="secondary" onClick={() => navegar("/inventario/precios")}>
+            Precios
+          </Button>
           <Button variant="secondary" onClick={() => navegar("/inventario/compras")}>
             Compras
           </Button>

@@ -1,5 +1,6 @@
 import { PoolClient } from "pg";
 import { registrarMovimiento } from "../inventario/movimientos";
+import { precioVigente } from "../inventario/precios";
 
 // ---------------------------------------------------------------------
 // CUENTAS Y CARGOS.
@@ -41,6 +42,13 @@ export interface SolicitudCargo {
   bodegaId?: string;
   /** Para un cargo que NO debe descontar inventario (un servicio). */
   sinDescargo?: boolean;
+  /**
+   * La lista de precio que rige esta venta (nocturno, convenio…). Si no
+   * viene, se usa la preseleccionada de la caja, y si tampoco hay, el
+   * precio base del catálogo. Un `precioUnitario` explícito gana sobre
+   * las dos cosas: es el precio que una persona decidió a mano.
+   */
+  listaPrecioId?: string | null;
   /** Para un cargo manual: lo fiscal, que el catálogo no puede aportar. */
   codigoCabys?: string;
   codigoTarifaIva?: string;
@@ -86,10 +94,24 @@ export async function abrirCuenta(
   return { id: r.rows[0].id, numero };
 }
 
+/**
+ * La lista de precio que la caja tiene preseleccionada. Es un parámetro
+ * de la clínica, no del cajero: si cada cajero pudiera elegir en
+ * silencio, el mismo producto saldría a dos precios el mismo día.
+ */
+async function listaPreseleccionada(db: PoolClient, tenantId: string): Promise<string | null> {
+  const r = await db.query<{ lista_precio_id: string | null }>(
+    `SELECT lista_precio_id FROM vta_parametros WHERE tenant_id = $1`,
+    [tenantId]
+  );
+  return r.rows[0]?.lista_precio_id ?? null;
+}
+
 /** Qué se está cobrando, resuelto desde el catálogo. */
 async function resolverQueSeCobra(
   db: PoolClient,
-  s: SolicitudCargo
+  s: SolicitudCargo,
+  listaId: string | null
 ): Promise<{
   descripcion: string;
   precio: number;
@@ -98,6 +120,8 @@ async function resolverQueSeCobra(
   unidad: string | null;
   linea: string | null;
   productoId: string | null;
+  /** La lista que determinó el precio, o null si salió del base. */
+  listaAplicada: string | null;
 }> {
   if (s.presentacionId) {
     const r = await db.query<{
@@ -119,14 +143,23 @@ async function resolverQueSeCobra(
     );
     if (r.rows.length === 0) throw new Error("Esa presentación no existe o está inactiva.");
     const f = r.rows[0];
+    // El precio sale del PUNTO ÚNICO de precios, no de esta consulta:
+    // la lista de precio reemplaza al base cuando cubre el ítem y está
+    // vigente. `precio_venta` se sigue leyendo arriba porque es el
+    // fallback que ese módulo usa.
+    const tasado =
+      s.precioUnitario !== undefined
+        ? null
+        : await precioVigente(db, { presentacionId: s.presentacionId }, { listaId });
     return {
       descripcion: s.descripcion ?? `${f.producto} — ${f.nombre}`,
-      precio: s.precioUnitario ?? Number(f.precio_venta ?? 0),
+      precio: s.precioUnitario ?? tasado!.precio,
       cabys: f.codigo_cabys,
       tarifa: f.codigo_tarifa_iva,
       unidad: f.unidad_medida,
       linea: f.linea_negocio,
       productoId: f.producto_id,
+      listaAplicada: tasado?.listaId ?? null,
     };
   }
 
@@ -144,14 +177,19 @@ async function resolverQueSeCobra(
     );
     if (r.rows.length === 0) throw new Error("Ese servicio no existe o está inactivo.");
     const f = r.rows[0];
+    const tasado =
+      s.precioUnitario !== undefined
+        ? null
+        : await precioVigente(db, { servicioId: s.servicioId }, { listaId });
     return {
       descripcion: s.descripcion ?? f.nombre,
-      precio: s.precioUnitario ?? Number(f.precio),
+      precio: s.precioUnitario ?? tasado!.precio,
       cabys: f.codigo_cabys,
       tarifa: f.codigo_tarifa_iva,
       unidad: "Sp",
       linea: f.linea_negocio,
       productoId: null,
+      listaAplicada: tasado?.listaId ?? null,
     };
   }
 
@@ -169,6 +207,9 @@ async function resolverQueSeCobra(
     unidad: s.unidadMedida ?? "Unid",
     linea: s.lineaNegocio ?? null,
     productoId: null,
+    // Un cargo manual trae su precio escrito a mano: ninguna lista lo
+    // determinó, y decir que sí sería mentir en la auditoría.
+    listaAplicada: null,
   };
 }
 
@@ -192,7 +233,13 @@ export async function agregarCargo(
     throw new Error(`La cuenta está "${cuenta.rows[0].estado}": no admite cargos nuevos.`);
   }
 
-  const que = await resolverQueSeCobra(db, s);
+  // La lista: la del pedido, o la preseleccionada de la caja. `null`
+  // explícito en el pedido significa "a precio base", y por eso se
+  // distingue de `undefined`.
+  const listaId =
+    s.listaPrecioId !== undefined ? s.listaPrecioId : await listaPreseleccionada(db, tenantId);
+
+  const que = await resolverQueSeCobra(db, s, listaId);
 
   // EL CABYS SE EXIGE ACÁ, no al facturar. Hacienda lo pide en cada
   // línea de factura y tiquete (Nota 17), y todo cargo termina en un
@@ -277,15 +324,16 @@ export async function agregarCargo(
                              servicio_id, descripcion, paciente_id, cantidad, precio_unitario,
                              descuento, descuento_codigo, descuento_naturaleza,
                              descuento_autorizado_por, codigo_cabys, codigo_tarifa_iva,
-                             unidad_medida, linea_negocio, movimiento_id, creado_por)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+                             unidad_medida, linea_negocio, movimiento_id, creado_por,
+                             lista_precio_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
      RETURNING id`,
     [
       tenantId, s.cuentaId, s.origen, s.origenId ?? null, s.presentacionId ?? null,
       s.servicioId ?? null, que.descripcion, s.pacienteId ?? null, s.cantidad, que.precio,
       descuento, s.descuentoCodigo ?? null, s.descuentoNaturaleza ?? null,
       s.descuentoAutorizadoPor ?? null, que.cabys, que.tarifa, que.unidad, que.linea,
-      movimientoId ?? null, s.personaId ?? null,
+      movimientoId ?? null, s.personaId ?? null, que.listaAplicada,
     ]
   );
 

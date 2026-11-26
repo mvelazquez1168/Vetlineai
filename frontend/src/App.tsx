@@ -25,6 +25,7 @@ import { ReportesVentas } from "./pages/ventas/ReportesVentas";
 import { TiqueteTermico } from "./pages/ventas/TiqueteTermico";
 import { AlertasInventario } from "./pages/inventario/AlertasInventario";
 import { CatalogoProductos } from "./pages/inventario/CatalogoProductos";
+import { ListasPrecio } from "./pages/inventario/ListasPrecio";
 import { Compras } from "./pages/inventario/Compras";
 import { ConteoFisico } from "./pages/inventario/ConteoFisico";
 import { MovimientosInventario } from "./pages/inventario/MovimientosInventario";
@@ -263,6 +264,7 @@ export default function App() {
         <Route path="productos/:id" element={<ProductoFicha />} />
         <Route path="productos/:id/editar" element={<ProductoEditor />} />
         <Route path="servicios" element={<ServiciosInventario />} />
+        <Route path="precios" element={<ListasPrecio />} />
         <Route path="movimientos" element={<MovimientosInventario />} />
         <Route path="venta-mostrador" element={<VentaMostrador />} />
         <Route path="compras" element={<Compras />} />

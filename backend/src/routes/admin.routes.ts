@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { apariencia, guardarApariencia, restablecerApariencia } from "../apariencia";
 import { Router } from "express";
 import multer from "multer";
 import path from "path";
@@ -556,6 +557,53 @@ adminRouter.post("/mi-correo/reenviar-verificacion", async (req, res) => {
 // =====================================================================
 // DATOS DE LA CLÍNICA
 // =====================================================================
+
+// =====================================================================
+// APARIENCIA DE LA CLINICA (prompt 01c, seccion 2)
+//
+// La LECTURA es para cualquiera con sesion: el tema lo necesita toda
+// pantalla para pintarse, no solo el administrador. La ESCRITURA es del
+// administrador: es una decision de la clinica, no de quien atiende.
+// =====================================================================
+
+adminRouter.get("/apariencia", async (req, res) => {
+  try {
+    res.json(await apariencia(req.db!, req.auth!.tenantId!));
+  } catch (err) {
+    console.error("GET /admin/apariencia", err);
+    res.status(500).json({ error: "Error al leer la apariencia de la clinica." });
+  }
+});
+
+adminRouter.put("/apariencia", async (req, res) => {
+  if (!req.auth!.esAdminClinica) {
+    return res.status(403).json({ error: "La apariencia la configura un administrador." });
+  }
+  try {
+    res.json(
+      await guardarApariencia(req.db!, req.auth!.tenantId!, {
+        primario: req.body.primario,
+        tema: req.body.tema,
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    console.error("PUT /admin/apariencia", err);
+    res.status(400).json({ error: err instanceof Error ? err.message : "Error al guardar." });
+  }
+});
+
+adminRouter.post("/apariencia/restablecer", async (req, res) => {
+  if (!req.auth!.esAdminClinica) {
+    return res.status(403).json({ error: "La apariencia la configura un administrador." });
+  }
+  try {
+    res.json(await restablecerApariencia(req.db!, req.auth!.tenantId!, req.auth!.userId));
+  } catch (err) {
+    console.error("POST /admin/apariencia/restablecer", err);
+    res.status(500).json({ error: "Error al restablecer la apariencia." });
+  }
+});
 
 adminRouter.get("/clinica", async (req, res) => {
   try {
@@ -1162,7 +1210,10 @@ adminRouter.patch("/clinica/numeracion-expedientes", async (req, res) => {
 // documento clínico, así que no comparte el control de acceso del resto
 // de los archivos (ver almacenamiento/tipos.ts sobre por qué son dos
 // ámbitos separados).
-const TIPOS_LOGO_VALIDOS = ["image/png", "image/jpeg"];
+// PNG, JPG y WebP (prompt 01c, seccion 2). SVG NO: un SVG es codigo y
+// habria que sanearlo en el servidor antes de servirlo; el prompt dice
+// que sin eso no se acepta, y no se acepta.
+const TIPOS_LOGO_VALIDOS = ["image/png", "image/jpeg", "image/webp"];
 
 const uploadLogo = multer({
   storage: multer.memoryStorage(),
@@ -1182,7 +1233,7 @@ adminRouter.post("/clinica/logo", (req, res) => {
         return res.status(400).json({ error: "El archivo supera el máximo de 2MB." });
       }
       if (err.message === "TIPO_INVALIDO") {
-        return res.status(400).json({ error: "Solo se aceptan archivos PNG o JPG." });
+        return res.status(400).json({ error: "Solo se aceptan archivos PNG, JPG o WebP. Un SVG no se acepta porque habria que sanearlo en el servidor." });
       }
       console.error("POST /admin/clinica/logo", err);
       return res.status(500).json({ error: "Error al subir el logo." });

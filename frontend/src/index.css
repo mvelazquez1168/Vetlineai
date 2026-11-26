@@ -2,8 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------
+ * LOS TOKENS, COMO VARIABLES CSS — prompt 01c, sección 2.
+ *
+ * Antes los colores eran hexadecimales literales dentro de
+ * `tailwind.config.js`, o sea valores compilados: el tema no podía
+ * cambiar por clínica sin recompilar el bundle.
+ *
+ * Ahora Tailwind lee `rgb(var(--color-x) / <alpha-value>)` y el valor
+ * vive acá. Cambiar el tema de una clínica es reescribir unas pocas
+ * variables en el elemento raíz: no hay re-render de React, no se
+ * recalcula nada de JavaScript, el navegador repinta y listo. Es lo que
+ * pide la sección 7 del prompt.
+ *
+ * POR QUÉ LOS VALORES SON «R G B» Y NO «#RRGGBB»: Tailwind necesita
+ * poder aplicar opacidad (`bg-primary/10`), y para eso tiene que
+ * componer el color él mismo. Con un hex en la variable, `bg-primary/10`
+ * dejaría de funcionar en todo el sistema.
+ *
+ * QUÉ ES CONFIGURABLE Y QUÉ NO. El primario y la superficie, sí. Los
+ * colores de estado (éxito, aviso, error, información) y los diez de la
+ * paleta de datos, NO: un gráfico o una alerta se tiene que leer igual
+ * en cualquier clínica. Están acá como tokens para que nadie escriba un
+ * hex a mano, pero el tema no los toca.
+ * ------------------------------------------------------------------- */
+
+:root {
+  /* --- Marca de la clínica. Lo único que el tema reescribe. --------- */
+  /* El primario por defecto es el teal que fija el prompt (#0F766E). */
+  --color-primary: 15 118 110;
+  /* Derivados del primario, calculados en el servidor y en el cliente
+     por el mismo módulo (`lib/tema.ts`), nunca a ojo. */
+  --color-primary-hover: 13 103 96;
+  --color-primary-suave: 240 253 250;
+  --color-primary-oscuro: 17 94 89;
+  --color-primary-borde: 153 246 228;
+  /* El texto que va ENCIMA del primario. Blanco o casi negro según el
+     contraste: un primario amarillo claro con texto blanco no se lee. */
+  --color-sobre-primary: 255 255 255;
+
+  --color-secondary: 58 78 122;
+  --color-accent: 74 144 217;
+
+  /* --- Superficies y texto. Del tema predefinido. ------------------- */
+  --color-background: 247 248 250;
+  --color-surface: 255 255 255;
+  --color-text-primary: 18 30 54;
+  --color-text-muted: 90 107 130;
+
+  /* --- Estados. NO configurables. ---------------------------------- */
+  --color-success: 22 128 97;
+  --color-warning: 180 120 20;
+  --color-error: 190 60 55;
+  --color-info: 42 110 190;
+
+  /* --- Color por módulo: solo para los íconos (ajuste 1 del prompt).
+     Las tarjetas completas no se tiñen. ---------------------------- */
+  --color-modulo-caja: 22 128 97;
+  --color-modulo-inventario: 15 118 110;
+  --color-modulo-agenda: 109 70 190;
+  --color-modulo-facturacion: 42 110 190;
+  --color-modulo-pacientes: 180 90 40;
+  --color-modulo-ia: 90 60 170;
+  --color-modulo-admin: 90 107 130;
+
+  /* --- Radios, sombras y alturas. ---------------------------------- */
+  --radio-sm: 0.375rem;
+  --radio-md: 0.5rem;
+  --radio-lg: 0.75rem;
+  --radio-xl: 1rem;
+  --sombra-suave: 0 1px 2px rgb(18 30 54 / 0.04), 0 1px 3px rgb(18 30 54 / 0.06);
+  --sombra-media: 0 4px 6px -1px rgb(18 30 54 / 0.07), 0 2px 4px -2px rgb(18 30 54 / 0.05);
+  --sombra-franja: 0 8px 24px -12px rgb(18 30 54 / 0.35);
+  /* 44 px: el mínimo táctil que pide la sección 4 del prompt. */
+  --alto-control: 2.75rem;
+}
+
+/* ---------------------------------------------------------------------
+ * LOS TRES TEMAS PREDEFINIDOS.
+ *
+ * Comparten estructura y componentes: solo cambian tokens. Se eligen con
+ * `data-tema` en el elemento raíz, y el primario de la clínica se aplica
+ * ENCIMA —por eso los temas no fijan `--color-primary`: lo hace la
+ * configuración de la clínica—.
+ * ------------------------------------------------------------------- */
+
+/* "Sereno" (dirección A): fondo frío y sobrio, franja azul marino. */
+:root[data-tema="sereno"] {
+  --color-background: 245 247 250;
+  --color-surface: 255 255 255;
+  --color-text-primary: 20 28 45;
+  --color-text-muted: 95 108 126;
+  --color-secondary: 40 58 95;
+}
+
+/* "Vibrante" (dirección B): más color, menú índigo. */
+:root[data-tema="vibrante"] {
+  --color-background: 248 247 253;
+  --color-surface: 255 255 255;
+  --color-text-primary: 26 22 48;
+  --color-text-muted: 104 98 128;
+  --color-secondary: 79 57 168;
+  --color-accent: 109 70 190;
+}
+
+/* "Marca de la clínica" (dirección C) es el predeterminado y usa los
+   valores de `:root`. Se declara igual para que el selector tenga las
+   tres opciones explícitas y no una por omisión. */
+:root[data-tema="marca"] {
+  --color-background: 247 248 250;
+}
+
 html,
 body,
 #root {
   height: 100%;
+}
+
+body {
+  /* Manrope, con la fuente del sistema como respaldo real: si la fuente
+     no carga, el texto no queda en serif por descarte. */
+  font-family: Manrope, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* El foco visible en TODO control, que pide la sección 7. No se hace por
+   componente: se hace acá, una vez, y así un control nuevo lo hereda sin
+   que nadie se acuerde. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--color-primary));
+  outline-offset: 2px;
+  border-radius: var(--radio-sm);
+}
+
+/* La franja del encabezado compacta, cuando queda pegada arriba al
+   hacer scroll (ajuste 2 del prompt). */
+.franja-pegada {
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }

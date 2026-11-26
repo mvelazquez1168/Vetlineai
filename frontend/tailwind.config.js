@@ -25,17 +25,38 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#1B2A4A",
-        secondary: "#3A4E7A",
-        accent: "#4A90D9",
-        background: "#FAF7F2",
-        surface: "#FFFFFF",
-        "text-primary": "#121E36",
-        "text-muted": "#5A6B82",
-        success: "#7BA68C",
-        warning: "#E8B45C",
-        error: "#E8725C",
-        info: "#4A90D9",
+        // Los colores salen de variables CSS (`src/index.css`), no de
+        // hexadecimales compilados: es lo que permite que el tema cambie
+        // por clínica sin recompilar el bundle. El `<alpha-value>` es lo
+        // que mantiene vivo `bg-primary/10` en todo el sistema.
+        primary: {
+          DEFAULT: "rgb(var(--color-primary) / <alpha-value>)",
+          hover: "rgb(var(--color-primary-hover) / <alpha-value>)",
+          suave: "rgb(var(--color-primary-suave) / <alpha-value>)",
+          oscuro: "rgb(var(--color-primary-oscuro) / <alpha-value>)",
+          borde: "rgb(var(--color-primary-borde) / <alpha-value>)",
+        },
+        "sobre-primary": "rgb(var(--color-sobre-primary) / <alpha-value>)",
+        secondary: "rgb(var(--color-secondary) / <alpha-value>)",
+        accent: "rgb(var(--color-accent) / <alpha-value>)",
+        background: "rgb(var(--color-background) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        "text-primary": "rgb(var(--color-text-primary) / <alpha-value>)",
+        "text-muted": "rgb(var(--color-text-muted) / <alpha-value>)",
+        success: "rgb(var(--color-success) / <alpha-value>)",
+        warning: "rgb(var(--color-warning) / <alpha-value>)",
+        error: "rgb(var(--color-error) / <alpha-value>)",
+        info: "rgb(var(--color-info) / <alpha-value>)",
+        // Color por módulo: SOLO para íconos (ajuste 1 del prompt 01c).
+        modulo: {
+          caja: "rgb(var(--color-modulo-caja) / <alpha-value>)",
+          inventario: "rgb(var(--color-modulo-inventario) / <alpha-value>)",
+          agenda: "rgb(var(--color-modulo-agenda) / <alpha-value>)",
+          facturacion: "rgb(var(--color-modulo-facturacion) / <alpha-value>)",
+          pacientes: "rgb(var(--color-modulo-pacientes) / <alpha-value>)",
+          ia: "rgb(var(--color-modulo-ia) / <alpha-value>)",
+          admin: "rgb(var(--color-modulo-admin) / <alpha-value>)",
+        },
         // Paleta categórica para datos: `datos-1` .. `datos-10`.
         // Reservada para CATEGORÍAS (líneas de negocio, series de un
         // chart). Los semánticos de arriba quedan para ESTADOS y no se
@@ -43,8 +64,27 @@ export default {
         ...tokensDatos,
       },
       fontFamily: {
-        display: ["'Instrument Serif'", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        // Manrope en los dos, con la fuente del sistema como respaldo.
+        // `display` deja de ser una serif: la dirección visual elegida
+        // no la usa, y tener dos familias cargadas costaba una petición
+        // de red por una tipografía que casi no aparecía.
+        display: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      borderRadius: {
+        sm: "var(--radio-sm)",
+        DEFAULT: "var(--radio-md)",
+        md: "var(--radio-md)",
+        lg: "var(--radio-lg)",
+        xl: "var(--radio-xl)",
+      },
+      boxShadow: {
+        suave: "var(--sombra-suave)",
+        media: "var(--sombra-media)",
+        franja: "var(--sombra-franja)",
+      },
+      minHeight: {
+        control: "var(--alto-control)",
       },
     },
   },

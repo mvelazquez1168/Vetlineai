@@ -12,6 +12,7 @@ import {
   useToast,
 } from "../../components/ui";
 import { SelectorUbicacion, ValorUbicacion } from "../../components/SelectorUbicacion";
+import { SelectorReceptor } from "../../components/SelectorReceptor";
 import {
   Catalogos,
   DocumentoVenta,
@@ -115,10 +116,9 @@ export function EmitirComprobante() {
   const [receptorTelNumero, setReceptorTelNumero] = useState("");
   const [receptorUbicacion, setReceptorUbicacion] = useState<ValorUbicacion>({});
   const [receptorOtrasSenas, setReceptorOtrasSenas] = useState("");
+  /** De qué perfil de facturación salió el receptor, si salió de uno. */
+  const [perfilElegido, setPerfilElegido] = useState<string | null>(null);
 
-  const [busquedaCliente, setBusquedaCliente] = useState("");
-  const [clientes, setClientes] = useState<ReceptorEncontrado[]>([]);
-  const [buscandoClientes, setBuscandoClientes] = useState(false);
 
   const [buscaCabys, setBuscaCabys] = useState<{ indice: number; texto: string } | null>(null);
   const [resultadosCabys, setResultadosCabys] = useState<ResultadoCabys["resultados"]>([]);
@@ -193,22 +193,6 @@ export function EmitirComprobante() {
       .finally(() => setCargando(false));
   }, [borradorId]);
 
-  // --- Búsqueda de clientes ------------------------------------------
-  useEffect(() => {
-    if (busquedaCliente.trim().length < 2) {
-      setClientes([]);
-      return;
-    }
-    setBuscandoClientes(true);
-    const t = setTimeout(() => {
-      facturacionCrApi
-        .buscarReceptores(busquedaCliente)
-        .then((r) => setClientes(r.receptores))
-        .catch(() => setClientes([]))
-        .finally(() => setBuscandoClientes(false));
-    }, 300);
-    return () => clearTimeout(t);
-  }, [busquedaCliente]);
 
   // --- Búsqueda CABYS -------------------------------------------------
   useEffect(() => {
@@ -238,6 +222,7 @@ export function EmitirComprobante() {
       plazoCreditoDias: esCredito && plazoCredito ? Number(plazoCredito) : undefined,
       observaciones: observaciones.trim() || undefined,
       receptorPropietarioId: receptorId ?? undefined,
+      receptorPerfilId: perfilElegido ?? undefined,
       receptor: receptorNombre.trim()
         ? {
             nombre: receptorNombre.trim(),
@@ -335,49 +320,6 @@ export function EmitirComprobante() {
     return () => clearTimeout(t);
   }, [armarDocumento]);
 
-  const elegirCliente = (c: ReceptorEncontrado) => {
-    setReceptorId(c.id);
-    setReceptorNombre(c.nombre);
-    setReceptorNumeroId(c.numero_identificacion ?? "");
-    if (c.tipo_identificacion_codigo) setReceptorTipoId(c.tipo_identificacion_codigo);
-    setReceptorCorreo(c.email ?? "");
-    setReceptorTelNumero(c.telefono ?? "");
-    setBusquedaCliente("");
-    setClientes([]);
-  };
-
-  const limpiarCliente = () => {
-    setReceptorId(null);
-    setReceptorNombre("");
-    setReceptorNumeroId("");
-    setReceptorCorreo("");
-    setReceptorTelNumero("");
-    setReceptorUbicacion({});
-    setReceptorOtrasSenas("");
-  };
-
-  const registrarClienteNuevo = async () => {
-    if (!receptorNombre.trim()) {
-      toast.aviso("Escribí al menos el nombre para registrar al cliente.");
-      return;
-    }
-    setOcupado(true);
-    try {
-      const r = await facturacionCrApi.crearReceptor({
-        nombre: receptorNombre.trim(),
-        telefono: receptorTelNumero.trim() || undefined,
-        email: receptorCorreo.trim() || undefined,
-        tipoIdentificacionCodigo: receptorNumeroId.trim() ? receptorTipoId : undefined,
-        numeroIdentificacion: receptorNumeroId.trim() || undefined,
-      });
-      setReceptorId(r.id);
-      toast.exito("Cliente registrado. Queda en la ficha de clientes de la clínica.");
-    } catch (err) {
-      toast.error((err as Error).message);
-    } finally {
-      setOcupado(false);
-    }
-  };
 
   const problemas: string[] = [];
   if (!esTiquete && !receptorNombre.trim()) {
@@ -546,60 +488,51 @@ export function EmitirComprobante() {
           <CardDescription>
             {esTiquete
               ? "Un tiquete puede ir sin receptor. Si lo elegís, sale en el comprobante."
-              : "Una factura lo exige. Buscalo entre los clientes de la clínica o registrá uno nuevo."}
+              : "Una factura lo exige. Puede ser el cliente, su empresa, una fundación o cualquiera que se registre acá."}
           </CardDescription>
 
-          <div className="relative mt-3">
-            <Input
-              label="Buscar cliente por nombre, identificación o teléfono"
-              value={busquedaCliente}
-              onChange={(e) => setBusquedaCliente(e.target.value)}
-              placeholder="Ana Rodríguez, 112345678, 8888…"
-            />
-            {busquedaCliente.trim().length >= 2 && (
-              <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-black/10 bg-surface shadow-lg">
-                {buscandoClientes && clientes.length === 0 && (
-                  <li className="px-3 py-2 text-sm text-text-muted">Buscando…</li>
-                )}
-                {!buscandoClientes && clientes.length === 0 && (
-                  <li className="px-3 py-2 text-sm text-text-muted">
-                    Ningún cliente coincide. Escribí los datos abajo y usá «Registrar como cliente».
-                  </li>
-                )}
-                {clientes.map((c) => (
-                  <li key={c.id}>
-                    <button
-                      type="button"
-                      onClick={() => elegirCliente(c)}
-                      className="block w-full px-3 py-2 text-left text-sm hover:bg-black/5"
-                    >
-                      <span className="font-medium text-text">{c.nombre}</span>
-                      <span className="block text-xs text-text-muted">
-                        {[
-                          c.numero_identificacion,
-                          c.telefono,
-                          c.cantidad_pacientes > 0 ? `${c.cantidad_pacientes} paciente(s)` : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {receptorId && (
-            <p className="mt-2 flex items-center gap-2 text-xs text-text-muted">
-              <Icono nombre="check" className="h-3.5 w-3.5" />
-              Tomado de la ficha de clientes. El comprobante guarda una copia: si después corregís
-              la ficha, esta factura no cambia.
-              <button type="button" onClick={limpiarCliente} className="underline">
-                quitar
-              </button>
-            </p>
-          )}
+          <SelectorReceptor
+            className="mt-3"
+            propietarioId={receptorId}
+            propietarioNombre={receptorNombre || null}
+            exigeIdentificacion={!esTiquete}
+            onCambio={(eleccion, resumen) => {
+              // La pantalla "Emitir" tiene los campos del receptor a la
+              // vista a propósito: es donde se completa lo que falta sin
+              // salir de la emisión. Así que lo elegido LLENA los
+              // campos, y de ahí sale el documento. La caja, que no
+              // tiene campos, manda la elección y el backend la
+              // resuelve: el mismo componente, dos formas de usarlo.
+              setPerfilElegido(resumen.perfilId ?? null);
+              setReceptorId(resumen.propietarioId ?? null);
+              if (eleccion.modo === "sin_datos") {
+                setReceptorNombre("");
+                setReceptorNumeroId("");
+                setReceptorCorreo("");
+                return;
+              }
+              const d = resumen.datos;
+              if (!d) {
+                // El dueño: los datos los tiene el backend. Se muestra
+                // el nombre y se deja que `resolverReceptor` complete.
+                setReceptorNombre(resumen.nombre);
+                return;
+              }
+              setReceptorNombre(d.nombre);
+              if (d.tipoIdentificacion) setReceptorTipoId(d.tipoIdentificacion);
+              setReceptorNumeroId(d.numeroIdentificacion ?? "");
+              setReceptorCorreo(d.correo ?? "");
+              setReceptorTelPais(d.telefonoCodigoPais ?? "506");
+              setReceptorTelNumero(d.telefonoNumero ?? "");
+              setReceptorUbicacion({
+                provincia: d.ubicacionProvincia ?? "",
+                canton: d.ubicacionCanton ?? "",
+                distrito: d.ubicacionDistrito ?? "",
+                barrio: d.ubicacionBarrio ?? "",
+              });
+              setReceptorOtrasSenas(d.ubicacionOtrasSenas ?? "");
+            }}
+          />
 
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <Input
@@ -648,16 +581,6 @@ export function EmitirComprobante() {
             />
           </div>
 
-          {!receptorId && receptorNombre.trim() !== "" && (
-            <Button
-              variant="secondary"
-              className="mt-3"
-              disabled={ocupado}
-              onClick={registrarClienteNuevo}
-            >
-              Registrar como cliente de la clínica
-            </Button>
-          )}
 
           <CardTitle className="mt-6">Dirección del receptor</CardTitle>
           <CardDescription>

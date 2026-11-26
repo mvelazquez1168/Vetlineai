@@ -172,7 +172,7 @@ async function crearComprobante(
        receptor_ubicacion_provincia, receptor_ubicacion_canton, receptor_ubicacion_distrito,
        receptor_ubicacion_barrio, receptor_ubicacion_otras_senas, receptor_otras_senas_extranjero,
        condicion_venta, condicion_venta_detalle, plazo_credito_dias, observaciones,
-       receptor_propietario_id,
+       receptor_propietario_id, receptor_perfil_id,
        moneda, tipo_cambio,
        total_serv_gravados, total_serv_exentos, total_serv_exonerado, total_serv_no_sujeto,
        total_merc_gravadas, total_merc_exentas, total_merc_exonerada, total_merc_no_sujeta,
@@ -181,15 +181,8 @@ async function crearComprobante(
        total_imp_asum_emisor_fabrica, total_iva_devuelto, total_otros_cargos, total_comprobante,
        estado, clave_idempotencia, comprobante_referencia_id
      ) VALUES (
-       $1, $2, $3, $4, $5, $6, $7,
-       $8, $9,
-       $10, $11, $12, $13, $14, $15, $16,
-       $17, $18, $19, $20, $21, $22,
-       $23, $24, $25, $26, $27,
-       $28, $29,
-       $30, $31, $32, $33, $34, $35, $36, $37,
-       $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49,
-       'borrador', $50, $51
+       $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50,
+       'borrador', $51, $52
      ) RETURNING id`,
     [
       emisor.tenantId,
@@ -219,6 +212,7 @@ async function crearComprobante(
       documento.plazoCreditoDias ?? null,
       documento.observaciones ?? null,
       documento.receptorPropietarioId ?? null,
+      documento.receptorPerfilId ?? null,
       documento.moneda ?? "CRC",
       String(documento.tipoCambio ?? 1),
       deMonto(r.totalServGravados),

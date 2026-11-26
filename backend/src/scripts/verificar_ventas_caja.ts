@@ -24,6 +24,7 @@ import {
 import { abrirCuenta, agregarCargo, totalDeCuenta } from "../ventas/cuentas";
 import { cobrar, datosDeTiquete } from "../ventas/cobros";
 import {
+  deudorCliente,
   cuentaCorriente,
   puedeComprarACredito,
   registrarAbono,
@@ -528,11 +529,11 @@ async function main() {
   );
 
   const dentro = await conAlcanceTenant(tenantId, (db) =>
-    puedeComprarACredito(db, clienteId, 20000)
+    puedeComprarACredito(db, deudorCliente(clienteId), 20000)
   );
   igual(dentro.puede, true, "20 000 contra un límite de 50 000: pasa");
   const fuera = await conAlcanceTenant(tenantId, (db) =>
-    puedeComprarACredito(db, clienteId, 80000)
+    puedeComprarACredito(db, deudorCliente(clienteId), 80000)
   );
   igual(fuera.puede, false, "80 000 no pasa");
   assert(
@@ -601,7 +602,7 @@ async function main() {
 
   const abono = await conAlcanceTenant(tenantId, (db) =>
     registrarAbono(db, tenantId, {
-      propietarioId: clienteId,
+      deudor: deudorCliente(clienteId),
       sesionId: sesion2.id,
       aplicaciones: [
         { comprobanteId: cobroCredito.comprobanteId!, monto: 10000 },
@@ -634,7 +635,7 @@ async function main() {
   const refs = (rep.rows[0].xml.match(/<InformacionReferencia>/g) ?? []).length;
   igual(refs, 2, "con una referencia por cada factura abonada");
 
-  const cc = await conAlcanceTenant(tenantId, (db) => cuentaCorriente(db, clienteId));
+  const cc = await conAlcanceTenant(tenantId, (db) => cuentaCorriente(db, deudorCliente(clienteId)));
   igual(cc.facturas.length, 2, "la cuenta corriente muestra las dos facturas a crédito");
   igual(
     cc.facturas.map((f) => Number(f.pendiente)),
@@ -646,11 +647,11 @@ async function main() {
   console.log("\n=== 14. Anticipo aplicado a la cuenta final ===");
   await conAlcanceTenant(tenantId, (db) =>
     registrarAnticipo(db, tenantId, {
-      propietarioId: clienteId, sesionId: sesion2.id,
+      deudor: deudorCliente(clienteId), sesionId: sesion2.id,
       motivo: "Anticipo de la castración de Nina", monto: 25000, personaId: cajero,
     })
   );
-  igual(await conAlcanceTenant(tenantId, (db) => saldoAFavor(db, clienteId)), 25000,
+  igual(await conAlcanceTenant(tenantId, (db) => saldoAFavor(db, deudorCliente(clienteId))), 25000,
     "el anticipo queda como saldo a favor");
 
   const anticipoComprobante = await pool.query<{ n: string }>(
@@ -708,7 +709,7 @@ async function main() {
     totalDeCuenta(db, cuentaCirugia.id)
   );
   igual(totCirugiaFinal.saldo, 0, "y la cuenta queda en cero: el anticipo bajo el saldo de verdad");
-  igual(await conAlcanceTenant(tenantId, (db) => saldoAFavor(db, clienteId)), 0,
+  igual(await conAlcanceTenant(tenantId, (db) => saldoAFavor(db, deudorCliente(clienteId))), 0,
     "y el saldo a favor queda en cero");
 
   // -------------------------------------------------------------------
@@ -925,7 +926,7 @@ async function main() {
   );
   assert(!!encargo.anticipoId, "el encargo nace con su anticipo", encargo.anticipoId);
   const saldoTrasAnticipo = await conAlcanceTenant(tenantId, (db) =>
-    saldoAFavor(db, clienteId)
+    saldoAFavor(db, deudorCliente(clienteId))
   );
   igual(saldoTrasAnticipo, 6000, "y los 6 000 quedan como saldo a favor del cliente");
   const sinComprobante = await pool.query<{ n: string }>(
@@ -1124,7 +1125,7 @@ async function main() {
     [0, "entregado"],
     "la reserva se libera al entregar: si sobreviviera, inmovilizaría stock que ya no está"
   );
-  const saldoTrasEntrega = await conAlcanceTenant(tenantId, (db) => saldoAFavor(db, clienteId));
+  const saldoTrasEntrega = await conAlcanceTenant(tenantId, (db) => saldoAFavor(db, deudorCliente(clienteId)));
   igual(saldoTrasEntrega, 0, "y despues del cobro al cliente no le queda saldo a favor");
 
   await debeFallar("entregar dos veces el mismo encargo", () =>

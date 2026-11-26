@@ -234,10 +234,47 @@ export interface DocumentoVenta {
   observaciones?: string;
   /** De qué ficha de cliente salieron los datos del receptor. */
   receptorPropietarioId?: string;
+  /** De qué perfil de facturación salió el receptor (trazabilidad). */
+  receptorPerfilId?: string;
   claveIdempotencia?: string;
 }
 
 /** Un cliente de la clínica, como lo devuelve la búsqueda de receptores. */
+/**
+ * A nombre de quién se puede facturar: un cliente o un perfil de
+ * facturación. La búsqueda devuelve las dos cosas en una lista, con
+ * `tipo` para saber qué es cada una.
+ */
+export interface ReceptorPosible {
+  tipo: "cliente" | "perfil";
+  id: string;
+  nombre: string;
+  tipoIdentificacion: string | null;
+  numeroIdentificacion: string | null;
+  correo: string | null;
+  /** La segunda línea de la opción: qué es y a quién sirve. */
+  detalle: string;
+  puntaje: number;
+}
+
+export interface PerfilFacturacion {
+  id: string;
+  nombre: string;
+  nombre_comercial: string | null;
+  tipo_identificacion: string;
+  numero_identificacion: string;
+  ubicacion_provincia: string | null;
+  ubicacion_canton: string | null;
+  ubicacion_distrito: string | null;
+  ubicacion_barrio: string | null;
+  ubicacion_otras_senas: string | null;
+  correo: string | null;
+  telefono_codigo_pais: string | null;
+  telefono_numero: string | null;
+  codigo_actividad: string | null;
+  activo: boolean;
+}
+
 export interface ReceptorEncontrado {
   id: string;
   nombre: string;
@@ -382,9 +419,51 @@ export const facturacionCrApi = {
       body: JSON.stringify(documento),
     }),
 
+  /**
+   * Solo CLIENTES. Es la que usan la caja (para el dueño de la cuenta),
+   * la cuenta corriente y los encargos: ahí el receptor no aplica, lo
+   * que hace falta es el cliente.
+   */
+  buscarClientes: (q: string) =>
+    authedFetch<{ clientes: ReceptorEncontrado[] }>(
+      `/facturacion/clientes?q=${encodeURIComponent(q)}`
+    ),
+
+  /** Busca en clientes Y perfiles de facturación. */
   buscarReceptores: (q: string) =>
-    authedFetch<{ receptores: ReceptorEncontrado[] }>(
+    authedFetch<{ receptores: ReceptorPosible[] }>(
       `/facturacion/receptores?q=${encodeURIComponent(q)}`
+    ),
+
+  perfilesDeCliente: (propietarioId: string) =>
+    authedFetch<{ perfiles: Array<PerfilFacturacion & { es_predeterminado: boolean }> }>(
+      `/facturacion/clientes/${propietarioId}/perfiles-facturacion`
+    ),
+  perfiles: (q = "") =>
+    authedFetch<{ perfiles: Array<PerfilFacturacion & { clientes: number }> }>(
+      `/facturacion/perfiles-facturacion?q=${encodeURIComponent(q)}`
+    ),
+  perfil: (id: string) =>
+    authedFetch<{ perfil: PerfilFacturacion }>(`/facturacion/perfiles-facturacion/${id}`),
+  crearPerfil: (datos: Record<string, unknown>) =>
+    authedFetch<{ id: string }>("/facturacion/perfiles-facturacion", {
+      method: "POST",
+      body: JSON.stringify(datos),
+    }),
+  editarPerfil: (id: string, datos: Record<string, unknown>) =>
+    authedFetch<{ ok: true }>(`/facturacion/perfiles-facturacion/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(datos),
+    }),
+  ligarPerfilACliente: (id: string, datos: Record<string, unknown>) =>
+    authedFetch<{ ok: true }>(`/facturacion/perfiles-facturacion/${id}/clientes`, {
+      method: "POST",
+      body: JSON.stringify(datos),
+    }),
+  desligarPerfilDeCliente: (id: string, propietarioId: string) =>
+    authedFetch<{ ok: true }>(
+      `/facturacion/perfiles-facturacion/${id}/clientes/${propietarioId}`,
+      { method: "DELETE" }
     ),
 
   crearReceptor: (datos: {

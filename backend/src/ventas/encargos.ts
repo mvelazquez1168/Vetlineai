@@ -2,7 +2,7 @@ import { PoolClient } from "pg";
 import { crearOrden } from "../inventario/compras";
 import { registrarMovimiento } from "../inventario/movimientos";
 import { agregarCargo } from "./cuentas";
-import { registrarAnticipo, saldoAFavor } from "./credito";
+import { deudorCliente, registrarAnticipo, saldoAFavor } from "./credito";
 
 // ---------------------------------------------------------------------
 // ENCARGOS ESPECIALES — prompt 08, sección de encargos.
@@ -127,7 +127,9 @@ export async function crearEncargo(
       );
     }
     const a = await registrarAnticipo(db, tenantId, {
-      propietarioId: datos.propietarioId,
+      // El anticipo de un encargo es del CLIENTE que lo encargó, no de
+      // un perfil de facturación: el encargo es del dueño.
+      deudor: deudorCliente(datos.propietarioId),
       sesionId: datos.sesionId,
       motivo: `Anticipo del encargo: ${datos.descripcion.trim()}`,
       monto: datos.anticipo,
@@ -385,7 +387,7 @@ export async function cancelar(
     [encargoId, motivo?.trim() || null]
   );
 
-  return { saldoAFavorDelCliente: await saldoAFavor(db, e.propietario_id) };
+  return { saldoAFavorDelCliente: await saldoAFavor(db, deudorCliente(e.propietario_id)) };
 }
 
 async function bodegaDelLote(db: PoolClient, loteId: string): Promise<string> {

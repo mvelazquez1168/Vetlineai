@@ -62,6 +62,38 @@ export const TIPO_DOC_REFERENCIA_FACTURA = "01";
 /** Nota 9: "Pago a comprobante electrónico". */
 export const CODIGO_REFERENCIA_PAGO = "17";
 
+/**
+ * QUIÉN DEBE. En una venta a crédito el deudor es el RECEPTOR de la
+ * factura, no el dueño de la mascota: si la factura salió a nombre de
+ * la empresa, la cuenta por cobrar es de la empresa. Cobrarle al dueño
+ * sería cobrarle a quien no debe.
+ *
+ * Por eso todo este módulo dejó de hablar de `propietarioId` y habla de
+ * un deudor que es un cliente O un perfil de facturación. El `tipo` no
+ * es decoración: decide en qué columna se busca, y un id de perfil
+ * leído como propietario no encontraría nada y daría crédito cero sin
+ * fallar.
+ */
+export interface Deudor {
+  tipo: "cliente" | "perfil";
+  id: string;
+}
+
+/** Atajo para lo que antes era un `propietarioId` suelto. */
+export function deudorCliente(propietarioId: string): Deudor {
+  return { tipo: "cliente", id: propietarioId };
+}
+
+/** La columna de cada tabla según el tipo de deudor. */
+function columnaDeudor(d: Deudor): "propietario_id" | "perfil_id" {
+  return d.tipo === "cliente" ? "propietario_id" : "perfil_id";
+}
+
+/** En `fact_comprobantes`, el receptor apunta a una de estas dos. */
+function columnaReceptor(d: Deudor): "receptor_propietario_id" | "receptor_perfil_id" {
+  return d.tipo === "cliente" ? "receptor_propietario_id" : "receptor_perfil_id";
+}
+
 export interface EstadoCredito {
   habilitado: boolean;
   limite: number;
@@ -80,26 +112,27 @@ export interface EstadoCredito {
  */
 export async function estadoDeCredito(
   db: PoolClient,
-  propietarioId: string
+  deudor: Deudor
 ): Promise<EstadoCredito> {
+  const columna = columnaDeudor(deudor);
   const c = await db.query<{ habilitado: boolean; limite: string; plazo_dias: number }>(
-    `SELECT habilitado, limite, plazo_dias FROM vta_credito_cliente WHERE propietario_id = $1`,
-    [propietarioId]
+    `SELECT habilitado, limite, plazo_dias FROM vta_credito_cliente WHERE ${columna} = $1`,
+    [deudor.id]
   );
   const config = c.rows[0] ?? { habilitado: false, limite: "0", plazo_dias: 30 };
 
   const facturado = await db.query<{ total: string }>(
     `SELECT COALESCE(sum(f.total_comprobante), 0)::text AS total
        FROM fact_comprobantes f
-      WHERE f.receptor_propietario_id = $1
+      WHERE f.${columnaReceptor(deudor)} = $1
         AND f.tipo_comprobante = '01'
         AND f.condicion_venta IN ('02', '10')
         AND f.estado IN ('aceptado', 'aceptado_parcial', 'enviado', 'en_cola')`,
-    [propietarioId]
+    [deudor.id]
   );
   const abonado = await db.query<{ total: string }>(
-    `SELECT COALESCE(sum(monto), 0)::text AS total FROM vta_abonos WHERE propietario_id = $1`,
-    [propietarioId]
+    `SELECT COALESCE(sum(monto), 0)::text AS total FROM vta_abonos WHERE ${columna} = $1`,
+    [deudor.id]
   );
 
   const usado =
@@ -123,18 +156,19 @@ export async function estadoDeCredito(
  */
 export async function puedeComprarACredito(
   db: PoolClient,
-  propietarioId: string,
+  deudor: Deudor,
   monto: number
 ): Promise<{ puede: boolean; motivo?: string; estado: EstadoCredito }> {
-  const estado = await estadoDeCredito(db, propietarioId);
+  const quien = deudor.tipo === "cliente" ? "Este cliente" : "Este perfil de facturación";
+  const estado = await estadoDeCredito(db, deudor);
   if (!estado.habilitado) {
-    return { puede: false, motivo: "Este cliente no tiene crédito habilitado.", estado };
+    return { puede: false, motivo: `${quien} no tiene crédito habilitado.`, estado };
   }
   if (monto > estado.disponible) {
     return {
       puede: false,
       motivo:
-        `La venta es de ${monto} y al cliente le quedan ${estado.disponible} de un límite de ` +
+        `La venta es de ${monto} y le quedan ${estado.disponible} de un límite de ` +
         `${estado.limite}. Hace falta que lo autorice un administrador.`,
       estado,
     };
@@ -166,7 +200,8 @@ export async function registrarAbono(
   db: PoolClient,
   tenantId: string,
   datos: {
-    propietarioId: string;
+    /** Quién paga: el deudor de la factura, que puede ser un perfil. */
+    deudor: Deudor;
     sesionId?: string;
     aplicaciones: AplicacionAbono[];
     /**
@@ -226,9 +261,10 @@ export async function registrarAbono(
   }
 
   const a = await db.query<{ id: string }>(
-    `INSERT INTO vta_abonos (tenant_id, propietario_id, sesion_id, monto, recibido_por)
+    `INSERT INTO vta_abonos (tenant_id, ${columnaDeudor(datos.deudor)}, sesion_id, monto,
+                             recibido_por)
      VALUES ($1,$2,$3,$4,$5) RETURNING id`,
-    [tenantId, datos.propietarioId, datos.sesionId ?? null, total, datos.personaId ?? null]
+    [tenantId, datos.deudor.id, datos.sesionId ?? null, total, datos.personaId ?? null]
   );
   const abonoId = a.rows[0].id;
 
@@ -241,22 +277,29 @@ export async function registrarAbono(
   }
 
   // --- El REP ---------------------------------------------------------
+  //
+  // El receptor del REP es el DEUDOR: si la factura a crédito salió a
+  // nombre de la empresa, el recibo del pago también. Emitirlo a nombre
+  // del dueño dejaría un recibo que no respalda esa cuenta por cobrar.
   const cliente = await db.query<{
     nombre: string;
     numero_identificacion: string | null;
     codigo: string | null;
     email: string | null;
   }>(
-    `SELECT p.nombre, p.numero_identificacion, ti.codigo, p.email
-       FROM propietarios p
-       LEFT JOIN tipos_identificacion ti ON ti.id = p.tipo_identificacion_id
-      WHERE p.id = $1`,
-    [datos.propietarioId]
+    datos.deudor.tipo === "cliente"
+      ? `SELECT p.nombre, p.numero_identificacion, ti.codigo, p.email
+           FROM propietarios p
+           LEFT JOIN tipos_identificacion ti ON ti.id = p.tipo_identificacion_id
+          WHERE p.id = $1`
+      : `SELECT nombre, numero_identificacion, tipo_identificacion AS codigo, correo AS email
+           FROM fact_perfiles_facturacion WHERE id = $1`,
+    [datos.deudor.id]
   );
   const c = cliente.rows[0];
   if (!c?.numero_identificacion || !c.codigo) {
     throw new Error(
-      "Para emitir el Recibo Electrónico de Pago hace falta la identificación del cliente: el REP la exige igual que una factura."
+      "Para emitir el Recibo Electrónico de Pago hace falta la identificación de quien paga: el REP la exige igual que una factura."
     );
   }
 
@@ -280,7 +323,9 @@ export async function registrarAbono(
       identificacion: { tipo: c.codigo, numero: c.numero_identificacion },
       correo: c.email ?? undefined,
     },
-    receptorPropietarioId: datos.propietarioId,
+    ...(datos.deudor.tipo === "cliente"
+      ? { receptorPropietarioId: datos.deudor.id }
+      : { receptorPerfilId: datos.deudor.id }),
     lineas: [
       {
         cantidad: 1,
@@ -334,7 +379,8 @@ export async function registrarAnticipo(
   db: PoolClient,
   tenantId: string,
   datos: {
-    propietarioId: string;
+    /** De quién es el saldo a favor. Normalmente el cliente. */
+    deudor: Deudor;
     sesionId?: string;
     motivo: string;
     monto: number;
@@ -350,11 +396,11 @@ export async function registrarAnticipo(
     throw new Error("Un anticipo lleva su motivo: para qué cirugía o qué encargo es.");
   }
   const r = await db.query<{ id: string }>(
-    `INSERT INTO vta_anticipos (tenant_id, propietario_id, sesion_id, motivo, monto,
-                                encargo_id, recibido_por, medio, moneda)
+    `INSERT INTO vta_anticipos (tenant_id, ${columnaDeudor(datos.deudor)}, sesion_id, motivo,
+                                monto, encargo_id, recibido_por, medio, moneda)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
     [
-      tenantId, datos.propietarioId, datos.sesionId ?? null, datos.motivo.trim(), datos.monto,
+      tenantId, datos.deudor.id, datos.sesionId ?? null, datos.motivo.trim(), datos.monto,
       datos.encargoId ?? null, datos.personaId ?? null, datos.medio ?? "01",
       datos.moneda ?? "CRC",
     ]
@@ -363,11 +409,11 @@ export async function registrarAnticipo(
 }
 
 /** Cuánto saldo a favor le queda al cliente. */
-export async function saldoAFavor(db: PoolClient, propietarioId: string): Promise<number> {
+export async function saldoAFavor(db: PoolClient, deudor: Deudor): Promise<number> {
   const r = await db.query<{ total: string }>(
     `SELECT COALESCE(sum(monto - aplicado), 0)::text AS total FROM vta_anticipos
-      WHERE propietario_id = $1 AND estado = 'disponible'`,
-    [propietarioId]
+      WHERE ${columnaDeudor(deudor)} = $1 AND estado = 'disponible'`,
+    [deudor.id]
   );
   return Number(r.rows[0].total);
 }
@@ -379,15 +425,15 @@ export async function saldoAFavor(db: PoolClient, propietarioId: string): Promis
  */
 export async function aplicarAnticipos(
   db: PoolClient,
-  propietarioId: string,
+  deudor: Deudor,
   monto: number
 ): Promise<number> {
   const disponibles = await db.query<{ id: string; resta: string }>(
     `SELECT id, (monto - aplicado)::text AS resta FROM vta_anticipos
-      WHERE propietario_id = $1 AND estado = 'disponible' AND monto > aplicado
+      WHERE ${columnaDeudor(deudor)} = $1 AND estado = 'disponible' AND monto > aplicado
       ORDER BY creado_en
       FOR UPDATE`,
-    [propietarioId]
+    [deudor.id]
   );
 
   let porAplicar = monto;
@@ -412,7 +458,7 @@ export async function aplicarAnticipos(
  * La cuenta corriente del cliente: facturas pendientes con su
  * antigüedad, abonos y saldo a favor.
  */
-export async function cuentaCorriente(db: PoolClient, propietarioId: string) {
+export async function cuentaCorriente(db: PoolClient, deudor: Deudor) {
   const facturas = await db.query(
     `SELECT f.id, f.clave, f.consecutivo, f.fecha_emision, f.total_comprobante,
             f.condicion_venta, f.plazo_credito_dias,
@@ -425,26 +471,26 @@ export async function cuentaCorriente(db: PoolClient, propietarioId: string) {
               AS dias_vencida,
             (CURRENT_DATE - f.fecha_emision::date) AS antiguedad_dias
        FROM fact_comprobantes f
-      WHERE f.receptor_propietario_id = $1
+      WHERE f.${columnaReceptor(deudor)} = $1
         AND f.tipo_comprobante = '01'
         AND f.condicion_venta IN ('02','10')
         AND f.estado IN ('aceptado','aceptado_parcial','enviado','en_cola')
       ORDER BY f.fecha_emision`,
-    [propietarioId]
+    [deudor.id]
   );
 
   const abonos = await db.query(
     `SELECT a.id, a.monto, a.creado_en, c.consecutivo AS rep_consecutivo, c.estado AS rep_estado
        FROM vta_abonos a
        LEFT JOIN fact_comprobantes c ON c.id = a.rep_id
-      WHERE a.propietario_id = $1 ORDER BY a.creado_en DESC`,
-    [propietarioId]
+      WHERE a.${columnaDeudor(deudor)} = $1 ORDER BY a.creado_en DESC`,
+    [deudor.id]
   );
 
   const anticipos = await db.query(
     `SELECT id, motivo, monto, aplicado, estado, creado_en FROM vta_anticipos
-      WHERE propietario_id = $1 ORDER BY creado_en DESC`,
-    [propietarioId]
+      WHERE ${columnaDeudor(deudor)} = $1 ORDER BY creado_en DESC`,
+    [deudor.id]
   );
 
   return {
@@ -454,7 +500,7 @@ export async function cuentaCorriente(db: PoolClient, propietarioId: string) {
     })),
     abonos: abonos.rows,
     anticipos: anticipos.rows,
-    credito: await estadoDeCredito(db, propietarioId),
-    saldoAFavor: await saldoAFavor(db, propietarioId),
+    credito: await estadoDeCredito(db, deudor),
+    saldoAFavor: await saldoAFavor(db, deudor),
   };
 }

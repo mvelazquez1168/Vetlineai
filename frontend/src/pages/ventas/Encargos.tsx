@@ -136,8 +136,8 @@ export function Encargos() {
     }
     const t = setTimeout(() => {
       facturacionCrApi
-        .buscarReceptores(busqueda)
-        .then((r) => setClientes(r.receptores))
+        .buscarClientes(busqueda)
+        .then((r) => setClientes(r.clientes))
         .catch(() => setClientes([]));
     }, 300);
     return () => clearTimeout(t);

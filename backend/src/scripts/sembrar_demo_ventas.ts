@@ -18,7 +18,7 @@ import { conAlcanceTenant } from "../alcanceTenant";
 import { abrirSesion, registrarMovimientoEfectivo, registrarTipoCambio } from "../ventas/caja";
 import { abrirCuenta, agregarCargo } from "../ventas/cuentas";
 import { cobrar } from "../ventas/cobros";
-import { registrarAbono, registrarAnticipo } from "../ventas/credito";
+import { deudorCliente, registrarAbono, registrarAnticipo } from "../ventas/credito";
 import { solicitarAprobacion } from "../ventas/aprobaciones";
 import { emitirTalonario } from "../ventas/contingencia";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
@@ -239,7 +239,7 @@ async function main() {
   if (cobroCredito.comprobanteId) {
     const abono = await conAlcanceTenant(tenantId, (db) =>
       registrarAbono(db, tenantId, {
-        propietarioId: cliente.id,
+        deudor: deudorCliente(cliente.id),
         sesionId: sesion.id,
         aplicaciones: [{ comprobanteId: cobroCredito.comprobanteId!, monto: 10000 }],
         medios: [{ codigo: "01", monto: 10000 }],
@@ -253,7 +253,7 @@ async function main() {
   paso("6. Un anticipo, un encargo y un movimiento de efectivo");
   await conAlcanceTenant(tenantId, (db) =>
     registrarAnticipo(db, tenantId, {
-      propietarioId: cliente.id, sesionId: sesion.id,
+      deudor: deudorCliente(cliente.id), sesionId: sesion.id,
       motivo: "Anticipo de la castración de Nina", monto: 25000, personaId: persona,
     })
   );

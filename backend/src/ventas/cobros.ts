@@ -4,7 +4,8 @@ import { emitir } from "../facturacion/emision";
 import { DocumentoVenta } from "../facturacion/tipos";
 import { tipoDeCambioDelDia } from "./caja";
 import { lineasParaFacturar, totalDeCuenta } from "./cuentas";
-import { aplicarAnticipos, saldoAFavor } from "./credito";
+import { Deudor, aplicarAnticipos, deudorCliente, saldoAFavor } from "./credito";
+import { EleccionReceptor, resolverReceptor } from "../facturacion/perfilesFacturacion";
 
 // ---------------------------------------------------------------------
 // COBROS.
@@ -42,6 +43,16 @@ export interface SolicitudCobro {
   cuentaId: string;
   sesionId: string;
   medios: MedioCobro[];
+  /**
+   * A NOMBRE DE QUIÉN SALE LA FACTURA (sección 3 bis del prompt 08).
+   *
+   * Las cuatro opciones las resuelve `resolverReceptor`, el mismo punto
+   * único que usa la pantalla "Emitir" del facturador: el dueño, un
+   * perfil guardado de ese cliente, cualquier cliente o perfil
+   * existente, o uno nuevo. Sin elección se usa `receptor` tal como
+   * venga (lo que ya hacía), y sin ninguno de los dos sale tiquete.
+   */
+  eleccionReceptor?: EleccionReceptor;
   /** `01` factura (exige receptor identificado) o `04` tiquete. */
   tipoComprobante?: "01" | "04";
   /** Para una venta a crédito: condición 02 o 10, con su plazo. */
@@ -93,6 +104,24 @@ export async function cobrar(
     throw new Error("Esa cuenta ya está cobrada por completo.");
   }
 
+  // --- A nombre de quién sale ---------------------------------------
+  //
+  // El receptor se resuelve ACÁ, antes de emitir, porque de él depende
+  // quién es el deudor si la venta es a crédito.
+  const resuelto = s.eleccionReceptor
+    ? await resolverReceptor(db, tenantId, s.eleccionReceptor, cuenta.rows[0].propietario_id)
+    : null;
+  const receptorFinal = resuelto?.receptor ?? s.receptor;
+  // El deudor por defecto es el dueño de la cuenta: es quien debe
+  // cuando la factura sale a su nombre, que es el caso común.
+  const deudor: Deudor | null =
+    resuelto?.deudor ??
+    (cuenta.rows[0].propietario_id ? deudorCliente(cuenta.rows[0].propietario_id) : null);
+
+  // El saldo a favor pertenece a quien paga, no a la cuenta.
+  const deudorDelAnticipo = deudor ?? deudorCliente(cuenta.rows[0].propietario_id ?? "");
+
+
   // --- Convertir cada medio a colones -------------------------------
   const convertidos: Array<MedioCobro & { tipoCambio: number; montoCrc: number; esFiscal: boolean }> =
     [];
@@ -134,7 +163,11 @@ export async function cobrar(
         "Para pagar con anticipo la cuenta tiene que estar a nombre de un cliente: el saldo a favor es de alguien."
       );
     }
-    const disponible = await saldoAFavor(db, cuenta.rows[0].propietario_id);
+    // El saldo a favor es de QUIEN PAGA: si la empresa dejó un
+    // anticipo, es el de la empresa. Por eso se mira el deudor y no el
+    // dueño de la cuenta.
+    const deAnticipo = deudorDelAnticipo;
+    const disponible = await saldoAFavor(db, deAnticipo);
     if (porAnticipo > disponible + 0.01) {
       throw new Error(
         `Se quiere aplicar ${porAnticipo} de anticipo y el cliente tiene ${disponible} a favor.`
@@ -181,13 +214,31 @@ export async function cobrar(
   const hayQueFacturar = yaFacturada.rows[0].n === "0";
 
   if (hayQueFacturar) {
-    const tipo = s.tipoComprobante ?? (s.receptor?.identificacion ? "01" : "04");
+    // SIN DATOS, TIQUETE. No es una degradación silenciosa: es lo que
+    // el prompt pide, y la pantalla ya mostró qué falta para factura.
+    const tipo = s.tipoComprobante ?? (receptorFinal?.identificacion ? "01" : "04");
+    if (tipo === "01" && !receptorFinal?.identificacion) {
+      throw new Error(
+        "Para una factura hace falta la identificación del receptor. Elegí a quién se le factura, " +
+          "cargale la identificación, o emití un tiquete."
+      );
+    }
     const documento: DocumentoVenta = {
       tipoComprobante: tipo,
       condicionVenta: s.condicionVenta ?? "01",
       plazoCreditoDias: esCredito ? s.plazoCreditoDias : undefined,
-      receptor: s.receptor,
-      receptorPropietarioId: cuenta.rows[0].propietario_id ?? undefined,
+      receptor: receptorFinal,
+      // `receptor_propietario_id` significa "el receptor ES este
+      // cliente", así que cuando el receptor es un perfil va NULL.
+      //
+      // La primera versión guardaba acá el dueño de la cuenta "para no
+      // perder el vínculo", y el efecto fue que la factura de la
+      // empresa aparecía ADEMÁS en la cuenta corriente del dueño: la
+      // misma deuda cobrada a dos personas. El vínculo con el dueño ya
+      // existe por otro lado y no se perdió: el cobro apunta a la
+      // cuenta, y la cuenta es del dueño.
+      receptorPropietarioId: deudor?.tipo === "cliente" ? deudor.id : undefined,
+      receptorPerfilId: resuelto?.perfilId,
       observaciones: s.observaciones,
       lineas,
       // Los medios que van al XML son los FISCALES. El anticipo y el
@@ -242,7 +293,7 @@ export async function cobrar(
   // comprobante hubiera fallado, el anticipo del cliente seguiría
   // disponible.
   if (porAnticipo > 0) {
-    await aplicarAnticipos(db, cuenta.rows[0].propietario_id!, Math.min(porAnticipo, aplicado));
+    await aplicarAnticipos(db, deudorDelAnticipo, Math.min(porAnticipo, aplicado));
   }
 
   for (const m of convertidos) {

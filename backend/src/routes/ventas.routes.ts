@@ -20,6 +20,7 @@ import {
   pedirAlProveedor,
 } from "../ventas/encargos";
 import {
+  Deudor,
   cuentaCorriente,
   estadoDeCredito,
   puedeComprarACredito,
@@ -311,10 +312,23 @@ ventasRouter.get("/cobros/:id/tiquete", async (req, res) => {
 
 // =====================================================================
 // CRÉDITO, ABONOS Y ANTICIPOS
+//
+// LAS RUTAS HABLAN DE UN DEUDOR, no de un cliente: el deudor de una
+// venta a crédito es el RECEPTOR de la factura, que puede ser un perfil
+// de facturación (la empresa del dueño, una fundación). El tipo viaja
+// en la query (`?tipo=perfil`) y por defecto es cliente, que es el caso
+// común y el que ya estaba.
 // =====================================================================
+
+/** El deudor que pide la ruta: cliente por defecto, perfil si lo dice. */
+function deudorDeLaRuta(req: Request): Deudor {
+  const tipo = String(req.query.tipo ?? req.body?.deudorTipo ?? "cliente");
+  return { tipo: tipo === "perfil" ? "perfil" : "cliente", id: req.params.id };
+}
+
 ventasRouter.get("/clientes/:id/cuenta-corriente", async (req, res) => {
   try {
-    res.json(await cuentaCorriente(req.db!, req.params.id));
+    res.json(await cuentaCorriente(req.db!, deudorDeLaRuta(req)));
   } catch (err) {
     fallo(res, err, "GET /ventas/clientes/:id/cuenta-corriente");
   }
@@ -323,15 +337,19 @@ ventasRouter.get("/clientes/:id/cuenta-corriente", async (req, res) => {
 ventasRouter.put("/clientes/:id/credito", permisoConfig, async (req, res) => {
   const b = req.body ?? {};
   try {
+    const deudor = deudorDeLaRuta(req);
+    const columna = deudor.tipo === "cliente" ? "propietario_id" : "perfil_id";
+    // El ON CONFLICT apunta al índice único PARCIAL de cada columna
+    // (migración 100): uno por cliente y uno por perfil.
     await req.db!.query(
-      `INSERT INTO vta_credito_cliente (propietario_id, tenant_id, habilitado, limite, plazo_dias)
+      `INSERT INTO vta_credito_cliente (${columna}, tenant_id, habilitado, limite, plazo_dias)
        VALUES ($1,$2,COALESCE($3,false),COALESCE($4,0),COALESCE($5,30))
-       ON CONFLICT (propietario_id) DO UPDATE SET
+       ON CONFLICT (${columna}) WHERE ${columna} IS NOT NULL DO UPDATE SET
          habilitado = EXCLUDED.habilitado, limite = EXCLUDED.limite,
          plazo_dias = EXCLUDED.plazo_dias, actualizado_en = now()`,
-      [req.params.id, req.auth!.tenantId, b.habilitado, b.limite, b.plazoDias]
+      [deudor.id, req.auth!.tenantId, b.habilitado, b.limite, b.plazoDias]
     );
-    res.json({ ok: true, estado: await estadoDeCredito(req.db!, req.params.id) });
+    res.json({ ok: true, estado: await estadoDeCredito(req.db!, deudor) });
   } catch (err) {
     fallo(res, err, "PUT /ventas/clientes/:id/credito");
   }
@@ -340,16 +358,37 @@ ventasRouter.put("/clientes/:id/credito", permisoConfig, async (req, res) => {
 ventasRouter.get("/clientes/:id/credito-disponible", async (req, res) => {
   try {
     const monto = Number(req.query.monto ?? 0);
-    res.json(await puedeComprarACredito(req.db!, req.params.id, monto));
+    res.json(await puedeComprarACredito(req.db!, deudorDeLaRuta(req), monto));
   } catch (err) {
     fallo(res, err, "GET /ventas/clientes/:id/credito-disponible");
   }
 });
 
+/**
+ * El deudor que viene en el CUERPO, para abonos y anticipos.
+ *
+ * Se exige explícito en vez de adivinarlo: un abono cargado contra el
+ * dueño cuando la factura es de la empresa deja la cuenta por cobrar de
+ * la empresa intacta, y el dinero aparece como saldo a favor de alguien
+ * que no debía nada.
+ */
+function deudorDelCuerpo(cuerpo: Record<string, unknown> | undefined): Deudor {
+  const c = cuerpo ?? {};
+  const d = c.deudor as { tipo?: string; id?: string } | undefined;
+  const id = d?.id ?? (c.propietarioId as string | undefined);
+  if (!id) {
+    throw new Error(
+      "Falta decir quién paga: `deudor: { tipo: 'cliente' | 'perfil', id }`. En una venta a crédito el deudor es el receptor de la factura."
+    );
+  }
+  return { tipo: d?.tipo === "perfil" ? "perfil" : "cliente", id };
+}
+
 ventasRouter.post("/abonos", async (req, res) => {
   try {
     const r = await registrarAbono(req.db!, req.auth!.tenantId!, {
       ...req.body,
+      deudor: deudorDelCuerpo(req.body),
       personaId: req.auth!.userId,
     });
     res.status(201).json(r);
@@ -362,6 +401,7 @@ ventasRouter.post("/anticipos", async (req, res) => {
   try {
     const r = await registrarAnticipo(req.db!, req.auth!.tenantId!, {
       ...req.body,
+      deudor: deudorDelCuerpo(req.body),
       personaId: req.auth!.userId,
     });
     res.status(201).json(r);

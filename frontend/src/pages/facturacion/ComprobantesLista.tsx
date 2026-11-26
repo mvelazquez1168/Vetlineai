@@ -169,6 +169,11 @@ export function ComprobantesLista() {
               <Icono nombre="ajustes" tamano={16} /> Emisor
             </Button>
           </Link>
+          <Link to="/facturacion/perfiles">
+            <Button variant="ghost">
+              <Icono nombre="propietario" tamano={16} /> Perfiles de facturación
+            </Button>
+          </Link>
           <Link to="/facturacion/recibidos">
             <Button variant="secondary">
               <Icono nombre="recibidos" tamano={16} /> Recibidos

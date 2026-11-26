@@ -37,6 +37,7 @@ import { VentaMostrador } from "./pages/inventario/VentaMostrador";
 import { ComprobanteDetalle } from "./pages/facturacion/ComprobanteDetalle";
 import { ComprobantesLista } from "./pages/facturacion/ComprobantesLista";
 import { ComprobantesRecibidos } from "./pages/facturacion/ComprobantesRecibidos";
+import { PerfilesFacturacion } from "./pages/facturacion/PerfilesFacturacion";
 import { ConfiguracionEmisor } from "./pages/facturacion/ConfiguracionEmisor";
 import { EmitirComprobante } from "./pages/facturacion/EmitirComprobante";
 import { Analiticas as AgendaAnaliticas } from "./pages/agenda/Analiticas";
@@ -244,6 +245,7 @@ export default function App() {
         <Route path="comprobantes/:id" element={<ComprobanteDetalle />} />
         <Route path="recibidos" element={<ComprobantesRecibidos />} />
         <Route path="emisor" element={<ConfiguracionEmisor />} />
+        <Route path="perfiles" element={<PerfilesFacturacion />} />
       </Route>
 
       {/* Catálogo, inventario y compras — módulo `inventario` de Vetline

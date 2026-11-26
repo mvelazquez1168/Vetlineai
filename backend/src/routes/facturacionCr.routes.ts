@@ -7,6 +7,17 @@ import { borrarBorrador, emitirBorrador, guardarBorrador } from "../facturacion/
 import { calcularComprobante } from "../facturacion/calculo";
 import { deMonto } from "../facturacion/decimal";
 import { buscarPropietariosTolerante } from "../busquedaPropietarios";
+import {
+  EleccionReceptor,
+  buscarReceptoresPosibles,
+  crearPerfil,
+  desligarDeCliente,
+  editarPerfil,
+  ligarACliente,
+  listarPerfiles,
+  perfilesDeCliente,
+  resolverReceptor,
+} from "../facturacion/perfilesFacturacion";
 import { emitirNota } from "../facturacion/notas";
 import { entregarComprobante, estadoLegible, pdfDeComprobante } from "../facturacion/entrega";
 import { nombresArchivo } from "../facturacion/claveConsecutivo";
@@ -470,26 +481,140 @@ facturacionCrRouter.post("/comprobantes/vista-previa", async (req, res) => {
 });
 
 /**
- * `GET /receptores?q=` — clientes de la clínica para elegir receptor.
+ * `GET /receptores?q=` — a nombre de quién se puede facturar.
  *
- * Es la MISMA búsqueda tolerante de la búsqueda global
- * (`busquedaPropietarios.ts`), no una copia: nombre con tolerancia a
- * errores de tipeo, teléfono y número de identificación por prefijo.
+ * Busca en LAS DOS COSAS: los clientes de la clínica (`propietarios`) y
+ * los perfiles de facturación (la empresa del dueño, una fundación, un
+ * familiar). Antes buscaba solo entre los dueños, y eso hacía imposible
+ * facturar a nombre de quien no es dueño de una mascota — que es
+ * justamente el caso que la sección 3 bis del prompt 08 describe.
  *
- * Y es sobre `propietarios`, que ya es el fichero de clientes de la
- * clínica. Una segunda tabla de "clientes de facturación" obligaría a
- * mantener dos fichas de la misma persona.
+ * La parte de clientes sigue siendo la MISMA búsqueda tolerante de la
+ * búsqueda global (`busquedaPropietarios.ts`), no una copia.
  */
 facturacionCrRouter.get("/receptores", async (req, res) => {
   const q = String(req.query.q ?? "").trim();
   try {
-    const propietarios = q ? await buscarPropietariosTolerante(req.db!, q, 10) : [];
-    res.json({ receptores: propietarios });
+    const receptores = q
+      ? await buscarReceptoresPosibles(req.db!, req.auth!.tenantId!, q, 10)
+      : [];
+    res.json({ receptores });
   } catch (err) {
     console.error("GET /facturacion/receptores", err);
+    res.status(500).json({ error: "Error al buscar a quién facturar." });
+  }
+});
+
+/**
+ * `GET /clientes?q=` — SOLO clientes (`propietarios`).
+ *
+ * Existe aparte de `/receptores` porque son dos preguntas distintas: a
+ * quién se le factura (clientes y perfiles) y de quién es la cuenta, el
+ * encargo o la cuenta corriente (siempre un cliente). Antes las dos
+ * usaban el mismo endpoint, y al sumar los perfiles habrían aparecido
+ * como si se les pudiera abrir una cuenta.
+ */
+facturacionCrRouter.get("/clientes", async (req, res) => {
+  const q = String(req.query.q ?? "").trim();
+  try {
+    res.json({ clientes: q ? await buscarPropietariosTolerante(req.db!, q, 10) : [] });
+  } catch (err) {
+    console.error("GET /facturacion/clientes", err);
     res.status(500).json({ error: "Error al buscar clientes." });
   }
 });
+
+/**
+ * `GET /clientes/:id/perfiles-facturacion` — los perfiles de un
+ * cliente, el predeterminado primero. Es lo que la caja propone cuando
+ * la cuenta ya tiene dueño.
+ */
+facturacionCrRouter.get("/clientes/:id/perfiles-facturacion", async (req, res) => {
+  try {
+    res.json({ perfiles: await perfilesDeCliente(req.db!, req.params.id) });
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+// =====================================================================
+// PERFILES DE FACTURACIÓN (sección 3 bis del prompt 08)
+// =====================================================================
+facturacionCrRouter.get("/perfiles-facturacion", async (req, res) => {
+  try {
+    res.json({
+      perfiles: await listarPerfiles(req.db!, req.auth!.tenantId!, {
+        q: String(req.query.q ?? ""),
+        soloActivos: req.query.soloActivos === "true",
+      }),
+    });
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+facturacionCrRouter.get("/perfiles-facturacion/:id", async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT * FROM fact_perfiles_facturacion WHERE id = $1`,
+      [req.params.id]
+    );
+    if (r.rows.length === 0) return res.status(404).json({ error: "No existe ese perfil." });
+    res.json({ perfil: r.rows[0] });
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+facturacionCrRouter.post("/perfiles-facturacion", async (req, res) => {
+  try {
+    const r = await crearPerfil(req.db!, req.auth!.tenantId!, {
+      ...req.body,
+      personaId: req.auth!.userId,
+    });
+    res.status(201).json(r);
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+facturacionCrRouter.put("/perfiles-facturacion/:id", async (req, res) => {
+  try {
+    await editarPerfil(req.db!, req.auth!.tenantId!, req.params.id, req.body ?? {});
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+facturacionCrRouter.post("/perfiles-facturacion/:id/clientes", async (req, res) => {
+  const b = req.body ?? {};
+  try {
+    if (!b.propietarioId) return res.status(400).json({ error: "Falta el cliente." });
+    await ligarACliente(
+      req.db!,
+      req.auth!.tenantId!,
+      req.params.id,
+      b.propietarioId,
+      b.esPredeterminado === true
+    );
+    res.status(201).json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: mensajeDeError(err) });
+  }
+});
+
+facturacionCrRouter.delete(
+  "/perfiles-facturacion/:id/clientes/:propietarioId",
+  async (req, res) => {
+    try {
+      await desligarDeCliente(req.db!, req.params.id, req.params.propietarioId);
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(400).json({ error: mensajeDeError(err) });
+    }
+  }
+);
 
 /**
  * `POST /receptores` — registra un cliente nuevo desde la pantalla de
@@ -613,8 +738,28 @@ facturacionCrRouter.post("/borradores/:id/emitir", async (req, res) => {
  * para lo mismo y una se quedaría atrás.
  */
 facturacionCrRouter.post("/comprobantes", async (req, res) => {
-  const documento = req.body as DocumentoVenta;
+  const cuerpo = req.body as DocumentoVenta & { eleccionReceptor?: EleccionReceptor };
   try {
+    // EL MISMO SELECTOR QUE LA CAJA. Si la pantalla manda una elección
+    // (dueño, perfil guardado, existente o nuevo), la resuelve el punto
+    // único; si manda el receptor armado, se usa tal cual —que es lo
+    // que hacía antes— y así no se rompe ningún llamador.
+    const documento: DocumentoVenta = cuerpo.eleccionReceptor
+      ? await (async () => {
+          const r = await resolverReceptor(
+            req.db!,
+            req.auth!.tenantId!,
+            cuerpo.eleccionReceptor!
+          );
+          return {
+            ...cuerpo,
+            receptor: r.receptor,
+            receptorPropietarioId: r.deudor?.tipo === "cliente" ? r.deudor.id : undefined,
+            receptorPerfilId: r.perfilId,
+          };
+        })()
+      : cuerpo;
+
     const resultado = await emitir(req.auth!.tenantId!, documento);
 
     // La entrega al receptor NO bloquea la respuesta ni la invalida: un

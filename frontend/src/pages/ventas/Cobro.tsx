@@ -19,6 +19,11 @@ import {
   ventasApi,
 } from "../../lib/ventasApi";
 import { ListaPrecio, ProductoListado, inventarioApi } from "../../lib/inventarioApi";
+import {
+  EleccionReceptor,
+  ResumenReceptor,
+  SelectorReceptor,
+} from "../../components/SelectorReceptor";
 import { ReceptorEncontrado, facturacionCrApi } from "../../lib/facturacionCrApi";
 
 // ---------------------------------------------------------------------
@@ -92,6 +97,12 @@ export function Cobro() {
     { medio: "01", moneda: "CRC", monto: "", referencia: "" },
   ]);
   const [tipoComprobante, setTipoComprobante] = useState<"01" | "04">("04");
+  // A NOMBRE DE QUIÉN SALE. El selector es el mismo componente que usa
+  // la pantalla "Emitir" del facturador; acá se guarda la elección y el
+  // backend la resuelve, que es lo que evita tener dos criterios de qué
+  // dato falta.
+  const [eleccionReceptor, setEleccionReceptor] = useState<EleccionReceptor | null>(null);
+  const [resumenReceptor, setResumenReceptor] = useState<ResumenReceptor | null>(null);
   const [condicionVenta, setCondicionVenta] = useState("01");
   const [tipoCambio, setTipoCambio] = useState<number | null>(null);
 
@@ -183,8 +194,8 @@ export function Cobro() {
     }
     const t = setTimeout(() => {
       facturacionCrApi
-        .buscarReceptores(buscaCliente)
-        .then((r) => setClientes(r.receptores))
+        .buscarClientes(buscaCliente)
+        .then((r) => setClientes(r.clientes))
         .catch(() => setClientes([]));
     }, 300);
     return () => clearTimeout(t);
@@ -269,19 +280,10 @@ export function Cobro() {
         tipoComprobante,
         condicionVenta,
         plazoCreditoDias: condicionVenta === "10" ? 30 : undefined,
-        receptor:
-          tipoComprobante === "01" && cliente
-            ? {
-                nombre: cliente.nombre,
-                identificacion: cliente.numero_identificacion
-                  ? {
-                      tipo: cliente.tipo_identificacion_codigo ?? "01",
-                      numero: cliente.numero_identificacion,
-                    }
-                  : undefined,
-                correo: cliente.email ?? undefined,
-              }
-            : undefined,
+        // La ELECCIÓN, no el receptor armado: el backend lo resuelve
+        // con el mismo punto único que la pantalla "Emitir", y de ahí
+        // sale también quién es el deudor si la venta es a crédito.
+        eleccionReceptor: eleccionReceptor ?? undefined,
         medios: medios
           .filter((m) => Number(m.monto.replace(",", ".")) > 0)
           .map((m) => ({
@@ -520,40 +522,34 @@ export function Cobro() {
                     { value: "01", label: "Factura (exige cliente identificado)" },
                   ]}
                 />
-                {tipoComprobante === "01" && (
-                  <div className="relative">
-                    <Input
-                      label="Cliente"
-                      value={cliente?.nombre ?? buscaCliente}
-                      onChange={(e) => {
-                        setCliente(null);
-                        setBuscaCliente(e.target.value);
-                      }}
-                      placeholder="Buscar por nombre, cédula o teléfono"
-                    />
-                    {!cliente && clientes.length > 0 && (
-                      <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-lg border border-black/10 bg-surface shadow-lg">
-                        {clientes.map((c) => (
-                          <li key={c.id}>
-                            <button
-                              type="button"
-                              className="block w-full px-3 py-2 text-left text-sm hover:bg-black/5"
-                              onClick={() => {
-                                setCliente(c);
-                                setClientes([]);
-                              }}
-                            >
-                              {c.nombre}
-                              <span className="block text-xs text-text-muted">
-                                {c.numero_identificacion ?? "sin identificación"}
-                              </span>
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
+                <div className="rounded-lg border border-black/5 p-2">
+                  <p className="text-sm font-semibold text-text-primary">
+                    A nombre de quién sale
+                  </p>
+                  <p className="mb-2 mt-0.5 text-xs text-text-muted">
+                    Puede no ser el dueño: su empresa, una fundación, un familiar. La cuenta y el
+                    expediente siguen siendo del dueño.
+                  </p>
+                  <SelectorReceptor
+                    propietarioId={cliente?.id ?? null}
+                    propietarioNombre={cliente?.nombre ?? null}
+                    exigeIdentificacion={tipoComprobante === "01"}
+                    onCambio={(eleccion, resumen) => {
+                      setEleccionReceptor(eleccion);
+                      setResumenReceptor(resumen);
+                      // Si no hay con qué facturar, el comprobante baja a
+                      // tiquete solo: es lo que el prompt pide, y mejor
+                      // que un botón que no responde.
+                      if (eleccion.modo === "sin_datos") setTipoComprobante("04");
+                    }}
+                  />
+                  {tipoComprobante === "01" && resumenReceptor?.faltaIdentificacion && (
+                    <p className="mt-2 text-xs text-error">
+                      Falta la identificación: con eso no se puede emitir factura. Cargala o cobrá
+                      con tiquete.
+                    </p>
+                  )}
+                </div>
                 <Select
                   label="Condición de venta"
                   value={condicionVenta}

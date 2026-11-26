@@ -236,6 +236,12 @@ export interface DocumentoVenta {
    * mañana no altere una factura ya emitida.
    */
   receptorPropietarioId?: string;
+  /**
+   * De qué perfil de facturación salió el receptor, cuando no es el
+   * dueño de la mascota. Los datos emitidos quedan congelados en las
+   * columnas `receptor_*`: esto es la trazabilidad de dónde salieron.
+   */
+  receptorPerfilId?: string;
 
   claveIdempotencia?: string;
 }

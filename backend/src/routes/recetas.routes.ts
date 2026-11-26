@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { registrarInteraccion } from "../crm/interacciones";
 import { PoolClient } from "pg";
 import PDFDocument from "pdfkit";
 import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
@@ -489,6 +490,18 @@ recetasRouter.post("/:id/emitir", async (req, res) => {
     await req.db!.query(`UPDATE recetas SET estado = 'emitida', emitido_en = now() WHERE id = $1`, [
       req.params.id,
     ]);
+
+    // CRM (prompt 03): la receta queda en la linea de tiempo cuando se
+    // EMITE, no cuando se escribe. Una receta en borrador no es un
+    // hecho de la relacion con el cliente todavia.
+    await registrarInteraccion(req.db!, {
+      tenantId: req.auth!.tenantId!,
+      tipo: "receta_emitida",
+      pacienteId: receta.paciente_id,
+      origenTabla: "recetas",
+      origenId: req.params.id,
+      personaId: req.auth!.userId,
+    });
     // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
     // actividad tocan actualizado_en, no solo informacion/mensajes.
     // prompt_code_registro_atencion.md, Paso 3 — receta.caso_id puede ser

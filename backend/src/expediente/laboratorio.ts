@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "../crm/interacciones";
 
 // ---------------------------------------------------------------------
 // LABORATORIO — sección 4 del prompt 07.
@@ -234,6 +235,18 @@ export async function cargarResultados(
       WHERE id = $1`,
     [estudioId, opciones.archivoId ?? null, opciones.observaciones?.trim() || null]
   );
+
+  // CRM (prompt 03): el estudio entra en la linea de tiempo cuando
+  // TIENE RESULTADO. Un estudio solicitado todavia no le dice nada al
+  // cliente, y la linea de tiempo es de la relacion con el cliente.
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "estudio_laboratorio",
+    pacienteId: e.rows[0].paciente_id,
+    origenTabla: "exp_estudios_lab",
+    origenId: estudioId,
+    resumen: `${resultados.length} resultado(s), ${conBandera} fuera de rango`,
+  });
 
   return { cargados: resultados.length, conBandera };
 }

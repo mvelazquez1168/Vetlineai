@@ -21,6 +21,7 @@ import { casosRouter } from "./routes/casos.routes";
 import { citasRouter } from "./routes/citas.routes";
 import { atencionesRouter } from "./routes/atenciones.routes";
 import { clinicRouter } from "./routes/clinic.routes";
+import { crmRouter } from "./routes/crm.routes";
 import { expedienteRouter } from "./routes/expediente.routes";
 import { facturacionCrRouter } from "./routes/facturacionCr.routes";
 import { inventarioRouter } from "./routes/inventario.routes";
@@ -162,6 +163,12 @@ app.use("/api/clinic", clinicRouter);
 // recibe 403 con code MODULO_NO_HABILITADO en cualquiera de sus rutas.
 app.use("/api/facturacion", facturacionCrRouter);
 app.use("/api/expediente", expedienteRouter);
+// Base del CRM (prompt 03): la linea de tiempo de interacciones, los
+// consentimientos y el punto unico antes de enviar. NO esta gateado por
+// `tenant_modulos`: la linea de tiempo y el permiso para escribirle a un
+// cliente los necesita cualquier clinica, incluso una que solo usa
+// Vetline Ai — `emitirNotificacion` los consulta en todas.
+app.use("/api/crm", crmRouter);
 app.use("/api/inventario", inventarioRouter);
 app.use("/api/ventas", ventasRouter);
 // Busqueda global de la paleta de comandos (Ctrl/Cmd+K).

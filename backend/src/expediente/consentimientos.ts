@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "../crm/interacciones";
 
 // ---------------------------------------------------------------------
 // CONSENTIMIENTOS DIGITALES — sección 8 del prompt 07.
@@ -205,6 +206,17 @@ export async function firmarConsentimiento(
       datos.testigoId ?? null,
     ]
   );
+
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "consentimiento_firmado",
+    pacienteId: datos.pacienteId,
+    origenTabla: "exp_consentimientos",
+    origenId: r.rows[0].id,
+    personaId: datos.testigoId ?? null,
+    resumen: datos.titulo.slice(0, 120),
+  });
+
   return { id: r.rows[0].id };
 }
 

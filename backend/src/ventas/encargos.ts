@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "../crm/interacciones";
 import { crearOrden } from "../inventario/compras";
 import { registrarMovimiento } from "../inventario/movimientos";
 import { agregarCargo } from "./cuentas";
@@ -49,6 +50,7 @@ const SIGUIENTES: Record<EstadoEncargo, EstadoEncargo[]> = {
 };
 
 interface EncargoEnBase {
+  tenant_id: string;
   id: string;
   propietario_id: string;
   producto_id: string | null;
@@ -62,7 +64,7 @@ interface EncargoEnBase {
 
 async function leer(db: PoolClient, encargoId: string): Promise<EncargoEnBase> {
   const r = await db.query<EncargoEnBase>(
-    `SELECT id, propietario_id, producto_id, descripcion, cantidad, estado,
+    `SELECT id, tenant_id, propietario_id, producto_id, descripcion, cantidad, estado,
             orden_compra_id, lote_reservado_id, cantidad_reservada
        FROM vta_encargos WHERE id = $1`,
     [encargoId]
@@ -119,6 +121,16 @@ export async function crearEncargo(
     ]
   );
   const id = r.rows[0].id;
+
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "encargo_creado",
+    propietarioId: datos.propietarioId,
+    origenTabla: "vta_encargos",
+    origenId: id,
+    personaId: datos.personaId ?? null,
+    resumen: datos.descripcion.trim().slice(0, 120),
+  });
 
   if (datos.anticipo && datos.anticipo > 0) {
     if (!datos.sesionId) {
@@ -252,6 +264,14 @@ export async function marcarRecibido(
       WHERE id = $1`,
     [encargoId, loteId]
   );
+  await registrarInteraccion(db, {
+    tenantId: e.tenant_id,
+    tipo: "encargo_recibido",
+    propietarioId: e.propietario_id,
+    origenTabla: "vta_encargos",
+    origenId: encargoId,
+    resumen: e.descripcion?.slice(0, 120) ?? null,
+  });
   return { loteId, reservado: Number(e.cantidad) };
 }
 
@@ -357,6 +377,15 @@ export async function entregar(
       WHERE id = $1`,
     [encargoId]
   );
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "encargo_entregado",
+    propietarioId: e.propietario_id,
+    origenTabla: "vta_encargos",
+    origenId: encargoId,
+    personaId: datos.personaId ?? null,
+    resumen: e.descripcion?.slice(0, 120) ?? null,
+  });
 
   return { cargoId: cargo.id, anticipoDisponible: disponible, movimientoId };
 }

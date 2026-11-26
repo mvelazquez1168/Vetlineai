@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { registrarInteraccion } from "../crm/interacciones";
 import { PoolClient } from "pg";
 import * as path from "path";
 import { adaptarInformeParaTutor } from "../adaptarInformeTutor";
@@ -168,6 +169,20 @@ casosRouter.post("/", async (req, res) => {
       [req.auth!.tenantId, pacienteId, agenteId, req.auth!.userId, medicoAgenteId, motivoConsulta.trim(), numeroExpediente]
     );
     const caso = casoResult.rows[0];
+
+    // CRM (prompt 03): el caso de Vetline Ai en la linea de tiempo del
+    // paciente. El DETALLE es clinico y solo lo ve quien puede; el
+    // evento lo ve todo el personal.
+    await registrarInteraccion(req.db!, {
+      tenantId: req.auth!.tenantId!,
+      tipo: "caso_abierto",
+      pacienteId: caso.paciente_id,
+      ocurridoEn: caso.creado_en,
+      origenTabla: "casos",
+      origenId: caso.id,
+      personaId: req.auth!.userId,
+      resumen: caso.motivo?.slice(0, 120) ?? null,
+    });
 
     const pacienteResult = await req.db!.query(
       `SELECT p.nombre, p.especie, r.nombre AS raza

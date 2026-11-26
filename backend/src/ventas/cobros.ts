@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "../crm/interacciones";
 import { conAlcanceTenant } from "../alcanceTenant";
 import { emitir } from "../facturacion/emision";
 import { DocumentoVenta } from "../facturacion/tipos";
@@ -363,6 +364,46 @@ export async function cobrar(
       `UPDATE vta_cuentas SET estado = 'cobrada', cerrada_en = now() WHERE id = $1`,
       [s.cuentaId]
     );
+  }
+
+  // CRM (prompt 03): el cobro y su comprobante, en la misma
+  // transaccion. El cliente del evento es el DEUDOR cuando la venta fue
+  // a credito a un perfil de facturacion, y el dueno de la cuenta en
+  // cualquier otro caso: la linea de tiempo es de quien tiene la
+  // relacion con la clinica.
+  const clienteDelEvento =
+    deudor?.tipo === "cliente" ? deudor.id : cuenta.rows[0].propietario_id;
+  if (clienteDelEvento) {
+    await registrarInteraccion(db, {
+      tenantId,
+      tipo: "cobro",
+      propietarioId: clienteDelEvento,
+      origenTabla: "vta_cobros",
+      origenId: cobroId,
+      personaId: s.personaId ?? null,
+      resumen: `${aplicado.toFixed(2)} en ${convertidos.length} medio(s)`,
+    });
+    if (comprobanteId) {
+      await registrarInteraccion(db, {
+        tenantId,
+        tipo: "comprobante_emitido",
+        propietarioId: clienteDelEvento,
+        origenTabla: "fact_comprobantes",
+        origenId: comprobanteId,
+        personaId: s.personaId ?? null,
+        resumen: consecutivo ?? null,
+      });
+      if (estadoComprobante === "aceptado" || estadoComprobante === "rechazado") {
+        await registrarInteraccion(db, {
+          tenantId,
+          tipo: estadoComprobante === "aceptado" ? "comprobante_aceptado" : "comprobante_rechazado",
+          propietarioId: clienteDelEvento,
+          origenTabla: "fact_comprobantes",
+          origenId: comprobanteId,
+          resumen: consecutivo ?? null,
+        });
+      }
+    }
   }
 
   return { cobroId, total: aplicado, recibidoCrc, vueltoCrc, comprobanteId, consecutivo, estadoComprobante };

@@ -303,98 +303,136 @@ export interface EventoHistoria {
 }
 
 /**
- * LA LÍNEA DE TIEMPO: todo lo que le pasó al paciente, de lo más nuevo
- * a lo más viejo.
+ * LA LÍNEA DE TIEMPO DEL PACIENTE — ahora LEE DE LA TABLA DEL CRM.
  *
- * Un `UNION ALL` de las tablas que ya tienen la historia. El filtro por
- * tipo se aplica DESPUÉS del union y no dentro de cada rama: así hay un
- * solo lugar donde se decide qué entra, y agregar una fuente nueva no
- * obliga a tocar el filtro.
+ * Hasta el prompt 03 esto era un `UNION ALL` sobre las tablas de origen.
+ * Funcionaba, pero dejaba DOS historias del mismo paciente: esta y la
+ * del CRM. Dos historias que pueden divergir son peores que una
+ * incompleta, porque nadie sabe cuál mirar.
+ *
+ * Ahora hay una sola tabla de eventos —`crm_interacciones`— y esta
+ * función la filtra por la mascota. El DETALLE no está en el evento (el
+ * evento nunca copia el contenido del origen): se resuelve leyendo el
+ * registro referenciado, que es exactamente lo que el prompt 03 pide.
+ * De ahí los `LEFT JOIN` por tabla de origen.
+ *
+ * Los nombres de tipo que la pantalla del expediente ya usaba —`visita`,
+ * `vacuna`, `documento`…— se mantienen: el CRM los llama de otra forma
+ * porque habla de la relación con el cliente, no del expediente. La
+ * traducción vive acá, en un solo lugar.
  */
+const TIPO_CRM_A_EXPEDIENTE: Record<string, string> = {
+  atencion_cerrada: "visita",
+  vacuna_aplicada: "vacuna",
+  desparasitacion: "desparasitacion",
+  receta_emitida: "receta",
+  estudio_laboratorio: "laboratorio",
+  grooming: "grooming",
+  documento_adjunto: "documento",
+  consentimiento_firmado: "consentimiento",
+  caso_abierto: "caso",
+};
+
+const TIPO_EXPEDIENTE_A_CRM: Record<string, string[]> = {
+  visita: ["atencion_cerrada"],
+  vacuna: ["vacuna_aplicada"],
+  desparasitacion: ["desparasitacion"],
+  receta: ["receta_emitida"],
+  laboratorio: ["estudio_laboratorio"],
+  grooming: ["grooming"],
+  documento: ["documento_adjunto"],
+  consentimiento: ["consentimiento_firmado"],
+  caso: ["caso_abierto"],
+};
+
 export async function lineaDeTiempo(
   db: PoolClient,
   pacienteId: string,
   filtros: { tipo?: string; desde?: string; hasta?: string; medicoId?: string; limite?: number } = {}
 ): Promise<EventoHistoria[]> {
   const limite = Math.min(Math.max(filtros.limite ?? 200, 1), 1000);
-  const r = await db.query<EventoHistoria>(
-    `WITH eventos AS (
-       SELECT 'visita' AS tipo, a.creado_en AS fecha,
-              COALESCE(c.motivo_consulta, 'Consulta') AS titulo,
-              a.nota_medica AS detalle, per.nombre AS medico, a.id AS referencia_id,
-              a.medico_id
-         FROM atenciones a
-         LEFT JOIN citas c ON c.id = a.cita_id
-         LEFT JOIN personas per ON per.id = a.medico_id
-        WHERE a.paciente_id = $1
-       UNION ALL
-       SELECT CASE WHEN cp.tipo = 'vacunacion' THEN 'vacuna' ELSE 'desparasitacion' END,
-              cp.fecha_aplicacion::timestamptz,
-              COALESCE(cp.vacuna, cp.producto_desparasitacion, cp.tipo),
-              CASE WHEN cp.lote IS NOT NULL THEN 'lote ' || cp.lote ELSE NULL END,
-              per.nombre, cp.id, cp.registrado_por
-         FROM cuidados_preventivos cp
-         LEFT JOIN personas per ON per.id = cp.registrado_por
-        WHERE cp.paciente_id = $1
-       UNION ALL
-       SELECT 'receta', COALESCE(rec.emitido_en, rec.creado_en),
-              'Prescripción',
-              (SELECT string_agg(COALESCE(m.nombre, 'ítem'), ', ')
-                 FROM receta_items i LEFT JOIN medicamentos m ON m.id = i.medicamento_id
-                WHERE i.receta_id = rec.id),
-              per.nombre, rec.id, rec.medico_id
-         FROM recetas rec
-         LEFT JOIN personas per ON per.id = rec.medico_id
-        WHERE rec.paciente_id = $1
-       UNION ALL
-       SELECT 'laboratorio', COALESCE(e.fecha_resultado, e.fecha_solicitud),
-              e.tipo_estudio,
-              CASE e.estado WHEN 'resultado_recibido' THEN 'resultado recibido'
-                            ELSE e.estado END,
-              per.nombre, e.id, e.solicitado_por
-         FROM exp_estudios_lab e
-         LEFT JOIN personas per ON per.id = e.solicitado_por
-        WHERE e.paciente_id = $1
-       UNION ALL
-       SELECT 'grooming', g.fecha, 'Grooming',
-              g.observaciones, per.nombre, g.id, g.groomer_id
-         FROM exp_grooming g
-         LEFT JOIN personas per ON per.id = g.groomer_id
-        WHERE g.paciente_id = $1
-       UNION ALL
-       SELECT 'documento', COALESCE(ar.fecha_documento::timestamptz, ar.creado_en),
-              COALESCE(ar.tipo_documento, 'Documento'),
-              COALESCE(ar.descripcion, ar.nombre_archivo), NULL, ar.id, NULL
-         FROM archivos ar
-        WHERE ar.paciente_id = $1
-       UNION ALL
-       SELECT 'consentimiento', co.firmado_en, co.titulo,
-              'firmado por ' || co.firmante_nombre, NULL, co.id, NULL
-         FROM exp_consentimientos co
-        WHERE co.paciente_id = $1
-       UNION ALL
-       SELECT 'caso', ca.creado_en, COALESCE(ca.motivo, 'Caso de Vetline Ai'),
-              ca.estado, per.nombre, ca.id, ca.medico_id
-         FROM casos ca
-         LEFT JOIN personas per ON per.id = ca.medico_id
-        WHERE ca.paciente_id = $1
-     )
-     SELECT tipo, fecha, titulo, detalle, medico, referencia_id FROM eventos
-      WHERE ($2::varchar IS NULL OR tipo = $2::varchar)
-        AND ($3::date IS NULL OR fecha >= $3::date)
-        AND ($4::date IS NULL OR fecha < $4::date + interval '1 day')
-        AND ($5::uuid IS NULL OR medico_id = $5::uuid)
-      ORDER BY fecha DESC
+  const tiposCrm = filtros.tipo ? TIPO_EXPEDIENTE_A_CRM[filtros.tipo] ?? [filtros.tipo] : null;
+
+  const r = await db.query<EventoHistoria & { tipo_crm: string }>(
+    `SELECT i.tipo AS tipo_crm,
+            i.ocurrido_en AS fecha,
+            -- EL TÍTULO: el del origen cuando el origen lo tiene mejor
+            -- que el resumen del evento, y la etiqueta del catálogo
+            -- cuando no.
+            COALESCE(
+              CASE i.tipo
+                WHEN 'atencion_cerrada' THEN COALESCE(ci.motivo_consulta, 'Consulta')
+                WHEN 'vacuna_aplicada' THEN COALESCE(cp.vacuna, 'Vacuna')
+                WHEN 'desparasitacion' THEN COALESCE(cp.producto_desparasitacion, 'Desparasitación')
+                WHEN 'receta_emitida' THEN 'Prescripción'
+                WHEN 'estudio_laboratorio' THEN COALESCE(el.tipo_estudio, 'Laboratorio')
+                WHEN 'grooming' THEN 'Grooming'
+                WHEN 'documento_adjunto' THEN COALESCE(ar.tipo_documento, 'Documento')
+                WHEN 'consentimiento_firmado' THEN COALESCE(cons.titulo, 'Consentimiento')
+                WHEN 'caso_abierto' THEN COALESCE(ca.motivo, 'Caso de Vetline Ai')
+              END,
+              i.resumen, te.etiqueta
+            ) AS titulo,
+            -- EL DETALLE: se lee del origen. El evento no lo copia, y
+            -- por eso una nota corregida se ve corregida también acá.
+            CASE i.tipo
+              WHEN 'atencion_cerrada' THEN at.nota_medica
+              WHEN 'vacuna_aplicada' THEN
+                CASE WHEN cp.lote IS NOT NULL THEN 'lote ' || cp.lote ELSE NULL END
+              WHEN 'desparasitacion' THEN cp.subtipo_desparasitacion
+              WHEN 'receta_emitida' THEN
+                (SELECT string_agg(COALESCE(m.nombre, 'ítem'), ', ')
+                   FROM receta_items ri LEFT JOIN medicamentos m ON m.id = ri.medicamento_id
+                  WHERE ri.receta_id = i.origen_id)
+              WHEN 'estudio_laboratorio' THEN
+                (SELECT count(*) || ' resultado(s), ' ||
+                        count(*) FILTER (WHERE lr.bandera IS NOT NULL AND lr.bandera <> 'normal')
+                        || ' fuera de rango'
+                   FROM exp_lab_resultados lr WHERE lr.estudio_id = i.origen_id)
+              WHEN 'grooming' THEN gr.observaciones
+              WHEN 'documento_adjunto' THEN COALESCE(ar.descripcion, ar.nombre_archivo)
+              WHEN 'consentimiento_firmado' THEN 'firmado por ' || cons.firmante_nombre
+              WHEN 'caso_abierto' THEN ca.diagnostico_final
+            END AS detalle,
+            per.nombre AS medico,
+            COALESCE(i.origen_id, i.id) AS referencia_id
+       FROM crm_interacciones i
+       JOIN crm_tipos_evento te ON te.codigo = i.tipo
+       LEFT JOIN personas per ON per.id = i.persona_id
+       LEFT JOIN atenciones at ON i.tipo = 'atencion_cerrada' AND at.id = i.origen_id
+       LEFT JOIN citas ci ON ci.id = at.cita_id
+       LEFT JOIN cuidados_preventivos cp
+              ON i.tipo IN ('vacuna_aplicada', 'desparasitacion') AND cp.id = i.origen_id
+       LEFT JOIN exp_estudios_lab el ON i.tipo = 'estudio_laboratorio' AND el.id = i.origen_id
+       LEFT JOIN exp_grooming gr ON i.tipo = 'grooming' AND gr.id = i.origen_id
+       LEFT JOIN archivos ar ON i.tipo = 'documento_adjunto' AND ar.id = i.origen_id
+       LEFT JOIN exp_consentimientos cons
+              ON i.tipo = 'consentimiento_firmado' AND cons.id = i.origen_id
+       LEFT JOIN casos ca ON i.tipo = 'caso_abierto' AND ca.id = i.origen_id
+      WHERE i.paciente_id = $1
+        AND i.tipo = ANY($2::varchar[])
+        AND ($3::date IS NULL OR i.ocurrido_en >= $3::date)
+        AND ($4::date IS NULL OR i.ocurrido_en < $4::date + interval '1 day')
+        AND ($5::uuid IS NULL OR i.persona_id = $5::uuid)
+      ORDER BY i.ocurrido_en DESC, i.creado_en DESC
       LIMIT ${limite}`,
     [
       pacienteId,
-      filtros.tipo ?? null,
+      tiposCrm ?? Object.keys(TIPO_CRM_A_EXPEDIENTE),
       filtros.desde ?? null,
       filtros.hasta ?? null,
       filtros.medicoId ?? null,
     ]
   );
-  return r.rows;
+
+  return r.rows.map((e) => ({
+    tipo: TIPO_CRM_A_EXPEDIENTE[e.tipo_crm] ?? e.tipo_crm,
+    fecha: e.fecha,
+    titulo: e.titulo,
+    detalle: e.detalle,
+    medico: e.medico,
+    referencia_id: e.referencia_id,
+  }));
 }
 
 /**

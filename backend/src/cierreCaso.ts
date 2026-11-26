@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "./crm/interacciones";
 
 // prompt_code_cierre_caso.md, Paso 2 — módulo único reusado por el endpoint
 // del médico (casosRouter, dueño del caso) y el del administrador de
@@ -132,6 +133,24 @@ export async function ejecutarCierreCaso(
     );
     pacienteMarcadoFallecido = (pacienteResult.rowCount ?? 0) > 0;
   }
+
+  // CRM (prompt 03): el cierre del caso en la linea de tiempo. El
+  // tenant sale del propio caso: esta funcion la llaman dos rutas con
+  // alcances distintos y pedirle el tenant a cada una seria una
+  // oportunidad de que una lo pase mal.
+  const delCaso = await db.query<{ tenant_id: string }>(
+    `SELECT tenant_id FROM casos WHERE id = $1`,
+    [casoId]
+  );
+  await registrarInteraccion(db, {
+    tenantId: delCaso.rows[0].tenant_id,
+    tipo: "caso_cerrado",
+    pacienteId,
+    origenTabla: "casos",
+    origenId: casoId,
+    personaId: cerradoPor,
+    resumen: String(input.diagnosticoFinal ?? "").slice(0, 120) || null,
+  });
 
   return { caso: casoResult.rows[0], pacienteMarcadoFallecido };
 }

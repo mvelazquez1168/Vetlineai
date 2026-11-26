@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "../crm/interacciones";
 
 // ---------------------------------------------------------------------
 // GROOMING — sección 6 del prompt 07.
@@ -94,6 +95,16 @@ export async function registrarGrooming(
     );
     hallazgos++;
   }
+
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "grooming",
+    pacienteId: datos.pacienteId,
+    origenTabla: "exp_grooming",
+    origenId: groomingId,
+    personaId: datos.groomerId ?? null,
+    resumen: hallazgos > 0 ? `${hallazgos} hallazgo(s) para el medico` : datos.tipoCorte ?? null,
+  });
 
   return { id: groomingId, hallazgos };
 }

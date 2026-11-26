@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "../crm/interacciones";
 import { emitir } from "../facturacion/emision";
 
 // ---------------------------------------------------------------------
@@ -268,6 +269,18 @@ export async function registrarAbono(
   );
   const abonoId = a.rows[0].id;
 
+  if (datos.deudor.tipo === "cliente") {
+    await registrarInteraccion(db, {
+      tenantId,
+      tipo: "abono",
+      propietarioId: datos.deudor.id,
+      origenTabla: "vta_abonos",
+      origenId: abonoId,
+      personaId: datos.personaId ?? null,
+      resumen: `${total.toFixed(2)} a ${datos.aplicaciones.length} factura(s)`,
+    });
+  }
+
   for (const ap of datos.aplicaciones) {
     await db.query(
       `INSERT INTO vta_abono_aplicaciones (tenant_id, abono_id, comprobante_id, monto)
@@ -405,6 +418,21 @@ export async function registrarAnticipo(
       datos.moneda ?? "CRC",
     ]
   );
+  // CRM: el anticipo es del cliente, no de un perfil de facturacion;
+  // si el deudor es un perfil no hay linea de tiempo donde ponerlo y
+  // `registrarInteraccion` devuelve null sin romper nada.
+  if (datos.deudor.tipo === "cliente") {
+    await registrarInteraccion(db, {
+      tenantId,
+      tipo: "anticipo",
+      propietarioId: datos.deudor.id,
+      origenTabla: "vta_anticipos",
+      origenId: r.rows[0].id,
+      personaId: datos.personaId ?? null,
+      resumen: datos.motivo.trim().slice(0, 120),
+    });
+  }
+
   return { id: r.rows[0].id };
 }
 

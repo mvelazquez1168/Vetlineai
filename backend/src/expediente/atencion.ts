@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "../crm/interacciones";
 import { TRANSICIONES_VALIDAS, crearCita } from "../routes/citas.routes";
 import { precioVigente } from "../inventario/precios";
 import { registrarMovimiento } from "../inventario/movimientos";
@@ -865,6 +866,40 @@ export async function cerrarAtencion(
       WHERE id = $3`,
     [cuentaId, controlCitaId, atencionId]
   );
+
+  // CRM (prompt 03): los eventos de la visita, en la MISMA transaccion
+  // que el cierre. El de la cita completada lo registra la agenda
+  // cuando el cambio de estado pasa por su ruta; acá se registra porque
+  // este cierre mueve la cita por su cuenta.
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "atencion_cerrada",
+    pacienteId: atencion.paciente_id,
+    origenTabla: "atenciones",
+    origenId: atencionId,
+    personaId: datos.personaId,
+    resumen: (atencion.evaluacion ?? atencion.nota_medica ?? "").slice(0, 120) || null,
+  });
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "cita_completada",
+    pacienteId: atencion.paciente_id,
+    origenTabla: "citas",
+    origenId: atencion.cita_id,
+    personaId: datos.personaId,
+  });
+  for (const item of items.rows) {
+    if (!item.preventivo_tipo) continue;
+    await registrarInteraccion(db, {
+      tenantId,
+      tipo: item.preventivo_tipo === "vacunacion" ? "vacuna_aplicada" : "desparasitacion",
+      pacienteId: atencion.paciente_id,
+      origenTabla: "exp_atencion_items",
+      origenId: item.id,
+      personaId: datos.personaId,
+      resumen: item.preventivo_nombre,
+    });
+  }
 
   return {
     cuentaId,

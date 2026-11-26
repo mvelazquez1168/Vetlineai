@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { registrarConsentimiento } from "../crm/consentimientos";
+import { registrarInteraccion } from "../crm/interacciones";
 import { direccionValida } from "../email";
 import { authenticate, withTenantClient } from "../middleware/auth";
 
@@ -227,7 +229,31 @@ propietariosRouter.post("/", async (req, res) => {
         numeroIdentificacion?.trim() || null,
       ]
     );
-    res.status(201).json({ propietario: result.rows[0] });
+    const nuevo = result.rows[0];
+
+    // CRM (prompt 03): el cliente nace en la linea de tiempo y con su
+    // consentimiento de SALUD por correo registrado. El de PROMOCIONES
+    // queda en no hasta que lo de: es opt-in.
+    await registrarInteraccion(req.db!, {
+      tenantId: req.auth!.tenantId!,
+      tipo: "cliente_registrado",
+      propietarioId: nuevo.id,
+      origenTabla: "propietarios",
+      origenId: nuevo.id,
+      personaId: req.auth!.userId,
+      resumen: nuevo.nombre,
+    });
+    await registrarConsentimiento(req.db!, req.auth!.tenantId!, {
+      propietarioId: nuevo.id,
+      canal: "correo",
+      finalidad: "salud",
+      otorgado: true,
+      fuente: "recepcion",
+      personaId: req.auth!.userId,
+      nota: "Registrado al crear el cliente: recordatorios de citas, vacunas y comprobantes.",
+    });
+
+    res.status(201).json({ propietario: nuevo });
   } catch (err: any) {
     if (err?.code === "23505" && err?.constraint === "propietarios_identificacion_unica") {
       return res.status(409).json({

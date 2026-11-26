@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { registrarInteraccion } from "../crm/interacciones";
 import { PoolClient } from "pg";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { avisoActivo, emitirNotificacion } from "../notificaciones";
@@ -149,6 +150,21 @@ export async function crearCita(db: PoolClient, tenantId: string, body: CrearCit
     ]
   );
   const cita = result.rows[0];
+
+  // CRM (prompt 03): el evento va en la MISMA transaccion que la cita.
+  // Si la cita se va atras, su evento tampoco queda.
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "cita_agendada",
+    pacienteId: cita.paciente_id,
+    ocurridoEn: cita.creado_en,
+    origenTabla: "citas",
+    origenId: cita.id,
+    personaId: body.medicoId,
+    resumen: `${String(cita.fecha).slice(0, 10)} ${String(cita.hora_inicio).slice(0, 5)}${
+      cita.motivo_consulta ? ` - ${cita.motivo_consulta}` : ""
+    }`,
+  });
 
   // prompt_code_notificaciones_pendientes.md, C1 — confirmación al
   // propietario en el momento de agendar, sea desde POST /citas o desde
@@ -370,6 +386,21 @@ citasRouter.put("/:id", async (req, res) => {
     const huboReprogramacion =
       fechaAnteriorISO !== body.fecha || String(anterior.hora_inicio).slice(0, 5) !== body.horaInicio;
     if (huboReprogramacion) {
+      // CRM: la reprogramacion es su propio evento. El origen sigue
+      // siendo la misma cita, y el indice de unicidad admite un evento
+      // por tipo: una cita reprogramada dos veces deja un solo evento de
+      // reprogramada. Es lo correcto para la linea de tiempo —el detalle
+      // de cada cambio esta en la cita— y lo dice el prompt: un mismo
+      // origen no genera dos eventos del mismo tipo.
+      await registrarInteraccion(req.db!, {
+        tenantId: req.auth!.tenantId!,
+        tipo: "cita_reprogramada",
+        pacienteId: cita.paciente_id,
+        origenTabla: "citas",
+        origenId: cita.id,
+        personaId: req.auth!.userId,
+        resumen: `De ${fechaAnteriorISO} ${String(anterior.hora_inicio).slice(0, 5)} a ${body.fecha} ${body.horaInicio}`,
+      });
       await notificarCitaCanceladaOReprogramada(
         req.db!,
         req.auth!.tenantId!,
@@ -429,6 +460,33 @@ citasRouter.patch("/:id/estado", async (req, res) => {
       [nuevoEstado, motivoCancelacion ?? null, casoId ?? null, req.params.id]
     );
     const cita = result.rows[0];
+
+    // CRM: cada estado de la cita es un evento propio de la linea de
+    // tiempo. `registrada` es la LLEGADA del paciente a la clinica, que
+    // el prompt pide como check-in: el nombre del estado es de la agenda
+    // y el del evento es del CRM, y no tienen por que coincidir.
+    const EVENTO_POR_ESTADO: Record<string, string> = {
+      confirmada: "cita_confirmada",
+      registrada: "llegada",
+      cancelada: "cita_cancelada",
+      no_show: "cita_no_presentada",
+      completada: "cita_completada",
+    };
+    const tipoEvento = EVENTO_POR_ESTADO[nuevoEstado];
+    if (tipoEvento) {
+      await registrarInteraccion(req.db!, {
+        tenantId: req.auth!.tenantId!,
+        tipo: tipoEvento as never,
+        pacienteId: cita.paciente_id,
+        origenTabla: "citas",
+        origenId: cita.id,
+        personaId: req.auth!.userId,
+        resumen:
+          nuevoEstado === "cancelada" && motivoCancelacion
+            ? motivoCancelacion.slice(0, 120)
+            : `${String(cita.fecha).slice(0, 10)} ${String(cita.hora_inicio).slice(0, 5)}`,
+      });
+    }
 
     // C2 — cancelación explícita (no reprogramación: acá no hay fecha
     // nueva que ofrecer).

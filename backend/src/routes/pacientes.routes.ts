@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { registrarInteraccion } from "../crm/interacciones";
 import { calcularEdadEfectiva, fechaNacimientoDesdeEdad } from "../edadPaciente";
 import { validarRazaParaEspecie } from "../especiePaciente";
 import { asignarNumeroExpedientePaciente } from "../expediente";
@@ -210,6 +211,16 @@ pacientesRouter.post("/", async (req, res) => {
         textoOpcional(body.alertaManejo),
       ]
     );
+
+    await registrarInteraccion(req.db!, {
+      tenantId: req.auth!.tenantId!,
+      tipo: "mascota_registrada",
+      pacienteId: result.rows[0].id,
+      origenTabla: "pacientes",
+      origenId: result.rows[0].id,
+      personaId: req.auth!.userId,
+      resumen: `${result.rows[0].nombre} (${result.rows[0].especie})`,
+    });
 
     res.status(201).json({ paciente: { ...result.rows[0], raza: raza.razaNombre } });
   } catch (err) {
@@ -538,6 +549,21 @@ pacientesRouter.post("/:id/cuidados-preventivos", async (req, res) => {
         );
       }
     }
+
+    // CRM: la vacuna o la desparasitacion cargada a mano desde la ficha
+    // tambien es un evento. La que entra por el cierre de una atencion
+    // la registra ese cierre.
+    await registrarInteraccion(req.db!, {
+      tenantId: req.auth!.tenantId!,
+      tipo: cuidadoPreventivo.tipo === "vacunacion" ? "vacuna_aplicada" : "desparasitacion",
+      pacienteId: req.params.id,
+      ocurridoEn: cuidadoPreventivo.fecha_aplicacion,
+      origenTabla: "cuidados_preventivos",
+      origenId: cuidadoPreventivo.id,
+      personaId: req.auth!.userId,
+      resumen:
+        cuidadoPreventivo.vacuna ?? cuidadoPreventivo.producto_desparasitacion ?? null,
+    });
 
     res.status(201).json({ cuidadoPreventivo });
   } catch (err) {

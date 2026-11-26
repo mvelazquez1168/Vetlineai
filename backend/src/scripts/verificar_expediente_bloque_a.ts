@@ -64,6 +64,7 @@ import {
   lineaDeTiempo,
 } from "../expediente/resumen";
 import { construirBloqueContextoCaso } from "../contextoCaso";
+import { reconstruirHistorial } from "../crm/reconstruccion";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
 
 const PREFIJO = "probe-expediente";
@@ -208,6 +209,14 @@ async function main() {
       [receta.rows[0].id, medicamento.rows[0].id]
     );
   }
+
+  // LA LÍNEA DE TIEMPO AHORA LEE DE `crm_interacciones` (prompt 03): una
+  // sola historia del paciente, no dos que pueden divergir. Este
+  // verificador siembra sus orígenes con INSERT directo —no por los
+  // puntos únicos que registran el evento—, así que primero hay que
+  // reconstruir, que es exactamente lo que hace una clínica con
+  // historia anterior al CRM.
+  await conAlcanceTenant(tenantId, (db) => reconstruirHistorial(db, tenantId));
 
   const tiempo = await conAlcanceTenant(tenantId, (db) => lineaDeTiempo(db, golden, {}));
   assert(

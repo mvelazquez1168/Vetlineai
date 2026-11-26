@@ -1,4 +1,6 @@
 import { Pool, PoolClient } from "pg";
+import { anotarCorreoDeNotificacion } from "./crm/mensajeria";
+import { puedeEnviar } from "./crm/consentimientos";
 import { DatosPlantilla, TipoCorreo, enviarCorreoTransaccional } from "./correos";
 
 // ---------------------------------------------------------------------
@@ -79,6 +81,30 @@ export async function emitirNotificacion<T extends TipoCorreo>(
   db: EjecutorSql,
   params: EmitirNotificacionParams<T>
 ): Promise<string> {
+  // EL PUNTO ÚNICO ANTES DE ENVIAR (prompt 03, sección 5).
+  //
+  // Solo para el cliente final: un aviso a un MÉDICO de la clínica no
+  // es un mensaje de marketing ni necesita su consentimiento — es parte
+  // de su trabajo, y la agenda del día siguiente tiene que llegarle a
+  // las 20:30 si así está configurada.
+  //
+  // El registro interno (la campanita, el historial) se escribe IGUAL
+  // cuando el envío queda bloqueado: la clínica tiene que poder ver que
+  // había algo para avisar y por qué no salió. Lo que no sale es el
+  // correo.
+  let bloqueo: string | null = null;
+  if (params.destinatarioTipo === "propietario") {
+    const veredicto = await puedeEnviar(db, {
+      tenantId: params.tenantId,
+      propietarioId: params.destinatarioId,
+      pacienteId: params.pacienteId ?? null,
+      canal: "correo",
+      finalidad: "salud",
+      tipo: params.tipo,
+    });
+    if (!veredicto.puede) bloqueo = veredicto.explicacion ?? veredicto.motivo ?? "sin motivo";
+  }
+
   const insertado = await db.query(
     `INSERT INTO notificaciones
        (tenant_id, tipo, destinatario_tipo, destinatario_id, caso_id, paciente_id, cita_id, cuidado_preventivo_id, asunto, contenido)
@@ -98,6 +124,23 @@ export async function emitirNotificacion<T extends TipoCorreo>(
     ]
   );
   const notificacionId = insertado.rows[0].id as string;
+
+  if (bloqueo) {
+    await db.query(`UPDATE notificaciones SET estado = 'fallida', error = $2 WHERE id = $1`, [
+      notificacionId,
+      `No se envió: ${bloqueo}`,
+    ]);
+    await anotarCorreoDeNotificacion(db as PoolClient, params.tenantId, {
+      propietarioId: params.destinatarioId,
+      pacienteId: params.pacienteId ?? null,
+      tipo: params.tipo,
+      estado: "bloqueado",
+      motivo: bloqueo,
+    });
+    console.log(`[notificaciones] ${params.tipo} no salió: ${bloqueo}`);
+    return notificacionId;
+  }
+
   await enviarNotificacionPorCorreo(
     db,
     params.tenantId,
@@ -107,6 +150,23 @@ export async function emitirNotificacion<T extends TipoCorreo>(
     params.tipo,
     params.datosCorreo
   );
+
+  // El correo, anotado en el registro del CRM: es sobre esa tabla que se
+  // cuentan el tope y la ventana de duplicados.
+  if (params.destinatarioTipo === "propietario") {
+    const envio = await db.query<{ estado: string; correo_enviado_id: string | null }>(
+      `SELECT estado, correo_enviado_id FROM notificaciones WHERE id = $1`,
+      [notificacionId]
+    );
+    await anotarCorreoDeNotificacion(db as PoolClient, params.tenantId, {
+      propietarioId: params.destinatarioId,
+      pacienteId: params.pacienteId ?? null,
+      tipo: params.tipo,
+      estado: envio.rows[0]?.estado === "fallida" ? "fallido" : "enviado",
+      correoEnviadoId: envio.rows[0]?.correo_enviado_id ?? null,
+    });
+  }
+
   return notificacionId;
 }
 

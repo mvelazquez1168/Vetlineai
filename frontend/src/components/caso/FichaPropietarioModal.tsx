@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { LineaDeTiempoCliente } from "../crm/LineaDeTiempoCliente";
+import { PanelConsentimientos } from "../crm/PanelConsentimientos";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
@@ -34,6 +36,7 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
   // registro — mismo flujo de dos pasos que la puerta del caso.
   const [pacienteParaAtencion, setPacienteParaAtencion] = useState<PacienteDePropietario | null>(null);
   const [registroAtencionCitaId, setRegistroAtencionCitaId] = useState<string | null>(null);
+  const [pestana, setPestana] = useState<"datos" | "linea" | "consentimientos">("datos");
 
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -101,11 +104,48 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
           </button>
         </div>
 
+        {/* LAS PESTAÑAS DEL CLIENTE (prompt 03, seccion 7). La ficha ya
+            era el lugar donde se mira un cliente; la linea de tiempo y
+            los consentimientos entran aca y no en una pantalla aparte,
+            porque son del mismo cliente y abrir dos lugares para ver a
+            la misma persona es lo que hace que uno de los dos quede
+            desactualizado. */}
+        {!cargando && propietario && (
+          <div className="flex gap-1 border-b border-black/5 px-6">
+            {([
+              ["datos", "Datos y mascotas"],
+              ["linea", "Linea de tiempo"],
+              ["consentimientos", "Consentimientos"],
+            ] as const).map(([clave, etiqueta]) => (
+              <button
+                key={clave}
+                type="button"
+                onClick={() => setPestana(clave)}
+                className={[
+                  "whitespace-nowrap px-3 py-2 text-sm",
+                  pestana === clave
+                    ? "border-b-2 border-primary font-semibold text-primary"
+                    : "text-text-muted hover:text-text-primary",
+                ].join(" ")}
+              >
+                {etiqueta}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {cargando && <p className="text-sm text-text-muted">Cargando…</p>}
           {error && <p className="text-sm text-error">{error}</p>}
 
-          {!cargando && propietario && (
+          {!cargando && propietario && pestana === "linea" && (
+            <LineaDeTiempoCliente propietarioId={propietarioId} />
+          )}
+          {!cargando && propietario && pestana === "consentimientos" && (
+            <PanelConsentimientos propietarioId={propietarioId} puedeEditar />
+          )}
+
+          {!cargando && propietario && pestana === "datos" && (
             <div className="flex flex-col gap-5">
               {propietario.numero_identificacion && (
                 <div className="rounded-lg bg-background px-4 py-3">

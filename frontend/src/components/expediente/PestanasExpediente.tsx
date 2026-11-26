@@ -15,6 +15,7 @@ import {
 } from "../ui";
 import { useAuth } from "../../hooks/useAuth";
 import { AtencionActual } from "./AtencionActual";
+import { DondeSeRegistra, ModalHistorico } from "./AccionesClinicas";
 import {
   EncabezadoExpediente,
   EstudioLab,
@@ -22,6 +23,7 @@ import {
   FichaRacial,
   GroomingRegistro,
   Tendencia,
+  atencionApi,
   expedienteApi,
 } from "../../lib/expedienteApi";
 
@@ -57,6 +59,23 @@ type Pestana =
   | "grooming"
   | "casos"
   | "consentimientos";
+
+/**
+ * Qué se registra desde dónde. Solo las pestañas que son historia pura
+ * de algo que nace en la atención: «Visitas» o «Casos» no llevan este
+ * aviso porque no hay una acción equivalente que ofrecer.
+ */
+const DONDE_SE_REGISTRA: Partial<
+  Record<string, { que: string; atajo: string; historico?: "vacunacion" | "desparasitacion" }>
+> = {
+  vacunas: { que: "una vacuna", atajo: "Vacuna (Alt+V)", historico: "vacunacion" },
+  desparasitaciones: {
+    que: "una desparasitación",
+    atajo: "Desparasitación (Alt+D)",
+    historico: "desparasitacion",
+  },
+  prescripciones: { que: "una receta", atajo: "Receta (Alt+R)" },
+};
 
 const PESTANAS: Array<{ clave: Pestana; etiqueta: string; tipoEvento?: string }> = [
   { clave: "resumen", etiqueta: "Resumen" },
@@ -123,6 +142,19 @@ export function PestanasExpediente({
     onPestana?.(clave);
   };
 
+  // Para el aviso de "dónde se registra": si ya hay una atención
+  // empezada, el botón dice «Ir a la atención abierta» y no «Abrir
+  // una», que seria mentir y ademas abriria una segunda.
+  const [hayAtencionAbierta, setHayAtencionAbierta] = useState(false);
+  const [historico, setHistorico] = useState<null | "vacunacion" | "desparasitacion">(null);
+
+  useEffect(() => {
+    atencionApi
+      .enCurso(pacienteId)
+      .then((r) => setHayAtencionAbierta(!!r.atencionId))
+      .catch(() => setHayAtencionAbierta(false));
+  }, [pacienteId, pestana]);
+
   return (
     <div className="mt-6">
       {/* Las pestañas scrollean en horizontal en pantallas angostas: el
@@ -171,16 +203,51 @@ export function PestanasExpediente({
         {PESTANAS.filter((p) => p.tipoEvento).map(
           (p) =>
             pestana === p.clave && (
-              <LineaDeTiempo
-                key={p.clave}
-                pacienteId={pacienteId}
-                tipoFijo={p.tipoEvento}
-                titulo={p.etiqueta}
-              />
+              <div key={p.clave}>
+                {/* DONDE SE REGISTRA (prompt 07c, seccion 4). Estas
+                    pestanas son historia y no lo decian: un medico que
+                    entraba a "Vacunas" a poner la vacuna de hoy se
+                    quedaba mirando una lista. */}
+                {DONDE_SE_REGISTRA[p.clave] && (
+                  <DondeSeRegistra
+                    que={DONDE_SE_REGISTRA[p.clave]!.que}
+                    atajo={DONDE_SE_REGISTRA[p.clave]!.atajo}
+                    esMedico={!!esMedico}
+                    hayAtencionAbierta={hayAtencionAbierta}
+                    onIrALaAtencion={() => setPestana("atencion")}
+                    accionExtra={
+                      esMedico && DONDE_SE_REGISTRA[p.clave]!.historico ? (
+                        <Button
+                          variant="secondary"
+                          onClick={() =>
+                            setHistorico(DONDE_SE_REGISTRA[p.clave]!.historico ?? null)
+                          }
+                        >
+                          Registrar histórico
+                        </Button>
+                      ) : undefined
+                    }
+                  />
+                )}
+                <LineaDeTiempo
+                  pacienteId={pacienteId}
+                  tipoFijo={p.tipoEvento}
+                  titulo={p.etiqueta}
+                />
+              </div>
             )
         )}
         {pestana === "laboratorio" && (
-          <Laboratorio pacienteId={pacienteId} esMedico={!!esMedico} onCambio={onCambio} />
+          <>
+            <DondeSeRegistra
+              que="un estudio"
+              atajo="Estudio (Alt+E)"
+              esMedico={!!esMedico}
+              hayAtencionAbierta={hayAtencionAbierta}
+              onIrALaAtencion={() => setPestana("atencion")}
+            />
+            <Laboratorio pacienteId={pacienteId} esMedico={!!esMedico} onCambio={onCambio} />
+          </>
         )}
         {pestana === "grooming" && (
           <Grooming pacienteId={pacienteId} esMedico={!!esMedico} onCambio={onCambio} />
@@ -189,6 +256,16 @@ export function PestanasExpediente({
           <Consentimientos pacienteId={pacienteId} onCambio={onCambio} />
         )}
       </div>
+
+      {historico && (
+        <ModalHistorico
+          abierto
+          tipo={historico}
+          pacienteId={pacienteId}
+          onCerrar={() => setHistorico(null)}
+          onRegistrado={onCambio}
+        />
+      )}
     </div>
   );
 }

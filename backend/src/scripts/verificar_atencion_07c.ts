@@ -44,7 +44,6 @@ import {
 import {
   agregarLinea,
   calcularDosis,
-  medicacionActiva,
   quitarLinea,
   recetasAnteriores,
   repetirReceta,
@@ -441,8 +440,17 @@ async function main() {
   );
   assert(pdf.nombreArchivo.startsWith("Receta_Toby_"), "con el nombre del paciente", pdf.nombreArchivo);
 
-  const activa = await conAlcanceTenant(tenantId, (db) => medicacionActiva(db, toby));
-  assert(activa.length === 1, "la medicación activa toma la línea mientras dure", activa);
+  // LA MEDICACION ACTIVA la calcula la cabecera del expediente, que ya
+  // existia: la receta del 07c la alimenta y no trae una segunda
+  // fuente. Se verifica sobre la cabecera real.
+  const { encabezadoDeExpediente } = await import("../expediente/resumen");
+  const cab = await conAlcanceTenant(tenantId, (db) => encabezadoDeExpediente(db, toby));
+  const activa = cab.medicacionActiva.filter((m) => (m as { activa?: boolean }).activa !== false);
+  assert(
+    activa.length === 1 && activa[0].medicamento === "Amoxicilina 500 mg — Tableta",
+    "la cabecera del expediente muestra la medicación activa con su nombre real",
+    activa
+  );
 
   // -------------------------------------------------------------------
   console.log("\n=== 11. Repetir una receta recalcula con el peso de hoy ===");

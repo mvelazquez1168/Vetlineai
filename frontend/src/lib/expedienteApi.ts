@@ -434,10 +434,6 @@ export const atencionApi = {
       }`
     ),
 
-  medicacionActiva: (pacienteId: string) =>
-    pedir<{ medicacion: Array<{ nombre: string; indicaciones: string | null; hasta: string }> }>(
-      `/expediente/pacientes/${pacienteId}/medicacion-activa`
-    ),
 
   enviarReceta: (atencionId: string) =>
     json<{ enviado: boolean; motivo: string | null; destinatario: string | null }>(

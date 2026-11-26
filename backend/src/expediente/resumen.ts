@@ -241,13 +241,22 @@ export async function encabezadoDeExpediente(
     duracion: string | null;
     emitido_en: string | null;
   }>(
-    `SELECT r.id AS receta_id, COALESCE(m.nombre, 'Medicamento') AS medicamento,
-            i.dosis, i.frecuencia, i.duracion, r.emitido_en::text AS emitido_en
+    // `nombre_impreso` y no el JOIN con `medicamentos` (migracion 117):
+    // una linea del 07c puede salir del inventario o ser texto libre, y
+    // con el COALESCE viejo todas esas decian "Medicamento".
+    //
+    // La duracion estructurada gana sobre el texto cuando esta: es la
+    // misma informacion, pero no hay que adivinarla.
+    `SELECT r.id AS receta_id, i.nombre_impreso AS medicamento,
+            i.dosis, i.frecuencia,
+            CASE WHEN i.duracion_cantidad IS NOT NULL
+                 THEN i.duracion_cantidad || ' ' || i.duracion_unidad
+                 ELSE i.duracion END AS duracion,
+            COALESCE(r.emitido_en, r.creado_en)::text AS emitido_en
        FROM recetas r
        JOIN receta_items i ON i.receta_id = r.id
-       LEFT JOIN medicamentos m ON m.id = i.medicamento_id
       WHERE r.paciente_id = $1 AND r.estado <> 'anulada'
-      ORDER BY r.emitido_en DESC NULLS LAST, i.orden`,
+      ORDER BY COALESCE(r.emitido_en, r.creado_en) DESC NULLS LAST, i.orden`,
     [pacienteId]
   );
 

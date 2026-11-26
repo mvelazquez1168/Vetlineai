@@ -64,7 +64,6 @@ import {
 import { enviarReceta, recetaDeAtencionEnPdf } from "../expediente/recetaPdf";
 import {
   agregarLinea,
-  medicacionActiva,
   quitarLinea,
   recetasAnteriores,
   repetirReceta,
@@ -793,14 +792,6 @@ expedienteRouter.get("/pacientes/:id/recetas", async (req, res) => {
     });
   } catch (err) {
     fallo(res, err, "GET /expediente/pacientes/:id/recetas");
-  }
-});
-
-expedienteRouter.get("/pacientes/:id/medicacion-activa", async (req, res) => {
-  try {
-    res.json({ medicacion: await medicacionActiva(req.db!, req.params.id) });
-  } catch (err) {
-    fallo(res, err, "GET /expediente/pacientes/:id/medicacion-activa");
   }
 });
 

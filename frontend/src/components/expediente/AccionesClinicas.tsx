@@ -852,3 +852,205 @@ export function ResumenDelCierre({ atencionId }: { atencionId: string }) {
     </div>
   );
 }
+
+// =====================================================================
+// LAS PESTAÑAS DE HISTORIA DICEN DÓNDE SE REGISTRA CADA COSA
+// — prompt 07c, sección 4.
+//
+// Las cuatro pestañas (Vacunas, Desparasitaciones, Prescripciones,
+// Laboratorio) son historia: muestran lo que ya pasó y no dejan
+// registrar nada. Eso está bien —el contenido clínico nace en la
+// atención— pero NO ESTABA DICHO, y un médico que entra a «Vacunas»
+// buscando dónde poner la vacuna de hoy se queda mirando una lista.
+//
+// Para quien no es médico se explica otra cosa: que el contenido
+// clínico lo registra un médico. No es lo mismo «esto se hace en otro
+// lado» que «esto no lo hace usted».
+// =====================================================================
+
+export function DondeSeRegistra({
+  que,
+  atajo,
+  esMedico,
+  hayAtencionAbierta,
+  onIrALaAtencion,
+  accionExtra,
+}: {
+  /** «una vacuna», «una receta»… */
+  que: string;
+  /** «Vacuna (Alt+V)». Vacío para las que no tienen acción propia. */
+  atajo?: string;
+  esMedico: boolean;
+  hayAtencionAbierta: boolean;
+  onIrALaAtencion: () => void;
+  accionExtra?: React.ReactNode;
+}) {
+  if (!esMedico) {
+    return (
+      <div className="mb-3 rounded-xl border border-black/10 bg-background p-3 text-sm">
+        <p className="font-medium text-text-primary">Esto es historia clínica.</p>
+        <p className="mt-0.5 text-text-muted">
+          La registra un médico durante la atención, y queda firmada con ella. Acá se consulta.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary-borde bg-primary-suave p-3 text-sm">
+      <p className="text-text-primary">
+        {atajo ? (
+          <>
+            Para registrar {que}, vaya a la atención: <strong>{atajo}</strong>.
+          </>
+        ) : (
+          <>Para registrar {que}, vaya a la atención del paciente.</>
+        )}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {accionExtra}
+        <Button variant="secondary" onClick={onIrALaAtencion}>
+          {hayAtencionAbierta ? "Ir a la atención abierta" : "Abrir una atención"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// =====================================================================
+// REGISTRAR UN PREVENTIVO HISTÓRICO
+//
+// Una vacuna puesta el año pasado en otra clínica es información
+// clínica real y no tenía dónde ponerse: `cuidados_preventivos` nacía
+// siempre de una atención.
+//
+// NO lleva cargo ni movimiento de inventario, y el formulario lo dice:
+// no se aplicó nada acá.
+// =====================================================================
+
+export function ModalHistorico({
+  abierto,
+  tipo,
+  pacienteId,
+  onCerrar,
+  onRegistrado,
+}: {
+  abierto: boolean;
+  tipo: "vacunacion" | "desparasitacion";
+  pacienteId: string;
+  onCerrar: () => void;
+  onRegistrado: () => void;
+}) {
+  const toast = useToast();
+  const [nombre, setNombre] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [proxima, setProxima] = useState("");
+  const [lote, setLote] = useState("");
+  const [lugar, setLugar] = useState("");
+  const [subtipo, setSubtipo] = useState<"interna" | "externa">("interna");
+  const [ocupado, setOcupado] = useState(false);
+
+  const esVacuna = tipo === "vacunacion";
+
+  const registrar = async () => {
+    setOcupado(true);
+    try {
+      const r = await atencionApi.preventivoHistorico(pacienteId, {
+        tipo,
+        nombre,
+        subtipo: esVacuna ? null : subtipo,
+        fechaAplicacion: fecha,
+        fechaProxima: proxima || null,
+        lote: lote || null,
+        lugar: lugar || null,
+      });
+      toast.exito(`Registrado. La próxima queda para el ${r.proxima}.`);
+      setNombre("");
+      setFecha("");
+      setProxima("");
+      setLote("");
+      setLugar("");
+      onRegistrado();
+      onCerrar();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  };
+
+  return (
+    <Modal
+      open={abierto}
+      onClose={onCerrar}
+      title={esVacuna ? "Registrar una vacuna histórica" : "Registrar una desparasitación histórica"}
+      description="Algo aplicado antes de usar el sistema, o en otro lugar. No genera cargo ni mueve el inventario: acá no se aplicó nada."
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onCerrar}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={() => void registrar()}
+            disabled={ocupado || !nombre.trim() || !fecha}
+          >
+            Registrar
+          </Button>
+        </div>
+      }
+    >
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Input
+          label={esVacuna ? "Vacuna" : "Producto"}
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          placeholder={esVacuna ? "Polivalente, Rabia…" : "Nombre del antiparasitario"}
+        />
+        {!esVacuna && (
+          <Select
+            label="Tipo"
+            value={subtipo}
+            onChange={(e) => setSubtipo(e.target.value as "interna" | "externa")}
+            options={[
+              { value: "interna", label: "Interna" },
+              { value: "externa", label: "Externa" },
+            ]}
+          />
+        )}
+        <div>
+          <label className="text-sm font-semibold text-text-primary">Fecha de aplicación</label>
+          <input
+            type="date"
+            className="mt-1.5 w-full rounded-lg border border-black/10 bg-surface px-3 py-2 text-sm"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-semibold text-text-primary">Próxima (opcional)</label>
+          <input
+            type="date"
+            className="mt-1.5 w-full rounded-lg border border-black/10 bg-surface px-3 py-2 text-sm"
+            value={proxima}
+            onChange={(e) => setProxima(e.target.value)}
+          />
+          <p className="mt-1 text-xs text-text-muted">
+            Sin fecha, se calcula con el protocolo <strong>desde la aplicación</strong>, no desde
+            hoy.
+          </p>
+        </div>
+        <Input
+          label="Lote (opcional)"
+          value={lote}
+          onChange={(e) => setLote(e.target.value)}
+        />
+        <Input
+          label="Dónde se aplicó"
+          value={lugar}
+          onChange={(e) => setLugar(e.target.value)}
+          placeholder="Otra clínica, campaña, el propietario…"
+        />
+      </div>
+    </Modal>
+  );
+}

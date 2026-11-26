@@ -1,4 +1,4 @@
-import { config } from "../config";
+import { diagnosticarEntorno } from "../entorno";
 
 // ---------------------------------------------------------------------
 // EL CORTAFUEGOS de los scripts que ESCRIBEN datos de demostración.
@@ -29,19 +29,9 @@ import { config } from "../config";
 // interpretar también detiene el script.
 // ---------------------------------------------------------------------
 
-/** Loopback, o una de las tres redes privadas de la RFC 1918. */
-function esAnfitrionLocal(anfitrion: string): boolean {
-  if (anfitrion === "localhost" || anfitrion === "::1") return true;
-  if (/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(anfitrion)) return true;
-  // Rango privado. Está contemplado porque el acceso por red local
-  // (FRONTEND_URL con la IP de la máquina en la LAN) quedó documentado
-  // como alternativa no activa, y volver a activarlo no debería
-  // inhabilitar los scripts de demostración.
-  if (/^10\./.test(anfitrion)) return true;
-  if (/^192\.168\./.test(anfitrion)) return true;
-  if (/^172\.(1[6-9]|2\d|3[01])\./.test(anfitrion)) return true;
-  return false;
-}
+// El criterio de «¿es local?» vive en `entorno.ts`: lo comparten esta
+// guarda y la puerta de los envíos reales. Dos criterios que puedan
+// divergir serían el defecto que esto evita.
 
 /**
  * Detiene el proceso si el ambiente no es demostrablemente local.
@@ -51,26 +41,8 @@ function esAnfitrionLocal(anfitrion: string): boolean {
  * arranca.
  */
 export function exigirEntornoDeDesarrollo(nombreScript: string): void {
-  const motivos: string[] = [];
-
-  if (process.env.NODE_ENV === "production") {
-    motivos.push('NODE_ENV=production');
-  }
-
-  const crudo = config.frontendUrl;
-  let anfitrion: string | null = null;
-  try {
-    anfitrion = new URL(crudo).hostname;
-  } catch {
-    motivos.push(`FRONTEND_URL no es una URL interpretable: "${crudo}"`);
-  }
-  if (anfitrion && !esAnfitrionLocal(anfitrion)) {
-    motivos.push(
-      `FRONTEND_URL apunta a "${anfitrion}", que no es loopback ni una red privada`
-    );
-  }
-
-  if (motivos.length === 0) return;
+  const { local, motivos } = diagnosticarEntorno();
+  if (local) return;
 
   console.error(
     [

@@ -7,6 +7,7 @@ import {
   registrarConsentimiento,
 } from "./consentimientos";
 import { registrarInteraccion } from "./interacciones";
+import { enviosRealesHabilitados, explicacionDeSimulacion } from "../entorno";
 
 // ---------------------------------------------------------------------
 // EL CANAL DE MENSAJERÍA — prompt 03, sección 6.
@@ -69,8 +70,23 @@ export class MensajeriaSimulada implements ProveedorMensajeria {
 
 let proveedor: ProveedorMensajeria = new MensajeriaSimulada();
 
-/** Para el prompt que conecte Converza: se reemplaza acá y nada más cambia. */
+/**
+ * Para el prompt que conecte Converza: se reemplaza acá y nada más
+ * cambia.
+ *
+ * EN UN AMBIENTE LOCAL ESTO SE RECHAZA salvo que el proveedor sea
+ * simulado o que alguien haya pedido envíos reales con
+ * `ENVIOS_REALES=1`. Un WhatsApp es peor que un correo: llega al
+ * teléfono de una persona y no hay bandeja de spam que lo amortigüe. La
+ * puerta es la misma que la del correo, en `entorno.ts`.
+ */
 export function usarProveedorMensajeria(p: ProveedorMensajeria): void {
+  if (p.nombre !== "simulado" && !enviosRealesHabilitados()) {
+    throw new Error(
+      `No se puede activar el proveedor de mensajería "${p.nombre}" en este ambiente. ` +
+        explicacionDeSimulacion()
+    );
+  }
   proveedor = p;
 }
 export function proveedorMensajeria(): ProveedorMensajeria {

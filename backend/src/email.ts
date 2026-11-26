@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { config } from "./config";
+import { enviosRealesHabilitados, explicacionDeSimulacion } from "./entorno";
 
 // Instancia única y perezosa — mismo patrón que anthropic.ts/stripe.ts. Si
 // RESEND_API_KEY todavía no está configurada, `resendClient` queda null y
@@ -11,7 +12,52 @@ if (config.resendApiKey) {
 }
 
 export function resendConfigurado(): boolean {
+  // En un ambiente local SIN `ENVIOS_REALES=1` el proveedor simulado
+  // está siempre "configurado": el camino de envío tiene que funcionar
+  // de punta a punta —con su fila en `correos_enviados` y su estado— sin
+  // que nada salga de la máquina. Devolver `false` acá dejaría las
+  // notificaciones en 'simulada' y no se podría verificar el flujo.
+  if (!enviosRealesHabilitados()) return true;
   return resendClient !== null;
+}
+
+/**
+ * Qué proveedor va a usar el próximo envío. Es la función que el
+ * verificador mira: si alguien rompe la puerta, acá se ve.
+ */
+export function proveedorDeCorreo(): "resend" | "simulado" | "no_configurado" {
+  if (!enviosRealesHabilitados()) return "simulado";
+  return resendClient ? "resend" : "no_configurado";
+}
+
+let simulados = 0;
+
+/**
+ * EL PROVEEDOR SIMULADO DE CORREO.
+ *
+ * No manda nada: registra en el log qué se habría mandado y devuelve un
+ * identificador reconocible (`sim-mail-…`). Es lo que hace que un
+ * `proveedor_message_id` en `correos_enviados` diga sin ambigüedad si el
+ * correo salió de verdad.
+ *
+ * Nació de un incidente real: el job diario de notificaciones mandó dos
+ * avisos a un cliente de demostración por Resend REAL desde el entorno
+ * de desarrollo. El dominio era `.invalid` y no llegó a ninguna persona,
+ * pero la salida existió.
+ */
+function enviarSimulado(
+  destino: string,
+  asunto: string,
+  adjuntos: number
+): { id: string } {
+  simulados += 1;
+  const id = `sim-mail-${simulados}`;
+  console.log(
+    `[correo:SIMULADO] ${id} -> ${destino} | "${asunto.slice(0, 60)}"` +
+      (adjuntos > 0 ? ` | ${adjuntos} adjunto(s)` : "") +
+      ` | ${explicacionDeSimulacion()}`
+  );
+  return { id };
 }
 
 // El dominio del remitente NO se toca — es el que está verificado en
@@ -125,7 +171,13 @@ export async function enviarEmail(
     adjuntos?: AdjuntoEmail[];
   }
 ): Promise<{ id: string | null }> {
-  if (!resendClient) {
+  // LA PUERTA, antes de cualquier otra cosa: en un ambiente local sin
+  // `ENVIOS_REALES=1`, no se toca Resend. Las validaciones de
+  // destinatario y adjuntos se siguen aplicando igual —si están mal, el
+  // envío simulado también falla, que es lo que hace útil la prueba—.
+  const simular = !enviosRealesHabilitados();
+
+  if (!simular && !resendClient) {
     throw new ResendNoConfiguradoError();
   }
   // El destinatario se RECHAZA en vez de limpiarse: una dirección que no
@@ -156,7 +208,11 @@ export async function enviarEmail(
       throw new Error(`El nombre del adjunto no es utilizable: "${a.nombreArchivo.slice(0, 40)}".`);
     }
   }
-  const { data, error } = await resendClient.emails.send({
+  if (simular) {
+    return enviarSimulado(destino, asunto, adjuntos.length);
+  }
+
+  const { data, error } = await resendClient!.emails.send({
     from: componerRemitente(opciones?.nombreRemitente),
     to: destino,
     subject: asuntoParaCabecera(asunto),

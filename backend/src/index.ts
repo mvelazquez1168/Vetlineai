@@ -59,7 +59,10 @@ import { salasRouter } from "./routes/salas.routes";
 import { webhooksRouter } from "./routes/webhooks.routes";
 import { workspaceRouter } from "./routes/workspace.routes";
 
-const app = express();
+// `export`: el verificador de rutas duplicadas necesita el arbol de
+// routers ARMADO, no el codigo fuente. Importar este modulo levanta el
+// servidor, asi que ese verificador cierra el proceso cuando termina.
+export const app = express();
 
 // `exposedHeaders` con Content-Disposition: sin eso el navegador NO le
 // deja leer esa cabecera al JavaScript que pide la descarga, y todo

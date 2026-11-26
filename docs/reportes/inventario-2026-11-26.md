@@ -202,3 +202,53 @@ con datos sembrados por `sembrar_demo_inventario.ts` — todo por el punto únic
 Para volver a sembrar hay que vaciar primero las tablas del módulo para esa clínica: los
 movimientos **no se borran** (es la regla), así que una segunda corrida duplicaría el kardex. El
 script lo detecta y no hace nada.
+
+---
+
+## Addendum — 2026-11-26, listas de precio
+
+Lo que la sección 7 daba por no hecho en «Listas de precio: el modelo está, la pantalla no» **ya
+está**, y el hueco era más grande de lo que ese párrafo decía: no faltaba una pantalla, faltaba un
+**lector**. `inv_listas_precio` e `inv_lista_precio_items` existían desde la 095 y el código no las
+consultaba en ningún lado — el cargo y la venta de mostrador tomaban siempre
+`inv_presentaciones.precio_venta`. Una clínica podía configurar su tarifa nocturna completa y
+seguir cobrando el precio base sin que nada avisara.
+
+**`backend/src/inventario/precios.ts`** es ahora el punto único que decide qué precio corresponde, y
+`agregarCargo` lo usa. Las reglas, con su motivo:
+
+- **La lista reemplaza el base, no lo ajusta.** Un ítem de lista es un precio final. Guardar un
+  porcentaje haría que el precio recalculara sobre un base que cambia, y el precio que el cliente
+  vio ayer dejaría de ser reconstruible.
+- **Una lista vencida o inactiva no aplica**, ni elegida a mano en la pantalla de cobro: el precio
+  de una lista vencida no es un precio, y cobrarlo sería cobrar mal.
+- **Un precio escrito a mano gana** sobre la lista, y entonces **no se le atribuye a ninguna**: lo
+  decidió una persona.
+- **La migración 097** guarda en `vta_cargos.lista_precio_id` cuál lista determinó el precio. El
+  precio ya quedaba congelado en el cargo, así que la factura era reconstruible sin esto; lo que no
+  era reconstruible es la pregunta que la clínica se hace al revisar el mes: *¿esto salió caro
+  porque era urgencia, o porque alguien lo digitó mal?* Sin la columna, las dos cosas se ven igual.
+- **`vta_parametros.lista_precio_id`** es la lista que la caja ofrece preseleccionada. Es un
+  parámetro de la clínica y no del cajero: si cada cajero eligiera en silencio, el mismo producto
+  saldría a dos precios el mismo día.
+
+**La actualización masiva por porcentaje comparte el cálculo con su vista previa.** Es el punto del
+pedido: si la previa se calculara aparte, el día que una de las dos cambie el redondeo o el filtro
+se autorizaría una cosa y se aplicaría otra, sin error visible. Además, cambiar cualquier parámetro
+**descarta la previa**, y el botón de aplicar no se habilita sin una previa en pantalla. Se puede
+actualizar el precio base del catálogo o una lista; actualizar una lista parte del precio que la
+lista ya tiene, y del base para los ítems que no cubre.
+
+**Verificado:** `verificar_listas_precio.ts`, **13 secciones, TODO OK** — incluida la prueba de que
+la vista previa **no escribe nada**, que lo aplicado es exactamente lo previsto, los cuatro
+redondeos, el rechazo del −100%, y que la lista de otra clínica no se ve ni cambia un precio usando
+su id a mano (RLS).
+
+**Pantalla:** `/inventario/precios`. Muestra **todo lo vendible**, no solo lo que la lista cubre: una
+tabla que solo lista sus propios ítems esconde justamente lo que se está por revisar, que es qué
+quedó afuera.
+
+**Lo que sigue sin estar:** el total estimado de la venta de mostrador (`/inventario/venta-mostrador`)
+sigue leyendo el precio base y no ofrece elegir lista. Esa pantalla solo mueve stock —no cobra ni
+factura, y lo dice—, así que su total es informativo; el cobro real, que es el que usa la lista,
+está en `/ventas/cobro`.

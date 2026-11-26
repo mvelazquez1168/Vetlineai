@@ -247,3 +247,103 @@ datos sembrados por `sembrar_demo_ventas.ts` — todo por el dominio, sin INSERT
 
 Para volver a sembrar hay que vaciar primero las tablas `vta_*` de esa clínica: un cierre de caja es
 inmutable y los cobros no se borran. El script lo detecta y no hace nada.
+
+---
+
+## Addendum — 2026-11-26: el conteo por denominación, el ciclo del encargo y dos agujeros de plata
+
+Cerrados dos de los pendientes de §5, y en el camino aparecieron **dos defectos reales de dinero**
+del propio módulo.
+
+### A. El arqueo por denominación, y el conteo manda
+
+`vta_arqueo_denominaciones` y `cerrarSesion` ya lo aceptaban, pero la pantalla no lo ofrecía, así
+que en la práctica no existía. Ahora la grilla de billetes y monedas de Costa Rica —y los billetes
+de dólar— está en el cierre de caja.
+
+**Cuando una moneda tiene cantidades escritas, el efectivo declarado de esa moneda sale de la suma
+del conteo y el campo manual queda de solo lectura.** Contar los billetes y además escribir el total
+serían dos fuentes del mismo número; el día que no coincidan ganaría el que escribió el campo, que
+es el menos confiable de los dos. El verificador declara ₡99 999 a mano con ₡25 000 contados y
+comprueba que valen los 25 000.
+
+### B. El encargo, de punta a punta
+
+Los seis estados eran un `UPDATE` en la ruta: movían el estado y nada más. Ahora hay un módulo de
+dominio (`backend/src/ventas/encargos.ts`) con lo que pasa alrededor de cada paso:
+
+| Paso | Lo que hace de verdad |
+|---|---|
+| Registrar | Toma el **anticipo** si el cliente deja algo, ligado a este encargo. Sin sesión de caja abierta, se rechaza: un anticipo entra a una caja |
+| Pedir al proveedor | Crea la **orden de compra del inventario** —con su consecutivo y su recepción— y la liga al encargo, así el pedido no se carga dos veces. Es opcional: quien pide por WhatsApp cambia el estado sin orden |
+| Recibido | **Reserva** el stock del lote que vence primero |
+| Avisado | Registra que se llamó. El aviso automático sigue esperando el canal del CRM |
+| Entregar | Descarga el **lote reservado** (no por FEFO), deja el cargo en una cuenta y libera la reserva |
+| Cancelar | Libera la reserva y **no se come el anticipo**: queda como saldo a favor, porque eso es lo que es |
+
+**La reserva la respeta `registrarMovimiento`**, que es el único lugar por donde sale stock. Vender
+lo reservado ahora falla nombrando al cliente que lo espera, y lo no reservado del mismo lote se
+sigue vendiendo. La consulta mira una tabla de ventas desde el módulo de inventario a propósito: la
+alternativa —que cada quien consulte la reserva antes de mover— es la regla escrita en varios
+lugares que la guía rectora prohíbe, y el día que alguien se olvide, el producto que se pidió para
+un cliente se le vende a otro sin que nada avise.
+
+### C. Dos defectos reales de dinero que esto destapó
+
+**1. El arqueo no contaba los anticipos ni los abonos.** Un cliente deja ₡6 000 de anticipo o abona
+₡10 000 de su cuenta corriente, el billete queda en la gaveta, y el cierre decía que **sobraban**.
+El cajero tenía que justificar una diferencia que el sistema se había causado solo, y si pasaba el
+umbral la caja no cerraba. Peor: con eso pasando todos los días, la gente aprende a justificar
+diferencias sin mirarlas, que es exactamente lo que el arqueo existe para evitar.
+
+Las dos tablas ya guardaban `sesion_id` desde la 096, así que el dinero estaba atribuido a la caja
+correcta; lo que faltaba era el **medio** por el que entró. De ahí la **migración 098**:
+`vta_anticipos.medio`/`moneda`, y una tabla `vta_abono_medios` porque un abono puede venir partido
+y sus medios vivían **solo dentro del XML del REP**, que no es un lugar del que el arqueo pueda
+sumar.
+
+**2. El medio «anticipo» saldaba una cuenta sin verificar que el cliente tuviera ese saldo a favor,
+y sin descontarlo.** Es decir: se podía cerrar una cuenta con plata imaginaria, emitir la factura, y
+el saldo a favor del cliente quedaba intacto para volver a usarlo. Ahora `cobrar` lo verifica antes
+y lo consume después de que el cobro existe (si la emisión falla, el anticipo del cliente sigue
+disponible).
+
+Como parte de lo mismo **se fue el endpoint `POST /ventas/clientes/:id/aplicar-anticipos`**:
+consumía el saldo a favor sin tocar ninguna cuenta, así que la plata desaparecía del saldo y la
+cuenta seguía debiendo el total. Un anticipo se aplica cobrando, que es donde queda el registro que
+baja el saldo. La primera versión de `entregar` tenía el mismo error y por eso lo encontré: ahora
+**entregar no cobra**, informa cuánto anticipo hay disponible para aplicar.
+
+### D. Verificación
+
+`verificar_ventas_caja.ts` pasó de 19 a **21 secciones, TODO OK** (11b denominaciones, 20 encargos).
+Las nuevas cubren: el conteo que manda sobre lo declarado a mano, el detalle guardado, la cantidad
+fraccionaria y el valor cero rechazados, el anticipo en el esperado del arqueo, la orden de compra
+ligada, la reserva que frena la venta ajena, la entrega desde el lote reservado, el cobro con medio
+anticipo que baja el saldo de verdad, el intento de pagar con más anticipo del que existe, y las
+transiciones de estado imposibles.
+
+Regresión completa en verde: inventario (movimientos y compras), listas de precio, facturación (91
+OK), purga (19 OK), auditoría RLS. `tsc` y `vite build` limpios.
+
+### E. Qué mirar en el navegador
+
+Datos sembrados por `sembrar_demo_precios_encargos.ts` —re-corrible, a diferencia de los dos de base
+que son de una sola corrida porque un cierre de caja es inmutable—:
+
+- **`/inventario/precios`**: tres listas (NOCTURNO cargada con la masiva a +25%, CONVENIO con dos
+  precios puestos a mano y vigencia 2026, y PROMO-ENE **vencida a propósito** para ver que no aplica).
+- **`/ventas/encargos`**: un encargo pendiente de pedir, y otro con anticipo de ₡5 000, su orden de
+  compra #3 y **20 unidades reservadas**. Intentar vender ese stock desde `/ventas/cobro` falla
+  nombrando al cliente.
+- **`/ventas`** → «Cerrar con arqueo»: la grilla de denominaciones.
+
+Las dos pantallas nuevas se revisaron en Chrome con el usuario de demostración: **cero errores de
+página**, y el contenido real en el DOM (las tres listas, «20 reservada(s)», «orden #3»).
+
+### F. Lo que sigue sin estar, de §5
+
+Exportación a Excel y PDF de los reportes (el componente `MenuExportar` la declara para el prompt de
+dashboards), factura denominada en dólares, y el canje de fidelización y el link de pago, que el
+prompt declara fuera de alcance. Del ciclo del encargo quedó afuera **el aviso automático al
+cliente**, que depende del canal del CRM.

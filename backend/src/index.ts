@@ -23,6 +23,7 @@ import { atencionesRouter } from "./routes/atenciones.routes";
 import { clinicRouter } from "./routes/clinic.routes";
 import { facturacionCrRouter } from "./routes/facturacionCr.routes";
 import { inventarioRouter } from "./routes/inventario.routes";
+import { ventasRouter } from "./routes/ventas.routes";
 import { busquedaRouter } from "./routes/busqueda.routes";
 import { farmacosRouter } from "./routes/farmacos.routes";
 import { horariosRouter } from "./routes/horarios.routes";
@@ -148,6 +149,7 @@ app.use("/api/clinic", clinicRouter);
 // recibe 403 con code MODULO_NO_HABILITADO en cualquiera de sus rutas.
 app.use("/api/facturacion", facturacionCrRouter);
 app.use("/api/inventario", inventarioRouter);
+app.use("/api/ventas", ventasRouter);
 // Busqueda global de la paleta de comandos (Ctrl/Cmd+K).
 app.use("/api/busqueda", busquedaRouter);
 app.use("/api/lista-espera", listaEsperaRouter);

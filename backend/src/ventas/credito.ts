@@ -1,0 +1,445 @@
+import { PoolClient } from "pg";
+import { emitir } from "../facturacion/emision";
+
+// ---------------------------------------------------------------------
+// CRÉDITO, ABONOS Y ANTICIPOS.
+//
+// LO FISCAL, con su fuente y su fecha de consulta (2026-11-26):
+//
+// **ABONO a una venta a crédito → Recibo Electrónico de Pago (REP).**
+// El Reglamento de Comprobantes Electrónicos lo define así (definición
+// 23): *"Es el comprobante electrónico autorizado por la Administración
+// Tributaria, que respalda el pago parcial por la venta de bienes y la
+// prestación de servicios a crédito con pago diferido conforme lo
+// dictan los artículos 3 inciso 8 y 27 de la Ley del Impuesto sobre el
+// Valor Agregado"*.
+//
+// Y el Anexo 4.4, en el campo `CondicionVenta`, es explícito sobre qué
+// códigos admite ese comprobante: *"Los códigos 09 y 11 de la nota 5,
+// sobre pagos de servicios prestados al Estado y Ventas a Crédito en
+// IVA a 90 días, se utilizarán únicamente en Recibos Electrónicos de
+// Pago. Estos serán los únicos códigos permitidos en dicho Comprobante
+// Electrónico."*
+//
+// De ahí sale el par que usa este módulo:
+//   * la FACTURA a crédito va con condición **10** ("Venta a crédito en
+//     IVA hasta 90 días, artículo 27 LIVA");
+//   * el ABONO va en un REP con condición **11** ("Pago de venta a
+//     crédito en IVA hasta 90 días").
+// Y el REP exige al menos una referencia a la factura que cancela.
+//
+// **ANTICIPOS: las fuentes oficiales NO dicen nada.** Se buscaron
+// "anticipo", "adelanto" y "pago anticipado" en los siete documentos
+// descargados (Anexos 4.4 y su actualización, Reglamento, resolución
+// DGT-R-000-2024, Generalidades, Código de moneda y Guía IdP): cero
+// menciones. El REP está acotado por su definición a pagos de ventas
+// **ya hechas** a crédito, así que no cubre un anticipo.
+//
+// Por eso se implementa **la opción conservadora**: el anticipo NO
+// emite comprobante al recibirse. Es un saldo a favor del cliente —un
+// movimiento de tesorería, no un hecho fiscal— y el comprobante sale
+// con la venta final, donde el anticipo entra como medio de pago. Así
+// no se factura dos veces ni se factura antes de que exista la
+// operación.
+//
+// **Queda marcado para el contador.** El artículo 3 de la LIVA habla de
+// "lo que ocurra primero" entre facturación y prestación, y eso podría
+// obligar a facturar al recibir el anticipo. Es una interpretación de
+// derecho tributario que no está en las fuentes que este repo tiene, y
+// no se resuelve adivinando. `vta_anticipos.comprobante_id` existe
+// justamente para el día que el contador diga que sí: sería cablear,
+// no rediseñar.
+// ---------------------------------------------------------------------
+
+/** Condición de venta de la FACTURA a crédito, dentro de los 90 días. */
+export const CONDICION_VENTA_CREDITO_90 = "10";
+/** Condición de venta del REP que paga esa factura. */
+export const CONDICION_VENTA_PAGO_CREDITO_90 = "11";
+/** Tipo de comprobante del REP. */
+export const TIPO_REP = "10";
+/** Nota 10: el REP referencia una factura electrónica. */
+export const TIPO_DOC_REFERENCIA_FACTURA = "01";
+/** Nota 9: "Pago a comprobante electrónico". */
+export const CODIGO_REFERENCIA_PAGO = "17";
+
+export interface EstadoCredito {
+  habilitado: boolean;
+  limite: number;
+  plazoDias: number;
+  usado: number;
+  disponible: number;
+}
+
+/**
+ * Cuánto crédito le queda a un cliente.
+ *
+ * `usado` es la suma de lo facturado a crédito **menos** lo abonado. No
+ * se guarda un saldo: se calcula, por el mismo motivo que el total de
+ * la cuenta. Un saldo guardado y un saldo calculado que difieren es
+ * exactamente el defecto que no rompe nada visible.
+ */
+export async function estadoDeCredito(
+  db: PoolClient,
+  propietarioId: string
+): Promise<EstadoCredito> {
+  const c = await db.query<{ habilitado: boolean; limite: string; plazo_dias: number }>(
+    `SELECT habilitado, limite, plazo_dias FROM vta_credito_cliente WHERE propietario_id = $1`,
+    [propietarioId]
+  );
+  const config = c.rows[0] ?? { habilitado: false, limite: "0", plazo_dias: 30 };
+
+  const facturado = await db.query<{ total: string }>(
+    `SELECT COALESCE(sum(f.total_comprobante), 0)::text AS total
+       FROM fact_comprobantes f
+      WHERE f.receptor_propietario_id = $1
+        AND f.tipo_comprobante = '01'
+        AND f.condicion_venta IN ('02', '10')
+        AND f.estado IN ('aceptado', 'aceptado_parcial', 'enviado', 'en_cola')`,
+    [propietarioId]
+  );
+  const abonado = await db.query<{ total: string }>(
+    `SELECT COALESCE(sum(monto), 0)::text AS total FROM vta_abonos WHERE propietario_id = $1`,
+    [propietarioId]
+  );
+
+  const usado =
+    Math.round((Number(facturado.rows[0].total) - Number(abonado.rows[0].total)) * 100) / 100;
+  const limite = Number(config.limite);
+
+  return {
+    habilitado: config.habilitado,
+    limite,
+    plazoDias: config.plazo_dias,
+    usado,
+    disponible: Math.round((limite - usado) * 100) / 100,
+  };
+}
+
+/**
+ * ¿Puede este cliente llevarse esta venta a crédito?
+ *
+ * Devuelve el motivo cuando no, para que la pantalla lo muestre en vez
+ * de un "no se puede" sin explicación.
+ */
+export async function puedeComprarACredito(
+  db: PoolClient,
+  propietarioId: string,
+  monto: number
+): Promise<{ puede: boolean; motivo?: string; estado: EstadoCredito }> {
+  const estado = await estadoDeCredito(db, propietarioId);
+  if (!estado.habilitado) {
+    return { puede: false, motivo: "Este cliente no tiene crédito habilitado.", estado };
+  }
+  if (monto > estado.disponible) {
+    return {
+      puede: false,
+      motivo:
+        `La venta es de ${monto} y al cliente le quedan ${estado.disponible} de un límite de ` +
+        `${estado.limite}. Hace falta que lo autorice un administrador.`,
+      estado,
+    };
+  }
+  return { puede: true, estado };
+}
+
+export interface AplicacionAbono {
+  comprobanteId: string;
+  monto: number;
+}
+
+export interface ResultadoAbono {
+  abonoId: string;
+  repId?: string;
+  repConsecutivo?: string;
+  repEstado?: string;
+  aplicado: number;
+}
+
+/**
+ * Registra un abono y emite el REP que lo respalda.
+ *
+ * Un abono puede repartirse entre VARIAS facturas, y cada una entra
+ * como una referencia del REP: es lo que permite decir después cuánto
+ * de esa factura quedó pagado.
+ */
+export async function registrarAbono(
+  db: PoolClient,
+  tenantId: string,
+  datos: {
+    propietarioId: string;
+    sesionId?: string;
+    aplicaciones: AplicacionAbono[];
+    /**
+     * Cómo se recibió el abono. El XSD del REP exige al menos un
+     * `MedioPago` (la validación contra el esquema oficial lo
+     * rechaza sin él), y además es el dato que el arqueo necesita:
+     * un abono en efectivo y uno por transferencia no se cuentan
+     * igual. Por defecto, efectivo.
+     */
+    medios?: Array<{ codigo: string; monto: number; referencia?: string }>;
+    personaId?: string;
+  }
+): Promise<ResultadoAbono> {
+  if (datos.aplicaciones.length === 0) {
+    throw new Error("Un abono tiene que decir a qué factura o facturas se aplica.");
+  }
+
+  const total = Math.round(datos.aplicaciones.reduce((a, x) => a + x.monto, 0) * 100) / 100;
+  if (!(total > 0)) throw new Error("El abono tiene que ser mayor que cero.");
+
+  // Las facturas que se pagan, con lo que ya tenían abonado.
+  const referencias: Array<{ clave: string; fecha: string }> = [];
+  for (const ap of datos.aplicaciones) {
+    const f = await db.query<{
+      clave: string | null;
+      fecha_emision: Date;
+      total_comprobante: string;
+      condicion_venta: string;
+      tipo_comprobante: string;
+      abonado: string;
+    }>(
+      `SELECT f.clave, f.fecha_emision, f.total_comprobante, f.condicion_venta, f.tipo_comprobante,
+              COALESCE((SELECT sum(aa.monto) FROM vta_abono_aplicaciones aa
+                         WHERE aa.comprobante_id = f.id), 0)::text AS abonado
+         FROM fact_comprobantes f WHERE f.id = $1`,
+      [ap.comprobanteId]
+    );
+    if (f.rows.length === 0) throw new Error(`No existe el comprobante ${ap.comprobanteId}.`);
+    const fila = f.rows[0];
+
+    if (!fila.clave) {
+      throw new Error("No se puede abonar a un comprobante que todavía es borrador.");
+    }
+    if (!["02", "10"].includes(fila.condicion_venta)) {
+      throw new Error(
+        `El comprobante ${fila.clave} no es una venta a crédito (condición ${fila.condicion_venta}): no hay nada que abonar.`
+      );
+    }
+    const pendiente =
+      Math.round((Number(fila.total_comprobante) - Number(fila.abonado)) * 100) / 100;
+    if (ap.monto > pendiente + 0.01) {
+      throw new Error(
+        `A la factura ${fila.clave} le quedan ${pendiente} por pagar y se le quieren aplicar ${ap.monto}.`
+      );
+    }
+    referencias.push({ clave: fila.clave, fecha: fila.fecha_emision.toISOString() });
+  }
+
+  const a = await db.query<{ id: string }>(
+    `INSERT INTO vta_abonos (tenant_id, propietario_id, sesion_id, monto, recibido_por)
+     VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+    [tenantId, datos.propietarioId, datos.sesionId ?? null, total, datos.personaId ?? null]
+  );
+  const abonoId = a.rows[0].id;
+
+  for (const ap of datos.aplicaciones) {
+    await db.query(
+      `INSERT INTO vta_abono_aplicaciones (tenant_id, abono_id, comprobante_id, monto)
+       VALUES ($1,$2,$3,$4)`,
+      [tenantId, abonoId, ap.comprobanteId, ap.monto]
+    );
+  }
+
+  // --- El REP ---------------------------------------------------------
+  const cliente = await db.query<{
+    nombre: string;
+    numero_identificacion: string | null;
+    codigo: string | null;
+    email: string | null;
+  }>(
+    `SELECT p.nombre, p.numero_identificacion, ti.codigo, p.email
+       FROM propietarios p
+       LEFT JOIN tipos_identificacion ti ON ti.id = p.tipo_identificacion_id
+      WHERE p.id = $1`,
+    [datos.propietarioId]
+  );
+  const c = cliente.rows[0];
+  if (!c?.numero_identificacion || !c.codigo) {
+    throw new Error(
+      "Para emitir el Recibo Electrónico de Pago hace falta la identificación del cliente: el REP la exige igual que una factura."
+    );
+  }
+
+  const medios =
+    datos.medios && datos.medios.length > 0
+      ? datos.medios
+      : [{ codigo: "01", monto: total }];
+  const sumaMedios = Math.round(medios.reduce((a, m) => a + m.monto, 0) * 100) / 100;
+  if (Math.abs(sumaMedios - total) > 0.01) {
+    throw new Error(
+      `Los medios del abono suman ${sumaMedios} y el abono es de ${total}. Con dos o más medios, Hacienda valida que coincidan.`
+    );
+  }
+
+  const emitido = await emitir(tenantId, {
+    tipoComprobante: TIPO_REP,
+    // El Anexo 4.4 admite SOLO 09 y 11 en el REP.
+    condicionVenta: CONDICION_VENTA_PAGO_CREDITO_90,
+    receptor: {
+      nombre: c.nombre,
+      identificacion: { tipo: c.codigo, numero: c.numero_identificacion },
+      correo: c.email ?? undefined,
+    },
+    receptorPropietarioId: datos.propietarioId,
+    lineas: [
+      {
+        cantidad: 1,
+        unidadMedida: "Sp",
+        detalle: `Abono a ${referencias.length} factura(s) a crédito`,
+        precioUnitario: total,
+        impuestos: [{ codigo: "01", codigoTarifaIva: "01" }],
+      },
+    ],
+    mediosPago:
+      medios.length === 1
+        ? [{ codigo: medios[0].codigo }]
+        : medios.map((m) => ({ codigo: m.codigo, monto: m.monto })),
+    referencias: referencias.map((r) => ({
+      tipoDocumento: TIPO_DOC_REFERENCIA_FACTURA,
+      numero: r.clave,
+      fechaEmision: r.fecha,
+      codigo: CODIGO_REFERENCIA_PAGO,
+      razon: "Pago parcial de venta a crédito",
+    })),
+    claveIdempotencia: `abono:${abonoId}`,
+  });
+
+  await db.query(`UPDATE vta_abonos SET rep_id = $2 WHERE id = $1`, [abonoId, emitido.comprobanteId]);
+
+  return {
+    abonoId,
+    repId: emitido.comprobanteId,
+    repConsecutivo: emitido.consecutivo,
+    repEstado: emitido.estado,
+    aplicado: total,
+  };
+}
+
+/**
+ * Registra un anticipo. **NO emite comprobante** — ver la nota larga
+ * del encabezado de este archivo.
+ */
+export async function registrarAnticipo(
+  db: PoolClient,
+  tenantId: string,
+  datos: {
+    propietarioId: string;
+    sesionId?: string;
+    motivo: string;
+    monto: number;
+    encargoId?: string;
+    personaId?: string;
+  }
+): Promise<{ id: string }> {
+  if (!(datos.monto > 0)) throw new Error("El anticipo tiene que ser mayor que cero.");
+  if (!datos.motivo?.trim()) {
+    throw new Error("Un anticipo lleva su motivo: para qué cirugía o qué encargo es.");
+  }
+  const r = await db.query<{ id: string }>(
+    `INSERT INTO vta_anticipos (tenant_id, propietario_id, sesion_id, motivo, monto,
+                                encargo_id, recibido_por)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+    [
+      tenantId, datos.propietarioId, datos.sesionId ?? null, datos.motivo.trim(), datos.monto,
+      datos.encargoId ?? null, datos.personaId ?? null,
+    ]
+  );
+  return { id: r.rows[0].id };
+}
+
+/** Cuánto saldo a favor le queda al cliente. */
+export async function saldoAFavor(db: PoolClient, propietarioId: string): Promise<number> {
+  const r = await db.query<{ total: string }>(
+    `SELECT COALESCE(sum(monto - aplicado), 0)::text AS total FROM vta_anticipos
+      WHERE propietario_id = $1 AND estado = 'disponible'`,
+    [propietarioId]
+  );
+  return Number(r.rows[0].total);
+}
+
+/**
+ * Aplica saldo a favor a una cuenta. Toma los anticipos más viejos
+ * primero —el cliente espera que se gaste lo que entregó antes— y
+ * devuelve cuánto se pudo aplicar.
+ */
+export async function aplicarAnticipos(
+  db: PoolClient,
+  propietarioId: string,
+  monto: number
+): Promise<number> {
+  const disponibles = await db.query<{ id: string; resta: string }>(
+    `SELECT id, (monto - aplicado)::text AS resta FROM vta_anticipos
+      WHERE propietario_id = $1 AND estado = 'disponible' AND monto > aplicado
+      ORDER BY creado_en
+      FOR UPDATE`,
+    [propietarioId]
+  );
+
+  let porAplicar = monto;
+  let aplicadoTotal = 0;
+  for (const a of disponibles.rows) {
+    if (porAplicar <= 0) break;
+    const toma = Math.min(Number(a.resta), porAplicar);
+    await db.query(
+      `UPDATE vta_anticipos
+          SET aplicado = aplicado + $2,
+              estado = CASE WHEN aplicado + $2 >= monto THEN 'aplicado' ELSE estado END
+        WHERE id = $1`,
+      [a.id, toma]
+    );
+    porAplicar -= toma;
+    aplicadoTotal += toma;
+  }
+  return Math.round(aplicadoTotal * 100) / 100;
+}
+
+/**
+ * La cuenta corriente del cliente: facturas pendientes con su
+ * antigüedad, abonos y saldo a favor.
+ */
+export async function cuentaCorriente(db: PoolClient, propietarioId: string) {
+  const facturas = await db.query(
+    `SELECT f.id, f.clave, f.consecutivo, f.fecha_emision, f.total_comprobante,
+            f.condicion_venta, f.plazo_credito_dias,
+            COALESCE((SELECT sum(aa.monto) FROM vta_abono_aplicaciones aa
+                       WHERE aa.comprobante_id = f.id), 0)::text AS abonado,
+            (f.fecha_emision + (COALESCE(f.plazo_credito_dias, 0) || ' days')::interval)::date
+              AS vence_el,
+            GREATEST(0, CURRENT_DATE
+              - (f.fecha_emision + (COALESCE(f.plazo_credito_dias, 0) || ' days')::interval)::date)
+              AS dias_vencida,
+            (CURRENT_DATE - f.fecha_emision::date) AS antiguedad_dias
+       FROM fact_comprobantes f
+      WHERE f.receptor_propietario_id = $1
+        AND f.tipo_comprobante = '01'
+        AND f.condicion_venta IN ('02','10')
+        AND f.estado IN ('aceptado','aceptado_parcial','enviado','en_cola')
+      ORDER BY f.fecha_emision`,
+    [propietarioId]
+  );
+
+  const abonos = await db.query(
+    `SELECT a.id, a.monto, a.creado_en, c.consecutivo AS rep_consecutivo, c.estado AS rep_estado
+       FROM vta_abonos a
+       LEFT JOIN fact_comprobantes c ON c.id = a.rep_id
+      WHERE a.propietario_id = $1 ORDER BY a.creado_en DESC`,
+    [propietarioId]
+  );
+
+  const anticipos = await db.query(
+    `SELECT id, motivo, monto, aplicado, estado, creado_en FROM vta_anticipos
+      WHERE propietario_id = $1 ORDER BY creado_en DESC`,
+    [propietarioId]
+  );
+
+  return {
+    facturas: facturas.rows.map((f) => ({
+      ...f,
+      pendiente: Math.round((Number(f.total_comprobante) - Number(f.abonado)) * 100) / 100,
+    })),
+    abonos: abonos.rows,
+    anticipos: anticipos.rows,
+    credito: await estadoDeCredito(db, propietarioId),
+    saldoAFavor: await saldoAFavor(db, propietarioId),
+  };
+}

@@ -1,0 +1,998 @@
+                                  Nº 44739-H
+
+                            EL PRESIDENTE DE LA REPÚBLICA
+                               Y EL MINISTRO DE HACIENDA
+
+Con fundamento en las atribuciones y facultades que les confieren los artículos 140 incisos
+3) y 18) y 146 de la Constitución Política del 7 de noviembre de 1949; 25 inciso 1), 27 inciso
+1) y 28 apartado 2 inciso b) de la Ley General de la Administración Pública, Nº 6227 del 2
+de mayo de 1978; artículo 99 del Código de Normas y Procedimientos Tributarios, Nº 4755
+del 03 de mayo de 1971; artículo 2 de la Ley para Mejorar la Lucha contra el Fraude Fiscal,
+Nº 9416 del 14 de diciembre de 2016.
+
+                                            Considerando:
+
+1.- Que conforme con la misión de la Administración Tributaria y en cumplimiento del
+mandato legal establecido en el artículo 99 del Código de Normas y Procedimientos
+Tributarios, que faculta a la Administración Tributaria para gestionar y fiscalizar los tributos
+y de conformidad con las modernas tendencias del Derecho Tributario y la Teoría de la
+Hacienda Pública, la Administración Tributaria ha de contar con instrumentos ágiles y
+efectivos para el cumplimiento de sus funciones, garantizando el respeto de los derechos
+constitucionales y legales de los obligados tributarios.
+
+II.- Que, confonne a lo dispuesto en el inciso a) del artículo 104 del Código de Normas y
+Procedimientos Tributarios, los obligados tributarios deben llevar los registros financieros,
+contables y de cualquier otra índole, así corno conservar de forma ordenada los respaldos de
+las operaciones o situaciones que constituyan hechos gravados, se permite a los obligados
+tributarios que la llevanza de los registros mencionados pueda ser electrónica, al tenor de los
+incisos a) sub inciso i) y b) del artículo 128 ibídem.
+
+111.- Que, el atr ículo 109 del Código de Normas y Procedimientos Tributarios faculta a la
+Administración Tributaria a establecer directrices, sobre la forma mediante la cual se debe
+consignar la información tir butaria; asimismo se dispone que se encuentra facultada para
+exigir que los sujetos pasivos o los responsables lleven los libros, los archivos o los registros
+de sus negociaciones, necesarios para la fiscalización y detenninación cotTecta de las
+obligaciones tributarias, así como los comprobantes, facturas, boletas u otros documentos,
+que faciliten la verificación, debiendo conservar los duplicados de estos documentos por un
+plazo de cinco aifos. Finalmente, la Administración Tributaria podrá exigir que los registros
+contables estén respaldados por los comprobantes correspondientes.
+
+IV.- Que, el párrafo final del artículo 2 ele la Ley para Mejorar la Lucha contra el Fraude
+Fiscal, dispone en lo conducente: '· ... Todos los obligados tributarios deberán contar con
+111edios electrónicos parn registrar sus trnnsacciones y emitir comprobantes de estas, de
+con(or111idad con los requisitos y el desaJ'J'ollo que se estable:ca regla111e11taria111enle. Esto
+111edios electrónicos incluren, entre otros. lafactum electrónica co1110 1111 i11stru111e1110 idóneo
+
+r necesario parn la emisión de co111proba111es de sus trnnsacciones de co111prn y ,·enta.
+
+registros contables.,· otros medios requeridos parn el control tributario ... ". Asimismo, se
+dispone que la Administración Tributaria podía excepcionar a los obligados tributarios del
+uso ele dichos comprobantes. siempre y cuando lo hiciera mediante reglamento.
+
+V.- Que. en línea con lo anterior, el artículo· 122 del Código ele Normas y Procedimientos
+Tributarios establece que cuando se utilicen medios electrónicos, se usarán elementos ele
+seguridad tales como la clave ele acceso, la firma digital, u otros que la Administración
+Tributaria autorice al sujeto pasivo y equivaldrán a su fii·ma autógrafa. Asimismo, autoriza a
+la Administración tributaria a incentivar el uso ele la ciencia y la tecnología.
+
+VI.- Que la Administración Tributaria en relación con el tema ele autorización ele
+comprobantes y su aceptación como respaldo de ingresos, costos y gastos, acepta y valida el
+uso ele los medios tecnológicos corno una herramienta facilitadora para los contribuyentes.
+Lo anterior, con fundamento en el artículo 3 incisos l y 3; artículos 7 y 20 ele la Ley del
+Impuesto sobre el Valor Agregado, Ley Nº 6826 del 8 ele noviembre de 1982, y a la
+obligación ele llevanza ele comprobantes electrónicos también se encuentra rgulaclas en los
+artículos 25, 29, 54 y 60 inciso 4) del Reglamento a la Ley del Impuesto sobre el Valor
+Agregado, Decreto Ejecutivo Nº 41779-H del 7 ele junio ele 2019; artículos 7, 8 inciso 3,
+inciso a del artículo 13 ele la Ley del Impuesto sobre la Renta, N º 7092 del 21 ele abril ele
+1988, en concordancia con los a1iículos 17, 18, 84 y 97 del Reglamento a la Ley del Impuesto
+sobre la Renta, Decreto Ejecutivo Nº 43198-H del 22 ele julio de 2021. En este sentido, la
+Administración Tributaria ha venido evolucionando hacia la utilización ele los medios
+electrónicos, debido a que estos integran los esfuerzos para maximizar la productividad de
+las empresas, fortalecen el control fiscal y favorecen la gestión de la administración pública.
+
+VII.- Que, desde la emisión del Decreto Ejecutivo Nº 41820-H del 19 ele junio de 2019,
+denominado, Reglamento ele Comprobantes Electrónicos para efectos Tributarios se han
+realizado cambios legales que implican una adecuación de las normas vigentes, las cuales se
+citan de seguido: Ley l O 1O144 del 11ele marzo ele 2022, que refonnó la Ley ele Impuesto
+sobre el Valor Agregado, implementando el pago diferido del !VA (hasta noventa días) en·
+ventas a crédito a favor de ciertos obligados tributarios; asimismo, el párrafo final del artículo
+2 ele la Ley Nº 9416, Ley para Mejorar la Lucha contra el Fraude Fiscal, que dispone que
+únicamente mediante reglamento se pueden fijar supuestos de excepción para la emisión de
+comprobantes electrónicos para efectos tributarios. De la mano con lo anterior. se requiere
+implementar y actualizar los sistemas informáticos para garantizar que la información
+recabada por la Administración Tributaria permita un adecuado control y fiscalización de las
+operaciones económicas con trascendencia tributaria.
+
+VIII.- Que la Dirección ele Proyectos ele Políticas ele Acceso a la Justicia de Pueblos
+Indígenas de la Corte Suprema de Justicia, solicitó al Ministerio de Hacienda la emisión de
+algún lineamiento, mediante el cual se puedan mejorar las condiciones ele acceso a la justicia
+para los pueblos indígenas, toda vez que existe una importante barrera para dicha población,
+debido a las limitaciones que, en pa1ticular enfrentan las personas indígenas para acceder a
+la justicia, principalmente en lo referido a los servicios de traducción e interpretación en sus
+idiomas vernáculos, aunado al hecho que su situación de vulnerabilidad se amplifica al estar
+ubicados en lugares geográficamente lejanos o con especiales dificultades ele comunicación
+y ele acceso a servicios tales como el internet. Para ello, se ha considerado el "Convenio
+Internacional sobre Pueblos Indígenas y Tribales en Países fndepenclientes (Convenio 169 ele
+la OIT)", aprobado por el Gobierno ele Costa Rica mediante la Ley Nº 7316 del 12 de
+noviembre ele 1992, el cual en el numeral 12, dispone que "Deberán tomarse medidas para
+garantizar que los miembros ele dichos pueblos puedan comprender y hacerse comprender en
+procedimientos legales, facilitándoles, si fuere necesario, intérpretes u otros medios
+eficaces". Por otra parte, el artículo 3 de la Ley de acceso a !a justicia para pueblos indígenas
+ele Costa Rica, Ley Nº 9593 del 28 de setiembre ele 2018, garantiza ese mismo derecho. A
+patiir del fundamento jurídico anterionnente expuesto, a nivel tributario se considera
+                                                    . ''
+
+ oportuno y necesario establecer como nom1a de excepción en el presente Reglamento para
+ que el Poder Judicial pueda hacer uso del servicio de traducción en lengua indígena, sin que
+ para ello se requiera de la emisión ele un comprobante electrónico autorizado por la
+ Administración Tributaria; cuando medie razones ele urgencia e inopia en la prestación ele
+ servicios de traducción oficial en procesos administrativos y judiciales, con el fin de que el
+ Estado costaITicense pueda garantizar que en el acto o audiencia dirigida a cumplir con la
+ función de administrar justicia, resulte accesible y respetuosa de la cultura y las necesidades
+ de dicho grupo étnico.
+
+ IX.- Que, en virtud de lo apuntado en los considerandos precedentes, resulta necesario y
+ oportuno emitir un nuevo Reglamento de Comprobantes Electrónicos para efectos
+ Tributarios y derogar el Decreto Ejecutivo 1 ° 41820-H del 19 ele junio de 2019 y sus
+ refonnas, denominado "Reglamento de Comprobantes Electrónicos para Efectos
+ Tributarios".
+
+ X.- Que de conformidad con lo establecido en el artículo 12 bis del Decreto Ejecutivo N º
+ 37045-MP-MEIC del 22 ele febrero ele 2012, "Reglamento a la Ley ele Protección al
+ Ciudadano del Exceso ele Requisitos y Trámites Administrativos", esta regulación cumple
+ con los principios ele mejora rcgulatoria, ele acuerdo con el informe Nº DMR-AR-INF-185-
+ 2024 ele fecha 04 ele setiembre ele 2024, emitido por la Dirección ele Mejora Regulatoria del
+ Ministerio ele Economía, Industria y Comercio.
+
+ XI.- Que en acatamiento del artículo 174 del Código ele No1mas y Procedimientos
+ Tributarios, el presente proyecto ele Decreto Ejecutivo, se publicó en el sitio Web
+ https://www.haciencla.go.cr/ProyectosConsultaPublica.html, en la sección "Proyectos en
+ Consulta Pública'·; a efectos de que las entidades representativas ele carácter general,
+ corporativo o de intereses difusos tuvieran conocimiento del proyecto y pudieran oponer sus
+ observaciones, en el plazo ele los diez días hábiles siguientes a la publicación del primer aviso
+ en el Diario Oficial La Gaceta. Los avisos"-f'ueron publicados en La Gaceta número 130 del
+ 16 de julio de 2024 y número 131 del 17 de julio de 2024, respectivamente, por lo que se
+- atendieron las observaciones recibidas, siendo que el presente decreto coJTesponde a la
+ versión final aprobada.
+Por tanto,
+
+                                                  Decretan
+               "REGLAMENTO DE COMPROBANTES ELECTRÓNICOS
+
+                                PARA EFECTOS TRIBUTARIOS"
+
+                                              CAPÍTULO 1
+                                  DISPOSICIONES GENERALES
+
+Artículo l.- Objeto. El presente Reglamento regula los aspectos relacionados con los
+comprobantes elect"rónicos autorizados por la Administración Tributaria que deben llevar los
+obligados tributarios que realicen actividades económicas lucrativas, en vi11ucl ele las normas
+tributarias vigentes.
+
+Artículo 2.- Definiciones. Para tocios los efectos, cuando este Reglamento utilice los
+términos siguientes, se les deben ciar las acepciones que se indican a continuación:
+
+l) Administración Tributaria. Órgano administrativo encargado de administrar, gestionar
+y fiscalizar los tributos, entendida como la Dirección General de Tributación, las Direcciones
+Funcionales, las Administraciones Tributarias Territoriales y Dirección de Graneles
+Contribuyentes Nacionales, según su competencia.
+
+2) Archivo XML. Es un documento en el formato denominado por sus siglas en inglés,
+"Extensible Markup Language" (XML) o Lenguaj,e Extensible ele Etiquetado, el cual pem1ite
+la transmisión de documentos entre diferentes plataformas, así como su validación e
+interpretación entre aplicaciones y entre organizaciones.
+
+3) Beneficio fiscal. Mecanismo por el que se establece una minoración ele la carga tributaria
+del contribuyente. Los beneficios fiscales más comunes son la exención, la reducción de
+tarifas ele impuesto, la subvención, la devolución y la bonificación fiscal.
+
+4) Código de Respuesta Rápida (QR). Es un sistema que almacena información ele manera
+bidimensi'onal, mediante una matriz ele puntos, que representa palabras o números,
+pe1111itiendo el acceso ágil y sencillo a la infonnación que contiene.
+5) Comprobante de aceptación total, parcial o rechazo por parte del receptor:
+Documento electrónico, autorizado para efectos de la confinnación de aceptación total,
+parcial o rechazado para los efectos fiscales o comerciales que correspondan.
+
+6) Comprobante electrónico. Documento electrónico en fonnato XML, autorizado por la
+Administración Tributaria que respalda la venta o adquisición de bienes y la prestación ele
+servicios, el cual debe ser generado, expresado y transmitido en formato electrónico en el
+mismo acto de la compraventa o prestación del servicio.
+
+7) Comprobante provisional por contingencia. Comprobante preimpreso emitido por una
+imprenta debidamente autorizada o por sistemas computarizados que cumplan con la
+normativa que regula este tipo ele comprobantes, por la Administración Tributaria, el cual
+debe cumplir con las características que se detallan en el artículo 23 del presente reglamento,
+estos comprobantes serán utilizados únicamente cuando no se pueda hacer uso del sistema
+para la emisión ele comprobantes electrónicos por situaciones que se encuentren fuera del
+alcance del emisor.
+
+8) Correo electrónico válido: Se entenderá como cotTeo electrónico válido aquel que
+cumpla con las especificaciones técnicas detalladas en la Resolución ele Alcance ele Anexos
+y Estructuras. El fonnato de correo electrónico será desarrollado en la resolución que lo
+implementa.
+
+9) Emisor receptor electrónico. Obligado tributario, persona física o jurídica, autorizado
+por la Administración Tributaria para emitir, enviar, recibir y confirmar comprobantes
+electrónicos por medio de un sistema infonnático.
+
+10) Emisor receptor electrónico no confirmante. El contribuyente, persona física o
+jurídica, que esté inscrito en un régimen tributario especial por el cual no se encuentra
+obligado a la emisión de comprobantes electrónicos, y que de fonna voluntaria se inscribe en
+esta figura con el fin de emitir y recibir comprobantes electrónicos por medio de un sistema
+infonnático, estando eximido de la confinnación de esos documentos para el respaldo de
+gastos y créditos.
+
+11) Entrega del comprobante electrónico: Se entenderá realizado el acto de entrega
+estipulado en el artículo 85 del Código ele Nonnas y Procedimientos Tributarios, el momento
+en que el obligado tributario en el mismo acto de la emisión lo envíe y/o lo ponga a
+disposición por algún medio electrónico o en su defecto imprima y entregue en el mismo acto
+de la compraventa o prestación del servicio la representación gráfica de dicho comprobante
+cuando el receptor sea un consumidor final.
+
+12) Factura electrónica. Comprobante electrónico autorizado por la Administración
+Tributaria que respalda la venta de bienes y la prestación de servicios, el cual debe de ser
+generado y transmitido en formato electrónico en el mismo acto de la compraventa o
+prestación del servicio.
+
+13) Factura electrónica de compra. Documento electrónico que emite el adquirente de un
+bien o servicio para respaldar la operación realizada, en el caso de que el contribuyente que
+venda o preste el servicio no esté obligado a la emisión de comprobantes electrónicos, o bien
+sea un contribuyente inscrito en el régimen especial agropecuario, un proveedor no
+domiciliado o una persona física que no se encuentre inscrita como obligado tributario, y
+cumpla con las características que la Administración Tributaria defina mediante resolución
+ele alcance general. La emisión de la factura electrónica ele compra no aplica en los siguientes
+casos: a los contribuyentes del régimen de tributación simplificada, inscritos como emisores
+receptores electrónicos no confirmantes, así como el transpo11e público, y finalmente, el pago
+a entidades del Estado por la actividades habituales para la cual fueron creadas.
+
+14) Factura electrónica de exportación. Comprobante electrónico que debe ele ser utilizado
+tanto para la exportación ele mercancías como para la prestación ele servicios o venta de
+bienes intangibles que se realicen desde el territorio nacional hacia el exterior.
+
+15) Firma digital. Aquella definida en el artículo 8 ele la Ley Nº 8454 del 30 de agosto ele·
+   ·
+i
+
+2005, denominada "Ley de Ce11ificaclos, Firmas Digitales y Documentos Electrónicos".
+
+16) Llave criptográfica del Ministerio de Hacienda. Método de seguridad que garantiza la
+integridad, autenticidad y autoría ele los comprobantes electrónicos.
+
+17) Mecanismo de seguridad. Consiste en la firma digital, la llave criptográfica, o sello
+electrónico, según co1Tesponda.
+
+18) Mensaje de respuesta del Ministerio de Hacienda: Documento electrónico expresado
+en fonnato XML, el cual indica al emisor el resultado del proceso de validación del
+Comprobante Electrónico por parte del Ministerio de Hacienda.
+19) Nota de Crédito y Nota de Débito Electrónicas. Comprobantes electrónicos
+autorizados por la Administración Tributaria que penniten anular o modificar los efectos
+contables de la factura electrónica, factura electrónica de expo11ación o tiquete electrónico,
+según corresponda, sin alterar la infonnación del documento ele origen.
+
+20) Proveedores de sistemas ele comprobantes electrónicos. Proveedor de sistemas ele
+comprobantes electrónicos, el cual decide poner a disposición ele los obligados tributarios
+que se encuentren inscritos, un sistema para la emisión, entrega y confim1ación ele
+comprobantes electrónicos, conforme lo indicado en el presente reglamento.
+
+21) Receptor electrónico no emisor. Comprende a las instituciones que confonnan la
+Administración Pública y a las personas físicas o jurídicas que gozan ele beneficios fiscales,
+así como los indicados en el artículo 7 del presente Reglamento.
+
+22) Receptor manual. Persona fisica o jurídica, que en calidad ele obligado tributario o
+consumidor final, recibe ele fom1a impresa la representación gráfica del comprobante
+electrónico en el mismo acto de la compraventa o prestación del servicio. En el caso ele los
+obligados tributarios, la representación gráfica del comprobante no surte efectos tributarios,
+ni se pennitirá su uso para respaldo ele créditos o gastos.
+
+23) Recibo electi·ónico de Pago: Es el comprobante electrónico autorizado por la
+Administración Tributaria, que respalda el pago parcial por la venta ele bienes y la prestación
+ele servicios a crédito con pago diferido conforme lo dictan los ai1ículos 3 inciso 8 y 27 ele la
+Ley del Impuesto sobre el Valor Agregado y por cualquier otra condición ele uso que se
+establezca mediante resolución ele alcance general. Dicho comprobante debe ser generado y
+transmitido en fonnato electrónico.
+
+24) Representación gráfica: Documento impreso que expresa el contenido ele los
+comprobantes electrónicos.
+
+25) Tiquete electrónico: Comprobante electrónico autorizado por la Administración
+Tributaria únicamente para operaciones con consumidores finales, el cual no puede ser
+utilizado para justificación ele gastos o créditos a nivel tributario. Este comprobante debe ser
+generado, expresado y transmitido en formato electrónico XML, en el mismo acto ele la
+compraventa o prestación del servicio y entregado al consumidor final ele fom1a impresa.
+Artículo J-.- Obligación general. Están obligados al uso de comprobantes electrónicos
+autorizados por la Administración Tributaria, los contribuyentes indicados en el aiiículo 2 de
+la Ley del Impuesto sobre la Renta y 4 de la Ley del Impuesto sobre el Valor Agregado; así
+como cualquier otro obligado tributario que establezca la ley.
+
+Artículo 4.-0bligaciones específicas. De conformidad con los incisos 9), 10) y 21) del
+artículo 2 de este Reglamento, se establecen las siguientes obligaciones para los sujetos que
+se indican:
+
+              1) Del emisor receptor electrónico:
+
+              a) Estar inscrito en el Registro Único Tributario y tener registrado un correo
+              electrónico válido ante la Administración Tributaria.
+
+              b) Informar a la Administración Tributaria, mediante el proceso de inscripción o
+              modificación de datos su condición de emisores receptores electrónicos por los
+              medios que aquella establezca.
+
+              c) Disponer de un sistema para la emisión, recepción y confirmación de
+              comprobantes electrónicos conforme a los requisitos que establece el presente
+              reglamento y las resoluciones que al efecto emita la Administración Tributaria.
+
+              d) Poner a disposición de la Administración Tributaria la herramienta de emisión,
+              recepción y confirmación de comprobantes electrónicos para su respectiva
+              verificación.
+
+              e) Contar con una plataforma tecnológica robusta y escalable, que soporte la
+              solución de facturación, incluido el equipo de seguridad, comunicaciones y
+              respaldo.
+
+              f) Enviar a la Administración Tributaria los archivos XML emitidos por el
+              sistema para su respectiva validación.
+
+              g) Emitir, entregar y recibir los respectivos comprobantes electrónicos, así como
+              la aceptación y/o rechazo de los mismos para el respaldo de créditos y gastos.
+
+              h) Entregar al receptor las confirmaciones emitidas por el Ministerio de Hacienda
+              producto de la validación, así como las confirmaciones de aceptaciones o
+                                rechazos de los comprobantes electrónicos que reciben y que se constituirán en
+                                créditos o gastos.
+
+                                i) Almacenar y conservar en soporte electrónico los archivos XML que respaldan
+                                los asientos contables, por el plazo de prescripción vigente, incluyendo aquellos
+                                comprobantes electrónicos que hayan sido anulados o dejados sin efecto por
+                                medio ele nota de crédito.
+
+                                j) Poner a disposición ele la Administración Tributaria los equipos necesarios para
+                                el acceso y ejecución de las labores ele control tributario integral.
+
+                                k) Contar con planes de contingencia y de continuidad del negocio para prevenir
+                                las fallas, caídas o problemas ele operación del sistema, debiendo estar
+                                documentado y actualizado.
+
+                                 1) Almacenar y conservar en soporte electrónico el modelo del diseño funcional,
+                                diccionario ele elatos, diseño de la base ele datos, manuales ele usuario e
+                                 instructivos ele la solución.
+
+                                 rn) Mantener actualizada la información del sistema ele comprobantes
+                                electrónicos. de acuerdo con las disposiciones que establezca la Administración
+                                Tributaria y en atención.a las co'ldiciones específicas ele cada obligado tributario.
+
+                                 n) Cumplir con todas las disposiciones establecidas en el presente reglamento y
+                                las resoluciones que establezca la Administración Tributaria.
+
+                                  2) Del emisor receptor electrónico no confirmante:
+
+                                a) Estar inscrito en el Registro Único Tributario como contribuyente en un
+                                régimen tributario o actividad económica que no se encuentre obligado a la
+                                emisión de comprobantes electrónicos y tener registrado un correo electrónico
+                                válido ante la Administración Tributaria.
+
+                                b) Informar a la Administración Tributaria su condición de emisor receptor
+                                electrónico no confirmante, mediante el proceso de inscripción o modificación
+                                de elatos por los medios que esta disponga.
+
+·1
+c) Disponer de un sistema para la emisión y recepción ele comprobantes
+electrónicos conforme los requisitos que establece el presente Reglamento y las
+resoluciones que al efecto emita la Administración Tributaria.
+
+el) Contar con una platafom1a tecnológica robusta y escalable que soporte la
+solución de facturación. incluido el equipo de seguridad. cornu111cac1ones y
+respaldo.
+
+e) Enviar a la Administración Tributaria los archivos XML emitidos por el
+sistema para su respectiva validación.
+
+f) Emitir y entregar los respectivos comprobantes electrónicos cuando así lo
+solicite el cliente.
+
+g) Entregar al receptor los mensajes de aceptación o rechazo, emitidos por el
+Ministerio de Hacienda producto ele la validación.
+
+h) Entregar al receptor las confirmaciones emitidas por el Ministerio ele Hacienda
+producto de la validación. así corno las confirmaciones ele aceptaciones o
+rechazos ele los comprobantes electrónicos que reciben y que se constituirán en
+créditos o gastos.
+
+i) Almacenar y conservar en soporte electrónico los archivos XML recbidos, en
+las condiciones que se indican en el presente reglamento.
+
+j) Contar con planes ele contingencia y de continuidad del negocio para prevenir
+los efectos ele fallas, ca[clas o problemas ele operación del sistema, debiendo estar
+estos documentados y actualizados.
+
+k) Mantener actualizada la información del sistema ele facturación, ele acuerdo
+con las disposiciones que establezca la Administración Tributaria y requiera el
+contribuyente.
+
+l) Cumplir con tocias las disposiciones establecidas en el presente reglamento y
+las resoluciones que establezca la Administración Tributaria.
+              3) Del receptor electrónico-no emisor:
+
+              a) Estar inscrito en el Registro Único Tributario y tener registrado un correo
+              electrónico válido ante la Administración Tributaria.
+
+              b) Informar a la Administración Tributaria su condición de receptor electrónico
+
+          no emisor, mediante el proceso _el inscripción °. _modificación ele datos por los
+
+              medios que aquella establezca.
+
+              c) Disponer ele un sistema para la recepción y confirmación ele comprobantes
+              electrónicos conforme los requisitos que establece el presente reglamento y las
+              resoluciones que al efecto emita la Administración Tributaria.
+
+              el) Enviar a la Administración Tributaria los archivos XML de aceptación o
+              rechazo ele los comprobantes electrónicos para su respectiva validación.
+
+              e) Entregar al emisor una confirmación ele aceptación o rechazo ele los
+              comprobantes electrónicos.
+
+              f) Mantener actualizada la información del sistema ele facturación, ele acuerdo
+              con las disposiciones que establezca la Administración Tributaria y atendiendo a
+             - las condiciones específicas ele cada obligado tributario.
+
+Artículo 5.- Obligaciones de los proveedores de sistemas para la emisión y recepción de
+comprobantes electrónicos. Los proveedores de sistemas para la emisión y recepción ele
+comprobantes electrónicos tendrán las siguientes obligaciones:
+
+              1) Estar inscrito en el Registro Único Tributario y tener registrado un correo
+              electrónico válido ante la Administración Tributaria.
+
+              2) [nfonnar a la Administración Tributaria su condición de proveedores ele
+              sistemas para la emisión ele comprobantes electrónicos por los medios que
+              aquella establezca.
+
+              3) Facilitar en caso de que así se requiera la revisión del sistema por paiie de la
+              Administración Tributaria.
+              4) la solución tecnológica debe pennitir la descarga y respaldo de todos los
+              documentos que el emisor receptor electrónico haya generado, emitido y recibido
+              por este medio, confom1e los plazos ele almacenamiento establecidos.
+
+              5) Llevar un registro ele control ele clientes y mantenerlo actualizado.
+
+              6) Cumplir con tocias las regulaciones establecidas en el presente reglamento que
+              le sean aplicables, así como aquellas que se establezcan vía resolución general
+              que dicte la Administración Tributaria.
+
+              7) Cumplir con tocias las disposiciones técnicas establecidas en el presente
+              reglamento que le sean aplicables, así como aquellas que se establezcan vía
+              resolución general que dicte la Administración Tributaria.
+
+Artículo 6.- Causales de exclusión de la condición de proveedores de sistemas para la
+emisión y recepción de comprobantes electrónicos. Los proveedores ele sistemas para la
+emisión y recepción ele comprobantes electrónicos serán excluidos cuando se presente
+cualquiera de las siguientes situaciones:
+
+              1) A solicitud del propio proveedor del sistema, a través de los medios que ponga
+              a disposición la Administración Tributaria.
+
+              2) Por actuación de ·oficio de la Administración Tributaria, previa notificación,
+              cuando compruebe algunas ele las siguientes causales:
+
+                     a. Incumplimiento de las obligaciones, requisitos y condiciones
+                     establecidas en el presente reglamento.
+
+                     b. Cuando induzcan a error a la Administración Tributaria.
+
+Artículo 7.-Excepciones a la obligación de emitir y confirmar comprobantes
+electrónicos. No están obligados a la emisión y confinnación ele comprobantes electrónicos,
+en virtud del pá1i-afo final del artículo 2 de la Ley para Mejorar la Lucha contra el Fraude
+Fiscal Nº 9416 del 14 de diciembre ele 2016, según lo dispuesto en la Ley del Impuesto sobre
+la Renta y en la Ley del Impuesto sobre el Valor Agregado; los siguientes obligados
+tributarios:
+1) Los contribuyentes inscritos en el Régimen de Tributación Simplificada, salvo aquellos
+que hayan optado por registrarse como emisor receptor electrónico no confinnante. En este
+caso persiste para esta categoría de obligado el deber emitir el comprobante electrónico,
+confonne el inciso 2) del artículo 4 del presente reglamento.
+
+2) Los contribuyentes inscritos en el Régimen Especial Agropecuario y que únicamente
+realicen activiclacles agropecuarias.
+
+3) Otros obligados tributarios inscritos en regímenes ele estimación objetiva que establezca
+la Administración Tributaria.
+
+4) Las instituciones religiosas cualquiera que sea su credo, por los ingresos que obtengan
+para el mantenimiento del culto y por los servicios ele asistencia social que presten sin fines
+de lucro: en caso contrario, deberán inscribirse en el Registro Único Tributario y presentar la
+declaración autoliquiclativa del Impuesto sobre las Utilidades. sin pe1juicio ele las demás
+obligaciones y requisitos que la Administración Tributaria establezca mediante resolución
+general.
+
+5) Los condominios. salvo que los condóminos soliciten comprobantes electrónicos para el
+respaldo de sus gastos, en cuyo caso deberán cumplir con las obligaciones establecidas en el
+inciso 2) del artículo 4 ele este reglamento.
+
+6) Las organizaciones sindicales, las fundaciones y las asociaciones declaradas ele utilidad
+pública, que se encuentren en las condiciones establecidas en el inciso ch) del a11ículo 3 de
+la Ley del Impuesto sobre la Renta y el a1iículo 6 ele su Reglamento. En caso ele que estas
+instituciones· realicen actividades sujetas al impuesto sobre el valor agregado, deberán
+cumplir con las obligaciones establecidas para el emisor receptor electrónico.
+
+7) Las personas que hayan mostrado interés y hayan brindado el servicio ele intérpretes o
+traductores ele idiomas vernáculos ele cada cultura indígena, en los procesos administrativos
+y judiciales, que carecen de un título habilitante, se encuentren ubicados en territorii;:i
+indígena, sin acceso a internet y no se encuentren inscritos ante la Administración Tributaria
+en dicha actividad económica.
+
+8) Los autorizados por la Administración Tributaria para recibir clonaciones deducibles del
+ímpuesto sobre las Utilidades, o aquellos que mediante norma legal especial se les habilite
+recibir clonaciones sin requerir autorización previa, sin pe1juicio del deber ele emitir el
+comprobante o documento en el que conste que la donación fue recibida a satisfacción por
+parte ele la entidad receptora ele la donación; lo anterior, de conformidad con los ai1ículos 8
+inciso q) ele la Ley del fmpuesto sobre la Renta, el ai1ículo 17 inciso l) del Reglamento a la
+Ley del [mpuesto sobre la Renta, Decreto Ejecutivo Nº 43198-H.
+
+Artículo 8. Excepciones a la obligación de emitir comprobantes electrónicos. Están
+exentos de la emisión ele comprobantes electrónicos, no así ele la obligación de recibir y
+confinnar los documentos indicados, los siguientes obligados tributarios, siempre y cuando
+no vendan bienes o presten servicios sujetos al Impuesto sobre el Valor Agregado o realicen
+actividades económicas gravadas:
+1) El Estado, las municipalidades, las instituciones autónomas y semiautónomas del Estado
+que por ley especial gocen ele exención y las universidades públicas. En caso ele que las
+referidas entidades realicen actividades sujetas al Impuesto sobre el V alor Agregado, deberán
+cumplir con las obligaciones ele emisor receptor electrónico. establecidas en el inciso l) del
+artículo 4 del presente reglamento.
+
+2) Los Partidos Políticos.
+
+3) Las Asociaciones So\iclaristas. Sin embargo, en el caso que realicen actividades puramente
+mercantiles, se acogerán a las disposiciones contenidas en el artículo 11 del Reglamento a la
+Ley del Impuesto sobre la Renta, en cuyo caso deben acatar las obligaciones establecidas en
+el inciso 1) del a11ículo 4 ele este reglamento.
+
+4) La Sociedad de Seguros ele V icia del Magisterio Nacional, la Caja ele Ahorro y Préstamos
+de la Asociación Nacional ele Educadores y la Corporación de Servicios Múltiples del
+Magisterio Nacional.
+
+5) Las personas físicas o jurídicas cleclicaclas al transporte remunerado ele personas, que
+cuenten con permiso o concesión otorgada por el Estado y cuya tarifa sean regulada por la
+Autoridad Reguladora ele Servicios Públicos (ARESEP).
+
+Artículo 9.-Comprobantes electrónicos. Únicamente se consideran comprobantes
+electrónicos autorizados por la Administración Tributaria para el cumplimiento de las
+obligaciones tributarias, tanto fotmales como materiales, los siguientes documentos:
+
+              l) Factura electrónica.
+              2) Factura electrónica de compra.
+              3) Factura electrónica de exportación.
+
+              4) Tiquete electrónico.
+
+              5) Recibo Electrónico de Pago.
+              6) Nota de crédito electrónica.
+              7) Nota de débito electrónica.
+
+              8) Mensajes ele confirmación.
+La Administración Tributaria queda facultada para excluir o incluir nuevos tipos de
+comprobantes electrónicos, mediante resolución general, tomando en cuenta los principios
+ele justicia y eficiencia tributaria, y considerando el desarrollo tecnológico y la facilidad en
+el cumplimiento ele las obligaciones tributarias que deben llevar a cabo los obligados
+tributarios.
+Artículo 10.- Anulación o corrección. Los comprobantes electrónicos válidamente emitidos
+no se pueden anular directamente. sus efectos contables deben anularse o modificarse
+mediante la utilización ele notas de crédito o débito electrónicas, pern1anecienclo inalterable
+el documento original, el cual no podrá ser reutilizado.
+
+Sin perjuicio de lo anterior, cuando el mensaje ele confitrnación por parte del Ministerio ele
+Hacienda es de rechazo, el comprobante emitido carece de validez, por lo que para efectos
+tributarios no debe realizarse la respectiva nota ele crédito o débito.
+
+Artículo 11.- Eficacia jurídica y fuerza probatoria. Los comprobantes electrónicos que se
+mencionan en el presente reglamento, para los efectos tributarios y comerciales, tendrán
+plena eficacia jurídica y fuerza probatoria en las mismas condiciones que los comprobantes
+físicos autorizados por la Administración Tributaria.
+
+                                              CAPÍTULO 11
+
+                  DE LOS REQUISITOS Y CARACTERÍSTICAS DE LOS
+
+                    COMPROBANTES Y SISTEMAS ELECTRÓNICOS
+
+                                          PARA SU EMISIÓN
+Artículo 12.- Formatos y especificaciones técnicas de los comprobantes electrónicos. Los
+comprobantes electrónicos autorizados por la Administración Tributaria deben cumplir con
+los formatos y especificaciones técnicas exigidas por esta.
+
+Cualquier cambio ele versión en los formatos y especificaciones técnicas ele los comprobantes
+electrónicos. se comunicará mediante resolución general que se publicará en el Diario Oficial
+La Gaceta. Asimismo, dichos documentos serán colocados en el sitio Web que el Ministerio
+ele Hacienda disponga para tal efecto.
+
+En caso ele que la Administración Tributaria requiera realizar modificaciones a los
+comprobantes electrónicos producto de un cambio legal o reglamentario que no implique la
+modificación ele la estructura vigente, sino que se limite a una modificación en la
+parametrización ele los sistemas, estos serán comunicados mediante aviso por los medios
+oficiales del Ministerio ele Hacienda, con su respectivo plazo para la implementación.
+
+Artículo 13.-Requisitos y características de los comprobantes electrónicos. Los
+comprobantes electrónicos indicados en el artículo 9 ele este reglamento deben cumplir con
+los requisitos que se detallan a continuación, sin perjuicio ele la facultad de la Administración
+Tributaria para modificarlos.
+
+               1) Versión del documento.
+
+              2) Identificación del obligado tributario: nombre completo o razón social, la
+              denominación del negocio o nombre de fantasía si existe, número de cédula ele
+              iclenticlacl, número ele cédula jurídica, documento de Identidad Migratoria para
+              Extranjero (DIMEX) o el Número de Identificación Tributaria (NITE), dirección
+              completa del negocio (Provincia, Cantón, Distrito, Barrio y otras sei'ias), y
+              dirección ele correo electrónico.
+
+              3) El nombre del tipo de documento, ya sea "Factura Electrónica", "Factura
+              Electrónica de Exportación", "Tiquete Electrónico", "Nota de Crédito
+              Electrónica", "Nota de Débito Electrónica", "Factura Electrónica de Compra" o
+              "Recibo Electrónico de pago".
+
+              4) Numeración consecutiva: El sistema del obligado tributario para la emisión y
+              recepción de comprobantes eleccrónicos, deberá asignar ele forma automática y
+estrictamente consecutiva la numeración para cada tipo de documento
+electrónico, en su respectiva sucursal y/o terminal sin ser susceptible de posterior
+modificación, y sin saltos de esta numeración.
+
+5) Clave numérica.
+
+6) Fecha de emisión del documento electrónico. El sistema de emisión y
+recepción ele comprobantes electrónicos deberá indicar en dicho campo la fecha
+correspondiente al día en que son emitidos los comprobantes electrónicos, sin ser
+susceptible a modificaciones, por lo tanto, no se pennite la emisión ele
+documentos electrónicos con fecha anterior o posterior a la ele su emisión; en
+tocio caso, si así pareciera, el comprobante electrónico se estimará extemporáneo.
+En el caso ele los documentos emitidos extemporáneamente para sustituir
+comprobantes provisionales emitidos por contingencia, se tornará como fecha ele
+emisión la indicada en el nodo del XML denominada "Fecha de emisión del
+documento ele referencia" que se encuentra en el apartado el) "lnfom1ación ele
+Referencia'' que se encuentra en los anexos y estructuras del sitio Web oficial del
+Ministerio ele Hacienda.
+
+7) Hora ele emisión del documento electrónico. El sistema de emisión y entrega
+ele comprobantes electrónicos deberá indicar en dicho campo la hora en la cual
+fue emitido y entregado el comprobante electrónico conforme la zona horaria de
+Costa Rica. En los documentos emitidos extemporánearnente para sustituir
+comprobantes provisionales emitidos en casos de contingencia, se tornará como
+hora ele emisión la indicada en el campo, denominado "Hora ele emisión del
+documento ele referencia".
+
+8) Condiciones ele la venta o servicio, ya sea que se trate ele una venta al crédito,
+al contado, un apartado, en consignación, un arrendamiento con opción ele
+compra, un anenclamiento en función financiera o cualquier otra condición que
+se consigne en la factura.
+
+9) Medio ele pago: tatjeta, efectivo, cheque, transferencia, depósito bancario,
+recaudado por terceros o cualquier otra condición que se consigne en la factura.
+              1O) Detalle del bien o serv1c10 prestado: cantidad enviada, precio unitario
+              expresado en moneda nacional o moneda extranjera, unidad ele medida, código
+              de producto, descripción del producto o del servicio y monto ele la operación
+              expresada en moneda nacional o moneda extranjera.
+
+              11) Subtotal de la factura en moneda nacional o moneda extranjera.
+
+              12) El valor ele los servicios prestados expresado en moneda nacional o moneda
+              extranjera, separando las operaciones que están sujetas y las que se encuentren
+              exentos.
+
+              13) El valor de los bienes expresado en moneda nacional o moneda extranjera,
+              separando las operaciones que están gravadas y las exentas.
+
+              14) Precio neto de venta expresado en moneda nacional o moneda extranjera, sin
+              incluir el Impuesto sobre el Valor Agregado.
+
+              15) Monto del impuesto correspondiente a cada tarifa aplicada sobre el precio
+              neto de venta, con la indicación "Impuesto sobre el Valor Agregado".
+
+              16) Valor total ele la factura en moneda nacional o extranjera.
+
+              17) Los comprobantes electrónicos deberán expresarse en idioma español: no
+              obstante, podrán ser redactados en un idioma distinto, en cuyo caso, ele ser
+              requerido por la Administración Tributaria deberá aportarse la traducción
+              respectiva al idioma español.
+
+              18) Cualquier otra información adicional que determine la Administración
+              Tributaria, así como la implementación y funcionamiento de los comprobantes
+              electrónicos, se hará conforme a lo dispuesto en el artículo 12 del presente
+              reglamento.
+
+La Administración Tributaria está facultada para rechazar las deducciones o créditos ele
+aquellos comprobantes electrónicos que incumplan con las obligaciones, requisitos y
+condiciones que se establecen en el presente reglamento o en la nom1ativa tributaria vigente.
+
+Artículo 14.- Requisitos de los sistemas para la emisión de comprobantes electrónicos.
+Los sistemas para la emisión ele comprobantes electrónicos deben cumplir con los siguientes
+requisitos mínimos:
+1) Emitir en fonna automatizada los comprobantes electrónicos conforme las
+especificaciones técnicas detalladas, tanto en este reglamento como en las
+resoluciones generales que emita la Administración Tributaria.
+
+2) Contar con la funcionalidad de envío de los archivos XML a la Administración
+Tributaria para su respectiva validación.
+
+3) Contar con las validaciones necesarias que controlen la numeración de los
+comprobantes que impidan la duplicidad de números.
+
+4) Permitir únicamente la anulación ele documentos electrónicos en los casos
+contemplados en el artículo I O del presente reglamento.
+
+5) Contar con validaciones lógicas y aritméticas en los campos que requieren de
+algún cálculo.
+
+6) Asignar en forma automatizada y estrictamente consecutiva la numeración de
+los comprobantes electrónicos, tal como se indica en el inciso 4) del artículo 13
+de este reglamento.
+
+7) Asignar la fecha de emisión del comprobante en fonna automatizada e
+inaccesible al usuario.
+
+8) Generar, enviar y permitir la visualización e impresión de la representación
+gráfica del documento electrónico.
+
+9) Contar con un esquema de seguridad que garantice como mínimo la integridad,
+autenticidad y autoría ele los comprobantes electrónicos, así como el control de
+las transacciones y la transferencia o intercambio ele infonnación.
+
+1O) Contar, dentro del sistema ele emisión de comprobantes electrónicos, con una
+opción de consulta para uso ele la Administración Tributaria, disponible sin
+demora injustificada,. ele manera que pennita la búsqueda selectiva con al menos
+los siguientes criterios, los cuales se pueden consultar de manera individual o por
+rangos:
+
+a. tunero ele cédula.
+
+b. Número ele comprobante electrónico
+             c. Medio de pago.
+
+             d. Condiciones ele la venta.
+
+             e. Fecha de emisión.
+
+              f. Montos.
+
+              g. Tipos de impuestos.
+              h. Confirmaciones de aceptación o rechazo por parte del Ministerio ele Hacienda.
+
+              i. Confirmaciones de aceptación o rechazo por parte del obligado tributario.
+
+              j. Acuse de recibo del documento electrónico.
+              11) Contar con una interfaz o facilidad que permita recibir y cargar en forma
+              automatizada los comprobantes electrónicos que emitan sus proveedores, así
+              corno emitir la respectiva contirn1ación de aceptación o rechazo de tales
+              comprobantes.
+
+              12) Administrar la infonnación transaccional bajo un esquema de base ele datos,
+              que garantice la conservación, integridad, seguridad y accesibilidad ele la
+              info1111ación.
+
+Cualquier otra infonnación adicional que determine la Administración Tributaria, así como
+la implementación y funcionamiento ele los sistemas para la emisión ele comprobantes
+electrónicos se hará conforme a lo dispuesto en el artículo 12 del presente reglamento.
+
+                                             CAPÍTULO 111
+
+                 SOBRE LA TRANSPARENCIA TECNOLÓGICA Y LOS
+
+                     PROVEEDORES DE SISTEMAS DE EMlSlÓN DE
+
+                              COMPROBANTES ELECTRÓNICOS
+Artículo 15.- Transparencia tecnológica. Los obligados tributarios que deseen emitir
+comprobantes electrónicos tienen la posibilidad de elegir el esquema ele administración u
+operación ele los servicios de emisión y recepción ele comprobantes electrónicos que mejor
+se ajuste a su giro comercial, sea que utilice un desarrollo propio, un software de mercado,
+un desatTollo a la medida o terce1'ización; es responsabilidad del obligado tributario· el·
+cumplimiento ele tocias las disposiciones establecidas en el presente reglamento, tanto las
+referidas al obligado tributario, como a los sistemas para la emisión de comprobantes
+electrónicos.
+
+En ningún caso se podrá utilizar otro medio ele facturación que no cumpla con lo establecido
+en este reglamento.
+
+Artículo 16.- Sistemas para la emisión de comprobantes electrónicos. Los obligados
+tributarios deberán utilizar alguno ele los sistemas para la emisión de comprobantes
+electrónicos que provee el mercado por medio ele los proveedores de solución ele
+comprobantes electrónicos o de desarrollo propio, que cumpla con las regulaciones técnicas
+y normativas emitidas por la Administración Tributaria.
+
+Sin perjuicio ele lo mencionado en el pánafo anterior, aquellos obligados tributarios que se
+dediquen a la prestación ele servicios profesionales, o contribuyentes acreditados como Micro
+y Pequeña Empresa conforme la clasi ftcación que define el Ministerio ele Economía Industria
+y Comercio o Ministerio de Agricultura y Ganadería, según corresponda, o que estén inscritos
+como receptor electrónico no emisor o emisor receptor electrónico no confirmante, podrán
+utilizar el facturaclor gratuito proporcionado por cualquier proveedor de solución ele
+con1probantes electrónicos o el proporcionado por el Ministerio de Hacienda.
+
+Dichos proveedores deberán ele velar porque los sistemas ele emisión ele comprobantes
+electrónicos cumplan con las obligaciones establecidas en el presente reglamento,
+resoluciones y lineamientos dictados por la Administración Tributaria.
+
+Asimismo, los sistemas de emisión de comprobantes electrónicos deberán tener la capacidad
+de administrar la infonnación transaccional re;fericla a un período ele al menos dos meses. La
+información que genera el sistema debe ser entregada por el proveedor al obligado tributario
+emisor, quien es responsable de su almacenamiento y conservación en los ténninos
+establecidos en el presente regla1nento.
+
+                                              CAPÍTULO IV
+
+                   DE LA EMISIÓN Y ENTREGA DE COMPROBANTES
+
+                  ELECTRONICOS Y OTRAS OBLIGACIONES ANEXAS
+Artículo 17.- De los sujetos que intervienen en el proceso de comprobantes electrónicos.
+Los sujetos que participan en el proceso de comprobantes electrónicos son el emisor receptor
+electrónico, emisor receptor electrónico no confirmante, el receptor electrónico no emisor y
+el receptor manual, los cuales fueron definidos en los incisos 9), 1 O), 21 y 22) del artículo 2
+de este reglamento, respectivamente.
+
+Artículo 18.- De la emisión y entrega de comprobantes electrónicos. La emisión y la
+entrega del comprobante electrónico ocurren en el acto de compraventa o la prestación del
+servicio. En este sentido, el emisor receptor electrónico o el emisor receptor electrónico no
+confümante -en este último caso cuando así se lo pida el cliente- debe entregar al adquirente
+o comprador del bien o servicio el comprobante electrónico y la representación gráfica, por
+el medio que se hubiese acordado una vez generados por el sistema, aun cuando no se cuente
+con el mensaje de confirmación del Ministerio de Hacienda, ya sea de aceptación o rechazo
+del comprobante electrónico.
+
+Una vez recibido el mensaje de confirmación del comprobante electrónico, el mismo debe
+ser entregado por el medio que se haya acordado. En el caso del receptor manual, si se cuenta
+con algún medio electrónico, el emisor debe enviarlo por ese medio; en caso contrario, dicha
+entrega debe hacerse al momento que el receptor manual lo solicite.
+
+El mensaje de confirmación será obligatorio para el respaldo de la contabilidad en caso de
+ser emisor receptor electrónico, emisor receptor electrónico no confirmante, o receptor
+electrónico no emisor.
+
+Artículo 19.- Del rechazo del mensaje de confirmación por parte de la Administración
+Tributaria. Cuando el comprobante electrónico es rechazado por la Administración
+Tributaria, aquel carecerá de validez y el emisor debe emitir de forma inmediata un nuevo
+comprobante, en el que se indique cuál es el comprobante que se está sustituyendo. Una vez
+generado el nuevo comprobante, será remitido automáticamente al receptor. Para efectos
+tributarios no debe realizarse la respectiva nota de crédito.
+
+Artículo 20.- De la confirm ación efectuada por el em isor receptor electrónico o el
+receptor electrónico no emisor.
+
+Cuando el emisor receptor electrónico o el receptor electrónico no emisor adquieran o
+compren bienes o servicios directamente relacionados con el giro comercial de su actividad
+económica y no estén cubiertos por un beneficio fiscal, podrán confim1ar el comprobante
+ electrónico en su totalidad, para que aquellos se constituyan en créditos o gastos deducibles;
+o, en su defecto, deberán rechazarlo total o parcialmente. Si el emisor o receptor del
+comprobante electrónico no lo confinna en el plazo que al respecto establezca la
+Administración Tributaria mediante resolución general. se presumirá que lo ha aceptado
+totalmente y, en consecuencia, fo1111ará parte de las operaciones o transacciones que incidan
+en sus declaraciones autoliquiclativas. Si, por el contrario, el emisor o receptor rechaza total
+o parcialmente el comprobante electrónico, deberá enviar el mensaje ele rechazo al Ministerio
+ele Hacienda para su respectiva validación, en el plazo que se disponga en la resolución
+respectiva.
+
+ En los casos en que el Ministerio ele Hacienda emita el mensaje ele confirmación que apruebe
+el rechazo total o parcial del comprobante electrónico, el receptor deberá enviarlo al emisor,
+ya que este debe emitir la nota ele crédito respectiva, con la finaliclacl ele modificar o anular,
+total o parcialmente, el efecto contable del comprobante electrónico. Dicha nota ele crédito
+deberá hacer referencia al comprobante electrónico que se está moclificanclo o anulando. Las
+· notas ele crédito que se susciten no deben ser confirmadas por el receptor.
+
+ Una vez cumplido el paso indicado en el párrafo precedente, el emisor debe generar ele fom1a
+ inmediata un nuevo comprobante, en el que indicará en el apartado que corresponda cuál es
+ el comprobante que se está sustituyendo y la razón por la cual se está emitiendo. Acto
+ seguido, procederá a su envío al receptor, por el medio que haya siclo acordado entre ellos.
+
+ Cuando el emisor receptor electrónico o el receptor electrónico no emisor adquieran o
+compren bienes o servicios vinculados con el giro comercial ele sus negocios y estén
+amparados a un beneficio fiscal, deberán siempre confinnar o rechazar los comprobantes
+electrónicos, según corresponda. En tocio caso, en lo atinente, deberán seguir el
+procedimiento indicado en los párrafos anteriores.
+
+ La presunción ele la aceptación del comprobante electrónico por el transcurso del plazo no
+enerva las facultades ele control tributario que tiene asignadas legal y reglamentariamente la
+ Administración Tributaria.
+
+ El procedimiento ele confinnación ele los comprobantes electrónicos descrito en este artículo
+es ele uso exclusivo ele los obligados tributarios, por lo que no resulta de aplicación al
+consumidor final.
+Artículo 21.- Envío de los archivos XML al Ministerio de Hacienda para su validación.
+El emisor-receptor electrónico, el emisor-receptor electrónico no confinnante y el receptor
+electrónico no emisor deberán enviar de forma inmediata y automatizada al Ministerio de
+Hacienda los archivos XML generados para su respectiva validación, de acuerdo con lo
+indicado en los incisos 1) sub inciso f). inciso 2) sub inciso e) e inciso 3) sub inciso el) del
+atiículo 4 del presente reglamento. En el momento que el Ministerio de Hacienda reciba los
+archivos XML, le remitirá al obligado tributario un acuse de recibo.
+
+En los casos en los que no se pueda llevar a cabo el envío de los archivos XML ele manera
+inmediata para su validación por motivos ele accesibilidad a internet, los archivos deberán de
+ser generados e incorporarse el respectivo mecanismo ele seguridad en el mismo acto ele
+compraventa o prestación del servicio y realizarse el envío ele estos a más tardar dos días
+hábiles después de su generación, indicando en la situación del comprobante electrónico la
+opción "sin internet".
+
+En aquellos casos en los que no se puedan enviar de forma inmediata los archivos XML
+debido a que el enlace del Ministerio ele Hacienda se encuentra fuera ele servicio, como
+método d e contingencia se deberán almacenar los archivos y realizar el envío una vez que se
+reestablezca el enlace ele comunicación. En ninguno ele los casos anteriores se debe utilizar
+un comprobante provisio,iál preimprcso, indicado en el inciso 7 del artículo 2 ·c1e este
+reglamento
+
+El Ministerio ele Hacienda, luego de la recepción ele los archivos XML, realizará la validación
+y remitirá el respectivo mensaje de aceptación o rechazo del archivo XML, con el fin de que
+dicho mensaje ele aceptación constituya el respaldo ele la_ validación, o en su efecto se corrijan
+las inconsistencias señaladas en el mensaje ele rechazo. Tocios aquellos comprobantes
+electrónicos y documentos asociados emitidos por el emisor-receptor electrónico deben
+contar con el respectivo mensaje de aceptación como respaldo ele la validación, pues de lo
+contrario no podrán ser utilizados como respaldo ele créditos fiscales ni como gastos
+deducibles, ni incidir en las declaraciones tributarias autoliquidativas.
+
+El envío se llevará a cabo confonne con lo indicado en los anexos adjuntos a la resolución
+general que establezca la Administración Tributaria.
+Artículo 22.- Almacenamiento y conservación. Los emisores-receptores electrónicos, los
+receptores electrónicos no emisores y aquellos otros obligados tributarios que emitan y
+entreguen comprobantes electrónicos, deberán almacenar y conservar en el sopo11e
+electrónico de su preferencia todos aquellos comprobantes electrónicos generados, enviados
+y recibidos, así como los documentos asociados a estos, por un plazo ele cinco años conforme
+a lo establecido en el a11ículo l 09 del Código ele Normas y Procedimientos Tributarios, sin
+pe1juicio de lo establecido en el párrafo segundo del a11ículo 51 de ese mismo cuerpo legal.
+
+Asimismo. se debe garantizar la inalterabilidad, privacidad, legibilidad, accesibilidad,
+preservación, confidencialidad, autenticidad, integridad y consulta posterior ele la
+info1111ación ele los archivos XML.
+
+Además, las áreas físicas en las que se almacene la infonnación ele los comprobantes
+electrónicos deben contar con los controles para evitar riesgos, daños, pérdida, destrucción,
+alteración, sustracción o divulgación, así como contar con planes ele evaluación, que permitan
+valorar la eficiencia ele los controles asociados al almacenamiento de la infonnación.
+
+El sistema gratuito ele comprobantes electrónicos proporcionado por el Ministerio ele
+Hacienda permite el almacenamiento ele comprobantes electrónicos únicamente por un
+período limitado ele dos me es. por lo que los obligados tributarios que utilizan el referido
+sistema deben tomar las medidas de resguardo y almacenamiento respectivas.
+
+Artículo 23.- Medida de Contingencia. Es responsabilidad del emisor- receptor electrónico,
+del emisor-receptor electrónico no confi1111ante y del receptor electrónico no emisor, así como
+ele aquellos otros obligados tributarios que emitan y entreguen comprobantes electrónicos, el
+diseñar y ejecutar medidas de contingencia que garanticen la continuidad ele la emisión y
+recepción de los comprobantes electrónicos, así como la aceptación y rechazo de los mismos.
+
+Sin pe1juicio de lo anterior, en caso de que el sistema para la emisión de comprobantes
+electrónicos no pueda ser utilizado por situaciones de caso fo11uito o fuerza mayor, al
+encontrarse fuera del control del emisor, se debe hacer uso de comprobantes preimpresos que
+incluyan la leyenda denominada "comprobante provisional", emitidos por una imprenta
+debidamente autorizada por la Administración Tributaria, o por sistemas computarizados que
+cumplan con la normativa que regula este tipo de comprobantes.
+Estos comprobantes utilizados como medida de contingencia deberán ele contener la misma
+información requerida para la generación del comprobante electrónico. Este comprobante no
+puede ser utilizado para fines tributarios, por lo cual no se pem1itirá su uso para respaldo de
+créditos o gastos.
+
+Además. estos comprobantes deberán contar con la leyenda "comprobante provisional", con
+caracteres no inferiores a 3 milímetros de alto en la parte superior del mismo y en la pai1e
+inferior debe de indicar "Este comprobante no puede ser utilizado para fines tributarios, por
+lo cual no se pennitirá su uso para respaldo de créditos o gastos".
+
+Una vez superada la contingencia, a más tardar dentro del plazo ele dos días hábiles
+posteriores a la misma, el emisor-receptor electrónico, debe emitir y enviar al Ministerio de
+Hacienda los respectivos comprobantes electrónicos, en los cuales se debe hacer referencia
+al comprobante provisional. En estos casos, el obligado tributario deberá de conservar los
+elementos probatorios correspondientes (libe1tad probatoria) para demostrar la situación ele
+contingencia invocada.
+
+                                              CAPÍTULO V
+
+                           DE LAS INFRACCIONES TRIBUTARIAS
+
+Artículo 24.- De las infracciones tributarias aparejadas al incumplimiento de la emisión
+y entrega de comprobantes electrónicos. El incumplimiento de las obligaciones tributarias
+contenidas en el presente Reglamento acarreará para el emisor receptor electrónico, el emisor
+receptor electrónico no confirmante y el receptor electrónico no emisor la aplicación ele las
+siguientes infracciones tributarias que se indican:
+
+                   1) Por la no emisión ni entrega de los comprobantes electrónicos, las
+                  infracciones tributarias contenidas en los ai1ículos 85 y 86 del Código de
+                   Nonnas y Procedimientos Tributarips, según corresponda.
+
+                  2) Por la no remisión del archivo XML a la Administración Tributaria, la
+                  infracción tributaria contenida en el artículo 83 del Código de Nonnas y
+                   Procedimientos Tributarios.
+                                             CAPÍTULO Vl
+
+                                     DISPOSICIONES FINALES
+
+ Artículo 25.- Verificación de las obligaciones tributarias. La verificación del
+ cumplimiento de las obligaciones tributarias indicadas en el presente reglamento lo hará la
+ Administración Tributaria a través de los mecanismos de control, tanto extensivo como
+ intensivo, establecidos en el Código de Normas y Procedimientos Tributarios y en el
+ Reglamento de Procedimiento Tributario.
+ Artículo 26.- Derogatorias. Se deroga el Decreto Ejecutivo Nº 41820-H del 19 de junio de
+ 2019, denominado Reglamento de Comprobantes Electrónicos para Efectos Tributarios.
+
+ TRANSITORIO ÚNICO. - El plazo para que se dé la implementación de las modificaciones
+ en las estructuras de los diferentes tipos de comprobantes electrónicos acuñados en el
+ presente reglamento, entrarán a regir conforme lo indique la resolución de alcance general y
+ sus anexos en los que se actualicen las disposiciones técnicas referentes a las estructuras y
+ sistemas de comprobantes electrónicos, debidamente emitida por la Dirección General de
+ Tributación.
+
+ Artículo 27.- Vigencia. El presente Decreto rige a partir de su publicación.
+
+ Dado en la Presidencia de la República. San José, a los 02 días del mes de octubre del dos
+ mil veinticuatro.
+
+   RODRIGO CHAVES ROBLES.--El Ministro de Hacienda, Nogui Acosta Jaén.--1 vez.--
+O.C.Nº 4600090774.--Solicitud Nº 13402.--( D44739 - IN2024908042 ).
+

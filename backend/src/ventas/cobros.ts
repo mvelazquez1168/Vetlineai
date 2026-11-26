@@ -1,0 +1,290 @@
+import { PoolClient } from "pg";
+import { conAlcanceTenant } from "../alcanceTenant";
+import { emitir } from "../facturacion/emision";
+import { DocumentoVenta } from "../facturacion/tipos";
+import { tipoDeCambioDelDia } from "./caja";
+import { lineasParaFacturar, totalDeCuenta } from "./cuentas";
+
+// ---------------------------------------------------------------------
+// COBROS.
+//
+// Un cobro paga una cuenta, total o parcialmente, y puede combinar
+// varios medios (pago mixto). El comprobante lo emite el facturador por
+// su API; acá queda la referencia.
+//
+// DÓLARES. El cliente entrega dólares, el sistema los convierte al tipo
+// del día y **el vuelto se da en colones**, que es como cobra la
+// clínica. Por eso cada medio guarda su moneda, su tipo de cambio y su
+// equivalente en colones: el arqueo necesita los dólares por separado
+// (se cuentan dólares) y el total de la cuenta necesita los colones.
+//
+// EL TIPO DE CAMBIO SE CONGELA EN EL COBRO. Guardarlo en la fila y no
+// mirarlo después significa que un cobro de la semana pasada sigue
+// diciendo a cuánto se convirtió, aunque hoy el dólar esté en otro
+// valor.
+//
+// EL ORDEN: primero se emite el comprobante, después se registra el
+// cobro. Si se registrara primero y la emisión fallara, habría dinero
+// cobrado sin comprobante y nadie lo notaría hasta el cierre.
+// ---------------------------------------------------------------------
+
+export interface MedioCobro {
+  /** Código de Hacienda (Nota 6) o `anticipo`/`credito`. */
+  medio: string;
+  moneda?: string;
+  /** Lo que entrega el cliente, en SU moneda. */
+  monto: number;
+  referencia?: string;
+}
+
+export interface SolicitudCobro {
+  cuentaId: string;
+  sesionId: string;
+  medios: MedioCobro[];
+  /** `01` factura (exige receptor identificado) o `04` tiquete. */
+  tipoComprobante?: "01" | "04";
+  /** Para una venta a crédito: condición 02 o 10, con su plazo. */
+  condicionVenta?: string;
+  plazoCreditoDias?: number;
+  receptor?: DocumentoVenta["receptor"];
+  observaciones?: string;
+  personaId?: string;
+}
+
+export interface ResultadoCobro {
+  cobroId: string;
+  total: number;
+  recibidoCrc: number;
+  vueltoCrc: number;
+  comprobanteId?: string;
+  consecutivo?: string;
+  estadoComprobante?: string;
+}
+
+/** Los dos medios que NO son de Hacienda: saldan sin entregar dinero. */
+const MEDIOS_INTERNOS = new Set(["anticipo", "credito"]);
+
+/**
+ * Cobra una cuenta.
+ *
+ * `db` es la transacción de quien llama **solo para leer y escribir el
+ * cobro**: la emisión del comprobante abre sus propias transacciones
+ * cortas (habla con Hacienda y no puede hacerlo con una transacción
+ * sostenida). Por eso recibe también `tenantId`.
+ */
+export async function cobrar(
+  db: PoolClient,
+  tenantId: string,
+  s: SolicitudCobro
+): Promise<ResultadoCobro> {
+  if (s.medios.length === 0) throw new Error("Un cobro necesita al menos un medio de pago.");
+
+  const cuenta = await db.query<{
+    estado: string;
+    propietario_id: string | null;
+    cliente_nombre: string | null;
+  }>(`SELECT estado, propietario_id, cliente_nombre FROM vta_cuentas WHERE id = $1`, [s.cuentaId]);
+  if (cuenta.rows.length === 0) throw new Error(`No existe la cuenta ${s.cuentaId}.`);
+  if (cuenta.rows[0].estado === "anulada") throw new Error("Esa cuenta está anulada.");
+
+  const totales = await totalDeCuenta(db, s.cuentaId);
+  if (totales.saldo <= 0) {
+    throw new Error("Esa cuenta ya está cobrada por completo.");
+  }
+
+  // --- Convertir cada medio a colones -------------------------------
+  const convertidos: Array<MedioCobro & { tipoCambio: number; montoCrc: number; esFiscal: boolean }> =
+    [];
+  for (const m of s.medios) {
+    if (!(m.monto > 0)) throw new Error(`El monto de ${m.medio} tiene que ser mayor que cero.`);
+    const moneda = m.moneda ?? "CRC";
+    const tipoCambio = moneda === "CRC" ? 1 : await tipoDeCambioDelDia(db, tenantId, moneda);
+    if (m.medio === "02" && !m.referencia?.trim()) {
+      throw new Error(
+        "Un cobro con tarjeta lleva el número de autorización del datáfono: es lo que permite conciliar contra el cierre del BAC."
+      );
+    }
+    if (m.medio === "06" && !m.referencia?.trim()) {
+      throw new Error("Un cobro por SINPE Móvil lleva su número de referencia.");
+    }
+    convertidos.push({
+      ...m,
+      moneda,
+      tipoCambio,
+      montoCrc: Math.round(m.monto * tipoCambio * 100) / 100,
+      esFiscal: !MEDIOS_INTERNOS.has(m.medio),
+    });
+  }
+
+  const recibidoCrc = Math.round(convertidos.reduce((a, m) => a + m.montoCrc, 0) * 100) / 100;
+
+  // Lo que se aplica a la cuenta nunca supera el saldo: si el cliente
+  // entrega de más, la diferencia es vuelto, no un cobro mayor.
+  const aplicado = Math.min(recibidoCrc, totales.saldo);
+  const vueltoCrc = Math.round((recibidoCrc - aplicado) * 100) / 100;
+
+  // Solo el efectivo da vuelto. Pagar 50 000 con tarjeta por una cuenta
+  // de 30 000 no es "vuelto de 20 000": es un error de digitación.
+  if (vueltoCrc > 0) {
+    const efectivo = convertidos
+      .filter((m) => m.medio === "01")
+      .reduce((a, m) => a + m.montoCrc, 0);
+    if (vueltoCrc > efectivo + 0.01) {
+      throw new Error(
+        `Se recibieron ${recibidoCrc} para un saldo de ${totales.saldo}, y el vuelto de ${vueltoCrc} no sale del efectivo entregado (${efectivo}). Revisá los montos.`
+      );
+    }
+  }
+
+  // --- Emitir el comprobante ANTES de registrar el cobro ------------
+  const esCredito = (s.condicionVenta ?? "01") !== "01";
+  let comprobanteId: string | undefined;
+  let consecutivo: string | undefined;
+  let estadoComprobante: string | undefined;
+
+  const lineas = await lineasParaFacturar(db, s.cuentaId);
+  if (lineas.length === 0) throw new Error("La cuenta no tiene cargos: no hay nada que cobrar.");
+
+  // Solo se factura la PRIMERA vez. Un pago parcial posterior no emite
+  // otra factura por lo mismo: eso duplicaría el ingreso.
+  const yaFacturada = await db.query<{ n: string }>(
+    `SELECT count(*)::text AS n FROM vta_cobros
+      WHERE cuenta_id = $1 AND estado = 'aplicado' AND comprobante_id IS NOT NULL`,
+    [s.cuentaId]
+  );
+  const hayQueFacturar = yaFacturada.rows[0].n === "0";
+
+  if (hayQueFacturar) {
+    const tipo = s.tipoComprobante ?? (s.receptor?.identificacion ? "01" : "04");
+    const documento: DocumentoVenta = {
+      tipoComprobante: tipo,
+      condicionVenta: s.condicionVenta ?? "01",
+      plazoCreditoDias: esCredito ? s.plazoCreditoDias : undefined,
+      receptor: s.receptor,
+      receptorPropietarioId: cuenta.rows[0].propietario_id ?? undefined,
+      observaciones: s.observaciones,
+      lineas,
+      // Los medios que van al XML son los FISCALES. El anticipo y el
+      // crédito no son medios de pago de Hacienda.
+      //
+      // Y van por lo APLICADO, no por lo entregado: con dos o más
+      // medios Hacienda valida que la suma dé exactamente el total del
+      // comprobante, y el vuelto no es parte de la factura. El vuelto
+      // se descuenta del EFECTIVO, que es de donde sale físicamente —
+      // ya se comprobó más arriba que alcanza.
+      mediosPago: (() => {
+        const fiscales = convertidos.filter((m) => m.esFiscal);
+        if (fiscales.length === 0) return [{ codigo: "99", otro: "Saldo a favor del cliente" }];
+
+        let porDescontar = vueltoCrc;
+        const declarados = fiscales.map((m) => {
+          let monto = m.montoCrc;
+          if (m.medio === "01" && porDescontar > 0) {
+            const quita = Math.min(monto, porDescontar);
+            monto = Math.round((monto - quita) * 100) / 100;
+            porDescontar = Math.round((porDescontar - quita) * 100) / 100;
+          }
+          return { codigo: m.medio, monto };
+        });
+
+        // Un medio que quedó en cero tras el vuelto no se declara: el
+        // cliente pagó 20 000 en efectivo por 12 204 y el resto es
+        // vuelto, no un medio de pago de cero.
+        const conMonto = declarados.filter((d) => d.monto > 0);
+        if (conMonto.length === 1) return [{ codigo: conMonto[0].codigo }];
+        return conMonto;
+      })(),
+      claveIdempotencia: `cuenta:${s.cuentaId}`,
+    };
+
+    const emitido = await emitir(tenantId, documento);
+    comprobanteId = emitido.comprobanteId;
+    consecutivo = emitido.consecutivo;
+    estadoComprobante = emitido.estado;
+  }
+
+  // --- Registrar el cobro -------------------------------------------
+  const c = await db.query<{ id: string }>(
+    `INSERT INTO vta_cobros (tenant_id, cuenta_id, sesion_id, cobrado_por, total, vuelto_crc,
+                             comprobante_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+    [tenantId, s.cuentaId, s.sesionId, s.personaId ?? null, aplicado, vueltoCrc, comprobanteId ?? null]
+  );
+  const cobroId = c.rows[0].id;
+
+  for (const m of convertidos) {
+    await db.query(
+      `INSERT INTO vta_cobro_medios (tenant_id, cobro_id, medio, es_fiscal, moneda, monto,
+                                     tipo_cambio, monto_crc, referencia)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [
+        tenantId, cobroId, m.medio, m.esFiscal, m.moneda, m.monto, m.tipoCambio, m.montoCrc,
+        m.referencia ?? null,
+      ]
+    );
+  }
+
+  // Si quedó saldada, la cuenta se cierra.
+  const despues = await totalDeCuenta(db, s.cuentaId);
+  if (despues.saldo <= 0.01) {
+    await db.query(
+      `UPDATE vta_cuentas SET estado = 'cobrada', cerrada_en = now() WHERE id = $1`,
+      [s.cuentaId]
+    );
+  }
+
+  return { cobroId, total: aplicado, recibidoCrc, vueltoCrc, comprobanteId, consecutivo, estadoComprobante };
+}
+
+/**
+ * Lo que hay que mostrar en el tiquete térmico de un cobro.
+ *
+ * Una sola consulta y un solo tipo: el tiquete lo dibuja el navegador,
+ * pero QUÉ dice lo decide el servidor. Si la pantalla lo armara, el
+ * tiquete reimpreso podría decir algo distinto del original.
+ */
+export async function datosDeTiquete(db: PoolClient, cobroId: string) {
+  const c = await db.query(
+    `SELECT co.id, co.total, co.vuelto_crc, co.creado_en,
+            cu.numero AS cuenta_numero, cu.cliente_nombre,
+            per.nombre AS cajero,
+            caja.nombre AS caja,
+            cmp.clave, cmp.consecutivo, cmp.tipo_comprobante, cmp.estado AS estado_comprobante,
+            cmp.total_impuesto, cmp.total_venta_neta, cmp.total_descuentos,
+            t.nombre AS clinica, t.logo_url,
+            e.nombre AS emisor_nombre, e.numero_identificacion AS emisor_identificacion,
+            e.ubicacion_otras_senas, e.telefono_numero, e.correo AS emisor_correo
+       FROM vta_cobros co
+       JOIN vta_sesiones_caja s ON s.id = co.sesion_id
+       JOIN vta_cajas caja ON caja.id = s.caja_id
+       LEFT JOIN vta_cuentas cu ON cu.id = co.cuenta_id
+       LEFT JOIN personas per ON per.id = co.cobrado_por
+       LEFT JOIN fact_comprobantes cmp ON cmp.id = co.comprobante_id
+       LEFT JOIN tenants t ON t.id = co.tenant_id
+       LEFT JOIN fact_emisores e ON e.tenant_id = co.tenant_id
+      WHERE co.id = $1`,
+    [cobroId]
+  );
+  if (c.rows.length === 0) throw new Error(`No existe el cobro ${cobroId}.`);
+
+  const medios = await db.query(
+    `SELECT cm.medio, cm.moneda, cm.monto, cm.monto_crc, cm.referencia, mp.nombre AS medio_nombre
+       FROM vta_cobro_medios cm
+       LEFT JOIN fact_cat_medio_pago mp ON mp.codigo = cm.medio
+      WHERE cm.cobro_id = $1`,
+    [cobroId]
+  );
+
+  const lineas = c.rows[0].cuenta_numero
+    ? await db.query(
+        `SELECT descripcion, cantidad, precio_unitario, descuento
+           FROM vta_cargos
+          WHERE cuenta_id = (SELECT cuenta_id FROM vta_cobros WHERE id = $1)
+            AND anulado_en IS NULL
+          ORDER BY creado_en`,
+        [cobroId]
+      )
+    : { rows: [] };
+
+  return { cobro: c.rows[0], medios: medios.rows, lineas: lineas.rows };
+}

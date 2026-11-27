@@ -22,6 +22,9 @@ import { Contingencia } from "./pages/ventas/Contingencia";
 import { CuentaCorriente } from "./pages/ventas/CuentaCorriente";
 import { Encargos } from "./pages/ventas/Encargos";
 import { ReportesVentas } from "./pages/ventas/ReportesVentas";
+import { Dashboards } from "./pages/reportes/Dashboards";
+import { ListaDeMetrica } from "./pages/reportes/ListaDeMetrica";
+import { ConsumoDeProductoPagina } from "./pages/inventario/ConsumoDeProductoPagina";
 import { ConfiguracionCaja } from "./pages/ventas/ConfiguracionCaja";
 import { Presupuestos } from "./pages/ventas/Presupuestos";
 import { PresupuestoDetalle } from "./pages/ventas/PresupuestoDetalle";
@@ -247,6 +250,23 @@ export default function App() {
           deja entrar a todo el personal de la clínica porque el permiso
           es lo que decide, no el rol: una clínica puede darle finanzas a
           quien está en caja. */}
+      {/* REPORTES — prompt 12. Abierto a médico y a administrador: el
+          backend decide qué ve cada uno (el médico, lo suyo; la
+          comparativa y el dashboard de la clínica piden `reportes.ver`),
+          así que gatear la ruta por rol dejaría al médico sin su propio
+          dashboard. */}
+      <Route
+        path="/reportes"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <AppShell />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboards />} />
+        <Route path="lista/:clave" element={<ListaDeMetrica />} />
+      </Route>
+
       <Route
         path="/finanzas"
         element={
@@ -365,6 +385,7 @@ export default function App() {
           <Route path="compras" element={<Compras />} />
           <Route path="conteos" element={<ConteoFisico />} />
           <Route path="alertas" element={<AlertasInventario />} />
+          <Route path="producto/:id/consumo" element={<ConsumoDeProductoPagina />} />
         </Route>
       </Route>
 

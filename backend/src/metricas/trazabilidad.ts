@@ -41,6 +41,8 @@ export interface ConsumoDeProducto {
     fecha: string;
     cantidadBase: number;
     lote: string | null;
+    /** El id, para poder abrir la trazabilidad del lote sin buscarlo por nombre. */
+    loteId: string | null;
     atencionId: string | null;
   }>;
 }
@@ -105,12 +107,13 @@ export async function consumoDeProducto(
     fecha: string;
     cantidad: string;
     lote: string | null;
+    lote_id: string | null;
     atencion_id: string | null;
   }>(
     `SELECT pa.id AS paciente_id, pa.nombre AS paciente, pr.nombre AS cliente,
             m.creado_en::date::text AS fecha,
             m.cantidad_base::numeric(14,4)::text AS cantidad,
-            l.numero AS lote, m.atencion_id
+            l.numero AS lote, m.lote_id, m.atencion_id
        FROM inv_movimientos m
        JOIN inv_tipos_movimiento tm ON tm.codigo = m.tipo
        JOIN pacientes pa ON pa.id = m.paciente_id
@@ -153,6 +156,7 @@ export async function consumoDeProducto(
       fecha: f.fecha,
       cantidadBase: Number(f.cantidad),
       lote: f.lote,
+      loteId: f.lote_id,
       atencionId: f.atencion_id,
     })),
   };

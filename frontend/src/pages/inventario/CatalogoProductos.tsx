@@ -212,6 +212,15 @@ export function CatalogoProductos() {
               ayuda: "Todos sus movimientos",
               onClick: () => navegar(`/inventario/kardex?producto=${p.id}`),
             },
+            {
+              // Prompt 12, §6. Distinto del kardex: el kardex es la
+              // lista de movimientos, esto contesta «en qué se me fue» y
+              // «a qué pacientes se lo pusimos».
+              etiqueta: "Consumo y trazabilidad",
+              icono: "reportes",
+              ayuda: "En qué se fue, a qué pacientes y de qué lote",
+              onClick: () => navegar(`/inventario/producto/${p.id}/consumo`),
+            },
           ]}
         />
       ),

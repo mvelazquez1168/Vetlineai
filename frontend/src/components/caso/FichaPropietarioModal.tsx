@@ -3,6 +3,7 @@ import { LineaDeTiempoCliente } from "../crm/LineaDeTiempoCliente";
 import { PanelConsentimientos } from "../crm/PanelConsentimientos";
 import { Link } from "react-router-dom";
 import { ModalNuevoPaciente } from "../paciente/ModalNuevoPaciente";
+import { ResumenDeCliente } from "../metricas/ResumenDeCliente";
 import { Button } from "../ui/Button";
 import {
   FormularioPropietario,
@@ -42,7 +43,12 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
   const [altaMascotaAbierta, setAltaMascotaAbierta] = useState(false);
   const [pacienteParaAtencion, setPacienteParaAtencion] = useState<PacienteDePropietario | null>(null);
   const [registroAtencionCitaId, setRegistroAtencionCitaId] = useState<string | null>(null);
-  const [pestana, setPestana] = useState<"datos" | "linea" | "consentimientos">("datos");
+  // «Resumen» primero (prompt 12, §4): lo que alguien quiere saber al
+  // abrir la ficha de un cliente es cuánto gasta, qué debe y cómo vienen
+  // sus mascotas, no los campos del formulario.
+  const [pestana, setPestana] = useState<
+    "resumen" | "datos" | "linea" | "consentimientos"
+  >("resumen");
   const [recargarPacientes, setRecargarPacientes] = useState(0);
 
   // EL MISMO FORMULARIO QUE EL ALTA (anexo 07-03, A5). Antes esta ficha
@@ -132,6 +138,7 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
         {!cargando && propietario && (
           <div className="flex gap-1 border-b border-black/5 px-6">
             {([
+              ["resumen", "Resumen"],
               ["datos", "Datos y mascotas"],
               ["linea", "Linea de tiempo"],
               ["consentimientos", "Consentimientos"],
@@ -157,6 +164,9 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
           {cargando && <p className="text-sm text-text-muted">Cargando…</p>}
           {error && <p className="text-sm text-error">{error}</p>}
 
+          {!cargando && propietario && pestana === "resumen" && (
+            <ResumenDeCliente propietarioId={propietarioId} />
+          )}
           {!cargando && propietario && pestana === "linea" && (
             <LineaDeTiempoCliente propietarioId={propietarioId} />
           )}

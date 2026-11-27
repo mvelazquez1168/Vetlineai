@@ -144,7 +144,10 @@ const GRUPOS: Grupo[] = [
     titulo: "Administración",
     opciones: [
       {
-        to: "/admin/reporte-atenciones",
+        // Prompt 12: el dashboard de la clínica y el de los médicos. El
+        // reporte de atenciones sigue estando en su ruta y se llega
+        // desde acá; no se duplica el nombre «Reportes» en el menú.
+        to: "/reportes",
         etiqueta: "Reportes",
         icono: "reportes",
         permiso: "reportes.ver",

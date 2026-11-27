@@ -19,6 +19,7 @@ import { getStoredToken, useAuth } from "../../hooks/useAuth";
 import { AtencionActual } from "./AtencionActual";
 import { ModalLaboratorio } from "./ModalLaboratorio";
 import { DondeSeRegistra, ModalHistorico } from "./AccionesClinicas";
+import { PreventivosYGasto } from "../metricas/PreventivosYGasto";
 import {
   EncabezadoExpediente,
   EstudioLab,
@@ -568,6 +569,12 @@ function Resumen({
           </table>
         )}
       </Card>
+
+      {/* Prompt 12, §5: el estado de preventivos POR TIPO —distinguiendo
+          «sin registro» de «no vacunado»—, el gasto acumulado y los
+          casos abiertos. Va al final del Resumen y no reemplaza nada: la
+          cabecera, los problemas y la evolución ya estaban. */}
+      <PreventivosYGasto pacienteId={pacienteId} />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Sparkline } from "./charts";
 import { Icono, NombreIcono } from "./Icono";
 
@@ -51,6 +52,16 @@ export interface KpiCardProps {
   estado?: "exito" | "aviso" | "error" | "info";
   /** La acción opcional de la tarjeta: «Pedir», «Revisar», «Ver lotes». */
   accion?: { etiqueta: string; alClic: () => void };
+  /**
+   * LA DEFINICIÓN DEL NÚMERO, en lenguaje simple (prompt 12, §1).
+   *
+   * Sale del diccionario de métricas del backend, no se escribe en la
+   * pantalla: si se escribiera acá, la tarjeta diría una cosa y el
+   * cálculo haría otra el día que el cálculo cambie. El ícono de
+   * información existe porque «₡1 250 000 de ingresos» no significa
+   * nada sin saber si incluye el IVA y si resta las notas de crédito.
+   */
+  info?: { descripcion: string; formula: string; excluye?: string; imputacion?: string };
 }
 
 const COLOR_ICONO_MODULO: Record<string, { texto: string; fondo: string }> = {
@@ -93,7 +104,9 @@ export function KpiCard({
   modulo,
   estado,
   accion,
+  info,
 }: KpiCardProps) {
+  const [infoAbierta, setInfoAbierta] = useState(false);
   const clickeable = typeof alClic === "function";
   const Contenedor = clickeable ? "button" : "div";
 
@@ -128,7 +141,48 @@ export function KpiCard({
           </span>
         )}
         <p className="text-xs font-bold uppercase tracking-wide text-text-muted">{titulo}</p>
+        {info && (
+          // `span` con rol de botón, por lo mismo que la acción de abajo:
+          // cuando la tarjeta entera ya es un botón, un botón adentro es
+          // HTML inválido.
+          <span
+            role="button"
+            tabIndex={0}
+            aria-label={`Qué significa ${titulo}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setInfoAbierta((a) => !a);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.stopPropagation();
+                setInfoAbierta((a) => !a);
+              }
+            }}
+            className="ml-auto cursor-pointer text-text-muted hover:text-primary"
+          >
+            <Icono nombre="info" tamano={16} />
+          </span>
+        )}
       </div>
+
+      {info && infoAbierta && (
+        <div className="mt-2 rounded-lg bg-background p-3 text-xs text-text-secondary">
+          <p>{info.descripcion}</p>
+          <p className="mt-1 font-mono text-[11px] text-text-muted">{info.formula}</p>
+          {info.excluye && (
+            <p className="mt-1">
+              <span className="font-semibold">No cuenta:</span> {info.excluye}
+            </p>
+          )}
+          {info.imputacion && (
+            <p className="mt-1">
+              <span className="font-semibold">Se imputa a:</span> {info.imputacion}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="mt-2 flex items-end justify-between gap-4">
         <p className="text-2xl font-bold text-text-primary">{valor}</p>

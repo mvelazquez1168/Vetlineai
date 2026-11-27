@@ -62,7 +62,7 @@ function colones(valor: string | number): string {
 
 export function Inicio() {
   const navegar = useNavigate();
-  const { esMedico, esAdminClinica } = useAuth();
+  const { esMedico, esAdminClinica, puede } = useAuth();
   const { apariencia } = useApariencia();
   const [datos, setDatos] = useState<Indicadores | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -249,6 +249,47 @@ export function Inicio() {
                   </button>
                 </li>
               </ul>
+            </Card>
+          )}
+
+          {/* Prompt 12, §2 y §3: el Inicio AMPLÍA el del 01c, no lo
+              reemplaza. Los indicadores de arriba (citas, casos,
+              preventivos) siguen siendo los mismos; esto agrega la
+              puerta al dashboard, que es donde están los números de
+              gestión con su período y su drill-down. Duplicar las ocho
+              tarjetas acá habría dado dos Inicios que un día dicen
+              distinto. */}
+          {puede("reportes.ver") && (
+            <Card>
+              <CardTitle>Cómo va la clínica</CardTitle>
+              <CardDescription>
+                Ingresos, ticket promedio, ocupación, cargos sin cobrar y el detalle de cada
+                número.
+              </CardDescription>
+              <button
+                type="button"
+                onClick={() => navegar("/reportes")}
+                className="mt-3 min-h-11 font-semibold text-primary hover:underline"
+              >
+                Ver el dashboard →
+              </button>
+            </Card>
+          )}
+
+          {esMedico && (
+            <Card>
+              <CardTitle>Lo tuyo este mes</CardTitle>
+              <CardDescription>
+                Tus atenciones, tu facturación atribuida, tus seguimientos pendientes y los
+                controles que recomendaste y nadie agendó.
+              </CardDescription>
+              <button
+                type="button"
+                onClick={() => navegar("/reportes?tab=medicos")}
+                className="mt-3 min-h-11 font-semibold text-primary hover:underline"
+              >
+                Ver mi dashboard →
+              </button>
             </Card>
           )}
 

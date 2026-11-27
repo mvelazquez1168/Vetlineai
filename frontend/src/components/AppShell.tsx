@@ -109,6 +109,16 @@ const GRUPOS: Grupo[] = [
         modulo: "inventario",
         permiso: "inventario.ver",
       },
+      // Finanzas (prompt 10a). Va en «Comercial» y no en
+      // «Administración» porque es plata que entra y sale, como la caja
+      // y la facturación: quien trabaja en eso las mira juntas.
+      {
+        to: "/finanzas",
+        etiqueta: "Finanzas",
+        icono: "reportes",
+        modulo: "finanzas",
+        permiso: "finanzas.ver",
+      },
     ],
   },
   {

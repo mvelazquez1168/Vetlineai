@@ -62,6 +62,7 @@ import { CasoDetalleAdmin } from "./pages/admin/CasoDetalleAdmin";
 import { Clinica } from "./pages/admin/Clinica";
 import { Notificaciones } from "./pages/admin/Notificaciones";
 import { Duplicados } from "./pages/admin/Duplicados";
+import { Finanzas } from "./pages/finanzas/Finanzas";
 import { Personas } from "./pages/admin/Personas";
 import { RolesPermisos } from "./pages/admin/RolesPermisos";
 import { Politicas } from "./pages/admin/Politicas";
@@ -235,6 +236,22 @@ export default function App() {
         <Route path="notificaciones" element={<Notificaciones />} />
         <Route path="facturacion" element={<Facturacion />} />
         <Route path="facturacion/medio-de-pago" element={<MedioDePago />} />
+      </Route>
+
+      {/* FINANZAS (prompt 10a) — detrás del módulo `finanzas` y del
+          permiso `finanzas.ver`, los dos del lado del backend. Acá se
+          deja entrar a todo el personal de la clínica porque el permiso
+          es lo que decide, no el rol: una clínica puede darle finanzas a
+          quien está en caja. */}
+      <Route
+        path="/finanzas"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <AppShell />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Finanzas />} />
       </Route>
 
       {/* Agenda de Citas — accesible tanto a medico como a admin_clinica

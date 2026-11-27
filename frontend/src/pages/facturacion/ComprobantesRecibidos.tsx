@@ -19,6 +19,8 @@ import {
 } from "../../components/ui";
 import { Recibido, facturacionCrApi, formatearMonto } from "../../lib/facturacionCrApi";
 import { inventarioApi } from "../../lib/inventarioApi";
+import { CategoriaGasto, finanzasApi } from "../../lib/finanzasApi";
+import { useAuth } from "../../hooks/useAuth";
 import { guardarComoArchivo } from "../../lib/descargas";
 import { plural } from "../../lib/plural";
 
@@ -48,6 +50,11 @@ const MENSAJES = [
 
 export function ComprobantesRecibidos() {
   const toast = useToast();
+  // CLASIFICAR UN COMPROBANTE COMO GASTO es una acción de finanzas, con
+  // su permiso: la bandeja la mira quien factura, y registrar el gasto
+  // lo hace quien lleva las cuentas. Si no lo tiene, el botón no está.
+  const { puede } = useAuth();
+  const puedeFinanzas = puede("finanzas.registrar");
   const [recibidos, setRecibidos] = useState<Recibido[] | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -168,6 +175,62 @@ export function ComprobantesRecibidos() {
         err instanceof Error ? err.message : "No pudimos leer las líneas del comprobante."
       );
       setModalCompra(null);
+    }
+  };
+
+  // --- Clasificar un comprobante como gasto (prompt 10a) -------------
+  const [modalGasto, setModalGasto] = useState<Recibido | null>(null);
+  const [categoriasGasto, setCategoriasGasto] = useState<CategoriaGasto[]>([]);
+  const [categoriaElegida, setCategoriaElegida] = useState("");
+  const [sugerida, setSugerida] = useState<string | null>(null);
+  const [generaCuenta, setGeneraCuenta] = useState(true);
+  const [proveedorGasto, setProveedorGasto] = useState<string | null>(null);
+
+  const abrirGasto = async (r: Recibido) => {
+    setModalGasto(r);
+    setGeneraCuenta(true);
+    try {
+      // La sugerencia sale del ÚLTIMO gasto de ese proveedor: es lo que
+      // hace que el segundo recibo de la luz no haya que clasificarlo.
+      //
+      // El proveedor del XML lo resuelve el mismo endpoint que usa la
+      // compra: así la sugerencia funciona igual en los dos caminos y no
+      // hay dos formas de identificar al emisor.
+      const datos = await facturacionCrApi.lineasDelRecibido(r.id);
+      setProveedorGasto(datos.proveedorId);
+      const c = await finanzasApi.categorias(datos.proveedorId ?? undefined);
+      setCategoriasGasto(c.categorias);
+      setCategoriaElegida(c.sugerida?.categoria_id ?? c.categorias[0]?.id ?? "");
+      setSugerida(c.sugerida?.nombre ?? null);
+    } catch {
+      setCategoriasGasto([]);
+    }
+  };
+
+  const registrarGasto = async () => {
+    if (!modalGasto || !categoriaElegida) return;
+    setOcupado(true);
+    try {
+      const r = await finanzasApi.gastoDesdeComprobante({
+        recibidoId: modalGasto.id,
+        categoriaId: categoriaElegida,
+        proveedorId: proveedorGasto,
+        generaCuentaPorPagar: generaCuenta,
+      });
+      toast.mostrar(
+        "exito",
+        r.yaExistia
+          ? "Ese comprobante ya estaba registrado como gasto."
+          : r.cuentaPagarId
+            ? "Gasto registrado, con su cuenta por pagar."
+            : "Gasto registrado."
+      );
+      setModalGasto(null);
+      recargar();
+    } catch (err) {
+      toast.mostrar("error", err instanceof Error ? err.message : "No se pudo registrar el gasto.");
+    } finally {
+      setOcupado(false);
     }
   };
 
@@ -345,6 +408,24 @@ export function ComprobantesRecibidos() {
           </Button>
         ),
     },
+    {
+      // LO QUE NO ES INVENTARIO ES UN GASTO (prompt 10a, §3): la luz, el
+      // internet, el mantenimiento, la publicidad. Se clasifica desde
+      // acá y **no se retipea nada**: el monto, la fecha y el número
+      // salen del comprobante que ya está en esta tabla.
+      key: "gasto",
+      header: "Gasto",
+      render: (r) =>
+        r.registradoEnInventario ? (
+          // Una compra ya es un activo: contarla también como gasto
+          // duplicaría la salida de plata. El backend lo rechaza igual.
+          <span className="text-xs text-text-muted">Entró al inventario</span>
+        ) : !puedeFinanzas ? null : (
+          <Button variant="secondary" size="sm" onClick={() => abrirGasto(r)}>
+            Registrar como gasto
+          </Button>
+        ),
+    },
   ];
 
   const pendientes = (recibidos ?? []).filter((r) => !r.mensajeEnviadoEn).length;
@@ -492,6 +573,52 @@ export function ComprobantesRecibidos() {
             </CardDescription>
           </Card>
         </div>
+      </Modal>
+
+      {/* ------------------------------ Clasificar como gasto (10a) */}
+      <Modal
+        open={modalGasto !== null}
+        onClose={() => setModalGasto(null)}
+        title="Registrar como gasto"
+        description="Para lo que no entra al inventario: la luz, el internet, el mantenimiento. El monto y la fecha salen del comprobante: no hay nada que volver a escribir."
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setModalGasto(null)}>
+              Cancelar
+            </Button>
+            <Button disabled={ocupado || !categoriaElegida} onClick={registrarGasto}>
+              Registrar el gasto
+            </Button>
+          </>
+        }
+      >
+        {modalGasto && (
+          <div className="space-y-3 text-sm">
+            <p className="text-text-muted">
+              {modalGasto.emisorNombre} · {modalGasto.consecutivo} ·{" "}
+              {modalGasto.moneda} {Number(modalGasto.totalComprobante ?? 0).toLocaleString("es-CR")}
+            </p>
+            <Select
+              label="Categoría"
+              value={categoriaElegida}
+              onChange={(e) => setCategoriaElegida(e.target.value)}
+              options={categoriasGasto.map((c) => ({ value: c.id, label: c.nombre }))}
+            />
+            {sugerida && (
+              <p className="text-xs text-text-muted">
+                Sugerida por el último gasto de este proveedor: {sugerida}.
+              </p>
+            )}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={generaCuenta}
+                onChange={(e) => setGeneraCuenta(e.target.checked)}
+              />
+              Todavía no está pagado: generar su cuenta por pagar
+            </label>
+          </div>
+        )}
       </Modal>
 
       {/* ------------------------- Registrar la compra en inventario */}

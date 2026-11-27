@@ -33,6 +33,7 @@ import { facturacionCrRouter } from "./routes/facturacionCr.routes";
 import { inventarioRouter } from "./routes/inventario.routes";
 import { ventasRouter } from "./routes/ventas.routes";
 import { finanzasRouter } from "./routes/finanzas.routes";
+import { administracionRouter } from "./routes/administracion.routes";
 import { busquedaRouter } from "./routes/busqueda.routes";
 import { farmacosRouter } from "./routes/farmacos.routes";
 import { horariosRouter } from "./routes/horarios.routes";
@@ -190,6 +191,9 @@ app.use("/api/ventas", ventasRouter);
 // y el cierre del día. Detrás del módulo `finanzas` y del permiso
 // `finanzas.ver`.
 app.use("/api/finanzas", finanzasRouter);
+// Administración completa (prompt 11): catálogos, turnos, comisiones,
+// cumplimiento, auditoría y procedimientos. Cada sección con su permiso.
+app.use("/api/administracion", administracionRouter);
 // Busqueda global de la paleta de comandos (Ctrl/Cmd+K).
 app.use("/api/busqueda", busquedaRouter);
 app.use("/api/lista-espera", listaEsperaRouter);

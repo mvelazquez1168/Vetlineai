@@ -496,6 +496,15 @@ export function withTenantClient(req: Request, res: Response, next: NextFunction
           await client.query("SELECT set_config('app.tenant_id', $1, true)", [
             req.auth!.tenantId,
           ]);
+          // QUIÉN ESTÁ HACIENDO ESTO, para los triggers (prompt 11). Un
+          // trigger no recibe parámetros y lo único que puede leer es la
+          // sesión: el historial de precios lo necesita para poder decir
+          // quién cambió un precio. Mismo alcance de transacción.
+          if (req.auth!.userId) {
+            await client.query("SELECT set_config('app.persona_id', $1, true)", [
+              req.auth!.userId,
+            ]);
+          }
         }
 
         req.db = client;

@@ -29,12 +29,24 @@ import { tenantPool } from "./db";
 // ---------------------------------------------------------------------
 export async function conAlcanceTenant<T>(
   tenantId: string,
-  fn: (db: PoolClient) => Promise<T>
+  fn: (db: PoolClient) => Promise<T>,
+  /**
+   * Quién está haciendo esto, para los triggers que lo necesitan.
+   *
+   * Un trigger no recibe parámetros: lo único que puede leer es la
+   * sesión. El historial de precios (migración 159) sale de un trigger y
+   * necesita saber quién cambió el precio; sin esto guardaría NULL
+   * siempre. Es opcional porque un job no es una persona.
+   */
+  personaId?: string | null
 ): Promise<T> {
   const client = await tenantPool.connect();
   try {
     await client.query("BEGIN");
     await client.query("SELECT set_config('app.tenant_id', $1, true)", [tenantId]);
+    if (personaId) {
+      await client.query("SELECT set_config('app.persona_id', $1, true)", [personaId]);
+    }
     const resultado = await fn(client);
     await client.query("COMMIT");
     client.release();

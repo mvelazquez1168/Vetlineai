@@ -263,7 +263,10 @@ async function main() {
               tenantId,
               propietarioId,
               rnd.de(esPerro ? MASCOTAS_PERRO : MASCOTAS_GATO),
-              esPerro ? "perro" : "gato",
+              // El vocabulario único de `pacientes.especie` (migración
+              // 165). Este script escribía «perro»/«gato» y era una de
+              // las fuentes del desajuste con `razas.especie`.
+              esPerro ? "Canino" : "Felino",
               rnd.moneda(0.5) ? "macho" : "hembra",
               aFecha(new Date(Date.UTC(rnd.entre(2016, 2025), rnd.entre(0, 11), rnd.entre(1, 28)))),
               String(num.rows[0].numero).padStart(5, "0"),

@@ -52,10 +52,31 @@ const ESTADOS_REPRODUCTIVOS = [
 // Espejo del mapeo del backend (especiePaciente.ts): el combobox de
 // razas habla el vocabulario de `razas.especie` y el formulario el de
 // `pacientes.especie`.
+//
+// ACÁ NO SE COPIAN LOS SINÓNIMOS del backend —«perro», «canina»,
+// «gato»—, y es a propósito: la base ya está normalizada (migración 165)
+// y la escritura normaliza, así que el valor de este selector es siempre
+// del vocabulario único. Copiar la lista de sinónimos sería la segunda
+// lista que un día no coincide con la primera.
 const ESPECIE_A_RAZA: Record<string, "canina" | "felina"> = {
   Canino: "canina",
   Felino: "felina",
 };
+
+/**
+ * Las opciones del selector, MÁS la especie guardada cuando no está
+ * entre ellas.
+ *
+ * DEFECTO QUE ESTO CIERRA: un `<select>` cuyo `value` no coincide con
+ * ninguna opción muestra la primera, así que un paciente registrado como
+ * «perro» o como «Equino» aparecía en la pantalla como **Canino**, y
+ * guardar la ficha le cambiaba la especie sin que nadie se enterara.
+ * Ahora se ve lo que dice el registro.
+ */
+function opcionesDeEspecie(guardada: string): Array<{ value: string; label: string }> {
+  if (!guardada || ESPECIES.some((e) => e.value === guardada)) return ESPECIES;
+  return [...ESPECIES, { value: guardada, label: `${guardada} (como está registrado)` }];
+}
 
 export interface ValoresPaciente {
   nombre: string;
@@ -230,7 +251,7 @@ export function FormularioPaciente({
         <Select
           label="Especie"
           name="especie"
-          options={ESPECIES}
+          options={opcionesDeEspecie(v.especie)}
           value={v.especie}
           disabled={deshabilitado}
           onChange={(e) => set("especie", e.target.value)}
@@ -258,17 +279,32 @@ export function FormularioPaciente({
       <Select
         label="Especie"
         name="especie"
-        options={ESPECIES}
+        options={opcionesDeEspecie(v.especie)}
         value={v.especie}
         disabled={deshabilitado}
         onChange={(e) => set("especie", e.target.value)}
       />
-      <BreedCombobox
-        label="Raza"
-        especie={ESPECIE_A_RAZA[v.especie] ?? "canina"}
-        value={v.razaId}
-        onChange={(id) => set("razaId", id)}
-      />
+      {/* LA RAZA NECESITA SABER LA ESPECIE. Si la guardada no es del
+          vocabulario, no se asume perro: se dice qué falta. Mostrar
+          razas caninas para un paciente cuya especie dice otra cosa es
+          cómo se llegó al defecto que esto arregla. */}
+      {ESPECIE_A_RAZA[v.especie] ? (
+        <BreedCombobox
+          label="Raza"
+          especie={ESPECIE_A_RAZA[v.especie]}
+          value={v.razaId}
+          onChange={(id) => set("razaId", id)}
+        />
+      ) : (
+        <div>
+          <p className="mb-1 text-sm font-semibold text-text-primary">Raza</p>
+          <p className="rounded-lg bg-warning/10 p-3 text-xs text-text-secondary">
+            Este paciente está registrado como <strong>{v.especie || "sin especie"}</strong>, que no
+            es ninguna de las especies con catálogo de razas. Elegí <em>Canino</em> o{" "}
+            <em>Felino</em> arriba para poder elegir la raza.
+          </p>
+        </div>
+      )}
       <Select
         label="Sexo"
         name="sexo"

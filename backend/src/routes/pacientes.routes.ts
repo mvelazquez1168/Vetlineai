@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { registrarInteraccion } from "../crm/interacciones";
 import { calcularEdadEfectiva, fechaNacimientoDesdeEdad } from "../edadPaciente";
-import { validarRazaParaEspecie } from "../especiePaciente";
+import { especieCanonica, validarRazaParaEspecie } from "../especiePaciente";
 import { asignarNumeroExpedientePaciente } from "../expediente";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { soloPersonalDeLaClinica } from "../permisos";
@@ -314,7 +314,11 @@ pacientesRouter.post("/", async (req, res) => {
         duenoId,
         numeroExpediente,
         nombre.trim(),
-        especie.trim(),
+        // LA ESPECIE SE GUARDA EN EL VOCABULARIO ÚNICO. «perro» y
+        // «canina» entran igual y quedan como «Canino»; lo que no se
+        // reconoce se guarda tal cual, porque cambiárselo a «Canino»
+        // sería inventarle la especie a un animal.
+        especieCanonica(especie) ?? especie.trim(),
         body.razaId || null,
         body.sexo ?? null,
         body.estadoReproductivo ?? "desconocido",
@@ -392,7 +396,11 @@ pacientesRouter.patch("/:id", async (req, res) => {
        RETURNING ${DEVUELTO_DEL_PACIENTE}`,
       [
         nombre.trim(),
-        especie.trim(),
+        // LA ESPECIE SE GUARDA EN EL VOCABULARIO ÚNICO. «perro» y
+        // «canina» entran igual y quedan como «Canino»; lo que no se
+        // reconoce se guarda tal cual, porque cambiárselo a «Canino»
+        // sería inventarle la especie a un animal.
+        especieCanonica(especie) ?? especie.trim(),
         body.razaId || null,
         body.sexo ?? null,
         body.estadoReproductivo ?? "desconocido",

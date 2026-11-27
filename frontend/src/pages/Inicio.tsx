@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { EnLaClinicaAhora } from "../components/expediente/EnLaClinicaAhora";
 import {
   Card,
   CardDescription,
@@ -159,6 +160,10 @@ export function Inicio() {
 
       {datos && (
         <div className="grid gap-4 lg:grid-cols-2">
+          {/* QUIÉN ESTÁ ADENTRO (anexo 07-03, A2). Va primero porque es
+              lo único de esta pantalla que cambia minuto a minuto. */}
+          <EnLaClinicaAhora />
+
           {/* Lo que hay que resolver. Solo aparece lo que de verdad está
               pendiente: una tarjeta que dice «nada pendiente» ocupa el
               lugar de una que sí tiene algo. */}

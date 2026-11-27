@@ -8,6 +8,7 @@ import {
 } from "../../hooks/useAutoguardadoAtencion";
 import { useAuth } from "../../hooks/useAuth";
 import { formatearHora } from "../../lib/formatFecha";
+import { guardarComoArchivo } from "../../lib/descargas";
 import {
   Badge,
   Button,
@@ -213,6 +214,16 @@ export function AtencionActual({
         if (vivo) setCargando(false);
       });
   }, [pacienteId]);
+
+  const descargarExamen = async () => {
+    if (!atencionId) return;
+    try {
+      const { blob } = await atencionApi.examenPdf(atencionId);
+      guardarComoArchivo(blob, `examen-${pacienteNombre}.pdf`);
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  };
 
   // --- Atajos ---------------------------------------------------------
   useEffect(() => {
@@ -864,11 +875,20 @@ export function AtencionActual({
                   ),
                 ].join(" · ")}
               </p>
-              {!cerrada && esMedico && (
-                <Button variant="secondary" onClick={() => void todoNormal()} disabled={ocupado}>
-                  Todo normal
+              <div className="flex flex-wrap gap-2">
+                {/* EL EXAMEN EN PAPEL (anexo 07-03, A1): el dueño que lo
+                    pide y el colega al que se deriva el paciente. Sale
+                    con la marca de la clínica y en el orden de lectura
+                    del examen: primero lo anormal. */}
+                <Button variant="secondary" onClick={() => void descargarExamen()} disabled={ocupado}>
+                  Examen en PDF
                 </Button>
-              )}
+                {!cerrada && esMedico && (
+                  <Button variant="secondary" onClick={() => void todoNormal()} disabled={ocupado}>
+                    Todo normal
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </Card>

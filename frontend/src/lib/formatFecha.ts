@@ -44,8 +44,18 @@ export function formatearFechaCorta(fecha: string, zonaHoraria: string | null | 
   return formatearFecha(fecha, zonaHoraria, { day: "2-digit", month: "short", year: "numeric" });
 }
 
+/**
+ * La hora para una persona: «22:58», sin segundos.
+ *
+ * Los traía, y en las seis pantallas que la usan los segundos son
+ * ruido: «entró a las 22:58:03» no le dice a nadie nada que «22:58» no
+ * diga, y la precisión de más sugiere una exactitud que el dato no
+ * tiene (el ingreso se sella cuando alguien abre la atención, no cuando
+ * el animal cruzó la puerta). Si algún día hace falta el segundo —un
+ * registro de auditoría—, va en una función con ese nombre.
+ */
 export function formatearHora(fecha: string, zonaHoraria: string | null | undefined): string {
-  return formatearFecha(fecha, zonaHoraria, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return formatearFecha(fecha, zonaHoraria, { hour: "2-digit", minute: "2-digit" });
 }
 
 // El día calendario de "ahora" en la zona horaria de la clínica — NUNCA

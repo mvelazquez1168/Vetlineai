@@ -40,6 +40,7 @@ import {
 import { enLaClinicaAhora, deshacerSalida, marcarEstancia, registrarSalida } from "../expediente/estancia";
 import { guardarBorrador, liberar, tomarOLatir } from "../expediente/borrador";
 import { resumenDelExamen, tendenciaDeSignos } from "../expediente/examen";
+import { examenEnPdf } from "../expediente/examenPdf";
 import {
   abrirAtencion,
   ConflictoDeVersionError,
@@ -973,6 +974,23 @@ expedienteRouter.get("/pacientes/:id/avisos-receta", async (req, res) => {
 // =====================================================================
 // EL EXAMEN QUE SE LEE Y LAS TENDENCIAS — anexo del 07, A1
 // =====================================================================
+
+/**
+ * El examen en PDF, con la marca de la clínica (anexo 07-03, A1).
+ *
+ * No es soloMedico, igual que el PDF de la receta: lo imprime quien
+ * atiende al cliente en el mostrador.
+ */
+expedienteRouter.get("/atenciones/:id/examen.pdf", async (req, res) => {
+  try {
+    const r = await examenEnPdf(req.db!, req.auth!.tenantId!, req.params.id);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${r.nombreArchivo}"`);
+    res.send(r.buffer);
+  } catch (err) {
+    fallo(res, err, "GET /expediente/atenciones/:id/examen.pdf");
+  }
+});
 
 /** El examen ordenado: primero lo anormal, después el resto. */
 expedienteRouter.get("/atenciones/:id/examen", async (req, res) => {

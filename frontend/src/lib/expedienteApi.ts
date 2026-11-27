@@ -1,5 +1,5 @@
 import { getStoredToken } from "../hooks/useAuth";
-import { apiFetch } from "./api";
+import { apiFetch, apiFetchFile } from "./api";
 
 // ---------------------------------------------------------------------
 // Cliente de la API del expediente clínico (prompt 07, bloque A).
@@ -372,6 +372,10 @@ export const atencionApi = {
       "PATCH",
       campos
     ),
+
+  /** El examen en PDF, con la marca de la clínica (anexo 07-03, A1). */
+  examenPdf: (atencionId: string) =>
+    apiFetchFile(`/expediente/atenciones/${atencionId}/examen.pdf`, { token: getStoredToken() }),
 
   /** Tomar la atención o renovar el latido (anexo 07-03, A4). */
   latido: (atencionId: string) =>

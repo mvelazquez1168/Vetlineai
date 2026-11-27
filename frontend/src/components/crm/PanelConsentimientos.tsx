@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, LoadingState, Select, useToast } from "../ui";
+import { etiqueta } from "../../lib/etiquetas";
 import {
   CambioConsentimiento,
   ConsentimientoCrm,
@@ -82,6 +83,32 @@ export function PanelConsentimientos({ propietarioId, puedeEditar }: Props) {
     const c = consentimientos.find((x) => x.canal === canal && x.finalidad === finalidad);
     return c ? c.otorgado : null;
   };
+
+  // ---------------------------------------------------------------------
+  // SI EL CANAL PREFERIDO NO SIRVE, DECIRLO ACÁ (anexo 07-03, B4).
+  //
+  // El envío ya no se cae cuando el preferido no está consentido: se usa
+  // el siguiente que sí lo esté. Pero entonces la clínica cree que le
+  // está escribiendo por WhatsApp y le está escribiendo por correo, y
+  // sin este aviso no hay forma de saberlo desde la ficha.
+  //
+  // LA REGLA ES LA MISMA QUE LA DEL SERVIDOR, a propósito: sin fila,
+  // salud SÍ sale (es lo que la clínica le debe al cliente) y
+  // promociones NO (es opt-in). Calcularlo distinto acá haría que la
+  // ficha prometa lo contrario de lo que pasa.
+  // ---------------------------------------------------------------------
+  const saleHoy = (canal: string, finalidad: string): boolean => {
+    const v = valor(canal, finalidad);
+    return v === null ? finalidad === "salud" : v;
+  };
+  const preferido = preferencias.canalPreferido;
+  const otro = preferido === "correo" ? "whatsapp" : "correo";
+  const avisoCanal =
+    !preferido || saleHoy(preferido, "salud")
+      ? null
+      : saleHoy(otro, "salud")
+        ? `Prefiere ${etiqueta(preferido)} pero no autorizó los avisos de salud por ahí: le van a salir por ${etiqueta(otro)}.`
+        : `Prefiere ${etiqueta(preferido)} y no autorizó ningún canal para los avisos de salud: no le va a salir ninguno.`;
 
   const cambiar = async (canal: string, finalidad: string, otorgado: boolean) => {
     // La casilla cambia EN EL ACTO y despues se guarda. Es un control
@@ -188,6 +215,11 @@ export function PanelConsentimientos({ propietarioId, puedeEditar }: Props) {
             />
           </div>
         </div>
+        {avisoCanal && (
+          <p className="mt-2 rounded-lg bg-warning/10 px-3 py-2 text-xs font-semibold text-warning">
+            {avisoCanal}
+          </p>
+        )}
         {politicas && (
           <p className="mt-2 text-xs text-text-muted">
             Sin franja propia, rige la de la clínica: {politicas.horaDesde}–{politicas.horaHasta}.

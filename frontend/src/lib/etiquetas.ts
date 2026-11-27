@@ -25,6 +25,9 @@ const EXCEPCIONES: Record<string, string> = {
   iah: "IAH",
   crc: "CRC",
   usd: "USD",
+  // Marca registrada con mayúscula en el medio: «Whatsapp» no es el
+  // nombre del producto.
+  whatsapp: "WhatsApp",
 };
 
 /**

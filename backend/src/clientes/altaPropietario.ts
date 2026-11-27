@@ -22,6 +22,10 @@ export interface DatosAltaPropietario {
   direccion?: string | null;
   tipoIdentificacionId?: string | null;
   numeroIdentificacion?: string | null;
+  /** Cómo llegó a la clínica (anexo 07-03, B3). */
+  fuenteReferenciaId?: string | null;
+  /** Qué cliente lo trajo, cuando la fuente lo pide. */
+  referidoPorPropietarioId?: string | null;
 }
 
 export interface PropietarioCreado {
@@ -42,9 +46,11 @@ export async function crearPropietario(
 ): Promise<PropietarioCreado> {
   const result = await db.query<PropietarioCreado>(
     `INSERT INTO propietarios
-       (tenant_id, nombre, telefono, email, direccion, tipo_identificacion_id, numero_identificacion)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
-     RETURNING id, nombre, telefono, email, direccion, tipo_identificacion_id, numero_identificacion`,
+       (tenant_id, nombre, telefono, email, direccion, tipo_identificacion_id,
+        numero_identificacion, fuente_referencia_id, referido_por_propietario_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING id, nombre, telefono, email, direccion, tipo_identificacion_id,
+               numero_identificacion`,
     [
       tenantId,
       datos.nombre.trim(),
@@ -53,6 +59,8 @@ export async function crearPropietario(
       datos.direccion?.trim() || null,
       datos.tipoIdentificacionId || null,
       datos.numeroIdentificacion?.trim() || null,
+      datos.fuenteReferenciaId || null,
+      datos.referidoPorPropietarioId || null,
     ]
   );
   const nuevo = result.rows[0];
@@ -69,6 +77,25 @@ export async function crearPropietario(
     personaId,
     resumen: nuevo.nombre,
   });
+  // EL REFERIDO ES SU PROPIO EVENTO, además del alta: es el dato que
+  // la fidelización va a premiar (7.1 de la guía), y buscarlo dentro
+  // del evento de registro sería buscarlo en el lugar equivocado.
+  if (datos.referidoPorPropietarioId) {
+    const quien = await db.query<{ nombre: string }>(
+      `SELECT nombre FROM propietarios WHERE id = $1`,
+      [datos.referidoPorPropietarioId]
+    );
+    await registrarInteraccion(db, {
+      tenantId,
+      tipo: "cliente_referido",
+      propietarioId: nuevo.id,
+      origenTabla: "propietarios",
+      origenId: datos.referidoPorPropietarioId,
+      personaId,
+      resumen: `Referido por ${quien.rows[0]?.nombre ?? "otro cliente"}`,
+    });
+  }
+
   await registrarConsentimiento(db, tenantId, {
     propietarioId: nuevo.id,
     canal: "correo",

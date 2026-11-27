@@ -28,6 +28,8 @@ type EjecutorSql = Pool | PoolClient;
 
 export type TipoInteraccion =
   | "cliente_registrado"
+  /* Anexo 07-03, B3: qué cliente lo trajo. */
+  | "cliente_referido"
   | "mascota_registrada"
   | "cita_agendada"
   | "cita_confirmada"

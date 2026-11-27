@@ -4,7 +4,10 @@ import { PanelConsentimientos } from "../crm/PanelConsentimientos";
 import { Link } from "react-router-dom";
 import { ModalNuevoPaciente } from "../paciente/ModalNuevoPaciente";
 import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
+import {
+  FormularioPropietario,
+  useFormularioPropietario,
+} from "../propietario/FormularioPropietario";
 import { useAuth } from "../../hooks/useAuth";
 import { propietariosApi } from "../../lib/propietariosApi";
 import { PacienteDePropietario, Propietario, workspaceApi } from "../../lib/workspaceApi";
@@ -42,10 +45,13 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
   const [pestana, setPestana] = useState<"datos" | "linea" | "consentimientos">("datos");
   const [recargarPacientes, setRecargarPacientes] = useState(0);
 
-  const [nombre, setNombre] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [email, setEmail] = useState("");
-  const [direccion, setDireccion] = useState("");
+  // EL MISMO FORMULARIO QUE EL ALTA (anexo 07-03, A5). Antes esta ficha
+  // tenía sus propios cuatro `Input` sueltos, y era el segundo
+  // formulario de cliente del sistema: el alta pedía identificación y
+  // fuente de referencia, y la edición no las tenía. Un dato que se
+  // puede cargar en un lugar y no se puede corregir en el otro es un
+  // dato que nadie corrige.
+  const form = useFormularioPropietario();
   const [guardando, setGuardando] = useState(false);
   const [errorGuardar, setErrorGuardar] = useState<string | null>(null);
   const [guardadoOk, setGuardadoOk] = useState(false);
@@ -55,10 +61,15 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
     Promise.all([propietariosApi.obtener(propietarioId), workspaceApi.listarPacientesDePropietario(propietarioId)])
       .then(([datosPropietario, datosPacientes]) => {
         setPropietario(datosPropietario.propietario);
-        setNombre(datosPropietario.propietario.nombre);
-        setTelefono(datosPropietario.propietario.telefono ?? "");
-        setEmail(datosPropietario.propietario.email ?? "");
-        setDireccion(datosPropietario.propietario.direccion ?? "");
+        form.reiniciar({
+          nombre: datosPropietario.propietario.nombre,
+          telefono: datosPropietario.propietario.telefono ?? "",
+          email: datosPropietario.propietario.email ?? "",
+          direccion: datosPropietario.propietario.direccion ?? "",
+          fuenteReferenciaId: datosPropietario.propietario.fuente_referencia_id ?? "",
+          referidoPorPropietarioId: datosPropietario.propietario.referido_por_propietario_id ?? "",
+          referidoPorNombre: datosPropietario.propietario.referido_por_nombre ?? "",
+        });
         setPacientes(datosPacientes.pacientes);
       })
       .catch((err) => setError(err instanceof Error ? err.message : "No pudimos cargar el propietario."))
@@ -66,19 +77,23 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
   }, [propietarioId, recargarPacientes]);
 
   const guardar = async () => {
-    if (!nombre.trim()) {
-      setErrorGuardar("Falta el nombre.");
+    const problema = form.validar();
+    if (problema) {
+      setErrorGuardar(problema);
       return;
     }
     setGuardando(true);
     setErrorGuardar(null);
     setGuardadoOk(false);
     try {
+      const campos = form.aCampos();
       const { propietario: actualizado } = await propietariosApi.actualizar(propietarioId, {
-        nombre: nombre.trim(),
-        telefono: telefono.trim() || undefined,
-        email: email.trim() || undefined,
-        direccion: direccion.trim() || undefined,
+        nombre: campos.nombre,
+        telefono: campos.telefono ?? undefined,
+        email: campos.email ?? undefined,
+        direccion: campos.direccion ?? undefined,
+        fuenteReferenciaId: campos.fuenteReferenciaId,
+        referidoPorPropietarioId: campos.referidoPorPropietarioId,
       });
       setPropietario((prev) => (prev ? { ...prev, ...actualizado } : prev));
       setGuardadoOk(true);
@@ -162,12 +177,11 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
                 </div>
               )}
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Input label="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-                <Input label="Teléfono" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
-                <Input label="Correo" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                <Input label="Dirección" value={direccion} onChange={(e) => setDireccion(e.target.value)} />
-              </div>
+              <FormularioPropietario
+                form={form}
+                identificacionEditable={false}
+                propietarioId={propietarioId}
+              />
 
               {errorGuardar && <p className="text-sm text-error">{errorGuardar}</p>}
               {guardadoOk && <p className="text-sm font-semibold text-success">✓ Cambios guardados</p>}

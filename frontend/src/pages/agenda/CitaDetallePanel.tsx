@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -6,6 +6,7 @@ import { RegistroAtencionModal } from "../../components/caso/RegistroAtencionMod
 import { useAuth } from "../../hooks/useAuth";
 import { Cita, citasApi, EstadoCita, etiquetaEstadoCita, PrioridadCita, transicionesValidas } from "../../lib/agendaApi";
 import { etiqueta } from "../../lib/etiquetas";
+import { crmApi } from "../../lib/crmApi";
 
 export interface CitaDetallePanelProps {
   cita: Cita | null;
@@ -41,6 +42,52 @@ export function CitaDetallePanel({ cita, onClose, onEditar, onActualizada, permi
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [registroAtencionAbierto, setRegistroAtencionAbierto] = useState(false);
+  // POR DÓNDE SE LE AVISA (anexo 07-03, B4).
+  //
+  // Se le pregunta al MISMO `puedeEnviar` que usa el envío, en vez de
+  // mostrar la preferencia guardada: la preferencia dice lo que el
+  // cliente quiere y esto dice lo que va a pasar, que no siempre es lo
+  // mismo —si no consintió su canal preferido, el aviso sale por el
+  // otro—. Es el dato que la recepción necesita antes de prometerle
+  // «le mando un WhatsApp».
+  const [aviso, setAviso] = useState<{
+    puede: boolean;
+    canal: string;
+    alternativo: boolean;
+    explicacion?: string;
+  } | null>(null);
+  const propietarioId = cita?.propietario_id;
+  const pacienteId = cita?.paciente_id;
+
+  useEffect(() => {
+    if (!propietarioId || !pacienteId) {
+      setAviso(null);
+      return;
+    }
+    let vivo = true;
+    crmApi
+      .puedeEnviar(propietarioId, {
+        paciente: pacienteId,
+        finalidad: "salud",
+        tipo: "recordatorio_cita",
+      })
+      .then(
+        (v) =>
+          vivo &&
+          setAviso({
+            puede: v.puede,
+            canal: v.canal,
+            alternativo: v.canalAlternativo === true,
+            explicacion: v.explicacion,
+          })
+      )
+      // Sin respuesta no se dice nada: inventar «sale por correo» sería
+      // peor que no mostrar la línea.
+      .catch(() => vivo && setAviso(null));
+    return () => {
+      vivo = false;
+    };
+  }, [propietarioId, pacienteId]);
 
   if (!cita) return null;
 
@@ -83,6 +130,17 @@ export function CitaDetallePanel({ cita, onClose, onEditar, onActualizada, permi
               {cita.especie && <span className="ml-1 font-normal text-text-muted">({etiqueta(cita.especie)})</span>}
             </h3>
             {cita.propietario_nombre && <p className="text-sm text-text-muted">Propietario: {cita.propietario_nombre}</p>}
+            {aviso &&
+              (aviso.puede ? (
+                <p className="mt-0.5 text-xs text-text-muted">
+                  Se le avisa por <span className="font-semibold">{etiqueta(aviso.canal)}</span>
+                  {aviso.alternativo && " (no es el canal que prefiere)"}
+                </p>
+              ) : (
+                <p className="mt-0.5 text-xs font-semibold text-warning">
+                  No se le puede avisar: {aviso.explicacion ?? "sin canal disponible"}
+                </p>
+              ))}
           </div>
           <Badge variant={ESTADO_BADGE[cita.estado]}>{etiquetaEstadoCita(cita.estado)}</Badge>
         </div>

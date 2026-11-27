@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Input, Select } from "../ui";
 import { TipoIdentificacion, workspaceApi } from "../../lib/workspaceApi";
+import { FuenteReferencia, propietariosApi } from "../../lib/propietariosApi";
 
 // ---------------------------------------------------------------------
 // EL FORMULARIO DE CLIENTE — uno solo para todo el sistema.
@@ -31,6 +32,12 @@ export interface ValoresPropietario {
   direccion: string;
   tipoIdentificacionId: string;
   numeroIdentificacion: string;
+  /** Cómo nos conoció (anexo 07-03, B3). */
+  fuenteReferenciaId: string;
+  /** Qué cliente lo trajo, cuando la fuente lo pide. */
+  referidoPorPropietarioId: string;
+  /** Solo para mostrar: el nombre del que lo trajo. No se manda. */
+  referidoPorNombre: string;
 }
 
 const VACIO: ValoresPropietario = {
@@ -40,6 +47,9 @@ const VACIO: ValoresPropietario = {
   direccion: "",
   tipoIdentificacionId: "",
   numeroIdentificacion: "",
+  fuenteReferenciaId: "",
+  referidoPorPropietarioId: "",
+  referidoPorNombre: "",
 };
 
 export interface DatosPropietarioAlBackend {
@@ -49,6 +59,8 @@ export interface DatosPropietarioAlBackend {
   direccion: string | null;
   tipoIdentificacionId: string | null;
   numeroIdentificacion: string | null;
+  fuenteReferenciaId: string | null;
+  referidoPorPropietarioId: string | null;
 }
 
 export interface FormularioPropietarioEstado {
@@ -74,6 +86,8 @@ export function useFormularioPropietario(
       direccion: v.direccion.trim() || null,
       tipoIdentificacionId: v.tipoIdentificacionId || null,
       numeroIdentificacion: v.numeroIdentificacion.trim() || null,
+      fuenteReferenciaId: v.fuenteReferenciaId || null,
+      referidoPorPropietarioId: v.referidoPorPropietarioId || null,
     }),
     validar: () => {
       if (!v.nombre.trim()) return "Falta el nombre del cliente.";
@@ -93,6 +107,8 @@ export function FormularioPropietario({
   form,
   deshabilitado = false,
   onIdentificacionCompleta,
+  identificacionEditable = true,
+  propietarioId,
 }: {
   form: FormularioPropietarioEstado;
   deshabilitado?: boolean;
@@ -103,10 +119,23 @@ export function FormularioPropietario({
    * y completa nombre y datos fiscales.
    */
   onIdentificacionCompleta?: (tipoId: string, numero: string) => void;
+  /**
+   * La identificación se edita solo al crear. En la ficha de un cliente
+   * que ya existe queda fija —`PATCH /propietarios/:id` la ignora a
+   * propósito— y por eso no se muestran los dos campos: un campo que
+   * acepta lo que escribís y después no lo guarda es peor que no
+   * tenerlo.
+   */
+  identificacionEditable?: boolean;
+  /** Quién es, para no ofrecerse a sí mismo como el que lo refirió. */
+  propietarioId?: string;
 }) {
   const { v, set } = form;
   const [tipos, setTipos] = useState<TipoIdentificacion[]>([]);
   const [masAbierto, setMasAbierto] = useState(false);
+  const [fuentes, setFuentes] = useState<FuenteReferencia[]>([]);
+  const [buscaReferidor, setBuscaReferidor] = useState("");
+  const [candidatos, setCandidatos] = useState<Array<{ id: string; nombre: string }>>([]);
 
   useEffect(() => {
     let vivo = true;
@@ -116,10 +145,48 @@ export function FormularioPropietario({
       // Sin catálogo de identificaciones el alta sigue: la
       // identificación es opcional.
       .catch(() => vivo && setTipos([]));
+    propietariosApi
+      .fuentesReferencia()
+      .then((r) => vivo && setFuentes(r.fuentes))
+      // Lo mismo con las fuentes: es un dato opcional y su catálogo no
+      // puede ser el motivo de que no se pueda registrar un cliente.
+      .catch(() => vivo && setFuentes([]));
     return () => {
       vivo = false;
     };
   }, []);
+
+  // EL BUSCADOR DEL REFERIDOR, con la misma espera de 250 ms que el
+  // selector de dueño del alta de paciente: un viaje por tecla pulsada
+  // sobre la búsqueda tolerante de clientes es caro y no se nota mejor.
+  useEffect(() => {
+    if (buscaReferidor.trim().length < 2) {
+      setCandidatos([]);
+      return;
+    }
+    let vivo = true;
+    const t = setTimeout(() => {
+      workspaceApi
+        .buscarPropietarios(buscaReferidor.trim())
+        .then(
+          (r) =>
+            vivo &&
+            setCandidatos(
+              r.propietarios
+                .filter((p) => p.id !== propietarioId)
+                .map((p) => ({ id: p.id, nombre: p.nombre }))
+                .slice(0, 6)
+            )
+        )
+        .catch(() => vivo && setCandidatos([]));
+    }, 250);
+    return () => {
+      vivo = false;
+      clearTimeout(t);
+    };
+  }, [buscaReferidor, propietarioId]);
+
+  const fuenteElegida = fuentes.find((f) => f.id === v.fuenteReferenciaId);
 
   const avisarSiCompleta = (tipoId: string, numero: string) => {
     if (onIdentificacionCompleta && tipoId && numero.trim().length >= 9) {
@@ -143,28 +210,32 @@ export function FormularioPropietario({
         disabled={deshabilitado}
         onChange={(e) => set("telefono", e.target.value)}
       />
-      <Select
-        label="Tipo de identificación"
-        name="tipoIdentificacion"
-        options={[
-          { value: "", label: "Sin registrar" },
-          ...tipos.map((t) => ({ value: t.id, label: t.etiqueta })),
-        ]}
-        value={v.tipoIdentificacionId}
-        disabled={deshabilitado}
-        onChange={(e) => {
-          set("tipoIdentificacionId", e.target.value);
-          avisarSiCompleta(e.target.value, v.numeroIdentificacion);
-        }}
-      />
-      <Input
-        label="Número de identificación"
-        name="numeroIdentificacion"
-        value={v.numeroIdentificacion}
-        disabled={deshabilitado}
-        onChange={(e) => set("numeroIdentificacion", e.target.value)}
-        onBlur={(e) => avisarSiCompleta(v.tipoIdentificacionId, e.target.value)}
-      />
+      {identificacionEditable && (
+        <>
+          <Select
+            label="Tipo de identificación"
+            name="tipoIdentificacion"
+            options={[
+              { value: "", label: "Sin registrar" },
+              ...tipos.map((t) => ({ value: t.id, label: t.etiqueta })),
+            ]}
+            value={v.tipoIdentificacionId}
+            disabled={deshabilitado}
+            onChange={(e) => {
+              set("tipoIdentificacionId", e.target.value);
+              avisarSiCompleta(e.target.value, v.numeroIdentificacion);
+            }}
+          />
+          <Input
+            label="Número de identificación"
+            name="numeroIdentificacion"
+            value={v.numeroIdentificacion}
+            disabled={deshabilitado}
+            onChange={(e) => set("numeroIdentificacion", e.target.value)}
+            onBlur={(e) => avisarSiCompleta(v.tipoIdentificacionId, e.target.value)}
+          />
+        </>
+      )}
       <Input
         label="Correo"
         type="email"
@@ -173,6 +244,102 @@ export function FormularioPropietario({
         disabled={deshabilitado}
         onChange={(e) => set("email", e.target.value)}
       />
+
+      {/* CÓMO NOS CONOCIÓ — anexo 07-03, B3.
+          VA A LA VISTA Y NO PLEGADO, al revés que la dirección. Es un
+          clic, se contesta mientras el cliente está enfrente, y es la
+          única oportunidad de capturarlo: plegado nadie lo abre y la
+          pregunta «de dónde viene mi clientela» se queda sin datos para
+          siempre. Opcional igual: «Sin registrar» es una respuesta. */}
+      {fuentes.length > 0 && (
+        <Select
+          label="¿Cómo nos conoció?"
+          name="fuenteReferencia"
+          className={fuenteElegida?.pide_referidor ? "" : "sm:col-span-2"}
+          options={[
+            { value: "", label: "Sin registrar" },
+            ...fuentes.map((f) => ({ value: f.id, label: f.etiqueta })),
+          ]}
+          value={v.fuenteReferenciaId}
+          disabled={deshabilitado}
+          onChange={(e) => {
+            set("fuenteReferenciaId", e.target.value);
+            // Cambiar de fuente limpia el referidor: dejar «la trajo
+            // Marta» colgando de «Google» es un dato falso.
+            const nueva = fuentes.find((f) => f.id === e.target.value);
+            if (!nueva?.pide_referidor) {
+              set("referidoPorPropietarioId", "");
+              set("referidoPorNombre", "");
+              setBuscaReferidor("");
+            }
+          }}
+        />
+      )}
+
+      {fuenteElegida?.pide_referidor && (
+        <div>
+          {v.referidoPorPropietarioId ? (
+            <div className="rounded-lg border border-black/10 bg-background px-3 py-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Lo trajo
+              </p>
+              <div className="mt-1 flex items-center justify-between gap-2">
+                <span className="text-sm text-text-primary">{v.referidoPorNombre}</span>
+                <button
+                  type="button"
+                  className="text-xs font-semibold text-primary underline"
+                  disabled={deshabilitado}
+                  onClick={() => {
+                    set("referidoPorPropietarioId", "");
+                    set("referidoPorNombre", "");
+                  }}
+                >
+                  Cambiar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Input
+                label="¿Qué cliente lo trajo?"
+                name="referidoPor"
+                placeholder="Buscar por nombre o teléfono"
+                value={buscaReferidor}
+                disabled={deshabilitado}
+                onChange={(e) => setBuscaReferidor(e.target.value)}
+              />
+              {candidatos.length > 0 && (
+                <ul className="mt-1 divide-y divide-black/5 rounded-lg border border-black/10 bg-surface">
+                  {candidatos.map((c) => (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        className="w-full px-3 py-2 text-left text-sm text-text-primary hover:bg-background"
+                        onClick={() => {
+                          set("referidoPorPropietarioId", c.id);
+                          set("referidoPorNombre", c.nombre);
+                          setCandidatos([]);
+                          setBuscaReferidor("");
+                        }}
+                      >
+                        {c.nombre}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {/* SE PUEDE GUARDAR SIN ELEGIRLO. El cliente dice «me
+                  recomendó una señora» y no se acuerda del nombre: la
+                  fuente igual queda registrada. Exigir el enlace haría
+                  que la recepción elija «Otro» para poder guardar, y se
+                  perdería el dato que sí se sabe. */}
+              <p className="mt-1 text-xs text-text-muted">
+                Si no sabés quién, dejalo vacío: la fuente queda registrada igual.
+              </p>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="sm:col-span-2">
         <button

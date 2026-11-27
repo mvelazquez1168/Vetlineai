@@ -285,7 +285,10 @@ citasRouter.get("/", async (req, res) => {
     const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
     const result = await req.db!.query(
       `SELECT c.*, p.nombre AS paciente_nombre, p.especie,
-              prop.nombre AS propietario_nombre,
+              -- El id del dueño, además del nombre: el detalle de la
+              -- cita necesita preguntar por dónde se le puede avisar
+              -- (anexo 07-03, B4), y con el nombre no se puede.
+              prop.id AS propietario_id, prop.nombre AS propietario_nombre,
               m.nombre AS medico_nombre, s.nombre AS sala_nombre
        FROM citas c
        JOIN pacientes p ON p.id = c.paciente_id

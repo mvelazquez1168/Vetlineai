@@ -91,6 +91,7 @@ export interface Cita {
   // Solo presentes en GET /citas (joins)
   paciente_nombre?: string;
   especie?: string;
+  propietario_id?: string;
   propietario_nombre?: string;
   medico_nombre?: string;
   sala_nombre?: string | null;

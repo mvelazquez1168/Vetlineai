@@ -182,6 +182,10 @@ export interface Propietario {
   direccion?: string | null;
   numero_identificacion?: string | null;
   tipo_identificacion_etiqueta?: string | null;
+  /** Cómo llegó a la clínica y quién lo trajo (anexo 07-03, B3). */
+  fuente_referencia_id?: string | null;
+  referido_por_propietario_id?: string | null;
+  referido_por_nombre?: string | null;
 }
 
 export interface TipoIdentificacion {

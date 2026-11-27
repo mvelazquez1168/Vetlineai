@@ -110,6 +110,8 @@ export const crmApi = {
       explicacion?: string;
       canal: string;
       destino?: string;
+      /** El canal usado NO es el que el cliente prefiere (anexo 07-03, B4). */
+      canalAlternativo?: boolean;
     }>(`/crm/clientes/${propietarioId}/puede-enviar?${new URLSearchParams(q).toString()}`),
 
   politicas: () => pedir<PoliticasCrm>("/crm/politicas"),

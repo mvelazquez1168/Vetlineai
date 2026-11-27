@@ -274,6 +274,12 @@ export interface Veredicto {
   reprogramarPara?: Date;
   /** El canal que corresponde usar, resuelto por preferencia. */
   canal: Canal;
+  /**
+   * Se usó un canal distinto del preferido del cliente, porque el
+   * preferido no estaba consentido o no tenía un dato de contacto
+   * válido. La ficha lo advierte (anexo 07-03, B4).
+   */
+  canalAlternativo?: boolean;
   /** El dato de contacto al que iría. */
   destino?: string;
 }
@@ -290,12 +296,97 @@ export interface SolicitudEnvio {
   ahora?: Date;
 }
 
+/**
+ * EL ORDEN EN QUE SE INTENTAN LOS CANALES — anexo 07-03, B4.
+ *
+ * Primero el que pidió quien llama (si lo pidió), después el preferido
+ * del cliente, después el resto. El correo va último del resto porque
+ * es el que toda clínica tiene configurado: es el que siempre funciona,
+ * no el que el cliente eligió.
+ */
+function ordenDeCanales(pedido: Canal | undefined, preferido: Canal | null): Canal[] {
+  const todos: Canal[] = ["whatsapp", "correo"];
+  // Un canal pedido explícitamente NO se cambia: el que llama sabe por
+  // qué lo pidió (una respuesta a un WhatsApp, por ejemplo).
+  if (pedido) return [pedido];
+  const orden = preferido ? [preferido, ...todos.filter((c) => c !== preferido)] : todos;
+  return orden;
+}
+
 export async function puedeEnviar(db: EjecutorSql, s: SolicitudEnvio): Promise<Veredicto> {
   const pol = await politicas(db, s.tenantId);
   const pref = await preferenciasDe(db, s.propietarioId);
-  // El canal: el que pidió quien llama, o el preferido del cliente, o
-  // el correo, que es el que toda clínica ya tiene configurado.
-  const canal: Canal = s.canal ?? pref.canalPreferido ?? "correo";
+
+  // EL CANAL PREFERIDO ORDENA, NO HABILITA (anexo 07-03, B4).
+  //
+  // Antes era un fallback de una sola oportunidad: `pedido ?? preferido
+  // ?? "correo"`, y si ese canal no estaba consentido, cortaba con
+  // `sin_consentimiento` aunque el cliente sí hubiera consentido el
+  // otro. Ahora se recorren los consentidos en orden y se usa el
+  // primero que sirve; el preferido nunca habilita un envío que el
+  // cliente no autorizó.
+  const candidatos = ordenDeCanales(s.canal, pref.canalPreferido);
+  let mejorRechazo: Veredicto | null = null;
+
+  for (const canal of candidatos) {
+    const veredicto = await evaluarCanal(db, s, pol, pref, canal);
+    if (veredicto.puede || veredicto.motivo === "mascota_de_baja") {
+      // Un bloqueo que NO depende del canal —la mascota de baja, el
+      // cliente que no existe— no mejora probando otro: se devuelve ya.
+      return {
+        ...veredicto,
+        canalAlternativo: veredicto.puede && canal !== (pref.canalPreferido ?? candidatos[0]),
+      };
+    }
+    if (!mejorRechazo || etapaAlcanzada(veredicto.motivo) > etapaAlcanzada(mejorRechazo.motivo)) {
+      mejorRechazo = veredicto;
+    }
+  }
+
+  // NINGÚN CANAL SIRVIÓ: se devuelve el rechazo del canal que LLEGÓ MÁS
+  // LEJOS, no el del preferido.
+  //
+  // Esto no es cosmético y costó un defecto propio en la verificación:
+  // con el cliente que prefiere WhatsApp sin consentirlo y tiene el
+  // correo consentido a las 23:46, el correo falla solo por la franja
+  // horaria y devuelve `reprogramarPara`. Devolver en su lugar el
+  // `sin_consentimiento` del WhatsApp le hacía perder al que llama el
+  // único motivo sobre el que PUEDE actuar: el envío se descartaba en
+  // vez de reprogramarse a las 08:00.
+  return mejorRechazo!;
+}
+
+/**
+ * Hasta qué control llegó un canal antes de que lo frenaran.
+ *
+ * Es el orden de los seis controles de `evaluarCanal`, y nada más: a
+ * mayor etapa, más cerca estuvo de salir y más informativo es el
+ * motivo. No es una escala de gravedad.
+ */
+function etapaAlcanzada(motivo: MotivoBloqueo | undefined): number {
+  switch (motivo) {
+    case "sin_consentimiento":
+      return 2;
+    case "sin_contacto":
+      return 3;
+    case "duplicado":
+      return 4;
+    case "tope_promociones":
+      return 5;
+    case "fuera_de_horario":
+      return 6;
+    default:
+      return 1;
+  }
+}
+
+async function evaluarCanal(
+  db: EjecutorSql,
+  s: SolicitudEnvio,
+  pol: Awaited<ReturnType<typeof politicas>>,
+  pref: Awaited<ReturnType<typeof preferenciasDe>>,
+  canal: Canal
+): Promise<Veredicto> {
 
   const cliente = await db.query<{
     email: string | null;

@@ -56,6 +56,28 @@ propietariosRouter.use((req, res, next) => {
 // acá el país no es un parámetro: es siempre el de req.auth, nunca uno
 // elegido por el cliente.
 // ---------------------------------------------------------------------
+/**
+ * Cómo pudo llegar el cliente (anexo 07-03, B3).
+ *
+ * Las de la plataforma más las que agregó la clínica: la RLS de
+ * `crm_fuentes_referencia` ya devuelve las dos, así que acá no hay
+ * ningún filtro por tenant que pueda quedar desalineado con ella.
+ */
+propietariosRouter.get("/fuentes-referencia", async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT id, codigo, etiqueta, pide_referidor
+         FROM crm_fuentes_referencia
+        WHERE activo
+        ORDER BY orden, etiqueta`
+    );
+    res.json({ fuentes: r.rows });
+  } catch (err) {
+    console.error("GET /propietarios/fuentes-referencia", err);
+    res.status(500).json({ error: "Error al listar las fuentes de referencia." });
+  }
+});
+
 propietariosRouter.get("/tipos-identificacion", async (req, res) => {
   try {
     const result = await req.db!.query(
@@ -247,7 +269,16 @@ propietariosRouter.post("/", async (req, res) => {
     const nuevo = await crearPropietario(
       req.db!,
       req.auth!.tenantId!,
-      { nombre, telefono, email, direccion, tipoIdentificacionId, numeroIdentificacion },
+      {
+        nombre,
+        telefono,
+        email,
+        direccion,
+        tipoIdentificacionId,
+        numeroIdentificacion,
+        fuenteReferenciaId: (req.body as Record<string, string>).fuenteReferenciaId,
+        referidoPorPropietarioId: (req.body as Record<string, string>).referidoPorPropietarioId,
+      },
       req.auth!.userId
     );
 
@@ -270,9 +301,15 @@ propietariosRouter.get("/:id", async (req, res) => {
   try {
     const result = await req.db!.query(
       `SELECT p.id, p.nombre, p.telefono, p.email, p.direccion,
-              p.numero_identificacion, ti.etiqueta AS tipo_identificacion_etiqueta
+              p.numero_identificacion, ti.etiqueta AS tipo_identificacion_etiqueta,
+              -- Anexo 07-03, B3. El nombre del referidor viaja junto al
+              -- id: sin él la ficha mostraría un UUID o tendría que
+              -- pedir otro viaje al servidor para escribir «Marta Vega».
+              p.fuente_referencia_id, p.referido_por_propietario_id,
+              r.nombre AS referido_por_nombre
        FROM propietarios p
        LEFT JOIN tipos_identificacion ti ON ti.id = p.tipo_identificacion_id
+       LEFT JOIN propietarios r ON r.id = p.referido_por_propietario_id
        WHERE p.id = $1`,
       [req.params.id]
     );
@@ -288,18 +325,27 @@ propietariosRouter.get("/:id", async (req, res) => {
 
 // ---------------------------------------------------------------------
 // PATCH /api/propietarios/:id
-// Editables: nombre, teléfono, correo, dirección. La identificación
-// (tipo y número) NO se acepta acá a propósito — una vez creado el
-// propietario queda fija; si el body la incluye, se ignora en silencio
-// en vez de fallar, para no forzar al frontend a nunca mandarla.
+// Editables: nombre, teléfono, correo, dirección, y cómo llegó a la
+// clínica (anexo 07-03, B3). La identificación (tipo y número) NO se
+// acepta acá a propósito — una vez creado el propietario queda fija; si
+// el body la incluye, se ignora en silencio en vez de fallar, para no
+// forzar al frontend a nunca mandarla.
+//
+// LA FUENTE SÍ SE EDITA, y no es una contradicción con la
+// identificación: la fuente es un dato de marketing que la recepción
+// completa después («ah, me dijo que la mandó la vecina»), mientras la
+// identificación es la que ya salió impresa en un comprobante.
 // ---------------------------------------------------------------------
 propietariosRouter.patch("/:id", async (req, res) => {
-  const { nombre, telefono, email, direccion } = req.body as {
-    nombre?: string;
-    telefono?: string;
-    email?: string;
-    direccion?: string;
-  };
+  const { nombre, telefono, email, direccion, fuenteReferenciaId, referidoPorPropietarioId } =
+    req.body as {
+      nombre?: string;
+      telefono?: string;
+      email?: string;
+      direccion?: string;
+      fuenteReferenciaId?: string | null;
+      referidoPorPropietarioId?: string | null;
+    };
 
   if (!nombre || !nombre.trim()) {
     return res.status(400).json({ error: "Falta el nombre del propietario." });
@@ -310,10 +356,26 @@ propietariosRouter.patch("/:id", async (req, res) => {
 
   try {
     const result = await req.db!.query(
-      `UPDATE propietarios SET nombre = $1, telefono = $2, email = $3, direccion = $4
-       WHERE id = $5
-       RETURNING id, nombre, telefono, email, direccion, numero_identificacion`,
-      [nombre.trim(), telefono?.trim() || null, email?.trim() || null, direccion?.trim() || null, req.params.id]
+      `UPDATE propietarios
+          SET nombre = $1, telefono = $2, email = $3, direccion = $4,
+              fuente_referencia_id = $5,
+              -- NADIE SE REFIERE A SÍ MISMO. No es un chiste: el
+              -- buscador del formulario lista a todos los clientes y el
+              -- que se está editando está entre ellos. Un ciclo de un
+              -- solo nodo no lo frena la FK.
+              referido_por_propietario_id = CASE WHEN $6::uuid = $7::uuid THEN NULL ELSE $6::uuid END
+        WHERE id = $7
+        RETURNING id, nombre, telefono, email, direccion, numero_identificacion,
+                  fuente_referencia_id, referido_por_propietario_id`,
+      [
+        nombre.trim(),
+        telefono?.trim() || null,
+        email?.trim() || null,
+        direccion?.trim() || null,
+        fuenteReferenciaId || null,
+        referidoPorPropietarioId || null,
+        req.params.id,
+      ]
     );
     if (!result.rows[0]) {
       return res.status(404).json({ error: "Propietario no encontrado." });

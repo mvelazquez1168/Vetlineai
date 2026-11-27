@@ -46,7 +46,24 @@ export class PosibleDuplicado extends Error {
   }
 }
 
+/** Cómo pudo llegar un cliente a la clínica (anexo 07-03, B3). */
+export interface FuenteReferencia {
+  id: string;
+  codigo: string;
+  etiqueta: string;
+  /** Cuando es true, el formulario pide ADEMÁS qué cliente lo trajo. */
+  pide_referidor: boolean;
+}
+
 export const propietariosApi = {
+  /**
+   * El catálogo de fuentes: las de la plataforma más las de la clínica.
+   * Lo pide el formulario de cliente y nada más; si falla, el alta sigue
+   * sin la pregunta, porque es un dato opcional.
+   */
+  fuentesReferencia: () =>
+    authedFetch<{ fuentes: FuenteReferencia[] }>("/propietarios/fuentes-referencia"),
+
   // Fichero de clientes de la clínica — pantalla de listado, distinta del
   // typeahead de 10 resultados que ya usa el wizard de casos/citas
   // (workspaceApi.buscarPropietarios).
@@ -92,7 +109,16 @@ export const propietariosApi = {
   // acepta acá a propósito (ver backend/src/routes/propietarios.routes.ts).
   actualizar: (
     id: string,
-    data: { nombre: string; telefono?: string; email?: string; direccion?: string }
+    data: {
+      nombre: string;
+      telefono?: string;
+      email?: string;
+      direccion?: string;
+      /* Anexo 07-03, B3. La identificación NO viaja acá a propósito:
+         el PATCH la ignora y la ficha la muestra como no editable. */
+      fuenteReferenciaId?: string | null;
+      referidoPorPropietarioId?: string | null;
+    }
   ) =>
     authedFetch<{ propietario: Propietario }>(`/propietarios/${id}`, {
       method: "PATCH",

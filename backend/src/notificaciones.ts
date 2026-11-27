@@ -108,17 +108,30 @@ export async function emitirNotificacion<T extends TipoCorreo>(
   // cuando el envío queda bloqueado: la clínica tiene que poder ver que
   // había algo para avisar y por qué no salió. Lo que no sale es el
   // correo.
+  //
+  // EL CANAL YA NO ESTÁ FIJO EN CORREO (anexo 07-03, B4). Lo resuelve
+  // `puedeEnviar` recorriendo los canales consentidos, empezando por el
+  // preferido del cliente. Hasta acá, la preferencia que la clínica
+  // cargaba en la ficha no influía en NADA: todas las notificaciones
+  // del sistema —citas, recetas, preventivos, informes— salían por
+  // correo igual.
   let bloqueo: string | null = null;
+  let canalElegido: "correo" | "whatsapp" = "correo";
+  let canalAlternativo = false;
   if (params.destinatarioTipo === "propietario") {
     const veredicto = await puedeEnviar(db, {
       tenantId: params.tenantId,
       propietarioId: params.destinatarioId,
       pacienteId: params.pacienteId ?? null,
-      canal: "correo",
       finalidad: "salud",
       tipo: params.tipo,
     });
-    if (!veredicto.puede) bloqueo = veredicto.explicacion ?? veredicto.motivo ?? "sin motivo";
+    if (!veredicto.puede) {
+      bloqueo = veredicto.explicacion ?? veredicto.motivo ?? "sin motivo";
+    } else {
+      canalElegido = veredicto.canal;
+      canalAlternativo = veredicto.canalAlternativo === true;
+    }
   }
 
   const insertado = await db.query(
@@ -154,6 +167,35 @@ export async function emitirNotificacion<T extends TipoCorreo>(
       motivo: bloqueo,
     });
     console.log(`[notificaciones] ${params.tipo} no salió: ${bloqueo}`);
+    return notificacionId;
+  }
+
+  // EL DESPACHO, POR EL CANAL DEL VEREDICTO.
+  //
+  // WhatsApp va por `crm/mensajeria.ts`, que es el único que tiene
+  // proveedor (simulado en desarrollo, con el setter que se niega a
+  // usar uno real sin ENVIOS_REALES=1). El correo sigue por donde
+  // siempre, con su plantilla y su marca de clínica: el mensaje de
+  // WhatsApp es texto, no tiene plantilla HTML, y por eso NO se puede
+  // mandar lo mismo por los dos lados.
+  if (canalElegido === "whatsapp") {
+    const { enviarMensaje } = await import("./crm/mensajeria");
+    await enviarMensaje(db as PoolClient, params.tenantId, {
+      propietarioId: params.destinatarioId,
+      pacienteId: params.pacienteId ?? null,
+      canal: "whatsapp",
+      finalidad: "salud",
+      tipo: params.tipo,
+      texto: `${params.asunto}\n\n${params.contenido}`,
+    });
+    await db.query(`UPDATE notificaciones SET estado = 'enviada', enviada_en = now() WHERE id = $1`, [
+      notificacionId,
+    ]);
+    if (canalAlternativo) {
+      console.log(
+        `[notificaciones] ${params.tipo} salió por WhatsApp y no por el canal preferido del cliente.`
+      );
+    }
     return notificacionId;
   }
 

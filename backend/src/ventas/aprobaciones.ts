@@ -34,7 +34,18 @@ export interface SolicitudAprobacion {
   referenciaId?: string;
   monto?: number;
   motivo: string;
-  solicitadaPor?: string;
+  /**
+   * QUIÉN PIDE NO ES OPCIONAL.
+   *
+   * Era `solicitadaPor?` y el control de «quien cobra no aprueba sus
+   * propias anulaciones» estaba escrito como
+   * `if (solicitada_por && solicitada_por === resueltaPor)`: con el
+   * campo vacío, el control no corría y el cajero podía aprobarse su
+   * propia anulación apretando dos botones. La ruta HTTP siempre lo
+   * manda —lo toma del token—, así que el agujero era para cualquier
+   * flujo interno futuro, y «hoy nadie lo llama así» no es un control.
+   */
+  solicitadaPor: string;
 }
 
 export async function solicitarAprobacion(
@@ -45,10 +56,15 @@ export async function solicitarAprobacion(
   if (!s.motivo?.trim()) {
     throw new Error("Una solicitud de aprobación lleva motivo: sin eso nadie puede resolverla.");
   }
+  if (!s.solicitadaPor?.trim()) {
+    throw new Error(
+      "Una solicitud de aprobación lleva quién la pide: es lo que impide que esa misma persona la apruebe."
+    );
+  }
   const r = await db.query<{ id: string }>(
     `INSERT INTO vta_aprobaciones (tenant_id, tipo, referencia_id, monto, motivo, solicitada_por)
      VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-    [tenantId, s.tipo, s.referenciaId ?? null, s.monto ?? null, s.motivo.trim(), s.solicitadaPor ?? null]
+    [tenantId, s.tipo, s.referenciaId ?? null, s.monto ?? null, s.motivo.trim(), s.solicitadaPor]
   );
   return { id: r.rows[0].id };
 }
@@ -85,9 +101,21 @@ export async function resolverAprobacion(
     throw new Error(`Esa solicitud ya está "${a.rows[0].estado}".`);
   }
 
-  // Quien pide no aprueba. Es el control entero: sin esto, "pedir
-  // autorización" sería apretar dos botones.
-  if (a.rows[0].solicitada_por && a.rows[0].solicitada_por === datos.resueltaPor) {
+  // QUIEN PIDE NO APRUEBA. Es el control entero: sin esto, «pedir
+  // autorización» sería apretar dos botones.
+  //
+  // FALLA CERRADO cuando no se sabe quién pidió. Antes el control se
+  // salteaba en ese caso —`if (solicitada_por && …)`—, que es
+  // exactamente al revés: una solicitud sin autor es la única en la que
+  // es imposible saber si quien aprueba es el mismo que pidió. Las
+  // filas viejas sin autor, si existieran, no se resuelven y hay que
+  // mirarlas a mano; eso es mejor que aprobarlas sin control.
+  if (!a.rows[0].solicitada_por) {
+    throw new Error(
+      "Esa solicitud no tiene registrado quién la pidió, así que no se puede comprobar que la apruebe otra persona. Resolvela desde una solicitud nueva."
+    );
+  }
+  if (a.rows[0].solicitada_por === datos.resueltaPor) {
     throw new Error(
       "No se puede aprobar la propia solicitud. Tiene que resolverla otra persona con permiso de administrador."
     );

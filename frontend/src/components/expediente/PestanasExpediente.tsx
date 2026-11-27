@@ -1,5 +1,7 @@
 import { plural } from "../../lib/plural";
 import { useEffect, useMemo, useState } from "react";
+import { apiFetchFile } from "../../lib/api";
+import { guardarComoArchivo } from "../../lib/descargas";
 import {
   Badge,
   Button,
@@ -13,8 +15,9 @@ import {
   Select,
   useToast,
 } from "../ui";
-import { useAuth } from "../../hooks/useAuth";
+import { getStoredToken, useAuth } from "../../hooks/useAuth";
 import { AtencionActual } from "./AtencionActual";
+import { ModalLaboratorio } from "./ModalLaboratorio";
 import { DondeSeRegistra, ModalHistorico } from "./AccionesClinicas";
 import {
   EncabezadoExpediente,
@@ -747,8 +750,8 @@ function Laboratorio({
   >([]);
   const [cargando, setCargando] = useState(true);
   const [tendencia, setTendencia] = useState<Tendencia | null>(null);
-  const [pidiendo, setPidiendo] = useState(false);
-  const [nuevo, setNuevo] = useState({ tipoEstudio: "hemograma", laboratorio: "", esExterno: false });
+  const [registrando, setRegistrando] = useState(false);
+  const [cerrando, setCerrando] = useState<EstudioLab | null>(null);
 
   const recargar = () => {
     setCargando(true);
@@ -772,17 +775,15 @@ function Laboratorio({
     }
   };
 
-  const pedir = async () => {
-    setPidiendo(true);
+  // El adjunto se baja por el endpoint autenticado, igual que el de un
+  // caso: nunca por una URL directa al almacenamiento, que no tiene
+  // sesion ni chequeo de clinica.
+  const abrirAdjunto = async (archivoId: string, nombre: string) => {
     try {
-      await expedienteApi.solicitarEstudio(pacienteId, nuevo);
-      toast.exito("Estudio solicitado. Queda pendiente hasta que se cargue el resultado.");
-      setNuevo({ tipoEstudio: "hemograma", laboratorio: "", esExterno: false });
-      recargar();
+      const { blob } = await apiFetchFile(`/archivos/${archivoId}`, { token: getStoredToken() });
+      guardarComoArchivo(blob, nombre);
     } catch (err) {
       toast.error((err as Error).message);
-    } finally {
-      setPidiendo(false);
     }
   };
 
@@ -798,43 +799,34 @@ function Laboratorio({
 
   return (
     <div className="space-y-4">
+      {/* REGISTRAR LABORATORIO es la accion principal (anexo 07-03, A6):
+          el caso normal es que el estudio YA SE HIZO y lo que falta es
+          dejar su resultado. El formulario de tres campos que habia aca
+          solo sabia crear una orden. */}
       {esMedico && (
         <Card>
-          <CardTitle>Pedir un estudio</CardTitle>
-          <CardDescription>
-            Una orden es un estudio sin resultado todavía: pasa a «resultado recibido» cuando se
-            cargan los valores, y hasta que un médico lo marque visto queda como aviso.
-          </CardDescription>
-          <div className="mt-3 grid gap-3 sm:grid-cols-4">
-            <Select
-              name="lab-tipo"
-              label="Estudio"
-              value={nuevo.tipoEstudio}
-              onChange={(e) => setNuevo({ ...nuevo, tipoEstudio: e.target.value })}
-              options={[
-                { value: "hemograma", label: "Hemograma" },
-                { value: "quimica", label: "Química sanguínea" },
-                { value: "urianalisis", label: "Urianálisis" },
-                { value: "coproparasitologico", label: "Coproparasitológico" },
-                { value: "otro", label: "Otro" },
-              ]}
-            />
-            <Input
-              name="lab-laboratorio"
-              label="Laboratorio (si es externo)"
-              value={nuevo.laboratorio}
-              onChange={(e) =>
-                setNuevo({ ...nuevo, laboratorio: e.target.value, esExterno: e.target.value !== "" })
-              }
-            />
-            <div className="flex items-end sm:col-span-2">
-              <Button disabled={pidiendo} onClick={pedir}>
-                Solicitar
-              </Button>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle>Laboratorio</CardTitle>
+              <CardDescription>
+                Registre un estudio ya realizado con su archivo, o dejelo pendiente si el resultado
+                todavia no llego. Tambien entra lo que el cliente trae de otra clinica.
+              </CardDescription>
             </div>
+            <Button onClick={() => setRegistrando(true)}>+ Registrar laboratorio</Button>
           </div>
         </Card>
       )}
+
+      <ModalLaboratorio
+        abierto={registrando}
+        pacienteId={pacienteId}
+        onCerrar={() => setRegistrando(false)}
+        onRegistrado={() => {
+          recargar();
+          onCambio();
+        }}
+      />
 
       {analitos.length > 0 && (
         <Card>
@@ -900,26 +892,43 @@ function Laboratorio({
               <div>
                 <CardTitle>{e.tipo_estudio}</CardTitle>
                 <p className="text-xs text-text-muted">
-                  {fechaCorta(e.fecha_resultado ?? e.fecha_solicitud)}
+                  {e.fecha_muestra
+                    ? `muestra del ${fechaCorta(e.fecha_muestra)}`
+                    : fechaCorta(e.fecha_resultado ?? e.fecha_solicitud)}
                   {e.es_externo ? ` · externo${e.laboratorio ? `: ${e.laboratorio}` : ""}` : " · interno"}
                   {e.solicitado_por_nombre ? ` · pedido por ${e.solicitado_por_nombre}` : ""}
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                {/* LOS PENDIENTES SE DISTINGUEN A SIMPLE VISTA, y con el
+                    nombre que entiende el medico: «solicitado» es el
+                    valor de la base, no lo que se dice en una clinica
+                    (anexo 07-03, A6). */}
                 <Badge
                   variant={
                     e.estado === "resultado_recibido"
                       ? e.visto_en
                         ? "success"
                         : "warning"
-                      : "info"
+                      : e.estado === "cancelado"
+                        ? "neutral"
+                        : "info"
                   }
                   dot
                 >
-                  {e.estado === "resultado_recibido" && !e.visto_en
-                    ? "resultado sin revisar"
-                    : e.estado.replace("_", " ")}
+                  {e.estado === "resultado_recibido"
+                    ? e.visto_en
+                      ? "con resultado"
+                      : "resultado sin revisar"
+                    : e.estado === "cancelado"
+                      ? "cancelado"
+                      : "pendiente de resultado"}
                 </Badge>
+                {esMedico && e.estado === "solicitado" && (
+                  <Button variant="secondary" onClick={() => setCerrando(e)}>
+                    Cargar el resultado
+                  </Button>
+                )}
                 {esMedico && e.estado === "resultado_recibido" && !e.visto_en && (
                   <Button variant="secondary" onClick={() => marcarVisto(e.id)}>
                     Marcar visto
@@ -967,10 +976,138 @@ function Laboratorio({
             {e.observaciones && (
               <p className="mt-2 text-sm text-text-muted">{e.observaciones}</p>
             )}
+
+            {/* LOS ARCHIVOS DEL RESULTADO (anexo 07-03, A6). Se abren con
+                el mismo descargador autenticado que los adjuntos de un
+                caso: nunca una URL directa al almacenamiento. */}
+            {e.adjuntos?.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2 border-t border-black/5 pt-3">
+                {e.adjuntos.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded-md border border-black/10 px-2 py-1 text-xs font-semibold text-primary hover:bg-black/5"
+                    onClick={() => void abrirAdjunto(a.id, a.nombre_archivo)}
+                  >
+                    <Icono nombre={a.tipo === "imagen" ? "paciente" : "pdf"} tamano={14} />
+                    {a.nombre_archivo}
+                  </button>
+                ))}
+              </div>
+            )}
           </Card>
         ))
       )}
+
+      {/* CERRAR UN PENDIENTE: el mismo estudio gana su resultado, no se
+          crea otro registro. */}
+      {cerrando && (
+        <ModalCerrarPendiente
+          estudio={cerrando}
+          onCerrar={() => setCerrando(null)}
+          onListo={() => {
+            recargar();
+            onCambio();
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------
+// «Ya llegó el resultado» — anexo 07-03, A6.
+//
+// No crea un estudio nuevo: cierra el que ya estaba pendiente, con su
+// fecha de muestra, su comentario y sus archivos.
+// ---------------------------------------------------------------------
+function ModalCerrarPendiente({
+  estudio,
+  onCerrar,
+  onListo,
+}: {
+  estudio: EstudioLab;
+  onCerrar: () => void;
+  onListo: () => void;
+}) {
+  const toast = useToast();
+  const [fechaMuestra, setFechaMuestra] = useState(new Date().toISOString().slice(0, 10));
+  const [observaciones, setObservaciones] = useState(estudio.observaciones ?? "");
+  const [archivos, setArchivos] = useState<File[]>([]);
+  const [ocupado, setOcupado] = useState(false);
+
+  const guardar = async () => {
+    setOcupado(true);
+    try {
+      await atencionApi.cerrarPendienteConResultado(estudio.id, {
+        fechaMuestra,
+        observaciones: observaciones || null,
+      });
+      let fallados = 0;
+      for (const archivo of archivos) {
+        try {
+          await atencionApi.adjuntarAlEstudio(estudio.id, archivo);
+        } catch {
+          fallados++;
+        }
+      }
+      if (fallados > 0) {
+        toast.error(`El resultado quedó cargado, pero ${fallados} archivo(s) no se subieron.`);
+      } else {
+        toast.exito("Resultado cargado.");
+      }
+      onListo();
+      onCerrar();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  };
+
+  return (
+    <Modal
+      open
+      onClose={onCerrar}
+      title={`Resultado de ${estudio.tipo_estudio}`}
+      description="Se cierra el estudio que estaba pendiente. No se crea otro."
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onCerrar} disabled={ocupado}>
+            Cancelar
+          </Button>
+          <Button onClick={() => void guardar()} disabled={ocupado}>
+            {ocupado ? "Guardando…" : "Cargar el resultado"}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-3">
+        <Input
+          label="Fecha de la toma de la muestra"
+          type="date"
+          value={fechaMuestra}
+          onChange={(e) => setFechaMuestra(e.target.value)}
+        />
+        <div>
+          <span className="mb-1 block text-sm font-semibold text-text-primary">
+            Resultado (PDF o foto)
+          </span>
+          <input
+            type="file"
+            multiple
+            accept=".pdf,.jpg,.jpeg,.png,.webp"
+            onChange={(e) => setArchivos(Array.from(e.target.files ?? []))}
+            className="block w-full text-sm text-text-muted file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-sobre-primary"
+          />
+        </div>
+        <Input
+          label="Comentario o interpretación"
+          value={observaciones}
+          onChange={(e) => setObservaciones(e.target.value)}
+        />
+      </div>
+    </Modal>
   );
 }
 

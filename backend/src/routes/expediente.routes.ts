@@ -15,6 +15,7 @@ import {
   analitosConHistoria,
   cambiarEstadoEstudio,
   cargarResultados,
+  cerrarPendienteConResultado,
   estudiosDePaciente,
   estudiosSinVer,
   marcarEstudioVisto,
@@ -369,12 +370,30 @@ expedienteRouter.post("/laboratorio/:id/resultados", soloMedico, async (req, res
     }
     res.json(
       await cargarResultados(req.db!, req.auth!.tenantId!, req.params.id, b.resultados, {
-        archivoId: b.archivoId,
+        fechaMuestra: b.fechaMuestra,
         observaciones: b.observaciones,
       })
     );
   } catch (err) {
     fallo(res, err, "POST /expediente/laboratorio/:id/resultados");
+  }
+});
+
+/**
+ * Cerrar un pendiente con su resultado (anexo 07-03, A6).
+ *
+ * Los archivos se suben aparte, por `POST /api/archivos` con
+ * `estudioLabId`: el punto de subida del sistema es uno solo.
+ */
+expedienteRouter.post("/laboratorio/:id/resultado", soloMedico, async (req, res) => {
+  try {
+    await cerrarPendienteConResultado(req.db!, req.auth!.tenantId!, req.params.id, {
+      fechaMuestra: req.body?.fechaMuestra ?? null,
+      observaciones: req.body?.observaciones ?? null,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "POST /expediente/laboratorio/:id/resultado");
   }
 });
 

@@ -38,11 +38,13 @@ export interface EstudioLab {
   es_externo: boolean;
   laboratorio: string | null;
   fecha_solicitud: string;
+  fecha_muestra: string | null;
   fecha_resultado: string | null;
   observaciones: string | null;
   solicitado_por_nombre: string | null;
   visto_en: string | null;
-  archivo_id: string | null;
+  /** Los archivos del resultado. Uno o varios (anexo 07-03, A6). */
+  adjuntos: Array<{ id: string; nombre_archivo: string; tipo: string | null }>;
   resultados: Array<{
     analito: string;
     valor: string | null;
@@ -95,15 +97,42 @@ export async function solicitarEstudio(
     laboratorio?: string;
     observaciones?: string;
     personaId?: string;
+    servicioId?: string | null;
+    atencionItemId?: string | null;
+    /** Cuándo se tomó la muestra (anexo 07-03, A6). */
+    fechaMuestra?: string | null;
+    /**
+     * El laboratorio YA SE HIZO y se está cargando su resultado.
+     *
+     * Es la acción principal del A6 y el caso normal de la clínica: el
+     * resultado llega por correo o el cliente lo trae en papel. El otro
+     * camino —«todavía no tengo el resultado»— es el que existía antes
+     * y queda como opción secundaria.
+     *
+     * No es un registro distinto ni una tabla aparte: es el mismo
+     * estudio naciendo con el resultado puesto, que es lo que el modelo
+     * ya decidía desde la migración 101.
+     */
+    conResultado?: boolean;
   }
 ): Promise<{ id: string }> {
   if (!datos.tipoEstudio?.trim()) {
     throw new Error("Un estudio necesita su tipo (hemograma, química, urianálisis…).");
   }
+  if (datos.conResultado && !datos.fechaMuestra) {
+    // Un resultado sin fecha de muestra no se puede interpretar: un
+    // hemograma de hace tres semanas no dice lo mismo que uno de ayer.
+    throw new Error("Un laboratorio ya realizado lleva la fecha en que se tomó la muestra.");
+  }
   const r = await db.query<{ id: string }>(
-    `INSERT INTO exp_estudios_lab (tenant_id, paciente_id, atencion_id, tipo_estudio, es_externo,
-                                   laboratorio, observaciones, solicitado_por)
-     VALUES ($1,$2,$3,$4,COALESCE($5,false),$6,$7,$8) RETURNING id`,
+    `INSERT INTO exp_estudios_lab
+       (tenant_id, paciente_id, atencion_id, tipo_estudio, es_externo, laboratorio,
+        observaciones, solicitado_por, servicio_id, atencion_item_id, fecha_muestra,
+        estado, fecha_resultado)
+     VALUES ($1,$2,$3,$4,COALESCE($5,false),$6,$7,$8,$9,$10,$11::date,
+             CASE WHEN $12::boolean THEN 'resultado_recibido' ELSE 'solicitado' END,
+             CASE WHEN $12::boolean THEN now() ELSE NULL END)
+     RETURNING id`,
     [
       tenantId,
       datos.pacienteId,
@@ -113,9 +142,70 @@ export async function solicitarEstudio(
       datos.laboratorio?.trim() || null,
       datos.observaciones?.trim() || null,
       datos.personaId ?? null,
+      datos.servicioId ?? null,
+      datos.atencionItemId ?? null,
+      datos.fechaMuestra ?? null,
+      datos.conResultado === true,
     ]
   );
+
+  // La línea de tiempo del CRM registra el estudio cuando TIENE
+  // resultado, y es el mismo criterio que ya usaba `cargarResultados`:
+  // un estudio solicitado todavía no le dice nada al cliente.
+  if (datos.conResultado) {
+    await registrarInteraccion(db, {
+      tenantId,
+      tipo: "estudio_laboratorio",
+      pacienteId: datos.pacienteId,
+      origenTabla: "exp_estudios_lab",
+      origenId: r.rows[0].id,
+      personaId: datos.personaId,
+      resumen: datos.tipoEstudio.trim(),
+    });
+  }
+
   return { id: r.rows[0].id };
+}
+
+/**
+ * Cerrar un pendiente con su resultado — anexo 07-03, A6.
+ *
+ * «Al adjuntar el resultado después, el pendiente se cierra; no se crea
+ * un registro aparte.» El estudio es el mismo: cambia de estado y gana
+ * su fecha de muestra, sus observaciones y sus archivos.
+ *
+ * Distinta de `cargarResultados`, que además carga los VALORES analito
+ * por analito. Acá puede no haber valores: un PDF escaneado es un
+ * resultado igual, y exigir que alguien tipee veinte números para poder
+ * guardarlo sería la forma de que nadie lo cargue.
+ */
+export async function cerrarPendienteConResultado(
+  db: PoolClient,
+  tenantId: string,
+  estudioId: string,
+  datos: { fechaMuestra?: string | null; observaciones?: string | null }
+): Promise<void> {
+  const r = await db.query<{ paciente_id: string; tipo_estudio: string }>(
+    `UPDATE exp_estudios_lab
+        SET estado = 'resultado_recibido',
+            fecha_resultado = COALESCE(fecha_resultado, now()),
+            fecha_muestra = COALESCE($3::date, fecha_muestra),
+            observaciones = COALESCE($4, observaciones),
+            visto_en = NULL, visto_por = NULL
+      WHERE id = $1 AND tenant_id = $2
+      RETURNING paciente_id, tipo_estudio`,
+    [estudioId, tenantId, datos.fechaMuestra ?? null, datos.observaciones?.trim() || null]
+  );
+  if (r.rows.length === 0) throw new Error("Ese estudio no existe.");
+
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: "estudio_laboratorio",
+    pacienteId: r.rows[0].paciente_id,
+    origenTabla: "exp_estudios_lab",
+    origenId: estudioId,
+    resumen: r.rows[0].tipo_estudio,
+  });
 }
 
 export async function cambiarEstadoEstudio(
@@ -150,7 +240,10 @@ export async function cargarResultados(
   tenantId: string,
   estudioId: string,
   resultados: ResultadoCargado[],
-  opciones: { archivoId?: string; observaciones?: string } = {}
+  // Los archivos ya no entran por acá: cuelgan del estudio
+  // (`archivos.estudio_lab_id`, migración 123) y se suben por
+  // `POST /api/archivos`, que es el único punto de subida del sistema.
+  opciones: { fechaMuestra?: string; observaciones?: string } = {}
 ): Promise<{ cargados: number; conBandera: number }> {
   const e = await db.query<{ paciente_id: string; estado: string }>(
     `SELECT paciente_id, estado FROM exp_estudios_lab WHERE id = $1 AND tenant_id = $2`,
@@ -229,11 +322,11 @@ export async function cargarResultados(
   await db.query(
     `UPDATE exp_estudios_lab
         SET estado = 'resultado_recibido', fecha_resultado = now(),
-            archivo_id = COALESCE($2, archivo_id),
+            fecha_muestra = COALESCE($2::date, fecha_muestra),
             observaciones = COALESCE($3, observaciones),
             visto_en = NULL, visto_por = NULL
       WHERE id = $1`,
-    [estudioId, opciones.archivoId ?? null, opciones.observaciones?.trim() || null]
+    [estudioId, opciones.fechaMuestra ?? null, opciones.observaciones?.trim() || null]
   );
 
   // CRM (prompt 03): el estudio entra en la linea de tiempo cuando
@@ -270,8 +363,15 @@ export async function estudiosDePaciente(
 ): Promise<EstudioLab[]> {
   const r = await db.query<EstudioLab>(
     `SELECT e.id, e.tipo_estudio, e.estado, e.es_externo, e.laboratorio, e.fecha_solicitud,
-            e.fecha_resultado, e.observaciones, e.visto_en, e.archivo_id,
+            e.fecha_muestra::text AS fecha_muestra,
+            e.fecha_resultado, e.observaciones, e.visto_en,
             per.nombre AS solicitado_por_nombre,
+            COALESCE((
+              SELECT json_agg(json_build_object(
+                       'id', ar.id, 'nombre_archivo', ar.nombre_archivo, 'tipo', ar.tipo)
+                     ORDER BY ar.creado_en)
+                FROM archivos ar WHERE ar.estudio_lab_id = e.id
+            ), '[]'::json) AS adjuntos,
             COALESCE((
               SELECT json_agg(json_build_object(
                        'analito', r.analito_texto, 'valor', r.valor, 'valor_texto', r.valor_texto,

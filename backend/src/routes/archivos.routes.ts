@@ -102,33 +102,73 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
     return res.status(403).json({ error: "Esta sección es solo para médicos." });
   }
 
-  const { casoId } = req.body as { casoId?: string };
+  // DOS DESTINOS POSIBLES, Y SOLO UNO POR ARCHIVO (anexo 07-03, A6):
+  //
+  //   * `casoId`  — el adjunto del chat de Vetline Ai, lo de siempre.
+  //   * `estudioLabId` — el resultado de un laboratorio, que hasta hoy
+  //     no tenía dónde entrar: un resultado que llega por correo no
+  //     podía subirse si el paciente no tenía un caso abierto.
+  //
+  // ABRIR EL DESTINO NO AFLOJA NINGÚN CONTROL, y es lo que hay que
+  // mirar al leer esto:
+  //
+  //   1. el gate `esMedico` de arriba sigue valiendo para los dos;
+  //   2. el destino se verifica CONTRA LA CLÍNICA de quien sube, con
+  //      una consulta que no devuelve nada si es de otro tenant;
+  //   3. el límite de 25 MB y la tabla de tipos son los mismos —son del
+  //      `multer` y de `contentTypePorExtension`, que no se tocan;
+  //   4. el archivo va al mismo ámbito PRIVADO del almacenamiento, y se
+  //      sirve solo por `GET /api/archivos/:id`, con sesión y con el
+  //      mismo chequeo de clínica.
+  const { casoId, estudioLabId } = req.body as { casoId?: string; estudioLabId?: string };
 
   if (!req.file) {
     return res.status(400).json({ error: "Falta el archivo." });
   }
-  if (!casoId) {
-    return res.status(400).json({ error: "Falta casoId." });
+  if (!casoId && !estudioLabId) {
+    return res.status(400).json({ error: "Falta casoId o estudioLabId." });
+  }
+  if (casoId && estudioLabId) {
+    return res.status(400).json({
+      error: "Un archivo cuelga de un caso o de un estudio, no de los dos.",
+    });
   }
 
   try {
-    const casoResult = await req.db!.query(
-      `SELECT id, estado FROM casos WHERE id = $1 AND medico_id = $2`,
-      [casoId, req.auth!.userId]
-    );
-    if (casoResult.rows.length === 0) {
-      return res.status(404).json({ error: "Caso no encontrado." });
-    }
-    // prompt_code_cierre_caso.md, Paso 2 — un caso cerrado es de solo
-    // lectura: no se le adjuntan estudios nuevos.
-    if (casoResult.rows[0].estado === "completado") {
-      return res.status(409).json({ error: "El caso está cerrado — no se pueden adjuntar archivos nuevos." });
+    let pacienteDelEstudio: string | null = null;
+    if (casoId) {
+      const casoResult = await req.db!.query(
+        `SELECT id, estado FROM casos WHERE id = $1 AND medico_id = $2`,
+        [casoId, req.auth!.userId]
+      );
+      if (casoResult.rows.length === 0) {
+        return res.status(404).json({ error: "Caso no encontrado." });
+      }
+      // prompt_code_cierre_caso.md, Paso 2 — un caso cerrado es de solo
+      // lectura: no se le adjuntan estudios nuevos.
+      if (casoResult.rows[0].estado === "completado") {
+        return res.status(409).json({ error: "El caso está cerrado — no se pueden adjuntar archivos nuevos." });
+      }
+    } else {
+      // EL ESTUDIO TIENE QUE SER DE ESTA CLÍNICA. `exp_estudios_lab`
+      // tiene `tenant_id` y RLS, así que el filtro explícito y la
+      // política dicen lo mismo; el explícito está igual, por el mismo
+      // criterio del resto del backend.
+      const estudio = await req.db!.query<{ paciente_id: string }>(
+        `SELECT paciente_id FROM exp_estudios_lab WHERE id = $1 AND tenant_id = $2`,
+        [estudioLabId, req.auth!.tenantId]
+      );
+      if (estudio.rows.length === 0) {
+        return res.status(404).json({ error: "Ese estudio no existe." });
+      }
+      pacienteDelEstudio = estudio.rows[0].paciente_id;
     }
 
     const tipo = inferirTipo(req.file.originalname);
     const ext = path.extname(req.file.originalname).toLowerCase();
     const contentType = contentTypePorExtension(ext);
-    const clave = `casos/${crypto.randomUUID()}${ext}`;
+    // Carpeta lógica por destino, dentro del mismo ámbito privado.
+    const clave = `${casoId ? "casos" : "laboratorio"}/${crypto.randomUUID()}${ext}`;
     await almacenamientoPrivado.guardar(clave, req.file.buffer, contentType);
 
     // Un file_id de la Files API solo sirve si después se puede
@@ -139,9 +179,21 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
     // formato. Con este chequeo, file_id_anthropic no nulo significa una
     // sola cosa: el agente puede leerlo. Misma función que decide en
     // archivosDelCaso.ts, no una lista paralela.
-    const legiblePorAgente = esLegiblePorAgente(tipo, req.file.originalname);
+    // EL ARCHIVO DE UN LABORATORIO NO VA A ANTHROPIC.
+    //
+    // La subida a la Files API existe para que el agente pueda leer los
+    // adjuntos de SU conversación. Un resultado de laboratorio cargado
+    // en el expediente no es eso: ningún agente lo va a leer —
+    // `archivosDelCaso.ts` filtra por caso—, así que subirlo sería
+    // mandar datos clínicos a un tercero sin que nadie lo pida y sin
+    // que sirva para nada. Lo encontré al verificar el A6: el primer
+    // PDF de prueba salió con `file_id_anthropic` puesto.
+    const legiblePorAgente = Boolean(casoId) && esLegiblePorAgente(tipo, req.file.originalname);
     let fileIdAnthropic: string | null = null;
-    if (!legiblePorAgente) {
+    if (!casoId) {
+      // Sin caso no hay agente que lo lea: no se sube y no se avisa de
+      // nada, porque no falta nada.
+    } else if (!legiblePorAgente) {
       console.warn(
         `"${req.file.originalname}" (tipo ${tipo}) se guarda en el caso ${casoId} pero el agente no ` +
           `va a poder leerlo: la Messages API solo referencia imágenes, PDF y texto plano.`
@@ -166,10 +218,20 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
     }
 
     const result = await req.db!.query(
-      `INSERT INTO archivos (caso_id, nombre_archivo, tipo, url, file_id_anthropic, subido_por_persona_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO archivos (caso_id, estudio_lab_id, paciente_id, nombre_archivo, tipo, url,
+                             file_id_anthropic, subido_por_persona_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING id, nombre_archivo, tipo, url, creado_en, file_id_anthropic`,
-      [casoId, req.file.originalname, tipo, `/uploads/${clave}`, fileIdAnthropic, req.auth!.userId]
+      [
+        casoId ?? null,
+        estudioLabId ?? null,
+        pacienteDelEstudio,
+        req.file.originalname,
+        tipo,
+        `/uploads/${clave}`,
+        fileIdAnthropic,
+        req.auth!.userId,
+      ]
     );
     // La interfaz necesita saberlo en el momento de adjuntar, no después
     // de un análisis en el que el agente hizo como si el archivo no
@@ -177,7 +239,9 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
     const archivo = { ...result.rows[0], legible_por_agente: fileIdAnthropic !== null };
     // prompt_code_cierre_caso.md, Paso 2, punto 2 — todos los puntos de
     // actividad tocan actualizado_en, no solo informacion/mensajes.
-    await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [casoId]);
+    if (casoId) {
+      await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [casoId]);
+    }
 
     res.status(201).json({ archivo });
   } catch (err) {
@@ -212,11 +276,17 @@ archivosRouter.delete("/:id", async (req, res) => {
 
   try {
     const result = await req.db!.query(
-      `SELECT a.id, a.nombre_archivo, a.url, a.caso_id, a.file_id_anthropic,
+      // Misma apertura y mismo cuidado que el GET: el archivo es de esta
+      // clínica si su caso lo es o si su estudio lo es. Sin esto, un
+      // adjunto de laboratorio no se podía borrar nunca —el médico que
+      // sube el PDF equivocado quedaba con él en el expediente.
+      `SELECT a.id, a.nombre_archivo, a.url, a.caso_id, a.estudio_lab_id, a.file_id_anthropic,
               a.subido_por_persona_id, c.estado AS caso_estado, c.medico_id
          FROM archivos a
-         JOIN casos c ON c.id = a.caso_id
-        WHERE a.id = $1 AND c.tenant_id = $2`,
+         LEFT JOIN casos c            ON c.id = a.caso_id
+         LEFT JOIN exp_estudios_lab e ON e.id = a.estudio_lab_id
+        WHERE a.id = $1
+          AND (c.tenant_id = $2 OR e.tenant_id = $2)`,
       [req.params.id, req.auth!.tenantId]
     );
     // Mismo criterio que el GET de abajo: un archivo de otro tenant no
@@ -240,7 +310,9 @@ archivosRouter.delete("/:id", async (req, res) => {
     }
 
     await req.db!.query(`DELETE FROM archivos WHERE id = $1`, [req.params.id]);
-    await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [archivo.caso_id]);
+    if (archivo.caso_id) {
+      await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [archivo.caso_id]);
+    }
 
     registrarEventoDetallado(req.auth!, "eliminar", "archivo", archivo.id, {
       nombre_archivo: archivo.nombre_archivo,
@@ -294,10 +366,21 @@ archivosRouter.delete("/:id", async (req, res) => {
 archivosRouter.get("/:id", async (req, res) => {
   try {
     const result = await req.db!.query(
+      // LA AUTORIZACIÓN ES LO IMPORTANTE DE ESTA CONSULTA.
+      //
+      // Nacía con un JOIN a `casos` que probaba la clínica por el caso.
+      // Desde el A6 un archivo también puede colgar de un estudio de
+      // laboratorio, y la tentación fácil —pasar el JOIN a LEFT— habría
+      // hecho que un archivo sin caso pasara SIN NINGÚN chequeo de
+      // clínica. Por eso el filtro es explícito y exige que el archivo
+      // pertenezca a un caso de esta clínica o a un estudio de esta
+      // clínica: si no cumple ninguna de las dos, no existe.
       `SELECT a.nombre_archivo, a.url
        FROM archivos a
-       JOIN casos c ON c.id = a.caso_id
-       WHERE a.id = $1 AND c.tenant_id = $2`,
+       LEFT JOIN casos c            ON c.id = a.caso_id
+       LEFT JOIN exp_estudios_lab e ON e.id = a.estudio_lab_id
+       WHERE a.id = $1
+         AND (c.tenant_id = $2 OR e.tenant_id = $2)`,
       [req.params.id, req.auth!.tenantId]
     );
     if (result.rows.length === 0) {

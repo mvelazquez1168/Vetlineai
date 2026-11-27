@@ -24,12 +24,12 @@ import { formatearMonto } from "../../lib/ventasApi";
 import { BotonDictado, IndicadorMicrofono, useDictado } from "../ui";
 import { plural } from "../../lib/plural";
 import {
-  ModalEstudio,
   ModalPreventivo,
   PanelReceta,
   ResumenDelCierre,
 } from "./AccionesClinicas";
 import { DictadoConsulta } from "./DictadoConsulta";
+import { ModalLaboratorio } from "./ModalLaboratorio";
 import { IngresoYSalida } from "./IngresoYSalida";
 
 // ---------------------------------------------------------------------
@@ -536,7 +536,7 @@ export function AtencionActual({
               <CardDescription>
                 {cerrada
                   ? `Firmada por ${a?.firmada_nombre ?? "—"}. Lo que ya se firmó no se edita: la corrección es una adenda.`
-                  : "Alt+S servicio · Alt+P producto · Alt+V vacuna · Alt+D desparasitación · Alt+R receta · Alt+E estudio · Alt+C cerrar · se guarda solo"}
+                  : "Alt+S servicio · Alt+P producto · Alt+V vacuna · Alt+D desparasitación · Alt+R receta · Alt+E laboratorio · Alt+C cerrar · se guarda solo"}
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -882,7 +882,7 @@ export function AtencionActual({
                   Receta <Atajo>Alt+R</Atajo>
                 </Button>
                 <Button variant="secondary" onClick={() => setPanel("estudio")}>
-                  Estudio <Atajo>Alt+E</Atajo>
+                  Laboratorio <Atajo>Alt+E</Atajo>
                 </Button>
               </div>
             )}
@@ -1158,7 +1158,7 @@ export function AtencionActual({
             onCerrar={() => setPanel(null)}
             onCambio={() => atencionId && void cargar(atencionId)}
           />
-          <ModalEstudio
+          <ModalLaboratorio
             abierto={panel === "estudio"}
             atencionId={atencionId}
             servicios={servicios.map((x) => ({
@@ -1167,7 +1167,7 @@ export function AtencionActual({
               precio: x.precio === null ? null : Number(x.precio),
             }))}
             onCerrar={() => setPanel(null)}
-            onPedido={() => atencionId && void cargar(atencionId)}
+            onRegistrado={() => atencionId && void cargar(atencionId)}
           />
         </>
       )}

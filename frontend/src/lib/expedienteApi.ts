@@ -80,11 +80,14 @@ export interface EstudioLab {
   es_externo: boolean;
   laboratorio: string | null;
   fecha_solicitud: string;
+  /** Cuándo se tomó la muestra (anexo 07-03, A6). */
+  fecha_muestra: string | null;
   fecha_resultado: string | null;
   observaciones: string | null;
   solicitado_por_nombre: string | null;
   visto_en: string | null;
-  archivo_id: string | null;
+  /** Los archivos del resultado: uno o varios. */
+  adjuntos: Array<{ id: string; nombre_archivo: string; tipo: string | null }>;
   resultados: Array<{
     analito: string;
     valor: number | string | null;
@@ -504,6 +507,33 @@ export const atencionApi = {
 
   resumenCierre: (atencionId: string) =>
     pedir<ResumenCierre>(`/expediente/atenciones/${atencionId}/resumen-cierre`),
+
+  /**
+   * Adjuntar el resultado de un laboratorio (anexo 07-03, A6).
+   *
+   * Va al MISMO endpoint que el adjunto de un caso de Vetline Ai, con
+   * el mismo límite de 25 MB, la misma tabla de tipos y el mismo
+   * almacenamiento privado: lo único que cambia es a qué cuelga.
+   */
+  adjuntarAlEstudio: (estudioLabId: string, archivo: File) => {
+    const cuerpo = new FormData();
+    cuerpo.append("estudioLabId", estudioLabId);
+    cuerpo.append("archivo", archivo);
+    return pedir<{ archivo: { id: string; nombre_archivo: string; tipo: string } }>("/archivos", {
+      method: "POST",
+      body: cuerpo,
+    });
+  },
+
+  /** Registrar un laboratorio FUERA de una atencion (anexo 07-03, A6). */
+  registrarLaboratorioDePaciente: (pacienteId: string, d: Record<string, unknown>) =>
+    json<{ id: string }>(`/expediente/pacientes/${pacienteId}/laboratorio`, "POST", d),
+
+  /** Cerrar un pendiente con su resultado, sin crear otro registro. */
+  cerrarPendienteConResultado: (
+    estudioId: string,
+    datos: { fechaMuestra?: string | null; observaciones?: string | null }
+  ) => json<{ ok: true }>(`/expediente/laboratorio/${estudioId}/resultado`, "POST", datos),
 
   /** Los catálogos clínicos: vías, frecuencias, unidades de dosis. */
   catalogosClinicos: () =>

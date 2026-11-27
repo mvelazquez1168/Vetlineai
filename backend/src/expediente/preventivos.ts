@@ -285,6 +285,9 @@ export async function pedirEstudio(
     laboratorio?: string | null;
     servicioId?: string | null;
     observaciones?: string | null;
+    /** Anexo 07-03, A6: el laboratorio ya se hizo y se carga su resultado. */
+    conResultado?: boolean;
+    fechaMuestra?: string | null;
   },
   personaId: string
 ): Promise<{ id: string; conCargo: boolean }> {
@@ -323,26 +326,26 @@ export async function pedirEstudio(
     itemId = item.id;
   }
 
-  const r = await db.query<{ id: string }>(
-    `INSERT INTO exp_estudios_lab
-       (tenant_id, paciente_id, atencion_id, tipo_estudio, estado, es_externo, laboratorio,
-        fecha_solicitud, observaciones, solicitado_por, servicio_id, atencion_item_id)
-     VALUES ($1,$2,$3,$4,'solicitado',$5,$6,CURRENT_DATE,$7,$8,$9,$10)
-     RETURNING id`,
-    [
-      tenantId,
-      a.rows[0].paciente_id,
-      atencionId,
-      datos.tipoEstudio,
-      datos.esExterno,
-      datos.laboratorio ?? null,
-      datos.observaciones ?? null,
-      personaId,
-      datos.servicioId ?? null,
-      itemId,
-    ]
-  );
-  return { id: r.rows[0].id, conCargo: itemId !== null };
+  // EL INSERT NO ESTÁ ACÁ (anexo 07-03, A6). Lo hace `solicitarEstudio`,
+  // que es el único punto que crea un estudio: acá vive la regla del
+  // CARGO, que es lo propio de la atención. Dos INSERT a la misma tabla
+  // eran dos lugares donde agregar una columna nueva, y uno de los dos
+  // se iba a olvidar.
+  const { solicitarEstudio } = await import("./laboratorio");
+  const creado = await solicitarEstudio(db, tenantId, {
+    pacienteId: a.rows[0].paciente_id,
+    atencionId,
+    tipoEstudio: datos.tipoEstudio,
+    esExterno: datos.esExterno,
+    laboratorio: datos.laboratorio ?? undefined,
+    observaciones: datos.observaciones ?? undefined,
+    personaId,
+    servicioId: datos.servicioId ?? null,
+    atencionItemId: itemId,
+    fechaMuestra: datos.fechaMuestra ?? null,
+    conResultado: datos.conResultado === true,
+  });
+  return { id: creado.id, conCargo: itemId !== null };
 }
 
 /** Los estudios pedidos en esta atención, para el panel y el cierre. */

@@ -50,6 +50,14 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | [Descuentos: topes y motivos](descuentos.md) | Hasta cuánto puede descontar cada quien, por qué motivo, y qué código lleva el comprobante. |
 | [La actividad económica del comprobante](actividad-economica.md) | Por qué una factura declara una sola actividad y qué hacer con una cuenta mixta. |
 
+## Las finanzas
+
+| Página | De qué trata |
+|---|---|
+| [Lo que la clínica debe, y cómo se paga](finanzas-cuentas-por-pagar.md) | Cuentas por pagar, vencimientos, pagos que cubren varias facturas y notas de crédito. |
+| [Los gastos de la clínica](finanzas-gastos.md) | Clasificar un recibo como gasto sin retipearlo, y los gastos fijos de cada mes. |
+| [Lo que le deben a la clínica, y el cierre del día](finanzas-cobranza-y-cierre.md) | Cobranza amable por deudor, y conciliar los SINPE y los depósitos del día. |
+
 ## La administración de la clínica
 
 | Página | De qué trata |
@@ -72,8 +80,9 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la atención), las del
 **07d** (el dictado por voz), las del **anexo 07-03** (el paciente, el cliente y los duplicados),
 las del **08b/09b** (presupuestos, cierre de caja, descuentos, facturas de proveedores y actividad
-económica) y las del **04** (personal y roles, horario y feriados, políticas). Faltan las del resto
-de caja, inventario y agenda, que se irán sumando.
+económica) las del **04** (personal y roles, horario y feriados, políticas) y las del **10a** (cuentas por
+pagar, gastos, cobranza y cierre del día). Faltan las del resto de caja, inventario y agenda, que se
+irán sumando.
 
 El manual consolidado en PDF y Word, con el logo de la clínica, se genera **al cierre de cada
 bloque**, no en cada entrega.

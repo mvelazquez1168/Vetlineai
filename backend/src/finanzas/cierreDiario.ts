@@ -111,31 +111,47 @@ export async function cierreDelDia(
     declarado: string;
     cobrado: string;
   }>(
+    // LAS LLAVES SE NORMALIZAN A '' Y NO SE COMPARAN CON `IS NOT
+    // DISTINCT FROM`: Postgres no sabe hacer un FULL JOIN con esa
+    // condición («FULL JOIN is only supported with merge-joinable or
+    // hash-joinable join conditions»). Con la llave ya normalizada, la
+    // unión de llaves y dos LEFT JOIN dan el mismo resultado y se pueden
+    // planificar.
     `WITH lotes AS (
-       SELECT l.banco, l.tipo_tarjeta, l.marca, sum(l.monto) AS declarado
+       SELECT COALESCE(l.banco, '') AS banco,
+              COALESCE(l.tipo_tarjeta, '') AS tipo,
+              COALESCE(l.marca, '') AS marca,
+              sum(l.monto) AS declarado
          FROM vta_lote_datafono l
          JOIN vta_sesiones_caja s ON s.id = l.sesion_id
         WHERE l.tenant_id = $1 AND s.abierta_en::date = $2::date
-        GROUP BY l.banco, l.tipo_tarjeta, l.marca
+        GROUP BY 1, 2, 3
      ),
      cobrado AS (
-       SELECT cm.banco, cm.tipo_tarjeta, cm.marca_tarjeta AS marca, sum(cm.monto_crc) AS cobrado
+       SELECT COALESCE(cm.banco, '') AS banco,
+              COALESCE(cm.tipo_tarjeta, '') AS tipo,
+              COALESCE(cm.marca_tarjeta, '') AS marca,
+              sum(cm.monto_crc) AS cobrado
          FROM vta_cobro_medios cm
          JOIN vta_cobros c ON c.id = cm.cobro_id
         WHERE cm.tenant_id = $1 AND c.creado_en::date = $2::date
           AND c.estado <> 'anulado' AND cm.medio = 'tarjeta'
-        GROUP BY cm.banco, cm.tipo_tarjeta, cm.marca_tarjeta
+        GROUP BY 1, 2, 3
+     ),
+     llaves AS (
+       SELECT banco, tipo, marca FROM lotes
+       UNION
+       SELECT banco, tipo, marca FROM cobrado
      )
-     SELECT COALESCE(l.banco, c.banco) AS banco,
-            COALESCE(l.tipo_tarjeta, c.tipo_tarjeta) AS tipo_tarjeta,
-            COALESCE(l.marca, c.marca) AS marca,
+     SELECT NULLIF(k.banco, '') AS banco,
+            NULLIF(k.tipo, '') AS tipo_tarjeta,
+            NULLIF(k.marca, '') AS marca,
             COALESCE(l.declarado, 0)::text AS declarado,
             COALESCE(c.cobrado, 0)::text AS cobrado
-       FROM lotes l
-       FULL OUTER JOIN cobrado c
-         ON c.banco IS NOT DISTINCT FROM l.banco
-        AND c.tipo_tarjeta IS NOT DISTINCT FROM l.tipo_tarjeta
-        AND c.marca IS NOT DISTINCT FROM l.marca`,
+       FROM llaves k
+       LEFT JOIN lotes l USING (banco, tipo, marca)
+       LEFT JOIN cobrado c USING (banco, tipo, marca)
+      ORDER BY 1, 2, 3`,
     [tenantId, fecha]
   );
 
@@ -225,7 +241,11 @@ export async function conciliarSinpe(
     `INSERT INTO fin_conciliaciones
        (tenant_id, tipo, fecha, cobro_medio_id, monto, moneda, cuenta_banco_id, conciliado_por)
      VALUES ($1,'sinpe',$2,$3,$4,$5,$6,$7)
-     ON CONFLICT (cobro_medio_id) DO NOTHING
+     -- El índice único es PARCIAL: tiene WHERE cobro_medio_id IS NOT
+     -- NULL, así que el ON CONFLICT tiene que repetir ese predicado. Sin
+     -- eso Postgres no lo reconoce y contesta que no hay ninguna
+     -- restricción que coincida.
+     ON CONFLICT (cobro_medio_id) WHERE cobro_medio_id IS NOT NULL DO NOTHING
      RETURNING id`,
     [
       tenantId,

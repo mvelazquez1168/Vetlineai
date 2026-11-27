@@ -1,7 +1,8 @@
 import { PoolClient } from "pg";
+import { calcularEdadEfectiva } from "../edadPaciente";
 import { registrarUsoApi, registrarUsoTranscripcion } from "../tarifas";
 import { agregarDiagnostico, avisosAlRecetar, guardarSoap, marcarSistema } from "./atencion";
-import { agregarLinea, calcularDosis, pesoParaDosis } from "./receta";
+import { agregarLinea, calcularDosis, pesoVigente } from "./receta";
 import { pedirEstudio } from "./preventivos";
 import { BorradorDictado, ContextoDelPaciente, LineaRecetaDictada } from "./dictadoBorrador";
 import { ResultadoTranscripcion } from "./transcripcion";
@@ -89,17 +90,18 @@ export async function contextoDelPaciente(
   );
   if (r.rows.length === 0) return null;
   const f = r.rows[0];
-  // La edad se dice en años cumplidos y nada más: el ordenamiento solo
-  // la usa para entender el dictado, no para calcular nada.
-  let edad: string | null = null;
-  if (f.fecha_nacimiento) {
-    const anios = Math.floor(
-      (Date.now() - new Date(`${f.fecha_nacimiento}T00:00:00Z`).getTime()) / (365.25 * 24 * 3600 * 1000)
-    );
-    edad = `${anios} año${anios === 1 ? "" : "s"}`;
-  } else if (f.edad_anios !== null) {
-    edad = `${f.edad_anios} año${f.edad_anios === 1 ? "" : "s"}`;
-  }
+  // LA EDAD SALE DEL PUNTO ÚNICO, no de una cuenta propia.
+  //
+  // Esta función tenía su propio `Math.floor(dias / 365.25)`, y un
+  // paciente que cumple años hoy salía con un año menos: 1826 días
+  // divididos por 365,25 da 4,999. El repo ya tiene
+  // `calcularEdadEfectiva` justamente para que el agente, la ficha, la
+  // receta y el informe no muestren números distintos; esto era un
+  // quinto cálculo. Lo encontró el verificador del 07d al correr otro
+  // día que cuando se escribió.
+  const anios = calcularEdadEfectiva(f.fecha_nacimiento, f.edad_anios);
+  const edad =
+    anios === null ? null : `${Math.round(anios)} año${Math.round(anios) === 1 ? "" : "s"}`;
   return {
     pacienteId: f.paciente_id,
     contexto: {
@@ -178,9 +180,12 @@ export async function completarReceta(
   lineas: LineaRecetaDictada[],
   pesoDictadoKg?: number | null
 ): Promise<LineaRecetaDictada[]> {
-  const pesoRegistrado = await pesoParaDosis(db, atencionId);
-  const peso = pesoDictadoKg ?? pesoRegistrado;
-  const pesoVieneDelDictado = pesoDictadoKg != null && pesoDictadoKg !== pesoRegistrado;
+  // El peso y su procedencia los resuelve `pesoVigente`, que es el
+  // único punto del sistema que contesta esa pregunta (anexo 07-03,
+  // A3). Antes esta función tenía su propia versión de la regla.
+  const vigente = await pesoVigente(db, atencionId, { pesoDictadoKg });
+  const peso = vigente.kg;
+  const pesoVieneDelDictado = vigente.origen === "dictado";
   const completas: LineaRecetaDictada[] = [];
   for (const linea of lineas) {
     const revisar = [...linea.revisar];

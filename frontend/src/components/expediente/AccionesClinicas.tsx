@@ -324,6 +324,57 @@ export function PanelReceta({
   const [duracionUnidad, setDuracionUnidad] = useState<"dias" | "semanas" | "meses">("dias");
   const [dispensadoAqui, setDispensadoAqui] = useState(false);
   const [cantidadDispensada, setCantidadDispensada] = useState("1");
+  // Qué campos se llenaron solos desde la posología del producto
+  // (anexo 07-03, A3). Sirve para decirlo en pantalla: un campo que se
+  // llenó sin que nadie lo tocara tiene que verse distinto de uno que
+  // el médico escribió.
+  const [sugeridos, setSugeridos] = useState<string[]>([]);
+
+  /**
+   * Elegir un producto PRECARGA su posología (anexo 07-03, A3).
+   *
+   * Las columnas estaban en `inv_productos` desde la migración 111 y no
+   * las leía nadie: el médico tipeaba la misma dosis de amoxicilina
+   * todas las veces. Es una sugerencia editable, no una indicación: se
+   * marca cuáles campos vinieron del catálogo y cualquiera se cambia.
+   */
+  const elegirPresentacion = (id: string) => {
+    setPresentacionId(id);
+    const producto = productos.find((p) => p.presentacionId === id);
+    const pos = producto?.posologia;
+    if (!pos) {
+      setSugeridos([]);
+      return;
+    }
+    const puestos: string[] = [];
+    if (pos.dosisPorKg !== null) {
+      setDosisCantidad(String(pos.dosisPorKg));
+      setDosisPorKg(true);
+      puestos.push("dosis");
+    } else if (pos.dosisFija !== null) {
+      setDosisCantidad(String(pos.dosisFija));
+      setDosisPorKg(false);
+      puestos.push("dosis");
+    }
+    if (pos.unidadDosis) {
+      setDosisUnidad(pos.unidadDosis);
+      puestos.push("unidad");
+    }
+    if (pos.viaAdministracion) {
+      setViaCodigo(pos.viaAdministracion);
+      puestos.push("via");
+    }
+    if (pos.frecuencia) {
+      setFrecuenciaCodigo(pos.frecuencia);
+      puestos.push("frecuencia");
+    }
+    if (pos.duracionCantidad !== null) {
+      setDuracionCantidad(String(pos.duracionCantidad));
+      if (pos.duracionUnidad) setDuracionUnidad(pos.duracionUnidad);
+      puestos.push("duracion");
+    }
+    setSugeridos(puestos);
+  };
 
   const recargar = () => {
     atencionApi
@@ -349,6 +400,27 @@ export function PanelReceta({
   // LA CUENTA EN VIVO, antes de agregar: el médico ve el resultado
   // mientras escribe la dosis, no después de guardarla.
   const pesoKg = receta?.pesoKg ?? null;
+
+  // DE DÓNDE SALIÓ EL PESO, dicho en la pantalla (anexo 07-03, A3).
+  // «Las dosis se calculan con 32,4 kg» no se puede revisar si no se
+  // sabe que esos kilos son de la visita del año pasado.
+  const procedenciaDelPeso = (() => {
+    if (!receta || pesoKg === null) return null;
+    switch (receta.pesoOrigen) {
+      case "dictado":
+        return "del dictado de hoy, todavía sin aceptar";
+      case "atencion_actual":
+        return "pesado en esta consulta";
+      case "ultima_atencion":
+        return receta.pesoAntiguedadDias !== null
+          ? `de la visita anterior, hace ${receta.pesoAntiguedadDias} ${
+              receta.pesoAntiguedadDias === 1 ? "día" : "días"
+            }`
+          : "de una visita anterior";
+      default:
+        return null;
+    }
+  })();
   const cantidadNum = Number(dosisCantidad);
   const previsualizacion =
     dosisPorKg && pesoKg && cantidadNum > 0
@@ -462,7 +534,9 @@ export function PanelReceta({
       title="Receta"
       description={
         pesoKg
-          ? `Las dosis por kilo se calculan con ${pesoKg} kg. La receta se firma al cerrar la atención.`
+          ? `Las dosis por kilo se calculan con ${pesoKg} kg${
+              procedenciaDelPeso ? ` (${procedenciaDelPeso})` : ""
+            }. La receta se firma al cerrar la atención.`
           : "Sin peso registrado no se pueden calcular dosis por kilo. La receta se firma al cerrar la atención."
       }
       ancho="xl"
@@ -553,7 +627,7 @@ export function PanelReceta({
               <Select
                 label="Medicamento"
                 value={presentacionId}
-                onChange={(e) => setPresentacionId(e.target.value)}
+                onChange={(e) => elegirPresentacion(e.target.value)}
                 options={[
                   { value: "", label: "Elija del inventario" },
                   ...productos.map((p) => ({
@@ -571,11 +645,35 @@ export function PanelReceta({
               />
             )}
 
+            {/* LA SUGERENCIA SE DICE, no se disimula (anexo 07-03, A3).
+                Un campo que se llenó solo y no avisa es un campo que el
+                médico da por suyo y no revisa. */}
+            {sugeridos.length > 0 && (
+              <p className="sm:col-span-2 -mt-1 text-xs text-info">
+                Dosis, vía, frecuencia y duración vienen de la posología que la clínica cargó para
+                este producto. Son una sugerencia: cambiá lo que no corresponda.
+              </p>
+            )}
+
+            {/* EL PESO VIEJO NO BLOQUEA, AVISA. Con un peso de hace
+                meses la dosis sale igual, y lo único que no puede pasar
+                es que nadie se entere. */}
+            {receta?.pesoViejo && (
+              <p className="sm:col-span-2 -mt-1 text-xs font-semibold text-warning">
+                El peso con el que se calcula es de hace {receta.pesoAntiguedadDias} días. Si el
+                paciente cambió, pesalo antes de recetar.
+              </p>
+            )}
+
             <div className="flex gap-2">
               <Input
                 label="Dosis"
                 value={dosisCantidad}
-                onChange={(e) => setDosisCantidad(e.target.value)}
+                onChange={(e) => {
+                  setDosisCantidad(e.target.value);
+                  // Tocado a mano: deja de ser una sugerencia.
+                  setSugeridos((s) => s.filter((x) => x !== "dosis"));
+                }}
               />
               <Select
                 label="Unidad"

@@ -16,6 +16,24 @@ import { PoolClient } from "pg";
 
 export type TipoClinico = "vacuna" | "antiparasitario" | "medicamento" | "insumo" | "otro";
 
+/**
+ * La posología que la clínica cargó para este producto (anexo 07-03,
+ * A3). Se PRECARGA en la línea de receta y el médico la ajusta: es una
+ * sugerencia del catálogo, no una indicación.
+ *
+ * Las columnas existen desde la migración 111 y hasta ahora no las leía
+ * nadie.
+ */
+export interface PosologiaSugerida {
+  dosisPorKg: number | null;
+  dosisFija: number | null;
+  unidadDosis: string | null;
+  viaAdministracion: string | null;
+  frecuencia: string | null;
+  duracionCantidad: number | null;
+  duracionUnidad: "dias" | "semanas" | "meses" | null;
+}
+
 export interface ProductoParaAtencion {
   presentacionId: string;
   productoId: string;
@@ -24,6 +42,8 @@ export interface ProductoParaAtencion {
   tipoClinico: TipoClinico | null;
   requiereReceta: boolean;
   precio: number | null;
+  /** Null si la clínica no cargó ninguna para este producto. */
+  posologia: PosologiaSugerida | null;
   /** Lotes con existencia, en orden FEFO. El primero es el sugerido. */
   lotes: Array<{ id: string; numero: string; vence: string | null; cantidad: number }>;
 }
@@ -61,7 +81,9 @@ export async function productosParaAtencion(
 
   const r = await db.query(
     `SELECT pr.id AS presentacion_id, p.id AS producto_id, p.nombre, pr.nombre AS presentacion,
-            p.tipo_clinico, p.requiere_receta, pr.precio_venta
+            p.tipo_clinico, p.requiere_receta, pr.precio_venta,
+            p.dosis_por_kg, p.dosis_fija, p.unidad_dosis, p.via_administracion,
+            p.frecuencia_sugerida, p.duracion_sugerida_cantidad, p.duracion_sugerida_unidad
        FROM inv_presentaciones pr
        JOIN inv_productos p ON p.id = pr.producto_id
       WHERE ${condiciones.join(" AND ")}
@@ -92,6 +114,25 @@ export async function productosParaAtencion(
       tipoClinico: (x.tipo_clinico as TipoClinico) ?? null,
       requiereReceta: Boolean(x.requiere_receta),
       precio: x.precio_venta === null ? null : Number(x.precio_venta),
+      // Null entero cuando no hay NADA cargado: media posología sería
+      // peor que ninguna, porque el médico vería unos campos llenos y
+      // otros vacíos sin saber por qué.
+      posologia:
+        x.dosis_por_kg === null &&
+        x.dosis_fija === null &&
+        x.via_administracion === null &&
+        x.frecuencia_sugerida === null
+          ? null
+          : {
+              dosisPorKg: x.dosis_por_kg === null ? null : Number(x.dosis_por_kg),
+              dosisFija: x.dosis_fija === null ? null : Number(x.dosis_fija),
+              unidadDosis: (x.unidad_dosis as string) ?? null,
+              viaAdministracion: (x.via_administracion as string) ?? null,
+              frecuencia: (x.frecuencia_sugerida as string) ?? null,
+              duracionCantidad:
+                x.duracion_sugerida_cantidad === null ? null : Number(x.duracion_sugerida_cantidad),
+              duracionUnidad: (x.duracion_sugerida_unidad as PosologiaSugerida["duracionUnidad"]) ?? null,
+            },
       lotes: (lotes.rows as Record<string, unknown>[]).map((l) => ({
         id: l.id as string,
         numero: (l.numero as string) ?? "—",

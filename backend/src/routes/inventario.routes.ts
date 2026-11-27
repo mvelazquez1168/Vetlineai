@@ -332,7 +332,16 @@ inventarioRouter.put("/productos/:id", async (req, res) => {
          unidad_base = $10, requiere_receta = $11, es_controlado = $12,
          requiere_refrigeracion = $13, vida_util_apertura_dias = $14,
          permite_stock_negativo = $15, minimo = $16, punto_reorden = $17,
-         proveedor_preferido_id = $18, activo = COALESCE($19, activo), actualizado_en = now()
+         proveedor_preferido_id = $18, activo = COALESCE($19, activo),
+         -- POSOLOGÍA SUGERIDA (anexo 07-03, A3). Las columnas existían
+         -- desde la migración 111 y no había ninguna forma de cargarlas:
+         -- la receta no podía precargar nada porque el catálogo estaba
+         -- vacío de este dato, y nadie podía llenarlo.
+         dosis_por_kg = $20, dosis_fija = $21, unidad_dosis = $22,
+         via_administracion = $23, frecuencia_sugerida = $24,
+         duracion_sugerida_cantidad = $25, duracion_sugerida_unidad = $26,
+         tipo_clinico = COALESCE($27, tipo_clinico),
+         actualizado_en = now()
        WHERE id = $1`,
       [
         req.params.id, b.nombre, b.principioActivo ?? null, b.concentracion ?? null,
@@ -341,6 +350,14 @@ inventarioRouter.put("/productos/:id", async (req, res) => {
         b.esControlado ?? false, b.requiereRefrigeracion ?? false,
         b.vidaUtilAperturaDias ?? null, b.permiteStockNegativo ?? false,
         b.minimo ?? 0, b.puntoReorden ?? 0, b.proveedorPreferidoId ?? null, b.activo ?? null,
+        // El CHECK `producto_una_sola_dosis` de la migración 111 no deja
+        // las dos a la vez: la que viene manda y la otra se limpia, en
+        // vez de dejar que la base rechace el guardado entero.
+        b.dosisPorKg ?? null,
+        b.dosisPorKg != null ? null : (b.dosisFija ?? null),
+        b.unidadDosis ?? null, b.viaAdministracion ?? null, b.frecuenciaSugerida ?? null,
+        b.duracionSugeridaCantidad ?? null, b.duracionSugeridaUnidad ?? null,
+        b.tipoClinico ?? null,
       ]
     );
     res.json({ ok: true });

@@ -87,6 +87,15 @@ export function ProductoEditor() {
     permiteStockNegativo: false,
     minimo: "0",
     puntoReorden: "0",
+    // Posología sugerida (anexo 07-03, A3): lo que la receta precarga
+    // al elegir este producto. Opcional entero.
+    dosisPorKg: "",
+    dosisFija: "",
+    unidadDosis: "",
+    viaAdministracion: "",
+    frecuenciaSugerida: "",
+    duracionSugeridaCantidad: "",
+    duracionSugeridaUnidad: "dias",
   });
 
   const [nuevas, setNuevas] = useState<FormaPresentacion[]>([presentacionVacia()]);
@@ -113,6 +122,16 @@ export function ProductoEditor() {
           codigoTarifaIva: String(p.codigo_tarifa_iva ?? "08"),
           unidadBase: String(p.unidad_base ?? ""),
           requiereReceta: !!p.requiere_receta,
+          dosisPorKg: p.dosis_por_kg === null || p.dosis_por_kg === undefined ? "" : String(p.dosis_por_kg),
+          dosisFija: p.dosis_fija === null || p.dosis_fija === undefined ? "" : String(p.dosis_fija),
+          unidadDosis: String(p.unidad_dosis ?? ""),
+          viaAdministracion: String(p.via_administracion ?? ""),
+          frecuenciaSugerida: String(p.frecuencia_sugerida ?? ""),
+          duracionSugeridaCantidad:
+            p.duracion_sugerida_cantidad === null || p.duracion_sugerida_cantidad === undefined
+              ? ""
+              : String(p.duracion_sugerida_cantidad),
+          duracionSugeridaUnidad: String(p.duracion_sugerida_unidad ?? "dias"),
           esControlado: !!p.es_controlado,
           requiereRefrigeracion: !!p.requiere_refrigeracion,
           vidaUtilAperturaDias: p.vida_util_apertura_dias ? String(p.vida_util_apertura_dias) : "",
@@ -172,6 +191,19 @@ export function ProductoEditor() {
         permiteStockNegativo: marcado("permiteStockNegativo"),
         minimo: Number(texto("minimo").replace(",", ".")) || 0,
         puntoReorden: Number(texto("puntoReorden").replace(",", ".")) || 0,
+        // Vacío es null y no cero: «sin posología cargada» no es «dosis
+        // cero», y el cero haría que la receta precargue un 0.
+        dosisPorKg: texto("dosisPorKg") ? Number(texto("dosisPorKg").replace(",", ".")) : null,
+        dosisFija: texto("dosisFija") ? Number(texto("dosisFija").replace(",", ".")) : null,
+        unidadDosis: texto("unidadDosis").trim() || null,
+        viaAdministracion: texto("viaAdministracion").trim() || null,
+        frecuenciaSugerida: texto("frecuenciaSugerida").trim() || null,
+        duracionSugeridaCantidad: texto("duracionSugeridaCantidad")
+          ? Number(texto("duracionSugeridaCantidad"))
+          : null,
+        duracionSugeridaUnidad: texto("duracionSugeridaCantidad")
+          ? texto("duracionSugeridaUnidad")
+          : null,
       };
 
       const productoId = esNuevo
@@ -289,6 +321,74 @@ export function ProductoEditor() {
                 label: t.nombre,
               }))}
             />
+          </div>
+
+          {/* POSOLOGÍA SUGERIDA (anexo 07-03, A3). Lo que la receta
+              precarga al elegir este producto, para que el médico no
+              tipee la misma dosis de amoxicilina todas las veces. Es
+              una sugerencia editable, no una indicación. */}
+          <CardTitle className="mt-6">Posología sugerida (opcional)</CardTitle>
+          <p className="mt-1 text-sm text-text-muted">
+            Lo que se precarga al agregar este producto a una receta. El médico lo ajusta siempre.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <Input
+              label="Dosis por kilo"
+              value={texto("dosisPorKg")}
+              onChange={(e) => {
+                set("dosisPorKg", e.target.value);
+                // Las dos a la vez no se pueden: el CHECK de la base lo
+                // impide, y conceptualmente una dosis es por kilo o es
+                // fija, nunca las dos.
+                if (e.target.value) set("dosisFija", "");
+              }}
+              placeholder="4"
+            />
+            <Input
+              label="o dosis fija"
+              value={texto("dosisFija")}
+              onChange={(e) => {
+                set("dosisFija", e.target.value);
+                if (e.target.value) set("dosisPorKg", "");
+              }}
+              placeholder="1"
+            />
+            <Input
+              label="Unidad de la dosis"
+              value={texto("unidadDosis")}
+              onChange={(e) => set("unidadDosis", e.target.value)}
+              placeholder="mg, ml, tableta…"
+            />
+            <Input
+              label="Vía de administración"
+              value={texto("viaAdministracion")}
+              onChange={(e) => set("viaAdministracion", e.target.value)}
+              placeholder="oral, subcutanea…"
+            />
+            <Input
+              label="Frecuencia"
+              value={texto("frecuenciaSugerida")}
+              onChange={(e) => set("frecuenciaSugerida", e.target.value)}
+              placeholder="c24h, c12h…"
+            />
+            <div className="flex gap-2">
+              <Input
+                label="Duración"
+                value={texto("duracionSugeridaCantidad")}
+                onChange={(e) => set("duracionSugeridaCantidad", e.target.value)}
+                placeholder="7"
+              />
+              <Select
+                label="Unidad"
+                value={texto("duracionSugeridaUnidad")}
+                onChange={(e) => set("duracionSugeridaUnidad", e.target.value)}
+                options={[
+                  { value: "dias", label: "días" },
+                  { value: "semanas", label: "semanas" },
+                  { value: "meses", label: "meses" },
+                ]}
+              />
+            </div>
           </div>
 
           <CardTitle className="mt-6">Manejo</CardTitle>

@@ -567,6 +567,17 @@ export const atencionApi = {
 
 export type TipoClinico = "vacuna" | "antiparasitario" | "medicamento" | "insumo" | "otro";
 
+/** La posología que la clínica cargó para el producto (anexo 07-03, A3). */
+export interface PosologiaSugerida {
+  dosisPorKg: number | null;
+  dosisFija: number | null;
+  unidadDosis: string | null;
+  viaAdministracion: string | null;
+  frecuencia: string | null;
+  duracionCantidad: number | null;
+  duracionUnidad: "dias" | "semanas" | "meses" | null;
+}
+
 export interface ProductoClinico {
   presentacionId: string;
   productoId: string;
@@ -575,6 +586,7 @@ export interface ProductoClinico {
   tipoClinico: TipoClinico | null;
   requiereReceta: boolean;
   precio: number | null;
+  posologia: PosologiaSugerida | null;
   lotes: Array<{ id: string; numero: string; vence: string | null; cantidad: number }>;
 }
 
@@ -605,6 +617,11 @@ export interface LineaRecetaCalculada {
 export interface RecetaDeAtencion {
   id: string | null;
   pesoKg: number | null;
+  /** De dónde salió el peso y de cuándo es (anexo 07-03, A3). */
+  pesoOrigen: "dictado" | "atencion_actual" | "ultima_atencion" | null;
+  pesoFecha: string | null;
+  pesoAntiguedadDias: number | null;
+  pesoViejo: boolean;
   estado: string;
   lineas: LineaRecetaCalculada[];
   avisos: Array<{ porque: string; severidad: string; detalle: string; linea: string }>;

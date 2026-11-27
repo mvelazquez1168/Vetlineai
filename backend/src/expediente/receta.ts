@@ -198,24 +198,106 @@ export async function cantidadTotalSugerida(
  * Sin esto, el panel decía «falta el peso» con el peso a la vista en la
  * pantalla de atrás, porque la receta aún no existía.
  */
-export async function pesoParaDosis(
+export type OrigenDelPeso = "dictado" | "atencion_actual" | "ultima_atencion";
+
+export interface PesoVigente {
+  kg: number | null;
+  /** De dónde salió. Null cuando no hay ningún peso. */
+  origen: OrigenDelPeso | null;
+  /** La fecha de esa medición, para poder decir si está vieja. */
+  fecha: string | null;
+  /** Días desde esa medición. Null si no hay peso. */
+  antiguedadDias: number | null;
+}
+
+/**
+ * EL PESO CON EL QUE SE CALCULA UNA DOSIS — y de dónde salió.
+ *
+ * Es el ÚNICO lugar del sistema que responde esa pregunta. Hasta el
+ * anexo 07-03 había dos: ésta, que miraba la atención y la última
+ * medición, y la del dictado (07d), que además daba prioridad al peso
+ * recién dictado. Dos lógicas para el mismo número es la forma de que
+ * un día el panel de receta y el borrador del dictado muestren dosis
+ * distintas para el mismo paciente.
+ *
+ * El orden es el de la confianza:
+ *
+ *   1. el peso que el médico acaba de DICTAR, aunque todavía no lo haya
+ *      aceptado — lo pesó hace un minuto;
+ *   2. el peso de ESTA atención;
+ *   3. el último peso registrado, de una visita anterior.
+ *
+ * DEVUELVE LA PROCEDENCIA Y LA FECHA, no solo el número. «4 mg/kg ×
+ * 32,4 kg» no se puede revisar si no se sabe que esos 32,4 kg son de
+ * hace ocho meses. Ese dato es lo que la pantalla necesita para avisar,
+ * y lo que faltaba.
+ */
+export async function pesoVigente(
   db: PoolClient,
-  atencionId: string
-): Promise<number | null> {
-  const a = await db.query<{ paciente_id: string; peso: string | null }>(
-    `SELECT paciente_id, peso FROM atenciones WHERE id = $1`,
+  atencionId: string,
+  opciones: { pesoDictadoKg?: number | null } = {}
+): Promise<PesoVigente> {
+  const sinPeso: PesoVigente = { kg: null, origen: null, fecha: null, antiguedadDias: null };
+
+  const a = await db.query<{ paciente_id: string; peso: string | null; fecha: string }>(
+    `SELECT paciente_id, peso, COALESCE(cerrada_en, creado_en)::date::text AS fecha
+       FROM atenciones WHERE id = $1`,
     [atencionId]
   );
-  if (a.rows.length === 0) return null;
-  if (a.rows[0].peso !== null) return Number(a.rows[0].peso);
-  const ultimo = await db.query<{ peso: string }>(
-    `SELECT peso FROM atenciones
-      WHERE paciente_id = $1 AND peso IS NOT NULL
-      ORDER BY creado_en DESC LIMIT 1`,
-    [a.rows[0].paciente_id]
+  if (a.rows.length === 0) return sinPeso;
+
+  // 1. El dictado. Hoy, por definición: lo acaba de decir.
+  if (opciones.pesoDictadoKg != null) {
+    return {
+      kg: opciones.pesoDictadoKg,
+      origen: "dictado",
+      fecha: new Date().toISOString().slice(0, 10),
+      antiguedadDias: 0,
+    };
+  }
+
+  // 2. El de esta atención.
+  if (a.rows[0].peso !== null) {
+    return {
+      kg: Number(a.rows[0].peso),
+      origen: "atencion_actual",
+      fecha: a.rows[0].fecha,
+      antiguedadDias: 0,
+    };
+  }
+
+  // 3. El último registrado.
+  const ultimo = await db.query<{ peso: string; fecha: string; dias: number }>(
+    `SELECT peso,
+            COALESCE(cerrada_en, creado_en)::date::text AS fecha,
+            (CURRENT_DATE - COALESCE(cerrada_en, creado_en)::date) AS dias
+       FROM atenciones
+      WHERE paciente_id = $1 AND peso IS NOT NULL AND id <> $2
+      ORDER BY COALESCE(cerrada_en, creado_en) DESC
+      LIMIT 1`,
+    [a.rows[0].paciente_id, atencionId]
   );
-  return ultimo.rows[0] ? Number(ultimo.rows[0].peso) : null;
+  if (ultimo.rows.length === 0) return sinPeso;
+  return {
+    kg: Number(ultimo.rows[0].peso),
+    origen: "ultima_atencion",
+    fecha: ultimo.rows[0].fecha,
+    antiguedadDias: Number(ultimo.rows[0].dias),
+  };
 }
+
+/**
+ * A partir de cuántos días un peso deja de servir para dosificar sin
+ * que alguien lo mire.
+ *
+ * Noventa días no es una regla clínica universal: es el umbral a partir
+ * del cual un cachorro ya cambió de talla y un adulto pudo ganar o
+ * perder lo suficiente como para mover una dosis. No bloquea nada —la
+ * pantalla avisa y el médico decide—, y por eso es una constante acá y
+ * no un parámetro de la clínica: el día que alguien quiera cambiarlo,
+ * que sea una decisión y no una casilla.
+ */
+export const DIAS_PESO_VIEJO = 90;
 
 async function recetaDeAtencion(
   db: PoolClient,
@@ -244,7 +326,7 @@ async function recetaDeAtencion(
   if (a.rows.length === 0) throw new Error("Esa atención no existe.");
 
   // El peso con el que se calculan las dosis, congelado en la receta.
-  const peso = await pesoParaDosis(db, atencionId);
+  const peso = (await pesoVigente(db, atencionId)).kg;
 
   const nueva = await db.query<{ id: string }>(
     `INSERT INTO recetas (tenant_id, caso_id, atencion_id, paciente_id, medico_id, peso_kg, estado)
@@ -268,6 +350,18 @@ async function exigirBorrador(db: PoolClient, atencionId: string): Promise<void>
 export interface RecetaDeAtencion {
   id: string | null;
   pesoKg: number | null;
+  /**
+   * De dónde salió ese peso y de cuándo es (anexo 07-03, A3).
+   *
+   * Sin esto, la pantalla mostraba «las dosis por kilo se calculan con
+   * 32,4 kg» y no había forma de saber que esos kilos eran de la visita
+   * del año pasado.
+   */
+  pesoOrigen: OrigenDelPeso | null;
+  pesoFecha: string | null;
+  pesoAntiguedadDias: number | null;
+  /** Más de DIAS_PESO_VIEJO: la pantalla lo avisa, no lo bloquea. */
+  pesoViejo: boolean;
   estado: string;
   lineas: LineaCalculada[];
   /** Los avisos de alergia de todas las líneas juntos. */
@@ -301,9 +395,14 @@ export async function verReceta(
   if (cab.rows.length === 0) {
     // Sin receta todavía, el peso igual se informa: es lo que permite
     // que la cuenta en vivo funcione desde la primera línea.
+    const vigente = await pesoVigente(db, atencionId);
     return {
       id: null,
-      pesoKg: await pesoParaDosis(db, atencionId),
+      pesoKg: vigente.kg,
+      pesoOrigen: vigente.origen,
+      pesoFecha: vigente.fecha,
+      pesoAntiguedadDias: vigente.antiguedadDias,
+      pesoViejo: (vigente.antiguedadDias ?? 0) > DIAS_PESO_VIEJO,
       estado: "borrador",
       lineas: [],
       avisos: [],
@@ -311,6 +410,13 @@ export async function verReceta(
     };
   }
   const pesoKg = cab.rows[0].peso_kg === null ? null : Number(cab.rows[0].peso_kg);
+  // LA RECETA YA CONGELÓ SU PESO, pero no de dónde salió: la
+  // procedencia se vuelve a resolver para poder decirlo. Si el peso
+  // congelado no coincide con el vigente —porque el médico lo corrigió
+  // después de crear la receta—, manda el congelado, que es con el que
+  // se calcularon las líneas que ya están.
+  const vigente = await pesoVigente(db, atencionId);
+  const mismaFuente = vigente.kg !== null && pesoKg !== null && vigente.kg === pesoKg;
   const lineas = await lineasDeReceta(db, cab.rows[0].id);
 
   const avisos: RecetaDeAtencion["avisos"] = [];
@@ -336,6 +442,13 @@ export async function verReceta(
   return {
     id: cab.rows[0].id,
     pesoKg,
+    // Si el peso congelado es el mismo que el vigente, la procedencia
+    // es la del vigente. Si no, el congelado es de cuando se creó la
+    // receta y lo único honesto es no inventarle un origen.
+    pesoOrigen: mismaFuente ? vigente.origen : null,
+    pesoFecha: mismaFuente ? vigente.fecha : null,
+    pesoAntiguedadDias: mismaFuente ? vigente.antiguedadDias : null,
+    pesoViejo: mismaFuente && (vigente.antiguedadDias ?? 0) > DIAS_PESO_VIEJO,
     estado: cab.rows[0].estado,
     lineas,
     avisos,

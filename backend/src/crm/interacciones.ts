@@ -30,6 +30,8 @@ export type TipoInteraccion =
   | "cliente_registrado"
   /* Anexo 07-03, B3: qué cliente lo trajo. */
   | "cliente_referido"
+  /* Dos fichas duplicadas pasaron a ser una (anexo 07-03, B1). */
+  | "cliente_unificado"
   | "mascota_registrada"
   | "cita_agendada"
   | "cita_confirmada"
@@ -187,6 +189,36 @@ export interface EventoLinea {
   propietario_id: string | null;
 }
 
+/**
+ * LA LÍNEA DE TIEMPO DEL QUE SOBREVIVIÓ MUESTRA LA DE LOS DOS
+ * (anexo 07-03, B1).
+ *
+ * `crm_interacciones` prohíbe UPDATE con un trigger: las filas del
+ * absorbido no se pueden repuntar al sobreviviente, y eso es a
+ * propósito —son la prueba de lo que pasó—. Entonces la unión se hace
+ * en la LECTURA: se piden los eventos de todos los ids de la cadena.
+ *
+ * Sin esto, unificar dos fichas le borraría al cliente la mitad de su
+ * historia de la pantalla, que es exactamente lo contrario de lo que la
+ * fusión promete.
+ */
+async function idsDeLaCadena(
+  db: PoolClient,
+  tabla: "propietarios" | "pacientes",
+  id: string
+): Promise<string[]> {
+  const r = await db.query<{ id: string }>(
+    `WITH RECURSIVE absorbidos AS (
+       SELECT id FROM ${tabla} WHERE id = $1
+       UNION
+       SELECT t.id FROM ${tabla} t JOIN absorbidos a ON t.unificado_hacia_id = a.id
+     )
+     SELECT id FROM absorbidos`,
+    [id]
+  );
+  return r.rows.map((f) => f.id);
+}
+
 export async function lineaDeInteracciones(
   db: PoolClient,
   filtros: FiltrosLinea,
@@ -199,8 +231,15 @@ export async function lineaDeInteracciones(
     cond.push(sql.replace("$?", `$${val.length}`));
   };
 
-  if (filtros.propietarioId) agregar("i.propietario_id = $?", filtros.propietarioId);
-  if (filtros.pacienteId) agregar("i.paciente_id = $?", filtros.pacienteId);
+  // Los eventos de las fichas absorbidas, además de los propios.
+  if (filtros.propietarioId) {
+    const ids = await idsDeLaCadena(db, "propietarios", filtros.propietarioId);
+    agregar("i.propietario_id = ANY($?::uuid[])", ids);
+  }
+  if (filtros.pacienteId) {
+    const ids = await idsDeLaCadena(db, "pacientes", filtros.pacienteId);
+    agregar("i.paciente_id = ANY($?::uuid[])", ids);
+  }
   if (filtros.tipos && filtros.tipos.length > 0) agregar("i.tipo = ANY($?)", filtros.tipos);
   if (filtros.modulo) agregar("t.modulo = $?", filtros.modulo);
   if (filtros.desde) agregar("i.ocurrido_en >= $?::date", filtros.desde);

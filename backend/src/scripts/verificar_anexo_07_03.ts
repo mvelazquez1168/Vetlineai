@@ -39,6 +39,15 @@ import { abrirAtencion, guardarSoap, ConflictoDeVersionError } from "../expedien
 import { tomarOLatir, liberar } from "../expediente/borrador";
 import { solicitarEstudio, estudiosDePaciente } from "../expediente/laboratorio";
 import { lineaDeInteracciones } from "../crm/interacciones";
+import {
+  unificarClientes,
+  unificarPacientes,
+  UnificacionImposible,
+  fichaViva,
+} from "../crm/unificar";
+import { clientesDuplicadosDeLaClinica, pacientesParecidos } from "../crm/duplicados";
+import { historialDe } from "../crm/consentimientos";
+import { buscarPropietariosTolerante } from "../busquedaPropietarios";
 
 const PREFIJO = "probe-anexo";
 
@@ -630,6 +639,307 @@ async function main() {
       null,
       "el adjunto de laboratorio NO se sube al proveedor del agente"
     );
+
+    // =================================================================
+    console.log("\n=== B1. Unificar duplicados ===");
+    // -----------------------------------------------------------------
+    // La pareja de prueba: el mismo cliente cargado dos veces, con el
+    // teléfono escrito distinto y la cédula solo en una de las fichas.
+    const tipoCedula = (
+      await db.query<{ id: string }>(`SELECT id FROM tipos_identificacion LIMIT 1`)
+    ).rows[0].id;
+    const fichaVieja = await crearPropietario(
+      db,
+      tenantId,
+      {
+        nombre: "Rosa Méndez Castro",
+        telefono: "8711-2233",
+        email: `${PREFIJO}-rosa@probe.invalid`,
+        tipoIdentificacionId: tipoCedula,
+        numeroIdentificacion: "901230456",
+      },
+      medicoId
+    );
+    const nueva = await crearPropietario(
+      db,
+      tenantId,
+      { nombre: "Rosa Mendez", telefono: "87112233" },
+      medicoId
+    );
+
+    // El barrido de la clínica las encuentra como par.
+    const pares = await clientesDuplicadosDeLaClinica(db, 50);
+    const elPar = pares.find(
+      (x) =>
+        (x.a.id === fichaVieja.id && x.b.id === nueva.id) ||
+        (x.a.id === nueva.id && x.b.id === fichaVieja.id)
+    );
+    assert(Boolean(elPar), "el barrido encuentra el par de clientes duplicados");
+    igual(
+      elPar?.a.criterios.includes("telefono"),
+      true,
+      "y dice por qué: el mismo teléfono escrito distinto"
+    );
+
+    // Historia en las dos fichas: el perro en una, el consentimiento en
+    // la otra. Es lo que hace que la fusión importe.
+    const perroDeLaVieja = (
+      await db.query<{ id: string }>(
+        `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie)
+         VALUES ($1,$2,9101,'Tobi','Canino') RETURNING id`,
+        [tenantId, fichaVieja.id]
+      )
+    ).rows[0].id;
+    // EL CASO QUE OBLIGA A CAMBIAR ALGO: el que sobrevive tiene el SÍ y
+    // el absorbido el NO. Al revés la negativa gana sin hacer nada, y la
+    // aserción pasaría sin probar el código que importa.
+    await registrarConsentimiento(db, tenantId, {
+      propietarioId: fichaVieja.id,
+      canal: "correo",
+      finalidad: "promociones",
+      otorgado: false,
+      fuente: "respuesta_cliente",
+      personaId: medicoId,
+    });
+    await registrarConsentimiento(db, tenantId, {
+      propietarioId: nueva.id,
+      canal: "correo",
+      finalidad: "promociones",
+      otorgado: true,
+      fuente: "recepcion",
+      personaId: medicoId,
+    });
+    const interaccionesAntes = Number(
+      (await db.query<{ n: string }>(`SELECT count(*) AS n FROM crm_interacciones`)).rows[0].n
+    );
+
+    const fusion = await unificarClientes(db, tenantId, {
+      sobrevivienteId: nueva.id,
+      absorbidoId: fichaVieja.id,
+      elegido: { nombre: "Rosa Méndez Castro", email: `${PREFIJO}-rosa@probe.invalid` },
+      personaId: medicoId,
+    });
+
+    // 1. GANA LA NEGATIVA.
+    const promos = await db.query<{ otorgado: boolean }>(
+      `SELECT otorgado FROM crm_consentimientos
+        WHERE propietario_id = $1 AND canal = 'correo' AND finalidad = 'promociones'`,
+      [nueva.id]
+    );
+    igual(
+      promos.rows[0]?.otorgado,
+      false,
+      "consentimientos en conflicto: una decía sí y la otra no, gana la NEGATIVA"
+    );
+    assert(
+      fusion.conflictos.some((c) => c.includes("NO")),
+      "y el conflicto queda dicho en castellano",
+      fusion.conflictos.join(" | ")
+    );
+
+    // 2. EL PACIENTE SE MUDÓ.
+    const duenoDelPerro = await db.query<{ propietario_id: string }>(
+      `SELECT propietario_id FROM pacientes WHERE id = $1`,
+      [perroDeLaVieja]
+    );
+    igual(duenoDelPerro.rows[0].propietario_id, nueva.id, "el paciente pasó a la ficha que sobrevivió");
+
+    // 3. LA IDENTIFICACIÓN SE MUDÓ, porque el sobreviviente no tenía.
+    const identificacion = await db.query<{ numero_identificacion: string | null }>(
+      `SELECT numero_identificacion FROM propietarios WHERE id = $1`,
+      [nueva.id]
+    );
+    igual(
+      identificacion.rows[0].numero_identificacion,
+      "901230456",
+      "la cédula pasó a la ficha que sobrevivió, que no tenía"
+    );
+
+    // 4. crm_interacciones NO CAMBIÓ NI UNA FILA: solo se agregaron.
+    const sinUpdate = await db.query<{ n: string }>(
+      `SELECT count(*) AS n FROM crm_interacciones WHERE propietario_id = $1`,
+      [fichaVieja.id]
+    );
+    assert(
+      Number(sinUpdate.rows[0].n) > 0,
+      "los eventos del absorbido siguen apuntando al absorbido: append-only respetado",
+      `${sinUpdate.rows[0].n} eventos`
+    );
+    const interaccionesDespues = Number(
+      (await db.query<{ n: string }>(`SELECT count(*) AS n FROM crm_interacciones`)).rows[0].n
+    );
+    assert(
+      interaccionesDespues > interaccionesAntes,
+      "y la fusión agregó su propio evento en vez de reescribir",
+      `${interaccionesAntes} → ${interaccionesDespues}`
+    );
+
+    // 5. LA LÍNEA DE TIEMPO DEL SOBREVIVIENTE MUESTRA LAS DOS HISTORIAS.
+    const lineaFusion = await lineaDeInteracciones(db, { propietarioId: nueva.id }, true);
+    assert(
+      lineaFusion.some((e) => e.propietario_id === fichaVieja.id),
+      "la línea de tiempo del sobreviviente incluye los eventos del absorbido",
+      `${lineaFusion.length} eventos`
+    );
+    assert(
+      lineaFusion.some((e) => e.tipo === "cliente_unificado"),
+      "y el evento de la fusión está ahí"
+    );
+    const historial = await historialDe(db, nueva.id);
+    assert(
+      historial.some((h) => h.fuente === "unificacion"),
+      "el historial de consentimientos registra que lo cambió una fusión",
+      historial.map((h) => h.fuente).join(", ")
+    );
+
+    // 6. EL ABSORBIDO NO APARECE EN LAS BÚSQUEDAS.
+    const buscado = await buscarPropietariosTolerante(db, "Rosa Méndez", 20);
+    assert(
+      !buscado.some((b) => b.id === fichaVieja.id),
+      "el absorbido no aparece en la búsqueda de clientes"
+    );
+    assert(
+      buscado.some((b) => b.id === nueva.id),
+      "y el que sobrevivió sí"
+    );
+    igual(
+      await fichaViva(db, "propietarios", fichaVieja.id),
+      nueva.id,
+      "un enlace viejo al absorbido lleva a la ficha viva"
+    );
+
+    // 7. NO SE UNIFICA DOS VECES.
+    let yaUnificado = false;
+    try {
+      await unificarClientes(db, tenantId, {
+        sobrevivienteId: nueva.id,
+        absorbidoId: fichaVieja.id,
+        personaId: medicoId,
+      });
+    } catch (err) {
+      yaUnificado = err instanceof UnificacionImposible;
+    }
+    assert(yaUnificado, "una ficha ya unificada no se vuelve a unificar");
+
+    // 8. EL CRÉDITO FRENA LA FUSIÓN.
+    const conCredito1 = await crearPropietario(
+      db,
+      tenantId,
+      { nombre: "Deudor Uno", telefono: "87770001" },
+      medicoId
+    );
+    const conCredito2 = await crearPropietario(
+      db,
+      tenantId,
+      { nombre: "Deudor Uno", telefono: "87770001" },
+      medicoId
+    );
+    for (const id of [conCredito1.id, conCredito2.id]) {
+      await db.query(
+        `INSERT INTO vta_credito_cliente (tenant_id, propietario_id, limite, habilitado)
+         VALUES ($1,$2,100000,true)`,
+        [tenantId, id]
+      );
+    }
+    let frenado = "";
+    try {
+      await unificarClientes(db, tenantId, {
+        sobrevivienteId: conCredito1.id,
+        absorbidoId: conCredito2.id,
+        personaId: medicoId,
+      });
+    } catch (err) {
+      frenado = err instanceof UnificacionImposible ? err.message : "otro error";
+    }
+    assert(
+      frenado.includes("crédito"),
+      "dos líneas de crédito abiertas frenan la fusión en vez de inventar una regla de plata",
+      frenado
+    );
+
+    // -----------------------------------------------------------------
+    // PACIENTES
+    // -----------------------------------------------------------------
+    const gato1 = (
+      await db.query<{ id: string }>(
+        `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie)
+         VALUES ($1,$2,9201,'Michi Pérez','Felino') RETURNING id`,
+        [tenantId, nueva.id]
+      )
+    ).rows[0].id;
+    const gato2 = (
+      await db.query<{ id: string }>(
+        `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie)
+         VALUES ($1,$2,9202,'michi','Felino') RETURNING id`,
+        [tenantId, nueva.id]
+      )
+    ).rows[0].id;
+    const grupos = await pacientesParecidos(db, { propietarioId: nueva.id });
+    assert(
+      grupos.some((g) => g.grupo.some((x) => x.id === gato1) && g.grupo.some((x) => x.id === gato2)),
+      "«Michi Pérez» y «michi» del mismo dueño se proponen como el mismo gato",
+      JSON.stringify(grupos.map((g) => g.grupo.map((x) => x.nombre)))
+    );
+
+    const fusionGato = await unificarPacientes(db, tenantId, {
+      sobrevivienteId: gato1,
+      absorbidoId: gato2,
+      elegido: { nombre: "Michi" },
+      personaId: medicoId,
+    });
+    assert(Boolean(fusionGato.sobrevivienteId), "los dos expedientes se unifican");
+    const alias = await db.query<{ alias: string[]; nombre: string }>(
+      `SELECT numero_expediente_alias AS alias, nombre FROM pacientes WHERE id = $1`,
+      [gato1]
+    );
+    assert(
+      alias.rows[0].alias.includes("9202"),
+      "el número del expediente absorbido queda buscable en el que sobrevivió",
+      JSON.stringify(alias.rows[0].alias)
+    );
+    igual(alias.rows[0].nombre, "Michi", "y el nombre elegido campo por campo se aplicó");
+    const absorbido = await db.query<{ estado: string; baja_motivo: string | null }>(
+      `SELECT estado, baja_motivo FROM pacientes WHERE id = $1`,
+      [gato2]
+    );
+    igual(absorbido.rows[0].estado, "baja_otro", "el expediente absorbido deja de estar activo");
+
+    // DOS DUEÑOS DISTINTOS NO SE UNIFICAN SOLOS.
+    const deOtroDueno = (
+      await db.query<{ id: string }>(
+        `INSERT INTO pacientes (tenant_id, propietario_id, numero_expediente, nombre, especie)
+         VALUES ($1,$2,9203,'Michi','Felino') RETURNING id`,
+        [tenantId, quienRefiere.id]
+      )
+    ).rows[0].id;
+    let otroDueno = "";
+    try {
+      await unificarPacientes(db, tenantId, {
+        sobrevivienteId: gato1,
+        absorbidoId: deOtroDueno,
+        personaId: medicoId,
+      });
+    } catch (err) {
+      otroDueno = err instanceof UnificacionImposible ? err.message : "otro error";
+    }
+    assert(
+      otroDueno.includes("clientes distintos"),
+      "dos pacientes de dueños distintos no se unifican: primero se unifican los clientes",
+      otroDueno
+    );
+
+    // LA AUDITORÍA NO SE REESCRIBE.
+    const auditoria = await db.query<{ n: string }>(
+      `SELECT count(*) AS n FROM crm_unificaciones`
+    );
+    igual(auditoria.rows[0].n, "2", "cada fusión dejó su fila de auditoría");
+    let appendOnly = false;
+    try {
+      await db.query(`UPDATE crm_unificaciones SET absorbido_nombre = 'otro'`);
+    } catch {
+      appendOnly = true;
+    }
+    assert(appendOnly, "la auditoría de la fusión es solo de inserción");
   });
 
   await pool.query(`DELETE FROM tenants WHERE nombre LIKE $1`, [`${PREFIJO}%`]);

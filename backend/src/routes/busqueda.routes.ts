@@ -88,14 +88,22 @@ busquedaRouter.get("/", async (req, res) => {
               GREATEST(
                 similarity(inmutable_unaccent(lower(p.nombre)), inmutable_unaccent(lower($1))),
                 CASE WHEN p.numero_expediente::text = $1 THEN 1.0 ELSE 0 END,
+                -- EL NÚMERO VIEJO LLEVA AL EXPEDIENTE VIVO (anexo 07-03,
+                -- B1). La clínica lo tiene anotado en el carnet de
+                -- vacunas y en el papel del laboratorio; después de
+                -- unificar tiene que seguir encontrando algo, y ese algo
+                -- es el expediente que sobrevivió.
+                CASE WHEN $1 = ANY(p.numero_expediente_alias) THEN 1.0 ELSE 0 END,
                 CASE WHEN lower(p.microchip) LIKE lower($1) || '%' THEN 0.9 ELSE 0 END
               ) AS puntaje
        FROM pacientes p
        JOIN propietarios prop ON prop.id = p.propietario_id
        LEFT JOIN razas r ON r.id = p.raza_id
-       WHERE inmutable_unaccent(lower(p.nombre)) % inmutable_unaccent(lower($1))
+       WHERE p.unificado_hacia_id IS NULL
+         AND (inmutable_unaccent(lower(p.nombre)) % inmutable_unaccent(lower($1))
           OR p.numero_expediente::text = $1
-          OR lower(p.microchip) LIKE lower($1) || '%'
+          OR $1 = ANY(p.numero_expediente_alias)
+          OR lower(p.microchip) LIKE lower($1) || '%')
        ORDER BY puntaje DESC, p.nombre ASC
        LIMIT ${LIMITE_POR_TIPO}`,
       [q]
@@ -112,9 +120,10 @@ busquedaRouter.get("/", async (req, res) => {
               ) AS puntaje
        FROM propietarios pr
        LEFT JOIN tipos_identificacion ti ON ti.id = pr.tipo_identificacion_id
-       WHERE inmutable_unaccent(lower(pr.nombre)) % inmutable_unaccent(lower($1))
+       WHERE pr.unificado_hacia_id IS NULL
+         AND (inmutable_unaccent(lower(pr.nombre)) % inmutable_unaccent(lower($1))
           OR pr.telefono LIKE $1 || '%'
-          OR pr.numero_identificacion LIKE $1 || '%'
+          OR pr.numero_identificacion LIKE $1 || '%')
        ORDER BY puntaje DESC, pr.nombre ASC
        LIMIT ${LIMITE_POR_TIPO}`,
       [q]

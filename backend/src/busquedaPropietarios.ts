@@ -80,9 +80,15 @@ export async function buscarPropietariosTolerante(
             ) AS puntaje
        FROM propietarios pr
        LEFT JOIN tipos_identificacion ti ON ti.id = pr.tipo_identificacion_id
-      WHERE inmutable_unaccent(lower(pr.nombre)) % inmutable_unaccent(lower($1))
+      -- EL ABSORBIDO NO SE BUSCA (anexo 07-03, B1). La ficha sigue en la
+      -- base porque el historial del CRM y los comprobantes emitidos la
+      -- referencian, pero para la clínica ya no existe: aparecer en el
+      -- buscador sería volver a crear el duplicado que se acaba de
+      -- resolver.
+      WHERE pr.unificado_hacia_id IS NULL
+        AND (inmutable_unaccent(lower(pr.nombre)) % inmutable_unaccent(lower($1))
          OR pr.telefono LIKE $1 || '%'
-         OR pr.numero_identificacion LIKE $1 || '%'
+         OR pr.numero_identificacion LIKE $1 || '%')
       ORDER BY puntaje DESC, pr.nombre ASC
       LIMIT $2`,
     [texto, limite]

@@ -17,6 +17,13 @@ import {
   registrarConsentimiento,
 } from "../crm/consentimientos";
 import { recibirRespuesta } from "../crm/mensajeria";
+import { clientesDuplicadosDeLaClinica, pacientesParecidos } from "../crm/duplicados";
+import {
+  unificacionesHechas,
+  unificarClientes,
+  unificarPacientes,
+  UnificacionImposible,
+} from "../crm/unificar";
 
 // ---------------------------------------------------------------------
 // API DEL CRM (prompt 03).
@@ -180,6 +187,82 @@ crmRouter.get("/clientes/:id/puede-enviar", async (req, res) => {
     );
   } catch (err) {
     fallo(res, err, "GET /crm/clientes/:id/puede-enviar");
+  }
+});
+
+// ---------------------------------------------------------------------
+// LOS DUPLICADOS Y SU FUSIÓN — anexo 07-03, B1.
+//
+// MIRAR ES DE TODO EL PERSONAL; FUSIONAR ES DEL ADMINISTRADOR. La
+// recepción es la que ve el duplicado («este señor ya vino, pero no me
+// aparece su perro») y tiene que poder reportarlo; la fusión mueve
+// historia clínica y plata de una ficha a otra y no se deshace con un
+// botón, así que la confirma quien responde por la clínica.
+// ---------------------------------------------------------------------
+crmRouter.get("/duplicados/clientes", async (req, res) => {
+  try {
+    res.json({ pares: await clientesDuplicadosDeLaClinica(req.db!) });
+  } catch (err) {
+    fallo(res, err, "GET /crm/duplicados/clientes");
+  }
+});
+
+crmRouter.get("/duplicados/pacientes", async (req, res) => {
+  try {
+    res.json({
+      grupos: await pacientesParecidos(req.db!, {
+        propietarioId: (req.query.propietario as string) || undefined,
+      }),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /crm/duplicados/pacientes");
+  }
+});
+
+crmRouter.get("/unificaciones", async (req, res) => {
+  try {
+    res.json({ unificaciones: await unificacionesHechas(req.db!) });
+  } catch (err) {
+    fallo(res, err, "GET /crm/unificaciones");
+  }
+});
+
+/**
+ * La fusión. Una transacción, la de la request: si algo falla a mitad de
+ * camino —un conflicto de unicidad que no previmos, una FK nueva— no
+ * queda media ficha movida.
+ */
+crmRouter.post("/unificar/:entidad", soloAdmin, async (req, res) => {
+  const entidad = req.params.entidad;
+  if (entidad !== "clientes" && entidad !== "pacientes") {
+    return res.status(404).json({ error: "Se unifican clientes o pacientes." });
+  }
+  const { sobrevivienteId, absorbidoId, elegido } = req.body as {
+    sobrevivienteId?: string;
+    absorbidoId?: string;
+    elegido?: Record<string, unknown>;
+  };
+  if (!sobrevivienteId || !absorbidoId) {
+    return res.status(400).json({ error: "Faltan las dos fichas." });
+  }
+  try {
+    const unificar = entidad === "clientes" ? unificarClientes : unificarPacientes;
+    const resultado = await unificar(req.db!, req.auth!.tenantId!, {
+      sobrevivienteId,
+      absorbidoId,
+      elegido,
+      personaId: req.auth!.userId,
+    });
+    res.json(resultado);
+  } catch (err) {
+    // NO SE PUEDE Y HAY UN MOTIVO EN CASTELLANO: el 409 lo distingue de
+    // un error nuestro, y la pantalla muestra el texto tal cual porque
+    // dice qué hacer antes de reintentar (cerrar un crédito, unificar
+    // primero los clientes).
+    if (err instanceof UnificacionImposible) {
+      return res.status(409).json({ error: err.message });
+    }
+    fallo(res, err, "POST /crm/unificar");
   }
 });
 

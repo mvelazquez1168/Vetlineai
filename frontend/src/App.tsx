@@ -57,6 +57,7 @@ import { ReporteAtenciones } from "./pages/admin/ReporteAtenciones";
 import { CasoDetalleAdmin } from "./pages/admin/CasoDetalleAdmin";
 import { Clinica } from "./pages/admin/Clinica";
 import { Notificaciones } from "./pages/admin/Notificaciones";
+import { Duplicados } from "./pages/admin/Duplicados";
 import { Facturacion } from "./pages/admin/Facturacion";
 import { Medicos } from "./pages/admin/Medicos";
 import { PlanConsumo } from "./pages/admin/PlanConsumo";
@@ -199,6 +200,7 @@ export default function App() {
         <Route path="plan-consumo/exportar" element={<ExportacionPage />} />
         <Route path="clinica" element={<Clinica />} />
         <Route path="notificaciones" element={<Notificaciones />} />
+        <Route path="duplicados" element={<Duplicados />} />
         <Route path="facturacion" element={<Facturacion />} />
         <Route path="facturacion/medio-de-pago" element={<MedioDePago />} />
       </Route>

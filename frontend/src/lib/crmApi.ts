@@ -65,7 +65,75 @@ export interface PoliticasCrm {
   ventanaDuplicadoHoras: number;
 }
 
+
+/** Un cliente de un par de posibles duplicados (anexo 07-03, B1). */
+export interface ClienteDelPar {
+  id: string;
+  nombre: string;
+  telefono: string | null;
+  email: string | null;
+  numeroIdentificacion: string | null;
+  criterios: string[];
+  puntaje: number;
+  pacientes: number;
+}
+
+export interface ParDeClientes {
+  a: ClienteDelPar;
+  b: ClienteDelPar;
+  puntaje: number;
+}
+
+export interface PacienteDelGrupo {
+  id: string;
+  nombre: string;
+  numeroExpediente: number | null;
+  especie: string | null;
+  estado: string;
+  creadoEn: string;
+  atenciones: number;
+  casos: number;
+  puntaje: number;
+}
+
+export interface GrupoDePacientes {
+  propietarioId: string;
+  propietarioNombre: string;
+  grupo: PacienteDelGrupo[];
+}
+
 export const crmApi = {
+  // ------------------------------------------------------------------
+  // DUPLICADOS Y FUSIÓN (anexo 07-03, B1).
+  // ------------------------------------------------------------------
+  duplicadosClientes: () => pedir<{ pares: ParDeClientes[] }>("/crm/duplicados/clientes"),
+  duplicadosPacientes: (propietarioId?: string) =>
+    pedir<{ grupos: GrupoDePacientes[] }>(
+      `/crm/duplicados/pacientes${propietarioId ? `?propietario=${propietarioId}` : ""}`
+    ),
+  unificaciones: () =>
+    pedir<{
+      unificaciones: Array<{
+        id: string;
+        entidad: string;
+        sobreviviente_id: string;
+        sobreviviente_nombre: string;
+        absorbido_nombre: string;
+        hecho_en: string;
+        hecho_por_nombre: string | null;
+      }>;
+    }>("/crm/unificaciones"),
+  unificar: (
+    entidad: "clientes" | "pacientes",
+    d: { sobrevivienteId: string; absorbidoId: string; elegido?: Record<string, unknown> }
+  ) =>
+    json<{
+      sobrevivienteId: string;
+      absorbidoId: string;
+      movido: Record<string, number>;
+      conflictos: string[];
+    }>(`/crm/unificar/${entidad}`, "POST", d),
+
   tipos: () => pedir<{ tipos: TipoEvento[] }>("/crm/tipos-evento"),
 
   lineaDeCliente: (propietarioId: string, filtros: Record<string, string> = {}) => {

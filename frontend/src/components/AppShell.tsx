@@ -103,6 +103,11 @@ const GRUPOS: Grupo[] = [
       { to: "/admin/medicos", etiqueta: "Médicos", icono: "personas", soloAdmin: true },
       { to: "/admin/clinica", etiqueta: "Clínica y usuarios", icono: "clinica", soloAdmin: true },
       { to: "/admin/notificaciones", etiqueta: "Notificaciones", icono: "campana", soloAdmin: true },
+      // Anexo 07-03, B1. La lista la puede ver todo el personal —es la
+      // recepción la que reconoce al cliente repetido— y el botón de
+      // unificar aparece solo para el administrador, dentro de la
+      // pantalla.
+      { to: "/admin/duplicados", etiqueta: "Posibles duplicados", icono: "propietario" },
       { to: "/admin/plan-consumo", etiqueta: "Plan y consumo", icono: "plan", soloAdmin: true },
       {
         to: "/admin/facturacion",

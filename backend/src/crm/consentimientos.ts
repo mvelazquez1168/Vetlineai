@@ -127,7 +127,19 @@ export async function historialDe(
             p.nombre AS registrado_por_nombre
        FROM crm_consentimiento_historial h
        LEFT JOIN personas p ON p.id = h.registrado_por
-      WHERE h.propietario_id = $1
+      -- EL HISTORIAL DEL QUE SOBREVIVIÓ INCLUYE EL DE LOS ABSORBIDOS
+      -- (anexo 07-03, B1). Esta tabla prohíbe UPDATE: las filas del
+      -- absorbido no se mueven, se leen. Y hacen falta justamente acá:
+      -- es la prueba de qué autorizó el cliente y cuándo, y una fusión
+      -- no puede hacerla desaparecer de la pantalla.
+      WHERE h.propietario_id IN (
+              WITH RECURSIVE absorbidos AS (
+                SELECT id FROM propietarios WHERE id = $1
+                UNION
+                SELECT t.id FROM propietarios t
+                  JOIN absorbidos a ON t.unificado_hacia_id = a.id
+              ) SELECT id FROM absorbidos
+            )
       ORDER BY h.creado_en DESC`,
     [propietarioId]
   );
@@ -149,7 +161,13 @@ export async function registrarConsentimiento(
     canal: Canal;
     finalidad: Finalidad;
     otorgado: boolean;
-    fuente: "registro" | "recepcion" | "respuesta_cliente" | "importacion" | "existente_al_habilitar";
+    fuente: "registro"
+      | "recepcion"
+      | "respuesta_cliente"
+      | "importacion"
+      | "existente_al_habilitar"
+      /* Lo trajo una fusión de fichas duplicadas (anexo 07-03, B1). */
+      | "unificacion";
     personaId?: string;
     nota?: string;
   }

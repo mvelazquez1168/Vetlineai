@@ -161,11 +161,16 @@ pacientesRouter.get("/", async (req, res) => {
   const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
   const pagina = Math.max(1, parseInt(String(req.query.pagina ?? "1"), 10) || 1);
 
+  // EL EXPEDIENTE ABSORBIDO NO ESTÁ EN EL FICHERO (anexo 07-03, B1), y
+  // su número viejo encuentra al que sobrevivió. El filtro va en las dos
+  // ramas porque el fichero sin búsqueda es el que más se mira.
   const condicion = q
-    ? `WHERE p.nombre ILIKE '%' || $1 || '%'
+    ? `WHERE p.unificado_hacia_id IS NULL
+         AND (p.nombre ILIKE '%' || $1 || '%'
         OR p.numero_expediente::text = $1
-        OR prop.nombre ILIKE '%' || $1 || '%'`
-    : "";
+        OR $1 = ANY(p.numero_expediente_alias)
+        OR prop.nombre ILIKE '%' || $1 || '%')`
+    : "WHERE p.unificado_hacia_id IS NULL";
   const params = q ? [q] : [];
 
   try {

@@ -118,7 +118,8 @@ propietariosRouter.get("/buscar-por-identificacion", async (req, res) => {
               ti.etiqueta AS tipo_identificacion_etiqueta
        FROM propietarios p
        LEFT JOIN tipos_identificacion ti ON ti.id = p.tipo_identificacion_id
-       WHERE p.tipo_identificacion_id = $1 AND p.numero_identificacion = $2`,
+       WHERE p.tipo_identificacion_id = $1 AND p.numero_identificacion = $2
+         AND p.unificado_hacia_id IS NULL`,
       [tipoIdentificacionId, numero]
     );
     res.json({ propietario: result.rows[0] ?? null });
@@ -144,11 +145,17 @@ propietariosRouter.get("/buscar", async (req, res) => {
               ti.etiqueta AS tipo_identificacion_etiqueta
        FROM propietarios p
        LEFT JOIN tipos_identificacion ti ON ti.id = p.tipo_identificacion_id
-       WHERE $1 = ''
+      -- EL ABSORBIDO NO SE BUSCA (anexo 07-03, B1). La ficha sigue en la
+      -- base porque el historial del CRM y los comprobantes emitidos la
+      -- referencian, pero para la clínica ya no existe: aparecer en el
+      -- buscador sería volver a crear el duplicado que se acaba de
+      -- resolver.
+       WHERE p.unificado_hacia_id IS NULL
+         AND ($1 = ''
           OR p.nombre ILIKE '%' || $1 || '%'
           OR p.telefono ILIKE '%' || $1 || '%'
           OR p.email ILIKE '%' || $1 || '%'
-          OR p.numero_identificacion ILIKE '%' || $1 || '%'
+          OR p.numero_identificacion ILIKE '%' || $1 || '%')
        ORDER BY p.nombre
        LIMIT 10`,
       [q]
@@ -173,12 +180,17 @@ propietariosRouter.get("/", async (req, res) => {
   const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
   const pagina = Math.max(1, parseInt(String(req.query.pagina ?? "1"), 10) || 1);
 
+  // El filtro del absorbido va en las DOS ramas (anexo 07-03, B1): el
+  // fichero sin búsqueda es el que más se mira, y dejarlo ahí sería
+  // mostrar las fichas muertas justo en la pantalla donde se cuentan
+  // los clientes de la clínica.
   const condicion = q
-    ? `WHERE p.nombre ILIKE '%' || $1 || '%'
+    ? `WHERE p.unificado_hacia_id IS NULL
+         AND (p.nombre ILIKE '%' || $1 || '%'
         OR p.telefono ILIKE '%' || $1 || '%'
         OR p.email ILIKE '%' || $1 || '%'
-        OR p.numero_identificacion ILIKE '%' || $1 || '%'`
-    : "";
+        OR p.numero_identificacion ILIKE '%' || $1 || '%')`
+    : "WHERE p.unificado_hacia_id IS NULL";
   const params = q ? [q] : [];
 
   try {

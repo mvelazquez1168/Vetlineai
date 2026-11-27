@@ -615,3 +615,35 @@ una clínica pendiente descartable y la listó.
 No hay variante `:prod` compilada a propósito: `tsconfig.build.json` excluye
 `src/scripts`, así que `node dist/scripts/…` sería un comando roto justo en el
 momento en que más importa que funcione.
+
+---
+
+## D-007 — Una aserción de `verificar_finanzas_10a` depende de la hora de la máquina
+
+**Encontrado** el 2026-11-27, corriendo la batería de regresión del prompt 12 a
+las **20:02 UTC**.
+
+`verificar_finanzas_10a.ts` afirma «el recordatorio sale», y a esa hora falla con
+*«No se envió: Fuera de la franja 08:00–20:00. Se manda a las 08:00»*.
+
+**No es un defecto del código que prueba.** La franja horaria es una política
+deliberada del 10a —no se le escribe a un cliente a las once de la noche— y está
+funcionando. El defecto es del verificador: **una aserción que pasa a las 15:00 y
+falla a las 20:30 no distingue un código roto de un reloj**, y eso es
+exactamente lo que un verificador tiene que hacer. Durante doce horas de cada
+día, la batería de regresión de finanzas da un rojo que hay que interpretar a
+mano, y el día que ese rojo sea real nadie lo va a mirar.
+
+Leído y confirmado contra la fuente (regla de admisión R1): la franja sale de
+`politicaNumero` en `finanzas/cobranza.ts`; el verificador no la fija ni la
+mueve.
+
+### Criterio de cierre
+
+El verificador fija la franja antes de la aserción —guardando la política de la
+clínica de prueba con una ventana que incluya la hora de la corrida— **o** afirma
+las dos ramas: dentro de la franja se envía, fuera de la franja se rechaza con su
+motivo. La segunda es mejor: prueba la política, que hoy no está probada.
+
+Se cierra cuando `verificar_finanzas_10a` dé **TODO OK** corriéndolo dos veces
+con el reloj del contenedor puesto en una hora de cada lado de la franja.

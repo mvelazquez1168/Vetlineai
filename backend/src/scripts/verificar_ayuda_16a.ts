@@ -40,7 +40,7 @@ function igual(obtenido: unknown, esperado: unknown, msg: string) {
 }
 
 /**
- * EL BANCO DE 40 PREGUNTAS DE USO.
+ * EL BANCO DE PREGUNTAS DE USO.
  *
  * Son las que una clínica pregunta de verdad el primer mes, incluidas
  * las dudas que el prompt nombra: registrar la atención, las vacunas y
@@ -101,6 +101,14 @@ const BANCO: Array<{ pregunta: string; archivo: string }> = [
   { pregunta: "¿Cómo liquido las comisiones del mes?", archivo: "turnos-ausencias-y-comisiones.md" },
   { pregunta: "¿Dónde veo quién anuló un cobro?", archivo: "cumplimiento-y-auditoria.md" },
   { pregunta: "¿Cómo creo una familia de productos?", archivo: "catalogos-y-clasificacion.md" },
+
+  // --- Reportes y trazabilidad (prompt 12) -------------------------
+  { pregunta: "¿Dónde veo cómo va la clínica este mes?", archivo: "reportes-dashboards.md" },
+  { pregunta: "¿Cómo veo de dónde sale el número de ingresos?", archivo: "reportes-dashboards.md" },
+  { pregunta: "¿Por qué las cuentas por cobrar no cambian cuando cambio el período?", archivo: "reportes-dashboards.md" },
+  { pregunta: "¿Cómo exporto un reporte a Excel?", archivo: "reportes-dashboards.md" },
+  { pregunta: "¿A qué pacientes se les aplicó un lote?", archivo: "producto-consumo-y-trazabilidad.md" },
+  { pregunta: "¿En qué se me fue este producto?", archivo: "producto-consumo-y-trazabilidad.md" },
 ];
 
 async function main() {

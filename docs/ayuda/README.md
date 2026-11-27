@@ -69,6 +69,16 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | [Turnos, ausencias y comisiones](turnos-ausencias-y-comisiones.md) | Quién trabaja cuándo, quién está de vacaciones y cuánto se le paga por lo que hizo. |
 | [Permisos, controlados, desechos y auditoría](cumplimiento-y-auditoria.md) | Lo que vence, el libro de controlados con su cierre firmado, y quién hizo qué. |
 
+## Los reportes
+
+| Página | De qué trata |
+|---|---|
+| [Los reportes: cómo va la clínica](reportes-dashboards.md) | Las tarjetas, el período, la comparación y cómo se abre cualquier número para ver la lista que lo compone. |
+| [El consumo de un producto y a qué pacientes se le aplicó](producto-consumo-y-trazabilidad.md) | En qué se fue un producto y la trazabilidad de un lote ante una alerta del fabricante. |
+
+La definición exacta de cada número —qué cuenta, qué deja afuera y a qué fecha se imputa— está en
+[el diccionario de métricas](../metricas/diccionario.md), que se genera desde el código.
+
 ## La ayuda del sistema
 
 | Página | De qué trata |
@@ -90,8 +100,9 @@ Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la 
 **07d** (el dictado por voz), las del **anexo 07-03** (el paciente, el cliente y los duplicados),
 las del **08b/09b** (presupuestos, cierre de caja, descuentos, facturas de proveedores y actividad
 económica) las del **04** (personal y roles, horario y feriados, políticas) las del **10a** (cuentas por pagar, gastos, cobranza y cierre del
-día) las del **11** (catálogos, turnos y comisiones, cumplimiento y auditoría) y la del **16a** (la
-ayuda que responde con estas mismas páginas). Faltan las del resto de caja, inventario y agenda, que
+día) las del **11** (catálogos, turnos y comisiones, cumplimiento y auditoría) la del **16a** (la
+ayuda que responde con estas mismas páginas) y las del **12** (los reportes y la trazabilidad de un
+producto). Faltan las del resto de caja, inventario y agenda, que
 se irán sumando.
 
 **Desde el 16a, estas páginas no son solo un manual:** son la fuente con la que el sistema contesta

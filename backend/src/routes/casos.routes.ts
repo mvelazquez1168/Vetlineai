@@ -25,6 +25,7 @@ import {
 } from "docx";
 import { requerirAnthropic } from "../anthropic";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { vincularCasoACita } from "../agenda/citas";
 import { registrarUsoApi, verificarAntesDeGenerar, mensajeRechazoGeneracion } from "../tarifas";
 import {
   verificarInformeCortesiaPermitido,
@@ -197,13 +198,12 @@ casosRouter.post("/", async (req, res) => {
 
     let citaVinculada: boolean | undefined;
     if (citaId) {
-      const vinculoResult = await req.db!.query(
-        `UPDATE citas SET caso_id = $1, actualizado_en = now()
-         WHERE id = $2 AND tenant_id = $3 AND caso_id IS NULL
-         RETURNING id`,
-        [caso.id, citaId, req.auth!.tenantId]
-      );
-      citaVinculada = vinculoResult.rows.length > 0;
+      // POR EL PUNTO ÚNICO (prompt 05, §0): tenía su propio `UPDATE`
+      // —sin la regla de no pisar un vínculo ajeno, que solo estaba en
+      // la ruta de citas—. El alcance de clínica lo pone la RLS, así
+      // que el `tenant_id` del WHERE era redundante.
+      const r = await vincularCasoACita(req.db!, citaId, caso.id);
+      citaVinculada = r.vinculada;
     }
 
     res.status(201).json({

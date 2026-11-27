@@ -1,180 +1,40 @@
 import { Request, Response, Router } from "express";
-import { registrarInteraccion } from "../crm/interacciones";
-import { PoolClient } from "pg";
-import { sePuedeAgendar } from "../clinica/horarios";
 import { soloPersonalDeLaClinica, tienePermiso } from "../permisos";
 import { authenticate, withTenantClient } from "../middleware/auth";
-import { avisoActivo, emitirNotificacion } from "../notificaciones";
+import {
+  CitaNoDisponible,
+  CitaNoEncontrada,
+  CrearCitaInput,
+  TransicionInvalida,
+  borrarCita,
+  cambiarEstadoDeCita,
+  crearCita,
+  moverCita,
+  vincularCasoACita,
+} from "../agenda/citas";
+import { huecosLibres } from "../agenda/disponibilidad";
 
 // ---------------------------------------------------------------------
-// Citas — 100% CRUD/SQL, sin IA en ninguna parte. tenant_id directo, sin
-// clinica_id (ver nota de diseño en la migración 017).
+// Citas — SOLO HTTP. El dominio vive en `agenda/citas.ts`, que es el
+// único punto que escribe en la tabla (prompt 05, §0): hasta este
+// prompt, seis archivos escribían en `citas` y solo este tenía la tabla
+// de transiciones válidas.
+//
+// Lo que queda acá es lo que es de HTTP y no del dominio: leer el
+// cuerpo, resolver el permiso de sobrecarga, y traducir los errores del
+// dominio a códigos de respuesta.
 // ---------------------------------------------------------------------
 export const citasRouter = Router();
 
-function formatoFechaCorta(fecha: Date | string): string {
-  const d = typeof fecha === "string" ? new Date(fecha) : fecha;
-  return new Intl.DateTimeFormat("es", { day: "2-digit", month: "long", year: "numeric", timeZone: "UTC" }).format(d);
-}
-
-citasRouter.use(authenticate, withTenantClient);
-
-citasRouter.use(soloPersonalDeLaClinica());
-
-// Transiciones de estado válidas — explícitas, sin saltos ilógicos.
-// Estados terminales (completada/cancelada/no_show) no salen a ningún
-// otro estado. Exportada — prompt_code_registro_atencion.md, respuesta
-// del usuario: atencion.ts la reusa para el mismo chequeo, no repite la
-// tabla ni la salta.
-//
-// programada/confirmada/registrada → completada son adiciones de ese
-// mismo prompt: antes solo en_consulta podía completarse, lo que
-// bloqueaba el caso central del Registro de Atención (paciente sin
-// turno, cita recién creada en 'programada'). Registrar la atención es
-// en sí mismo la prueba de que la consulta ocurrió — una vía legítima de
-// cierre, no un salto ilógico; sigue sin poder completarse desde
-// cancelada/no_show (terminales, sin salida a propósito).
-export const TRANSICIONES_VALIDAS: Record<string, string[]> = {
-  programada: ["confirmada", "cancelada", "no_show", "completada"],
-  confirmada: ["registrada", "cancelada", "no_show", "completada"],
-  registrada: ["en_consulta", "cancelada", "completada"],
-  en_consulta: ["completada", "cancelada"],
-  completada: [],
-  cancelada: [],
-  no_show: [],
-};
-
-function sumarMinutos(horaHHMM: string, minutos: number): string {
-  const [h, m] = horaHHMM.split(":").map(Number);
-  const total = h * 60 + m + minutos;
-  const hh = Math.floor(((total % 1440) + 1440) / 60) % 24;
-  const mm = ((total % 60) + 60) % 60;
-  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
-}
-
-// No es IA — una consulta de solapamiento simple: mismo médico O misma
-// sala, mismo día, rangos de hora que se cruzan. Nunca bloquea: el
-// llamador decide qué hacer con el resultado.
-async function buscarConflictos(
-  db: PoolClient,
-  params: {
-    fecha: string;
-    horaInicio: string;
-    horaFin: string;
-    medicoId: string;
-    salaId: string | null;
-    excluirCitaId?: string;
-  }
-) {
-  const condicionesRecurso = params.salaId
-    ? `(c.medico_id = $2 OR c.sala_id = $3)`
-    : `c.medico_id = $2`;
-  const valores: any[] = [params.fecha, params.medicoId];
-  if (params.salaId) valores.push(params.salaId);
-  valores.push(params.horaFin, params.horaInicio);
-  const idxHoraFin = valores.length - 1;
-  const idxHoraInicio = valores.length;
-
-  let query = `
-    SELECT c.id, c.fecha, c.hora_inicio, c.hora_fin, c.medico_id, c.sala_id, c.estado,
-           p.nombre AS paciente_nombre, m.nombre AS medico_nombre, s.nombre AS sala_nombre
-    FROM citas c
-    JOIN pacientes p ON p.id = c.paciente_id
-    JOIN personas m ON m.id = c.medico_id
-    LEFT JOIN salas s ON s.id = c.sala_id
-    WHERE c.fecha = $1
-      AND c.estado NOT IN ('cancelada', 'no_show')
-      AND ${condicionesRecurso}
-      AND c.hora_inicio < $${idxHoraFin}
-      AND c.hora_fin > $${idxHoraInicio}
-  `;
-  if (params.excluirCitaId) {
-    valores.push(params.excluirCitaId);
-    query += ` AND c.id != $${valores.length}`;
-  }
-
-  const result = await db.query(query, valores);
-  return result.rows;
-}
-
-export interface CrearCitaInput {
-  pacienteId: string;
-  medicoId: string;
-  salaId?: string | null;
-  fecha: string;
-  horaInicio: string;
-  duracionMinutos: number;
-  prioridad?: "baja" | "normal" | "alta" | "emergencia";
-  motivoConsulta?: string;
-  // Reporte de atenciones — vincula la cita a un caso ya creado desde el
-  // wizard de "Nuevo Caso" (rama "crear cita ahora"). Opcional: la
-  // mayoría de las citas se agendan sin caso todavía.
-  casoId?: string | null;
-  /** De qué tipo es: trae su duración, su color y su servicio (04, §3). */
-  tipoCitaId?: string | null;
-  /**
-   * CITAR FUERA DE HORARIO O SOBRE UN BLOQUEO (prompt 04, §3).
-   *
-   * Sin esto, la cita se rechaza con el motivo. Con esto —y solo si
-   * quien agenda tiene el permiso `agenda.fuera_de_horario`— se agenda
-   * y **queda registrado quién la autorizó y por qué**, que es lo que
-   * el prompt pide.
-   */
-  fueraDeHorario?: { autorizadoPor: string; motivo: string };
-}
-
-/** La cita cae fuera del horario y nadie la autorizó. */
-export class FueraDeHorario extends Error {
-  constructor(
-    mensaje: string,
-    public readonly nivel: string | undefined,
-    public readonly bloquesDelDia: Array<{ desde: string; hasta: string }> | undefined
-  ) {
-    super(mensaje);
-    this.name = "FueraDeHorario";
-  }
-}
 
 /**
- * Comprueba el horario y, si la cita cae afuera, la frena.
+ * LA SOBRECARGA EXPLÍCITA (prompt 05, §1).
  *
- * La usan el alta y la reprogramación: reprogramar para un domingo es
- * exactamente el mismo problema que agendar un domingo, y tenerlo en un
- * solo lugar evita que uno de los dos caminos se quede sin el control
- * —que es justo lo que pasó con `horarios_configuracion`, que existía y
- * nadie consultaba.
- */
-async function exigirHorario(
-  db: PoolClient,
-  tenantId: string,
-  body: CrearCitaInput
-): Promise<void> {
-  if (body.fueraDeHorario) return; // autorizado explícitamente
-  const veredicto = await sePuedeAgendar(db, tenantId, {
-    fecha: body.fecha,
-    horaInicio: body.horaInicio,
-    duracionMinutos: body.duracionMinutos,
-    medicoId: body.medicoId,
-  });
-  if (!veredicto.permitido) {
-    throw new FueraDeHorario(
-      veredicto.motivo ?? "Esa hora está fuera del horario de atención.",
-      veredicto.nivel,
-      veredicto.bloquesDelDia
-    );
-  }
-}
-
-/**
- * CITAR FUERA DE HORARIO LLEVA PERMISO (prompt 04, §3).
- *
- * El cliente manda `forzarFueraDeHorario` con su motivo después de ver
- * el aviso del 409. Acá se comprueba que de verdad pueda: el frontend
- * puede mostrar el botón por error, o alguien puede llamar la API
- * directamente, y el backend tiene que rechazar igual.
- *
- * Devuelve la respuesta de rechazo cuando no corresponde, o `null`
- * cuando se puede seguir.
+ * El permiso pasó de llamarse `agenda.fuera_de_horario` a
+ * `agenda.sobrecarga` (migración 166) porque ya no cubre solo el
+ * horario: también una sala ocupada, un equipo ocupado y un evento del
+ * calendario del médico. El cuerpo sigue mandando
+ * `forzarFueraDeHorario` para no romper el cliente del 04.
  */
 export function autorizarFueraDeHorario(
   req: Request,
@@ -183,20 +43,20 @@ export function autorizarFueraDeHorario(
   const forzar = (req.body as { forzarFueraDeHorario?: { motivo?: string } })
     .forzarFueraDeHorario;
   if (!forzar) return null;
-  if (!tienePermiso(req, "agenda.fuera_de_horario")) {
+  if (!tienePermiso(req, "agenda.sobrecarga")) {
     return {
       estado: 403,
       cuerpo: {
         error:
-          "No tenés permiso para citar fuera del horario de atención. Pedíselo a un administrador.",
-        permisoFaltante: "agenda.fuera_de_horario",
+          "No tenés permiso para sobrecargar la agenda (citar fuera de horario, en un bloqueo o con un recurso ocupado). Pedíselo a un administrador.",
+        permisoFaltante: "agenda.sobrecarga",
       },
     };
   }
   if (!forzar.motivo?.trim()) {
     return {
       estado: 400,
-      cuerpo: { error: "Para citar fuera de horario hace falta el motivo: queda registrado." },
+      cuerpo: { error: "Para sobrecargar la agenda hace falta el motivo: queda registrado." },
     };
   }
   body.fueraDeHorario = {
@@ -207,189 +67,23 @@ export function autorizarFueraDeHorario(
 }
 
 /**
- * El 409 del fuera de horario: no es un error del sistema, es una
- * pregunta. Lleva el motivo, el nivel que lo frenó y los bloques del día
- * para que la pantalla proponga otra hora, y dice si quien está mirando
- * puede autorizarlo.
+ * EL 409 DE «NO SE PUEDE AGENDAR AHÍ»: no es un error del sistema, es
+ * una pregunta.
+ *
+ * Lleva el motivo, el nivel que lo frenó, con qué choca, **los tres
+ * huecos más cercanos** y si quien está mirando puede sobrecargar. Un
+ * «no» sin alternativa obliga a la recepción a adivinar con el cliente
+ * al teléfono.
  */
-export function responderFueraDeHorario(req: Request, res: Response, err: FueraDeHorario) {
+export function responderNoDisponible(req: Request, res: Response, err: CitaNoDisponible) {
   return res.status(409).json({
     error: err.message,
     fueraDeHorario: true,
-    nivel: err.nivel,
-    bloquesDelDia: err.bloquesDelDia,
-    puedeForzar: tienePermiso(req, "agenda.fuera_de_horario"),
-  });
-}
-
-// Núcleo de creación de citas (conflictos + insert) — exportada para que
-// POST /lista-espera/:id/agendar la reuse tal cual, sin duplicarla (así
-// lo pide el prompt explícitamente: "reusando la misma lógica de POST
-// /api/citas, incluyendo detección de conflictos").
-/**
- * Para quien crea una cita que **no es agendar un turno**.
- *
- * `omitirHorario` existe para los hechos ya ocurridos: la atención del
- * paciente que llegó sin turno se registra con una cita, y esa cita no
- * se puede rechazar por estar fuera del horario —ya pasó—. Es un
- * parámetro de función y no un campo del cuerpo a propósito: `POST
- * /citas` pasa `req.body` tal cual, así que un campo sería forjable
- * desde el navegador y el permiso no serviría para nada.
- */
-export interface OpcionesDeCita {
-  omitirHorario?: boolean;
-}
-
-export async function crearCita(
-  db: PoolClient,
-  tenantId: string,
-  body: CrearCitaInput,
-  opciones: OpcionesDeCita = {}
-) {
-  const horaFin = sumarMinutos(body.horaInicio, body.duracionMinutos);
-
-  // EL HORARIO DE LA CLÍNICA SE RESPETA (prompt 04, §3). Hasta ahora
-  // `horarios_configuracion` guardaba el horario de cada médico y nadie
-  // lo comparaba contra la cita: se podía citar un domingo a las once
-  // de la noche y la clínica se enteraba el domingo.
-  //
-  // VA ANTES DE LOS CONFLICTOS porque es más barato y porque el motivo
-  // es más útil: «la clínica no abre los domingos» explica más que «no
-  // hay conflicto con otra cita».
-  if (!opciones.omitirHorario) {
-    await exigirHorario(db, tenantId, body);
-  }
-
-  const conflictos = await buscarConflictos(db, {
-    fecha: body.fecha,
-    horaInicio: body.horaInicio,
-    horaFin,
-    medicoId: body.medicoId,
-    salaId: body.salaId ?? null,
-  });
-
-  const result = await db.query(
-    `INSERT INTO citas
-       (tenant_id, paciente_id, medico_id, sala_id, fecha, hora_inicio, hora_fin,
-        duracion_minutos, prioridad, motivo_consulta, caso_id,
-        tipo_cita_id, fuera_de_horario_por, fuera_de_horario_motivo)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-     RETURNING *`,
-    [
-      tenantId,
-      body.pacienteId,
-      body.medicoId,
-      body.salaId ?? null,
-      body.fecha,
-      body.horaInicio,
-      horaFin,
-      body.duracionMinutos,
-      body.prioridad ?? "normal",
-      body.motivoConsulta ?? null,
-      body.casoId ?? null,
-      body.tipoCitaId ?? null,
-      body.fueraDeHorario?.autorizadoPor ?? null,
-      body.fueraDeHorario?.motivo ?? null,
-    ]
-  );
-  const cita = result.rows[0];
-
-  // CRM (prompt 03): el evento va en la MISMA transaccion que la cita.
-  // Si la cita se va atras, su evento tampoco queda.
-  await registrarInteraccion(db, {
-    tenantId,
-    tipo: "cita_agendada",
-    pacienteId: cita.paciente_id,
-    ocurridoEn: cita.creado_en,
-    origenTabla: "citas",
-    origenId: cita.id,
-    personaId: body.medicoId,
-    resumen: `${String(cita.fecha).slice(0, 10)} ${String(cita.hora_inicio).slice(0, 5)}${
-      cita.motivo_consulta ? ` - ${cita.motivo_consulta}` : ""
-    }`,
-  });
-
-  // prompt_code_notificaciones_pendientes.md, C1 — confirmación al
-  // propietario en el momento de agendar, sea desde POST /citas o desde
-  // POST /lista-espera/:id/agendar (esta función es el único punto de
-  // creación de citas, ver comentario de arriba).
-  if (await avisoActivo(db, tenantId, "confirmacion_cita_activo")) {
-    const datosNotificacion = await db.query(
-      `SELECT p.nombre AS paciente_nombre, p.propietario_id, p.estado AS paciente_estado, m.nombre AS medico_nombre
-       FROM pacientes p, personas m
-       WHERE p.id = $1 AND m.id = $2`,
-      [cita.paciente_id, cita.medico_id]
-    );
-    const info = datosNotificacion.rows[0];
-    // prompt_code_paciente_nacimiento_estado.md, Parte B2 — un paciente
-    // fallecido no recibe ningún aviso.
-    if (info && info.paciente_estado === "activo") {
-      const fecha = formatoFechaCorta(cita.fecha);
-      const hora = String(cita.hora_inicio).slice(0, 5);
-      await emitirNotificacion(db, {
-        tenantId,
-        tipo: "confirmacion_cita",
-        destinatarioTipo: "propietario",
-        destinatarioId: info.propietario_id,
-        pacienteId: cita.paciente_id,
-        citaId: cita.id,
-        asunto: `Cita confirmada — ${info.paciente_nombre}`,
-        contenido: `Se registró la cita de ${info.paciente_nombre} para el ${fecha} a las ${hora} con ${info.medico_nombre}.`,
-        datosCorreo: { nombrePaciente: info.paciente_nombre, fecha, hora, medicoNombre: info.medico_nombre },
-      });
-    }
-  }
-
-  return { cita, conflictos };
-}
-
-// prompt_code_notificaciones_pendientes.md, C2 — un solo aviso para
-// cancelación y reprogramación (mismo tipo, contenido distinto según
-// `reprogramada`), llamado desde los 3 puntos donde una cita deja de
-// estar en pie: PATCH estado->cancelada, PUT con fecha/hora distinta, y
-// DELETE (ver nota de diseño en el handler DELETE más abajo).
-async function notificarCitaCanceladaOReprogramada(
-  db: PoolClient,
-  tenantId: string,
-  cita: { id: string; paciente_id: string; fecha: string; hora_inicio: string },
-  reprogramada: boolean,
-  fechaNueva?: string,
-  horaNueva?: string
-): Promise<void> {
-  if (!(await avisoActivo(db, tenantId, "cancelacion_cita_activo"))) return;
-
-  const info = await db.query(
-    `SELECT nombre AS paciente_nombre, propietario_id, estado FROM pacientes WHERE id = $1`,
-    [cita.paciente_id]
-  );
-  const row = info.rows[0];
-  // prompt_code_paciente_nacimiento_estado.md, Parte B2 — un paciente
-  // fallecido no recibe ningún aviso.
-  if (!row || row.estado !== "activo") return;
-
-  const fechaOriginal = formatoFechaCorta(cita.fecha);
-  const horaOriginal = String(cita.hora_inicio).slice(0, 5);
-  const contenido = reprogramada
-    ? `La cita de ${row.paciente_nombre} del ${fechaOriginal} a las ${horaOriginal} se reprogramó para el ${fechaNueva} a las ${horaNueva}.`
-    : `La cita de ${row.paciente_nombre} del ${fechaOriginal} a las ${horaOriginal} fue cancelada.`;
-
-  await emitirNotificacion(db, {
-    tenantId,
-    tipo: "cita_cancelada_o_reprogramada",
-    destinatarioTipo: "propietario",
-    destinatarioId: row.propietario_id,
-    pacienteId: cita.paciente_id,
-    citaId: cita.id,
-    asunto: reprogramada ? `Cita reprogramada — ${row.paciente_nombre}` : `Cita cancelada — ${row.paciente_nombre}`,
-    contenido,
-    datosCorreo: {
-      nombrePaciente: row.paciente_nombre,
-      fechaOriginal,
-      horaOriginal,
-      reprogramada,
-      fechaNueva,
-      horaNueva,
-    },
+    nivel: err.veredicto.nivel,
+    bloquesDelDia: err.veredicto.bloquesDelDia,
+    choques: err.veredicto.choques,
+    huecos: err.veredicto.huecos,
+    puedeForzar: tienePermiso(req, "agenda.sobrecarga"),
   });
 }
 
@@ -465,7 +159,7 @@ citasRouter.post("/", async (req, res) => {
     const { cita, conflictos } = await crearCita(req.db!, req.auth!.tenantId!, body);
     res.status(201).json({ cita, conflictos });
   } catch (err) {
-    if (err instanceof FueraDeHorario) return responderFueraDeHorario(req, res, err);
+    if (err instanceof CitaNoDisponible) return responderNoDisponible(req, res, err);
     console.error("POST /citas", err);
     res.status(500).json({ error: "Error al crear la cita." });
   }
@@ -484,104 +178,17 @@ citasRouter.put("/:id", async (req, res) => {
   if (rechazo) return res.status(rechazo.estado).json(rechazo.cuerpo);
 
   try {
-    const existente = await req.db!.query(`SELECT id, paciente_id, fecha, hora_inicio FROM citas WHERE id = $1`, [
+    const { cita, conflictos } = await moverCita(
+      req.db!,
+      req.auth!.tenantId!,
       req.params.id,
-    ]);
-    if (existente.rows.length === 0) {
-      return res.status(404).json({ error: "Cita no encontrada." });
-    }
-    const anterior = existente.rows[0];
-
-    const horaFin = sumarMinutos(body.horaInicio, body.duracionMinutos);
-    // REPROGRAMAR TAMBIÉN RESPETA EL HORARIO: mover una cita a un
-    // feriado es el mismo problema que crearla ahí.
-    await exigirHorario(req.db!, req.auth!.tenantId!, body);
-    const conflictos = await buscarConflictos(req.db!, {
-      fecha: body.fecha,
-      horaInicio: body.horaInicio,
-      horaFin,
-      medicoId: body.medicoId,
-      salaId: body.salaId ?? null,
-      excluirCitaId: req.params.id,
-    });
-
-    const result = await req.db!.query(
-      `UPDATE citas
-       SET paciente_id = $1, medico_id = $2, sala_id = $3, fecha = $4, hora_inicio = $5,
-           hora_fin = $6, duracion_minutos = $7, prioridad = $8, motivo_consulta = $9,
-           -- El tipo solo se cambia si vino: editar la hora no tiene por
-           -- qué borrar de qué tipo era la cita.
-           tipo_cita_id = COALESCE($11::uuid, tipo_cita_id),
-           -- La autorización de excepción se pisa con la nueva solo
-           -- cuando hubo una: una cita autorizada que se mueve a horario
-           -- normal deja de ser una excepción, y para eso el cliente
-           -- manda la hora nueva sin forzar nada.
-           fuera_de_horario_por = $12::uuid,
-           fuera_de_horario_motivo = $13
-           , actualizado_en = now()
-       WHERE id = $10
-       RETURNING *`,
-      [
-        body.pacienteId,
-        body.medicoId,
-        body.salaId ?? null,
-        body.fecha,
-        body.horaInicio,
-        horaFin,
-        body.duracionMinutos,
-        body.prioridad ?? "normal",
-        body.motivoConsulta ?? null,
-        req.params.id,
-        body.tipoCitaId ?? null,
-        body.fueraDeHorario?.autorizadoPor ?? null,
-        body.fueraDeHorario?.motivo ?? null,
-      ]
+      body,
+      req.auth!.userId
     );
-    const cita = result.rows[0];
-
-    // C2 — solo cuenta como "reprogramada" si la fecha o la hora
-    // realmente cambiaron; editar prioridad o motivo no es una
-    // reprogramación y no debería avisar al tutor.
-    //
-    // anterior.fecha es un DATE que pg parsea como Date (medianoche UTC) —
-    // String(date) usa el formato local del motor de JS ("Wed Aug 12
-    // 2026..."), nunca ISO, así que comparar sus primeros 10 caracteres
-    // contra body.fecha ("2026-08-12") daba SIEMPRE distinto — cualquier
-    // edición (aunque fuera solo el motivo) se reportaba como
-    // reprogramación. toISOString() sí reconstruye el YYYY-MM-DD real
-    // porque el Date ya está anclado a medianoche UTC.
-    const fechaAnteriorISO = new Date(anterior.fecha).toISOString().slice(0, 10);
-    const huboReprogramacion =
-      fechaAnteriorISO !== body.fecha || String(anterior.hora_inicio).slice(0, 5) !== body.horaInicio;
-    if (huboReprogramacion) {
-      // CRM: la reprogramacion es su propio evento. El origen sigue
-      // siendo la misma cita, y el indice de unicidad admite un evento
-      // por tipo: una cita reprogramada dos veces deja un solo evento de
-      // reprogramada. Es lo correcto para la linea de tiempo —el detalle
-      // de cada cambio esta en la cita— y lo dice el prompt: un mismo
-      // origen no genera dos eventos del mismo tipo.
-      await registrarInteraccion(req.db!, {
-        tenantId: req.auth!.tenantId!,
-        tipo: "cita_reprogramada",
-        pacienteId: cita.paciente_id,
-        origenTabla: "citas",
-        origenId: cita.id,
-        personaId: req.auth!.userId,
-        resumen: `De ${fechaAnteriorISO} ${String(anterior.hora_inicio).slice(0, 5)} a ${body.fecha} ${body.horaInicio}`,
-      });
-      await notificarCitaCanceladaOReprogramada(
-        req.db!,
-        req.auth!.tenantId!,
-        { id: cita.id, paciente_id: anterior.paciente_id, fecha: anterior.fecha, hora_inicio: anterior.hora_inicio },
-        true,
-        formatoFechaCorta(body.fecha),
-        body.horaInicio
-      );
-    }
-
     res.json({ cita, conflictos });
   } catch (err) {
-    if (err instanceof FueraDeHorario) return responderFueraDeHorario(req, res, err);
+    if (err instanceof CitaNoDisponible) return responderNoDisponible(req, res, err);
+    if (err instanceof CitaNoEncontrada) return res.status(404).json({ error: err.message });
     console.error("PUT /citas/:id", err);
     res.status(500).json({ error: "Error al editar la cita." });
   }
@@ -601,80 +208,17 @@ citasRouter.patch("/:id/estado", async (req, res) => {
   }
 
   try {
-    const actual = await req.db!.query(`SELECT id, estado, paciente_id, fecha, hora_inicio FROM citas WHERE id = $1`, [
+    const { cita } = await cambiarEstadoDeCita(
+      req.db!,
+      req.auth!.tenantId!,
       req.params.id,
-    ]);
-    if (actual.rows.length === 0) {
-      return res.status(404).json({ error: "Cita no encontrada." });
-    }
-    const citaAnterior = actual.rows[0];
-    const estadoActual = citaAnterior.estado as string;
-    const permitidos = TRANSICIONES_VALIDAS[estadoActual] ?? [];
-    if (!permitidos.includes(nuevoEstado)) {
-      return res.status(400).json({
-        error: `No se puede pasar de '${estadoActual}' a '${nuevoEstado}'. Transiciones válidas desde '${estadoActual}': ${
-          permitidos.length > 0 ? permitidos.join(", ") : "ninguna (estado final)"
-        }.`,
-      });
-    }
-
-    const result = await req.db!.query(
-      `UPDATE citas
-       SET estado = $1,
-           motivo_cancelacion = CASE WHEN $1::varchar = 'cancelada' THEN $2 ELSE motivo_cancelacion END,
-           caso_id = COALESCE($3, caso_id),
-           -- LA HORA DE LLEGADA SE SELLA UNA VEZ (anexo del 07, A2).
-           -- COALESCE y no asignacion directa: si la cita vuelve a pasar
-           -- por 'registrada', el paciente no llegó dos veces. Tambien se
-           -- sella al pasar a 'en_consulta' sin haber pasado por
-           -- 'registrada' —el paciente que entra directo al consultorio—,
-           -- porque ésa también es su llegada.
-           check_in_en = CASE
-             WHEN $1::varchar IN ('registrada', 'en_consulta') THEN COALESCE(check_in_en, now())
-             ELSE check_in_en
-           END,
-           actualizado_en = now()
-       WHERE id = $4
-       RETURNING *`,
-      [nuevoEstado, motivoCancelacion ?? null, casoId ?? null, req.params.id]
+      nuevoEstado,
+      { quien: req.auth!.userId, motivoCancelacion, casoId }
     );
-    const cita = result.rows[0];
-
-    // CRM: cada estado de la cita es un evento propio de la linea de
-    // tiempo. `registrada` es la LLEGADA del paciente a la clinica, que
-    // el prompt pide como check-in: el nombre del estado es de la agenda
-    // y el del evento es del CRM, y no tienen por que coincidir.
-    const EVENTO_POR_ESTADO: Record<string, string> = {
-      confirmada: "cita_confirmada",
-      registrada: "llegada",
-      cancelada: "cita_cancelada",
-      no_show: "cita_no_presentada",
-      completada: "cita_completada",
-    };
-    const tipoEvento = EVENTO_POR_ESTADO[nuevoEstado];
-    if (tipoEvento) {
-      await registrarInteraccion(req.db!, {
-        tenantId: req.auth!.tenantId!,
-        tipo: tipoEvento as never,
-        pacienteId: cita.paciente_id,
-        origenTabla: "citas",
-        origenId: cita.id,
-        personaId: req.auth!.userId,
-        resumen:
-          nuevoEstado === "cancelada" && motivoCancelacion
-            ? motivoCancelacion.slice(0, 120)
-            : `${String(cita.fecha).slice(0, 10)} ${String(cita.hora_inicio).slice(0, 5)}`,
-      });
-    }
-
-    // C2 — cancelación explícita (no reprogramación: acá no hay fecha
-    // nueva que ofrecer).
-    if (nuevoEstado === "cancelada") {
-      await notificarCitaCanceladaOReprogramada(req.db!, req.auth!.tenantId!, citaAnterior, false);
-    }
-
     res.json({ cita });
   } catch (err) {
+    if (err instanceof CitaNoEncontrada) return res.status(404).json({ error: err.message });
+    if (err instanceof TransicionInvalida) return res.status(400).json({ error: err.message });
     console.error("PATCH /citas/:id/estado", err);
     res.status(500).json({ error: "Error al cambiar el estado de la cita." });
   }
@@ -696,21 +240,13 @@ citasRouter.patch("/:id/caso", async (req, res) => {
   }
 
   try {
-    const result = await req.db!.query(
-      `UPDATE citas SET caso_id = $1, actualizado_en = now()
-       WHERE id = $2 AND caso_id IS NULL
-       RETURNING id, caso_id`,
-      [casoId, req.params.id]
-    );
-    if (result.rows.length === 0) {
-      const existe = await req.db!.query(`SELECT caso_id FROM citas WHERE id = $1`, [req.params.id]);
-      if (existe.rows.length === 0) {
-        return res.status(404).json({ error: "Cita no encontrada." });
-      }
+    const r = await vincularCasoACita(req.db!, req.params.id, casoId);
+    if (r.yaTeniaOtro) {
       return res.status(409).json({ error: "Esta cita ya está vinculada a otro caso." });
     }
-    res.json({ cita: result.rows[0] });
+    res.json({ cita: { id: req.params.id, caso_id: casoId } });
   } catch (err) {
+    if (err instanceof CitaNoEncontrada) return res.status(404).json({ error: err.message });
     console.error("PATCH /citas/:id/caso", err);
     res.status(500).json({ error: "Error al vincular la cita al caso." });
   }
@@ -738,25 +274,42 @@ citasRouter.patch("/:id/caso", async (req, res) => {
 // ---------------------------------------------------------------------
 citasRouter.delete("/:id", async (req, res) => {
   try {
-    const actual = await req.db!.query(`SELECT id, estado, paciente_id, fecha, hora_inicio FROM citas WHERE id = $1`, [
-      req.params.id,
-    ]);
-    if (actual.rows.length === 0) {
-      return res.status(404).json({ error: "Cita no encontrada." });
-    }
-    const citaAnterior = actual.rows[0];
-    const estadoActual = citaAnterior.estado as string;
-    if (estadoActual !== "programada" && estadoActual !== "confirmada") {
-      return res.status(400).json({
-        error: "Solo se pueden borrar citas en estado 'programada' o 'confirmada'. Usá cancelar o no-show para las demás.",
-      });
-    }
-    await notificarCitaCanceladaOReprogramada(req.db!, req.auth!.tenantId!, citaAnterior, false);
-    await req.db!.query(`UPDATE notificaciones SET cita_id = NULL WHERE cita_id = $1`, [req.params.id]);
-    await req.db!.query(`DELETE FROM citas WHERE id = $1`, [req.params.id]);
+    await borrarCita(req.db!, req.auth!.tenantId!, req.params.id);
     res.status(204).send();
   } catch (err) {
+    if (err instanceof CitaNoEncontrada) return res.status(404).json({ error: err.message });
+    if (err instanceof TransicionInvalida) return res.status(400).json({ error: err.message });
     console.error("DELETE /citas/:id", err);
     res.status(500).json({ error: "Error al borrar la cita." });
+  }
+});
+
+// ---------------------------------------------------------------------
+// GET /api/citas/huecos — los huecos libres de un día (prompt 05, §1 y §2)
+//
+// La misma función que decide si una cita se puede agendar es la que los
+// calcula, para que la pantalla no ofrezca un hueco que después se
+// rechaza.
+// ---------------------------------------------------------------------
+citasRouter.get("/huecos", async (req, res) => {
+  const { fecha, medicoId, duracionMinutos, salaId, tipoCitaId } = req.query as Record<
+    string,
+    string | undefined
+  >;
+  if (!fecha || !medicoId) {
+    return res.status(400).json({ error: "Faltan fecha y medicoId." });
+  }
+  try {
+    const huecos = await huecosLibres(req.db!, req.auth!.tenantId!, {
+      fecha,
+      medicoId,
+      duracionMinutos: Number(duracionMinutos ?? 30),
+      salaId: salaId ?? null,
+      tipoCitaId: tipoCitaId ?? null,
+    });
+    res.json({ huecos });
+  } catch (err) {
+    console.error("GET /citas/huecos", err);
+    res.status(500).json({ error: "Error al calcular los huecos libres." });
   }
 });

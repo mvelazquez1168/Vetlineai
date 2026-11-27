@@ -5,6 +5,7 @@ import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenam
 import { requerirAnthropic } from "../anthropic";
 import { registrarLecturaSensible } from "../middleware/auditoria";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { vincularCasoACita } from "../agenda/citas";
 import {
   obtenerDocumentosParaContexto,
   obtenerRecetasEmitidasParaContexto,
@@ -465,11 +466,9 @@ workspaceRouter.post("/casos/:id/informacion", async (req, res) => {
     );
     let citaVinculada = false;
     if (candidatas.rows.length === 1) {
-      const vinculo = await req.db!.query(
-        `UPDATE citas SET caso_id = $1 WHERE id = $2 AND caso_id IS NULL RETURNING id`,
-        [req.params.id, candidatas.rows[0].id]
-      );
-      citaVinculada = vinculo.rows.length > 0;
+      // POR EL PUNTO ÚNICO (prompt 05, §0).
+      const r = await vincularCasoACita(req.db!, candidatas.rows[0].id, req.params.id);
+      citaVinculada = r.vinculada;
     }
 
     await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [req.params.id]);

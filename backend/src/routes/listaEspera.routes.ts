@@ -1,13 +1,8 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { soloPersonalDeLaClinica } from "../permisos";
-import {
-  autorizarFueraDeHorario,
-  crearCita,
-  CrearCitaInput,
-  FueraDeHorario,
-  responderFueraDeHorario,
-} from "./citas.routes";
+import { autorizarFueraDeHorario, responderNoDisponible } from "./citas.routes";
+import { CitaNoDisponible, CrearCitaInput, crearCita } from "../agenda/citas";
 
 // ---------------------------------------------------------------------
 // Lista de espera — tenant_id directo. POST /:id/agendar reusa
@@ -164,7 +159,7 @@ listaEsperaRouter.post("/:id/agendar", async (req, res) => {
 
     res.status(201).json({ cita, conflictos, item: updateResult.rows[0] });
   } catch (err) {
-    if (err instanceof FueraDeHorario) return responderFueraDeHorario(req, res, err);
+    if (err instanceof CitaNoDisponible) return responderNoDisponible(req, res, err);
     console.error("POST /lista-espera/:id/agendar", err);
     res.status(500).json({ error: "Error al agendar el ítem de lista de espera." });
   }

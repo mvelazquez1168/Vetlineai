@@ -1,7 +1,7 @@
 import { PoolClient } from "pg";
 import { sellarIngreso } from "./estancia";
 import { registrarInteraccion } from "../crm/interacciones";
-import { TRANSICIONES_VALIDAS, crearCita } from "../routes/citas.routes";
+import { TransicionInvalida, cambiarEstadoDeCita, crearCita } from "../agenda/citas";
 import { precioVigente } from "../inventario/precios";
 import { registrarMovimiento } from "../inventario/movimientos";
 import { abrirCuenta, agregarCargo } from "../ventas/cuentas";
@@ -102,14 +102,12 @@ export async function abrirAtencion(
       // paciente que llega a las siete de la tarde con una urgencia está
       // adentro, y rechazarle la atención porque la clínica cerró a las
       // cinco sería negar un hecho.
-      { omitirHorario: true }
+      { omitirDisponibilidad: true }
     );
     citaId = cita.cita.id as string;
     // Sin turno pero ya adentro: el estado tiene que decir eso, y es la
     // transición que `guardarAtencion` necesita para poder completar.
-    await db.query(`UPDATE citas SET estado = 'en_consulta', actualizado_en = now() WHERE id = $1`, [
-      citaId,
-    ]);
+    await cambiarEstadoDeCita(db, tenantId, citaId, "en_consulta", { quien: datos.medicoId });
   }
 
   const existente = await db.query<{ id: string; paciente_id: string; estado: string }>(
@@ -1058,7 +1056,7 @@ export async function cerrarAtencion(
       // moverla. Lo contrario —abortar el cierre— dejaría la atención a
       // medio firmar por una fecha de control, que es el menos
       // importante de los datos que se están guardando.
-      { omitirHorario: true }
+      { omitirDisponibilidad: true }
     );
     controlCitaId = cita.cita.id as string;
   }
@@ -1070,15 +1068,20 @@ export async function cerrarAtencion(
     atencion.cita_id,
   ]);
   if (cita.rows[0]?.estado !== "completada") {
-    if (!TRANSICIONES_VALIDAS[cita.rows[0]?.estado ?? ""]?.includes("completada")) {
-      throw new Error(
-        `La cita está en estado '${cita.rows[0]?.estado}' y desde ahí no se puede completar. ` +
-          `Revisá el estado de la cita en la agenda.`
-      );
+    // POR EL PUNTO ÚNICO: la validación de la transición y el evento del
+    // CRM los pone él. El mensaje de error se traduce acá porque el de
+    // la agenda habla de estados y el médico está cerrando una atención.
+    try {
+      await cambiarEstadoDeCita(db, tenantId, atencion.cita_id, "completada");
+    } catch (err) {
+      if (err instanceof TransicionInvalida) {
+        throw new Error(
+          `La cita está en estado '${cita.rows[0]?.estado}' y desde ahí no se puede completar. ` +
+            `Revisá el estado de la cita en la agenda.`
+        );
+      }
+      throw err;
     }
-    await db.query(`UPDATE citas SET estado = 'completada', actualizado_en = now() WHERE id = $1`, [
-      atencion.cita_id,
-    ]);
   }
 
   // LA FIRMA la pone el punto único del bloque A: es el que exige que

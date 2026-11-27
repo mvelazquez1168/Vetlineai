@@ -769,7 +769,7 @@ async function main() {
     igual(sinPermiso?.estado, 403, "recepción no puede citar fuera de horario");
     igual(
       sinPermiso?.cuerpo.permisoFaltante,
-      "agenda.fuera_de_horario",
+      "agenda.sobrecarga",
       "y se le dice qué permiso le falta"
     );
 

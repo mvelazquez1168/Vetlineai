@@ -1,5 +1,5 @@
 import { PoolClient } from "pg";
-import { TRANSICIONES_VALIDAS } from "./routes/citas.routes";
+import { cambiarEstadoDeCita, TRANSICIONES_VALIDAS } from "./agenda/citas";
 
 // prompt_code_registro_atencion.md — módulo único para las 3 puertas
 // (agenda/paciente/caso) del registro de atención. Todas resuelven una
@@ -107,7 +107,18 @@ export async function guardarAtencion(
   const atencion = result.rows[0];
 
   if (estadoActual !== "completada") {
-    await db.query(`UPDATE citas SET estado = 'completada', actualizado_en = now() WHERE id = $1`, [citaId]);
+    // POR EL PUNTO ÚNICO (prompt 05, §0). Este `UPDATE` directo no
+    // validaba la transición ni dejaba el evento del CRM: una atención
+    // podía completar una cita cancelada y la línea de tiempo del
+    // cliente se quedaba sin el «completada».
+    // El tenant sale de la cita: esta función no lo recibe, y leerlo de
+    // la fila es más seguro que agregarle un parámetro a los seis
+    // llamadores.
+    const t = await db.query<{ tenant_id: string }>(
+      `SELECT tenant_id FROM citas WHERE id = $1`,
+      [citaId]
+    );
+    await cambiarEstadoDeCita(db, t.rows[0].tenant_id, citaId, "completada");
   }
 
   return { atencion };

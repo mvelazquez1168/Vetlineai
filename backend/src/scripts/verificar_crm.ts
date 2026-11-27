@@ -38,7 +38,7 @@ import {
 import { enviarMensaje, recibirRespuesta } from "../crm/mensajeria";
 import { reconstruirHistorial } from "../crm/reconstruccion";
 import { lineaDeTiempo } from "../expediente/resumen";
-import { crearCita } from "../routes/citas.routes";
+import { crearCita } from "../agenda/citas";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
 
 const PREFIJO = "probe-crm";

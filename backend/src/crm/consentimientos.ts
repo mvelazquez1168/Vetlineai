@@ -1,6 +1,6 @@
 import { Pool, PoolClient } from "pg";
 import { registrarInteraccion } from "./interacciones";
-import { politicaNumero } from "../clinica/politicas";
+import { guardarPolitica, politicaNumero } from "../clinica/politicas";
 
 // ---------------------------------------------------------------------
 // CONSENTIMIENTOS, PREFERENCIAS Y EL PUNTO ÚNICO ANTES DE ENVIAR
@@ -77,6 +77,27 @@ export async function guardarPoliticas(
 ): Promise<void> {
   const actual = await politicas(db, tenantId);
   const nueva = { ...actual, ...p };
+
+  // EL TOPE SE GUARDA DONDE SE LEE (defecto encontrado por
+  // `verificar_crm` al correr la batería del prompt 05).
+  //
+  // Desde el 04, `politicas()` LEE el tope de `politicas` —la tabla de
+  // políticas de la clínica, con su historial— pero esta función lo
+  // ESCRIBÍA en `crm_politicas.tope_promociones_mes`. Guardar el tope
+  // desde acá no tenía ningún efecto: la lectura seguía devolviendo el
+  // valor viejo de la otra tabla, y el verificador lo veía (esperaba 2
+  // y leía 4).
+  //
+  // Es exactamente «un dato en dos lugares»: lo caro no es que no
+  // funcione, es que no rompe nada visible —la clínica cambia el tope,
+  // la pantalla lo muestra cambiado y los envíos siguen con el viejo—.
+  if (p.topePromocionesMes !== undefined) {
+    await guardarPolitica(db, tenantId, {
+      clave: "mensajes.tope_promociones_mes",
+      valor: String(p.topePromocionesMes),
+    });
+  }
+
   await db.query(
     `INSERT INTO crm_politicas (tenant_id, hora_desde, hora_hasta, tope_promociones_mes,
                                 ventana_duplicado_horas)

@@ -36,6 +36,12 @@ export interface AuthUser {
   esMedico: boolean;
   /** Zona horaria IANA del tenant activo. null para staff_plataforma. */
   zonaHoraria: string | null;
+  /** Roles de la clínica (`persona_roles`), prompt 04. */
+  roles?: string[];
+  /** Permisos efectivos, resueltos por el backend. Llegan como lista. */
+  permisos?: string[];
+  /** La entrada que corresponde a su rol (`roles.pantalla_inicio`). */
+  pantallaDelRol?: string | null;
 }
 
 /**
@@ -68,6 +74,21 @@ interface AuthContextValue {
   rol: Rol | null;
   esAdminClinica: boolean;
   esMedico: boolean;
+  /**
+   * Los roles de la persona en SU clínica (prompt 04): `recepcion`,
+   * `caja`, `farmacia`… Son los de `persona_roles` y no los de Keycloak,
+   * que solo distingue ADMIN de VETERINARIO.
+   */
+  rolesClinica: string[];
+  /**
+   * LO QUE ESTA PERSONA PUEDE HACER, resuelto por el backend contra la
+   * base. Se usa para decidir qué menú y qué botones se dibujan.
+   *
+   * NO ES LA AUTORIZACIÓN: el backend vuelve a resolverlo en cada
+   * request con `exigirPermiso`. Esto es nada más para no ofrecerle a
+   * alguien un botón que le va a contestar 403.
+   */
+  puede: (codigo: string) => boolean;
   zonaHoraria: string | null;
   /** Módulos de Vetline Clinic habilitados en la clínica de la sesión. [] para staff de plataforma. */
   modulos: Modulo[];
@@ -135,6 +156,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (accessToken && snapshot && claims && !isExpired(claims)) {
       setUser(snapshot);
+      // UN SNAPSHOT DE ANTES DEL 04 no tiene permisos, y el menú ahora se
+      // dibuja con ellos: sin esto, quien tenga la sesión abierta vería
+      // una barra vacía hasta volver a entrar. Se completan de la base en
+      // vez de dejar un camino de respaldo que lea los booleanos viejos,
+      // que serían dos fuentes para lo mismo.
+      if (snapshot.permisos === undefined) {
+        apiFetch<{ roles: string[]; permisos: string[] }>("/clinica/mis-permisos", {
+          token: accessToken,
+        })
+          .then((r) => {
+            const completo = { ...snapshot, roles: r.roles, permisos: r.permisos };
+            guardarUsuario(completo);
+            setUser(completo);
+          })
+          .catch(() => {
+            // Si falla, la sesión sigue andando: el backend es el que
+            // autoriza, y el próximo login trae los permisos.
+          });
+      }
       // Mismo criterio que el snapshot del usuario: se restaura lo ya
       // resuelto para no esperar un viaje de red solo para decidir qué
       // secciones pintar. La lista se refresca en el próximo login o
@@ -254,6 +294,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       rol: user?.rol ?? null,
       esAdminClinica: user?.esAdminClinica ?? false,
       esMedico: user?.esMedico ?? false,
+      rolesClinica: user?.roles ?? [],
+      // Si la sesión es de antes del 04 y no trae permisos, `puede()`
+      // dice que no a todo: la pantalla se ve sin botones y el siguiente
+      // login los trae. Lo contrario —asumir que puede— ofrecería
+      // acciones que el backend va a rechazar.
+      puede: (codigo: string) => (user?.permisos ?? []).includes(codigo),
       zonaHoraria: user?.zonaHoraria ?? null,
       modulos,
       pantallaInicio,

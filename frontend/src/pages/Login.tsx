@@ -34,6 +34,7 @@ export function Login() {
         esAdminClinica: user.esAdminClinica,
         modulos: leerModulosGuardados() as Modulo[],
         pantallaElegida: leerPantallaInicioGuardada(),
+        pantallaDelRol: user.pantallaDelRol,
       }));
     } catch (err) {
       const message = err instanceof ApiError ? err.message : "No pudimos iniciar sesión. Inténtelo de nuevo.";

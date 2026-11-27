@@ -62,6 +62,10 @@ import { CasoDetalleAdmin } from "./pages/admin/CasoDetalleAdmin";
 import { Clinica } from "./pages/admin/Clinica";
 import { Notificaciones } from "./pages/admin/Notificaciones";
 import { Duplicados } from "./pages/admin/Duplicados";
+import { Personas } from "./pages/admin/Personas";
+import { RolesPermisos } from "./pages/admin/RolesPermisos";
+import { Politicas } from "./pages/admin/Politicas";
+import { ConfiguracionAgenda } from "./pages/admin/ConfiguracionAgenda";
 import { Facturacion } from "./pages/admin/Facturacion";
 import { Medicos } from "./pages/admin/Medicos";
 import { PlanConsumo } from "./pages/admin/PlanConsumo";
@@ -110,6 +114,7 @@ function IndexRedirect() {
         esAdminClinica: user.esAdminClinica,
         modulos,
         pantallaElegida: pantallaInicio,
+        pantallaDelRol: user.pantallaDelRol,
       })}
       replace
     />
@@ -182,6 +187,30 @@ export default function App() {
         <Route index element={<Inicio />} />
       </Route>
 
+      {/* ADMINISTRACIÓN QUE VE TODO EL PERSONAL (prompt 04).
+          Con ocho roles, `admin_clinica` dejó de ser «todo el que no es
+          médico»: la recepción es un rol propio y resuelve como `medico`
+          para el enrutador. Estas cuatro pantallas son de lectura para
+          cualquiera del equipo —qué puede cada rol, qué políticas rigen,
+          cuándo abre la clínica, quién trabaja acá— y cada acción de
+          escritura la gatea el backend con su permiso. Dejarlas detrás
+          del guard de administrador haría que la recepción no pueda
+          contestar «¿por qué no puedo hacer esto?». */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute allowedRoles={["medico", "admin_clinica"]}>
+            <AppShell />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="personas" element={<Personas />} />
+        <Route path="roles" element={<RolesPermisos />} />
+        <Route path="politicas" element={<Politicas />} />
+        <Route path="configuracion-agenda" element={<ConfiguracionAgenda />} />
+        <Route path="duplicados" element={<Duplicados />} />
+      </Route>
+
       <Route
         path="/admin"
         element={
@@ -204,7 +233,6 @@ export default function App() {
         <Route path="plan-consumo/exportar" element={<ExportacionPage />} />
         <Route path="clinica" element={<Clinica />} />
         <Route path="notificaciones" element={<Notificaciones />} />
-        <Route path="duplicados" element={<Duplicados />} />
         <Route path="facturacion" element={<Facturacion />} />
         <Route path="facturacion/medio-de-pago" element={<MedioDePago />} />
       </Route>

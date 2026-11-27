@@ -8,6 +8,12 @@ export interface InvitacionPublica {
   email?: string;
   nombre?: string | null;
   nombreClinica?: string;
+  /** Los roles con los que va a nacer (prompt 04). */
+  roles?: string[];
+  /** Sus nombres, para decirle a qué la invitan. */
+  rolesNombres?: string[];
+  /** Si hay que pedirle la colegiatura: solo los médicos la tienen. */
+  esMedico?: boolean;
 }
 
 export type ResultadoAceptarInvitacion =
@@ -17,7 +23,10 @@ export type ResultadoAceptarInvitacion =
 export const invitacionesApi = {
   obtener: (token: string) => apiFetch<InvitacionPublica>(`/invitaciones/${token}`),
 
-  aceptar: (token: string, datos: { nombre: string; colegiatura: string; password: string }) =>
+  aceptar: (
+    token: string,
+    datos: { nombre: string; colegiatura?: string; password: string }
+  ) =>
     apiFetch<ResultadoAceptarInvitacion>(`/invitaciones/${token}/aceptar`, {
       method: "POST",
       body: JSON.stringify(datos),

@@ -12,11 +12,15 @@ import {
   Cita,
   citasApi,
   CrearCitaInput,
+  esFueraDeHorario,
+  FueraDeHorario,
   listaEsperaApi,
   MedicoLigero,
   PrioridadCita,
   Sala,
 } from "../../lib/agendaApi";
+import { clinicaApi, TipoDeCita } from "../../lib/clinicaApi";
+import { ApiError } from "../../lib/apiError";
 import { PacienteDePropietario, Propietario, workspaceApi } from "../../lib/workspaceApi";
 import { etiqueta } from "../../lib/etiquetas";
 
@@ -98,15 +102,38 @@ export function NuevaCitaModal({
   const [salaId, setSalaId] = useState("");
   const [motivo, setMotivo] = useState("");
 
+  const [tipoCitaId, setTipoCitaId] = useState("");
+  const [tipos, setTipos] = useState<TipoDeCita[]>([]);
+  // EL AVISO DE FUERA DE HORARIO y su motivo. Llega del 409 del backend:
+  // la pantalla no reimplementa el horario de la clínica —sería una
+  // segunda fuente— sino que muestra lo que el backend contestó.
+  const [fueraDeHorario, setFueraDeHorario] = useState<FueraDeHorario | null>(null);
+  const [motivoExcepcion, setMotivoExcepcion] = useState("");
+
   const [conflictosDetectados, setConflictosDetectados] = useState<Cita[] | null>(null);
   const [verificando, setVerificando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Los tipos de cita de la clínica. Se cargan al abrir y no al montar:
+  // una clínica puede agregar uno mientras la pantalla está abierta.
+  useEffect(() => {
+    if (!open) return;
+    clinicaApi
+      .tiposDeCita()
+      .then((r) => setTipos(r.tipos))
+      // Sin tipos de cita el modal sigue sirviendo: la duración se elige
+      // a mano, como antes de que existieran.
+      .catch(() => setTipos([]));
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     setError(null);
     setConflictosDetectados(null);
+    setFueraDeHorario(null);
+    setMotivoExcepcion("");
+    setTipoCitaId("");
     setPropietarioSeleccionado(null);
     setPacientesDelPropietario([]);
     setBusquedaPropietario("");
@@ -209,15 +236,22 @@ export function NuevaCitaModal({
     duracionMinutos: duracion,
     prioridad,
     motivoConsulta: motivo.trim() || undefined,
+    tipoCitaId: tipoCitaId || null,
   });
 
   const formularioValido = !!pacienteId && !!medicoId && !!fecha && !!hora;
 
-  const persistir = async () => {
+  /**
+   * Guarda de verdad. `forzando` es el segundo intento, el que lleva el
+   * motivo de la excepción después de que el backend avisó.
+   */
+  const persistir = async (forzando?: { motivo: string }) => {
     setGuardando(true);
     setError(null);
     try {
-      const input = construirInput();
+      const input: CrearCitaInput = forzando
+        ? { ...construirInput(), forzarFueraDeHorario: forzando }
+        : construirInput();
       let cita: Cita;
       if (editando && citaExistente) {
         cita = (await citasApi.editar(citaExistente.id, input)).cita;
@@ -229,6 +263,15 @@ export function NuevaCitaModal({
       onGuardada(cita);
       onClose();
     } catch (err) {
+      // EL HORARIO DE LA CLÍNICA (prompt 04, §3). El 409 trae el motivo
+      // —«La clínica no abre los domingos», «Navidad: es feriado ese
+      // día»—, los bloques del día para proponer otra hora, y si quien
+      // está agendando puede autorizar la excepción.
+      if (err instanceof ApiError && err.status === 409 && esFueraDeHorario(err.data)) {
+        setFueraDeHorario(err.data);
+        setConflictosDetectados(null);
+        return;
+      }
       setError(err instanceof Error ? err.message : "No pudimos guardar la cita.");
     } finally {
       setGuardando(false);
@@ -243,6 +286,7 @@ export function NuevaCitaModal({
   const guardar = async () => {
     if (!formularioValido) return;
     setError(null);
+    setFueraDeHorario(null);
     setVerificando(true);
     try {
       const { citas } = await citasApi.listar({ desde: fecha, hasta: fecha });
@@ -298,7 +342,63 @@ export function NuevaCitaModal({
           </button>
         </div>
 
-        {conflictosDetectados ? (
+        {fueraDeHorario ? (
+          <div className="mt-6 space-y-4">
+            <div className="rounded-xl border-l-4 border-warning bg-warning/10 p-4">
+              <p className="text-sm font-bold text-primary">{fueraDeHorario.error}</p>
+              {fueraDeHorario.bloquesDelDia && fueraDeHorario.bloquesDelDia.length > 0 && (
+                <p className="mt-2 text-sm text-text-primary">
+                  Ese día hay turno{" "}
+                  {fueraDeHorario.bloquesDelDia
+                    .map((b) => `de ${b.desde} a ${b.hasta}`)
+                    .join(" y ")}
+                  .
+                </p>
+              )}
+              {fueraDeHorario.nivel === "excepcion" && (
+                <p className="mt-2 text-xs text-text-muted">
+                  Si la clínica trabaja ese día, se desmarca en Configuración de la agenda y deja de
+                  bloquear.
+                </p>
+              )}
+            </div>
+
+            {fueraDeHorario.puedeForzar ? (
+              <div className="space-y-2">
+                <Input
+                  label="Motivo de la excepción"
+                  placeholder="El cliente viaja mañana, es un control posoperatorio…"
+                  value={motivoExcepcion}
+                  onChange={(e) => setMotivoExcepcion(e.target.value)}
+                />
+                <p className="text-xs text-text-muted">
+                  Queda registrado con tu nombre: es una excepción a una política de la clínica, no
+                  una cita normal.
+                </p>
+              </div>
+            ) : (
+              <p className="rounded-lg border border-black/5 bg-background/60 p-3 text-sm text-text-muted">
+                Para citar fuera del horario hace falta el permiso «Citar fuera de horario o en un
+                bloqueo». Pedíselo a un administrador, o elegí una hora dentro del horario.
+              </p>
+            )}
+
+            {error && <p className="text-sm text-error">{error}</p>}
+            <div className="flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => setFueraDeHorario(null)}>
+                Elegir otra hora
+              </Button>
+              {fueraDeHorario.puedeForzar && (
+                <Button
+                  onClick={() => persistir({ motivo: motivoExcepcion.trim() })}
+                  disabled={guardando || motivoExcepcion.trim().length === 0}
+                >
+                  {guardando ? "Guardando…" : "Agendar igual"}
+                </Button>
+              )}
+            </div>
+          </div>
+        ) : conflictosDetectados ? (
           <div className="mt-6 space-y-4">
             <div className="rounded-xl border-l-4 border-warning bg-warning/10 p-4">
               <p className="text-sm font-bold text-primary">
@@ -320,7 +420,7 @@ export function NuevaCitaModal({
               <Button variant="secondary" onClick={() => setConflictosDetectados(null)}>
                 Ajustar horario
               </Button>
-              <Button onClick={persistir} disabled={guardando}>
+              <Button onClick={() => persistir()} disabled={guardando}>
                 {guardando ? "Guardando…" : "Confirmar igual"}
               </Button>
             </div>
@@ -429,6 +529,27 @@ export function NuevaCitaModal({
                 </div>
               )}
             </div>
+
+            {tipos.length > 0 && (
+              <Select
+                label="Tipo de cita"
+                value={tipoCitaId}
+                onChange={(e) => {
+                  setTipoCitaId(e.target.value);
+                  // La duración del tipo es una sugerencia, no una
+                  // imposición: se precarga y se puede cambiar abajo.
+                  const t = tipos.find((x) => x.id === e.target.value);
+                  if (t) setDuracion(t.duracion_minutos);
+                }}
+                options={[
+                  { value: "", label: "Sin especificar" },
+                  ...tipos.map((t) => ({
+                    value: t.id,
+                    label: `${t.nombre} (${t.duracion_minutos} min)`,
+                  })),
+                ]}
+              />
+            )}
 
             <Select
               label="Veterinario"

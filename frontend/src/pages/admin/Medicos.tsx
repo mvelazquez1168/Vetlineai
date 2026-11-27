@@ -7,6 +7,7 @@ import { Card, CardTitle } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import { Modal } from "../../components/ui/Modal";
 import { Table, TableColumn } from "../../components/ui/Table";
+import { clinicaApi, RolDeLaClinica } from "../../lib/clinicaApi";
 import { formatearFechaCorta } from "../../lib/formatFecha";
 import { useAuth } from "../../hooks/useAuth";
 import {
@@ -80,15 +81,35 @@ export function Medicos() {
   // CONTRATAR un plan (todavía no hay ninguno pago), no CAMBIAR de uno.
   const enPrueba = estadoSuscripcion?.estado === "prueba";
 
+  // LOS ROLES DE LA INVITACIÓN (prompt 04). Arranca en médico porque
+  // esta pantalla es «Médicos e invitaciones» y ese es el caso
+  // frecuente; el formulario deja elegir cualquiera de los ocho, y así
+  // la invitación pasa a ser el camino de alta de TODO el personal y no
+  // solo de los veterinarios.
+  const [rolesInvitacion, setRolesInvitacion] = useState<string[]>(["medico"]);
+  const [rolesDisponibles, setRolesDisponibles] = useState<RolDeLaClinica[]>([]);
+
+  useEffect(() => {
+    clinicaApi
+      .roles()
+      .then((m) => setRolesDisponibles(m.roles))
+      // Sin la lista, la invitación sigue siendo de médico: es el
+      // comportamiento de antes del 04, no una pantalla rota.
+      .catch(() => setRolesDisponibles([]));
+  }, []);
+
+  const invitaAUnMedico = rolesInvitacion.includes("medico");
+
   const handleInvitar = async () => {
     if (!email.trim()) return;
     setInvitando(true);
     setError(null);
     try {
-      await adminApi.invitarMedico(email.trim(), nombreInvitacion);
+      await adminApi.invitarMedico(email.trim(), nombreInvitacion, rolesInvitacion);
       setModalAbierto(false);
       setEmail("");
       setNombreInvitacion("");
+      setRolesInvitacion(["medico"]);
       cargar();
     } catch (err: any) {
       setError(err?.message ?? "No pudimos enviar la invitación.");
@@ -96,6 +117,10 @@ export function Medicos() {
       setInvitando(false);
     }
   };
+
+  // EL CUPO ES DE MÉDICOS. Invitar a la recepción con el cupo de
+  // médicos agotado tiene que poder hacerse: no se cobra por ella.
+  const sinCupoQueImporta = sinCupo && invitaAUnMedico;
 
   const handleReenviar = async (id: string) => {
     setAccionInvitacionId(id);
@@ -302,7 +327,7 @@ export function Medicos() {
         <div>
           <p className="text-text-muted">{nombreClinica}</p>
         </div>
-        <Button onClick={() => setModalAbierto(true)}>+ Invitar médico</Button>
+        <Button onClick={() => setModalAbierto(true)}>+ Invitar a alguien</Button>
       </div>
 
       {cupos && (
@@ -381,16 +406,18 @@ export function Medicos() {
       <Modal
         open={modalAbierto}
         onClose={() => setModalAbierto(false)}
-        title="Invitar médico"
+        title="Invitar a alguien del equipo"
         description={
-          sinCupo
+          sinCupoQueImporta
             ? enPrueba
               ? "Alcanzaste el límite de médicos de la prueba. Contratá un plan para invitar a más."
               : "Alcanzaste el límite de médicos de tu plan."
-            : "Le enviamos un enlace de un solo uso para que complete su alta con nombre, colegiatura y contraseña."
+            : invitaAUnMedico
+              ? "Le enviamos un enlace de un solo uso para que complete su alta con nombre, colegiatura y contraseña."
+              : "Le enviamos un enlace de un solo uso para que complete su alta con nombre y contraseña. Sin rol de médico no se le pide colegiatura, y no consume cupo de tu plan."
         }
         footer={
-          sinCupo ? (
+          sinCupoQueImporta ? (
             <>
               <Button variant="secondary" onClick={() => setModalAbierto(false)}>
                 Cerrar
@@ -404,19 +431,59 @@ export function Medicos() {
               <Button variant="secondary" onClick={() => setModalAbierto(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleInvitar} disabled={invitando || !email.trim()}>
+              <Button
+                onClick={handleInvitar}
+                disabled={invitando || !email.trim() || rolesInvitacion.length === 0}
+              >
                 {invitando ? "Enviando…" : "Enviar invitación"}
               </Button>
             </>
           )
         }
       >
-        {sinCupo ? (
+        {sinCupoQueImporta ? (
           <p className="text-sm text-text-muted">
             Cambiá de plan para poder invitar más médicos a tu clínica.
           </p>
         ) : (
           <div className="flex flex-col gap-4">
+            {rolesDisponibles.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-text-primary">Con qué rol entra</p>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                  {rolesDisponibles.map((r) => (
+                    <label
+                      key={r.codigo}
+                      className="flex cursor-pointer items-start gap-2 rounded-lg border border-black/5 p-2 text-sm hover:bg-black/5"
+                    >
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={rolesInvitacion.includes(r.codigo)}
+                        onChange={(e) =>
+                          setRolesInvitacion((previos) =>
+                            e.target.checked
+                              ? [...previos, r.codigo]
+                              : previos.filter((c) => c !== r.codigo)
+                          )
+                        }
+                      />
+                      <span>
+                        <span className="block font-medium text-primary">{r.nombre}</span>
+                        {r.descripcion && (
+                          <span className="block text-xs text-text-muted">{r.descripcion}</span>
+                        )}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {rolesInvitacion.length === 0 && (
+                  <p className="mt-1 text-xs text-error">
+                    Elegí al menos un rol: sin rol, entraría y no podría hacer nada.
+                  </p>
+                )}
+              </div>
+            )}
             <Input
               label="Nombre (opcional)"
               value={nombreInvitacion}

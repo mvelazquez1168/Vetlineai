@@ -47,6 +47,14 @@ import {
   horarioDeLaClinica,
   sePuedeAgendar,
 } from "../clinica/horarios";
+import { exigirPermiso } from "../permisos";
+import { autorizarFueraDeHorario } from "../routes/citas.routes";
+import {
+  contarInvitacionesPendientes,
+  crearInvitacion,
+  invitaAUnMedico,
+} from "../invitaciones";
+import { tiposDeCita, guardarNumeracion, numeraciones } from "../clinica/agendaConfig";
 
 const PREFIJO = "probe-04";
 
@@ -653,6 +661,222 @@ async function main() {
       "un bloque de 18:00 a 08:00 se rechaza",
       alReves
     );
+  });
+
+
+  // -------------------------------------------------------------------
+  console.log("\n=== La guarda de las rutas, y la del fuera de horario ===");
+  // -------------------------------------------------------------------
+  //
+  // LAS RUTAS NO SE PRUEBAN POR HTTP ACÁ y hay que decirlo: cada rol
+  // necesitaría su usuario real en Keycloak y su token. Lo que se prueba
+  // es la guarda `exigirPermiso` —la función que TODAS las rutas usan
+  // ahora— con un `req` armado a mano, que es exactamente lo que el
+  // middleware recibe. La cadena que queda sin cubrir es
+  // «token → resolverPrincipal → req.auth», y esa sí se probó a mano con
+  // un token real (queda en el informe).
+  {
+    const comoPedido = (permisos: Set<string>, cuerpo: Record<string, unknown> = {}) =>
+      ({ auth: { userId: admin, permisos }, body: cuerpo }) as never;
+
+    // Un `res` de mentira que anota con qué contestaron.
+    function resFalso() {
+      const anotado: { estado?: number; cuerpo?: Record<string, unknown> } = {};
+      const res = {
+        status(n: number) {
+          anotado.estado = n;
+          return res;
+        },
+        json(c: Record<string, unknown>) {
+          anotado.cuerpo = c;
+          return res;
+        },
+      };
+      return { res: res as never, anotado };
+    }
+
+    const guarda = exigirPermiso("caja.anular");
+
+    let siguio = false;
+    const permitida = resFalso();
+    await guarda(comoPedido(pAdmin.permisos), permitida.res, () => {
+      siguio = true;
+    });
+    assert(siguio, "con el permiso, la guarda deja pasar y no contesta nada");
+    igual(permitida.anotado.estado, undefined, "y no toca la respuesta");
+
+    siguio = false;
+    const negada = resFalso();
+    await guarda(comoPedido(pRecepcion.permisos), negada.res, () => {
+      siguio = true;
+    });
+    assert(!siguio, "recepción no pasa la guarda de anular");
+    igual(negada.anotado.estado, 403, "y recibe 403");
+    assert(
+      String(negada.anotado.cuerpo?.error ?? "").includes("Anular cobros y comprobantes"),
+      "el mensaje dice QUÉ permiso falta, con su nombre, no «no autorizado»",
+      negada.anotado.cuerpo?.error
+    );
+    igual(
+      negada.anotado.cuerpo?.permisoFaltante,
+      "caja.anular",
+      "y el código, para que la pantalla pueda pedirlo"
+    );
+
+    // Sin sesión, 401 y no 403: no es que no pueda, es que no sabemos
+    // quién es.
+    const sinSesion = resFalso();
+    await guarda({ body: {} } as never, sinSesion.res, () => {});
+    igual(sinSesion.anotado.estado, 401, "sin sesión, 401");
+
+    // --- El fuera de horario ---
+    const sinNada = autorizarFueraDeHorario(comoPedido(pRecepcion.permisos), {
+      pacienteId: "x",
+      medicoId: "y",
+      fecha: "2026-12-07",
+      horaInicio: "10:00",
+      duracionMinutos: 30,
+    });
+    igual(sinNada, null, "sin pedir excepción, no hay nada que autorizar");
+
+    const cuerpo = {
+      pacienteId: "x",
+      medicoId: "y",
+      fecha: "2026-12-07",
+      horaInicio: "20:00",
+      duracionMinutos: 30,
+    };
+    const sinPermiso = autorizarFueraDeHorario(
+      comoPedido(pRecepcion.permisos, { forzarFueraDeHorario: { motivo: "el cliente viaja" } }),
+      { ...cuerpo }
+    );
+    igual(sinPermiso?.estado, 403, "recepción no puede citar fuera de horario");
+    igual(
+      sinPermiso?.cuerpo.permisoFaltante,
+      "agenda.fuera_de_horario",
+      "y se le dice qué permiso le falta"
+    );
+
+    const sinMotivo = autorizarFueraDeHorario(
+      comoPedido(pAdmin.permisos, { forzarFueraDeHorario: { motivo: "  " } }),
+      { ...cuerpo }
+    );
+    igual(sinMotivo?.estado, 400, "con permiso pero sin motivo, tampoco: el motivo se registra");
+
+    const conTodo = { ...cuerpo } as Record<string, unknown>;
+    const autorizado = autorizarFueraDeHorario(
+      comoPedido(pAdmin.permisos, { forzarFueraDeHorario: { motivo: "control posoperatorio" } }),
+      conTodo as never
+    );
+    igual(autorizado, null, "con permiso y motivo, se puede seguir");
+    igual(
+      (conTodo.fueraDeHorario as { autorizadoPor: string; motivo: string })?.motivo,
+      "control posoperatorio",
+      "y la cita queda con quién autorizó y por qué"
+    );
+    igual(
+      (conTodo.fueraDeHorario as { autorizadoPor: string })?.autorizadoPor,
+      admin,
+      "autorizada por quien estaba logueado, no por quien diga el cuerpo"
+    );
+  }
+
+  // -------------------------------------------------------------------
+  console.log("\n=== La invitación con roles, y el cupo que es de médicos ===");
+  // -------------------------------------------------------------------
+  {
+    const antes = await contarInvitacionesPendientes(pool, tenantId);
+
+    // Invitar a la recepción NO consume cupo de médico: el plan se cobra
+    // por médico. Antes del 04 toda invitación era de médico y contarlas
+    // todas daba igual.
+    const recep = await crearInvitacion(
+      pool,
+      tenantId,
+      "Clínica de prueba",
+      admin,
+      `${PREFIJO}-recep@probe.test`,
+      "Caro Recepción",
+      ["recepcion"]
+    );
+    assert(recep.ok, "se puede invitar a alguien que no es médico");
+    igual(
+      await contarInvitacionesPendientes(pool, tenantId),
+      antes,
+      "y no consume cupo de médicos"
+    );
+    assert(!invitaAUnMedico(["recepcion", "caja"]), "recepción y caja no es un médico");
+    assert(invitaAUnMedico(["medico", "admin_clinica"]), "médico y administrador sí lo es");
+
+    const med = await crearInvitacion(
+      pool,
+      tenantId,
+      "Clínica de prueba",
+      admin,
+      `${PREFIJO}-med@probe.test`,
+      "Fer Médico",
+      ["medico"]
+    );
+    assert(med.ok, "y se puede invitar a un médico");
+    igual(
+      await contarInvitacionesPendientes(pool, tenantId),
+      antes + 1,
+      "esa sí reserva un cupo"
+    );
+    igual(med.ok && med.invitacion.roles, ["medico"], "la invitación guarda sus roles");
+
+    // Un rol que no existe se rechaza en la base: un array con
+    // 'recepcionista' dejaría a la persona sin permisos al aceptar, y eso
+    // se descubre cuando ya entró.
+    let rolInventado = "";
+    try {
+      await pool.query(
+        `INSERT INTO invitaciones_medico (tenant_id, email, invitado_por, vence_en, roles)
+         VALUES ($1,$2,$3, now() + interval '7 days', ARRAY['recepcionista']::varchar[])`,
+        [tenantId, `${PREFIJO}-malo@probe.test`, admin]
+      );
+    } catch (err) {
+      rolInventado = err instanceof Error ? err.message : "";
+    }
+    assert(
+      rolInventado.includes("invitaciones_medico_roles_check"),
+      "un rol que no existe se rechaza en la base",
+      rolInventado
+    );
+  }
+
+  // -------------------------------------------------------------------
+  console.log("\n=== Los tipos de cita y las numeraciones ===");
+  // -------------------------------------------------------------------
+  await conAlcanceTenant(tenantId, async (db) => {
+    // La clínica nace con los dos sembrados por el disparador de la 145.
+    const tipos = await tiposDeCita(db, tenantId);
+    assert(tipos.length >= 6, "la clínica nace con sus tipos de cita", tipos.length);
+    assert(
+      tipos.some((t) => t.nombre === "Consulta general" && t.duracion_minutos === 30),
+      "«Consulta general» de 30 minutos entre ellos"
+    );
+
+    const nums = await numeraciones(db, tenantId);
+    igual(nums.length, 4, "y con las cuatro numeraciones");
+    igual(
+      nums.find((n) => n.documento === "expediente")?.prefijo,
+      "EXP-",
+      "el expediente con su prefijo"
+    );
+
+    await guardarNumeracion(db, tenantId, { documento: "recibo", prefijo: "CAJA-", digitos: 6 });
+    const cambiada = (await numeraciones(db, tenantId)).find((n) => n.documento === "recibo");
+    igual(cambiada?.prefijo, "CAJA-", "el prefijo se cambia");
+    igual(cambiada?.digitos, 6, "y los dígitos");
+
+    let digitosLocos = "";
+    try {
+      await guardarNumeracion(db, tenantId, { documento: "recibo", digitos: 40 });
+    } catch (err) {
+      digitosLocos = err instanceof Error ? err.message : "";
+    }
+    assert(digitosLocos.includes("1 a 12"), "40 dígitos se rechaza", digitosLocos);
   });
 
   await pool.query(`DELETE FROM tenants WHERE nombre LIKE $1`, [`${PREFIJO}%`]);

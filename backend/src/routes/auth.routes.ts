@@ -1,8 +1,20 @@
-import { Router } from "express";
+import { Request, Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { modulosHabilitados } from "../tenantModulos";
 
 export const authRouter = Router();
+
+/**
+ * `req.auth` tal cual NO se puede serializar: `permisos` es un `Set`, y
+ * `JSON.stringify(new Set(["a"]))` es `{}`.
+ *
+ * Es el tipo de defecto que no rompe nada visible: la respuesta sale con
+ * 200, el campo está, y lo que llega es un objeto vacío. El frontend
+ * dibujaría un menú sin ninguna entrada y nadie sabría por qué.
+ */
+function paraElNavegador(auth: NonNullable<Request["auth"]>) {
+  return { ...auth, permisos: [...(auth.permisos ?? [])] };
+}
 
 // ---------------------------------------------------------------------
 // GET /api/auth/me — el login ya no lo resuelve este backend (el
@@ -18,7 +30,7 @@ authRouter.get("/me", authenticate, withTenantClient, async (req, res) => {
       // va vacío y no ausente para que el frontend no tenga que
       // distinguir dos formas de respuesta — los módulos son de una
       // clínica, y staff no pertenece a ninguna.
-      return res.json({ auth: req.auth, persona: null, modulos: [] });
+      return res.json({ auth: paraElNavegador(req.auth!), persona: null, modulos: [] });
     }
 
     const result = await req.db!.query(
@@ -33,7 +45,7 @@ authRouter.get("/me", authenticate, withTenantClient, async (req, res) => {
     // a que todas las sesiones abiertas refresquen su token.
     const modulos = await modulosHabilitados(req.db!, req.auth!.tenantId);
 
-    res.json({ auth: req.auth, persona: result.rows[0] ?? null, modulos });
+    res.json({ auth: paraElNavegador(req.auth!), persona: result.rows[0] ?? null, modulos });
   } catch (err) {
     console.error("GET /api/auth/me", err);
     res.status(500).json({ error: "Error interno." });

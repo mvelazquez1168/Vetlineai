@@ -37,6 +37,15 @@ export interface AuthPayload {
    */
   roles?: string[];
   permisos?: Set<string>;
+  /**
+   * La pantalla de entrada que corresponde a su rol (`roles.pantalla_inicio`).
+   *
+   * No es lo que la persona eligió —eso vive en `personas.pantalla_inicio`
+   * y gana—: es la entrada derivada, la que rige mientras no elija nada.
+   * Existe porque con ocho roles «el que no es médico aterriza en
+   * Médicos» dejó de ser cierto: la recepción aterriza en la agenda.
+   */
+  pantallaDelRol?: string | null;
 }
 
 declare global {
@@ -234,6 +243,7 @@ async function resolverPrincipal(payload: TokenKeycloak): Promise<AuthPayload | 
       zonaHoraria: persona.zona_horaria,
       roles: efectivos.roles,
       permisos: efectivos.permisos,
+      pantallaDelRol: efectivos.pantallaDelRol,
     };
   }
 

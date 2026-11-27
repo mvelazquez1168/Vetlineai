@@ -86,14 +86,24 @@ export async function abrirAtencion(
       throw new Error("Para abrir una atención hace falta la cita o el paciente.");
     }
     const ahora = new Date();
-    const cita = await crearCita(db, tenantId, {
-      pacienteId: datos.pacienteId,
-      medicoId: datos.medicoId,
-      fecha: ahora.toISOString().slice(0, 10),
-      horaInicio: ahora.toISOString().slice(11, 16),
-      duracionMinutos: datos.duracionMinutos ?? 30,
-      motivoConsulta: datos.motivoConsulta ?? "Atención sin cita previa",
-    });
+    const cita = await crearCita(
+      db,
+      tenantId,
+      {
+        pacienteId: datos.pacienteId,
+        medicoId: datos.medicoId,
+        fecha: ahora.toISOString().slice(0, 10),
+        horaInicio: ahora.toISOString().slice(11, 16),
+        duracionMinutos: datos.duracionMinutos ?? 30,
+        motivoConsulta: datos.motivoConsulta ?? "Atención sin cita previa",
+      },
+      // EL HORARIO NO APLICA ACÁ (prompt 04, §3). Esta cita no se está
+      // agendando: se está registrando lo que ya está pasando. El
+      // paciente que llega a las siete de la tarde con una urgencia está
+      // adentro, y rechazarle la atención porque la clínica cerró a las
+      // cinco sería negar un hecho.
+      { omitirHorario: true }
+    );
     citaId = cita.cita.id as string;
     // Sin turno pero ya adentro: el estado tiene que decir eso, y es la
     // transición que `guardarAtencion` necesita para poder completar.
@@ -1031,14 +1041,25 @@ export async function cerrarAtencion(
   // recordatorio al cliente sin inventar un tipo de aviso nuevo.
   let controlCitaId = atencion.control_cita_id;
   if (atencion.control_fecha && !controlCitaId) {
-    const cita = await crearCita(db, tenantId, {
-      pacienteId: atencion.paciente_id,
-      medicoId: atencion.medico_id,
-      fecha: comoFecha(atencion.control_fecha),
-      horaInicio: "09:00",
-      duracionMinutos: 20,
-      motivoConsulta: atencion.control_motivo ?? "Control",
-    });
+    const cita = await crearCita(
+      db,
+      tenantId,
+      {
+        pacienteId: atencion.paciente_id,
+        medicoId: atencion.medico_id,
+        fecha: comoFecha(atencion.control_fecha),
+        horaInicio: "09:00",
+        duracionMinutos: 20,
+        motivoConsulta: atencion.control_motivo ?? "Control",
+      },
+      // CERRAR LA ATENCIÓN NO PUEDE FALLAR POR EL HORARIO. El médico
+      // eligió la fecha del control; si cae en un feriado o un sábado
+      // cerrado, la cita se crea igual y se ve en la agenda para
+      // moverla. Lo contrario —abortar el cierre— dejaría la atención a
+      // medio firmar por una fecha de control, que es el menos
+      // importante de los datos que se están guardando.
+      { omitirHorario: true }
+    );
     controlCitaId = cita.cita.id as string;
   }
 

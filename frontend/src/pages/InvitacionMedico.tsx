@@ -52,7 +52,11 @@ export function InvitacionMedico() {
     setError(null);
     setEnviando(true);
     try {
-      const resultado = await invitacionesApi.aceptar(token, { nombre, colegiatura, password });
+      const resultado = await invitacionesApi.aceptar(token, {
+        nombre,
+        colegiatura: invitacion?.esMedico === false ? undefined : colegiatura,
+        password,
+      });
       if (resultado.autoLogin) {
         await iniciarSesionConTokensKeycloak({
           access_token: resultado.access_token,
@@ -131,7 +135,10 @@ export function InvitacionMedico() {
       <>
         <h2 className="text-3xl font-bold text-primary">Completá tu alta</h2>
         <p className="mt-2 text-sm text-text-muted">
-          {invitacion.nombreClinica ?? "Tu clínica"} te invitó a sumarte como médico veterinario
+          {invitacion.nombreClinica ?? "Tu clínica"} te invitó a sumarte
+          {invitacion.rolesNombres && invitacion.rolesNombres.length > 0
+            ? ` en ${invitacion.rolesNombres.join(" y ")}`
+            : " como médico veterinario"}
           {invitacion.email ? ` con el correo ${invitacion.email}` : ""}.
         </p>
 
@@ -142,12 +149,17 @@ export function InvitacionMedico() {
             onChange={(e) => setNombre(e.target.value)}
             required
           />
-          <Input
-            label="Colegiatura"
-            value={colegiatura}
-            onChange={(e) => setColegiatura(e.target.value)}
-            required
-          />
+          {/* LA COLEGIATURA SOLO SI LA INVITAN COMO MÉDICA. Pedirle un
+              número de colegio a la recepción es lo que hacía imposible
+              invitarla por este camino, que es el único que hay. */}
+          {invitacion.esMedico !== false && (
+            <Input
+              label="Colegiatura"
+              value={colegiatura}
+              onChange={(e) => setColegiatura(e.target.value)}
+              required
+            />
+          )}
           <Input
             label="Contraseña"
             type="password"

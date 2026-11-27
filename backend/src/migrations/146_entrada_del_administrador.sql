@@ -1,0 +1,22 @@
+-- ---------------------------------------------------------------------
+-- 146 — EL ADMINISTRADOR ATERRIZA EN INICIO (prompt 04, sección 1)
+--
+-- La 139 le puso `/admin/clinica` como pantalla de entrada al rol
+-- administrador. Con la entrada por rol ya conectada, eso cambiaría el
+-- comportamiento de hoy: desde el prompt 01c, un administrador de una
+-- clínica con módulos de gestión aterriza en **Inicio**, que es el
+-- resumen del día, y no en la pantalla de configuración.
+--
+-- Mandarlo a configurar la clínica cada mañana es mandarlo al lugar que
+-- usa una vez por mes.
+--
+-- `/inicio` solo vale cuando la clínica tiene algún módulo de gestión
+-- —si no, muestra ceros—, y de eso se encarga el frontend: una entrada
+-- que apunta a un módulo deshabilitado se descarta y se usa la derivada.
+-- ---------------------------------------------------------------------
+UPDATE roles SET pantalla_inicio = '/inicio' WHERE codigo = 'admin_clinica';
+
+-- Y el contador: `/facturacion` es la electrónica, que es exactamente lo
+-- que mira. Se deja como está y queda dicho acá para que no parezca un
+-- olvido: su entrada depende del módulo de facturación, y sin ese módulo
+-- cae en la derivada.

@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
-import { crearCita, CrearCitaInput } from "./citas.routes";
+import {
+  autorizarFueraDeHorario,
+  crearCita,
+  CrearCitaInput,
+  FueraDeHorario,
+  responderFueraDeHorario,
+} from "./citas.routes";
 
 // ---------------------------------------------------------------------
 // Lista de espera — tenant_id directo. POST /:id/agendar reusa
@@ -146,6 +152,13 @@ listaEsperaRouter.post("/:id/agendar", async (req, res) => {
       return res.status(400).json({ error: "Este ítem ya fue agendado o cancelado." });
     }
 
+    // AGENDAR DESDE LA LISTA DE ESPERA ES AGENDAR: el horario de la
+    // clínica vale igual que en el alta, y la excepción lleva el mismo
+    // permiso. Sin esto, la lista de espera sería la puerta de atrás de
+    // una política de la clínica.
+    const rechazo = autorizarFueraDeHorario(req, body);
+    if (rechazo) return res.status(rechazo.estado).json(rechazo.cuerpo);
+
     const { cita, conflictos } = await crearCita(req.db!, req.auth!.tenantId!, body);
 
     const updateResult = await req.db!.query(
@@ -155,6 +168,7 @@ listaEsperaRouter.post("/:id/agendar", async (req, res) => {
 
     res.status(201).json({ cita, conflictos, item: updateResult.rows[0] });
   } catch (err) {
+    if (err instanceof FueraDeHorario) return responderFueraDeHorario(req, res, err);
     console.error("POST /lista-espera/:id/agendar", err);
     res.status(500).json({ error: "Error al agendar el ítem de lista de espera." });
   }

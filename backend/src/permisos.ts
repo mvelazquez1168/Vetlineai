@@ -48,6 +48,16 @@ export interface PermisosDePersona {
   /** Derivados de los roles, para los 100 chequeos que ya existen. */
   esMedico: boolean;
   esAdminClinica: boolean;
+  /**
+   * DÓNDE ATERRIZA ESTE ROL. Sale de `roles.pantalla_inicio`, el del rol
+   * de menor `orden` que tenga una: para quien es recepción y caja, la
+   * recepción manda, porque es lo que hace la mayor parte del día.
+   *
+   * No es lo que el usuario eligió —eso vive en
+   * `personas.pantalla_inicio` y gana— sino la entrada derivada de su
+   * rol, que es la que rige mientras no elija nada.
+   */
+  pantallaDelRol: string | null;
 }
 
 const VIDA_CACHE_MS = 30_000;
@@ -91,11 +101,18 @@ export async function permisosDePersona(
     if (guardado && Date.now() - guardado.en < VIDA_CACHE_MS) return guardado.valor;
   }
 
-  const r = await lector.query<{ rol: string }>(
-    `SELECT rol FROM persona_roles WHERE persona_id = $1`,
+  // Ordenados por el `orden` del rol: el primero es el principal, y de
+  // ahí sale la pantalla de entrada.
+  const r = await lector.query<{ rol: string; pantalla_inicio: string | null }>(
+    `SELECT pr.rol, r.pantalla_inicio
+       FROM persona_roles pr
+       JOIN roles r ON r.codigo = pr.rol
+      WHERE pr.persona_id = $1
+      ORDER BY r.orden`,
     [personaId]
   );
   const roles = r.rows.map((f) => f.rol);
+  const pantallaDelRol = r.rows.find((f) => f.pantalla_inicio)?.pantalla_inicio ?? null;
 
   const permisos = new Set<string>();
   if (roles.length > 0) {
@@ -136,6 +153,7 @@ export async function permisosDePersona(
     permisos,
     esMedico: roles.includes("medico"),
     esAdminClinica: roles.includes("admin_clinica"),
+    pantallaDelRol,
   };
   // Solo se cachea lo leído con el pool: lo leído dentro de una
   // transacción ajena puede deshacerse con un ROLLBACK.

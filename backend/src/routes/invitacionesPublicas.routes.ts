@@ -29,8 +29,11 @@ invitacionesPublicasRouter.post("/:token/aceptar", async (req, res) => {
     colegiatura?: string;
     password?: string;
   };
-  if (!nombre || !colegiatura || !password) {
-    return res.status(400).json({ error: "Faltan nombre, colegiatura o contraseña." });
+  // LA COLEGIATURA SOLO SI ES MÉDICO. `aceptarInvitacion` conoce los
+  // roles de la invitación y es quien decide; acá no se puede exigir
+  // siempre, porque la recepción no tiene número de colegio.
+  if (!nombre || !password) {
+    return res.status(400).json({ error: "Faltan el nombre o la contraseña." });
   }
 
   const client = await pool.connect();

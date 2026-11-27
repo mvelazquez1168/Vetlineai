@@ -35,6 +35,35 @@ export interface QuienEntra {
   modulos: Modulo[];
   /** Lo que el usuario eligió en su menú, o null. */
   pantallaElegida?: string | null;
+  /**
+   * LA ENTRADA DE SU ROL (prompt 04): `roles.pantalla_inicio`, resuelta
+   * por el backend. La recepción aterriza en la agenda, la caja en caja,
+   * la farmacia en inventario.
+   *
+   * Existe porque con ocho roles «el que no es médico aterriza en
+   * Médicos» dejó de ser cierto, y mandar a la recepción a la pantalla
+   * de médicos es mandarla a un lugar donde no tiene nada que hacer.
+   */
+  pantallaDelRol?: string | null;
+}
+
+/**
+ * Si esa ruta tiene sentido en esta clínica.
+ *
+ * Una entrada que apunta a un módulo deshabilitado no vale: es mejor
+ * caer en la derivada que en un 403 cada vez que alguien entra. Vale
+ * tanto para lo que el usuario eligió como para la entrada de su rol
+ * —el mismo criterio para los dos, porque es la misma pregunta—.
+ */
+function rutaHabilitada(ruta: string, modulos: Modulo[]): boolean {
+  const tiene = (m: Modulo) => modulos.includes(m);
+  if (ruta.startsWith("/ventas")) return tiene("ventas");
+  if (ruta.startsWith("/inventario")) return tiene("inventario");
+  if (ruta.startsWith("/facturacion")) return tiene("facturacion");
+  // Inicio resume la gestión: sin ningún módulo muestra una pantalla de
+  // ceros, que es peor que no ofrecerla.
+  if (ruta === "/inicio") return modulos.length > 0;
+  return true;
 }
 
 /** Las que puede elegir este usuario, con su nombre. */
@@ -51,6 +80,8 @@ export function pantallasDisponibles(
   lista.push({ ruta: "/pacientes", etiqueta: "Pacientes" });
   if (tiene("ventas")) lista.push({ ruta: "/ventas", etiqueta: "Caja" });
   if (tiene("inventario")) lista.push({ ruta: "/inventario", etiqueta: "Inventario" });
+  if (tiene("facturacion"))
+    lista.push({ ruta: "/facturacion", etiqueta: "Facturación electrónica" });
   lista.push({ ruta: "/admin/casos", etiqueta: "Casos clínicos" });
   if (quien.esAdminClinica) lista.push({ ruta: "/admin/medicos", etiqueta: "Médicos" });
   return lista;
@@ -59,11 +90,20 @@ export function pantallasDisponibles(
 export function rutaDeEntrada(quien: QuienEntra): string {
   if (quien.rol === "super_admin") return "/platform-admin";
 
+  // 1. Lo que la persona eligió, si sigue sirviendo.
   const disponibles = pantallasDisponibles(quien).map((p) => p.ruta);
   if (quien.pantallaElegida && disponibles.includes(quien.pantallaElegida)) {
     return quien.pantallaElegida;
   }
 
+  // 2. La entrada de su rol (prompt 04). Va ANTES de la derivación vieja
+  //    y DESPUÉS de su elección: es una buena opción por omisión, no una
+  //    decisión que le pisa la que ya tomó.
+  if (quien.pantallaDelRol && rutaHabilitada(quien.pantallaDelRol, quien.modulos)) {
+    return quien.pantallaDelRol;
+  }
+
+  // 3. Lo de siempre, para las sesiones y los roles que no digan nada.
   if (quien.modulos.length === 0) {
     return quien.esMedico ? "/workspace" : "/admin/medicos";
   }

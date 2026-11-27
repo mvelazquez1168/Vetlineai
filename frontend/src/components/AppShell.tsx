@@ -43,10 +43,20 @@ interface Opcion {
   icono: NombreIcono;
   /** El módulo que la habilita. Sin módulo, siempre visible. */
   modulo?: Modulo;
-  /** `true` si solo la ve un administrador de clínica. */
-  soloAdmin?: boolean;
-  /** `true` si solo la ve un médico. */
-  soloMedico?: boolean;
+  /**
+   * EL PERMISO QUE LA HACE VISIBLE (prompt 04).
+   *
+   * Antes eran dos banderas, `soloAdmin` y `soloMedico`, que preguntaban
+   * por los dos booleanos de `personas`. Con ocho roles eso ya no
+   * alcanza: la recepción no es administradora y tiene que ver la agenda
+   * y los clientes; la caja tiene que ver la caja y no los costos.
+   *
+   * Sin permiso, la opción es visible para todo el personal.
+   *
+   * NO ES LA AUTORIZACIÓN: cada ruta del backend la vuelve a resolver con
+   * `exigirPermiso`. Esto es para no ofrecer un botón que va a dar 403.
+   */
+  permiso?: string;
   /** De dónde sale el contador, cuando tiene. */
   contador?: "citasHoy" | "casosPendientes" | "aprobaciones";
 }
@@ -69,22 +79,36 @@ const GRUPOS: Grupo[] = [
   {
     titulo: "Clínica",
     opciones: [
-      { to: "/agenda", etiqueta: "Agenda", icono: "cita", contador: "citasHoy" },
-      { to: "/pacientes", etiqueta: "Pacientes", icono: "paciente" },
-      { to: "/admin/propietarios", etiqueta: "Propietarios", icono: "propietario" },
+      { to: "/agenda", etiqueta: "Agenda", icono: "cita", contador: "citasHoy", permiso: "agenda.ver" },
+      { to: "/pacientes", etiqueta: "Pacientes", icono: "paciente", permiso: "cliente.ver" },
+      { to: "/admin/propietarios", etiqueta: "Propietarios", icono: "propietario", permiso: "cliente.ver" },
     ],
   },
   {
     titulo: "Comercial",
     opciones: [
-      { to: "/ventas", etiqueta: "Caja", icono: "caja", modulo: "ventas", contador: "aprobaciones" },
+      {
+        to: "/ventas",
+        etiqueta: "Caja",
+        icono: "caja",
+        modulo: "ventas",
+        contador: "aprobaciones",
+        permiso: "caja.ver",
+      },
       {
         to: "/facturacion",
         etiqueta: "Facturación electrónica",
         icono: "comprobante",
         modulo: "facturacion",
+        permiso: "facturacion.ver",
       },
-      { to: "/inventario", etiqueta: "Inventario", icono: "inventario", modulo: "inventario" },
+      {
+        to: "/inventario",
+        etiqueta: "Inventario",
+        icono: "inventario",
+        modulo: "inventario",
+        permiso: "inventario.ver",
+      },
     ],
   },
   {
@@ -92,28 +116,82 @@ const GRUPOS: Grupo[] = [
     opciones: [
       { to: "/admin/casos", etiqueta: "Casos clínicos", icono: "clinico", contador: "casosPendientes" },
       { to: "/admin/casos-sin-actividad", etiqueta: "Casos sin actividad", icono: "hora" },
-      { to: "/admin/agentes", etiqueta: "Agentes IA", icono: "agente", soloAdmin: true },
-      { to: "/workspace", etiqueta: "Área de trabajo", icono: "medico", soloMedico: true },
+      {
+        to: "/admin/agentes",
+        etiqueta: "Agentes IA",
+        icono: "agente",
+        permiso: "agentes.administrar",
+      },
+      {
+        to: "/workspace",
+        etiqueta: "Área de trabajo",
+        icono: "medico",
+        permiso: "expediente.escribir",
+      },
     ],
   },
   {
     titulo: "Administración",
     opciones: [
-      { to: "/admin/reporte-atenciones", etiqueta: "Reportes", icono: "reportes" },
-      { to: "/admin/medicos", etiqueta: "Médicos", icono: "personas", soloAdmin: true },
-      { to: "/admin/clinica", etiqueta: "Clínica y usuarios", icono: "clinica", soloAdmin: true },
-      { to: "/admin/notificaciones", etiqueta: "Notificaciones", icono: "campana", soloAdmin: true },
+      {
+        to: "/admin/reporte-atenciones",
+        etiqueta: "Reportes",
+        icono: "reportes",
+        permiso: "reportes.ver",
+      },
+      {
+        to: "/admin/personas",
+        etiqueta: "Personal de la clínica",
+        icono: "personas",
+        permiso: "personas.administrar",
+      },
+      { to: "/admin/roles", etiqueta: "Roles y permisos", icono: "ajustes" },
+      { to: "/admin/politicas", etiqueta: "Políticas", icono: "ajustes" },
+      {
+        to: "/admin/configuracion-agenda",
+        etiqueta: "Configuración de la agenda",
+        icono: "cita",
+        permiso: "agenda.ver",
+      },
+      {
+        to: "/admin/medicos",
+        etiqueta: "Médicos e invitaciones",
+        icono: "medico",
+        permiso: "personas.administrar",
+      },
+      {
+        to: "/admin/clinica",
+        etiqueta: "Clínica y usuarios",
+        icono: "clinica",
+        permiso: "clinica.configurar",
+      },
+      {
+        to: "/admin/notificaciones",
+        etiqueta: "Notificaciones",
+        icono: "campana",
+        permiso: "clinica.configurar",
+      },
       // Anexo 07-03, B1. La lista la puede ver todo el personal —es la
       // recepción la que reconoce al cliente repetido— y el botón de
       // unificar aparece solo para el administrador, dentro de la
       // pantalla.
-      { to: "/admin/duplicados", etiqueta: "Posibles duplicados", icono: "propietario" },
-      { to: "/admin/plan-consumo", etiqueta: "Plan y consumo", icono: "plan", soloAdmin: true },
+      {
+        to: "/admin/duplicados",
+        etiqueta: "Posibles duplicados",
+        icono: "propietario",
+        permiso: "cliente.ver",
+      },
+      {
+        to: "/admin/plan-consumo",
+        etiqueta: "Plan y consumo",
+        icono: "plan",
+        permiso: "clinica.configurar",
+      },
       {
         to: "/admin/facturacion",
         etiqueta: "Facturación de la suscripción",
         icono: "comprobante",
-        soloAdmin: true,
+        permiso: "clinica.configurar",
       },
       { to: "/clinic", etiqueta: "Estado de Vetline Clinic", icono: "panel", modulo: "expediente" },
     ],
@@ -136,7 +214,7 @@ const CLAVE_GRUPOS = "vetline:menu-grupos";
 const CLAVE_COLAPSADO = "vetline:menu-colapsado";
 
 export function AppShell() {
-  const { user, logout, esMedico, esAdminClinica, modulos, pantallaInicio, elegirPantallaInicio } =
+  const { user, logout, esMedico, esAdminClinica, puede, modulos, pantallaInicio, elegirPantallaInicio } =
     useAuth();
   const { tieneModulo } = useModulos();
   const { apariencia, colorDeModulo } = useApariencia();
@@ -176,12 +254,11 @@ export function AppShell() {
         ...g,
         opciones: g.opciones.filter((o) => {
           if (o.modulo && !tieneModulo(o.modulo)) return false;
-          if (o.soloAdmin && !esAdminClinica) return false;
-          if (o.soloMedico && !esMedico) return false;
+          if (o.permiso && !puede(o.permiso)) return false;
           return true;
         }),
       })).filter((g) => g.opciones.length > 0),
-    [tieneModulo, esAdminClinica, esMedico]
+    [tieneModulo, puede]
   );
 
   const migas = rutaLegible(ubicacion.pathname);

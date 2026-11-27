@@ -60,7 +60,9 @@ function fallo(res: Response, err: unknown, donde: string) {
 }
 
 // --- Personas ---------------------------------------------------------
-clinicaRouter.get("/personas", exigirPermiso("personas.administrar"), async (req, res) => {
+// VER EL EQUIPO ES DE TODO EL EQUIPO. Cambiarle los roles a alguien o
+// desactivarlo, no: esas tres rutas sí llevan `personas.administrar`.
+clinicaRouter.get("/personas", async (req, res) => {
   try {
     res.json({ personas: await personasDeLaClinica(req.db!) });
   } catch (err) {

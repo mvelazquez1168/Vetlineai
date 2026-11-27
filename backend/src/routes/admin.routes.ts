@@ -106,14 +106,29 @@ adminRouter.get("/medicos/invitaciones", async (req, res) => {
 });
 
 adminRouter.post("/medicos/invitar", async (req, res) => {
-  const { email, nombre } = req.body as { email?: string; nombre?: string };
-  if (!email) return res.status(400).json({ error: "Falta el correo del médico." });
+  const { email, nombre, roles } = req.body as {
+    email?: string;
+    nombre?: string;
+    roles?: string[];
+  };
+  if (!email) return res.status(400).json({ error: "Falta el correo de la persona." });
+  // Sin roles, médico: es lo que esta ruta hacía antes del 04 y lo que
+  // sigue haciendo el botón de «invitar médico».
+  const rolesPedidos = roles && roles.length > 0 ? roles : ["medico"];
 
   try {
     const tenantResult = await req.db!.query(`SELECT nombre FROM tenants WHERE id = $1`, [req.auth!.tenantId]);
     const nombreClinica = tenantResult.rows[0]?.nombre ?? "tu clínica";
 
-    const resultado = await crearInvitacion(req.db!, req.auth!.tenantId!, nombreClinica, req.auth!.userId, email, nombre);
+    const resultado = await crearInvitacion(
+      req.db!,
+      req.auth!.tenantId!,
+      nombreClinica,
+      req.auth!.userId,
+      email,
+      nombre,
+      rolesPedidos
+    );
     if (!resultado.ok) {
       return res.status(402).json({
         error: "No hay cupo de médicos disponible en tu plan — cambiá de plan para invitar más.",

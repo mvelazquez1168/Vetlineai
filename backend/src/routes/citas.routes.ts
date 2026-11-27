@@ -181,7 +181,7 @@ async function exigirHorario(
  * Devuelve la respuesta de rechazo cuando no corresponde, o `null`
  * cuando se puede seguir.
  */
-function autorizarFueraDeHorario(
+export function autorizarFueraDeHorario(
   req: Request,
   body: CrearCitaInput
 ): { estado: number; cuerpo: Record<string, unknown> } | null {
@@ -217,7 +217,7 @@ function autorizarFueraDeHorario(
  * para que la pantalla proponga otra hora, y dice si quien está mirando
  * puede autorizarlo.
  */
-function responderFueraDeHorario(req: Request, res: Response, err: FueraDeHorario) {
+export function responderFueraDeHorario(req: Request, res: Response, err: FueraDeHorario) {
   return res.status(409).json({
     error: err.message,
     fueraDeHorario: true,
@@ -231,7 +231,26 @@ function responderFueraDeHorario(req: Request, res: Response, err: FueraDeHorari
 // POST /lista-espera/:id/agendar la reuse tal cual, sin duplicarla (así
 // lo pide el prompt explícitamente: "reusando la misma lógica de POST
 // /api/citas, incluyendo detección de conflictos").
-export async function crearCita(db: PoolClient, tenantId: string, body: CrearCitaInput) {
+/**
+ * Para quien crea una cita que **no es agendar un turno**.
+ *
+ * `omitirHorario` existe para los hechos ya ocurridos: la atención del
+ * paciente que llegó sin turno se registra con una cita, y esa cita no
+ * se puede rechazar por estar fuera del horario —ya pasó—. Es un
+ * parámetro de función y no un campo del cuerpo a propósito: `POST
+ * /citas` pasa `req.body` tal cual, así que un campo sería forjable
+ * desde el navegador y el permiso no serviría para nada.
+ */
+export interface OpcionesDeCita {
+  omitirHorario?: boolean;
+}
+
+export async function crearCita(
+  db: PoolClient,
+  tenantId: string,
+  body: CrearCitaInput,
+  opciones: OpcionesDeCita = {}
+) {
   const horaFin = sumarMinutos(body.horaInicio, body.duracionMinutos);
 
   // EL HORARIO DE LA CLÍNICA SE RESPETA (prompt 04, §3). Hasta ahora
@@ -242,7 +261,9 @@ export async function crearCita(db: PoolClient, tenantId: string, body: CrearCit
   // VA ANTES DE LOS CONFLICTOS porque es más barato y porque el motivo
   // es más útil: «la clínica no abre los domingos» explica más que «no
   // hay conflicto con otra cita».
-  await exigirHorario(db, tenantId, body);
+  if (!opciones.omitirHorario) {
+    await exigirHorario(db, tenantId, body);
+  }
 
   const conflictos = await buscarConflictos(db, {
     fecha: body.fecha,

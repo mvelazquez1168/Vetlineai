@@ -122,6 +122,35 @@ export interface CrearCitaInput {
   // prompt: vincular caso↔cita — rama "crear cita ahora" del wizard "Nuevo
   // Caso": la cita nace ya vinculada al caso recién creado.
   casoId?: string | null;
+  /** De qué tipo es: trae su duración y su color (prompt 04, §3). */
+  tipoCitaId?: string | null;
+  /**
+   * CITAR FUERA DEL HORARIO, con su motivo (prompt 04, §3).
+   *
+   * Solo se manda después de que el backend contestó 409: es la
+   * respuesta a «esa hora está fuera del horario, ¿la agendás igual?».
+   * Quien no tenga el permiso `agenda.fuera_de_horario` recibe 403 aunque
+   * lo mande.
+   */
+  forzarFueraDeHorario?: { motivo: string };
+}
+
+/**
+ * El 409 de la agenda: la hora está fuera del horario o sobre un
+ * bloqueo. No es un error: es una pregunta con los datos para
+ * contestarla.
+ */
+export interface FueraDeHorario {
+  error: string;
+  fueraDeHorario: true;
+  nivel?: "clinica" | "excepcion" | "medico";
+  bloquesDelDia?: Array<{ desde: string; hasta: string }>;
+  puedeForzar?: boolean;
+}
+
+/** Si una respuesta de error es el 409 del horario. */
+export function esFueraDeHorario(data: unknown): data is FueraDeHorario {
+  return typeof data === "object" && data !== null && "fueraDeHorario" in data;
 }
 
 const ESTADO_LABEL: Record<EstadoCita, string> = {

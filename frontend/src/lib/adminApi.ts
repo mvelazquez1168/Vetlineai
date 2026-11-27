@@ -401,10 +401,21 @@ export const adminApi = {
   listarInvitacionesMedicos: () =>
     authedFetch<{ invitaciones: InvitacionMedico[] }>("/admin/medicos/invitaciones"),
 
-  invitarMedico: (email: string, nombre?: string) =>
+  /**
+   * Invita a una persona con sus roles (prompt 04).
+   *
+   * Sin `roles`, médico: es lo que esta función hacía y lo que sigue
+   * haciendo el botón de invitar médico. Solo las de médico consumen
+   * cupo del plan.
+   */
+  invitarMedico: (email: string, nombre?: string, roles?: string[]) =>
     authedFetch<{ invitacion: InvitacionMedico }>("/admin/medicos/invitar", {
       method: "POST",
-      body: JSON.stringify({ email, nombre: nombre?.trim() || undefined }),
+      body: JSON.stringify({
+        email,
+        nombre: nombre?.trim() || undefined,
+        roles: roles && roles.length > 0 ? roles : undefined,
+      }),
     }),
 
   reenviarInvitacionMedico: (id: string) =>

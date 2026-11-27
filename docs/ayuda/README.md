@@ -65,6 +65,9 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | [El personal de la clínica y lo que puede hacer cada uno](personal-y-roles.md) | Los ocho roles, invitar con roles, cambiar roles y que alguien deje de entrar. |
 | [El horario de la clínica, los feriados y los tipos de cita](horario-y-feriados.md) | Cuándo abre la clínica, qué bloquea la agenda y cómo se cita fuera de horario. |
 | [Las políticas de la clínica](politicas-de-la-clinica.md) | Los topes y las decisiones que cada clínica toma distinto, con su historial. |
+| [Los catálogos de la clínica](catalogos-y-clasificacion.md) | Familias, marcas, ubicaciones y las listas de cada módulo, en un solo lugar. |
+| [Turnos, ausencias y comisiones](turnos-ausencias-y-comisiones.md) | Quién trabaja cuándo, quién está de vacaciones y cuánto se le paga por lo que hizo. |
+| [Permisos, controlados, desechos y auditoría](cumplimiento-y-auditoria.md) | Lo que vence, el libro de controlados con su cierre firmado, y quién hizo qué. |
 
 ## El dictado por voz
 
@@ -80,9 +83,9 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la atención), las del
 **07d** (el dictado por voz), las del **anexo 07-03** (el paciente, el cliente y los duplicados),
 las del **08b/09b** (presupuestos, cierre de caja, descuentos, facturas de proveedores y actividad
-económica) las del **04** (personal y roles, horario y feriados, políticas) y las del **10a** (cuentas por
-pagar, gastos, cobranza y cierre del día). Faltan las del resto de caja, inventario y agenda, que se
-irán sumando.
+económica) las del **04** (personal y roles, horario y feriados, políticas) las del **10a** (cuentas por pagar, gastos, cobranza y cierre del
+día) y las del **11** (catálogos, turnos y comisiones, cumplimiento y auditoría). Faltan las del
+resto de caja, inventario y agenda, que se irán sumando.
 
 El manual consolidado en PDF y Word, con el logo de la clínica, se genera **al cierre de cada
 bloque**, no en cada entrega.

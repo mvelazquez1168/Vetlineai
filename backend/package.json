@@ -18,6 +18,7 @@
     "habilitar-modulo:prod": "node dist/habilitarModulo.js",
     "cargar-catalogos-fe": "ts-node --transpile-only src/cargarCatalogosFe.ts",
     "cargar-catalogos-fe:prod": "node dist/cargarCatalogosFe.js",
+    "demo:historial": "ts-node src/scripts/historial_demostracion.ts",
     "cargar-ayuda": "ts-node --transpile-only src/scripts/cargar_ayuda.ts",
     "cargar-ayuda:prod": "node dist/scripts/cargar_ayuda.js",
     "purga-pendiente": "ts-node --transpile-only src/scripts/verificar_purga_pendiente_produccion.ts"

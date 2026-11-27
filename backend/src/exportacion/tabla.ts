@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import { strToU8, zipSync } from "fflate";
+import { MarcaDeClinica, dibujarEncabezado } from "../pdf/marcaPdf";
 
 // ---------------------------------------------------------------------
 // EXPORTACIÓN DE UNA TABLA A EXCEL Y A PDF.
@@ -202,7 +203,14 @@ export function aExcel(tabla: TablaExportable): Buffer {
  * cuatro páginas sin encabezado obliga a volver a la primera para saber
  * qué columna es cuál.
  */
-export function aPdf(tabla: TablaExportable): Promise<Buffer> {
+export interface OpcionesPdf {
+  /** La marca de la clínica. Con ella el PDF sale con logo y color. */
+  marca?: MarcaDeClinica;
+  /** Quién lo generó. Va impreso: un reporte sin autor no se puede auditar. */
+  usuario?: string;
+}
+
+export function aPdf(tabla: TablaExportable, opciones: OpcionesPdf = {}): Promise<Buffer> {
   return new Promise((resolver, rechazar) => {
     const doc = new PDFDocument({ size: "LETTER", layout: "landscape", margin: 36 });
     const trozos: Buffer[] = [];
@@ -240,10 +248,21 @@ export function aPdf(tabla: TablaExportable): Promise<Buffer> {
       doc.font("Helvetica").fontSize(8.5);
     };
 
-    doc.font("Helvetica-Bold").fontSize(14).text(tabla.titulo, { align: "left" });
+    // CON MARCA, el encabezado es el compartido del anexo 07-03: así el
+    // Excel y el PDF de cualquier módulo salen con el logo y el color de
+    // la clínica, y no hay un segundo encabezado que mantener.
+    if (opciones.marca) {
+      dibujarEncabezado(doc, opciones.marca, tabla.titulo, tabla.subtitulo);
+    } else {
+      doc.font("Helvetica-Bold").fontSize(14).text(tabla.titulo, { align: "left" });
+      doc.font("Helvetica").fontSize(9).fillColor("#555555");
+      if (tabla.subtitulo) doc.text(tabla.subtitulo);
+    }
     doc.font("Helvetica").fontSize(9).fillColor("#555555");
-    if (tabla.subtitulo) doc.text(tabla.subtitulo);
-    doc.text(`${tabla.filas.length} fila(s) · generado el ${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC`);
+    doc.text(
+      `${tabla.filas.length} fila(s) · generado el ${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC` +
+        (opciones.usuario ? ` · por ${opciones.usuario}` : "")
+    );
     if (tabla.aviso) doc.fillColor("#b06000").text(tabla.aviso);
     doc.fillColor("#000000").moveDown(0.6);
 

@@ -5,6 +5,16 @@ import path from "path";
 import multer from "multer";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { exigirPermiso, soloPersonalDeLaClinica } from "../permisos";
+import {
+  categoriasSinClasificar,
+  ClasificacionInvalida,
+  clasificarEnLote,
+  cuantosSinClasificar,
+  ETIQUETA_TIPO_CLINICO,
+  productosSinClasificar,
+  TipoClinicoProducto,
+  TIPOS_CLINICOS,
+} from "../inventario/clasificacionClinica";
 import { requiereModulo } from "../tenantModulos";
 import { registrarMovimiento, registrarTraslado } from "../inventario/movimientos";
 import { aprobarAjuste, rechazarAjuste, solicitarAjuste } from "../inventario/ajustes";
@@ -34,6 +44,7 @@ import { abrirConteo, anotarConteo, cerrarConteo } from "../inventario/conteos";
 import {
   COLUMNAS_PLANTILLA,
   analizarImportacion,
+  COLUMNAS_OPCIONALES,
   importarInventario,
 } from "../inventario/importacion";
 import {
@@ -862,6 +873,71 @@ inventarioRouter.post("/conteos/:id/cerrar", async (req, res) => {
 // =====================================================================
 // IMPORTACIÓN
 // =====================================================================
+// ---------------------------------------------------------------------
+// CLASIFICACIÓN CLÍNICA DEL CATÁLOGO — defecto del 2026-11-27, punto 3.
+//
+// `tipo_clinico` decide en qué acción de la atención aparece cada
+// producto, y la migración 115 lo dejó en NULL en 1.782 de 1.787. Sin
+// una forma de clasificar en lote, la única salida era abrir 891 fichas.
+// ---------------------------------------------------------------------
+
+/** El número del indicador: «Productos sin clasificar: N». */
+inventarioRouter.get("/sin-clasificar/cuantos", async (req, res) => {
+  try {
+    res.json({ cuantos: await cuantosSinClasificar(req.db!, req.auth!.tenantId!) });
+  } catch (err) {
+    fallo(res, err, "GET /inventario/sin-clasificar/cuantos");
+  }
+});
+
+inventarioRouter.get("/sin-clasificar", async (req, res) => {
+  try {
+    const q = req.query as Record<string, string | undefined>;
+    const datos = await productosSinClasificar(req.db!, req.auth!.tenantId!, {
+      categoria: q.categoria || undefined,
+      familiaId: q.familia || undefined,
+      busqueda: q.q || undefined,
+      limite: q.limite ? Number(q.limite) : undefined,
+    });
+    res.json({
+      ...datos,
+      categorias: await categoriasSinClasificar(req.db!, req.auth!.tenantId!),
+      tipos: TIPOS_CLINICOS.map((t) => ({ valor: t, etiqueta: ETIQUETA_TIPO_CLINICO[t] })),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /inventario/sin-clasificar");
+  }
+});
+
+// Clasificar: uno o muchos, por el mismo camino. La pantalla de la
+// receta manda un id; la herramienta masiva manda cien.
+inventarioRouter.post(
+  "/clasificar",
+  exigirPermiso("catalogo.editar"),
+  async (req, res) => {
+    try {
+      const { productoIds, tipo, pisarExistente } = req.body as {
+        productoIds?: string[];
+        tipo?: TipoClinicoProducto;
+        pisarExistente?: boolean;
+      };
+      const cambiados = await clasificarEnLote(
+        req.db!,
+        req.auth!.tenantId!,
+        productoIds ?? [],
+        tipo as TipoClinicoProducto,
+        { pisarExistente: Boolean(pisarExistente) }
+      );
+      res.json({ cambiados, quedan: await cuantosSinClasificar(req.db!, req.auth!.tenantId!) });
+    } catch (err) {
+      if (err instanceof ClasificacionInvalida) {
+        return res.status(400).json({ error: err.message });
+      }
+      fallo(res, err, "POST /inventario/clasificar");
+    }
+  }
+);
+
 inventarioRouter.get("/importacion/plantilla", (_req, res) => {
   // La plantilla se entrega como CSV y no como .xlsx: el analizador lee
   // .xlsx, pero generar uno acá exigiría una librería de ESCRITURA que
@@ -869,7 +945,10 @@ inventarioRouter.get("/importacion/plantilla", (_req, res) => {
   // .xlsx en dos clics. Queda dicho en vez de arrastrar 135 paquetes.
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
   res.setHeader("Content-Disposition", 'attachment; filename="plantilla-inventario.csv"');
-  res.send(COLUMNAS_PLANTILLA.join(",") + "\n");
+  // Con la columna opcional incluida: quien arranca de la plantilla se
+  // entera de que el tipo clínico se puede traer desde acá, en vez de
+  // clasificar 891 productos después.
+  res.send([...COLUMNAS_PLANTILLA, ...COLUMNAS_OPCIONALES].join(",") + "\n");
 });
 
 inventarioRouter.post(

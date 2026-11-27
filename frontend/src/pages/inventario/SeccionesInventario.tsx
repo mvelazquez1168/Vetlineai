@@ -28,6 +28,9 @@ export function SeccionesInventario() {
   const { esAdminClinica } = useAuth();
   const [alertas, setAlertas] = useState(0);
   const [aprobaciones, setAprobaciones] = useState(0);
+  // Productos sin tipo clinico (defecto del 2026-11-27, punto 3): es lo
+  // que hace que la receta y las acciones de vacuna no encuentren nada.
+  const [sinClasificar, setSinClasificar] = useState(0);
 
   useEffect(() => {
     inventarioApi
@@ -39,6 +42,13 @@ export function SeccionesInventario() {
       // pantalla de Alertas.
       .then((r) => setAlertas((r.bajoMinimo?.length ?? 0) + (r.porVencer60?.length ?? 0)))
       .catch(() => setAlertas(0));
+  }, []);
+
+  useEffect(() => {
+    inventarioApi
+      .cuantosSinClasificar()
+      .then((r) => setSinClasificar(r.cuantos))
+      .catch(() => setSinClasificar(0));
   }, []);
 
   useEffect(() => {
@@ -69,6 +79,14 @@ export function SeccionesInventario() {
               icono="aviso"
               onClick={() => navegar("/inventario/alertas")}
             />
+            {sinClasificar > 0 && (
+              <IndicadorPestana
+                etiqueta="Sin clasificar"
+                cantidad={sinClasificar}
+                icono="producto"
+                onClick={() => navegar("/inventario/sin-clasificar")}
+              />
+            )}
             {esAdminClinica && (
               <IndicadorPestana
                 etiqueta="Aprobaciones"

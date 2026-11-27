@@ -221,8 +221,42 @@ export interface Servicio {
   costo_insumos: string;
 }
 
+export type TipoClinicoProducto = "vacuna" | "antiparasitario" | "medicamento" | "insumo" | "otro";
+
+export interface ProductoSinClasificar {
+  id: string;
+  codigo: string | null;
+  nombre: string;
+  categoria: string | null;
+  familia: string | null;
+  principioActivo: string | null;
+  sugerencia: { tipo: TipoClinicoProducto; porque: string } | null;
+}
+
 export const inventarioApi = {
   catalogos: () => pedir<CatalogosInventario>("/inventario/catalogos"),
+
+  // --- CLASIFICACIÓN CLÍNICA (defecto del 2026-11-27, punto 3) -------
+  cuantosSinClasificar: () =>
+    pedir<{ cuantos: number }>("/inventario/sin-clasificar/cuantos"),
+
+  sinClasificar: (f: { categoria?: string; familia?: string; q?: string; limite?: number } = {}) => {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries(f)) if (v !== undefined && v !== "") q.set(k, String(v));
+    return pedir<{
+      productos: ProductoSinClasificar[];
+      total: number;
+      categorias: Array<{ categoria: string; cantidad: number }>;
+      tipos: Array<{ valor: TipoClinicoProducto; etiqueta: string }>;
+    }>(`/inventario/sin-clasificar?${q.toString()}`);
+  },
+
+  /** Uno o muchos, por el mismo camino. */
+  clasificar: (productoIds: string[], tipo: TipoClinicoProducto) =>
+    json<{ cambiados: number; quedan: number }>("/inventario/clasificar", "POST", {
+      productoIds,
+      tipo,
+    }),
   bodegas: () => pedir<{ bodegas: Bodega[] }>("/inventario/bodegas"),
   crearBodega: (d: { codigo: string; nombre: string; esDefault?: boolean }) =>
     json<{ id: string }>("/inventario/bodegas", "POST", d),

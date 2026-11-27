@@ -17,7 +17,8 @@ import {
   atencionApi,
 } from "../../lib/expedienteApi";
 import { apiFetchFile } from "../../lib/api";
-import { getStoredToken } from "../../hooks/useAuth";
+import { getStoredToken, useAuth } from "../../hooks/useAuth";
+import { BuscadorProducto } from "./BuscadorProducto";
 import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
@@ -77,7 +78,7 @@ export function ModalPreventivo({
   onAgregado: () => void;
 }) {
   const toast = useToast();
-  const [productos, setProductos] = useState<ProductoClinico[]>([]);
+  const { puede } = useAuth();
   const [elegido, setElegido] = useState<ProductoClinico | null>(null);
   const [loteId, setLoteId] = useState("");
   const [cantidad, setCantidad] = useState("1");
@@ -88,14 +89,10 @@ export function ModalPreventivo({
   const [ocupado, setOcupado] = useState(false);
 
   const esVacuna = tipo === "vacunacion";
-
-  useEffect(() => {
-    if (!abierto) return;
-    atencionApi
-      .catalogoClinico(esVacuna ? "vacuna" : "antiparasitario")
-      .then((r) => setProductos(r.productos))
-      .catch(() => setProductos([]));
-  }, [abierto, esVacuna]);
+  // Clasificar un producto es editar el catalogo: el mismo permiso que
+  // pide el backend (`catalogo.editar`). Sin el, el buscador igual
+  // muestra los sin clasificar; lo que no ofrece es el boton.
+  const puedeClasificar = puede("catalogo.editar");
 
   const elegir = async (p: ProductoClinico) => {
     setElegido(p);
@@ -160,8 +157,8 @@ export function ModalPreventivo({
       title={esVacuna ? "Aplicar una vacuna" : "Registrar una desparasitación"}
       description={
         esVacuna
-          ? "Solo aparecen los productos marcados como vacuna en el catálogo."
-          : "Solo aparecen los antiparasitarios del catálogo."
+          ? "Buscá por nombre, código, principio activo o código de barras. También aparecen los productos sin clasificar."
+          : "Buscá el antiparasitario por nombre, código o código de barras. También aparecen los sin clasificar."
       }
       ancho="lg"
       footer={
@@ -178,41 +175,15 @@ export function ModalPreventivo({
       }
     >
       {!elegido ? (
-        productos.length === 0 ? (
-          <div className="rounded-lg border border-black/10 p-4 text-sm text-text-muted">
-            <p className="font-medium text-text-primary">
-              No hay {esVacuna ? "vacunas" : "antiparasitarios"} en el catálogo.
-            </p>
-            <p className="mt-1">
-              Un producto aparece acá cuando tiene su <strong>tipo clínico</strong> puesto en el
-              catálogo de inventario. Sin eso, el sistema no puede saber que es{" "}
-              {esVacuna ? "una vacuna" : "un antiparasitario"}.
-            </p>
-          </div>
-        ) : (
-          <ul className="max-h-80 overflow-auto rounded-lg border border-black/10">
-            {productos.map((p) => (
-              <li key={p.presentacionId}>
-                <button
-                  type="button"
-                  onClick={() => void elegir(p)}
-                  className="block w-full px-3 py-2 text-left text-sm hover:bg-black/5"
-                >
-                  <span className="font-medium">
-                    {p.nombre} — {p.presentacion}
-                  </span>
-                  <span className="block text-xs text-text-muted">
-                    {p.lotes.length > 0
-                      ? `${plural(p.lotes.length, "lote", "lotes")} con existencia · el primero vence ${
-                          p.lotes[0].vence ?? "sin fecha"
-                        }`
-                      : "Sin existencia: no se puede aplicar lo que no hay"}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )
+        /* EL BUSCADOR, no una lista (defecto del 2026-11-27, punto 3).
+           La lista mostraba solo lo que tenia `tipo_clinico` puesto, y
+           con el catalogo real eso era un producto de 897. */
+        <BuscadorProducto
+          tipo={esVacuna ? "vacuna" : "antiparasitario"}
+          etiqueta={esVacuna ? "Buscar la vacuna" : "Buscar el antiparasitario"}
+          puedeClasificar={puedeClasificar}
+          onElegir={(p) => void elegir(p)}
+        />
       ) : (
         <div className="space-y-3">
           <p className="text-sm font-semibold text-text-primary">
@@ -303,9 +274,9 @@ export function PanelReceta({
   onCambio: () => void;
 }) {
   const toast = useToast();
+  const { puede: puedeRec } = useAuth();
   const cat = useCatalogosClinicos();
   const [receta, setReceta] = useState<RecetaDeAtencion | null>(null);
-  const [productos, setProductos] = useState<ProductoClinico[]>([]);
   const [anteriores, setAnteriores] = useState<
     Array<{ id: string; fecha: string; medico: string; lineas: number; resumen: string }>
   >([]);
@@ -329,6 +300,9 @@ export function PanelReceta({
   // llenó sin que nadie lo tocara tiene que verse distinto de uno que
   // el médico escribió.
   const [sugeridos, setSugeridos] = useState<string[]>([]);
+  /** El producto elegido, para mostrarlo en vez del buscador. */
+  const [elegidoReceta, setElegidoReceta] = useState<ProductoClinico | null>(null);
+  const puedeClasificarCatalogo = puedeRec("catalogo.editar");
 
   /**
    * Elegir un producto PRECARGA su posología (anexo 07-03, A3).
@@ -338,10 +312,9 @@ export function PanelReceta({
    * todas las veces. Es una sugerencia editable, no una indicación: se
    * marca cuáles campos vinieron del catálogo y cualquiera se cambia.
    */
-  const elegirPresentacion = (id: string) => {
-    setPresentacionId(id);
-    const producto = productos.find((p) => p.presentacionId === id);
-    const pos = producto?.posologia;
+  const elegirPresentacion = (producto: ProductoClinico) => {
+    setPresentacionId(producto.presentacionId);
+    const pos = producto.posologia;
     if (!pos) {
       setSugeridos([]);
       return;
@@ -386,10 +359,9 @@ export function PanelReceta({
   useEffect(() => {
     if (!abierto) return;
     recargar();
-    atencionApi
-      .catalogoClinico("medicamento")
-      .then((r) => setProductos(r.productos))
-      .catch(() => setProductos([]));
+    // El catálogo ya NO se trae entero acá: lo pide el buscador a
+    // medida que se escribe. Traer 897 productos para llenar una lista
+    // desplegable era lo que había, y es lo que no funcionaba.
     atencionApi
       .recetasAnteriores(pacienteId, atencionId)
       .then((r) => setAnteriores(r.recetas))
@@ -624,18 +596,41 @@ export function PanelReceta({
 
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {origen === "catalogo" ? (
-              <Select
-                label="Medicamento"
-                value={presentacionId}
-                onChange={(e) => elegirPresentacion(e.target.value)}
-                options={[
-                  { value: "", label: "Elija del inventario" },
-                  ...productos.map((p) => ({
-                    value: p.presentacionId,
-                    label: `${p.nombre} — ${p.presentacion}`,
-                  })),
-                ]}
-              />
+              /* UN BUSCADOR, no una lista desplegable (defecto del
+                 2026-11-27, punto 3). La lista traia solo lo que tenia
+                 `tipo_clinico = 'medicamento'`, y con el catalogo real
+                 eso era UN producto de 897: la Amoxicilina. */
+              <div className="sm:col-span-2">
+                {elegidoReceta ? (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-black/10 p-2">
+                    <span className="text-sm font-medium text-text-primary">
+                      {elegidoReceta.nombre} — {elegidoReceta.presentacion}
+                    </span>
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-accent hover:underline"
+                      onClick={() => {
+                        setElegidoReceta(null);
+                        setPresentacionId("");
+                        setSugeridos([]);
+                      }}
+                    >
+                      Elegir otro
+                    </button>
+                  </div>
+                ) : (
+                  <BuscadorProducto
+                    tipo="medicamento"
+                    etiqueta="Medicamento"
+                    puedeClasificar={puedeClasificarCatalogo}
+                    autoFocus={false}
+                    onElegir={(prod) => {
+                      setElegidoReceta(prod);
+                      elegirPresentacion(prod);
+                    }}
+                  />
+                )}
+              </div>
             ) : (
               <Input
                 label="Medicamento"

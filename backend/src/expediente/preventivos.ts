@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { registrarInteraccion } from "../crm/interacciones";
 
 // ---------------------------------------------------------------------
 // VACUNAS, DESPARASITACIONES Y ESTUDIOS — prompt 07c, secciones 1 y 3.
@@ -39,9 +40,16 @@ export interface ProductoParaAtencion {
   productoId: string;
   nombre: string;
   presentacion: string;
+  /** Lo que se busca además del nombre, y lo que se muestra para elegir. */
+  codigo: string | null;
+  principioActivo: string | null;
+  concentracion: string | null;
+  codigoBarras: string | null;
   tipoClinico: TipoClinico | null;
   requiereReceta: boolean;
   precio: number | null;
+  /** Existencia total, en la unidad de la presentación. */
+  existencia: number;
   /** Null si la clínica no cargó ninguna para este producto. */
   posologia: PosologiaSugerida | null;
   /** Lotes con existencia, en orden FEFO. El primero es el sugerido. */
@@ -51,21 +59,45 @@ export interface ProductoParaAtencion {
 /**
  * Los productos que puede ofrecer una acción de la atención.
  *
- * `tipoClinico` filtra: la acción «Vacuna» pide 'vacuna' y no muestra
- * nada más. La acción «Producto» pide lo contrario —lo que NO es
- * preventivo ni medicamento recetado—, porque para eso están las otras
- * acciones.
+ * DEFECTO DEL 2026-11-27, y define esta función entera: `tipo_clinico`
+ * filtraba con `=`, y la migración 115 dejó en NULL todo lo que no era
+ * evidente. Con el catálogo real cargado —897 productos en la clínica de
+ * `demo.medico`, 891 de ellos sin clasificar— la receta ofrecía UN
+ * producto: la Amoxicilina, la única con `tipo_clinico = medicamento`.
+ * El médico no podía recetar.
+ *
+ * ASÍ QUE LO SIN CLASIFICAR SE MUESTRA, con su etiqueta. Un dato que
+ * falta no puede esconder el producto: esconderlo convierte un catálogo
+ * incompleto en un sistema inservible. `incluirSinClasificar` es lo que
+ * lo permite, y la pantalla ofrece clasificarlo ahí mismo.
+ *
+ * LA BÚSQUEDA ES POR CINCO CAMPOS, no por el nombre: en una clínica se
+ * busca «amoxi» (nombre), «7501234…» (código de barras, con el lector),
+ * «MED-0042» (código interno) y «enrofloxacina» (principio activo, que
+ * es como el médico piensa el medicamento y casi nunca coincide con el
+ * nombre comercial).
  */
 export async function productosParaAtencion(
   db: PoolClient,
-  opciones: { tipoClinico?: TipoClinico; excluir?: TipoClinico[]; busqueda?: string }
+  opciones: {
+    tipoClinico?: TipoClinico;
+    /** Mostrar también los que no tienen tipo clínico asignado. */
+    incluirSinClasificar?: boolean;
+    excluir?: TipoClinico[];
+    busqueda?: string;
+    limite?: number;
+  }
 ): Promise<ProductoParaAtencion[]> {
-  const condiciones: string[] = ["p.activo"];
+  const condiciones: string[] = ["p.activo", "pr.activo", "pr.para_venta"];
   const params: unknown[] = [];
 
   if (opciones.tipoClinico) {
     params.push(opciones.tipoClinico);
-    condiciones.push(`p.tipo_clinico = $${params.length}`);
+    condiciones.push(
+      opciones.incluirSinClasificar
+        ? `(p.tipo_clinico = $${params.length} OR p.tipo_clinico IS NULL)`
+        : `p.tipo_clinico = $${params.length}`
+    );
   }
   if (opciones.excluir?.length) {
     params.push(opciones.excluir);
@@ -76,72 +108,109 @@ export async function productosParaAtencion(
   }
   if (opciones.busqueda) {
     params.push(`%${opciones.busqueda}%`);
-    condiciones.push(`(p.nombre ILIKE $${params.length} OR p.codigo ILIKE $${params.length})`);
+    const n = params.length;
+    condiciones.push(
+      `(p.nombre ILIKE $${n} OR p.codigo ILIKE $${n} OR p.principio_activo ILIKE $${n}
+        OR pr.codigo_barras ILIKE $${n} OR pr.codigo_interno ILIKE $${n})`
+    );
   }
+
+  params.push(Math.min(opciones.limite ?? 100, 200));
 
   const r = await db.query(
     `SELECT pr.id AS presentacion_id, p.id AS producto_id, p.nombre, pr.nombre AS presentacion,
+            p.codigo, p.principio_activo, p.concentracion, pr.codigo_barras,
             p.tipo_clinico, p.requiere_receta, pr.precio_venta,
             p.dosis_por_kg, p.dosis_fija, p.unidad_dosis, p.via_administracion,
-            p.frecuencia_sugerida, p.duracion_sugerida_cantidad, p.duracion_sugerida_unidad
+            p.frecuencia_sugerida, p.duracion_sugerida_cantidad, p.duracion_sugerida_unidad,
+            -- LA EXISTENCIA, en la unidad de la presentacion. Es lo que
+            -- el medico necesita saber ANTES de elegir: recetar algo que
+            -- no hay es una receta que el cliente no puede llenar.
+            COALESCE(ex.total, 0) / NULLIF(pr.factor, 0) AS existencia
        FROM inv_presentaciones pr
        JOIN inv_productos p ON p.id = pr.producto_id
+       LEFT JOIN LATERAL (
+         SELECT sum(l.cantidad) AS total FROM inv_lotes l
+          WHERE l.producto_id = p.id AND l.cantidad > 0
+       ) ex ON true
       WHERE ${condiciones.join(" AND ")}
-      ORDER BY p.nombre, pr.nombre
-      LIMIT 100`,
+      -- LOS CLASIFICADOS PRIMERO: lo que la clinica ya curo vale mas que
+      -- lo que todavia nadie miro.
+      ORDER BY (p.tipo_clinico IS NULL), p.nombre, pr.nombre
+      LIMIT $${params.length}`,
     params
   );
 
-  const salida: ProductoParaAtencion[] = [];
-  for (const x of r.rows as Record<string, unknown>[]) {
-    // LOS LOTES EN ORDEN FEFO, el mismo criterio que usa la salida de
-    // inventario. Si la pantalla sugiriera otro lote que el que después
-    // va a salir, el número impreso en la cartilla de vacunación sería
-    // el equivocado.
-    const lotes = await db.query(
-      `SELECT l.id, l.numero, l.vencimiento::text AS vence, l.cantidad
-         FROM inv_lotes l
-        WHERE l.producto_id = $1 AND l.cantidad > 0
-        ORDER BY l.vencimiento NULLS LAST, l.creado_en
-        LIMIT 20`,
-      [x.producto_id]
-    );
-    salida.push({
-      presentacionId: x.presentacion_id as string,
-      productoId: x.producto_id as string,
-      nombre: x.nombre as string,
-      presentacion: x.presentacion as string,
-      tipoClinico: (x.tipo_clinico as TipoClinico) ?? null,
-      requiereReceta: Boolean(x.requiere_receta),
-      precio: x.precio_venta === null ? null : Number(x.precio_venta),
-      // Null entero cuando no hay NADA cargado: media posología sería
-      // peor que ninguna, porque el médico vería unos campos llenos y
-      // otros vacíos sin saber por qué.
-      posologia:
-        x.dosis_por_kg === null &&
-        x.dosis_fija === null &&
-        x.via_administracion === null &&
-        x.frecuencia_sugerida === null
-          ? null
-          : {
-              dosisPorKg: x.dosis_por_kg === null ? null : Number(x.dosis_por_kg),
-              dosisFija: x.dosis_fija === null ? null : Number(x.dosis_fija),
-              unidadDosis: (x.unidad_dosis as string) ?? null,
-              viaAdministracion: (x.via_administracion as string) ?? null,
-              frecuencia: (x.frecuencia_sugerida as string) ?? null,
-              duracionCantidad:
-                x.duracion_sugerida_cantidad === null ? null : Number(x.duracion_sugerida_cantidad),
-              duracionUnidad: (x.duracion_sugerida_unidad as PosologiaSugerida["duracionUnidad"]) ?? null,
-            },
-      lotes: (lotes.rows as Record<string, unknown>[]).map((l) => ({
+  const filas = r.rows as Record<string, unknown>[];
+  if (filas.length === 0) return [];
+
+  // LOS LOTES EN ORDEN FEFO, el mismo criterio que usa la salida de
+  // inventario. Si la pantalla sugiriera otro lote que el que después va
+  // a salir, el número impreso en la cartilla de vacunación sería el
+  // equivocado.
+  //
+  // EN UNA SOLA CONSULTA para todos los productos: antes había una por
+  // producto, y con el catálogo real eso son 100 consultas por cada
+  // letra que el médico teclea en el buscador.
+  const productoIds = [...new Set(filas.map((x) => x.producto_id as string))];
+  const lotes = await db.query(
+    `SELECT l.id, l.numero, l.vencimiento::text AS vence, l.cantidad, l.producto_id
+       FROM inv_lotes l
+      WHERE l.producto_id = ANY($1) AND l.cantidad > 0
+      ORDER BY l.vencimiento NULLS LAST, l.creado_en`,
+    [productoIds]
+  );
+  const porProducto = new Map<string, ProductoParaAtencion["lotes"]>();
+  for (const l of lotes.rows as Record<string, unknown>[]) {
+    const lista = porProducto.get(l.producto_id as string) ?? [];
+    if (lista.length < 20) {
+      lista.push({
         id: l.id as string,
         numero: (l.numero as string) ?? "—",
         vence: (l.vence as string) ?? null,
         cantidad: Number(l.cantidad),
-      })),
-    });
+      });
+    }
+    porProducto.set(l.producto_id as string, lista);
   }
-  return salida;
+
+  return filas.map((x) => ({
+    presentacionId: x.presentacion_id as string,
+    productoId: x.producto_id as string,
+    nombre: x.nombre as string,
+    presentacion: x.presentacion as string,
+    codigo: (x.codigo as string) ?? null,
+    principioActivo: (x.principio_activo as string) ?? null,
+    concentracion: (x.concentracion as string) ?? null,
+    codigoBarras: (x.codigo_barras as string) ?? null,
+    tipoClinico: (x.tipo_clinico as TipoClinico) ?? null,
+    requiereReceta: Boolean(x.requiere_receta),
+    precio: x.precio_venta === null ? null : Number(x.precio_venta),
+    existencia: x.existencia === null ? 0 : Number(x.existencia),
+    // Null entero cuando no hay NADA cargado: media posología sería peor
+    // que ninguna, porque el médico vería unos campos llenos y otros
+    // vacíos sin saber por qué.
+    posologia:
+      x.dosis_por_kg === null &&
+      x.dosis_fija === null &&
+      x.via_administracion === null &&
+      x.frecuencia_sugerida === null
+        ? null
+        : {
+            dosisPorKg: x.dosis_por_kg === null ? null : Number(x.dosis_por_kg),
+            dosisFija: x.dosis_fija === null ? null : Number(x.dosis_fija),
+            unidadDosis: (x.unidad_dosis as string) ?? null,
+            viaAdministracion: (x.via_administracion as string) ?? null,
+            frecuencia: (x.frecuencia_sugerida as string) ?? null,
+            duracionCantidad:
+              x.duracion_sugerida_cantidad === null
+                ? null
+                : Number(x.duracion_sugerida_cantidad),
+            duracionUnidad:
+              (x.duracion_sugerida_unidad as PosologiaSugerida["duracionUnidad"]) ?? null,
+          },
+    lotes: porProducto.get(x.producto_id as string) ?? [],
+  }));
 }
 
 // ---------------------------------------------------------------------
@@ -305,6 +374,42 @@ export async function registrarHistorico(
       datos.lugar ?? null,
     ]
   );
+
+  // EL EVENTO EN LA LÍNEA DE TIEMPO. Defecto del 2026-11-27: esto no
+  // estaba, y era el defecto entero.
+  //
+  // La pestaña Vacunas y la pestaña Desparasitaciones NO leen
+  // `cuidados_preventivos`: leen la línea de tiempo filtrada por tipo
+  // (ver `lineaDeTiempo` en `resumen.ts`). Así que el histórico se
+  // guardaba de verdad —el aviso de la próxima dosis hasta salía— y la
+  // pantalla decía «guardado» mostrando una lista sin él. El usuario lo
+  // cargaba dos y tres veces.
+  //
+  // LA FECHA DEL EVENTO ES LA DE APLICACIÓN, no hoy: una vacuna de hace
+  // tres años tiene que aparecer hace tres años. Es para esto que
+  // `registrarInteraccion` acepta `ocurridoEn`.
+  //
+  // Y VA AL MEDIODÍA, no a medianoche. `ocurrido_en` es TIMESTAMPTZ y
+  // la pantalla lo muestra en la zona de la clínica: medianoche UTC del
+  // 27 es el 26 a las 18:00 en Costa Rica, y la vacuna aparecería un día
+  // antes de lo que dice la cartilla. Al mediodía UTC el día es el mismo
+  // en toda zona entre UTC−11 y UTC+11, que las cubre todas menos las
+  // islas del Pacífico donde no hay clínicas.
+  await registrarInteraccion(db, {
+    tenantId,
+    tipo: datos.tipo === "vacunacion" ? "vacuna_aplicada" : "desparasitacion",
+    pacienteId: datos.pacienteId,
+    ocurridoEn: `${datos.fechaAplicacion}T12:00:00Z`,
+    origenTabla: "cuidados_preventivos",
+    origenId: r.rows[0].id,
+    personaId,
+    resumen: datos.nombre,
+    // De dónde salió el dato. Lo que la pantalla muestra como
+    // «histórico» sale de `cuidados_preventivos.historico`, que es la
+    // fuente; esto es para quien lee el evento suelto.
+    nota: datos.lugar ? `histórico · ${datos.lugar}` : "histórico",
+  });
+
   return { id: r.rows[0].id, proxima };
 }
 

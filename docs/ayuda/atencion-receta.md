@@ -25,6 +25,9 @@ papel que se entrega en el mostrador.
 2. En **Lo realizado**, clic en **Receta** (atajo **Alt+R**).
 3. Para cada indicación:
    - Elija el origen: **Del inventario** (lo que la clínica vende) o **Texto libre** (lo que no).
+   - **Buscá el medicamento** escribiendo dos letras o más. Busca por **nombre**, por **código**,
+     por **principio activo** y por **código de barras** —si tenés lector, apuntá y disparar—. Cada
+     resultado muestra la presentación, **cuánto hay en existencia** y el precio.
    - Si el producto del inventario tiene cargada su **posología sugerida**, la dosis, la vía, la
      frecuencia y la duración **se llenan solas** al elegir la presentación. Es una sugerencia
      editable: el médico la cambia y lo que vale es lo que quede escrito.
@@ -86,6 +89,20 @@ oral**.
   fecha, el paciente, el dueño, **el peso con el que se calcularon las dosis** y las indicaciones.
 
 ## Preguntas frecuentes y errores comunes
+
+**El buscador dice «sin clasificar» al lado de un producto.**
+Significa que en el catálogo de inventario nadie le puso el **tipo clínico**. Se puede recetar
+igual. Si tenés permiso para editar el catálogo, al lado sale **«Es medicamento»**: un clic y
+queda clasificado para siempre, y la próxima vez aparece primero.
+
+**Antes la lista de medicamentos solo traía uno o dos.**
+Era un defecto, corregido el 27 de noviembre de 2026: la lista mostraba únicamente los productos
+que ya tenían el tipo clínico puesto, y en un catálogo recién importado eso es casi ninguno. Ahora
+el buscador muestra **todo el inventario** y marca cuáles están sin clasificar.
+
+**Quiero clasificar muchos de una vez.**
+*Inventario › Sin clasificar*. Está explicado en
+[Clasificar los productos del catálogo](inventario-clasificar-productos.md).
 
 **«Falta el peso del paciente: la dosis por kilo no se puede calcular».**
 La atención no tiene peso y el paciente no tiene ninguno anterior. Escriba el peso en la sección

@@ -134,16 +134,14 @@ Cada oportunidad lleva:
 
 **Recordatorios comerciales automáticos** (recompra, preventivo por vencer, control no agendado): se agregan como **tipos nuevos del mecanismo de notificaciones existente**, cada uno con su interruptor en Administración › Notificaciones, su plantilla editable, su registro en `notificaciones` y su paso por `puedeEnviar()`. Los avisos que Vetline Ai ya envía siguen exactamente igual.
 
-## 5. Conexión real con Converza
+## 5. Mensajería: sigue simulada, sin conexión con Converza
 
-El 03 dejó la interfaz del proveedor de mensajería, el simulado y el contrato. Aquí se construye la **implementación real de Converza** detrás de esa misma interfaz, sin cambiar el CRM:
-- **envío** de mensajes con **plantillas aprobadas por Meta** cuando el mensaje sale fuera de la ventana de 24 horas;
-- **recepción** de respuestas y estados (entregado, leído, fallido) por webhook firmado;
-- **enlace** a la conversación en Converza desde la línea de tiempo.
-
-**El simulado sigue siendo el proveedor por omisión.** El real se activa por clínica solo con sus credenciales configuradas y un interruptor explícito. En desarrollo no se envía ningún mensaje real.
-
-Si a Converza le falta algo del contrato (por ejemplo, la gestión de plantillas o los webhooks de estado), el informe lo lista como requisito para Converza, y la funcionalidad queda en el simulado.
+**Decisión de Miguel (27 de noviembre de 2026): el CRM todavía no se conecta con Converza.** En esta entrega:
+- **No se construye la implementación real de Converza** ni se configuran credenciales, webhooks o plantillas de Meta.
+- Todo envío de WhatsApp de campañas, oportunidades y bandeja del día pasa por la **interfaz del proveedor de mensajería del 03 con el proveedor simulado**, que registra el envío, su estado simulado y su evento en la línea de tiempo, exactamente como lo haría el real. Así el CRM queda completo y probado, y conectar Converza después es solo agregar el proveedor real detrás de la misma interfaz.
+- Donde la interfaz muestre "enviado por WhatsApp", aclara "(simulado)" mientras el proveedor sea el simulado.
+- Se actualiza `docs/crm/contrato-mensajeria.md` con lo que el CRM completo necesita del proveedor real (plantillas fuera de la ventana de 24 horas, estados entregado, leído y fallido por webhook firmado, enlace a la conversación), para cuando se decida conectar.
+- El correo sigue saliendo por `enviarEmail` con su proveedor de desarrollo, como hoy.
 
 ## 6. Indicadores por cliente
 
@@ -196,7 +194,7 @@ En el navegador, con el historial de demostración:
 
 El informe incluye:
 - la tabla del relevamiento;
-- el contrato de Converza actualizado y lo que le falta a Converza;
+- el contrato de mensajería actualizado para la conexión futura con Converza (sin conectar);
 - las pantallas nuevas con su camino de clics;
 - las migraciones, con RLS forzado y `ON DELETE CASCADE` en toda tabla nueva de tenant;
 - las páginas de `docs/ayuda/`;

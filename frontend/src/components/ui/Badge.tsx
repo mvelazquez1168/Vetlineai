@@ -7,6 +7,14 @@ export interface BadgeProps {
   children: React.ReactNode;
   dot?: boolean;
   className?: string;
+  /**
+   * Qué significa la etiqueta, al pasar el puntero.
+   *
+   * Una etiqueta de una palabra —«histórico», «sin clasificar»— no
+   * alcanza para explicarse sola, y poner la explicación al lado llena
+   * la fila. Es texto, no decoración: va también al lector de pantalla.
+   */
+  title?: string;
 }
 
 // Los nombres de variante son genéricos por diseño: el mismo Badge sirve
@@ -29,9 +37,16 @@ const DOT_CLASSES: Record<BadgeVariant, string> = {
   neutral: "bg-text-muted",
 };
 
-export function Badge({ variant = "neutral", children, dot = false, className = "" }: BadgeProps) {
+export function Badge({
+  variant = "neutral",
+  children,
+  dot = false,
+  className = "",
+  title,
+}: BadgeProps) {
   return (
     <span
+      title={title}
       className={[
         "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide",
         VARIANT_CLASSES[variant],

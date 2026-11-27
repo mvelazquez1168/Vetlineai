@@ -771,6 +771,16 @@ function LineaDeTiempo({
                 )}
                 <span className="text-xs text-text-muted">{fechaCorta(e.fecha)}</span>
                 {e.medico && <span className="text-xs text-text-muted">· {e.medico}</span>}
+                {/* HISTÓRICO: lo cargó alguien de la cartilla del
+                    cliente, no se aplicó acá. Una vacuna que la clínica
+                    puso y una que el cliente dice que le pusieron en
+                    otro lado no valen lo mismo para quien lee el
+                    expediente. */}
+                {e.historico && (
+                  <Badge variant="info" title="Cargado de la cartilla; no se aplicó en esta clínica.">
+                    histórico
+                  </Badge>
+                )}
               </div>
               {e.detalle && <p className="mt-0.5 text-sm text-text-muted">{e.detalle}</p>}
             </li>

@@ -713,7 +713,13 @@ pacientesRouter.post("/:id/cuidados-preventivos", async (req, res) => {
       tenantId: req.auth!.tenantId!,
       tipo: cuidadoPreventivo.tipo === "vacunacion" ? "vacuna_aplicada" : "desparasitacion",
       pacienteId: req.params.id,
-      ocurridoEn: cuidadoPreventivo.fecha_aplicacion,
+      // AL MEDIODÍA UTC, no a medianoche (defecto del 2026-11-27).
+      // `fecha_aplicacion` es DATE y llega como medianoche: mostrado en
+      // la zona de la clínica, el 27 a las 00:00 UTC es el 26 a las
+      // 18:00 en Costa Rica, y la vacuna figuraba un día antes de lo
+      // que el usuario tecleó. Al mediodía el día es el mismo en toda
+      // zona entre UTC−11 y UTC+11.
+      ocurridoEn: `${String(cuidadoPreventivo.fecha_aplicacion).slice(0, 10)}T12:00:00Z`,
       origenTabla: "cuidados_preventivos",
       origenId: cuidadoPreventivo.id,
       personaId: req.auth!.userId,

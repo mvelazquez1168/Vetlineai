@@ -897,9 +897,17 @@ expedienteRouter.get("/catalogo-clinico", async (req, res) => {
     res.json({
       productos: await productosParaAtencion(req.db!, {
         tipoClinico: tipo,
+        // LOS SIN CLASIFICAR TAMBIEN (defecto del 2026-11-27, punto 3).
+        // La migracion 115 dejo `tipo_clinico` en NULL en todo lo que no
+        // era evidente: con el catalogo real cargado, la receta ofrecia
+        // UN producto de 897. Un dato que falta no puede esconder el
+        // producto. Vienen con su etiqueta y se pueden clasificar desde
+        // la misma pantalla.
+        incluirSinClasificar: true,
         // La accion "Producto" muestra lo que NO tiene accion propia.
         excluir: tipo ? undefined : ["vacuna", "antiparasitario"],
         busqueda: (req.query.q as string) || undefined,
+        limite: req.query.q ? 40 : 100,
       }),
     });
   } catch (err) {

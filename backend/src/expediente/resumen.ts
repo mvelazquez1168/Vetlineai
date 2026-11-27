@@ -334,6 +334,20 @@ export interface EventoHistoria {
   detalle: string | null;
   medico: string | null;
   referencia_id: string;
+  /**
+   * Cargado de la cartilla, no aplicado en la clínica.
+   *
+   * La pestaña y la línea de tiempo lo muestran: una vacuna que la
+   * clínica aplicó y una que el cliente dice que le pusieron en otro
+   * lado no valen lo mismo, y el que lee el expediente tiene que poder
+   * distinguirlas.
+   *
+   * EL CERTIFICADO DE VACUNAS TODAVÍA NO EXISTE (informado el
+   * 2026-11-27). Cuando se construya, esta marca es la que tiene que
+   * imprimir: un certificado que presenta como aplicada en la clínica
+   * una vacuna cargada de la cartilla es un documento falso.
+   */
+  historico: boolean;
 }
 
 /**
@@ -429,7 +443,8 @@ export async function lineaDeTiempo(
               WHEN 'caso_abierto' THEN ca.diagnostico_final
             END AS detalle,
             per.nombre AS medico,
-            COALESCE(i.origen_id, i.id) AS referencia_id
+            COALESCE(i.origen_id, i.id) AS referencia_id,
+            COALESCE(cp.historico, false) AS historico
        FROM crm_interacciones i
        JOIN crm_tipos_evento te ON te.codigo = i.tipo
        LEFT JOIN personas per ON per.id = i.persona_id
@@ -466,6 +481,7 @@ export async function lineaDeTiempo(
     detalle: e.detalle,
     medico: e.medico,
     referencia_id: e.referencia_id,
+    historico: Boolean(e.historico),
   }));
 }
 

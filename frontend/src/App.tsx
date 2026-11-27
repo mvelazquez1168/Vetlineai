@@ -42,6 +42,7 @@ import { MovimientosInventario } from "./pages/inventario/MovimientosInventario"
 import { ProductoEditor } from "./pages/inventario/ProductoEditor";
 import { ProductoFicha } from "./pages/inventario/ProductoFicha";
 import { SeccionesInventario } from "./pages/inventario/SeccionesInventario";
+import { SinClasificar } from "./pages/inventario/SinClasificar";
 import { Servicios as ServiciosInventario } from "./pages/inventario/Servicios";
 import { VentaMostrador } from "./pages/inventario/VentaMostrador";
 import { ComprobanteDetalle } from "./pages/facturacion/ComprobanteDetalle";
@@ -386,6 +387,7 @@ export default function App() {
           <Route path="compras" element={<Compras />} />
           <Route path="conteos" element={<ConteoFisico />} />
           <Route path="alertas" element={<AlertasInventario />} />
+          <Route path="sin-clasificar" element={<SinClasificar />} />
           <Route path="producto/:id/consumo" element={<ConsumoDeProductoPagina />} />
         </Route>
       </Route>

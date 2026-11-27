@@ -71,6 +71,8 @@ export interface EventoHistoria {
   detalle: string | null;
   medico: string | null;
   referencia_id: string;
+  /** Cargado de la cartilla, no aplicado en la clinica. */
+  historico: boolean;
 }
 
 export interface EstudioLab {
@@ -641,9 +643,16 @@ export interface ProductoClinico {
   productoId: string;
   nombre: string;
   presentacion: string;
+  /** Lo que se busca ademas del nombre, y lo que se muestra para elegir. */
+  codigo: string | null;
+  principioActivo: string | null;
+  concentracion: string | null;
+  codigoBarras: string | null;
   tipoClinico: TipoClinico | null;
   requiereReceta: boolean;
   precio: number | null;
+  /** Existencia total, en la unidad de la presentacion. */
+  existencia: number;
   posologia: PosologiaSugerida | null;
   lotes: Array<{ id: string; numero: string; vence: string | null; cantidad: number }>;
 }

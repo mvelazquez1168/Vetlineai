@@ -48,7 +48,30 @@ export const COLUMNAS_PLANTILLA = [
   "costo_unitario",
 ] as const;
 
-export type ColumnaPlantilla = (typeof COLUMNAS_PLANTILLA)[number];
+/**
+ * Columnas que la planilla PUEDE traer y que no son obligatorias.
+ *
+ * `tipo_clinico` se suma acá y no a la lista de arriba (defecto del
+ * 2026-11-27, punto 3): si fuera obligatoria, toda planilla ya armada
+ * por una clínica dejaría de importar con «le faltan columnas», y lo que
+ * se quería era poder traer el dato, no romper lo que funciona.
+ *
+ * La plantilla que se descarga SÍ la trae: quien arranca de la plantilla
+ * tiene la columna y se entera de que existe.
+ */
+export const COLUMNAS_OPCIONALES = ["tipo_clinico"] as const;
+
+export const TIPOS_CLINICOS_PLANTILLA = [
+  "vacuna",
+  "antiparasitario",
+  "medicamento",
+  "insumo",
+  "otro",
+];
+
+export type ColumnaPlantilla =
+  | (typeof COLUMNAS_PLANTILLA)[number]
+  | (typeof COLUMNAS_OPCIONALES)[number];
 
 export interface FilaImportacion {
   numeroFila: number;
@@ -118,6 +141,11 @@ export async function analizarImportacion(
 
     const valores: Record<string, string> = {};
     for (const col of COLUMNAS_PLANTILLA) valores[col] = leer(col);
+    // Las opcionales solo si la planilla las trae: `leer` indexa por la
+    // letra de la columna y sin encabezado no hay letra.
+    for (const col of COLUMNAS_OPCIONALES) {
+      valores[col] = porNombre.has(col) ? leer(col) : "";
+    }
 
     // Una fila entera vacía es el final de la planilla, no un error.
     if (Object.values(valores).every((v) => v === "")) continue;
@@ -131,6 +159,16 @@ export async function analizarImportacion(
     exigir("unidad_base", "la unidad base");
     exigir("presentacion_codigo", "el código de la presentación");
     exigir("presentacion_nombre", "el nombre de la presentación");
+
+    // EL TIPO CLÍNICO, si vino. Un valor inventado se rechaza en vez de
+    // guardarse: con `tipo_clinico = 'medicamentos'` el producto no
+    // aparecería en ninguna acción y nadie sabría por qué.
+    if (valores.tipo_clinico && !TIPOS_CLINICOS_PLANTILLA.includes(valores.tipo_clinico)) {
+      errores.push(
+        `el tipo clínico «${valores.tipo_clinico}» no existe (columna tipo_clinico; ` +
+          `los válidos son ${TIPOS_CLINICOS_PLANTILLA.join(", ")})`
+      );
+    }
 
     if (valores.linea_negocio && !lineas.has(valores.linea_negocio)) {
       errores.push(
@@ -190,7 +228,7 @@ export async function analizarImportacion(
   }
 
   return {
-    columnas: [...COLUMNAS_PLANTILLA],
+    columnas: [...COLUMNAS_PLANTILLA, ...COLUMNAS_OPCIONALES],
     filas,
     validas: filas.filter((f) => f.errores.length === 0).length,
     invalidas: filas.filter((f) => f.errores.length > 0).length,
@@ -239,8 +277,8 @@ export async function importarInventario(
         const p = await db.query<{ id: string }>(
           `INSERT INTO inv_productos (tenant_id, codigo, nombre, categoria, linea_negocio,
                                       codigo_cabys, codigo_tarifa_iva, unidad_base,
-                                      minimo, punto_reorden)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+                                      minimo, punto_reorden, tipo_clinico)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id`,
           [
             tenantId,
             v.codigo,
@@ -252,6 +290,10 @@ export async function importarInventario(
             v.unidad_base,
             v.minimo === "" ? 0 : Number(v.minimo.replace(",", ".")),
             v.punto_reorden === "" ? 0 : Number(v.punto_reorden.replace(",", ".")),
+            // Sin la columna queda NULL, que es «sin clasificar»: el
+            // producto se ve igual en la búsqueda de la atención, con su
+            // etiqueta, y se puede clasificar después en lote.
+            v.tipo_clinico || null,
           ]
         );
         productoId = p.rows[0].id;

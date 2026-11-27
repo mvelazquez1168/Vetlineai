@@ -68,6 +68,11 @@ todavía no pasó nada. **Al cerrar la atención**:
 
 ## Preguntas frecuentes y errores comunes
 
+**No encuentro la vacuna en la lista.**
+Desde el 27 de noviembre de 2026 no hay lista: hay un **buscador**. Escribí dos letras del nombre,
+el código, o pasá el **código de barras** de la caja con el lector. Aparecen también los productos
+que todavía no tienen tipo clínico, con la etiqueta «sin clasificar», y se pueden usar igual.
+
 **«No hay vacunas en el catálogo», y sí las hay.**
 El producto necesita tener su [tipo clínico](glosario.md#tipo-clínico) puesto. Se arregla en
 **Inventario › Catálogo**, abriendo el producto y eligiendo *vacuna* o *antiparasitario*. Sin ese

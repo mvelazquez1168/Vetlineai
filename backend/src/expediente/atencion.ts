@@ -1015,6 +1015,7 @@ export async function cerrarAtencion(
   // el job diario mira para avisar: si se guardaran en otro lado, el
   // aviso no saldría nunca.
   let preventivos = 0;
+  const idsPreventivos = new Map<string, string>();
   for (const item of items.rows) {
     if (!item.preventivo_tipo) continue;
     const lote = item.lote_id
@@ -1022,12 +1023,18 @@ export async function cerrarAtencion(
           item.lote_id,
         ])
       : { rows: [] as Array<{ numero: string }> };
-    await db.query(
+    // EL ID VUELVE, y no es cosmético: el evento de la línea de tiempo
+    // se registra contra ESTA fila (ver más abajo). Antes se registraba
+    // contra `exp_atencion_items`, y como la línea de tiempo lee el
+    // lote y el subtipo con `cuidados_preventivos.id = origen_id`, la
+    // vacuna aplicada en la consulta aparecía sin su lote.
+    const preventivoInsertado = await db.query<{ id: string }>(
       `INSERT INTO cuidados_preventivos
          (tenant_id, paciente_id, tipo, fecha_aplicacion, fecha_proxima_recomendada,
           registrado_por, vacuna, lote, subtipo_desparasitacion, producto_desparasitacion,
           atencion_id)
-       VALUES ($1,$2,$3,CURRENT_DATE,$4,$5,$6,$7,$8,$9,$10)`,
+       VALUES ($1,$2,$3,CURRENT_DATE,$4,$5,$6,$7,$8,$9,$10)
+       RETURNING id`,
       [
         tenantId,
         atencion.paciente_id,
@@ -1041,6 +1048,7 @@ export async function cerrarAtencion(
         atencionId,
       ]
     );
+    idsPreventivos.set(item.id as string, preventivoInsertado.rows[0].id);
     preventivos += 1;
   }
 
@@ -1130,8 +1138,12 @@ export async function cerrarAtencion(
       tenantId,
       tipo: item.preventivo_tipo === "vacunacion" ? "vacuna_aplicada" : "desparasitacion",
       pacienteId: atencion.paciente_id,
-      origenTabla: "exp_atencion_items",
-      origenId: item.id,
+      // CONTRA `cuidados_preventivos`, que es donde están el lote y el
+      // subtipo que la línea de tiempo muestra. Los eventos viejos
+      // apuntan a `exp_atencion_items` y se quedan como están: son
+      // historia y reescribirlos no agrega nada.
+      origenTabla: "cuidados_preventivos",
+      origenId: idsPreventivos.get(item.id as string) ?? null,
       personaId: datos.personaId,
       resumen: item.preventivo_nombre,
     });

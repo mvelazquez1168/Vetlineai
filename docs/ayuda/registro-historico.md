@@ -39,8 +39,10 @@ Esa diferencia de seis meses es justamente el punto.
 
 ## Qué pasa después
 
-- Queda en la pestaña **Vacunas** (o **Desparasitaciones**) del paciente, marcada como
-  [histórica](glosario.md#preventivo-histórico).
+- **Aparece en el acto** en la pestaña **Vacunas** (o **Desparasitaciones**) y en la **línea de
+  tiempo** del paciente, con la etiqueta **histórico**.
+- Y aparece **con la fecha de la cartilla**, no con la de hoy: una vacuna de 2023 se ordena en
+  2023, entre lo que pasó ese año.
 - **No genera ningún cargo y no toca el inventario.** Acá no se aplicó nada: no hay nada que
   cobrar ni que descontar.
 - El aviso al dueño sí se programa con la próxima fecha, como cualquier otro.
@@ -55,6 +57,17 @@ al aplicar la vacuna, y las citas se agendan desde la **Agenda**.
 **«No hay protocolo para eso, así que la próxima fecha hay que indicarla».**
 El nombre que escribió no corresponde a ningún protocolo cargado y no hay uno general para esa
 especie. Escriba la próxima fecha a mano; si no, el aviso no se dispara nunca.
+
+**Lo registré y no apareció en la lista.**
+Hasta el 27 de noviembre de 2026 pasaba: se guardaba de verdad —el aviso de la próxima dosis
+hasta salía— pero la pestaña no lo mostraba, y uno terminaba cargándolo tres veces. Ya está
+corregido, y los que se habían cargado así **aparecieron solos**. Si quedaron repetidos de esos
+días, se borran desde la misma pestaña.
+
+**¿Para qué sirve la etiqueta «histórico»?**
+Para distinguir lo que aplicó esta clínica de lo que el cliente dice que le aplicaron en otro
+lado. No es desconfianza: es que una no tiene lote, ni responsable, ni factura, y quien lea el
+expediente dentro de dos años tiene que poder saberlo.
 
 **¿Y si la aplicamos nosotros pero me olvidé de registrarla en el momento?**
 Entonces no es histórica: es producción de la clínica y debería ir con su cargo y su descuento de

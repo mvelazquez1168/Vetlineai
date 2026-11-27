@@ -32,6 +32,9 @@ export type TipoInteraccion =
   | "cliente_referido"
   /* Dos fichas duplicadas pasaron a ser una (anexo 07-03, B1). */
   | "cliente_unificado"
+  /* Presupuestos (prompt 08b, A1). */
+  | "presupuesto_emitido"
+  | "presupuesto_respondido"
   | "mascota_registrada"
   | "cita_agendada"
   | "cita_confirmada"

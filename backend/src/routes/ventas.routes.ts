@@ -19,6 +19,16 @@ import {
   topeDeDescuento,
 } from "../ventas/descuentos";
 import { conciliarTarjetas, registrarLoteDatafono } from "../ventas/comisionesTarjeta";
+import {
+  convertirPresupuesto,
+  crearPresupuesto,
+  listarPresupuestos,
+  marcarEnviado,
+  PresupuestoVencido,
+  registrarRespuesta,
+  verPresupuesto,
+} from "../ventas/presupuestos";
+import { presupuestoEnPdf } from "../ventas/presupuestoPdf";
 import { comprobanteDeCierre } from "../ventas/cierrePdf";
 import { cobrar, datosDeTiquete } from "../ventas/cobros";
 import {
@@ -690,6 +700,107 @@ ventasRouter.post("/provisionales/regularizar", async (req, res) => {
  * además devuelve solo médicos, y un vale se lo puede llevar cualquiera
  * del personal.
  */
+// ---------------------------------------------------------------------
+// PRESUPUESTOS — prompt 08b, A1.
+//
+// Los puede ver y crear todo el personal del mostrador: cotizar es parte
+// de atender. Lo único con permiso aparte es respetar el precio de un
+// presupuesto vencido, que va por el mismo camino que autorizar un
+// descuento (porque es lo mismo).
+// ---------------------------------------------------------------------
+ventasRouter.get("/presupuestos", async (req, res) => {
+  try {
+    res.json({
+      presupuestos: await listarPresupuestos(req.db!, {
+        estado: (req.query.estado as string) || undefined,
+        propietarioId: (req.query.cliente as string) || undefined,
+        porVencer: req.query.porVencer === "1",
+      }),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /ventas/presupuestos");
+  }
+});
+
+ventasRouter.get("/presupuestos/:id", async (req, res) => {
+  try {
+    const p = await verPresupuesto(req.db!, req.params.id);
+    if (!p) return res.status(404).json({ error: "Ese presupuesto no existe." });
+    res.json({ presupuesto: p });
+  } catch (err) {
+    fallo(res, err, "GET /ventas/presupuestos/:id");
+  }
+});
+
+ventasRouter.post("/presupuestos", async (req, res) => {
+  try {
+    const r = await crearPresupuesto(req.db!, req.auth!.tenantId!, {
+      ...req.body,
+      personaId: req.auth!.userId,
+    });
+    res.status(201).json(r);
+  } catch (err) {
+    fallo(res, err, "POST /ventas/presupuestos");
+  }
+});
+
+ventasRouter.post("/presupuestos/:id/enviar", async (req, res) => {
+  try {
+    await marcarEnviado(req.db!, req.auth!.tenantId!, req.params.id, req.auth!.userId);
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "POST /ventas/presupuestos/:id/enviar");
+  }
+});
+
+ventasRouter.post("/presupuestos/:id/respuesta", async (req, res) => {
+  try {
+    await registrarRespuesta(req.db!, req.auth!.tenantId!, req.params.id, {
+      acepta: req.body?.acepta === true,
+      como: req.body?.como ?? "en_persona",
+      nota: req.body?.nota,
+      personaId: req.auth!.userId,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "POST /ventas/presupuestos/:id/respuesta");
+  }
+});
+
+ventasRouter.post("/presupuestos/:id/convertir", async (req, res) => {
+  try {
+    res.json(
+      await convertirPresupuesto(req.db!, req.auth!.tenantId!, req.params.id, {
+        cuentaId: req.body?.cuentaId,
+        sesionId: req.body?.sesionId,
+        bodegaId: req.body?.bodegaId,
+        precioVencido: req.body?.precioVencido,
+        autorizadoPor: req.body?.autorizadoPor,
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    // EL VENCIDO ES UNA PREGUNTA, NO UN ERROR: el 409 lleva la fecha
+    // para que la pantalla ofrezca las dos opciones en vez de mostrar
+    // un mensaje rojo sin salida.
+    if (err instanceof PresupuestoVencido) {
+      return res.status(409).json({ error: err.message, venceEl: err.venceEl, vencido: true });
+    }
+    fallo(res, err, "POST /ventas/presupuestos/:id/convertir");
+  }
+});
+
+ventasRouter.get("/presupuestos/:id/pdf", async (req, res) => {
+  try {
+    const { pdf, numero } = await presupuestoEnPdf(req.db!, req.auth!.tenantId!, req.params.id);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="presupuesto-${numero}.pdf"`);
+    res.send(pdf);
+  } catch (err) {
+    fallo(res, err, "GET /ventas/presupuestos/:id/pdf");
+  }
+});
+
 ventasRouter.get("/personal", async (req, res) => {
   try {
     const r = await req.db!.query(

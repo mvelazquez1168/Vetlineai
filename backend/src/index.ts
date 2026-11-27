@@ -9,6 +9,7 @@ import { iniciarJobCicloCobro } from "./jobs/cicloCobro.job";
 import { iniciarJobTarjetaPorVencer } from "./jobs/tarjetaPorVencer.job";
 import { iniciarJobAuditoriaRls } from "./jobs/auditoriaRls.job";
 import { iniciarJobSaldoProveedorIa } from "./jobs/saldoProveedorIa.job";
+import { iniciarJobPresupuestos } from "./jobs/presupuestos.job";
 import { iniciarJobColaFacturacion } from "./jobs/facturacionCola.job";
 import { iniciarJobAudioDictado } from "./jobs/dictadoAudio.job";
 import { anunciarProveedorHacienda } from "./facturacion/proveedorActivo";
@@ -195,6 +196,7 @@ const server = app.listen(config.port, () => {
   iniciarJobTarjetaPorVencer();
   iniciarJobAuditoriaRls();
   iniciarJobSaldoProveedorIa();
+  iniciarJobPresupuestos();
   iniciarJobColaFacturacion();
   iniciarJobAudioDictado();
   anunciarProveedorHacienda();

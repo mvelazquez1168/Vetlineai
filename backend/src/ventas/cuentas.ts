@@ -26,7 +26,7 @@ import { precioVigente } from "../inventario/precios";
 
 export interface SolicitudCargo {
   cuentaId: string;
-  origen: "mostrador" | "manual" | "atencion" | "encargo";
+  origen: "mostrador" | "manual" | "atencion" | "encargo" | "presupuesto";
   origenId?: string;
   presentacionId?: string;
   servicioId?: string;
@@ -40,6 +40,20 @@ export interface SolicitudCargo {
   descuentoAutorizadoPor?: string;
   /** El motivo del catálogo (prompt 08b, A3). De ahí sale el código. */
   motivoDescuentoId?: string | null;
+  /**
+   * EL DESCUENTO YA SE AUTORIZÓ EN OTRO DOCUMENTO (prompt 08b, A1).
+   *
+   * Lo usa la conversión de un presupuesto aceptado: el tope y la
+   * autorización se controlaron al COTIZAR, que es cuando se decidió
+   * cobrar menos. Volver a controlarlo acá pediría la autorización dos
+   * veces por lo mismo, y además chocaría con «nadie autoriza su propio
+   * descuento» cuando convierte la misma persona que cotizó.
+   *
+   * NO ES UNA PUERTA DE ESCAPE: el código del descuento sigue siendo
+   * obligatorio, y el documento que lo respalda queda en `origen` y
+   * `origen_id` del cargo.
+   */
+  descuentoYaAprobado?: boolean;
   /**
    * QUIÉN REALIZÓ el servicio o la venta (prompt 08b, A5).
    *
@@ -300,7 +314,15 @@ export async function agregarCargo(
   let codigoDescuentoOtro: string | null = null;
   let naturalezaDelMotivo: string | null = null;
   let motivoId: string | null = s.motivoDescuentoId ?? null;
-  if (descuento > 0) {
+  if (descuento > 0 && s.descuentoYaAprobado) {
+    // Ya aprobado en su documento: se exige el código —el comprobante lo
+    // necesita igual— y no se vuelve a mirar el tope.
+    if (!s.descuentoCodigo) {
+      throw new Error(
+        "Un descuento ya aprobado igual lleva su código: el comprobante electrónico lo exige."
+      );
+    }
+  } else if (descuento > 0) {
     const chequeo = await validarDescuento(db, tenantId, {
       bruto,
       descuento,

@@ -23,6 +23,9 @@ import { CuentaCorriente } from "./pages/ventas/CuentaCorriente";
 import { Encargos } from "./pages/ventas/Encargos";
 import { ReportesVentas } from "./pages/ventas/ReportesVentas";
 import { ConfiguracionCaja } from "./pages/ventas/ConfiguracionCaja";
+import { Presupuestos } from "./pages/ventas/Presupuestos";
+import { PresupuestoDetalle } from "./pages/ventas/PresupuestoDetalle";
+import { PresupuestoNuevo } from "./pages/ventas/PresupuestoNuevo";
 import { SeccionesCaja } from "./pages/ventas/SeccionesCaja";
 import { TiqueteTermico } from "./pages/ventas/TiqueteTermico";
 import { AlertasInventario } from "./pages/inventario/AlertasInventario";
@@ -344,6 +347,9 @@ export default function App() {
           <Route path="contingencia" element={<Contingencia />} />
           <Route path="reportes" element={<ReportesVentas />} />
         <Route path="configuracion" element={<ConfiguracionCaja />} />
+        <Route path="presupuestos" element={<Presupuestos />} />
+        <Route path="presupuestos/nuevo" element={<PresupuestoNuevo />} />
+        <Route path="presupuestos/:id" element={<PresupuestoDetalle />} />
         </Route>
       </Route>
 

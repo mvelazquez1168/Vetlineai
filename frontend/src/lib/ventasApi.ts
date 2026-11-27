@@ -236,7 +236,88 @@ export interface ConciliacionTarjetas {
   comisionTotal: number;
 }
 
+
+// ---------------------------------------------------------------------
+// PRESUPUESTOS — prompt 08b, A1.
+// ---------------------------------------------------------------------
+
+export interface PresupuestoListado {
+  id: string;
+  numero: number;
+  estado: string;
+  cliente_nombre: string | null;
+  propietario_id: string | null;
+  paciente_nombre: string | null;
+  vence_el: string | null;
+  creado_en: string;
+  vencido: boolean;
+  total: number;
+}
+
+export interface PresupuestoDetalleDatos {
+  id: string;
+  numero: number;
+  estado: string;
+  cliente_nombre: string | null;
+  propietario_id: string | null;
+  paciente_id: string | null;
+  paciente_nombre: string | null;
+  atencion_id: string | null;
+  observaciones: string | null;
+  vigencia_dias: number;
+  vence_el: string | null;
+  vencido: boolean;
+  respondido_como: string | null;
+  respuesta_nota: string | null;
+  cuenta_id: string | null;
+  cuenta_numero: number | null;
+  anticipado: number;
+  total: number;
+  lineas: Array<{
+    id: string;
+    descripcion: string;
+    cantidad: string;
+    precio_unitario: string;
+    descuento: string;
+    nota: string | null;
+    descuento_naturaleza: string | null;
+  }>;
+}
+
 export const ventasApi = {
+  // ------------------------------------------------------------------
+  // Presupuestos (prompt 08b, A1).
+  // ------------------------------------------------------------------
+  presupuestos: (q: { estado?: string; cliente?: string; porVencer?: boolean } = {}) => {
+    const p = new URLSearchParams();
+    if (q.estado) p.set("estado", q.estado);
+    if (q.cliente) p.set("cliente", q.cliente);
+    if (q.porVencer) p.set("porVencer", "1");
+    return pedir<{ presupuestos: PresupuestoListado[] }>(`/ventas/presupuestos?${p.toString()}`);
+  },
+  presupuesto: (id: string) =>
+    pedir<{ presupuesto: PresupuestoDetalleDatos }>(`/ventas/presupuestos/${id}`),
+  crearPresupuesto: (d: Record<string, unknown>) =>
+    json<{ id: string; numero: number; total: number }>("/ventas/presupuestos", "POST", d),
+  enviarPresupuesto: (id: string) =>
+    json<{ ok: true }>(`/ventas/presupuestos/${id}/enviar`, "POST", {}),
+  responderPresupuesto: (id: string, d: { acepta: boolean; como: string; nota?: string }) =>
+    json<{ ok: true }>(`/ventas/presupuestos/${id}/respuesta`, "POST", d),
+  convertirPresupuesto: (
+    id: string,
+    d: { cuentaId?: string; sesionId?: string; bodegaId?: string; precioVencido?: string } = {}
+  ) =>
+    json<{
+      cuentaId: string;
+      cuentaNumero: number;
+      cargos: number;
+      total: number;
+      anticipoDisponible: number;
+      avisos: string[];
+    }>(`/ventas/presupuestos/${id}/convertir`, "POST", d),
+  presupuestoPdf: (id: string) =>
+    apiFetchFile(`/ventas/presupuestos/${id}/pdf`, { token: getStoredToken() }),
+
   // ------------------------------------------------------------------
   // Configuración de la caja (prompt 08b, A2, A3 y A4).
   // ------------------------------------------------------------------

@@ -42,6 +42,7 @@ export function BarraCaja() {
       pestanas={[
         { a: "/ventas", etiqueta: "Caja del día", icono: "caja" },
         { a: "/ventas/cuenta-corriente", etiqueta: "Cuentas de clientes", icono: "propietario" },
+        { a: "/ventas/presupuestos", etiqueta: "Presupuestos", icono: "comprobante" },
         { a: "/ventas/encargos", etiqueta: "Encargos", icono: "inventario" },
         { a: "/ventas/contingencia", etiqueta: "Contingencia", icono: "aviso" },
         { a: "/ventas/reportes", etiqueta: "Reportes", icono: "reportes" },

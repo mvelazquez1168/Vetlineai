@@ -170,6 +170,13 @@ export const config = {
   // Tilopay y Hacienda: sin ella el backend arranca y solo falla el
   // camino que la necesita, diciendo que falta.
   deepgramApiKey: process.env.DEEPGRAM_API_KEY,
+
+  // Qué servicio autocompleta el nombre y los datos fiscales a partir de
+  // la identificación (anexo 07-03, B2). Mismo criterio que los dos de
+  // arriba: el default es el simulado, para que un ambiente mal
+  // configurado no le mande el tráfico de todas las clínicas a un
+  // servicio público del Estado.
+  identidadProveedor: (process.env.IDENTIDAD_PROVEEDOR ?? "simulado") as "simulado" | "hacienda",
 };
 
 // Mismo patrón que validarCredencialesPaisesHabilitados (pagos/credencialesPasarela.ts)

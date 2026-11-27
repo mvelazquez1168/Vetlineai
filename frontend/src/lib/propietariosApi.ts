@@ -61,6 +61,26 @@ export const propietariosApi = {
    * Lo pide el formulario de cliente y nada más; si falla, el alta sigue
    * sin la pregunta, porque es un dato opcional.
    */
+  /**
+   * Autocompletar por identificación (anexo 07-03, B2).
+   *
+   * NUNCA RECHAZA por «no se encontró»: la respuesta siempre es 200 con
+   * `encontrado` y, si no, el motivo. El formulario sigue manual.
+   */
+  consultarIdentificacion: (tipoIdentificacionId: string, numero: string) =>
+    authedFetch<{
+      encontrado: boolean;
+      nombre?: string | null;
+      datos?: Record<string, unknown> | null;
+      motivo?: string | null;
+      deCache?: boolean;
+      proveedor?: string;
+    }>(
+      `/propietarios/consultar-identificacion?tipoIdentificacionId=${encodeURIComponent(
+        tipoIdentificacionId
+      )}&numero=${encodeURIComponent(numero)}`
+    ),
+
   fuentesReferencia: () =>
     authedFetch<{ fuentes: FuenteReferencia[] }>("/propietarios/fuentes-referencia"),
 

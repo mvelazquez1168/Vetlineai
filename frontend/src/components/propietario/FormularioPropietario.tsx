@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input, Select } from "../ui";
 import { TipoIdentificacion, workspaceApi } from "../../lib/workspaceApi";
 import { FuenteReferencia, propietariosApi } from "../../lib/propietariosApi";
@@ -38,6 +38,8 @@ export interface ValoresPropietario {
   referidoPorPropietarioId: string;
   /** Solo para mostrar: el nombre del que lo trajo. No se manda. */
   referidoPorNombre: string;
+  /** De dónde salió el nombre: lo escribió alguien o lo trajo B2. */
+  datosFuente: "manual" | "hacienda" | "simulado";
 }
 
 const VACIO: ValoresPropietario = {
@@ -50,6 +52,7 @@ const VACIO: ValoresPropietario = {
   fuenteReferenciaId: "",
   referidoPorPropietarioId: "",
   referidoPorNombre: "",
+  datosFuente: "manual",
 };
 
 export interface DatosPropietarioAlBackend {
@@ -61,6 +64,7 @@ export interface DatosPropietarioAlBackend {
   numeroIdentificacion: string | null;
   fuenteReferenciaId: string | null;
   referidoPorPropietarioId: string | null;
+  datosFuente: "manual" | "hacienda" | "simulado";
 }
 
 export interface FormularioPropietarioEstado {
@@ -88,6 +92,7 @@ export function useFormularioPropietario(
       numeroIdentificacion: v.numeroIdentificacion.trim() || null,
       fuenteReferenciaId: v.fuenteReferenciaId || null,
       referidoPorPropietarioId: v.referidoPorPropietarioId || null,
+      datosFuente: v.datosFuente,
     }),
     validar: () => {
       if (!v.nombre.trim()) return "Falta el nombre del cliente.";
@@ -135,6 +140,15 @@ export function FormularioPropietario({
   const [masAbierto, setMasAbierto] = useState(false);
   const [fuentes, setFuentes] = useState<FuenteReferencia[]>([]);
   const [buscaReferidor, setBuscaReferidor] = useState("");
+  const [consultando, setConsultando] = useState(false);
+  const [sugerencia, setSugerencia] = useState<{
+    nombre: string;
+    aplicado: boolean;
+    proveedor?: string;
+  } | null>(null);
+  // La última consulta hecha, para no repetirla en cada `blur`. Es un
+  // ref y no estado porque cambiarla no tiene que redibujar nada.
+  const consultado = useRef<string>("");
   const [candidatos, setCandidatos] = useState<Array<{ id: string; nombre: string }>>([]);
 
   useEffect(() => {
@@ -188,10 +202,50 @@ export function FormularioPropietario({
 
   const fuenteElegida = fuentes.find((f) => f.id === v.fuenteReferenciaId);
 
+  // ------------------------------------------------------------------
+  // EL AUTOCOMPLETAR POR IDENTIFICACIÓN — anexo 07-03, B2.
+  //
+  // Viene enchufado al punto de extensión que el A5 dejó previsto. Quien
+  // pase `onIdentificacionCompleta` lo reemplaza: el hook es de quien
+  // llama y esto es el comportamiento por omisión, no una imposición.
+  //
+  // NO PISA LO QUE YA HAY ESCRITO. Si la recepción ya tecleó el nombre,
+  // la respuesta del servicio se ofrece en un botón en vez de
+  // sobrescribir: una respuesta que llega dos segundos después y le
+  // cambia lo que escribió es la peor forma de ayudar.
+  // ------------------------------------------------------------------
   const avisarSiCompleta = (tipoId: string, numero: string) => {
-    if (onIdentificacionCompleta && tipoId && numero.trim().length >= 9) {
-      onIdentificacionCompleta(tipoId, numero.trim());
+    const limpio = numero.trim();
+    if (!tipoId || limpio.length < 9) return;
+    if (onIdentificacionCompleta) {
+      onIdentificacionCompleta(tipoId, limpio);
+      return;
     }
+    if (consultado.current === `${tipoId}|${limpio}`) return;
+    consultado.current = `${tipoId}|${limpio}`;
+    setConsultando(true);
+    setSugerencia(null);
+    propietariosApi
+      .consultarIdentificacion(tipoId, limpio)
+      .then((r) => {
+        if (!r.encontrado || !r.nombre) {
+          // «No está inscrito» no es un error: es la respuesta normal de
+          // la mitad de los clientes de una veterinaria.
+          setSugerencia(null);
+          return;
+        }
+        if (!v.nombre.trim()) {
+          set("nombre", r.nombre);
+          set("datosFuente", (r.proveedor as "hacienda" | "simulado") ?? "hacienda");
+          setSugerencia({ nombre: r.nombre, aplicado: true, proveedor: r.proveedor });
+        } else if (v.nombre.trim() !== r.nombre) {
+          setSugerencia({ nombre: r.nombre, aplicado: false, proveedor: r.proveedor });
+        }
+      })
+      // Sin respuesta, el alta sigue a mano y en silencio: un error rojo
+      // por un servicio ajeno que no contestó asusta sin servir de nada.
+      .catch(() => setSugerencia(null))
+      .finally(() => setConsultando(false));
   };
 
   return (
@@ -236,6 +290,34 @@ export function FormularioPropietario({
           />
         </>
       )}
+      {(consultando || sugerencia) && (
+        <div className="sm:col-span-2 -mt-2">
+          {consultando && <p className="text-xs text-text-muted">Buscando el nombre…</p>}
+          {sugerencia?.aplicado && (
+            <p className="text-xs text-success">
+              Nombre tomado del registro {sugerencia.proveedor === "hacienda" ? "de Hacienda" : "(simulado)"}.
+              Se puede corregir.
+            </p>
+          )}
+          {sugerencia && !sugerencia.aplicado && (
+            <p className="text-xs text-text-muted">
+              El registro dice «{sugerencia.nombre}».{" "}
+              <button
+                type="button"
+                className="font-semibold text-primary underline"
+                onClick={() => {
+                  set("nombre", sugerencia.nombre);
+                  set("datosFuente", (sugerencia.proveedor as "hacienda" | "simulado") ?? "hacienda");
+                  setSugerencia({ ...sugerencia, aplicado: true });
+                }}
+              >
+                Usar ese nombre
+              </button>
+            </p>
+          )}
+        </div>
+      )}
+
       <Input
         label="Correo"
         type="email"

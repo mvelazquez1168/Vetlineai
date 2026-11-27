@@ -47,6 +47,15 @@ import {
 } from "../crm/unificar";
 import { clientesDuplicadosDeLaClinica, pacientesParecidos } from "../crm/duplicados";
 import { historialDe } from "../crm/consentimientos";
+import {
+  consultarIdentificacion,
+  formatoValido,
+  proveedorIdentificacionActivo,
+} from "../clientes/proveedorIdentificacionActivo";
+import {
+  identificacionHacienda,
+  identificacionSimulada,
+} from "../clientes/proveedorIdentificacion";
 import { buscarPropietariosTolerante } from "../busquedaPropietarios";
 
 const PREFIJO = "probe-anexo";
@@ -933,13 +942,152 @@ async function main() {
       `SELECT count(*) AS n FROM crm_unificaciones`
     );
     igual(auditoria.rows[0].n, "2", "cada fusión dejó su fila de auditoría");
+    // EL SAVEPOINT NO ES UN DETALLE: este UPDATE tiene que fallar, y un
+    // error de Postgres aborta la transacción entera —todo lo que viene
+    // después moriría con «current transaction is aborted»—. El
+    // savepoint deja probar el trigger sin perder la transacción.
     let appendOnly = false;
+    await db.query("SAVEPOINT antes_del_update");
     try {
       await db.query(`UPDATE crm_unificaciones SET absorbido_nombre = 'otro'`);
+      await db.query("RELEASE SAVEPOINT antes_del_update");
     } catch {
       appendOnly = true;
+      await db.query("ROLLBACK TO SAVEPOINT antes_del_update");
     }
     assert(appendOnly, "la auditoría de la fusión es solo de inserción");
+
+    // =================================================================
+    console.log("\n=== B2. Autocompletar por identificación ===");
+    // -----------------------------------------------------------------
+    // El proveedor por omisión es el simulado: ninguna consulta sale
+    // hacia un servicio público del Estado desde desarrollo.
+    igual(
+      proveedorIdentificacionActivo().nombre,
+      "simulado",
+      "el proveedor por omisión es el simulado"
+    );
+    igual(
+      identificacionSimulada.disponible().ok,
+      true,
+      "el simulado está siempre disponible"
+    );
+    // El real: sin URL mal puesta, está disponible —la API de
+    // contribuyentes es pública y no tiene credencial—, y con una URL
+    // inválida dice exactamente qué falta.
+    const antes = process.env.IDENTIDAD_URL;
+    process.env.IDENTIDAD_URL = "no-es-una-url";
+    const malConfigurado = identificacionHacienda.disponible();
+    assert(!malConfigurado.ok, "el real mal configurado no se declara disponible");
+    assert(
+      (malConfigurado.falta ?? "").includes("IDENTIDAD_URL"),
+      "y dice qué variable está mal",
+      malConfigurado.falta
+    );
+    if (antes === undefined) delete process.env.IDENTIDAD_URL;
+    else process.env.IDENTIDAD_URL = antes;
+
+    // LA CACHÉ ES DE LA PLATAFORMA, no de esta clínica de prueba: no se
+    // va con el tenant al borrarlo, así que el verificador limpia sus
+    // tres números antes de empezar. Sin esto, la segunda corrida ve la
+    // caché de la primera y la aserción de «la primera consulta no
+    // viene de la caché» falla por el ambiente y no por el código.
+    await db.query(
+      `DELETE FROM identificacion_cache
+        WHERE numero IN ('102340565','102340560','102340569')`
+    );
+
+    const cedula = (
+      await db.query<{ id: string }>(
+        `SELECT id FROM tipos_identificacion WHERE pais_codigo = 'CR' AND codigo = '01'`
+      )
+    ).rows[0].id;
+    const pasaporte = (
+      await db.query<{ id: string }>(
+        `SELECT id FROM tipos_identificacion WHERE pais_codigo = 'CR' AND codigo = '05'`
+      )
+    ).rows[0].id;
+
+    // EL FORMATO SALE DEL CATÁLOGO, no de una constante en el código.
+    const nueve = await formatoValido(db, cedula, "102340565");
+    assert(nueve.valido, "nueve dígitos son una cédula física válida", nueve.formato);
+    const ocho = await formatoValido(db, cedula, "10234056");
+    assert(!ocho.valido, "ocho no: el número todavía no está completo");
+    const conGuiones = await formatoValido(db, cedula, "1-0234-0565");
+    assert(conGuiones.valido, "los guiones no cambian el número: se limpian antes de validar");
+    const sinFormato = await formatoValido(db, pasaporte, "AB1234567");
+    igual(
+      sinFormato.formato,
+      null,
+      "el pasaporte no tiene formato cargado a propósito: es de otro país"
+    );
+
+    // EL SIMULADO ES DETERMINISTA: la misma cédula da lo mismo siempre.
+    const primera = await consultarIdentificacion(db, tenantId, "01", "102340565");
+    const deNuevo = await consultarIdentificacion(db, tenantId, "01", "102340565");
+    assert(primera.encontrado, "el simulado encuentra la cédula de prueba");
+    igual(
+      deNuevo.datos?.nombre,
+      primera.datos?.nombre,
+      "y devuelve SIEMPRE lo mismo para el mismo número"
+    );
+    assert(!primera.deCache, "la primera consulta no viene de la caché");
+    assert(deNuevo.deCache, "la segunda sí: se cacheó");
+
+    // «NO EXISTE» TAMBIÉN SE CACHEA: preguntar diez veces por una cédula
+    // que no está inscrita son diez viajes para la misma nada.
+    const noExiste = await consultarIdentificacion(db, tenantId, "01", "102340560");
+    assert(!noExiste.encontrado, "el número terminado en 0 no existe (caso del simulado)");
+    const guardadoNegativo = await db.query<{ encontrado: boolean }>(
+      `SELECT encontrado FROM identificacion_cache WHERE numero = '102340560'`
+    );
+    igual(guardadoNegativo.rows[0]?.encontrado, false, "y el «no existe» quedó cacheado");
+
+    // LA NO-RESPUESTA NO SE CACHEA. Un timeout no es un dato sobre esa
+    // cédula: cachearlo dejaría el autocompletar roto treinta días por
+    // una caída de un minuto.
+    const sinRespuesta = await consultarIdentificacion(db, tenantId, "01", "102340569");
+    assert(!sinRespuesta.encontrado, "el terminado en 9 simula que el servicio no contesta");
+    assert(Boolean(sinRespuesta.errorTecnico), "y lo dice como error técnico", sinRespuesta.errorTecnico);
+    const nadaCacheado = await db.query<{ n: string }>(
+      `SELECT count(*) AS n FROM identificacion_cache WHERE numero = '102340569'`
+    );
+    igual(nadaCacheado.rows[0].n, "0", "y NO se cacheó: el servicio podría estar bien mañana");
+
+    // EL ALTA GUARDA DE DÓNDE SALIÓ EL DATO (ley 8968).
+    const autocompletado = await crearPropietario(
+      db,
+      tenantId,
+      {
+        nombre: primera.datos?.nombre ?? "Sin nombre",
+        telefono: "87654321",
+        tipoIdentificacionId: cedula,
+        numeroIdentificacion: "102340565",
+        datosFuente: "simulado",
+      },
+      medicoId
+    );
+    const fuente = await db.query<{ datos_fuente: string | null; datos_fuente_en: Date | null }>(
+      `SELECT datos_fuente, datos_fuente_en FROM propietarios WHERE id = $1`,
+      [autocompletado.id]
+    );
+    igual(fuente.rows[0].datos_fuente, "simulado", "el cliente guarda de dónde salió su nombre");
+    assert(Boolean(fuente.rows[0].datos_fuente_en), "y cuándo, que es lo que pide la ley 8968");
+    const aMano = await crearPropietario(
+      db,
+      tenantId,
+      { nombre: "Escrito A Mano", telefono: "87650000" },
+      medicoId
+    );
+    const sinFuenteDeDatos = await db.query<{ datos_fuente: string | null }>(
+      `SELECT datos_fuente FROM propietarios WHERE id = $1`,
+      [aMano.id]
+    );
+    igual(
+      sinFuenteDeDatos.rows[0].datos_fuente,
+      null,
+      "el alta que no lo declara queda en null: «no sabemos», que es la verdad"
+    );
   });
 
   await pool.query(`DELETE FROM tenants WHERE nombre LIKE $1`, [`${PREFIJO}%`]);

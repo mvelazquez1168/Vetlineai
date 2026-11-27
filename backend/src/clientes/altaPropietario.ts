@@ -26,6 +26,15 @@ export interface DatosAltaPropietario {
   fuenteReferenciaId?: string | null;
   /** Qué cliente lo trajo, cuando la fuente lo pide. */
   referidoPorPropietarioId?: string | null;
+  /**
+   * De dónde salieron el nombre y los datos fiscales (anexo 07-03, B2):
+   * los escribió alguien («manual») o los trajo el autocompletar.
+   *
+   * Importa por la ley 8968: hay que poder decir de dónde salió un dato
+   * personal y cuándo. Y en la operación, porque un nombre que vino del
+   * registro no se corrige «porque se ve raro».
+   */
+  datosFuente?: "manual" | "hacienda" | "simulado" | null;
 }
 
 export interface PropietarioCreado {
@@ -47,8 +56,16 @@ export async function crearPropietario(
   const result = await db.query<PropietarioCreado>(
     `INSERT INTO propietarios
        (tenant_id, nombre, telefono, email, direccion, tipo_identificacion_id,
-        numero_identificacion, fuente_referencia_id, referido_por_propietario_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        numero_identificacion, fuente_referencia_id, referido_por_propietario_id,
+        datos_fuente, datos_fuente_en)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::varchar,
+             -- EL CAST NO ES DECORATIVO: sin él, Postgres no puede
+             -- deducir el tipo de $10 dentro del CASE y falla con
+             -- «could not determine data type». Es el mismo defecto que
+             -- ya apareció en la baja del paciente y en los agentes por
+             -- país: un parámetro que solo aparece dentro de un CASE
+             -- necesita que alguien le diga qué es.
+             CASE WHEN $10::varchar IS NULL THEN NULL ELSE now() END)
      RETURNING id, nombre, telefono, email, direccion, tipo_identificacion_id,
                numero_identificacion`,
     [
@@ -61,6 +78,7 @@ export async function crearPropietario(
       datos.numeroIdentificacion?.trim() || null,
       datos.fuenteReferenciaId || null,
       datos.referidoPorPropietarioId || null,
+      datos.datosFuente || null,
     ]
   );
   const nuevo = result.rows[0];

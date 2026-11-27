@@ -12,6 +12,7 @@ import { iniciarJobSaldoProveedorIa } from "./jobs/saldoProveedorIa.job";
 import { iniciarJobColaFacturacion } from "./jobs/facturacionCola.job";
 import { iniciarJobAudioDictado } from "./jobs/dictadoAudio.job";
 import { anunciarProveedorHacienda } from "./facturacion/proveedorActivo";
+import { anunciarProveedorIdentificacion } from "./clientes/proveedorIdentificacionActivo";
 import { validarCredencialesPaisesHabilitados } from "./pagos/credencialesPasarela";
 import { pool } from "./db";
 import { authRouter } from "./routes/auth.routes";
@@ -197,6 +198,7 @@ const server = app.listen(config.port, () => {
   iniciarJobColaFacturacion();
   iniciarJobAudioDictado();
   anunciarProveedorHacienda();
+  anunciarProveedorIdentificacion();
   validarFrontendUrlConfigurada();
   validarCredencialesPaisesHabilitados(pool).catch((err) =>
     console.error("[pagos] No se pudo validar las credenciales de pasarela por país al arrancar", err)

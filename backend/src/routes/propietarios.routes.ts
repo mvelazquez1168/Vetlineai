@@ -7,6 +7,10 @@ import {
   esIdentificacionRepetida,
 } from "../clientes/altaPropietario";
 import { avisoDeDuplicado, clientesParecidos } from "../crm/duplicados";
+import {
+  consultarIdentificacion,
+  formatoValido,
+} from "../clientes/proveedorIdentificacionActivo";
 
 export const propietariosRouter = Router();
 
@@ -63,6 +67,75 @@ propietariosRouter.use((req, res, next) => {
  * `crm_fuentes_referencia` ya devuelve las dos, así que acá no hay
  * ningún filtro por tenant que pueda quedar desalineado con ella.
  */
+/**
+ * GET /api/propietarios/consultar-identificacion?tipoIdentificacionId=…&numero=…
+ *
+ * EL AUTOCOMPLETAR DEL ALTA (anexo 07-03, B2).
+ *
+ * NO FALLA NUNCA CON 500. Todas las respuestas son 200 con
+ * `encontrado` en true o false y, cuando corresponde, el motivo: el
+ * formulario de clientes no se puede romper porque un servicio público
+ * ajeno no contestó. El único 400 es el de la pregunta mal hecha.
+ *
+ * EL FORMATO SE VALIDA ANTES DE CONSULTAR. Una cédula de ocho dígitos no
+ * existe: preguntarle a Hacienda por ella es gastar una consulta del
+ * límite para que nos diga lo que el catálogo ya sabía.
+ */
+/** Los tres valores que acepta `propietarios.datos_fuente`, y nada más. */
+function fuenteDeLosDatos(valor: string | undefined): "manual" | "hacienda" | "simulado" | null {
+  return valor === "manual" || valor === "hacienda" || valor === "simulado" ? valor : null;
+}
+
+propietariosRouter.get("/consultar-identificacion", async (req, res) => {
+  const tipoIdentificacionId =
+    typeof req.query.tipoIdentificacionId === "string" ? req.query.tipoIdentificacionId : "";
+  const numero = typeof req.query.numero === "string" ? req.query.numero.trim() : "";
+  if (!tipoIdentificacionId || !numero) {
+    return res.status(400).json({ error: "Faltan tipoIdentificacionId o numero." });
+  }
+
+  try {
+    const formato = await formatoValido(req.db!, tipoIdentificacionId, numero);
+    if (!formato.codigo) {
+      return res.status(400).json({ error: "Ese tipo de identificación no existe." });
+    }
+    if (!formato.formato) {
+      // El pasaporte no tiene formato conocido y por eso no se consulta.
+      // Se contesta que no se encontró, con el motivo: la pantalla
+      // sigue manual sin mostrar un error rojo.
+      return res.json({
+        encontrado: false,
+        motivo: "Ese tipo de identificación no se puede consultar: se escribe a mano.",
+      });
+    }
+    if (!formato.valido) {
+      return res.json({
+        encontrado: false,
+        motivo: "El número todavía no está completo para ese tipo de identificación.",
+      });
+    }
+
+    const r = await consultarIdentificacion(
+      req.db!,
+      req.auth!.tenantId!,
+      formato.codigo,
+      numero
+    );
+    res.json({
+      encontrado: r.encontrado,
+      nombre: r.datos?.nombre ?? null,
+      datos: r.datos?.datos ?? null,
+      motivo: r.errorTecnico ?? null,
+      deCache: r.deCache,
+      proveedor: r.proveedor,
+    });
+  } catch (err) {
+    // Hasta un error nuestro se contesta sin romper el alta.
+    console.error("GET /propietarios/consultar-identificacion", err);
+    res.json({ encontrado: false, motivo: "No pudimos consultar. Escribí el nombre a mano." });
+  }
+});
+
 propietariosRouter.get("/fuentes-referencia", async (req, res) => {
   try {
     const r = await req.db!.query(
@@ -290,6 +363,11 @@ propietariosRouter.post("/", async (req, res) => {
         numeroIdentificacion,
         fuenteReferenciaId: (req.body as Record<string, string>).fuenteReferenciaId,
         referidoPorPropietarioId: (req.body as Record<string, string>).referidoPorPropietarioId,
+        // LO QUE LLEGA NO ENTRA CRUDO: la columna tiene un CHECK de
+        // tres valores y un cuarto sería un 500 en el alta de un
+        // cliente. Lo que no esté en la lista se guarda como null,
+        // que es «no sabemos de dónde salió» y es la verdad.
+        datosFuente: fuenteDeLosDatos((req.body as Record<string, string>).datosFuente),
       },
       req.auth!.userId
     );

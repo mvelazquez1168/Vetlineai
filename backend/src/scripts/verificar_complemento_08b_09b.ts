@@ -46,6 +46,13 @@ import {
 import { comisionVigente, costoDelCobro } from "../ventas/comisionesTarjeta";
 import { totalDeCuenta } from "../ventas/cuentas";
 import { registrarMovimiento } from "../inventario/movimientos";
+import {
+  actividadesDelEmisor,
+  actividadParaEmitir,
+  ActividadesMezcladas,
+  guardarReglaDeActividad,
+  reglasDeActividad,
+} from "../facturacion/actividades";
 
 const PREFIJO = "probe-08b";
 
@@ -561,6 +568,208 @@ async function main() {
       sinLineas = err instanceof Error ? err.message : "";
     }
     assert(sinLineas.length > 0, "un presupuesto sin líneas se rechaza", sinLineas);
+
+    // -----------------------------------------------------------------
+    console.log("\n=== B3. Los campos fiscales del producto ===");
+    // -----------------------------------------------------------------
+    // Todo lo de este bloque sale del XSD oficial v4.4 del repo.
+    await db.query(
+      `UPDATE inv_productos
+          SET registro_medicamento = 'RSM-12345-2026', forma_farmaceutica = 'INY',
+              codigo_comercial = 'ALM-10K', codigo_comercial_tipo = '04'
+        WHERE id = $1`,
+      [producto]
+    );
+    const fiscales = await db.query<{
+      registro_medicamento: string;
+      forma_farmaceutica: string;
+      codigo_comercial_tipo: string;
+    }>(
+      `SELECT registro_medicamento, forma_farmaceutica, codigo_comercial_tipo
+         FROM inv_productos WHERE id = $1`,
+      [producto]
+    );
+    igual(
+      fiscales.rows[0].registro_medicamento,
+      "RSM-12345-2026",
+      "el producto guarda su registro del Ministerio de Salud"
+    );
+    igual(fiscales.rows[0].forma_farmaceutica, "INY", "y su forma farmacéutica, de tres");
+    igual(fiscales.rows[0].codigo_comercial_tipo, "04", "y el tipo de su código comercial");
+
+    // LA PARTIDA ARANCELARIA SON DOCE EXACTOS: lo dice el XSD de
+    // exportación (minLength y maxLength en 12).
+    let partidaCorta = false;
+    await db.query("SAVEPOINT antes_partida");
+    try {
+      await db.query(`UPDATE inv_productos SET partida_arancelaria = '0101' WHERE id = $1`, [
+        producto,
+      ]);
+      await db.query("RELEASE SAVEPOINT antes_partida");
+    } catch {
+      partidaCorta = true;
+      await db.query("ROLLBACK TO SAVEPOINT antes_partida");
+    }
+    assert(partidaCorta, "una partida arancelaria de cuatro caracteres se rechaza");
+    await db.query(
+      `UPDATE inv_productos SET partida_arancelaria = '010129000000' WHERE id = $1`,
+      [producto]
+    );
+    const conPartida = await db.query<{ partida_arancelaria: string }>(
+      `SELECT partida_arancelaria FROM inv_productos WHERE id = $1`,
+      [producto]
+    );
+    igual(
+      conPartida.rows[0].partida_arancelaria.length,
+      12,
+      "y una de doce se acepta"
+    );
+
+    // EL TIPO Y EL CÓDIGO COMERCIAL VAN JUNTOS: el nodo del XML lleva
+    // los dos, y un código sin tipo no se puede escribir.
+    let sueltoRechazado = false;
+    await db.query("SAVEPOINT antes_comercial");
+    try {
+      await db.query(
+        `UPDATE inv_productos SET codigo_comercial_tipo = NULL WHERE id = $1`,
+        [producto]
+      );
+      await db.query("RELEASE SAVEPOINT antes_comercial");
+    } catch {
+      sueltoRechazado = true;
+      await db.query("ROLLBACK TO SAVEPOINT antes_comercial");
+    }
+    assert(sueltoRechazado, "un código comercial sin su tipo se rechaza");
+
+    // Y LLEGAN A LA LÍNEA DEL COMPROBANTE. `lineasParaFacturar` es el
+    // puente entre la caja y el facturador: si no los propaga, el dato
+    // está en el catálogo y no en la factura.
+    const { lineasParaFacturar } = await import("../ventas/cuentas");
+    const paraFacturar = await lineasParaFacturar(db, convertido.cuentaId);
+    const delProducto = paraFacturar.find((l) => l.registroMedicamento);
+    assert(
+      Boolean(delProducto),
+      "los campos fiscales del producto llegan a la línea del comprobante",
+      JSON.stringify(delProducto?.registroMedicamento)
+    );
+    igual(
+      delProducto?.codigoComercial,
+      { tipo: "04", codigo: "ALM-10K" },
+      "el código comercial viaja con su tipo, como lo pide el XSD"
+    );
+
+    // -----------------------------------------------------------------
+    console.log("\n=== B1. La actividad económica del comprobante ===");
+    // -----------------------------------------------------------------
+    const emisor = (
+      await db.query<{ id: string }>(
+        `INSERT INTO fact_emisores
+           (tenant_id, tipo_identificacion, numero_identificacion, nombre,
+            codigo_actividad_economica, ubicacion_provincia, ubicacion_canton,
+            ubicacion_distrito, ubicacion_otras_senas, telefono_codigo_pais, telefono_numero,
+            correo, proveedor_sistemas, sucursal, terminal, ambiente_activo)
+         VALUES ($1,'02','3101234567','Veterinaria de Prueba S.A.','862100',
+                 '1','01','01','200 metros al sur','506','22334455',
+                 'probe@emisor.test','3101999999','001','00001','pruebas')
+         RETURNING id`,
+        [tenantId]
+      )
+    ).rows[0].id;
+
+    // La que ya tenía el emisor se registra como predeterminada, igual
+    // que hace la migración con los emisores que ya existían.
+    await db.query(
+      `INSERT INTO fact_emisor_actividades (tenant_id, emisor_id, codigo, descripcion,
+                                            es_predeterminada)
+       VALUES ($1,$2,'862100','Actividades veterinarias',true),
+              ($1,$2,'464901','Venta al por mayor de productos farmacéuticos y veterinarios',false)`,
+      [tenantId, emisor]
+    );
+    const actividades = await actividadesDelEmisor(db, emisor);
+    igual(actividades.length, 2, "el emisor tiene sus dos actividades inscritas");
+    igual(
+      actividades[0].esPredeterminada,
+      true,
+      "y la predeterminada viene primero, que es la que se usa sin regla"
+    );
+
+    // Sin reglas, sale la predeterminada.
+    const sinReglas = await actividadParaEmitir(db, tenantId, emisor, {
+      lineasNegocio: ["pet_shop"],
+    });
+    igual(sinReglas.codigo, "862100", "sin reglas, sale la actividad predeterminada");
+    igual(sinReglas.origen, "predeterminada", "y dice de dónde salió");
+
+    // Con la regla, cada línea de negocio usa la suya.
+    await guardarReglaDeActividad(db, tenantId, "pet_shop", actividades[1].id);
+    await guardarReglaDeActividad(db, tenantId, "farmacia", actividades[1].id);
+    await guardarReglaDeActividad(db, tenantId, "consulta", actividades[0].id);
+    await guardarReglaDeActividad(db, tenantId, "cirugia", actividades[0].id);
+    igual((await reglasDeActividad(db, tenantId)).length, 4, "las cuatro reglas quedaron guardadas");
+
+    const porRegla = await actividadParaEmitir(db, tenantId, emisor, {
+      lineasNegocio: ["pet_shop"],
+    });
+    igual(porRegla.codigo, "464901", "una cuenta de pet shop sale con la actividad de venta");
+    igual(porRegla.origen, "regla", "y lo dice");
+    const clinica = await actividadParaEmitir(db, tenantId, emisor, {
+      lineasNegocio: ["cirugia", "consulta"],
+    });
+    igual(
+      clinica.codigo,
+      "862100",
+      "dos líneas de la MISMA actividad no son un conflicto: sale la veterinaria"
+    );
+
+    // UN COMPROBANTE, UNA ACTIVIDAD. Lo dice el XSD y el sistema lo hace
+    // cumplir en vez de emitir con una de las dos.
+    let mezcla: ActividadesMezcladas | null = null;
+    try {
+      await actividadParaEmitir(db, tenantId, emisor, {
+        lineasNegocio: ["pet_shop", "cirugia"],
+      });
+    } catch (err) {
+      mezcla = err instanceof ActividadesMezcladas ? err : null;
+    }
+    assert(
+      Boolean(mezcla),
+      "una cuenta que mezcla alimento y cirugía NO se emite: hay que separarla"
+    );
+    assert(
+      (mezcla?.message ?? "").includes("separarla en dos comprobantes"),
+      "y el mensaje dice qué hacer",
+      mezcla?.message
+    );
+    igual(
+      mezcla?.porLinea.length,
+      2,
+      "y trae qué actividad le toca a cada línea, para poder separarla"
+    );
+
+    // Las líneas SIN línea de negocio no parten la factura: un cargo
+    // manual sin clasificar no puede obligar a dos comprobantes.
+    const conManual = await actividadParaEmitir(db, tenantId, emisor, {
+      lineasNegocio: ["cirugia", null, null],
+    });
+    igual(conManual.codigo, "862100", "un cargo sin línea de negocio no parte el comprobante");
+
+    // La elegida a mano gana, pero solo si está inscrita.
+    const elegida = await actividadParaEmitir(db, tenantId, emisor, {
+      lineasNegocio: ["pet_shop"],
+      actividadElegida: "862100",
+    });
+    igual(elegida.origen, "elegida", "la actividad elegida en la pantalla gana sobre la regla");
+    let inventada = "";
+    try {
+      await actividadParaEmitir(db, tenantId, emisor, { actividadElegida: "999999" });
+    } catch (err) {
+      inventada = err instanceof Error ? err.message : "";
+    }
+    assert(
+      inventada.includes("no está entre las inscritas"),
+      "una actividad que el emisor no tiene inscrita se rechaza",
+      inventada
+    );
   });
 
   await pool.query(`DELETE FROM tenants WHERE nombre LIKE $1`, [`${PREFIJO}%`]);

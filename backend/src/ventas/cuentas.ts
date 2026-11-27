@@ -483,18 +483,44 @@ export async function lineasParaFacturar(db: PoolClient, cuentaId: string) {
     descuento_naturaleza: string | null;
     codigo_cabys: string | null;
     codigo_tarifa_iva: string | null;
+    registro_medicamento: string | null;
+    forma_farmaceutica: string | null;
+    codigo_comercial: string | null;
+    codigo_comercial_tipo: string | null;
+    linea_negocio: string | null;
     unidad_medida: string | null;
   }>(
-    `SELECT descripcion, cantidad, precio_unitario, descuento, descuento_codigo,
-            descuento_codigo_otro, descuento_naturaleza, codigo_cabys, codigo_tarifa_iva,
-            unidad_medida
-       FROM vta_cargos WHERE cuenta_id = $1 AND anulado_en IS NULL
-      ORDER BY creado_en`,
+    // LOS CAMPOS FISCALES DEL PRODUCTO (prompt 09b, B3) salen del
+    // catálogo en el momento de facturar y no se copian al cargo: el
+    // número de registro del Ministerio de Salud es del producto, no de
+    // la venta, y si cambia hay que facturar con el corregido. El
+    // precio sí está congelado en el cargo, porque eso es lo que el
+    // cliente aceptó.
+    `SELECT c.descripcion, c.cantidad, c.precio_unitario, c.descuento, c.descuento_codigo,
+            c.descuento_codigo_otro, c.descuento_naturaleza, c.codigo_cabys,
+            c.codigo_tarifa_iva, c.unidad_medida,
+            p.registro_medicamento, p.forma_farmaceutica,
+            p.codigo_comercial, p.codigo_comercial_tipo,
+            -- La línea de negocio del cargo decide con qué actividad
+            -- económica sale el comprobante (prompt 09b, B1).
+            c.linea_negocio
+       FROM vta_cargos c
+       LEFT JOIN inv_presentaciones pr ON pr.id = c.presentacion_id
+       LEFT JOIN inv_productos p ON p.id = pr.producto_id
+      WHERE c.cuenta_id = $1 AND c.anulado_en IS NULL
+      ORDER BY c.creado_en`,
     [cuentaId]
   );
 
   return r.rows.map((c) => ({
     codigoCabys: c.codigo_cabys ?? undefined,
+    registroMedicamento: c.registro_medicamento ?? undefined,
+    formaFarmaceutica: c.forma_farmaceutica ?? undefined,
+    codigoComercial:
+      c.codigo_comercial && c.codigo_comercial_tipo
+        ? { tipo: c.codigo_comercial_tipo, codigo: c.codigo_comercial }
+        : undefined,
+    lineaNegocio: c.linea_negocio ?? undefined,
     cantidad: c.cantidad,
     unidadMedida: c.unidad_medida ?? "Unid",
     detalle: c.descripcion,

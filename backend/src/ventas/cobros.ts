@@ -1,6 +1,7 @@
 import { PoolClient } from "pg";
 import { registrarInteraccion } from "../crm/interacciones";
 import { conAlcanceTenant } from "../alcanceTenant";
+import { actividadParaEmitir } from "../facturacion/actividades";
 import { emitir } from "../facturacion/emision";
 import { DocumentoVenta } from "../facturacion/tipos";
 import { tipoDeCambioDelDia } from "./caja";
@@ -88,6 +89,12 @@ export interface SolicitudCobro {
   receptor?: DocumentoVenta["receptor"];
   observaciones?: string;
   personaId?: string;
+  /**
+   * Con qué actividad económica emitir, cuando quien cobra la elige en
+   * la pantalla (prompt 09b, B1). Sin esto, la resuelve la regla de la
+   * línea de negocio y después la predeterminada del emisor.
+   */
+  codigoActividad?: string;
 }
 
 export interface ResultadoCobro {
@@ -276,8 +283,33 @@ export async function cobrar(
             })),
           }));
 
+    // CON QUÉ ACTIVIDAD ECONÓMICA SALE (prompt 09b, B1).
+    //
+    // Se resuelve ANTES de armar el documento: si la cuenta mezcla dos
+    // actividades, `actividadParaEmitir` lanza y el cobro se detiene sin
+    // haber emitido nada. Es lo correcto: un comprobante admite una sola
+    // actividad y emitir con cualquiera de las dos dejaría la mitad de
+    // la venta declarada donde no va.
+    const actividad = await conAlcanceTenant(tenantId, async (db2) => {
+      const e = await db2.query<{ id: string }>(
+        `SELECT id FROM fact_emisores WHERE tenant_id = $1 LIMIT 1`,
+        [tenantId]
+      );
+      if (e.rows.length === 0) {
+        // Sin emisor no hay facturación electrónica habilitada, y el
+        // cobro sigue su camino sin comprobante: no es asunto de esta
+        // función decidirlo.
+        return null;
+      }
+      return actividadParaEmitir(db2, tenantId, e.rows[0].id, {
+        lineasNegocio: lineas.map((l) => l.lineaNegocio ?? null),
+        actividadElegida: s.codigoActividad,
+      });
+    });
+
     const documento: DocumentoVenta = {
       tipoComprobante: tipo,
+      codigoActividad: actividad?.codigo,
       moneda: monedaDoc,
       tipoCambio: tipoCambioDoc,
       condicionVenta: s.condicionVenta ?? "01",

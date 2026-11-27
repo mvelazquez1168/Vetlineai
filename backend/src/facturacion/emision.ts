@@ -192,7 +192,12 @@ async function crearComprobante(
       terminal,
       situacion,
       fechaEmision,
-      documento.tipoComprobante === "10" ? null : emisor.codigoActividadEconomica,
+      // LA ACTIVIDAD DEL COMPROBANTE (prompt 09b, B1): la que eligió
+      // quien emite, o la que resuelve la regla de la línea de negocio.
+      // El tipo 10 —factura de compra— no la lleva.
+      documento.tipoComprobante === "10"
+        ? null
+        : (documento.codigoActividad ?? emisor.codigoActividadEconomica),
       rec?.codigoActividad ?? null,
       rec?.identificacion?.tipo ?? null,
       rec?.identificacion?.numero ?? null,
@@ -582,7 +587,15 @@ export async function emitir(
     consecutivo,
     tipoComprobante: documento.tipoComprobante,
     fechaEmision,
-    emisor,
+    // LA ACTIVIDAD DEL DOCUMENTO GANA SOBRE LA DEL EMISOR (prompt 09b,
+    // B1). `armarXml` escribe `CodigoActividadEmisor` desde el emisor,
+    // así que acá se le pasa el emisor con la actividad de ESTE
+    // comprobante. Sin esto, la fila de `fact_comprobantes` guardaría
+    // una actividad y el XML firmado llevaría otra, que es la peor de
+    // las dos inconsistencias posibles.
+    emisor: documento.codigoActividad
+      ? { ...emisor, codigoActividadEconomica: documento.codigoActividad }
+      : emisor,
     documento,
     calculo,
   });

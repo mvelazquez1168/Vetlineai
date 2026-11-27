@@ -38,6 +38,11 @@ import {
 } from "../facturacion/catalogos";
 import { DocumentoVenta } from "../facturacion/tipos";
 import { recibirComprobante, emitirMensajeReceptor, listarRecibidos } from "../facturacion/recibidos";
+import {
+  actividadesDelEmisor,
+  guardarReglaDeActividad,
+  reglasDeActividad,
+} from "../facturacion/actividades";
 
 // ---------------------------------------------------------------------
 // API del facturador electrónico. Todo bajo
@@ -1045,6 +1050,93 @@ facturacionCrRouter.post("/comprobantes/:id/reenviar", async (req, res) => {
 // =====================================================================
 // COMPROBANTES RECIBIDOS DE PROVEEDORES
 // =====================================================================
+// ---------------------------------------------------------------------
+// LAS ACTIVIDADES ECONÓMICAS DEL EMISOR — prompt 09b, B1.
+//
+// Un comprobante declara UNA (`CodigoActividadEmisor` del XSD v4.4 no es
+// repetible). Estas rutas sirven para cargar las inscritas y decir qué
+// actividad le toca a cada línea de negocio.
+// ---------------------------------------------------------------------
+facturacionCrRouter.get("/actividades", async (req, res) => {
+  try {
+    const emisor = await leerEmisor(req.db!, req.auth!.tenantId!);
+    if (!emisor) return res.json({ actividades: [], reglas: [] });
+    res.json({
+      actividades: await actividadesDelEmisor(req.db!, emisor.id),
+      reglas: await reglasDeActividad(req.db!, req.auth!.tenantId!),
+    });
+  } catch (err) {
+    console.error("GET /facturacion/actividades", err);
+    res.status(500).json({ error: "Error al listar las actividades económicas." });
+  }
+});
+
+facturacionCrRouter.post("/actividades", async (req, res) => {
+  const b = req.body ?? {};
+  try {
+    const emisor = await leerEmisor(req.db!, req.auth!.tenantId!);
+    if (!emisor) return res.status(400).json({ error: "No hay un emisor configurado." });
+    const codigo = String(b.codigo ?? "").trim();
+    if (codigo.length !== 6) {
+      // SEIS EXACTOS: lo impone el XSD, y un código de cinco hace que
+      // Hacienda rechace el comprobante entero.
+      return res.status(400).json({
+        error: "El código de actividad económica tiene exactamente seis caracteres.",
+      });
+    }
+    const r = await req.db!.query<{ id: string }>(
+      `INSERT INTO fact_emisor_actividades
+         (tenant_id, emisor_id, codigo, descripcion, es_predeterminada)
+       VALUES ($1,$2,$3,$4,$5)
+       ON CONFLICT (emisor_id, codigo) DO UPDATE
+         SET descripcion = EXCLUDED.descripcion, activo = true
+       RETURNING id`,
+      [
+        req.auth!.tenantId,
+        emisor.id,
+        codigo,
+        b.descripcion?.trim() || null,
+        b.esPredeterminada === true,
+      ]
+    );
+    // UNA SOLA PREDETERMINADA: si esta se marcó, las demás se
+    // desmarcan. El índice único lo impediría, pero fallando con un
+    // error de base en vez de hacer lo que el usuario pidió.
+    if (b.esPredeterminada === true) {
+      await req.db!.query(
+        `UPDATE fact_emisor_actividades SET es_predeterminada = false
+          WHERE emisor_id = $1 AND id <> $2`,
+        [emisor.id, r.rows[0].id]
+      );
+    }
+    res.status(201).json({ id: r.rows[0].id });
+  } catch (err) {
+    console.error("POST /facturacion/actividades", err);
+    res.status(400).json({
+      error: err instanceof Error ? err.message : "Error al guardar la actividad económica.",
+    });
+  }
+});
+
+facturacionCrRouter.put("/actividades/regla", async (req, res) => {
+  try {
+    const b = req.body ?? {};
+    if (!b.lineaNegocio) return res.status(400).json({ error: "Falta la línea de negocio." });
+    await guardarReglaDeActividad(
+      req.db!,
+      req.auth!.tenantId!,
+      b.lineaNegocio,
+      b.actividadId || null
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("PUT /facturacion/actividades/regla", err);
+    res.status(400).json({
+      error: err instanceof Error ? err.message : "Error al guardar la regla.",
+    });
+  }
+});
+
 facturacionCrRouter.get("/recibidos", async (req, res) => {
   try {
     const emisor = await leerEmisor(req.db!, req.auth!.tenantId!).catch(() => null);

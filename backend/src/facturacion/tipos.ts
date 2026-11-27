@@ -196,6 +196,16 @@ export interface ReferenciaDocumento {
  */
 export interface DocumentoVenta {
   tipoComprobante: TipoComprobanteEmitible;
+  /**
+   * CON QUÉ ACTIVIDAD ECONÓMICA SALE (prompt 09b, B1).
+   *
+   * Seis caracteres de una de las inscritas del emisor. Si no viene, la
+   * resuelve `actividadParaEmitir` por la regla de la línea de negocio y
+   * después por la predeterminada. El XSD admite UNA por comprobante
+   * (`CodigoActividadEmisor` no es repetible), así que esto es un
+   * código y no una lista.
+   */
+  codigoActividad?: string;
   /** Por defecto, la del emisor. */
   sucursal?: string;
   terminal?: string;

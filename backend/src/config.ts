@@ -177,6 +177,22 @@ export const config = {
   // configurado no le mande el tráfico de todas las clínicas a un
   // servicio público del Estado.
   identidadProveedor: (process.env.IDENTIDAD_PROVEEDOR ?? "simulado") as "simulado" | "hacienda",
+
+  /**
+   * EL MODELO DE LA AYUDA DEL SISTEMA (prompt 16a).
+   *
+   * La tarea es redactar con un texto que ya trae la respuesta: no hay
+   * análisis ni cálculo, así que **un modelo liviano alcanza** y es lo
+   * que el prompt pide.
+   *
+   * El valor por omisión es el que ya tiene tarifa cargada. Poner acá un
+   * modelo sin tarifa no rompe nada visible y es peor: `registrarUsoApi`
+   * lo registra con costo cero y **no cobrable**, así que la plataforma
+   * deja de cobrar ese consumo sin que nadie se entere. Para cambiarlo a
+   * uno más barato, primero se carga su tarifa en Platform Admin y
+   * después se mueve `MODELO_AYUDA`.
+   */
+  modeloAyuda: process.env.MODELO_AYUDA ?? "claude-sonnet-4-6",
 };
 
 // Mismo patrón que validarCredencialesPaisesHabilitados (pagos/credencialesPasarela.ts)

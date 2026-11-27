@@ -47,6 +47,9 @@ export interface Comando {
 
 const CLINICA: Rol[] = ["medico", "admin_clinica"];
 
+/** El `a` del comando que abre el panel de ayuda en vez de navegar. */
+export const RUTA_PREGUNTAR = "#preguntar";
+
 export const COMANDOS: Comando[] = [
   // --- Ir a ---
   {
@@ -312,6 +315,19 @@ export const COMANDOS: Comando[] = [
     a: "/pacientes?nuevo=1",
     roles: CLINICA,
   },
+  // PREGUNTAR CÓMO SE USA (prompt 16a). No navega: abre el panel de
+  // ayuda, y por eso su `a` es un ancla y no una ruta. La paleta lo
+  // reconoce por `RUTA_PREGUNTAR`.
+  {
+    id: "preguntar",
+    titulo: "Preguntar…",
+    sinonimos: ["ayuda", "como se hace", "duda", "manual", "no sé cómo"],
+    icono: "info",
+    grupo: "Ayuda",
+    a: RUTA_PREGUNTAR,
+    atajo: undefined,
+    roles: CLINICA,
+  },
 ];
 
 /** Los comandos que esta sesión puede ver, según TODOS sus roles. */
@@ -322,6 +338,15 @@ export function comandosParaRoles(roles: Rol[]): Comando[] {
 /** La tecla que abre la paleta, para mostrarla en la ayuda y en los botones. */
 export const ATAJO_PALETA = { tecla: "k", conModificador: true } as const;
 export const ATAJO_AYUDA = { tecla: "?", conModificador: false } as const;
+
+/**
+ * El panel que RESPONDE preguntas de uso (prompt 16a).
+ *
+ * No es la ayuda de atajos de arriba, que es una lista de teclas. `a`
+ * de ayuda, sin modificador y con la misma regla que `?`: no se dispara
+ * mientras se escribe en un campo.
+ */
+export const ATAJO_PREGUNTAR = { tecla: "a", conModificador: false } as const;
 export const PREFIJO_SECUENCIA = "g";
 
 /**

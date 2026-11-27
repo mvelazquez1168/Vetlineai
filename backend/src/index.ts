@@ -34,6 +34,7 @@ import { inventarioRouter } from "./routes/inventario.routes";
 import { ventasRouter } from "./routes/ventas.routes";
 import { finanzasRouter } from "./routes/finanzas.routes";
 import { administracionRouter } from "./routes/administracion.routes";
+import { ayudaRouter } from "./routes/ayuda.routes";
 import { busquedaRouter } from "./routes/busqueda.routes";
 import { farmacosRouter } from "./routes/farmacos.routes";
 import { horariosRouter } from "./routes/horarios.routes";
@@ -194,6 +195,9 @@ app.use("/api/finanzas", finanzasRouter);
 // Administración completa (prompt 11): catálogos, turnos, comisiones,
 // cumplimiento, auditoría y procedimientos. Cada sección con su permiso.
 app.use("/api/administracion", administracionRouter);
+// La ayuda del sistema (prompt 16a): responde cómo se usa Vetline
+// Clinic con el manual de docs/ayuda/, cargado en la base.
+app.use("/api/ayuda", ayudaRouter);
 // Busqueda global de la paleta de comandos (Ctrl/Cmd+K).
 app.use("/api/busqueda", busquedaRouter);
 app.use("/api/lista-espera", listaEsperaRouter);

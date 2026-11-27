@@ -203,8 +203,8 @@ El verificador por HTTP **crea y borra sus propios usuarios** en Keycloak y en l
    guarda roles y la mayoría de sus filas pueden no ser de médicos. No se renombró porque toca el
    módulo de invitaciones, el registro público, tres verificadores y los correos; queda anotado como
    deuda de nombre, que es la forma de defecto que este repo ya tuvo tres veces.
-3. **Decisión con impacto comercial, para confirmar:** *invitar a alguien que no es médico no
-   consume cupo del plan*. El plan se cobra por médico y contar a la recepción como un cupo de
+3. **Decisión con impacto comercial, CONFIRMADA por el usuario el 2026-11-27:** *invitar a alguien
+   que no es médico no consume cupo del plan*. El plan se cobra por médico y contar a la recepción como un cupo de
    veterinario sería cobrar dos veces por una persona que no factura horas clínicas; pero es una
    decisión de producto y no de código. Si el criterio es otro —por ejemplo, cobrar por usuario— se
    cambia en un solo lugar (`contarInvitacionesPendientes` y `crearInvitacion`).

@@ -6,6 +6,8 @@ import { Reciente, useRecientes } from "../hooks/useRecientes";
 import {
   ATAJO_AYUDA,
   ATAJO_PALETA,
+  ATAJO_PREGUNTAR,
+  RUTA_PREGUNTAR,
   Comando,
   PREFIJO_SECUENCIA,
   comandosParaRoles,
@@ -14,6 +16,7 @@ import {
 } from "../lib/comandos";
 import { PacienteBuscado, PropietarioBuscado, busquedaApi } from "../lib/busquedaApi";
 import { etiqueta } from "../lib/etiquetas";
+import { PanelAyuda } from "./PanelAyuda";
 
 // ---------------------------------------------------------------------
 // Paleta de comandos global (Ctrl/Cmd+K) + atajos + ayuda (`?`).
@@ -99,6 +102,9 @@ export function PaletaComandos() {
 
   const [abierta, setAbierta] = useState(false);
   const [ayudaAbierta, setAyudaAbierta] = useState(false);
+  // EL PANEL QUE RESPONDE PREGUNTAS (prompt 16a), distinto de la lista
+  // de atajos de arriba.
+  const [preguntarAbierto, setPreguntarAbierto] = useState(false);
   const [consulta, setConsulta] = useState("");
   const [indice, setIndice] = useState(0);
   const [pacientes, setPacientes] = useState<PacienteBuscado[]>([]);
@@ -150,7 +156,8 @@ export function PaletaComandos() {
       }
 
       if (e.key === "Escape") {
-        if (ayudaAbierta) setAyudaAbierta(false);
+        if (preguntarAbierto) setPreguntarAbierto(false);
+        else if (ayudaAbierta) setAyudaAbierta(false);
         else if (abierta) cerrar();
         return;
       }
@@ -159,6 +166,12 @@ export function PaletaComandos() {
       // modificador apretado (que sería un atajo del navegador).
       if (esCampoDeTexto(e.target) || modificador || e.altKey) return;
       if (abierta) return; // dentro de la paleta manda su propio manejador
+
+      if (e.key === ATAJO_PREGUNTAR.tecla) {
+        e.preventDefault();
+        setPreguntarAbierto((a) => !a);
+        return;
+      }
 
       if (e.key === ATAJO_AYUDA.tecla) {
         e.preventDefault();
@@ -191,7 +204,7 @@ export function PaletaComandos() {
 
     window.addEventListener("keydown", alPresionar);
     return () => window.removeEventListener("keydown", alPresionar);
-  }, [abierta, ayudaAbierta, cerrar, comandos, esClinica, navigate]);
+  }, [abierta, ayudaAbierta, preguntarAbierto, cerrar, comandos, esClinica, navigate]);
 
   useEffect(() => {
     if (abierta) campo.current?.focus();
@@ -254,6 +267,11 @@ export function PaletaComandos() {
       cerrar();
       switch (resultado.tipo) {
         case "comando":
+          // «Preguntar…» no es una ruta: abre el panel de ayuda (16a).
+          if (resultado.comando.a === RUTA_PREGUNTAR) {
+            setPreguntarAbierto(true);
+            break;
+          }
           navigate(resultado.comando.a);
           break;
         case "reciente":
@@ -432,6 +450,8 @@ export function PaletaComandos() {
         </div>
       )}
 
+      <PanelAyuda abierto={preguntarAbierto} onCerrar={() => setPreguntarAbierto(false)} />
+
       {ayudaAbierta && (
         <div
           className="fixed inset-0 z-[95] flex items-center justify-center bg-primary/60 p-4"
@@ -465,6 +485,12 @@ export function PaletaComandos() {
                 <dt className="text-text-primary">Mostrar u ocultar esta ayuda</dt>
                 <dd>
                   <Tecla>?</Tecla>
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-4 border-b border-black/5 pb-2">
+                <dt className="text-text-primary">Preguntar cómo se hace algo</dt>
+                <dd>
+                  <Tecla>{ATAJO_PREGUNTAR.tecla.toUpperCase()}</Tecla>
                 </dd>
               </div>
 

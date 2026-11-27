@@ -16,6 +16,7 @@ import {
 } from "../lib/comandos";
 import { PacienteBuscado, PropietarioBuscado, busquedaApi } from "../lib/busquedaApi";
 import { etiqueta } from "../lib/etiquetas";
+import { CapaModal } from "./ui/CapaModal";
 import { PanelAyuda } from "./PanelAyuda";
 
 // ---------------------------------------------------------------------
@@ -304,17 +305,19 @@ export function PaletaComandos() {
   return (
     <>
       {abierta && (
-        <div
-          className="fixed inset-0 z-[90] flex items-start justify-center bg-primary/60 p-4 pt-[12vh]"
-          onClick={cerrar}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Paleta de comandos"
+        <CapaModal
+          onClose={cerrar}
+          // DE CONSULTA: no hay nada escrito que se pueda perder, y
+          // cerrarla con un clic afuera es más rápido que buscar la X.
+          tipo="consulta"
+          alineacion="arriba"
+          z="z-[90]"
+          etiquetaAria="Paleta de comandos"
+          // La paleta tiene su propio teclado (flechas, Enter, Esc) y
+          // maneja Esc ahí: dejarlo también acá lo procesaría dos veces.
+          sinManejarEsc
+          className="w-full max-w-xl overflow-hidden rounded-2xl bg-surface shadow-xl"
         >
-          <div
-            className="w-full max-w-xl overflow-hidden rounded-2xl bg-surface shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
             <div className="flex items-center gap-3 border-b border-black/5 px-4 py-3">
               <span className="text-text-muted">
                 <Icono nombre="buscar" tamano={20} />
@@ -446,24 +449,20 @@ export function PaletaComandos() {
                 <Tecla>?</Tecla> atajos
               </span>
             </div>
-          </div>
-        </div>
+        </CapaModal>
       )}
 
       <PanelAyuda abierto={preguntarAbierto} onCerrar={() => setPreguntarAbierto(false)} />
 
       {ayudaAbierta && (
-        <div
-          className="fixed inset-0 z-[95] flex items-center justify-center bg-primary/60 p-4"
-          onClick={() => setAyudaAbierta(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Atajos de teclado"
+        <CapaModal
+          onClose={() => setAyudaAbierta(false)}
+          tipo="consulta"
+          z="z-[95]"
+          etiquetaAria="Atajos de teclado"
+          sinManejarEsc
+          className="w-full max-w-lg rounded-2xl bg-surface p-8 shadow-xl"
         >
-          <div
-            className="w-full max-w-lg rounded-2xl bg-surface p-8 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
             <h2 className="text-xl font-bold text-primary">Atajos de teclado</h2>
             <p className="mt-1 text-sm text-text-muted">
               Los atajos no funcionan mientras escribís en un campo, y ninguno pisa un atajo del
@@ -521,8 +520,7 @@ export function PaletaComandos() {
               Los atajos de dos teclas se escriben en secuencia: primero <Tecla>G</Tecla>, después la
               segunda. Tiene poco más de un segundo entre las dos.
             </p>
-          </div>
-        </div>
+        </CapaModal>
       )}
     </>
   );

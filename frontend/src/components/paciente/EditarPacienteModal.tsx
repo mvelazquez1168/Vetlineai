@@ -68,6 +68,7 @@ export function EditarPacienteModal({ paciente, onClose, onGuardado }: EditarPac
       open
       onClose={onClose}
       title={`Editar ficha de ${paciente.nombre}`}
+      hayCambios={form.sucio}
       description={`Expediente N.º ${paciente.numero_expediente}. El número de expediente y el propietario no se cambian desde acá.`}
       ancho="lg"
       footer={

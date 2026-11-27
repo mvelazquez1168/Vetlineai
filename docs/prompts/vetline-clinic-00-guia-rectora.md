@@ -180,6 +180,20 @@ Responsive con el breakpoint `md` de Vetline Ai y probado en móvil (la app es P
 toda carga. Estados vacíos que dicen qué hacer. Errores que explican la salida. Accesibilidad:
 contraste, foco visible, navegación por teclado completa.
 
+**Un modal con formulario nunca se cierra con un clic fuera de él; cerrarlo con cambios sin guardar
+pide confirmación.** Los modales son de dos tipos y el tipo decide el comportamiento:
+
+| Tipo | Clic afuera | Esc, X o Cancelar |
+|---|---|---|
+| **Con formulario o acción** | **no cierra** | cierra si no hay cambios; con cambios, pregunta |
+| **De consulta** (solo lectura) | cierra | cierra |
+
+El tipo por omisión es *con formulario*, que es el caso seguro: un modal que se olvide de declarar
+su tipo no pierde lo que alguien escribió. La regla vive en un solo componente
+(`components/ui/CapaModal.tsx`) y **ninguna pantalla arma su propio fondo**: un fondo propio es una
+copia de la regla, y lo prueba `npm run verificar-modales`. Mientras un modal está abierto, el foco
+queda adentro y al cerrarse vuelve al botón que lo abrió.
+
 ## 5. Agenda y Google Calendar
 
 La agenda de Vetline sigue siendo **la única fuente de verdad** de las citas, porque una cita lleva

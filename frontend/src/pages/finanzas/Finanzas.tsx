@@ -634,6 +634,12 @@ function PanelGastos({ puedeRegistrar }: { puedeRegistrar: boolean }) {
       <Modal
         open={nuevo !== null}
         onClose={() => setNuevo(null)}
+        // EL CASO DEL REPORTE. Además de que el clic afuera ya no
+        // cierra, Esc y la X preguntan cuando hay algo escrito.
+        hayCambios={
+          !!nuevo &&
+          (nuevo.descripcion.trim() !== "" || nuevo.monto.trim() !== "" || nuevo.categoriaId !== "")
+        }
         title="Registrar un gasto"
         description="Para lo que no tiene comprobante electrónico: la planilla, un pago a una persona física. Lo que sí tiene comprobante se clasifica desde la bandeja de recibidos, sin volver a escribirlo."
         footer={

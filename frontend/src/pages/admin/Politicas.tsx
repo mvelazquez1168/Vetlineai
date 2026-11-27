@@ -266,6 +266,8 @@ export function Politicas() {
       <Modal
         open={historial !== null}
         onClose={() => setHistorial(null)}
+        // De consulta: el historial de una política no se edita acá.
+        tipo="consulta"
         title={historial ? `Historial de «${historial.nombre}»` : ""}
         description="Cada cambio queda registrado: quién, cuándo, de qué valor a qué valor. No se puede borrar ni editar."
         ancho="lg"

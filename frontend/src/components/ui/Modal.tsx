@@ -1,4 +1,5 @@
 import React from "react";
+import { CapaModal, TipoModal } from "./CapaModal";
 
 // ---------------------------------------------------------------------
 // Modal con ancho configurable.
@@ -33,6 +34,22 @@ export interface ModalProps {
   footer?: React.ReactNode;
   /** Ancho máximo. "md" (448px) es el default y el comportamiento anterior. */
   ancho?: AnchoModal;
+  /**
+   * `formulario` (por omisión) **no se cierra con el clic afuera**;
+   * `consulta` sí. El default es el seguro: un modal que se olvide de
+   * declarar su tipo no va a perder lo que alguien escribió.
+   *
+   * CAMBIO DE COMPORTAMIENTO, a propósito: hasta el 2026-11-27 este
+   * componente cerraba en el clic sobre el fondo, y eso perdía lo
+   * escrito en más de cuarenta pantallas. El defecto se reportó desde
+   * Finanzas › Gastos › Registrar un gasto.
+   */
+  tipo?: TipoModal;
+  /**
+   * Si el formulario tiene algo escrito y sin guardar. Con esto, cerrar
+   * por Esc o por la X pregunta antes de descartar.
+   */
+  hayCambios?: boolean;
 }
 
 export function Modal({
@@ -43,27 +60,28 @@ export function Modal({
   children,
   footer,
   ancho = "md",
+  tipo = "formulario",
+  hayCambios = false,
 }: ModalProps) {
   if (!open) return null;
 
+  // EL FONDO, EL FOCO Y CUÁNDO SE CIERRA los decide `CapaModal`, que es
+  // el único lugar del sistema donde está esa regla.
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-      onClick={onClose}
+    <CapaModal
+      onClose={onClose}
+      tipo={tipo}
+      hayCambios={hayCambios}
+      etiquetaAria={title}
+      // `max-h-[90vh] overflow-y-auto`: con los anchos grandes el
+      // contenido ya puede pasarse de alto, y sin esto el pie del
+      // modal queda fuera de la pantalla sin forma de llegar.
+      className={[
+        "max-h-[90vh] w-full overflow-y-auto rounded-2xl bg-surface p-8 shadow-xl",
+        ANCHOS[ancho],
+      ].join(" ")}
     >
-      <div
-        // `max-h-[90vh] overflow-y-auto`: con los anchos grandes el
-        // contenido ya puede pasarse de alto, y sin esto el pie del
-        // modal queda fuera de la pantalla sin forma de llegar.
-        className={[
-          "max-h-[90vh] w-full overflow-y-auto rounded-2xl bg-surface p-8 shadow-xl",
-          ANCHOS[ancho],
-        ].join(" ")}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <>
         {/* ENCABEZADO Y PIE PEGADOS (prompt 01c, seccion 4). La caja
             entera tiene scroll —hace falta para que el pie no quede
             fuera de la pantalla—, y eso hacia que en un modal largo el
@@ -89,7 +107,7 @@ export function Modal({
             {footer}
           </div>
         )}
-      </div>
-    </div>
+      </>
+    </CapaModal>
   );
 }

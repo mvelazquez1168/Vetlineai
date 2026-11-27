@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CapaModal } from "../../components/ui/CapaModal";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { ControlSegmentado } from "../../components/ui";
@@ -314,16 +315,15 @@ export function NuevaCitaModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <CapaModal
+      onClose={onClose}
+      tipo="formulario"
+      // Lo que se pierde al cerrar: el paciente elegido y la fecha y la
+      // hora que se hayan tocado. Era el caso del reporte: un clic al
+      // costado borraba una cita a medio agendar.
+      hayCambios={pacienteId !== "" || fecha !== "" || hora !== ""}
+      className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface p-8 shadow-xl"
     >
-      <div
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface p-8 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
         {/* El encabezado queda PEGADO arriba (prompt 01c, seccion 4): la
             caja entera tiene scroll, asi que sin esto el titulo y la X
             se iban hacia arriba al bajar en el formulario y el modal
@@ -617,7 +617,6 @@ export function NuevaCitaModal({
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </CapaModal>
   );
 }

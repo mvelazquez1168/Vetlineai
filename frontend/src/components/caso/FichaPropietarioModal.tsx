@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CapaModal } from "../ui/CapaModal";
 import { LineaDeTiempoCliente } from "../crm/LineaDeTiempoCliente";
 import { PanelConsentimientos } from "../crm/PanelConsentimientos";
 import { Link } from "react-router-dom";
@@ -112,16 +113,16 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <CapaModal
+      onClose={onClose}
+      // De formulario: la pestaña «Datos y mascotas» edita al cliente.
+      // Que la de Resumen sea de lectura no alcanza para hacerlo de
+      // consulta: el clic afuera no puede depender de la pestaña que
+      // esté abierta.
+      tipo="formulario"
+      hayCambios={form.sucio}
+      className="flex max-h-[85vh] w-full max-w-xl flex-col rounded-2xl bg-surface shadow-2xl"
     >
-      <div
-        className="flex max-h-[85vh] w-full max-w-xl flex-col rounded-2xl bg-surface shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="flex items-center justify-between border-b border-black/5 px-6 py-4">
           <h2 className="text-lg font-bold text-primary">Ficha del propietario</h2>
           <button type="button" onClick={onClose} className="text-text-muted hover:text-error" aria-label="Cerrar">
@@ -249,7 +250,6 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
             </div>
           )}
         </div>
-      </div>
 
       {pacienteParaAtencion && !registroAtencionCitaId && user?.userId && (
         <ResolverCitaModal
@@ -289,7 +289,6 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
           }}
         />
       )}
-
-    </div>
+    </CapaModal>
   );
 }

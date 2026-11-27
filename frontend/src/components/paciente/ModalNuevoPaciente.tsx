@@ -138,6 +138,7 @@ export function ModalNuevoPaciente({
       open={abierto}
       onClose={cerrar}
       title="Nuevo paciente"
+      hayCambios={formPaciente.sucio || formDueno.sucio}
       description={
         propietarioFijo
           ? `Una mascota más de ${propietarioFijo.nombre}.`

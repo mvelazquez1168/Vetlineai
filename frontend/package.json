@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verificar-modales": "node scripts/verificar_modales.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.80.0",

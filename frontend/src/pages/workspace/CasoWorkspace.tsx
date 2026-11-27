@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { CapaModal } from "../../components/ui/CapaModal";
 import { BackdropMenuMovil } from "../../components/BackdropMenuMovil";
 import { BotonMenuMovil } from "../../components/BotonMenuMovil";
 import { useMenuColapsable } from "../../hooks/useMenuColapsable";
@@ -1875,16 +1876,16 @@ export function CasoWorkspace() {
           genérico) porque necesita el header con puntos de progreso +
           botón de cierre explícito que pide el diseño de Figma. */}
       {modalAbierto && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setModalAbierto(false)}
+        <CapaModal
+          onClose={() => setModalAbierto(false)}
+          tipo="formulario"
+          // Un wizard de tres pasos es lo que más duele perder con un
+          // clic al costado. Hay algo que perder desde que se eligió un
+          // paciente o se escribió el motivo.
+          hayCambios={paso > 1 || motivoNuevoCaso.trim() !== ""}
+          etiquetaAria="Nuevo caso"
+          className="w-full max-w-xl rounded-2xl bg-surface p-8 shadow-xl"
         >
-          <div
-            className="w-full max-w-xl rounded-2xl bg-surface p-8 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex gap-1.5">
@@ -2226,24 +2227,21 @@ export function CasoWorkspace() {
             )}
 
             {errorWizard && paso !== 3 && <p className="mt-3 text-sm text-error">{errorWizard}</p>}
-          </div>
-        </div>
+        </CapaModal>
       )}
 
       {/* Aviso: archivos subidos pero sin enviar en el caso que se está por
           abandonar. Nunca se pierden — quedan en adjuntosPorCaso hasta que
           el médico vuelva a este caso. */}
       {cambioCasoPendiente && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setCambioCasoPendiente(null)}
+        <CapaModal
+          onClose={() => setCambioCasoPendiente(null)}
+          // De acción: un clic al costado no puede decidir si se
+          // abandona el caso con archivos sin enviar.
+          tipo="formulario"
+          etiquetaAria="Archivos sin enviar"
+          className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-xl"
         >
-          <div
-            className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
             <h2 className="text-lg font-bold text-primary">Archivos sin enviar</h2>
             <p className="mt-2 text-sm text-text-muted">
               Tenés {adjuntos.length} archivo{adjuntos.length === 1 ? "" : "s"} sin enviar en este
@@ -2264,8 +2262,7 @@ export function CasoWorkspace() {
                 Continuar sin enviar
               </Button>
             </div>
-          </div>
-        </div>
+        </CapaModal>
       )}
     </div>
   );

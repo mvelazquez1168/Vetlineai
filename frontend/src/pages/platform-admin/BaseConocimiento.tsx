@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { CapaModal } from "../../components/ui/CapaModal";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -660,16 +661,13 @@ export function BaseConocimiento() {
       />
 
       {documentoPreview && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-          role="dialog"
-          aria-modal="true"
-          onClick={cerrarVistaPrevia}
+        <CapaModal
+          onClose={cerrarVistaPrevia}
+          // DE CONSULTA: es la vista previa de un archivo, solo lectura.
+          tipo="consulta"
+          etiquetaAria={documentoPreview.nombre}
+          className="flex h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-surface shadow-xl"
         >
-          <div
-            className="flex h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-surface shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
             <div className="flex items-center justify-between border-b border-black/5 px-6 py-4">
               <div className="flex items-center gap-3">
                 <h2 className="text-lg font-bold text-primary">{documentoPreview.nombre}</h2>
@@ -702,8 +700,7 @@ export function BaseConocimiento() {
                 <iframe src={previewUrl} title={documentoPreview.nombre} className="h-full w-full" />
               )}
             </div>
-          </div>
-        </div>
+        </CapaModal>
       )}
     </div>
   );

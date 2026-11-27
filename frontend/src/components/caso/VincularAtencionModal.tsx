@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "../ui/Button";
+import { CapaModal } from "../ui/CapaModal";
 import { citasApi } from "../../lib/agendaApi";
 import { formatearFecha } from "../../lib/formatFecha";
 import { AtencionSinCaso, workspaceApi } from "../../lib/workspaceApi";
@@ -53,16 +54,16 @@ export function VincularAtencionModal({ casoId, pacienteId, zonaHoraria, onClose
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <CapaModal
+      onClose={onClose}
+      tipo="formulario"
+      // Sin `hayCambios`: cada vínculo se guarda en el momento, así
+      // que al cerrar no queda nada escrito que se pueda perder. Sigue
+      // siendo de tipo formulario —no cierra con el clic afuera— porque
+      // es un modal de acción, no de lectura.
+      z="z-[70]"
+      className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl bg-surface shadow-2xl"
     >
-      <div
-        className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl bg-surface shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="border-b border-black/5 px-6 py-4">
           <h2 className="text-lg font-bold text-primary">Vincular atención anterior</h2>
           <p className="mt-1 text-sm text-text-muted">
@@ -133,7 +134,6 @@ export function VincularAtencionModal({ casoId, pacienteId, zonaHoraria, onClose
             Cerrar
           </Button>
         </div>
-      </div>
-    </div>
+    </CapaModal>
   );
 }

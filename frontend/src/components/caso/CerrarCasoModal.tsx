@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "../ui/Button";
+import { CapaModal } from "../ui/CapaModal";
 import { Select } from "../ui/Select";
 import { CerrarCasoInput, Desenlace } from "../../lib/workspaceApi";
 
@@ -77,16 +78,22 @@ export function CerrarCasoModal<TCaso>({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <CapaModal
+      onClose={onClose}
+      tipo="formulario"
+      // Hay algo que perder cuando se escribió el diagnóstico, se
+      // marcó el tratamiento activo o se cambió el desenlace: lo demás
+      // son valores por omisión.
+      hayCambios={
+        diagnosticoFinal.trim() !== "" ||
+        tratamientoActivo ||
+        tratamientoActivoDetalle.trim() !== "" ||
+        desenlace !== "resuelto" ||
+        marcarFallecido
+      }
+      z="z-50"
+      className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl bg-surface shadow-2xl"
     >
-      <div
-        className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl bg-surface shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="flex items-center justify-between border-b border-black/5 px-6 py-4">
           <h2 className="text-lg font-bold text-primary">Cerrar caso</h2>
           <button type="button" onClick={onClose} className="text-text-muted hover:text-error" aria-label="Cerrar">
@@ -178,7 +185,6 @@ export function CerrarCasoModal<TCaso>({
             {enviando ? "Cerrando…" : "Cerrar caso"}
           </Button>
         </div>
-      </div>
-    </div>
+    </CapaModal>
   );
 }

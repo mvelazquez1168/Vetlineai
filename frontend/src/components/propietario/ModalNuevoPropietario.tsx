@@ -74,6 +74,7 @@ export function ModalNuevoPropietario({
       open={abierto}
       onClose={cerrar}
       title="Nuevo cliente"
+      hayCambios={form.sucio}
       description="Lo esencial arriba. La dirección y los datos de facturación están plegados."
       ancho="lg"
       footer={

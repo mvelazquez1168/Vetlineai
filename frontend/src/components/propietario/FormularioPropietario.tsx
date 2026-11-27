@@ -73,15 +73,30 @@ export interface FormularioPropietarioEstado {
   aCampos: () => DatosPropietarioAlBackend;
   validar: () => string | null;
   reiniciar: (inicial?: Partial<ValoresPropietario>) => void;
+  /**
+   * Si algo cambió respecto de cómo se abrió el formulario.
+   *
+   * Lo usa `CapaModal` para decidir si cerrar pregunta o no (barrido de
+   * modales, 2026-11-27). Vive en el hook y no en cada modal porque es
+   * el hook el que sabe con qué valores se abrió: calcularlo afuera
+   * obligaría a cada pantalla a guardarse una copia del inicial, y la
+   * tercera que lo hiciera lo haría distinto.
+   */
+  sucio: boolean;
 }
 
 export function useFormularioPropietario(
   inicial?: Partial<ValoresPropietario>
 ): FormularioPropietarioEstado {
   const [v, setV] = useState<ValoresPropietario>({ ...VACIO, ...inicial });
+  // El estado con el que se abrió. `useRef` y no `useState`: cambiarlo
+  // no tiene que repintar, y una dependencia de `inicial` lo volvería a
+  // calcular en cada render del padre.
+  const alAbrir = useRef<ValoresPropietario>({ ...VACIO, ...inicial });
 
   return {
     v,
+    sucio: JSON.stringify(v) !== JSON.stringify(alAbrir.current),
     set: (campo, valor) => setV((prev) => ({ ...prev, [campo]: valor })),
     aCampos: () => ({
       nombre: v.nombre.trim(),
@@ -104,7 +119,15 @@ export function useFormularioPropietario(
       }
       return null;
     },
-    reiniciar: (otro) => setV({ ...VACIO, ...otro }),
+    reiniciar: (otro) => {
+      // Reiniciar mueve TAMBIÉN la referencia: si no, el formulario
+      // quedaría «sucio» apenas se lo carga con los datos del cliente
+      // que se va a editar, y cerrar preguntaría sin que nadie tocara
+      // nada.
+      const nuevo = { ...VACIO, ...otro };
+      alAbrir.current = nuevo;
+      setV(nuevo);
+    },
   };
 }
 

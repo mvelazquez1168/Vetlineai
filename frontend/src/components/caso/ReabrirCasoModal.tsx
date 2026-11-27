@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "../ui/Button";
+import { CapaModal } from "../ui/CapaModal";
 
 interface ReabrirCasoModalProps<TCaso> {
   onClose: () => void;
@@ -29,16 +30,13 @@ export function ReabrirCasoModal<TCaso>({ onClose, onReabierto, reabrir }: Reabr
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <CapaModal
+      onClose={onClose}
+      tipo="formulario"
+      hayCambios={motivo.trim() !== ""}
+      z="z-50"
+      className="flex w-full max-w-md flex-col rounded-2xl bg-surface shadow-2xl"
     >
-      <div
-        className="flex w-full max-w-md flex-col rounded-2xl bg-surface shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="flex items-center justify-between border-b border-black/5 px-6 py-4">
           <h2 className="text-lg font-bold text-primary">Reabrir caso</h2>
           <button type="button" onClick={onClose} className="text-text-muted hover:text-error" aria-label="Cerrar">
@@ -71,7 +69,6 @@ export function ReabrirCasoModal<TCaso>({ onClose, onReabierto, reabrir }: Reabr
             {enviando ? "Reabriendo…" : "Reabrir caso"}
           </Button>
         </div>
-      </div>
-    </div>
+    </CapaModal>
   );
 }

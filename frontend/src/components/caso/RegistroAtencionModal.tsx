@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { CapaModal } from "../ui/CapaModal";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
@@ -108,16 +109,14 @@ export function RegistroAtencionModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <CapaModal
+      onClose={onClose}
+      tipo="formulario"
+      // Lo que se puede perder: la nota médica, el peso y la
+      // temperatura que se estén escribiendo.
+      hayCambios={notaMedica.trim() !== "" || peso.trim() !== "" || temperatura.trim() !== ""}
+      className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-2xl bg-surface shadow-2xl"
     >
-      <div
-        className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-2xl bg-surface shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="flex items-center justify-between border-b border-black/5 px-6 py-4">
           <div className="flex items-center gap-2">
             <div>
@@ -220,7 +219,6 @@ export function RegistroAtencionModal({
             </div>
           )}
         </div>
-      </div>
 
       {recetaPanelAbierto && atencion && (
         <RecetaPanel
@@ -244,7 +242,7 @@ export function RegistroAtencionModal({
           }}
         />
       )}
-    </div>
+    </CapaModal>
   );
 }
 
@@ -285,13 +283,14 @@ function ConfirmarFallecimientoModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onCancelar}
+    <CapaModal
+      onClose={onCancelar}
+      // Una acción irreversible NO se cierra con un clic al costado, y
+      // tampoco pregunta «¿descartar?»: cancelarla es lo seguro.
+      tipo="formulario"
+      z="z-[80]"
+      className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-2xl"
     >
-      <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-base font-bold text-primary">Marcar a {pacienteNombre} como fallecido</h3>
         <p className="mt-2 text-sm text-text-muted">
           Esta acción no se puede deshacer desde acá. {pacienteNombre} dejará de recibir cualquier aviso (citas,
@@ -314,8 +313,7 @@ function ConfirmarFallecimientoModal({
             {guardando ? "Guardando…" : "Confirmar fallecimiento"}
           </Button>
         </div>
-      </div>
-    </div>
+    </CapaModal>
   );
 }
 

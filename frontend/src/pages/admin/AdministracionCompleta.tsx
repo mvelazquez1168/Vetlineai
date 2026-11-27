@@ -952,6 +952,8 @@ function PanelComisiones() {
       <Modal
         open={detalle !== null}
         onClose={() => setDetalle(null)}
+        // De consulta: es el detalle de una liquidación, solo lectura.
+        tipo="consulta"
         title={detalle ? `Comisiones de ${detalle.liquidacion.persona}` : ""}
         description="Cada línea dice de qué cargo salió y con qué porcentaje."
         ancho="lg"

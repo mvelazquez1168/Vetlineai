@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "../ui/Button";
+import { CapaModal } from "../ui/CapaModal";
 import { citasApi } from "../../lib/agendaApi";
 import { fechaHoyEnZona } from "../../lib/formatFecha";
 import { workspaceApi } from "../../lib/workspaceApi";
@@ -120,13 +121,19 @@ export function ResolverCitaModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-primary/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
+    <CapaModal
+      onClose={onClose}
+      tipo="formulario"
+      // Hay algo que perder cuando ya se eligió una cita o se tocó la
+      // hora o la duración de la que se va a crear.
+      hayCambios={
+        citaSeleccionadaId !== null ||
+        horaInicio !== horaActualRedondeada() ||
+        duracionMinutos !== 30
+      }
+      z="z-[70]"
+      className="w-full max-w-md rounded-2xl bg-surface p-6 shadow-2xl"
     >
-      <div className="w-full max-w-md rounded-2xl bg-surface p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-base font-bold text-primary">¿Sobre qué cita registrás esta atención?</h3>
         <p className="mt-1 text-sm text-text-muted">
           La atención siempre se registra sobre una cita — si el paciente llegó sin turno, se la creamos acá mismo.
@@ -216,7 +223,6 @@ export function ResolverCitaModal({
             Cancelar
           </Button>
         </div>
-      </div>
-    </div>
+    </CapaModal>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { BreedCombobox, Input, Select } from "../ui";
 import { useCatalogosClinicos } from "../expediente/AccionesClinicas";
 import {
@@ -164,10 +164,13 @@ export interface FormularioPacienteEstado {
   /** El primer problema, o null. Mismo criterio en todos los usos. */
   validar: () => string | null;
   reiniciar: (inicial?: Partial<ValoresPaciente>) => void;
+  /** Si algo cambió respecto de cómo se abrió. Lo usa `CapaModal`. */
+  sucio: boolean;
 }
 
 export function useFormularioPaciente(inicial?: Partial<ValoresPaciente>): FormularioPacienteEstado {
   const [v, setV] = useState<ValoresPaciente>({ ...VACIO, ...inicial });
+  const alAbrir = useRef<ValoresPaciente>({ ...VACIO, ...inicial });
 
   const set = <K extends keyof ValoresPaciente>(campo: K, valor: ValoresPaciente[K]) => {
     setV((prev) => {
@@ -186,6 +189,7 @@ export function useFormularioPaciente(inicial?: Partial<ValoresPaciente>): Formu
   return {
     v,
     set,
+    sucio: JSON.stringify(v) !== JSON.stringify(alAbrir.current),
     aCampos: () => ({
       nombre: v.nombre.trim(),
       especie: v.especie,
@@ -216,7 +220,13 @@ export function useFormularioPaciente(inicial?: Partial<ValoresPaciente>): Formu
       }
       return null;
     },
-    reiniciar: (otro) => setV({ ...VACIO, ...otro }),
+    reiniciar: (otro) => {
+      // Mueve también la referencia: cargar la ficha a editar no deja
+      // el formulario «sucio».
+      const nuevo = { ...VACIO, ...otro };
+      alAbrir.current = nuevo;
+      setV(nuevo);
+    },
   };
 }
 

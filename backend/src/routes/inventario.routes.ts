@@ -341,6 +341,12 @@ inventarioRouter.put("/productos/:id", async (req, res) => {
          via_administracion = $23, frecuencia_sugerida = $24,
          duracion_sugerida_cantidad = $25, duracion_sugerida_unidad = $26,
          tipo_clinico = COALESCE($27, tipo_clinico),
+         -- DATOS FISCALES DE LA v4.4 (prompt 09b, B3). Las líneas del
+         -- comprobante ya los llevaban; el producto no, así que había
+         -- que escribirlos a mano en cada factura.
+         registro_medicamento = $28, forma_farmaceutica = $29,
+         codigo_comercial = $30, codigo_comercial_tipo = $31,
+         partida_arancelaria = $32,
          actualizado_en = now()
        WHERE id = $1`,
       [
@@ -358,6 +364,14 @@ inventarioRouter.put("/productos/:id", async (req, res) => {
         b.unidadDosis ?? null, b.viaAdministracion ?? null, b.frecuenciaSugerida ?? null,
         b.duracionSugeridaCantidad ?? null, b.duracionSugeridaUnidad ?? null,
         b.tipoClinico ?? null,
+        b.registroMedicamento ?? null,
+        b.formaFarmaceutica ?? null,
+        // El CHECK `inv_productos_codigo_comercial_completo` exige que
+        // el código y su tipo vengan juntos: si falta uno, se guardan
+        // los dos en null en vez de que la base rechace el guardado.
+        b.codigoComercial && b.codigoComercialTipo ? b.codigoComercial : null,
+        b.codigoComercial && b.codigoComercialTipo ? b.codigoComercialTipo : null,
+        b.partidaArancelaria ?? null,
       ]
     );
     res.json({ ok: true });

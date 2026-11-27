@@ -189,6 +189,16 @@ export interface Recibido {
   moneda: string | null;
   validacionOk: boolean | null;
   validacionDetalle: string | null;
+  /** Si el receptor del XML es esta clínica. `null` = no se pudo leer. */
+  receptorEsLaClinica: boolean | null;
+  /** Si la firma digital verifica. `null` = no se pudo comprobar. */
+  firmaValida: boolean | null;
+  firmaDetalle: string | null;
+  responderHasta: string | null;
+  plazoVencido: boolean | null;
+  plazoPorVencer: boolean | null;
+  compraId: string | null;
+  registradoEnInventario: string | null;
   mensajeTipo: string | null;
   mensajeConsecutivo: string | null;
   mensajeCondicionImpuesto: string | null;
@@ -515,6 +525,52 @@ export const facturacionCrApi = {
     apiFetchFile(`/facturacion/comprobantes/${id}/xml`, { token: getStoredToken() }),
 
   recibidos: () => authedFetch<{ recibidos: Recibido[] }>("/facturacion/recibidos"),
+
+  /** Las líneas del XML, con lo que la equivalencia ya reconoce (B2). */
+  lineasDelRecibido: (id: string) =>
+    authedFetch<{
+      lineas: Array<{
+        numeroLinea: number;
+        codigoProveedor: string | null;
+        descripcion: string;
+        cantidad: number;
+        precioUnitario: number;
+        productoId: string | null;
+        presentacionId: string | null;
+        productoNombre: string | null;
+      }>;
+      proveedorId: string | null;
+      proveedorNombre: string | null;
+      yaRegistrado: boolean;
+    }>(`/facturacion/recibidos/${id}/lineas`),
+
+  registrarCompraDelRecibido: (id: string, d: Record<string, unknown>) =>
+    authedFetch<{ compraId: string; movimientos: number; equivalenciasGuardadas: number }>(
+      `/facturacion/recibidos/${id}/registrar-compra`,
+      { method: "POST", body: JSON.stringify(d) }
+    ),
+
+  /** Las actividades económicas del emisor y sus reglas (B1). */
+  actividadesEconomicas: () =>
+    authedFetch<{
+      actividades: Array<{
+        id: string;
+        codigo: string;
+        descripcion: string | null;
+        esPredeterminada: boolean;
+      }>;
+      reglas: Array<{ lineaNegocio: string; actividadId: string; codigo: string }>;
+    }>("/facturacion/actividades"),
+  guardarActividad: (d: Record<string, unknown>) =>
+    authedFetch<{ id: string }>("/facturacion/actividades", {
+      method: "POST",
+      body: JSON.stringify(d),
+    }),
+  guardarReglaActividad: (d: Record<string, unknown>) =>
+    authedFetch<{ ok: true }>("/facturacion/actividades/regla", {
+      method: "PUT",
+      body: JSON.stringify(d),
+    }),
 
   cargarRecibido: (xml: string) =>
     authedFetch<{

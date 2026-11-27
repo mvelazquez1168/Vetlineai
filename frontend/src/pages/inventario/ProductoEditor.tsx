@@ -96,6 +96,13 @@ export function ProductoEditor() {
     frecuenciaSugerida: "",
     duracionSugeridaCantidad: "",
     duracionSugeridaUnidad: "dias",
+    // Campos fiscales de la v4.4 (prompt 09b, B3): el comprobante los
+    // incluye cuando la estructura los exige para ese tipo de línea.
+    registroMedicamento: "",
+    formaFarmaceutica: "",
+    codigoComercial: "",
+    codigoComercialTipo: "",
+    partidaArancelaria: "",
   });
 
   const [nuevas, setNuevas] = useState<FormaPresentacion[]>([presentacionVacia()]);
@@ -122,6 +129,11 @@ export function ProductoEditor() {
           codigoTarifaIva: String(p.codigo_tarifa_iva ?? "08"),
           unidadBase: String(p.unidad_base ?? ""),
           requiereReceta: !!p.requiere_receta,
+          registroMedicamento: String(p.registro_medicamento ?? ""),
+          formaFarmaceutica: String(p.forma_farmaceutica ?? ""),
+          codigoComercial: String(p.codigo_comercial ?? ""),
+          codigoComercialTipo: String(p.codigo_comercial_tipo ?? ""),
+          partidaArancelaria: String(p.partida_arancelaria ?? ""),
           dosisPorKg: p.dosis_por_kg === null || p.dosis_por_kg === undefined ? "" : String(p.dosis_por_kg),
           dosisFija: p.dosis_fija === null || p.dosis_fija === undefined ? "" : String(p.dosis_fija),
           unidadDosis: String(p.unidad_dosis ?? ""),
@@ -204,6 +216,20 @@ export function ProductoEditor() {
         duracionSugeridaUnidad: texto("duracionSugeridaCantidad")
           ? texto("duracionSugeridaUnidad")
           : null,
+        registroMedicamento: texto("registroMedicamento").trim() || null,
+        formaFarmaceutica: texto("formaFarmaceutica").trim() || null,
+        // EL CÓDIGO Y SU TIPO VAN JUNTOS: hay un CHECK en la base que lo
+        // exige, porque el nodo del XML lleva los dos. Si falta uno, no
+        // se manda ninguno.
+        codigoComercial:
+          texto("codigoComercial").trim() && texto("codigoComercialTipo")
+            ? texto("codigoComercial").trim()
+            : null,
+        codigoComercialTipo:
+          texto("codigoComercial").trim() && texto("codigoComercialTipo")
+            ? texto("codigoComercialTipo")
+            : null,
+        partidaArancelaria: texto("partidaArancelaria").trim() || null,
       };
 
       const productoId = esNuevo
@@ -327,6 +353,53 @@ export function ProductoEditor() {
               precarga al elegir este producto, para que el médico no
               tipee la misma dosis de amoxicilina todas las veces. Es
               una sugerencia editable, no una indicación. */}
+          {/* ------------------- Campos fiscales de la v4.4 (B3) */}
+          <CardTitle className="mt-6">Datos fiscales del producto (opcional)</CardTitle>
+          <p className="mt-1 text-sm text-text-muted">
+            Lo que la factura electrónica incluye cuando corresponde. Si el producto es un
+            medicamento, Hacienda pide su número de registro del Ministerio de Salud y su forma
+            farmacéutica.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <Input
+              label="Registro del Ministerio de Salud"
+              value={String(form.registroMedicamento)}
+              onChange={(e) => set("registroMedicamento", e.target.value)}
+            />
+            <Input
+              label="Forma farmacéutica (código de 3)"
+              value={String(form.formaFarmaceutica)}
+              placeholder="INY, TAB…"
+              maxLength={3}
+              onChange={(e) => set("formaFarmaceutica", e.target.value.toUpperCase())}
+            />
+            <Input
+              label="Código comercial"
+              value={String(form.codigoComercial)}
+              onChange={(e) => set("codigoComercial", e.target.value)}
+            />
+            <Select
+              label="Tipo del código comercial"
+              value={String(form.codigoComercialTipo)}
+              onChange={(e) => set("codigoComercialTipo", e.target.value)}
+              options={[
+                { value: "", label: "Sin código comercial" },
+                { value: "01", label: "01 — Del vendedor" },
+                { value: "02", label: "02 — Del comprador" },
+                { value: "03", label: "03 — De la industria" },
+                { value: "04", label: "04 — De uso interno" },
+                { value: "99", label: "99 — Otros" },
+              ]}
+            />
+            <Input
+              label="Partida arancelaria (12 caracteres, solo exportación)"
+              className="sm:col-span-2"
+              value={String(form.partidaArancelaria)}
+              maxLength={12}
+              onChange={(e) => set("partidaArancelaria", e.target.value)}
+            />
+          </div>
+
           <CardTitle className="mt-6">Posología sugerida (opcional)</CardTitle>
           <p className="mt-1 text-sm text-text-muted">
             Lo que se precarga al agregar este producto a una receta. El médico lo ajusta siempre.

@@ -8,6 +8,7 @@ import {
   CardTitle,
   EmptyState,
   Icono,
+  Input,
   LoadingState,
   Modal,
   Select,
@@ -17,6 +18,7 @@ import {
   PageHeader,
 } from "../../components/ui";
 import { Recibido, facturacionCrApi, formatearMonto } from "../../lib/facturacionCrApi";
+import { inventarioApi } from "../../lib/inventarioApi";
 import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
@@ -53,6 +55,28 @@ export function ComprobantesRecibidos() {
   const [mensaje, setMensaje] = useState<"1" | "2" | "3">("1");
   const [condicionImpuesto, setCondicionImpuesto] = useState("01");
   const [detalle, setDetalle] = useState("");
+  // El registro en inventario (prompt 09b, B2).
+  const [modalCompra, setModalCompra] = useState<Recibido | null>(null);
+  const [lineas, setLineas] = useState<
+    Array<{
+      numeroLinea: number;
+      descripcion: string;
+      cantidad: number;
+      precioUnitario: number;
+      codigoProveedor: string | null;
+      productoId: string | null;
+      presentacionId: string | null;
+      productoNombre: string | null;
+      lote: string;
+      vencimiento: string;
+    }>
+  >([]);
+  const [proveedorDelXml, setProveedorDelXml] = useState<{
+    id: string | null;
+    nombre: string | null;
+  }>({ id: null, nombre: null });
+  const [bodegas, setBodegas] = useState<Array<{ id: string; nombre: string }>>([]);
+  const [bodegaId, setBodegaId] = useState("");
 
   const recargar = () => {
     setCargando(true);
@@ -116,7 +140,103 @@ export function ComprobantesRecibidos() {
     }
   };
 
+  const abrirCompra = async (r: Recibido) => {
+    setModalCompra(r);
+    setLineas([]);
+    try {
+      const [datos, b] = await Promise.all([
+        facturacionCrApi.lineasDelRecibido(r.id),
+        inventarioApi.bodegas(),
+      ]);
+      setProveedorDelXml({ id: datos.proveedorId, nombre: datos.proveedorNombre });
+      setBodegas(b.bodegas.map((x) => ({ id: x.id, nombre: x.nombre })));
+      setBodegaId(b.bodegas[0]?.id ?? "");
+      setLineas(
+        datos.lineas.map((l) => ({
+          ...l,
+          // El lote nace vacío a propósito: es el dato que viene en la
+          // caja física y no en el XML, y ponerle un valor por omisión
+          // haría que alguien lo deje.
+          lote: "",
+          vencimiento: "",
+        }))
+      );
+    } catch (err) {
+      toast.mostrar(
+        "error",
+        err instanceof Error ? err.message : "No pudimos leer las líneas del comprobante."
+      );
+      setModalCompra(null);
+    }
+  };
+
+  const registrarCompra = async () => {
+    if (!modalCompra || !proveedorDelXml.id || !bodegaId) return;
+    const vinculos = lineas
+      .filter((l) => l.productoId && l.presentacionId)
+      .map((l) => ({
+        numeroLinea: l.numeroLinea,
+        productoId: l.productoId,
+        presentacionId: l.presentacionId,
+        cantidad: l.cantidad,
+        costoUnitario: l.precioUnitario,
+        lote: l.lote.trim() ? { numero: l.lote.trim(), vencimiento: l.vencimiento || null } : undefined,
+      }));
+    if (vinculos.length === 0) {
+      toast.mostrar("aviso", "Hay que vincular al menos una línea a un producto del catálogo.");
+      return;
+    }
+    setOcupado(true);
+    try {
+      const r = await facturacionCrApi.registrarCompraDelRecibido(modalCompra.id, {
+        proveedorId: proveedorDelXml.id,
+        bodegaId,
+        vinculos,
+      });
+      toast.mostrar(
+        "exito",
+        `Entraron ${r.movimientos} movimiento(s) de stock. ${r.equivalenciasGuardadas} equivalencia(s) guardada(s) para la próxima compra.`
+      );
+      setModalCompra(null);
+      recargar();
+    } catch (err) {
+      toast.mostrar("error", err instanceof Error ? err.message : "No pudimos registrar la compra.");
+    } finally {
+      setOcupado(false);
+    }
+  };
+
   const columnas: TableColumn<Recibido>[] = [
+    {
+      key: "avisos",
+      header: "Avisos",
+      // LOS TRES AVISOS QUE DECIDEN SI SE PUEDE RESPONDER (prompt 09b,
+      // B2). Van en la primera columna porque son lo que hace que
+      // alguien no apriete «aceptar» sobre un comprobante que no es de
+      // la clínica.
+      render: (r) => (
+        <div className="flex flex-col gap-1">
+          {r.receptorEsLaClinica === false && (
+            <Badge variant="error">No es de esta clínica</Badge>
+          )}
+          {r.firmaValida === false && (
+            <span title={r.firmaDetalle ?? undefined}>
+              <Badge variant="error">Firma inválida</Badge>
+            </span>
+          )}
+          {r.firmaValida === null && (
+            <span title={r.firmaDetalle ?? undefined}>
+              <Badge variant="neutral">Firma sin comprobar</Badge>
+            </span>
+          )}
+          {r.plazoVencido && <Badge variant="error">Plazo vencido</Badge>}
+          {!r.plazoVencido && r.plazoPorVencer && (
+            <Badge variant="warning">Vence el {r.responderHasta}</Badge>
+          )}
+          {r.registradoEnInventario && <Badge variant="success">En inventario</Badge>}
+        </div>
+      ),
+    },
     {
       key: "proveedor",
       header: "Proveedor",
@@ -197,9 +317,30 @@ export function ComprobantesRecibidos() {
             </Badge>
             <span className="block text-xs text-text-muted">{r.mensajeConsecutivo}</span>
           </>
+        ) : r.receptorEsLaClinica === false ? (
+          // NO SE OFRECE RESPONDER LO QUE NO ES NUESTRO. El backend lo
+          // rechaza igual; el botón deshabilitado con el motivo evita
+          // que alguien lo intente y lea un error que no esperaba.
+          <span className="text-xs text-text-muted">
+            No se puede responder: el receptor es otra identificación.
+          </span>
         ) : (
           <Button variant="secondary" size="sm" onClick={() => setModalMensaje(r)}>
             Responder
+          </Button>
+        ),
+    },
+    {
+      key: "inventario",
+      header: "Inventario",
+      render: (r) =>
+        r.registradoEnInventario ? (
+          <span className="text-xs text-text-muted">
+            Registrado el {r.registradoEnInventario.slice(0, 10)}
+          </span>
+        ) : (
+          <Button variant="secondary" size="sm" onClick={() => abrirCompra(r)}>
+            Registrar la compra
           </Button>
         ),
     },
@@ -325,6 +466,95 @@ export function ComprobantesRecibidos() {
               incorrecta hay que resolverlo con el proveedor.
             </CardDescription>
           </Card>
+        </div>
+      </Modal>
+
+      {/* ------------------------- Registrar la compra en inventario */}
+      <Modal
+        open={modalCompra !== null}
+        onClose={() => setModalCompra(null)}
+        title="Registrar la compra en inventario"
+        description="Cada línea del XML se vincula a un producto del catálogo. La próxima factura de este proveedor llega con las líneas ya reconocidas."
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setModalCompra(null)}>
+              Cancelar
+            </Button>
+            <Button disabled={ocupado || !proveedorDelXml.id || !bodegaId} onClick={registrarCompra}>
+              {ocupado ? "Registrando…" : "Registrar la entrada"}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          {!proveedorDelXml.id && (
+            <p className="rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning">
+              {/* SIN PROVEEDOR NO HAY COMPRA. Se dice qué falta en vez de
+                  dejar el botón muerto sin explicación. */}
+              La cédula del emisor del XML no corresponde a ningún proveedor del catálogo
+              {proveedorDelXml.nombre ? ` («${proveedorDelXml.nombre}»)` : ""}. Creá el proveedor con
+              esa identificación y volvé a intentar.
+            </p>
+          )}
+          {proveedorDelXml.id && (
+            <p className="text-sm text-text-muted">
+              Proveedor: <strong>{proveedorDelXml.nombre}</strong>
+            </p>
+          )}
+          <Select
+            label="A qué bodega entra"
+            value={bodegaId}
+            onChange={(e) => setBodegaId(e.target.value)}
+            options={bodegas.map((b) => ({ value: b.id, label: b.nombre }))}
+          />
+
+          <div className="space-y-3">
+            {lineas.map((l, i) => (
+              <div key={l.numeroLinea} className="rounded-xl border border-black/10 p-3">
+                <p className="text-sm font-semibold text-text-primary">{l.descripcion}</p>
+                <p className="mt-0.5 text-xs text-text-muted">
+                  {l.cantidad} × {l.precioUnitario.toLocaleString("es-CR")}
+                  {l.codigoProveedor ? ` · código del proveedor: ${l.codigoProveedor}` : ""}
+                </p>
+                {l.productoId ? (
+                  <p className="mt-2 text-sm text-success">
+                    ✓ Reconocido: {l.productoNombre}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-text-muted">
+                    Sin vincular. Esta línea no va a entrar al inventario: vinculá el producto desde
+                    el catálogo del proveedor y volvé a cargar la factura.
+                  </p>
+                )}
+                {l.productoId && (
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <Input
+                      label="Lote"
+                      value={l.lote}
+                      onChange={(e) =>
+                        setLineas((xs) =>
+                          xs.map((x, j) => (j === i ? { ...x, lote: e.target.value } : x))
+                        )
+                      }
+                    />
+                    <div>
+                      <label className="text-sm font-semibold text-text-primary">Vencimiento</label>
+                      <input
+                        type="date"
+                        className="mt-1.5 w-full rounded-lg border border-black/10 bg-surface px-3 py-2 text-sm"
+                        value={l.vencimiento}
+                        onChange={(e) =>
+                          setLineas((xs) =>
+                            xs.map((x, j) => (j === i ? { ...x, vencimiento: e.target.value } : x))
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </Modal>
     </div>

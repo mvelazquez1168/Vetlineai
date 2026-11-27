@@ -40,6 +40,16 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | [El cliente: sus datos, cómo nos conoció y por dónde se le escribe](clientes-datos-y-contacto.md) | Identificación con autocompletar, fuente de referencia, canal preferido y consentimientos. |
 | [Clientes y mascotas repetidos](clientes-duplicados.md) | Unificar fichas duplicadas sin perder la historia de ninguna de las dos. |
 
+## La caja y la facturación
+
+| Página | De qué trata |
+|---|---|
+| [Presupuestos](presupuestos.md) | Cotizar antes de hacer, cobrar el anticipo y convertir lo aceptado en cargos. |
+| [Cerrar la caja: conteo, vales y datáfono](caja-arqueo-vales-y-datafono.md) | Contar billete por billete, los vales con quién recibió, y las tarjetas contra el lote. |
+| [Las facturas que envían los proveedores](facturas-de-proveedores.md) | Qué es el XML, por qué hay que responderle a Hacienda, y cómo entra la compra al inventario. |
+| [Descuentos: topes y motivos](descuentos.md) | Hasta cuánto puede descontar cada quien, por qué motivo, y qué código lleva el comprobante. |
+| [La actividad económica del comprobante](actividad-economica.md) | Por qué una factura declara una sola actividad y qué hacer con una cuenta mixta. |
+
 ## El dictado por voz
 
 | Página | De qué trata |
@@ -52,9 +62,9 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 ## Lo que todavía no está en este manual
 
 Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la atención), las del
-**07d** (el dictado por voz) y las del **anexo 07-03** (el paciente, el cliente y los duplicados).
-Faltan las de caja, inventario, facturación electrónica, agenda y administración, que se irán
-sumando.
+**07d** (el dictado por voz), las del **anexo 07-03** (el paciente, el cliente y los duplicados) y
+las del **08b/09b** (presupuestos, cierre de caja, descuentos, facturas de proveedores y actividad
+económica). Faltan las del resto de caja, inventario, agenda y administración, que se irán sumando.
 
 El manual consolidado en PDF y Word, con el logo de la clínica, se genera **al cierre de cada
 bloque**, no en cada entrega.

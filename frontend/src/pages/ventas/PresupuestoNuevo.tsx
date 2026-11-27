@@ -10,6 +10,7 @@ import {
 import { inventarioApi } from "../../lib/inventarioApi";
 import { formatearMonto, MotivoDescuento, ventasApi } from "../../lib/ventasApi";
 import { workspaceApi } from "../../lib/workspaceApi";
+import { pacientesApi } from "../../lib/pacientesApi";
 
 // ---------------------------------------------------------------------
 // ARMAR UN PRESUPUESTO — prompt 08b, A1.
@@ -101,6 +102,22 @@ export function PresupuestoNuevo() {
       clearTimeout(t);
     };
   }, [busqueda]);
+
+  // VINIENDO DESDE LA CONSULTA llega el paciente y no el cliente: el
+  // dueño sale de la ficha del paciente. Así el botón de la atención no
+  // tiene que conocer al dueño, que es un dato que esa pantalla no
+  // tiene a mano.
+  useEffect(() => {
+    const delParam = params.get("paciente");
+    if (!delParam || clienteId) return;
+    pacientesApi
+      .obtener(delParam)
+      .then((f) => {
+        setClienteId(f.paciente.propietario_id);
+        setClientes([{ id: f.paciente.propietario_id, nombre: f.paciente.propietario_nombre }]);
+      })
+      .catch(() => undefined);
+  }, [params, clienteId]);
 
   useEffect(() => {
     if (!clienteId) {

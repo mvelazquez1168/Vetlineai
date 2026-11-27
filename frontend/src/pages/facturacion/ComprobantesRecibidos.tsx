@@ -19,6 +19,7 @@ import {
 } from "../../components/ui";
 import { Recibido, facturacionCrApi, formatearMonto } from "../../lib/facturacionCrApi";
 import { inventarioApi } from "../../lib/inventarioApi";
+import { guardarComoArchivo } from "../../lib/descargas";
 import { plural } from "../../lib/plural";
 
 // ---------------------------------------------------------------------
@@ -357,6 +358,30 @@ export function ComprobantesRecibidos() {
         subtitulo="Las facturas que la clínica recibe de sus proveedores, y el mensaje con el que se aceptan o se rechazan."
         icono="recibidos"
         modulo="facturacion"
+        secundarias={
+          /* LA DESCARGA DEL MES PARA EL CONTADOR (prompt 09b, B2). El
+             endpoint estaba y no tenía de dónde llamarse, y una función
+             a la que no se llega no existe. */
+          <Button
+            variant="secondary"
+            onClick={async () => {
+              const hoy = new Date();
+              const desde = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-01`;
+              const hasta = hoy.toISOString().slice(0, 10);
+              try {
+                const r = await facturacionCrApi.descargaMasiva(desde, hasta);
+                guardarComoArchivo(r.blob, r.filename ?? `comprobantes-${desde}-a-${hasta}.zip`);
+              } catch (err) {
+                toast.mostrar(
+                  "error",
+                  err instanceof Error ? err.message : "No pudimos armar la descarga."
+                );
+              }
+            }}
+          >
+            Descargar el mes (XML)
+          </Button>
+        }
       />
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <div>

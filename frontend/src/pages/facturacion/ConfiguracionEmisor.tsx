@@ -15,6 +15,7 @@ import {
   PageHeader,
 } from "../../components/ui";
 import { SelectorUbicacion } from "../../components/SelectorUbicacion";
+import { inventarioApi } from "../../lib/inventarioApi";
 import { useAuth } from "../../hooks/useAuth";
 import {
   Catalogos,
@@ -78,6 +79,41 @@ export function ConfiguracionEmisor() {
   useEffect(recargar, []);
   useEffect(() => {
     facturacionCrApi.catalogos().then(setCatalogos).catch(() => setCatalogos(null));
+  }, []);
+
+  // Las actividades económicas y sus reglas (prompt 09b, B1).
+  const [actividades, setActividades] = useState<
+    Array<{ id: string; codigo: string; descripcion: string | null; esPredeterminada: boolean }>
+  >([]);
+  const [reglas, setReglas] = useState<
+    Array<{ lineaNegocio: string; actividadId: string; codigo: string }>
+  >([]);
+  const [lineasNegocio, setLineasNegocio] = useState<Array<{ codigo: string; nombre: string }>>([]);
+  const [nuevaActividad, setNuevaActividad] = useState({
+    codigo: "",
+    descripcion: "",
+    esPredeterminada: false,
+  });
+
+  const cargarActividades = async () => {
+    try {
+      const r = await facturacionCrApi.actividadesEconomicas();
+      setActividades(r.actividades);
+      setReglas(r.reglas);
+    } catch {
+      setActividades([]);
+      setReglas([]);
+    }
+  };
+
+  useEffect(() => {
+    void cargarActividades();
+    inventarioApi
+      .catalogos()
+      .then((c) =>
+        setLineasNegocio(c.lineasNegocio.map((l) => ({ codigo: l.codigo, nombre: l.nombre })))
+      )
+      .catch(() => setLineasNegocio([]));
   }, []);
 
   const guardarEmisor = async () => {
@@ -197,6 +233,128 @@ export function ConfiguracionEmisor() {
           })}
           {campo("Correo", "correo", { placeholder: "facturacion@clinica.com" })}
         </div>
+
+        {/* ---------------- Actividades económicas (prompt 09b, B1) */}
+        <CardTitle className="mt-6">Actividades económicas inscritas</CardTitle>
+        <CardDescription>
+          Un comprobante declara <strong>una sola</strong> actividad: la estructura de Hacienda tiene
+          un único campo y no se puede repetir. Si la clínica tiene dos —por ejemplo servicios
+          veterinarios y venta de productos—, acá se cargan las dos y se dice cuál le toca a cada
+          línea de negocio.
+        </CardDescription>
+
+        <div className="mt-3 space-y-2">
+          {actividades.length === 0 && (
+            <p className="text-sm text-text-muted">
+              Todavía no hay actividades cargadas: todo sale con la que está arriba, en los datos
+              fiscales.
+            </p>
+          )}
+          {actividades.map((a) => (
+            <div
+              key={a.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-black/10 px-3 py-2 text-sm"
+            >
+              <span>
+                <span className="font-mono font-semibold">{a.codigo}</span>
+                {a.descripcion ? ` — ${a.descripcion}` : ""}
+              </span>
+              {a.esPredeterminada && <Badge variant="info">Predeterminada</Badge>}
+            </div>
+          ))}
+        </div>
+
+        {esAdminClinica && (
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <Input
+              label="Código (6 dígitos)"
+              value={nuevaActividad.codigo}
+              maxLength={6}
+              onChange={(e) =>
+                setNuevaActividad({ ...nuevaActividad, codigo: e.target.value.replace(/\D/g, "") })
+              }
+            />
+            <Input
+              label="Descripción"
+              value={nuevaActividad.descripcion}
+              placeholder="Actividades veterinarias"
+              onChange={(e) =>
+                setNuevaActividad({ ...nuevaActividad, descripcion: e.target.value })
+              }
+            />
+            <div className="flex items-end gap-2">
+              <label className="flex items-center gap-2 pb-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-black/20"
+                  checked={nuevaActividad.esPredeterminada}
+                  onChange={(e) =>
+                    setNuevaActividad({ ...nuevaActividad, esPredeterminada: e.target.checked })
+                  }
+                />
+                Predeterminada
+              </label>
+              <Button
+                variant="secondary"
+                disabled={nuevaActividad.codigo.length !== 6}
+                onClick={async () => {
+                  try {
+                    await facturacionCrApi.guardarActividad(nuevaActividad);
+                    toast.mostrar("exito", "Actividad guardada.");
+                    setNuevaActividad({ codigo: "", descripcion: "", esPredeterminada: false });
+                    await cargarActividades();
+                  } catch (err) {
+                    toast.mostrar(
+                      "error",
+                      err instanceof Error ? err.message : "No pudimos guardarla."
+                    );
+                  }
+                }}
+              >
+                Agregar
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {actividades.length > 1 && (
+          <>
+            <p className="mt-5 text-sm font-semibold text-text-primary">
+              Qué actividad usa cada línea de negocio
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {lineasNegocio.map((l) => (
+                <Select
+                  key={l.codigo}
+                  label={l.nombre}
+                  value={reglas.find((r) => r.lineaNegocio === l.codigo)?.actividadId ?? ""}
+                  disabled={!esAdminClinica}
+                  onChange={async (e) => {
+                    try {
+                      await facturacionCrApi.guardarReglaActividad({
+                        lineaNegocio: l.codigo,
+                        actividadId: e.target.value || null,
+                      });
+                      await cargarActividades();
+                    } catch (err) {
+                      toast.mostrar(
+                        "error",
+                        err instanceof Error ? err.message : "No pudimos guardar la regla."
+                      );
+                    }
+                  }}
+                  options={[
+                    { value: "", label: "La predeterminada" },
+                    ...actividades.map((a) => ({
+                      value: a.id,
+                      label: `${a.codigo}${a.descripcion ? ` — ${a.descripcion}` : ""}`,
+                    })),
+                  ]}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         <CardTitle className="mt-6">Ubicación</CardTitle>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

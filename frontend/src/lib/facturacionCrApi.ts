@@ -526,6 +526,12 @@ export const facturacionCrApi = {
 
   recibidos: () => authedFetch<{ recibidos: Recibido[] }>("/facturacion/recibidos"),
 
+  /** El zip del período para el contador (B2). */
+  descargaMasiva: (desde: string, hasta: string) =>
+    apiFetchFile(`/facturacion/descarga-masiva?desde=${desde}&hasta=${hasta}`, {
+      token: getStoredToken(),
+    }),
+
   /** Las líneas del XML, con lo que la equivalencia ya reconoce (B2). */
   lineasDelRecibido: (id: string) =>
     authedFetch<{

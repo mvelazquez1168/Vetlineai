@@ -1011,6 +1011,27 @@ export function AtencionActual({
                 <Button variant="secondary" onClick={() => setPanel("estudio")}>
                   Laboratorio <Atajo>Alt+E</Atajo>
                 </Button>
+                {/* COTIZAR DESDE LA CONSULTA (prompt 08b, A1). Es el caso
+                    típico: el médico cotiza la cirugía mientras el dueño
+                    está enfrente. Abre la pantalla de presupuesto con el
+                    cliente, el paciente y la atención ya puestos, para
+                    que el presupuesto quede ligado a esta consulta y
+                    aparezca en la línea de tiempo del paciente.
+
+                    NO es un panel más de la atención: un presupuesto no
+                    es algo que se le hizo al paciente, y ponerlo entre
+                    los ítems cobrables lo haría cobrable. */}
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    navegar(
+                      `/ventas/presupuestos/nuevo?paciente=${pacienteId}` +
+                        `&atencion=${atencionId}`
+                    )
+                  }
+                >
+                  Presupuesto
+                </Button>
               </div>
             )}
           </div>

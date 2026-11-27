@@ -90,6 +90,49 @@ const ESTADOS_SISTEMA: Array<{ valor: SistemaExaminado["estado"]; etiqueta: stri
   { valor: "anormal", etiqueta: "Anormal" },
 ];
 
+// CADA OPCIÓN TIENE SU COLOR SIEMPRE, no solo al estar elegida.
+//
+// Antes el color aparecía únicamente en la opción elegida, y como los
+// doce sistemas arrancan en «No evaluado», el médico veía treinta y seis
+// botones grises y tenía que leer cada etiqueta para saber cuál era
+// «Normal». El color es el que distingue antes de tocar; el relleno es
+// el que dice qué está elegido.
+//
+// LOS NÚMEROS, porque «se ve bien» no es una medida. Los tokens de
+// estado NO son configurables y valen lo mismo en los tres temas
+// (`index.css`: solo cambian fondo, texto y secundario), y `surface` es
+// blanco en los tres. Así que el contraste es uno y el mismo en Marca,
+// Sereno y Vibrante:
+//   · success rgb(22 128 97) sobre blanco = 4,89:1 → AA (≥4,5)
+//   · error   rgb(190 60 55) sobre blanco = 5,40:1 → AA
+//   · blanco sobre success = 4,89:1 · blanco sobre error = 5,40:1 → AA
+//   · text-muted rgb(90 107 130) sobre blanco = 5,44:1 → AA
+//
+// POR QUÉ «Anormal» USA `error` Y NO `warning`: warning rgb(180 120 20)
+// sobre blanco da 3,72:1, que NO llega a AA para texto. El prompt dejaba
+// elegir «el que tenga mejor contraste» y el cálculo decide. El fondo de
+// la fila sigue usando warning cuando el hallazgo ya está escrito: ahí
+// es un tinte al 10 %, no texto.
+const CLASES_ESTADO_SISTEMA: Record<
+  SistemaExaminado["estado"],
+  { sinElegir: string; elegido: string }
+> = {
+  no_evaluado: {
+    sinElegir: "border-black/15 bg-transparent text-text-muted hover:bg-black/5",
+    // Relleno neutro CLARO con texto oscuro. El `bg-black/20` anterior
+    // se veía apagado justo en el estado que es el de partida.
+    elegido: "border-black/10 bg-black/10 text-text-primary hover:bg-black/15",
+  },
+  normal: {
+    sinElegir: "border-success/60 bg-transparent text-success hover:bg-success/10",
+    elegido: "border-success bg-success text-white hover:bg-success/90",
+  },
+  anormal: {
+    sinElegir: "border-error/60 bg-transparent text-error hover:bg-error/10",
+    elegido: "border-error bg-error text-white hover:bg-error/90",
+  },
+};
+
 export function AtencionActual({
   pacienteId,
   pacienteNombre,
@@ -821,14 +864,10 @@ export function AtencionActual({
                         aria-pressed={s.estado === e.valor}
                         onClick={() => marcar(s.sistema, e.valor, s.nota)}
                         className={[
-                          "rounded-md px-2 py-1 text-xs font-semibold",
-                          s.estado === e.valor
-                            ? e.valor === "anormal"
-                              ? "bg-error text-white"
-                              : e.valor === "normal"
-                                ? "bg-success text-white"
-                                : "bg-black/20 text-text-primary"
-                            : "border border-black/10 bg-transparent text-text-muted hover:bg-black/5",
+                          "rounded-md border px-2 py-1 text-xs font-semibold transition-colors",
+                          CLASES_ESTADO_SISTEMA[e.valor][
+                            s.estado === e.valor ? "elegido" : "sinElegir"
+                          ],
                         ].join(" ")}
                       >
                         {e.etiqueta}

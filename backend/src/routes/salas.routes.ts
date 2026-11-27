@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 
 // ---------------------------------------------------------------------
 // Salas de examen/cirugía/dental de la clínica (tenant_id directo — ver
@@ -10,12 +11,7 @@ export const salasRouter = Router();
 
 salasRouter.use(authenticate, withTenantClient);
 
-salasRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+salasRouter.use(soloPersonalDeLaClinica());
 
 salasRouter.get("/", async (req, res) => {
   try {

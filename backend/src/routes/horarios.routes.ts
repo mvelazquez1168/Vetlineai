@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 
 // ---------------------------------------------------------------------
 // Configuración semanal de horarios por médico (horarios_configuracion,
@@ -10,12 +11,7 @@ export const horariosRouter = Router();
 
 horariosRouter.use(authenticate, withTenantClient);
 
-horariosRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+horariosRouter.use(soloPersonalDeLaClinica());
 
 // GET /api/horarios?medicoId=... — sin medicoId, devuelve la
 // configuración de todos los médicos del tenant (RLS ya scopea).

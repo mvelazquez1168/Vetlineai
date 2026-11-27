@@ -56,11 +56,16 @@ export async function enviarNotificacionPorCorreo<T extends TipoCorreo>(
       adjuntos
     );
     if (resultado === "no_configurado") return; // Resend no configurado: se mantiene 'simulada'.
-    await db.query(`UPDATE notificaciones SET estado = $2, correo_enviado_id = $3 WHERE id = $1`, [
-      notificacionId,
-      resultado === "enviado" ? "enviada" : "fallida",
-      correoEnviadoId,
-    ]);
+    // `enviada_en` solo cuando salió de verdad: en una fallida queda en
+    // NULL, que es la verdad. La rama de WhatsApp la escribe igual —ahí
+    // se descubrió que la columna no existía (migración 148)—.
+    await db.query(
+      `UPDATE notificaciones
+          SET estado = $2, correo_enviado_id = $3,
+              enviada_en = CASE WHEN $2 = 'enviada' THEN now() ELSE enviada_en END
+        WHERE id = $1`,
+      [notificacionId, resultado === "enviado" ? "enviada" : "fallida", correoEnviadoId]
+    );
   } catch (err) {
     console.error(`[notificaciones] Fallo inesperado al procesar el envío de la notificación ${notificacionId}`, err);
     await db.query(`UPDATE notificaciones SET estado = 'fallida', error = $2 WHERE id = $1`, [

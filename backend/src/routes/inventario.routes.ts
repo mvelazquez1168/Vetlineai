@@ -4,7 +4,7 @@ import os from "os";
 import path from "path";
 import multer from "multer";
 import { authenticate, withTenantClient } from "../middleware/auth";
-import { exigirPermiso } from "../permisos";
+import { exigirPermiso, soloPersonalDeLaClinica } from "../permisos";
 import { requiereModulo } from "../tenantModulos";
 import { registrarMovimiento, registrarTraslado } from "../inventario/movimientos";
 import { aprobarAjuste, rechazarAjuste, solicitarAjuste } from "../inventario/ajustes";
@@ -66,12 +66,7 @@ const subir = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 *
 
 inventarioRouter.use(authenticate, withTenantClient);
 
-inventarioRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+inventarioRouter.use(soloPersonalDeLaClinica());
 
 inventarioRouter.use(requiereModulo("inventario"));
 

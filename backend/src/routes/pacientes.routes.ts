@@ -4,6 +4,7 @@ import { calcularEdadEfectiva, fechaNacimientoDesdeEdad } from "../edadPaciente"
 import { validarRazaParaEspecie } from "../especiePaciente";
 import { asignarNumeroExpedientePaciente } from "../expediente";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 import {
   crearPropietario,
   DatosAltaPropietario,
@@ -18,12 +19,7 @@ pacientesRouter.use(authenticate, withTenantClient);
 
 // Ampliado a admin_clinica — mismo motivo que propietarios.routes.ts
 // (ver prompt_fix_agenda_permisos_paciente.md).
-pacientesRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+pacientesRouter.use(soloPersonalDeLaClinica());
 
 // ---------------------------------------------------------------------
 // Campos editables de la ficha, compartidos por POST y PATCH.

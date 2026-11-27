@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 import {
   autorizarFueraDeHorario,
   crearCita,
@@ -17,12 +18,7 @@ export const listaEsperaRouter = Router();
 
 listaEsperaRouter.use(authenticate, withTenantClient);
 
-listaEsperaRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+listaEsperaRouter.use(soloPersonalDeLaClinica());
 
 // GET /api/lista-espera?prioridad=&especie=
 listaEsperaRouter.get("/", async (req, res) => {

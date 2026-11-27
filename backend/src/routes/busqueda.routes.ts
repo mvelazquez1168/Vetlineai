@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 
 // ---------------------------------------------------------------------
 // Búsqueda global — lo que alimenta la paleta de comandos (Ctrl/Cmd+K).
@@ -22,12 +23,7 @@ export const busquedaRouter = Router();
 
 busquedaRouter.use(authenticate, withTenantClient);
 
-busquedaRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+busquedaRouter.use(soloPersonalDeLaClinica());
 
 // Umbral calibrado contra casos reales (ver la migración 090): la
 // ventana entre el peor positivo (Toby/Tobi = 0.429) y el mejor negativo

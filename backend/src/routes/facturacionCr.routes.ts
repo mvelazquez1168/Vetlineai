@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import multer from "multer";
 import { authenticate, withTenantClient } from "../middleware/auth";
-import { exigirPermiso } from "../permisos";
+import { exigirPermiso, soloPersonalDeLaClinica } from "../permisos";
 import { requiereModulo } from "../tenantModulos";
 import { emitir, intentarEnviar, leerEmisor } from "../facturacion/emision";
 import { borrarBorrador, emitirBorrador, guardarBorrador } from "../facturacion/borradores";
@@ -76,12 +76,7 @@ const subir = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 
 
 facturacionCrRouter.use(authenticate, withTenantClient);
 
-facturacionCrRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+facturacionCrRouter.use(soloPersonalDeLaClinica());
 
 facturacionCrRouter.use(requiereModulo("facturacion"));
 

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 
 // ---------------------------------------------------------------------
 // Módulo de Notificaciones — GET de consulta (Fase D), para poder
@@ -11,12 +12,7 @@ export const notificacionesRouter = Router();
 
 notificacionesRouter.use(authenticate, withTenantClient);
 
-notificacionesRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+notificacionesRouter.use(soloPersonalDeLaClinica());
 
 notificacionesRouter.get("/", async (req, res) => {
   try {

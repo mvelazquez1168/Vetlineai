@@ -14,10 +14,16 @@ import { pool } from "./db";
 // divergiera de `AuthPayload`, el compilador lo diría en `auth.ts`, que
 // es donde se arma el objeto.
 // ---------------------------------------------------------------------
-type AuthMinimo = { permisos?: Set<string> } | undefined;
+type AuthMinimo =
+  | { permisos?: Set<string>; roles?: string[]; tenantId?: string | null }
+  | undefined;
 
 function authDe(req: Request): AuthMinimo {
-  return (req as Request & { auth?: { permisos?: Set<string> } }).auth;
+  return (
+    req as Request & {
+      auth?: { permisos?: Set<string>; roles?: string[]; tenantId?: string | null };
+    }
+  ).auth;
 }
 
 // ---------------------------------------------------------------------
@@ -202,4 +208,34 @@ export function exigirPermiso(codigo: string) {
 /** Para chequear dentro de una ruta, cuando depende de los datos. */
 export function tienePermiso(req: Request, codigo: string): boolean {
   return authDe(req)?.permisos?.has(codigo) === true;
+}
+
+// ---------------------------------------------------------------------
+// ¿ESTA PERSONA TRABAJA EN LA CLÍNICA? — la guarda de entrada de todos
+// los routers de la clínica.
+//
+// DEFECTO QUE ESTO CIERRA, y es el más grande del prompt 04: los catorce
+// routers preguntaban «¿es médico o es administrador?», que era la forma
+// de decir «es personal» cuando solo existían esos dos. Con ocho roles,
+// la recepción entraba al sistema, veía la agenda en el menú y recibía
+// «Esta sección es solo para personal de la clínica» en cada llamada.
+//
+// LA PREGUNTA CORRECTA es si pertenece a una clínica y tiene algún rol
+// en ella. Lo que puede hacer dentro lo deciden los permisos de cada
+// ruta, que es donde tiene que decidirse.
+//
+// El personal de plataforma no pasa: no pertenece a ninguna clínica y
+// tiene su propio router.
+// ---------------------------------------------------------------------
+export function soloPersonalDeLaClinica(mensaje?: string) {
+  return function guarda(req: Request, res: Response, next: NextFunction) {
+    const auth = authDe(req);
+    if (!auth) return res.status(401).json({ error: "No autenticado." });
+    if (!auth.tenantId || !(auth.roles && auth.roles.length > 0)) {
+      return res
+        .status(403)
+        .json({ error: mensaje ?? "Esta sección es solo para personal de la clínica." });
+    }
+    next();
+  };
 }

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { direccionValida } from "../email";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 import {
   crearPropietario,
   ERROR_IDENTIFICACION_REPETIDA,
@@ -44,12 +45,7 @@ propietariosRouter.use(authenticate, withTenantClient);
 // el módulo de Agenda necesita que un admin también pueda buscar/crear
 // propietarios y pacientes al armar una cita nueva, no solo un médico
 // vía el wizard de "Nuevo Caso" original que gateaba esto.
-propietariosRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+propietariosRouter.use(soloPersonalDeLaClinica());
 
 // ---------------------------------------------------------------------
 // GET /api/propietarios/tipos-identificacion

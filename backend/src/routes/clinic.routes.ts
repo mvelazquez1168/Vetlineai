@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 import { ETIQUETA_MODULO, MODULOS, modulosHabilitados, requiereModulo } from "../tenantModulos";
 
 // ---------------------------------------------------------------------
@@ -26,12 +27,7 @@ export const clinicRouter = Router();
 
 clinicRouter.use(authenticate, withTenantClient);
 
-clinicRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+clinicRouter.use(soloPersonalDeLaClinica());
 
 clinicRouter.get("/estado", requiereModulo("expediente"), async (req, res) => {
   try {

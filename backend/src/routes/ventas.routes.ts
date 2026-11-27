@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
-import { exigirPermiso } from "../permisos";
+import { exigirPermiso, soloPersonalDeLaClinica } from "../permisos";
 import { aExcel, aPdf, nombreDeArchivo } from "../exportacion/tabla";
 import { esReporteConocido, reporteDeVentas } from "../ventas/reportes";
 import { requiereModulo } from "../tenantModulos";
@@ -79,12 +79,7 @@ export const ventasRouter = Router();
 
 ventasRouter.use(authenticate, withTenantClient);
 
-ventasRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+ventasRouter.use(soloPersonalDeLaClinica());
 
 ventasRouter.use(requiereModulo("ventas"));
 

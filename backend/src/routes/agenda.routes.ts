@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { soloPersonalDeLaClinica } from "../permisos";
 
 // ---------------------------------------------------------------------
 // Endpoints de agregación de la Agenda — Centro de Comando, Conflictos
@@ -10,12 +11,7 @@ export const agendaRouter = Router();
 
 agendaRouter.use(authenticate, withTenantClient);
 
-agendaRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+agendaRouter.use(soloPersonalDeLaClinica());
 
 // No existe una columna de "capacidad máxima por defecto de la clínica"
 // en tenants (el prompt original asumía que ya existía uno) — se usa

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
-import { exigirPermiso } from "../permisos";
+import { exigirPermiso, soloPersonalDeLaClinica } from "../permisos";
 import {
   adendasDeAtencion,
   agregarAdenda,
@@ -107,12 +107,11 @@ export const expedienteRouter = Router();
 
 expedienteRouter.use(authenticate, withTenantClient);
 
-expedienteRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "El expediente clínico es del personal de la clínica." });
-  }
-  next();
-});
+expedienteRouter.use(
+  soloPersonalDeLaClinica(
+  "El expediente clínico es del personal de la clínica."
+)
+);
 
 // EL CONTENIDO CLÍNICO SE ESCRIBE CON SU PERMISO (prompt 04).
 //

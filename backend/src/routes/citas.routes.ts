@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { registrarInteraccion } from "../crm/interacciones";
 import { PoolClient } from "pg";
 import { sePuedeAgendar } from "../clinica/horarios";
-import { tienePermiso } from "../permisos";
+import { soloPersonalDeLaClinica, tienePermiso } from "../permisos";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { avisoActivo, emitirNotificacion } from "../notificaciones";
 
@@ -19,12 +19,7 @@ function formatoFechaCorta(fecha: Date | string): string {
 
 citasRouter.use(authenticate, withTenantClient);
 
-citasRouter.use((req, res, next) => {
-  if (!req.auth!.esMedico && !req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esta sección es solo para personal de la clínica." });
-  }
-  next();
-});
+citasRouter.use(soloPersonalDeLaClinica());
 
 // Transiciones de estado válidas — explícitas, sin saltos ilógicos.
 // Estados terminales (completada/cancelada/no_show) no salen a ningún

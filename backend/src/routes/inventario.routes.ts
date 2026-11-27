@@ -1178,7 +1178,7 @@ inventarioRouter.get("/kardex/exportar", async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${nombreDeArchivo("kardex", "pdf")}"`
+        `attachment; filename="${nombreDeArchivo("kardex", "pdf", req.auth!.zonaHoraria)}"`
       );
       return res.send(pdf);
     }
@@ -1192,7 +1192,7 @@ inventarioRouter.get("/kardex/exportar", async (req, res) => {
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${nombreDeArchivo("kardex", "xlsx")}"`
+      `attachment; filename="${nombreDeArchivo("kardex", "xlsx", req.auth!.zonaHoraria)}"`
     );
     res.send(xlsx);
   } catch (err) {

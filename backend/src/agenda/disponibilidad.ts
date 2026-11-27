@@ -1,3 +1,4 @@
+import { zonaDeLaClinica } from "../fecha";
 import { PoolClient } from "pg";
 import { Bloque, sePuedeAgendar } from "../clinica/horarios";
 
@@ -246,13 +247,25 @@ export async function ocupacionDelDia(
   //
   // De ellos solo sabemos la hora, a propósito: el dentista del médico
   // no es asunto de la clínica, pero su hora sí.
-  const bloques = await db.query<{ desde: string; hasta: string; todo_el_dia: boolean }>(
-    `SELECT b.desde::text, b.hasta::text, b.todo_el_dia
+  // LA HORA DEL BLOQUE ES LA DE LA CLÍNICA (bloqueante 1.1 de la
+  // revisión del 2026-11-27).
+  //
+  // desde y hasta son TIMESTAMPTZ. Antes se traían como texto y se leían
+  // con getUTCHours(): un evento de 9:00 a 10:00 en Costa Rica bloqueaba
+  // de 15:00 a 16:00, y toISOString().slice(0, 10) decidía "mismo día"
+  // en UTC, así que el evento de las 19:00 se contaba al día siguiente.
+  // El cálculo se hace ahora en la base, con la zona de la clínica, y ya
+  // llega en minutos del día recortados a [0, 1440].
+  const zona = await zonaDeLaClinica(db, tenantId);
+  const bloques = await db.query<{ desde_min: string; hasta_min: string; todo_el_dia: boolean }>(
+    `SELECT b.todo_el_dia,
+            GREATEST(0, FLOOR(EXTRACT(EPOCH FROM ((b.desde AT TIME ZONE $4) - $3::date)) / 60))::int AS desde_min,
+            LEAST(1440, CEIL(EXTRACT(EPOCH FROM ((b.hasta AT TIME ZONE $4) - $3::date)) / 60))::int AS hasta_min
        FROM cal_bloques_ocupados b
       WHERE b.tenant_id = $1 AND b.persona_id = $2
-        AND b.desde < ($3::date + interval '1 day')
-        AND b.hasta > $3::date`,
-    [tenantId, datos.medicoId, datos.fecha]
+        AND b.desde < (($3::date + interval '1 day') AT TIME ZONE $4)
+        AND b.hasta > ($3::date AT TIME ZONE $4)`,
+    [tenantId, datos.medicoId, datos.fecha, zona]
   );
   for (const b of bloques.rows) {
     if (b.todo_el_dia) {
@@ -264,12 +277,9 @@ export async function ocupacionDelDia(
       });
       continue;
     }
-    const inicio = new Date(b.desde);
-    const fin = new Date(b.hasta);
-    const mismoDia = (d: Date) => d.toISOString().slice(0, 10) === datos.fecha;
     ocupado.push({
-      desde: mismoDia(inicio) ? inicio.getUTCHours() * 60 + inicio.getUTCMinutes() : 0,
-      hasta: mismoDia(fin) ? fin.getUTCHours() * 60 + fin.getUTCMinutes() : 24 * 60,
+      desde: Number(b.desde_min),
+      hasta: Number(b.hasta_min),
       tipo: "calendario",
       descripcion: "tiene un evento en su calendario a esa hora",
     });

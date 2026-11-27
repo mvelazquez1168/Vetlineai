@@ -1,5 +1,11 @@
 import { apiFetch } from "./api";
 
+// RUTAS PÚBLICAS: el backend las sirve sin sesión, y acá se declara con
+// `publico: true`. Es la excepción del cliente de API (ver `api.ts`):
+// toda llamada va autenticada salvo las que lo digan. En una ruta
+// pública el token NO se resuelve a propósito, para no mandar al login a
+// alguien que está abriendo un enlace sin sesión.
+
 export type RegistroResponse =
   | {
       autoLogin: true;
@@ -50,23 +56,26 @@ export interface DatosRegistro {
 }
 
 export const registroApi = {
-  listarPaises: () => apiFetch<{ paises: PaisRegistro[] }>("/paises"),
+  listarPaises: () => apiFetch<{ paises: PaisRegistro[] }>("/paises", { publico: true }),
 
   listarTiposIdentificacion: (paisCodigo: string, tipoPersona: "fisica" | "juridica") =>
     apiFetch<{ tipos: TipoIdentificacionRegistro[] }>(
-      `/paises/${paisCodigo}/tipos-identificacion?tipoPersona=${tipoPersona}`
+      `/paises/${paisCodigo}/tipos-identificacion?tipoPersona=${tipoPersona}`,
+      { publico: true }
     ),
 
-  listarAgentesPrueba: () => apiFetch<{ agentes: AgentePrueba[] }>("/registro-publico/agentes"),
+  listarAgentesPrueba: () => apiFetch<{ agentes: AgentePrueba[] }>("/registro-publico/agentes", { publico: true }),
 
   registrarListaEspera: (data: { email: string; paisCodigo: string; nombre?: string }) =>
     apiFetch<{ ok: true }>("/registro-publico/lista-espera", {
+      publico: true,
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   registrarClinica: (data: DatosRegistro) =>
     apiFetch<RegistroResponse>("/registro-publico", {
+      publico: true,
       method: "POST",
       body: JSON.stringify(data),
     }),

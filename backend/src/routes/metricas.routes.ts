@@ -11,6 +11,7 @@ import { dashboardAPdf } from "../metricas/dashboardPdf";
 import { LISTAS, lista } from "../metricas/listas";
 import { resumenDeCliente, resumenDePaciente } from "../metricas/fichas";
 import { consumoDeProducto, trazabilidadDeLote } from "../metricas/trazabilidad";
+import { fechaHoyEnZona } from "../fecha";
 
 // ---------------------------------------------------------------------
 // DASHBOARDS Y DRILL-DOWN — prompt 12.
@@ -34,7 +35,7 @@ metricasRouter.use(authenticate, withTenantClient, soloPersonalDeLaClinica());
 metricasRouter.use(requiereModulo("ventas"));
 
 function periodoDe(req: Request): Periodo {
-  const hoy = new Date().toISOString().slice(0, 10);
+  const hoy = fechaHoyEnZona(req.auth!.zonaHoraria);
   const desde = String(req.query.desde ?? hoy);
   const hasta = String(req.query.hasta ?? hoy);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta)) {
@@ -121,7 +122,7 @@ metricasRouter.get("/clinica/exportar", exigirPermiso("reportes.ver"), async (re
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${nombreDeArchivo("dashboard-clinica", "pdf")}"`
+        `attachment; filename="${nombreDeArchivo("dashboard-clinica", "pdf", req.auth!.zonaHoraria)}"`
       );
       return res.send(pdf);
     }
@@ -154,7 +155,7 @@ metricasRouter.get("/clinica/exportar", exigirPermiso("reportes.ver"), async (re
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${nombreDeArchivo("dashboard-clinica", "xlsx")}"`
+      `attachment; filename="${nombreDeArchivo("dashboard-clinica", "xlsx", req.auth!.zonaHoraria)}"`
     );
     res.send(xlsx);
   } catch (err) {
@@ -308,7 +309,7 @@ metricasRouter.get("/listas/:clave/exportar", exigirPermiso("reportes.ver"), asy
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${nombreDeArchivo(l.clave, "pdf")}"`
+        `attachment; filename="${nombreDeArchivo(l.clave, "pdf", req.auth!.zonaHoraria)}"`
       );
       return res.send(pdf);
     }
@@ -320,7 +321,7 @@ metricasRouter.get("/listas/:clave/exportar", exigirPermiso("reportes.ver"), asy
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${nombreDeArchivo(l.clave, "xlsx")}"`
+      `attachment; filename="${nombreDeArchivo(l.clave, "xlsx", req.auth!.zonaHoraria)}"`
     );
     res.send(xlsx);
   } catch (err) {

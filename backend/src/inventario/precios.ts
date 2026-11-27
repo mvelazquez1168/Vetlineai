@@ -1,3 +1,4 @@
+import { fechaEnZona, fechaHoyEnZona } from "../fecha";
 import { PoolClient } from "pg";
 
 // ---------------------------------------------------------------------
@@ -68,13 +69,17 @@ function esPresentacion(t: Tasable): t is { presentacionId: string } {
 export async function precioVigente(
   db: PoolClient,
   tasable: Tasable,
-  opciones: { listaId?: string | null; momento?: Date } = {}
+  opciones: { listaId?: string | null; momento?: Date; zonaHoraria?: string | null } = {}
 ): Promise<PrecioResuelto> {
   const base = await precioBase(db, tasable);
 
   if (!opciones.listaId) return { precio: base, origen: "base", listaId: null, listaNombre: null };
 
-  const momento = opciones.momento ?? new Date();
+  // La vigencia de la lista se mide por el DÍA DE LA CLÍNICA. Con el de
+  // UTC, una lista que arranca mañana ya se aplicaba hoy a las 18:00.
+  const dia = opciones.momento
+    ? fechaEnZona(opciones.momento, opciones.zonaHoraria)
+    : fechaHoyEnZona(opciones.zonaHoraria);
   const columna = esPresentacion(tasable) ? "presentacion_id" : "servicio_id";
   const id = esPresentacion(tasable) ? tasable.presentacionId : tasable.servicioId;
 
@@ -87,7 +92,7 @@ export async function precioVigente(
         AND l.activo
         AND (l.vigente_desde IS NULL OR l.vigente_desde <= $3::date)
         AND (l.vigente_hasta IS NULL OR l.vigente_hasta >= $3::date)`,
-    [opciones.listaId, id, momento.toISOString().slice(0, 10)]
+    [opciones.listaId, id, dia]
   );
 
   if (r.rows.length === 0) {

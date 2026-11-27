@@ -1,5 +1,11 @@
 import { apiFetch } from "./api";
 
+// RUTAS PÚBLICAS: el backend las sirve sin sesión, y acá se declara con
+// `publico: true`. Es la excepción del cliente de API (ver `api.ts`):
+// toda llamada va autenticada salvo las que lo digan. En una ruta
+// pública el token NO se resuelve a propósito, para no mandar al login a
+// alguien que está abriendo un enlace sin sesión.
+
 // Cliente público (sin sesión) para la pantalla de alta del médico
 // invitado — Pantallas faltantes, Prompt A, Paso 3.
 
@@ -21,13 +27,14 @@ export type ResultadoAceptarInvitacion =
   | { autoLogin: false };
 
 export const invitacionesApi = {
-  obtener: (token: string) => apiFetch<InvitacionPublica>(`/invitaciones/${token}`),
+  obtener: (token: string) => apiFetch<InvitacionPublica>(`/invitaciones/${token}`, { publico: true }),
 
   aceptar: (
     token: string,
     datos: { nombre: string; colegiatura?: string; password: string }
   ) =>
     apiFetch<ResultadoAceptarInvitacion>(`/invitaciones/${token}/aceptar`, {
+      publico: true,
       method: "POST",
       body: JSON.stringify(datos),
     }),

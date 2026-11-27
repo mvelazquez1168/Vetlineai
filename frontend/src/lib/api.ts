@@ -27,23 +27,53 @@ export const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
 // en toda la app.
 export { ApiError };
 
+// ---------------------------------------------------------------------
+// EL TOKEN VIAJA POR DEFECTO — defecto del 2026-11-27.
+//
+// Antes `apiFetch` solo mandaba el `Authorization` si quien llamaba le
+// pasaba `token: getStoredToken()`. Olvidarse era gratis y silencioso al
+// escribir: `metricasApi.ts` entero se escribió sin él y la pantalla de
+// Reportes mostraba «No autenticado. Falta el token» — ninguna de sus
+// trece llamadas estaba autenticada.
+//
+// El defecto no era el olvido: era que lo seguro había que pedirlo. Hoy
+// TODA llamada va autenticada, y lo que se declara es la excepción:
+// `publico: true` para las rutas que el backend sirve sin sesión
+// (registro, países, documentos legales, restablecer la contraseña).
+//
+// `token` se sigue aceptando porque medio centenar de llamadas ya lo
+// pasan y quitarlo de todas es ruido sin beneficio. No cambia nada: el
+// valor que se manda siempre es el más fresco, resuelto acá.
+// ---------------------------------------------------------------------
 interface RequestOptions extends RequestInit {
+  /** Compatibilidad: se ignora. El token se resuelve acá. */
   token?: string | null;
+  /** Rutas que el backend sirve SIN sesión. La excepción, no la regla. */
+  publico?: boolean;
+}
+
+/**
+ * El token para esta llamada, o null si es pública.
+ *
+ * En una ruta pública NO se toca la sesión a propósito: si el access
+ * token está vencido y no hay refresh, `obtenerTokenValido` manda al
+ * login, y echar al login a alguien que está abriendo un enlace de
+ * firma a distancia sin sesión es peor que no mandar el header.
+ */
+async function tokenPara(publico: boolean | undefined): Promise<string | null> {
+  if (publico) return null;
+  return obtenerTokenValido();
 }
 
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { token, headers, body, ...rest } = options;
+  const { token: _token, publico, headers, body, ...rest } = options;
+  void _token;
   // FormData (subida de archivos) necesita que el browser arme su propio
   // Content-Type con el boundary del multipart — si lo forzamos acá, el
   // servidor no puede parsear el body.
   const esFormData = typeof FormData !== "undefined" && body instanceof FormData;
 
-  // `token` acá es solo la señal de "este llamado va autenticado" — el
-  // valor real que se manda es siempre el más fresco posible, resuelto acá
-  // (y refrescado automáticamente si estaba por vencer, ver session.ts).
-  // Los módulos de API (adminApi, workspaceApi, etc.) siguen pasando
-  // `token: getStoredToken()` como antes; no hace falta tocarlos.
-  const authToken = token ? await obtenerTokenValido() : null;
+  const authToken = await tokenPara(publico);
 
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
@@ -69,8 +99,9 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 // mandar el header Authorization, así que se trae el archivo como blob
 // autenticado por fetch y se arma un object URL en el cliente.
 export async function apiFetchBlob(path: string, options: RequestOptions = {}): Promise<Blob> {
-  const { token, headers, ...rest } = options;
-  const authToken = token ? await obtenerTokenValido() : null;
+  const { token: _token, publico, headers, ...rest } = options;
+  void _token;
+  const authToken = await tokenPara(publico);
 
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
@@ -97,8 +128,9 @@ export async function apiFetchFile(
   path: string,
   options: RequestOptions = {}
 ): Promise<{ blob: Blob; filename: string | null }> {
-  const { token, headers, body, ...rest } = options;
-  const authToken = token ? await obtenerTokenValido() : null;
+  const { token: _token, publico, headers, body, ...rest } = options;
+  void _token;
+  const authToken = await tokenPara(publico);
 
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,

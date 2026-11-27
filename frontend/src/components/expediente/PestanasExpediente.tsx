@@ -10,6 +10,7 @@ import {
   CardTitle,
   Icono,
   Input,
+  LimiteDeError,
   LoadingState,
   Modal,
   Select,
@@ -194,6 +195,11 @@ export function PestanasExpediente({
       </div>
 
       <div className="mt-4">
+        {/* UNA PESTAÑA QUE EXPLOTA NO SE LLEVA LAS OTRAS
+            (defecto del 2026-11-27). La `key` es la pestaña:
+            cambiar de pestaña rearma el límite, así que un
+            error en «Atención actual» no deja Vacunas muerta. */}
+        <LimiteDeError key={pestana} ambito={`la pestaña ${PESTANAS.find((p) => p.clave === pestana)?.etiqueta ?? pestana}`}>
         {pestana === "resumen" && !encabezado && (
           <p className="text-sm text-text-muted">
             El resumen necesita la cabecera del expediente, que no se pudo cargar. Las demás
@@ -295,6 +301,7 @@ export function PestanasExpediente({
         {pestana === "consentimientos" && (
           <Consentimientos pacienteId={pacienteId} onCambio={onCambio} />
         )}
+        </LimiteDeError>
       </div>
 
       {historico && (

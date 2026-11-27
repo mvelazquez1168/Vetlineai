@@ -42,6 +42,7 @@ import { farmacosRouter } from "./routes/farmacos.routes";
 import { horariosRouter } from "./routes/horarios.routes";
 import { informesRouter } from "./routes/informes.routes";
 import { listaEsperaRouter } from "./routes/listaEspera.routes";
+import { erroresClienteRouter } from "./routes/erroresCliente.routes";
 import { legalRouter } from "./routes/legal.routes";
 import { medicamentosRouter } from "./routes/medicamentos.routes";
 import { notificacionesRouter } from "./routes/notificaciones.routes";
@@ -208,6 +209,7 @@ app.use("/api/ayuda", ayudaRouter);
 // Busqueda global de la paleta de comandos (Ctrl/Cmd+K).
 app.use("/api/busqueda", busquedaRouter);
 app.use("/api/lista-espera", listaEsperaRouter);
+app.use("/api/errores-cliente", erroresClienteRouter);
 app.use("/api", agendaRouter);
 
 const server = app.listen(config.port, () => {

@@ -6,7 +6,7 @@ import { pantallasDisponibles } from "../lib/pantallaDeEntrada";
 import { BarraVentanaPurga } from "./BarraVentanaPurga";
 import { BarraVerificacionCorreo } from "./BarraVerificacionCorreo";
 import { NotificacionesPersonalesBell } from "./NotificacionesPersonalesBell";
-import { Icono, NombreIcono } from "./ui";
+import { Icono, LimiteDeError, NombreIcono } from "./ui";
 import { useApariencia } from "../hooks/useApariencia";
 import { useAuth } from "../hooks/useAuth";
 import { useMenuColapsable } from "../hooks/useMenuColapsable";
@@ -506,7 +506,14 @@ export function AppShell() {
         <BarraVentanaPurga />
 
         <main className="min-w-0 flex-1 p-4 sm:p-6">
-          <Outlet />
+          {/* EL MARCO SOBREVIVE A LA PANTALLA (defecto del 2026-11-27).
+              Si la pantalla explota, el menú y la navegación siguen en
+              pie y se puede ir a otra parte, en vez de quedar con la
+              página en blanco. La `key` es la ruta: al navegar, el
+              límite se rearma solo. */}
+          <LimiteDeError key={ubicacion.pathname} ambito="esta pantalla">
+            <Outlet />
+          </LimiteDeError>
         </main>
       </div>
     </div>

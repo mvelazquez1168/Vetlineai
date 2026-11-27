@@ -52,6 +52,7 @@ import {
   registrarDeposito,
 } from "../finanzas/cierreDiario";
 import { Cuaderno, CUADERNOS, tablaContable } from "../finanzas/exportacionContable";
+import { fechaHoyEnZona } from "../fecha";
 
 // ---------------------------------------------------------------------
 // FINANZAS — prompt 10a.
@@ -265,7 +266,7 @@ finanzasRouter.post("/cuentas-banco", puedeRegistrar, async (req, res) => {
 // --- Gastos -----------------------------------------------------------
 finanzasRouter.get("/gastos", async (req, res) => {
   try {
-    const mes = (req.query.mes as string) || new Date().toISOString().slice(0, 10);
+    const mes = (req.query.mes as string) || fechaHoyEnZona(req.auth!.zonaHoraria);
     res.json({
       resumen: await resumenDeGastos(req.db!, req.auth!.tenantId!, mes),
       gastos: await gastos(req.db!, req.auth!.tenantId!, {
@@ -397,7 +398,7 @@ finanzasRouter.post("/recurrentes", puedeRegistrar, async (req, res) => {
 
 finanzasRouter.post("/recurrentes/generar", puedeRegistrar, async (req, res) => {
   try {
-    const mes = req.body?.mes ?? new Date().toISOString().slice(0, 10);
+    const mes = req.body?.mes ?? fechaHoyEnZona(req.auth!.zonaHoraria);
     res.json(await generarPendientes(req.db!, req.auth!.tenantId!, mes, req.auth!.userId));
   } catch (err) {
     fallo(res, err, "POST /finanzas/recurrentes/generar");
@@ -464,7 +465,7 @@ finanzasRouter.post("/por-cobrar/:propietarioId/recordar", puedeRegistrar, async
 // --- Cierre del día ---------------------------------------------------
 finanzasRouter.get("/cierre-dia", async (req, res) => {
   try {
-    const fecha = (req.query.fecha as string) || new Date().toISOString().slice(0, 10);
+    const fecha = (req.query.fecha as string) || fechaHoyEnZona(req.auth!.zonaHoraria);
     res.json(await cierreDelDia(req.db!, req.auth!.tenantId!, fecha));
   } catch (err) {
     fallo(res, err, "GET /finanzas/cierre-dia");
@@ -524,7 +525,7 @@ finanzasRouter.post("/cierre-dia/deposito", puedeRegistrar, async (req, res) => 
  */
 finanzasRouter.post("/cierre-dia/cerrar", puedeRegistrar, async (req, res) => {
   try {
-    const fecha = req.body?.fecha ?? new Date().toISOString().slice(0, 10);
+    const fecha = req.body?.fecha ?? fechaHoyEnZona(req.auth!.zonaHoraria);
     const previo = await cierreDelDia(req.db!, req.auth!.tenantId!, fecha);
     if (
       Math.abs(previo.diferencia) > 0.001 &&
@@ -560,7 +561,7 @@ finanzasRouter.get("/exportacion/:cuaderno.:formato", async (req, res) => {
     if (!CUADERNOS.some((c) => c.clave === cuaderno)) {
       return res.status(400).json({ error: "Ese cuaderno no existe." });
     }
-    const desde = (req.query.desde as string) || new Date().toISOString().slice(0, 10);
+    const desde = (req.query.desde as string) || fechaHoyEnZona(req.auth!.zonaHoraria);
     const hasta = (req.query.hasta as string) || desde;
     const tabla = await tablaContable(req.db!, req.auth!.tenantId!, cuaderno, desde, hasta);
 
@@ -569,7 +570,7 @@ finanzasRouter.get("/exportacion/:cuaderno.:formato", async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${nombreDeArchivo(cuaderno, "pdf")}"`
+        `attachment; filename="${nombreDeArchivo(cuaderno, "pdf", req.auth!.zonaHoraria)}"`
       );
       return res.send(pdf);
     }
@@ -580,7 +581,7 @@ finanzasRouter.get("/exportacion/:cuaderno.:formato", async (req, res) => {
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${nombreDeArchivo(cuaderno, "xlsx")}"`
+      `attachment; filename="${nombreDeArchivo(cuaderno, "xlsx", req.auth!.zonaHoraria)}"`
     );
     res.send(xlsx);
   } catch (err) {

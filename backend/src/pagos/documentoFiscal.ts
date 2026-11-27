@@ -1,3 +1,4 @@
+import { fechaHoyEnZona } from "../fecha";
 import { Pool, PoolClient } from "pg";
 import crypto from "crypto";
 
@@ -46,7 +47,8 @@ export async function emitirDocumentoFiscal(
   cobro: { id: string; tenant_id: string; neto_usd: string | number; impuesto_usd: string | number; moneda: string }
 ): Promise<void> {
   const tenantResult = await db.query(
-    `SELECT pais_codigo, tipo_identificacion_id, numero_identificacion, nombre_fiscal
+    `SELECT pais_codigo, tipo_identificacion_id, numero_identificacion, nombre_fiscal,
+            zona_horaria
      FROM tenants WHERE id = $1`,
     [cobro.tenant_id]
   );
@@ -72,7 +74,10 @@ export async function emitirDocumentoFiscal(
   const impuestoUsd = Number(cobro.impuesto_usd);
   const total = neto + impuestoUsd;
 
-  const numeroInterno = `DOC-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${crypto.randomUUID().slice(0, 8)}`;
+  // La fecha del número interno es la del día de la clínica: con la de
+  // UTC, un documento emitido a las 18:30 en Costa Rica se numeraba con
+  // la fecha de mañana y no cuadraba con su propia fecha de emisión.
+  const numeroInterno = `DOC-${fechaHoyEnZona(tenant.zona_horaria).replace(/-/g, "")}-${crypto.randomUUID().slice(0, 8)}`;
 
   await db.query(
     `INSERT INTO documentos_fiscales

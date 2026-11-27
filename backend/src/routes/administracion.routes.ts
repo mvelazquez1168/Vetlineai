@@ -48,6 +48,7 @@ import {
   saldosDeControlados,
 } from "../clinica/cumplimiento";
 import { eventos, tiposDeEvento } from "../clinica/auditoria";
+import { fechaHoyEnZona } from "../fecha";
 import {
   confirmarLectura,
   generarPdf,
@@ -223,7 +224,7 @@ administracionRouter.get("/catalogos/:clave/exportar.xlsx", async (req, res) => 
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${nombreDeArchivo(req.params.clave, "xlsx")}"`
+      `attachment; filename="${nombreDeArchivo(req.params.clave, "xlsx", req.auth!.zonaHoraria)}"`
     );
     res.send(xlsx);
   } catch (err) {
@@ -237,7 +238,7 @@ administracionRouter.get("/catalogos/:clave/exportar.xlsx", async (req, res) => 
 
 administracionRouter.get("/turnos", async (req, res) => {
   try {
-    const desde = (req.query.desde as string) || new Date().toISOString().slice(0, 10);
+    const desde = (req.query.desde as string) || fechaHoyEnZona(req.auth!.zonaHoraria);
     const hasta = (req.query.hasta as string) || desde;
     res.json({
       turnos: await turnos(
@@ -407,7 +408,7 @@ administracionRouter.post(
 administracionRouter.get("/planilla.xlsx", exigirPermiso("personal.gestionar"), async (req, res) => {
   try {
     const desde = (req.query.desde as string) || new Date().toISOString().slice(0, 8) + "01";
-    const hasta = (req.query.hasta as string) || new Date().toISOString().slice(0, 10);
+    const hasta = (req.query.hasta as string) || fechaHoyEnZona(req.auth!.zonaHoraria);
     const filas = await horasParaPlanilla(req.db!, req.auth!.tenantId!, desde, hasta);
     const xlsx = aExcel({
       titulo: "Horas del período",
@@ -427,7 +428,7 @@ administracionRouter.get("/planilla.xlsx", exigirPermiso("personal.gestionar"), 
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    res.setHeader("Content-Disposition", `attachment; filename="${nombreDeArchivo("planilla", "xlsx")}"`);
+    res.setHeader("Content-Disposition", `attachment; filename="${nombreDeArchivo("planilla", "xlsx", req.auth!.zonaHoraria)}"`);
     res.send(xlsx);
   } catch (err) {
     fallo(res, err, "GET /administracion/planilla.xlsx");
@@ -670,7 +671,7 @@ administracionRouter.post(
 administracionRouter.get("/controlados/libro", exigirPermiso("controlados.registrar"), async (req, res) => {
   try {
     const desde = (req.query.desde as string) || new Date().toISOString().slice(0, 8) + "01";
-    const hasta = (req.query.hasta as string) || new Date().toISOString().slice(0, 10);
+    const hasta = (req.query.hasta as string) || fechaHoyEnZona(req.auth!.zonaHoraria);
     res.json({
       asientos: await libroDeControlados(
         req.db!,
@@ -791,7 +792,7 @@ administracionRouter.get("/auditoria.xlsx", exigirPermiso("auditoria.ver"), asyn
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    res.setHeader("Content-Disposition", `attachment; filename="${nombreDeArchivo("auditoria", "xlsx")}"`);
+    res.setHeader("Content-Disposition", `attachment; filename="${nombreDeArchivo("auditoria", "xlsx", req.auth!.zonaHoraria)}"`);
     res.send(xlsx);
   } catch (err) {
     fallo(res, err, "GET /administracion/auditoria.xlsx");

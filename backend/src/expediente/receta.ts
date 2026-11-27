@@ -239,9 +239,15 @@ export async function pesoVigente(
 ): Promise<PesoVigente> {
   const sinPeso: PesoVigente = { kg: null, origen: null, fecha: null, antiguedadDias: null };
 
-  const a = await db.query<{ paciente_id: string; peso: string | null; fecha: string }>(
-    `SELECT paciente_id, peso, COALESCE(cerrada_en, creado_en)::date::text AS fecha
-       FROM atenciones WHERE id = $1`,
+  const a = await db.query<{ paciente_id: string; peso: string | null; fecha: string; hoy: string }>(
+    `SELECT a.paciente_id, a.peso,
+            COALESCE(a.cerrada_en, a.creado_en)::date::text AS fecha,
+            -- HOY ES EL DÍA DE LA CLÍNICA, no el de UTC: el peso dictado
+            -- a las 19:00 en Costa Rica salía con la fecha de mañana.
+            (now() AT TIME ZONE COALESCE(t.zona_horaria, 'America/Costa_Rica'))::date::text AS hoy
+       FROM atenciones a
+       JOIN tenants t ON t.id = a.tenant_id
+      WHERE a.id = $1`,
     [atencionId]
   );
   if (a.rows.length === 0) return sinPeso;
@@ -251,7 +257,7 @@ export async function pesoVigente(
     return {
       kg: opciones.pesoDictadoKg,
       origen: "dictado",
-      fecha: new Date().toISOString().slice(0, 10),
+      fecha: a.rows[0].hoy,
       antiguedadDias: 0,
     };
   }

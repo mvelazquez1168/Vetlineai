@@ -44,6 +44,8 @@ export type { FiltroBarProps, FiltroBarSelect, FiltroBarSelectOption } from "./F
 export { Input } from "./Input";
 export type { InputProps } from "./Input";
 
+export { LimiteDeError } from "./LimiteDeError";
+
 export { Modal } from "./Modal";
 export type { ModalProps } from "./Modal";
 

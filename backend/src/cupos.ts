@@ -1,3 +1,4 @@
+import { fechaEnZona } from "./fecha";
 import { Pool, PoolClient } from "pg";
 
 // ---------------------------------------------------------------------
@@ -254,7 +255,7 @@ export function mensajeRechazoCupo(resultado: ResultadoCupo): string {
     case "sin_cupo_medicos":
       return "No hay cupo de médicos disponible en tu plan — cambiá de plan para agregar más.";
     case "freno_anti_rotacion":
-      return `Ya hiciste un cambio de agente en este período — vas a poder cambiar de nuevo a partir del ${resultado.disponibleDesde?.toISOString().slice(0, 10)}.`;
+      return `Ya hiciste un cambio de agente en este período — vas a poder cambiar de nuevo a partir del ${resultado.disponibleDesde ? fechaEnZona(resultado.disponibleDesde, null) : "la próxima factura"}.`;
     case "agente_con_casos":
       return "Este agente tiene casos registrados — no se puede eliminar, solo deshabilitar.";
     case "agente_no_encontrado":

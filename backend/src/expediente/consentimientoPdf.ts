@@ -1,3 +1,4 @@
+import { fechaHoyEnZona, zonaDeLaClinica } from "../fecha";
 import PDFDocument from "pdfkit";
 import { PoolClient } from "pg";
 import { marcaDeLaClinica } from "../marca/marcaClinica";
@@ -230,7 +231,7 @@ export async function enviarConsentimientoAlCliente(
     datosCorreo: {
       nombrePaciente: datos.pacienteNombre,
       titulo: datos.titulo,
-      fecha: new Date().toISOString().slice(0, 10),
+      fecha: fechaHoyEnZona(await zonaDeLaClinica(db, tenantId)),
     },
   });
 

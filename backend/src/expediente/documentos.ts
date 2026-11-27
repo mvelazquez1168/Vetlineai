@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { fechaHoyEnZona } from "../fecha";
 
 // ---------------------------------------------------------------------
 // IMÁGENES Y DOCUMENTOS DEL PACIENTE — hallazgo de la revisión del
@@ -168,11 +169,17 @@ export async function documentosDePaciente(
  * semana que viene no existe, y lo que sí pasa es que alguien se
  * equivoca al teclear el año.
  */
-export function validarDatosDeDocumento(d: {
-  tipoDocumento?: string;
-  fechaDocumento?: string;
-  descripcion?: string;
-}): void {
+export function validarDatosDeDocumento(
+  d: {
+    tipoDocumento?: string;
+    fechaDocumento?: string;
+    descripcion?: string;
+  },
+  // La zona de la clínica, para saber qué día es hoy. Con la de UTC, el
+  // 25 de diciembre tecleado a las 19:00 del 24 en Costa Rica se
+  // rechazaba por futuro.
+  zonaHoraria?: string | null
+): void {
   if (!d.tipoDocumento?.trim()) {
     throw new DocumentoInvalido(
       "Falta el tipo de documento. Sin él, la galería no se puede filtrar y nadie encuentra la radiografía dos meses después."
@@ -182,7 +189,7 @@ export function validarDatosDeDocumento(d: {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d.fechaDocumento)) {
       throw new DocumentoInvalido("La fecha del documento va en formato AAAA-MM-DD.");
     }
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = fechaHoyEnZona(zonaHoraria);
     if (d.fechaDocumento > hoy) {
       throw new DocumentoInvalido("La fecha del documento no puede ser futura.");
     }

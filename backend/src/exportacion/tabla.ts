@@ -1,3 +1,4 @@
+import { fechaHoyEnZona } from "../fecha";
 import PDFDocument from "pdfkit";
 import { strToU8, zipSync } from "fflate";
 import { dibujarEncabezado } from "../pdf/marcaPdf";
@@ -416,8 +417,15 @@ export function aPdf(tabla: TablaExportable, opciones: OpcionesExportacion = {})
 }
 
 /** Nombre de archivo sin acentos ni espacios, con la fecha adentro. */
-export function nombreDeArchivo(base: string, extension: string): string {
-  const fecha = new Date().toISOString().slice(0, 10);
+export function nombreDeArchivo(
+  base: string,
+  extension: string,
+  zonaHoraria?: string | null
+): string {
+  // La fecha del nombre es la del día de la clínica: un cierre exportado
+  // a las 18:30 en Costa Rica se llamaba con la fecha de mañana y no
+  // coincidía con el contenido.
+  const fecha = fechaHoyEnZona(zonaHoraria);
   const limpio = base
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")

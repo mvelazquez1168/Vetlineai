@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "verificar-api": "node scripts/verificar_api_autenticada.mjs",
+    "build": "eslint . && node scripts/verificar_api_autenticada.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "verificar-modales": "node scripts/verificar_modales.mjs"
   },
@@ -23,9 +25,13 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.14.0",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3",
+    "typescript-eslint": "^8.74.0",
     "vite": "^5.3.3",
     "vite-plugin-pwa": "^1.3.0"
   }

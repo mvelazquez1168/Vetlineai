@@ -1,3 +1,4 @@
+import { fechaHoyEnZona, zonaDeLaClinica } from "../fecha";
 import PDFDocument from "pdfkit";
 import { PoolClient } from "pg";
 import { dibujarEncabezado, dibujarPie, marcaDeLaClinica } from "../pdf/marcaPdf";
@@ -69,6 +70,7 @@ export async function examenEnPdf(
 
   const examen = await resumenDelExamen(db, atencionId);
   const marca = await marcaDeLaClinica(db, tenantId);
+  const hoy = fechaHoyEnZona(await zonaDeLaClinica(db, tenantId));
 
   const doc = new PDFDocument({ size: "LETTER", margin: 50 });
   const trozos: Buffer[] = [];
@@ -169,7 +171,7 @@ export async function examenEnPdf(
   dibujarPie(
     doc,
     marca,
-    `${marca.nombre} · impreso el ${new Date().toISOString().slice(0, 10)}`
+    `${marca.nombre} · impreso el ${hoy}`
   );
 
   doc.end();

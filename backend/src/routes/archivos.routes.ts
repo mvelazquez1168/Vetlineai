@@ -163,7 +163,10 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
 
     // --- EL DOCUMENTO DEL EXPEDIENTE ------------------------------
     if (pacienteId) {
-      validarDatosDeDocumento({ tipoDocumento, fechaDocumento, descripcion });
+      validarDatosDeDocumento(
+        { tipoDocumento, fechaDocumento, descripcion },
+        req.auth!.zonaHoraria
+      );
       const permiso = await puedeSubirTipo(req.db!, req.auth!.tenantId!, tipoDocumento!, {
         esMedico: req.auth!.esMedico,
       });

@@ -1,5 +1,6 @@
 import { PoolClient } from "pg";
 import { sellarIngreso } from "./estancia";
+import { fechaHoyEnZona, horaAhoraEnZona, zonaDeLaClinica } from "../fecha";
 import { registrarInteraccion } from "../crm/interacciones";
 import { TransicionInvalida, cambiarEstadoDeCita, crearCita } from "../agenda/citas";
 import { precioVigente } from "../inventario/precios";
@@ -85,15 +86,23 @@ export async function abrirAtencion(
     if (!datos.pacienteId) {
       throw new Error("Para abrir una atención hace falta la cita o el paciente.");
     }
-    const ahora = new Date();
+    // LA FECHA Y LA HORA SON DE LA CLÍNICA, NO DE UTC (bloqueante 1.1
+    // de la revisión del 2026-11-27).
+    //
+    // Con `toISOString()`, en Costa Rica (UTC−6) toda atención abierta
+    // después de las 18:00 quedaba con la fecha del DÍA SIGUIENTE, y la
+    // hora salía seis horas adelantada: la consulta de las 14:30
+    // figuraba a las 20:30. La agenda del día no la mostraba y el
+    // reporte de atenciones la contaba en otra fecha.
+    const zona = await zonaDeLaClinica(db, tenantId);
     const cita = await crearCita(
       db,
       tenantId,
       {
         pacienteId: datos.pacienteId,
         medicoId: datos.medicoId,
-        fecha: ahora.toISOString().slice(0, 10),
-        horaInicio: ahora.toISOString().slice(11, 16),
+        fecha: fechaHoyEnZona(zona),
+        horaInicio: horaAhoraEnZona(zona),
         duracionMinutos: datos.duracionMinutos ?? 30,
         motivoConsulta: datos.motivoConsulta ?? "Atención sin cita previa",
       },

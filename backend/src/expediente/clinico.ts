@@ -1,3 +1,4 @@
+import { fechaHoyEnZona, zonaDeLaClinica } from "../fecha";
 import { Pool, PoolClient } from "pg";
 
 /** La lectura de alergias también la hace el contexto del caso, que
@@ -109,7 +110,7 @@ export async function cambiarEstadoProblema(
   }
 ): Promise<void> {
   const fecha =
-    datos.estado === "resuelto" ? (datos.fechaResolucion ?? new Date().toISOString().slice(0, 10)) : null;
+    datos.estado === "resuelto" ? (datos.fechaResolucion ?? fechaHoyEnZona(await zonaDeLaClinica(db, tenantId))) : null;
   const r = await db.query(
     `UPDATE exp_problemas
         SET estado = $3, fecha_resolucion = $4::date,

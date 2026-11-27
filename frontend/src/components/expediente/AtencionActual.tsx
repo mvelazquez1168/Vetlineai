@@ -487,9 +487,6 @@ export function AtencionActual({
       .slice(0, 8);
   }, [busqueda, presentaciones]);
 
-  // --- Vistas ---------------------------------------------------------
-  if (cargando) return <LoadingState forma="tarjetas" cantidad={2} />;
-
   const a = detalle?.atencion as Record<string, string | number | null> | undefined;
   const cerrada = a?.estado === "cerrada";
 
@@ -547,6 +544,16 @@ export function AtencionActual({
     setBorradorLocal(leerBorradorLocal(atencionId, usuario.userId));
   }, [atencionId, usuario?.userId]);
 
+  // --- Vistas ---------------------------------------------------------
+  //
+  // LOS RETORNOS VAN DESPUÉS DE TODOS LOS HOOKS, SIEMPRE (defecto del
+  // 2026-11-27). Este `if (cargando)` estaba arriba, antes del
+  // autoguardado y del latido, así que el primer render de la ficha
+  // llamaba tres hooks menos que el segundo y React tiraba «Rendered
+  // more hooks than during the previous render»: la pantalla entera
+  // quedaba en blanco. La regla `react-hooks/rules-of-hooks` está
+  // activada como error en el build para que no vuelva a pasar.
+  if (cargando) return <LoadingState forma="tarjetas" cantidad={2} />;
 
   if (!atencionId || !detalle) {
     return (

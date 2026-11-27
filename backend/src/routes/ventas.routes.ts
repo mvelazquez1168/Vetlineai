@@ -1124,7 +1124,7 @@ ventasRouter.get("/reportes/:cual/exportar", async (req, res) => {
       columnas: r.columnas,
       filas: r.filas,
     };
-    const nombre = nombreDeArchivo(r.titulo, formato === "excel" ? "xlsx" : "pdf");
+    const nombre = nombreDeArchivo(r.titulo, formato === "excel" ? "xlsx" : "pdf", req.auth!.zonaHoraria);
     const marca = await marcaYAutor(req);
     const cuerpo = formato === "excel" ? aExcel(tabla, marca) : await aPdf(tabla, marca);
     res.setHeader(

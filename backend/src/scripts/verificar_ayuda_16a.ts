@@ -109,6 +109,12 @@ const BANCO: Array<{ pregunta: string; archivo: string }> = [
   { pregunta: "¿Cómo exporto un reporte a Excel?", archivo: "reportes-dashboards.md" },
   { pregunta: "¿A qué pacientes se les aplicó un lote?", archivo: "producto-consumo-y-trazabilidad.md" },
   { pregunta: "¿En qué se me fue este producto?", archivo: "producto-consumo-y-trazabilidad.md" },
+
+  // --- Firmas y documentos (correcciones del 2026-11-27) -----------
+  { pregunta: "¿Cómo firma el cliente un consentimiento?", archivo: "consentimientos-firma.md" },
+  { pregunta: "¿Puedo mandarle el consentimiento para que firme desde su casa?", archivo: "consentimientos-firma.md" },
+  { pregunta: "¿Dónde subo una radiografía?", archivo: "imagenes-y-documentos.md" },
+  { pregunta: "¿Cómo cargo el historial que trajo el cliente de otra clínica?", archivo: "imagenes-y-documentos.md" },
 ];
 
 async function main() {

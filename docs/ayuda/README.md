@@ -29,6 +29,8 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | [Receta](atencion-receta.md) | La prescripción con dosis, vía, frecuencia y duración; lo que se entrega acá y lo que se compra afuera. |
 | [Estudios de laboratorio](atencion-estudios.md) | Pedir un estudio desde la consulta, acá o en un laboratorio externo. |
 | [Cerrar la atención](atencion-cierre.md) | Lo que pasa al firmar: los cargos, el inventario, los avisos y la receta. |
+| [Firmar un consentimiento](consentimientos-firma.md) | La firma con el dedo o el mouse, la evidencia, el PDF al cliente y la firma a distancia. |
+| [Imágenes y documentos del paciente](imagenes-y-documentos.md) | Cargar radiografías, ecografías, fotos y papeles del cliente, con su tipo y su fecha. |
 | [Registrar algo histórico](registro-historico.md) | Una vacuna puesta antes de usar el sistema, o en otra clínica. |
 | [La consulta se guarda sola](atencion-autoguardado.md) | El autoguardado, qué pasa sin internet y qué pasa si otra sesión tiene la atención abierta. |
 

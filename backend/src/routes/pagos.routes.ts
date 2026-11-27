@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { pool } from "../db";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { exigirPermiso } from "../permisos";
 import { obtenerTokenSdk, TilopayNoConfiguradoError } from "../pagos/tilopay";
 import {
   listarPaquetesActivos,
@@ -44,15 +45,12 @@ pagosRouter.get("/sdk-token", async (req, res) => {
 // esta restricción de rol al router entero para no afectar /sdk-token,
 // que es genérico y no depende de un tenant.
 // ---------------------------------------------------------------------
-const soloAdminClinica = [
-  withTenantClient,
-  (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => {
-    if (!req.auth!.esAdminClinica) {
-      return res.status(403).json({ error: "Esta sección es solo para administradores de clínica." });
-    }
-    next();
-  },
-];
+// LA SUSCRIPCIÓN Y EL MEDIO DE PAGO los maneja quien configura la
+// clínica: es plata de la clínica, no de un cliente. `clinica.configurar`
+// lo tiene solo el administrador en la matriz del 04, así que el
+// comportamiento es el mismo de antes; la diferencia es que ahora es una
+// fila de la base y no un booleano en seis archivos.
+const soloAdminClinica = [withTenantClient, exigirPermiso("clinica.configurar")];
 
 pagosRouter.get("/paquetes-recarga", ...soloAdminClinica, async (req, res) => {
   res.json({ paquetes: await listarPaquetesActivos(req.db!) });

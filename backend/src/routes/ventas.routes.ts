@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { exigirPermiso } from "../permisos";
 import { aExcel, aPdf, nombreDeArchivo } from "../exportacion/tabla";
 import { esReporteConocido, reporteDeVentas } from "../ventas/reportes";
 import { requiereModulo } from "../tenantModulos";
@@ -88,15 +89,15 @@ ventasRouter.use((req, res, next) => {
 ventasRouter.use(requiereModulo("ventas"));
 
 /** PERMISO `aprobar`. Hoy lo tiene el administrador de clínica. */
-function permisoAprobar(req: Request, res: Response, next: NextFunction) {
-  if (!req.auth?.esAdminClinica) {
-    return res.status(403).json({ error: "Esto lo aprueba un administrador de la clínica." });
-  }
-  next();
-}
-
-/** PERMISO `config`. Mismo titular hoy, nombre distinto a propósito. */
-const permisoConfig = permisoAprobar;
+// APROBAR Y CONFIGURAR DEJARON DE SER EL MISMO PERMISO (prompt 04).
+//
+// Hasta acá las dos guardas eran la misma función con dos nombres —el
+// comentario decía «mismo titular hoy, nombre distinto a propósito»— y
+// las dos preguntaban por `esAdminClinica`. Ahora cada una es su
+// permiso, y la clínica puede darle a la caja la aprobación de una
+// anulación sin darle la configuración de los topes.
+const permisoAprobar = exigirPermiso("caja.aprobar");
+const permisoConfig = exigirPermiso("clinica.configurar");
 
 function fallo(res: Response, err: unknown, contexto: string) {
   const e = err as { message?: string; code?: string };

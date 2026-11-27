@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 import multer from "multer";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { exigirPermiso } from "../permisos";
 import { requiereModulo } from "../tenantModulos";
 import { registrarMovimiento, registrarTraslado } from "../inventario/movimientos";
 import { aprobarAjuste, rechazarAjuste, solicitarAjuste } from "../inventario/ajustes";
@@ -74,15 +75,6 @@ inventarioRouter.use((req, res, next) => {
 
 inventarioRouter.use(requiereModulo("inventario"));
 
-function soloAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.auth?.esAdminClinica) {
-    return res.status(403).json({
-      error: "Esto lo hace un administrador de la clínica.",
-    });
-  }
-  next();
-}
-
 function fallo(res: Response, err: unknown, contexto: string) {
   const e = err as { message?: string; code?: string };
   // Los errores de dominio ya traen un mensaje escrito para una
@@ -143,7 +135,7 @@ inventarioRouter.get("/bodegas", async (req, res) => {
   res.json({ bodegas: r.rows });
 });
 
-inventarioRouter.post("/bodegas", soloAdmin, async (req, res) => {
+inventarioRouter.post("/bodegas", exigirPermiso("clinica.configurar"), async (req, res) => {
   const b = req.body ?? {};
   try {
     const r = await req.db!.query<{ id: string }>(
@@ -552,7 +544,7 @@ inventarioRouter.post("/ajustes", async (req, res) => {
   }
 });
 
-inventarioRouter.post("/ajustes/:id/aprobar", soloAdmin, async (req, res) => {
+inventarioRouter.post("/ajustes/:id/aprobar", exigirPermiso("inventario.ajustar"), async (req, res) => {
   try {
     await aprobarAjuste(req.db!, req.auth!.tenantId!, req.params.id, req.auth!.userId!);
     res.json({ ok: true });
@@ -561,7 +553,7 @@ inventarioRouter.post("/ajustes/:id/aprobar", soloAdmin, async (req, res) => {
   }
 });
 
-inventarioRouter.post("/ajustes/:id/rechazar", soloAdmin, async (req, res) => {
+inventarioRouter.post("/ajustes/:id/rechazar", exigirPermiso("inventario.ajustar"), async (req, res) => {
   try {
     await rechazarAjuste(req.db!, req.params.id, req.auth!.userId!);
     res.json({ ok: true });
@@ -886,7 +878,7 @@ inventarioRouter.get("/importacion/plantilla", (_req, res) => {
 
 inventarioRouter.post(
   "/importacion/analizar",
-  soloAdmin,
+  exigirPermiso("catalogo.editar"),
   subir.single("planilla"),
   async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "Falta la planilla." });
@@ -904,7 +896,7 @@ inventarioRouter.post(
 
 inventarioRouter.post(
   "/importacion/cargar",
-  soloAdmin,
+  exigirPermiso("catalogo.editar"),
   subir.single("planilla"),
   async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "Falta la planilla." });
@@ -949,7 +941,7 @@ inventarioRouter.get("/parametros", async (req, res) => {
   });
 });
 
-inventarioRouter.put("/parametros", soloAdmin, async (req, res) => {
+inventarioRouter.put("/parametros", exigirPermiso("clinica.configurar"), async (req, res) => {
   const b = req.body ?? {};
   try {
     await req.db!.query(
@@ -985,7 +977,7 @@ inventarioRouter.get("/listas-precio", async (req, res) => {
   }
 });
 
-inventarioRouter.post("/listas-precio", soloAdmin, async (req, res) => {
+inventarioRouter.post("/listas-precio", exigirPermiso("catalogo.editar"), async (req, res) => {
   try {
     res.status(201).json(await crearLista(req.db!, req.auth!.tenantId!, req.body ?? {}));
   } catch (err) {
@@ -993,7 +985,7 @@ inventarioRouter.post("/listas-precio", soloAdmin, async (req, res) => {
   }
 });
 
-inventarioRouter.put("/listas-precio/:id", soloAdmin, async (req, res) => {
+inventarioRouter.put("/listas-precio/:id", exigirPermiso("catalogo.editar"), async (req, res) => {
   try {
     await editarLista(req.db!, req.auth!.tenantId!, req.params.id, req.body ?? {});
     res.json({ ok: true });
@@ -1010,7 +1002,7 @@ inventarioRouter.get("/listas-precio/:id/items", async (req, res) => {
   }
 });
 
-inventarioRouter.put("/listas-precio/:id/items", soloAdmin, async (req, res) => {
+inventarioRouter.put("/listas-precio/:id/items", exigirPermiso("catalogo.editar"), async (req, res) => {
   const b = req.body ?? {};
   try {
     const precio = b.precio === null || b.precio === "" ? null : Number(b.precio);
@@ -1033,7 +1025,7 @@ inventarioRouter.put("/listas-precio/:id/items", soloAdmin, async (req, res) => 
 
 // La vista previa y la aplicación llaman al MISMO cálculo en el módulo
 // de dominio. Son dos rutas porque una escribe y la otra no.
-inventarioRouter.post("/precios/vista-previa", soloAdmin, async (req, res) => {
+inventarioRouter.post("/precios/vista-previa", exigirPermiso("catalogo.editar"), async (req, res) => {
   try {
     res.json(await vistaPreviaMasiva(req.db!, req.auth!.tenantId!, cuerpoMasivo(req.body)));
   } catch (err) {
@@ -1041,7 +1033,7 @@ inventarioRouter.post("/precios/vista-previa", soloAdmin, async (req, res) => {
   }
 });
 
-inventarioRouter.post("/precios/aplicar", soloAdmin, async (req, res) => {
+inventarioRouter.post("/precios/aplicar", exigirPermiso("catalogo.editar"), async (req, res) => {
   try {
     res.json(await aplicarMasiva(req.db!, req.auth!.tenantId!, cuerpoMasivo(req.body)));
   } catch (err) {

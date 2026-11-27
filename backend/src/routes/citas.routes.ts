@@ -1,6 +1,8 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import { registrarInteraccion } from "../crm/interacciones";
 import { PoolClient } from "pg";
+import { sePuedeAgendar } from "../clinica/horarios";
+import { tienePermiso } from "../permisos";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { avisoActivo, emitirNotificacion } from "../notificaciones";
 
@@ -113,6 +115,116 @@ export interface CrearCitaInput {
   // wizard de "Nuevo Caso" (rama "crear cita ahora"). Opcional: la
   // mayoría de las citas se agendan sin caso todavía.
   casoId?: string | null;
+  /** De qué tipo es: trae su duración, su color y su servicio (04, §3). */
+  tipoCitaId?: string | null;
+  /**
+   * CITAR FUERA DE HORARIO O SOBRE UN BLOQUEO (prompt 04, §3).
+   *
+   * Sin esto, la cita se rechaza con el motivo. Con esto —y solo si
+   * quien agenda tiene el permiso `agenda.fuera_de_horario`— se agenda
+   * y **queda registrado quién la autorizó y por qué**, que es lo que
+   * el prompt pide.
+   */
+  fueraDeHorario?: { autorizadoPor: string; motivo: string };
+}
+
+/** La cita cae fuera del horario y nadie la autorizó. */
+export class FueraDeHorario extends Error {
+  constructor(
+    mensaje: string,
+    public readonly nivel: string | undefined,
+    public readonly bloquesDelDia: Array<{ desde: string; hasta: string }> | undefined
+  ) {
+    super(mensaje);
+    this.name = "FueraDeHorario";
+  }
+}
+
+/**
+ * Comprueba el horario y, si la cita cae afuera, la frena.
+ *
+ * La usan el alta y la reprogramación: reprogramar para un domingo es
+ * exactamente el mismo problema que agendar un domingo, y tenerlo en un
+ * solo lugar evita que uno de los dos caminos se quede sin el control
+ * —que es justo lo que pasó con `horarios_configuracion`, que existía y
+ * nadie consultaba.
+ */
+async function exigirHorario(
+  db: PoolClient,
+  tenantId: string,
+  body: CrearCitaInput
+): Promise<void> {
+  if (body.fueraDeHorario) return; // autorizado explícitamente
+  const veredicto = await sePuedeAgendar(db, tenantId, {
+    fecha: body.fecha,
+    horaInicio: body.horaInicio,
+    duracionMinutos: body.duracionMinutos,
+    medicoId: body.medicoId,
+  });
+  if (!veredicto.permitido) {
+    throw new FueraDeHorario(
+      veredicto.motivo ?? "Esa hora está fuera del horario de atención.",
+      veredicto.nivel,
+      veredicto.bloquesDelDia
+    );
+  }
+}
+
+/**
+ * CITAR FUERA DE HORARIO LLEVA PERMISO (prompt 04, §3).
+ *
+ * El cliente manda `forzarFueraDeHorario` con su motivo después de ver
+ * el aviso del 409. Acá se comprueba que de verdad pueda: el frontend
+ * puede mostrar el botón por error, o alguien puede llamar la API
+ * directamente, y el backend tiene que rechazar igual.
+ *
+ * Devuelve la respuesta de rechazo cuando no corresponde, o `null`
+ * cuando se puede seguir.
+ */
+function autorizarFueraDeHorario(
+  req: Request,
+  body: CrearCitaInput
+): { estado: number; cuerpo: Record<string, unknown> } | null {
+  const forzar = (req.body as { forzarFueraDeHorario?: { motivo?: string } })
+    .forzarFueraDeHorario;
+  if (!forzar) return null;
+  if (!tienePermiso(req, "agenda.fuera_de_horario")) {
+    return {
+      estado: 403,
+      cuerpo: {
+        error:
+          "No tenés permiso para citar fuera del horario de atención. Pedíselo a un administrador.",
+        permisoFaltante: "agenda.fuera_de_horario",
+      },
+    };
+  }
+  if (!forzar.motivo?.trim()) {
+    return {
+      estado: 400,
+      cuerpo: { error: "Para citar fuera de horario hace falta el motivo: queda registrado." },
+    };
+  }
+  body.fueraDeHorario = {
+    autorizadoPor: req.auth!.userId,
+    motivo: forzar.motivo.trim(),
+  };
+  return null;
+}
+
+/**
+ * El 409 del fuera de horario: no es un error del sistema, es una
+ * pregunta. Lleva el motivo, el nivel que lo frenó y los bloques del día
+ * para que la pantalla proponga otra hora, y dice si quien está mirando
+ * puede autorizarlo.
+ */
+function responderFueraDeHorario(req: Request, res: Response, err: FueraDeHorario) {
+  return res.status(409).json({
+    error: err.message,
+    fueraDeHorario: true,
+    nivel: err.nivel,
+    bloquesDelDia: err.bloquesDelDia,
+    puedeForzar: tienePermiso(req, "agenda.fuera_de_horario"),
+  });
 }
 
 // Núcleo de creación de citas (conflictos + insert) — exportada para que
@@ -121,6 +233,17 @@ export interface CrearCitaInput {
 // /api/citas, incluyendo detección de conflictos").
 export async function crearCita(db: PoolClient, tenantId: string, body: CrearCitaInput) {
   const horaFin = sumarMinutos(body.horaInicio, body.duracionMinutos);
+
+  // EL HORARIO DE LA CLÍNICA SE RESPETA (prompt 04, §3). Hasta ahora
+  // `horarios_configuracion` guardaba el horario de cada médico y nadie
+  // lo comparaba contra la cita: se podía citar un domingo a las once
+  // de la noche y la clínica se enteraba el domingo.
+  //
+  // VA ANTES DE LOS CONFLICTOS porque es más barato y porque el motivo
+  // es más útil: «la clínica no abre los domingos» explica más que «no
+  // hay conflicto con otra cita».
+  await exigirHorario(db, tenantId, body);
+
   const conflictos = await buscarConflictos(db, {
     fecha: body.fecha,
     horaInicio: body.horaInicio,
@@ -132,8 +255,9 @@ export async function crearCita(db: PoolClient, tenantId: string, body: CrearCit
   const result = await db.query(
     `INSERT INTO citas
        (tenant_id, paciente_id, medico_id, sala_id, fecha, hora_inicio, hora_fin,
-        duracion_minutos, prioridad, motivo_consulta, caso_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        duracion_minutos, prioridad, motivo_consulta, caso_id,
+        tipo_cita_id, fuera_de_horario_por, fuera_de_horario_motivo)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
      RETURNING *`,
     [
       tenantId,
@@ -147,6 +271,9 @@ export async function crearCita(db: PoolClient, tenantId: string, body: CrearCit
       body.prioridad ?? "normal",
       body.motivoConsulta ?? null,
       body.casoId ?? null,
+      body.tipoCitaId ?? null,
+      body.fueraDeHorario?.autorizadoPor ?? null,
+      body.fueraDeHorario?.motivo ?? null,
     ]
   );
   const cita = result.rows[0];
@@ -315,10 +442,14 @@ citasRouter.post("/", async (req, res) => {
     return res.status(400).json({ error: "Faltan pacienteId, medicoId, fecha, horaInicio o duracionMinutos." });
   }
 
+  const rechazo = autorizarFueraDeHorario(req, body);
+  if (rechazo) return res.status(rechazo.estado).json(rechazo.cuerpo);
+
   try {
     const { cita, conflictos } = await crearCita(req.db!, req.auth!.tenantId!, body);
     res.status(201).json({ cita, conflictos });
   } catch (err) {
+    if (err instanceof FueraDeHorario) return responderFueraDeHorario(req, res, err);
     console.error("POST /citas", err);
     res.status(500).json({ error: "Error al crear la cita." });
   }
@@ -333,6 +464,9 @@ citasRouter.put("/:id", async (req, res) => {
     return res.status(400).json({ error: "Faltan pacienteId, medicoId, fecha, horaInicio o duracionMinutos." });
   }
 
+  const rechazo = autorizarFueraDeHorario(req, body);
+  if (rechazo) return res.status(rechazo.estado).json(rechazo.cuerpo);
+
   try {
     const existente = await req.db!.query(`SELECT id, paciente_id, fecha, hora_inicio FROM citas WHERE id = $1`, [
       req.params.id,
@@ -343,6 +477,9 @@ citasRouter.put("/:id", async (req, res) => {
     const anterior = existente.rows[0];
 
     const horaFin = sumarMinutos(body.horaInicio, body.duracionMinutos);
+    // REPROGRAMAR TAMBIÉN RESPETA EL HORARIO: mover una cita a un
+    // feriado es el mismo problema que crearla ahí.
+    await exigirHorario(req.db!, req.auth!.tenantId!, body);
     const conflictos = await buscarConflictos(req.db!, {
       fecha: body.fecha,
       horaInicio: body.horaInicio,
@@ -356,7 +493,16 @@ citasRouter.put("/:id", async (req, res) => {
       `UPDATE citas
        SET paciente_id = $1, medico_id = $2, sala_id = $3, fecha = $4, hora_inicio = $5,
            hora_fin = $6, duracion_minutos = $7, prioridad = $8, motivo_consulta = $9,
-           actualizado_en = now()
+           -- El tipo solo se cambia si vino: editar la hora no tiene por
+           -- qué borrar de qué tipo era la cita.
+           tipo_cita_id = COALESCE($11::uuid, tipo_cita_id),
+           -- La autorización de excepción se pisa con la nueva solo
+           -- cuando hubo una: una cita autorizada que se mueve a horario
+           -- normal deja de ser una excepción, y para eso el cliente
+           -- manda la hora nueva sin forzar nada.
+           fuera_de_horario_por = $12::uuid,
+           fuera_de_horario_motivo = $13
+           , actualizado_en = now()
        WHERE id = $10
        RETURNING *`,
       [
@@ -370,6 +516,9 @@ citasRouter.put("/:id", async (req, res) => {
         body.prioridad ?? "normal",
         body.motivoConsulta ?? null,
         req.params.id,
+        body.tipoCitaId ?? null,
+        body.fueraDeHorario?.autorizadoPor ?? null,
+        body.fueraDeHorario?.motivo ?? null,
       ]
     );
     const cita = result.rows[0];
@@ -416,6 +565,7 @@ citasRouter.put("/:id", async (req, res) => {
 
     res.json({ cita, conflictos });
   } catch (err) {
+    if (err instanceof FueraDeHorario) return responderFueraDeHorario(req, res, err);
     console.error("PUT /citas/:id", err);
     res.status(500).json({ error: "Error al editar la cita." });
   }

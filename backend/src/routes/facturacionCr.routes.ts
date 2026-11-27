@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import multer from "multer";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { exigirPermiso } from "../permisos";
 import { requiereModulo } from "../tenantModulos";
 import { emitir, intentarEnviar, leerEmisor } from "../facturacion/emision";
 import { borrarBorrador, emitirBorrador, guardarBorrador } from "../facturacion/borradores";
@@ -88,15 +89,6 @@ facturacionCrRouter.use(requiereModulo("facturacion"));
  * Solo administrador de la clínica. Un médico puede consultar y emitir;
  * los datos fiscales y la llave criptográfica son de la administración.
  */
-function soloAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.auth?.esAdminClinica) {
-    return res.status(403).json({
-      error: "Solo un administrador de la clínica puede configurar la facturación electrónica.",
-    });
-  }
-  next();
-}
-
 // =====================================================================
 // CATÁLOGOS — lo que la pantalla de emisión manual necesita para armar
 // sus selectores. Sin tenant: son catálogos de la plataforma.
@@ -273,7 +265,7 @@ facturacionCrRouter.get("/emisor", async (req, res) => {
   }
 });
 
-facturacionCrRouter.put("/emisor", soloAdmin, async (req, res) => {
+facturacionCrRouter.put("/emisor", exigirPermiso("facturacion.configurar"), async (req, res) => {
   const b = req.body ?? {};
   const requeridos = [
     "tipoIdentificacion",
@@ -373,7 +365,7 @@ function proveedorSistemasConfigurado(): string {
 
 facturacionCrRouter.put(
   "/emisor/credenciales",
-  soloAdmin,
+  exigirPermiso("facturacion.configurar"),
   subir.single("llave"),
   async (req, res) => {
     const b = req.body ?? {};
@@ -419,7 +411,7 @@ facturacionCrRouter.put(
   }
 );
 
-facturacionCrRouter.delete("/emisor/credenciales/:ambiente", soloAdmin, async (req, res) => {
+facturacionCrRouter.delete("/emisor/credenciales/:ambiente", exigirPermiso("facturacion.configurar"), async (req, res) => {
   const ambiente = req.params.ambiente;
   if (ambiente !== "pruebas" && ambiente !== "produccion") {
     return res.status(400).json({ error: "El ambiente tiene que ser 'pruebas' o 'produccion'." });

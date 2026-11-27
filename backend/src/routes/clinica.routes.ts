@@ -15,6 +15,21 @@ import {
   PoliticaInvalida,
 } from "../clinica/politicas";
 import { matrizDeRoles, guardarPermisoDeRol } from "../clinica/roles";
+import {
+  borrarExcepcion,
+  excepcionesDeLaClinica,
+  guardarExcepcion,
+  guardarHorarioDelDia,
+  horarioDeLaClinica,
+} from "../clinica/horarios";
+import {
+  ConfiguracionInvalida,
+  desactivarTipoDeCita,
+  guardarNumeracion,
+  guardarTipoDeCita,
+  numeraciones,
+  tiposDeCita,
+} from "../clinica/agendaConfig";
 
 // ---------------------------------------------------------------------
 // ADMINISTRACIÓN DE LA CLÍNICA — prompt 04.
@@ -33,7 +48,11 @@ export const clinicaRouter = Router();
 clinicaRouter.use(authenticate, withTenantClient);
 
 function fallo(res: Response, err: unknown, donde: string) {
-  if (err instanceof CambioDeRolesImposible || err instanceof PoliticaInvalida) {
+  if (
+    err instanceof CambioDeRolesImposible ||
+    err instanceof PoliticaInvalida ||
+    err instanceof ConfiguracionInvalida
+  ) {
     return res.status(409).json({ error: err.message });
   }
   console.error(donde, err);
@@ -152,5 +171,146 @@ clinicaRouter.get("/politicas/:clave/historial", async (req, res) => {
     });
   } catch (err) {
     fallo(res, err, "GET /clinica/politicas/:clave/historial");
+  }
+});
+
+// --- Horario de la clínica, feriados y bloqueos -----------------------
+//
+// LAS LECTURAS NO LLEVAN PERMISO: la recepción tiene que poder ver el
+// horario y los feriados para explicarle al cliente por qué no hay turno
+// el 25. Configurarlos sí lleva `clinica.configurar`.
+clinicaRouter.get("/horario", async (req, res) => {
+  try {
+    res.json({
+      horario: await horarioDeLaClinica(req.db!, req.auth!.tenantId!),
+      excepciones: await excepcionesDeLaClinica(
+        req.db!,
+        req.auth!.tenantId!,
+        (req.query.desde as string) || undefined
+      ),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /clinica/horario");
+  }
+});
+
+clinicaRouter.put("/horario/:dia", exigirPermiso("clinica.configurar"), async (req, res) => {
+  try {
+    const b = req.body ?? {};
+    await guardarHorarioDelDia(req.db!, req.auth!.tenantId!, {
+      diaSemana: Number(req.params.dia),
+      bloques: b.bloques ?? [],
+      abierto: b.abierto === true,
+    });
+    res.json({ horario: await horarioDeLaClinica(req.db!, req.auth!.tenantId!) });
+  } catch (err) {
+    // Un bloque al revés es un dedo que se resbaló, no un error del
+    // sistema: se contesta 409 con el texto tal cual para mostrarlo.
+    if (err instanceof Error && err.message.includes("termina antes de empezar")) {
+      return res.status(409).json({ error: err.message });
+    }
+    fallo(res, err, "PUT /clinica/horario/:dia");
+  }
+});
+
+clinicaRouter.post("/excepciones", exigirPermiso("clinica.configurar"), async (req, res) => {
+  try {
+    const b = req.body ?? {};
+    if (!b.nombre?.trim() || !b.desde) {
+      return res.status(400).json({ error: "Hacen falta el nombre y la fecha." });
+    }
+    const guardada = await guardarExcepcion(req.db!, req.auth!.tenantId!, {
+      id: b.id,
+      tipo: b.tipo ?? "bloqueo",
+      nombre: b.nombre.trim(),
+      desde: b.desde,
+      hasta: b.hasta || b.desde,
+      horaDesde: b.horaDesde || null,
+      horaHasta: b.horaHasta || null,
+      medicoId: b.medicoId || null,
+      bloquea: b.bloquea,
+    });
+    res.status(b.id ? 200 : 201).json(guardada);
+  } catch (err) {
+    fallo(res, err, "POST /clinica/excepciones");
+  }
+});
+
+clinicaRouter.delete(
+  "/excepciones/:id",
+  exigirPermiso("clinica.configurar"),
+  async (req, res) => {
+    try {
+      await borrarExcepcion(req.db!, req.params.id);
+      res.json({ borrada: true });
+    } catch (err) {
+      fallo(res, err, "DELETE /clinica/excepciones/:id");
+    }
+  }
+);
+
+// --- Tipos de cita ----------------------------------------------------
+clinicaRouter.get("/tipos-cita", async (req, res) => {
+  try {
+    res.json({
+      tipos: await tiposDeCita(req.db!, req.auth!.tenantId!, req.query.todos === "1"),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /clinica/tipos-cita");
+  }
+});
+
+clinicaRouter.post("/tipos-cita", exigirPermiso("clinica.configurar"), async (req, res) => {
+  try {
+    const b = req.body ?? {};
+    const guardado = await guardarTipoDeCita(req.db!, req.auth!.tenantId!, {
+      id: b.id,
+      nombre: b.nombre,
+      duracionMinutos: Number(b.duracionMinutos),
+      color: b.color,
+      salaId: b.salaId,
+      lineaNegocio: b.lineaNegocio,
+      servicioId: b.servicioId,
+      activo: b.activo,
+      orden: b.orden,
+    });
+    res.status(b.id ? 200 : 201).json(guardado);
+  } catch (err) {
+    fallo(res, err, "POST /clinica/tipos-cita");
+  }
+});
+
+clinicaRouter.delete(
+  "/tipos-cita/:id",
+  exigirPermiso("clinica.configurar"),
+  async (req, res) => {
+    try {
+      await desactivarTipoDeCita(req.db!, req.auth!.tenantId!, req.params.id);
+      res.json({ desactivado: true });
+    } catch (err) {
+      fallo(res, err, "DELETE /clinica/tipos-cita/:id");
+    }
+  }
+);
+
+// --- Numeraciones -----------------------------------------------------
+clinicaRouter.get("/numeraciones", async (req, res) => {
+  try {
+    res.json({ numeraciones: await numeraciones(req.db!, req.auth!.tenantId!) });
+  } catch (err) {
+    fallo(res, err, "GET /clinica/numeraciones");
+  }
+});
+
+clinicaRouter.put("/numeraciones/:documento", exigirPermiso("clinica.configurar"), async (req, res) => {
+  try {
+    await guardarNumeracion(req.db!, req.auth!.tenantId!, {
+      documento: req.params.documento,
+      prefijo: req.body?.prefijo,
+      digitos: req.body?.digitos === undefined ? undefined : Number(req.body.digitos),
+    });
+    res.json({ numeraciones: await numeraciones(req.db!, req.auth!.tenantId!) });
+  } catch (err) {
+    fallo(res, err, "PUT /clinica/numeraciones/:documento");
   }
 });

@@ -41,6 +41,12 @@ import {
   olvidarPoliticas,
 } from "../clinica/politicas";
 import { topeDeDescuento } from "../ventas/descuentos";
+import {
+  guardarExcepcion,
+  guardarHorarioDelDia,
+  horarioDeLaClinica,
+  sePuedeAgendar,
+} from "../clinica/horarios";
 
 const PREFIJO = "probe-04";
 
@@ -477,6 +483,175 @@ async function main() {
       await politicaNumero(db, tenantId, "anulacion.plazo_horas"),
       72,
       "y el plazo para pedirla nace en 72 horas"
+    );
+  });
+
+
+  // -------------------------------------------------------------------
+  console.log("\n=== El horario de la clínica, los feriados y la agenda ===");
+  // -------------------------------------------------------------------
+  await conAlcanceTenant(tenantId, async (db) => {
+    // La clínica nace con horario de lunes a sábado: la migración lo
+    // siembra para que la agenda tenga contra qué comparar desde el
+    // primer día.
+    const horario = await horarioDeLaClinica(db, tenantId);
+    igual(horario.length, 7, "los siete días de la semana están configurados");
+    igual(
+      horario.find((h) => h.dia_semana === 0)?.abierto,
+      false,
+      "el domingo nace cerrado"
+    );
+
+    // Las fechas de la prueba: un lunes y el domingo siguiente, dentro
+    // del año que la migración sembró con feriados.
+    const lunes = "2026-12-07";
+    const domingo = "2026-12-06";
+    const navidad = "2026-12-25";
+
+    const enHorario = await sePuedeAgendar(db, tenantId, {
+      fecha: lunes,
+      horaInicio: "10:00",
+      duracionMinutos: 30,
+    });
+    assert(enHorario.permitido, "un lunes a las 10 se puede agendar", enHorario.motivo);
+
+    const domingoCerrado = await sePuedeAgendar(db, tenantId, {
+      fecha: domingo,
+      horaInicio: "10:00",
+      duracionMinutos: 30,
+    });
+    assert(!domingoCerrado.permitido, "el domingo no, porque la clínica no abre");
+    igual(domingoCerrado.nivel, "clinica", "y el nivel que lo frenó es la clínica");
+
+    // LA CITA QUE TERMINA CON LA CLÍNICA CERRADA TAMPOCO ENTRA. Es lo
+    // que comparar solo la hora de inicio dejaría pasar.
+    const seMeVaDeLargo = await sePuedeAgendar(db, tenantId, {
+      fecha: lunes,
+      horaInicio: "16:50",
+      duracionMinutos: 30,
+    });
+    assert(
+      !seMeVaDeLargo.permitido,
+      "una cita de 30 minutos a las 16:50 con cierre a las 17:00 no entra",
+      seMeVaDeLargo.motivo
+    );
+    const justoEntra = await sePuedeAgendar(db, tenantId, {
+      fecha: lunes,
+      horaInicio: "16:30",
+      duracionMinutos: 30,
+    });
+    assert(justoEntra.permitido, "y la de 16:30 a 17:00 sí: termina justo al cierre");
+
+    // EL FERIADO BLOQUEA.
+    const esNavidad = await sePuedeAgendar(db, tenantId, {
+      fecha: navidad,
+      horaInicio: "10:00",
+      duracionMinutos: 30,
+    });
+    assert(!esNavidad.permitido, "el 25 de diciembre está bloqueado por feriado");
+    igual(esNavidad.nivel, "excepcion", "y el nivel es la excepción");
+    assert(
+      (esNavidad.motivo ?? "").includes("Navidad"),
+      "con el nombre del feriado, no un «no se puede»",
+      esNavidad.motivo
+    );
+
+    // UN FERIADO QUE LA CLÍNICA TRABAJA no bloquea: se deja la fila
+    // para que se vea en el calendario.
+    await db.query(
+      `UPDATE clinica_excepciones SET bloquea = false
+        WHERE tenant_id = $1 AND desde = $2::date AND tipo = 'feriado'`,
+      [tenantId, navidad]
+    );
+    const navidadTrabajada = await sePuedeAgendar(db, tenantId, {
+      fecha: navidad,
+      horaInicio: "10:00",
+      duracionMinutos: 30,
+    });
+    assert(
+      navidadTrabajada.permitido,
+      "un feriado marcado como trabajado deja de bloquear: hay clínicas que abren"
+    );
+
+    // LAS VACACIONES DE UN MÉDICO son suyas y no de la clínica.
+    await guardarExcepcion(db, tenantId, {
+      tipo: "vacaciones",
+      nombre: "Vacaciones de la Dra.",
+      desde: lunes,
+      hasta: lunes,
+      medicoId: admin,
+    });
+    const deVacaciones = await sePuedeAgendar(db, tenantId, {
+      fecha: lunes,
+      horaInicio: "10:00",
+      duracionMinutos: 30,
+      medicoId: admin,
+    });
+    assert(!deVacaciones.permitido, "con ese médico de vacaciones, no se puede");
+    const otroMedico = await sePuedeAgendar(db, tenantId, {
+      fecha: lunes,
+      horaInicio: "10:00",
+      duracionMinutos: 30,
+      medicoId: dobleRol,
+    });
+    assert(
+      otroMedico.permitido,
+      "y con otro médico sí: las vacaciones de uno no cierran la clínica"
+    );
+
+    // UN BLOQUEO DE UNAS HORAS bloquea solo esas horas.
+    await guardarExcepcion(db, tenantId, {
+      tipo: "bloqueo",
+      nombre: "Reunión de equipo",
+      desde: lunes,
+      hasta: lunes,
+      horaDesde: "12:00",
+      horaHasta: "13:00",
+    });
+    const enLaReunion = await sePuedeAgendar(db, tenantId, {
+      fecha: lunes,
+      horaInicio: "12:30",
+      duracionMinutos: 30,
+    });
+    assert(!enLaReunion.permitido, "durante el bloqueo de unas horas no se puede");
+    const despues = await sePuedeAgendar(db, tenantId, {
+      fecha: lunes,
+      horaInicio: "13:00",
+      duracionMinutos: 30,
+    });
+    assert(despues.permitido, "y justo después sí: el bloqueo es de 12 a 13");
+
+    // EL HORARIO SE EDITA y la agenda lo respeta.
+    await guardarHorarioDelDia(db, tenantId, {
+      diaSemana: 0,
+      bloques: [{ desde: "09:00", hasta: "12:00" }],
+      abierto: true,
+    });
+    const domingoAbierto = await sePuedeAgendar(db, tenantId, {
+      fecha: domingo,
+      horaInicio: "10:00",
+      duracionMinutos: 30,
+    });
+    assert(
+      domingoAbierto.permitido,
+      "abriendo el domingo de 9 a 12, el domingo a las 10 se puede agendar"
+    );
+
+    // Un bloque al revés se rechaza.
+    let alReves = "";
+    try {
+      await guardarHorarioDelDia(db, tenantId, {
+        diaSemana: 2,
+        bloques: [{ desde: "18:00", hasta: "08:00" }],
+        abierto: true,
+      });
+    } catch (err) {
+      alReves = err instanceof Error ? err.message : "";
+    }
+    assert(
+      alReves.includes("termina antes de empezar"),
+      "un bloque de 18:00 a 08:00 se rechaza",
+      alReves
     );
   });
 

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { exigirPermiso } from "../permisos";
 import {
   adendasDeAtencion,
   agregarAdenda,
@@ -113,15 +114,21 @@ expedienteRouter.use((req, res, next) => {
   next();
 });
 
-function soloMedico(req: Request, res: Response, next: NextFunction) {
-  if (!req.auth?.esMedico) {
-    return res.status(403).json({
-      error:
-        "Esto es contenido clínico y lo escribe un médico. Un administrador puede verlo, no registrarlo.",
-    });
-  }
-  next();
-}
+// EL CONTENIDO CLÍNICO SE ESCRIBE CON SU PERMISO (prompt 04).
+//
+// `soloMedico` preguntaba por el booleano `es_medico`. Ahora pregunta
+// por `expediente.escribir`, que en la matriz tiene el médico y nadie
+// más —el mismo resultado de hoy—, con la diferencia de que los
+// permisos clínicos están marcados **no configurables**: la clínica no
+// puede dárselo a la recepción ni por error.
+//
+// Los tres permisos clínicos más finos se usan donde corresponden:
+// firmar una atención, emitir una receta y registrar grooming. Existían
+// en el catálogo del 04 y no los leía nadie.
+const soloMedico = exigirPermiso("expediente.escribir");
+const puedeFirmar = exigirPermiso("expediente.firmar");
+const puedeRecetar = exigirPermiso("receta.emitir");
+const puedeGrooming = exigirPermiso("expediente.grooming");
 
 function fallo(res: Response, err: unknown, contexto: string) {
   const e = err as { message?: string; code?: string };
@@ -456,7 +463,7 @@ expedienteRouter.get("/grooming/hallazgos", async (req, res) => {
   }
 });
 
-expedienteRouter.post("/grooming/hallazgos/:id/atender", soloMedico, async (req, res) => {
+expedienteRouter.post("/grooming/hallazgos/:id/atender", puedeGrooming, async (req, res) => {
   try {
     await atenderHallazgo(req.db!, req.params.id, req.auth!.userId!, req.body?.atencionId);
     res.json({ ok: true });
@@ -841,7 +848,7 @@ expedienteRouter.get("/atenciones/:id/receta", async (req, res) => {
   }
 });
 
-expedienteRouter.post("/atenciones/:id/receta/lineas", soloMedico, async (req, res) => {
+expedienteRouter.post("/atenciones/:id/receta/lineas", puedeRecetar, async (req, res) => {
   try {
     res
       .status(201)
@@ -853,7 +860,7 @@ expedienteRouter.post("/atenciones/:id/receta/lineas", soloMedico, async (req, r
   }
 });
 
-expedienteRouter.delete("/atenciones/:id/receta/lineas/:lineaId", soloMedico, async (req, res) => {
+expedienteRouter.delete("/atenciones/:id/receta/lineas/:lineaId", puedeRecetar, async (req, res) => {
   try {
     await quitarLinea(req.db!, req.params.id, req.params.lineaId);
     res.json({ quitada: true });
@@ -862,7 +869,7 @@ expedienteRouter.delete("/atenciones/:id/receta/lineas/:lineaId", soloMedico, as
   }
 });
 
-expedienteRouter.post("/atenciones/:id/receta/repetir", soloMedico, async (req, res) => {
+expedienteRouter.post("/atenciones/:id/receta/repetir", puedeRecetar, async (req, res) => {
   try {
     res.json(
       await repetirReceta(
@@ -1067,7 +1074,7 @@ expedienteRouter.put("/atenciones/:id/estancia", soloMedico, async (req, res) =>
  * médico necesita saber de qué producto se trata, no un «no se pudo
  * cerrar»—.
  */
-expedienteRouter.post("/atenciones/:id/cerrar", soloMedico, async (req, res) => {
+expedienteRouter.post("/atenciones/:id/cerrar", puedeFirmar, async (req, res) => {
   try {
     res.json(
       await cerrarAtencion(req.db!, req.auth!.tenantId!, req.params.id, {

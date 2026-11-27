@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { exigirPermiso } from "../permisos";
 import {
   agregarNota,
   lineaDeInteracciones,
@@ -48,13 +49,6 @@ function fallo(res: Response, err: unknown, donde: string) {
   const mensaje = err instanceof Error ? err.message : "Error inesperado.";
   console.error(donde, err);
   res.status(400).json({ error: mensaje });
-}
-
-function soloAdmin(req: Request, res: Response, next: () => void) {
-  if (!req.auth!.esAdminClinica) {
-    return res.status(403).json({ error: "Esto lo configura un administrador de la clínica." });
-  }
-  next();
 }
 
 crmRouter.get("/tipos-evento", async (req, res) => {
@@ -232,7 +226,7 @@ crmRouter.get("/unificaciones", async (req, res) => {
  * camino —un conflicto de unicidad que no previmos, una FK nueva— no
  * queda media ficha movida.
  */
-crmRouter.post("/unificar/:entidad", soloAdmin, async (req, res) => {
+crmRouter.post("/unificar/:entidad", exigirPermiso("cliente.unificar"), async (req, res) => {
   const entidad = req.params.entidad;
   if (entidad !== "clientes" && entidad !== "pacientes") {
     return res.status(404).json({ error: "Se unifican clientes o pacientes." });
@@ -274,7 +268,7 @@ crmRouter.get("/politicas", async (req, res) => {
   }
 });
 
-crmRouter.put("/politicas", soloAdmin, async (req, res) => {
+crmRouter.put("/politicas", exigirPermiso("clinica.configurar"), async (req, res) => {
   try {
     await guardarPoliticas(req.db!, req.auth!.tenantId!, req.body);
     res.json(await politicas(req.db!, req.auth!.tenantId!));

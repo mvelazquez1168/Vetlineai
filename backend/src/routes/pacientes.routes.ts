@@ -4,6 +4,13 @@ import { calcularEdadEfectiva, fechaNacimientoDesdeEdad } from "../edadPaciente"
 import { validarRazaParaEspecie } from "../especiePaciente";
 import { asignarNumeroExpedientePaciente } from "../expediente";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import {
+  crearPropietario,
+  DatosAltaPropietario,
+  ERROR_IDENTIFICACION_REPETIDA,
+  esIdentificacionRepetida,
+} from "../clientes/altaPropietario";
+import { avisoDeDuplicado, clientesParecidos } from "../crm/duplicados";
 
 export const pacientesRouter = Router();
 
@@ -39,7 +46,54 @@ interface CamposFichaPaciente {
   color?: string | null;
   alergias?: string | null;
   alertaManejo?: string | null;
+  /* Los opcionales del anexo (A5). Existen en la base desde la
+     migracion 111 y hasta ahora no los escribia nadie. */
+  pelaje?: string | null;
+  caracter?: string | null;
+  habitat?: string | null;
+  tipoDieta?: string | null;
+  alimentacionDetalle?: string | null;
+  pedigri?: boolean;
+  pedigriRegistro?: string | null;
+  partos?: number | null;
 }
+
+/* Las columnas opcionales, en el orden en que viajan a los dos INSERT /
+   UPDATE. Una sola lista para que el alta y la edicion no se separen. */
+const COLUMNAS_OPCIONALES_A5 = [
+  "pelaje",
+  "caracter",
+  "habitat",
+  "tipo_dieta",
+  "alimentacion_detalle",
+  "pedigri",
+  "pedigri_registro",
+  "partos",
+] as const;
+
+function valoresOpcionalesA5(body: CamposFichaPaciente): unknown[] {
+  return [
+    textoOpcional(body.pelaje),
+    textoOpcional(body.caracter),
+    textoOpcional(body.habitat),
+    textoOpcional(body.tipoDieta),
+    textoOpcional(body.alimentacionDetalle),
+    body.pedigri === true,
+    textoOpcional(body.pedigriRegistro),
+    body.partos === null || body.partos === undefined ? null : Math.max(0, Math.trunc(body.partos)),
+  ];
+}
+
+/* Lo que devuelven el alta y la edicion. Incluye los opcionales y lo que
+   le falta a la ficha, que es lo que pinta el aviso de «ficha por
+   completar». */
+const DEVUELTO_DEL_PACIENTE = `id, numero_expediente, nombre, especie, raza_id, sexo,
+                 estado_reproductivo, fecha_nacimiento, fecha_nacimiento_estimada,
+                 microchip, color, alergias, alerta_manejo, estado,
+                 ${COLUMNAS_OPCIONALES_A5.join(", ")},
+                 baja_motivo, baja_en,
+                 pacientes_datos_basicos_faltantes(especie, NULL, raza_id, sexo,
+                   estado_reproductivo, fecha_nacimiento, edad_anios) AS datos_basicos_faltantes`;
 
 const SEXOS = ["macho", "hembra"];
 const ESTADOS_REPRODUCTIVOS = ["entero", "castrado", "desconocido"];
@@ -125,7 +179,13 @@ pacientesRouter.get("/", async (req, res) => {
       `SELECT p.id, p.numero_expediente, p.nombre, p.especie, p.sexo, p.estado,
               p.fecha_nacimiento, p.fecha_nacimiento_estimada, p.edad_anios,
               r.nombre AS raza,
-              prop.id AS propietario_id, prop.nombre AS propietario_nombre
+              prop.id AS propietario_id, prop.nombre AS propietario_nombre,
+              -- «Ficha por completar»: lo que el alta rápida no pidió. La
+              -- cuenta la hace la función de la migración 121, la misma
+              -- que usan la ficha y el resumen del expediente.
+              pacientes_datos_basicos_faltantes(p.especie, r.nombre, p.raza_id, p.sexo,
+                p.estado_reproductivo, p.fecha_nacimiento, p.edad_anios)
+                AS datos_basicos_faltantes
        FROM pacientes p
        JOIN propietarios prop ON prop.id = p.propietario_id
        LEFT JOIN razas r ON r.id = p.raza_id
@@ -167,11 +227,20 @@ pacientesRouter.get("/", async (req, res) => {
 // marca 'fallecido' solo desde el endpoint dedicado más abajo.
 // ---------------------------------------------------------------------
 pacientesRouter.post("/", async (req, res) => {
-  const body = req.body as CamposFichaPaciente & { propietarioId?: string };
+  const body = req.body as CamposFichaPaciente & {
+    propietarioId?: string;
+    /* El alta desde el fichero puede crear al dueño en el mismo paso
+       (anexo 07-03, A5): el cliente que llega con su mascota por primera
+       vez es un solo gesto, no dos pantallas. */
+    propietarioNuevo?: DatosAltaPropietario & { confirmado?: boolean };
+  };
   const { propietarioId, nombre, especie } = body;
 
-  if (!propietarioId || !nombre || !nombre.trim() || !especie || !especie.trim()) {
-    return res.status(400).json({ error: "Faltan propietarioId, nombre o especie." });
+  if (!propietarioId && !body.propietarioNuevo?.nombre?.trim()) {
+    return res.status(400).json({ error: "Falta el propietario: hay que elegir uno o crear uno nuevo." });
+  }
+  if (!nombre || !nombre.trim() || !especie || !especie.trim()) {
+    return res.status(400).json({ error: "Faltan el nombre o la especie." });
   }
   const errorCampos = validarCamposFicha(body);
   if (errorCampos) return res.status(400).json({ error: errorCampos });
@@ -183,20 +252,52 @@ pacientesRouter.post("/", async (req, res) => {
     const raza = await validarRazaParaEspecie(req.db!, body.razaId, especie);
     if (!raza.ok) return res.status(400).json({ error: raza.error });
 
+    // El dueño primero, en la MISMA transacción de la request: si el
+    // paciente falla después, no queda un cliente suelto que nadie pidió.
+    let duenoId = propietarioId;
+    let propietarioCreado = null;
+    if (!duenoId && body.propietarioNuevo) {
+      const nuevoDueno = body.propietarioNuevo;
+      if (!nuevoDueno.confirmado) {
+        const parecidos = await clientesParecidos(req.db!, nuevoDueno, { soloFuertes: true });
+        if (parecidos.length > 0) {
+          return res.status(409).json({
+            error: avisoDeDuplicado(parecidos),
+            codigo: "POSIBLE_DUPLICADO",
+            candidatos: parecidos,
+          });
+        }
+      }
+      try {
+        propietarioCreado = await crearPropietario(
+          req.db!,
+          req.auth!.tenantId!,
+          nuevoDueno,
+          req.auth!.userId
+        );
+      } catch (err) {
+        if (esIdentificacionRepetida(err)) {
+          return res.status(409).json({ error: ERROR_IDENTIFICACION_REPETIDA });
+        }
+        throw err;
+      }
+      duenoId = propietarioCreado.id;
+    }
+
     const numeroExpediente = await asignarNumeroExpedientePaciente(req.db!, req.auth!.tenantId!);
 
     const result = await req.db!.query(
       `INSERT INTO pacientes
          (tenant_id, propietario_id, numero_expediente, nombre, especie, raza_id, sexo,
           estado_reproductivo, fecha_nacimiento, fecha_nacimiento_estimada,
-          microchip, color, alergias, alerta_manejo)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-       RETURNING id, numero_expediente, nombre, especie, raza_id, sexo, estado_reproductivo,
-                 fecha_nacimiento, fecha_nacimiento_estimada, microchip, color, alergias,
-                 alerta_manejo, estado`,
+          microchip, color, alergias, alerta_manejo,
+          ${COLUMNAS_OPCIONALES_A5.join(", ")})
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
+               $15, $16, $17, $18, $19, $20, $21, $22)
+       RETURNING ${DEVUELTO_DEL_PACIENTE}`,
       [
         req.auth!.tenantId,
-        propietarioId,
+        duenoId,
         numeroExpediente,
         nombre.trim(),
         especie.trim(),
@@ -209,6 +310,7 @@ pacientesRouter.post("/", async (req, res) => {
         textoOpcional(body.color),
         textoOpcional(body.alergias),
         textoOpcional(body.alertaManejo),
+        ...valoresOpcionalesA5(body),
       ]
     );
 
@@ -222,7 +324,10 @@ pacientesRouter.post("/", async (req, res) => {
       resumen: `${result.rows[0].nombre} (${result.rows[0].especie})`,
     });
 
-    res.status(201).json({ paciente: { ...result.rows[0], raza: raza.razaNombre } });
+    res.status(201).json({
+      paciente: { ...result.rows[0], raza: raza.razaNombre },
+      propietario: propietarioCreado,
+    });
   } catch (err) {
     console.error("POST /pacientes", err);
     res.status(500).json({ error: "Error al crear la mascota." });
@@ -266,11 +371,11 @@ pacientesRouter.patch("/:id", async (req, res) => {
       `UPDATE pacientes SET
          nombre = $1, especie = $2, raza_id = $3, sexo = $4, estado_reproductivo = $5,
          fecha_nacimiento = $6, fecha_nacimiento_estimada = $7,
-         microchip = $8, color = $9, alergias = $10, alerta_manejo = $11
+         microchip = $8, color = $9, alergias = $10, alerta_manejo = $11,
+         pelaje = $13, caracter = $14, habitat = $15, tipo_dieta = $16,
+         alimentacion_detalle = $17, pedigri = $18, pedigri_registro = $19, partos = $20
        WHERE id = $12
-       RETURNING id, numero_expediente, nombre, especie, raza_id, sexo, estado_reproductivo,
-                 fecha_nacimiento, fecha_nacimiento_estimada, microchip, color, alergias,
-                 alerta_manejo, estado`,
+       RETURNING ${DEVUELTO_DEL_PACIENTE}`,
       [
         nombre.trim(),
         especie.trim(),
@@ -284,6 +389,7 @@ pacientesRouter.patch("/:id", async (req, res) => {
         textoOpcional(body.alergias),
         textoOpcional(body.alertaManejo),
         req.params.id,
+        ...valoresOpcionalesA5(body),
       ]
     );
     if (result.rows.length === 0) {
@@ -305,44 +411,72 @@ pacientesRouter.patch("/:id", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------
-// PATCH /api/pacientes/:id/estado
+// PATCH /api/pacientes/:id/estado — LA BAJA DEL PACIENTE
 //
-// prompt_code_paciente_nacimiento_estado.md, Parte B2 — único punto de
-// entrada para registrar el fallecimiento de un paciente. La confirmación
-// ("es una acción sensible, no debe quedar a un clic de distancia") es
-// responsabilidad del frontend (modal de confirmación); acá solo se exige
-// que la fecha venga informada, porque no tiene sentido un estado
-// 'fallecido' sin ella. No existe camino para volver a 'activo' — un
-// fallecimiento no se deshace por error de carga sin intervención manual
-// directa en la base, a propósito.
+// prompt_code_paciente_nacimiento_estado.md, Parte B2 — nació como el
+// único punto para registrar un fallecimiento. El anexo del 07 (A5) lo
+// amplía a los cuatro estados de baja que la migración 111 agregó al
+// CHECK: fallecido, extraviado, transferido y otro. La confirmación
+// sigue siendo del frontend; acá se exige el dato que cada baja necesita.
+//
+// EL MOTIVO ES OBLIGATORIO EN LOS CUATRO. Una ficha que dice
+// «transferido» y nada más no le sirve a quien la lea en dos años. Sale
+// del catálogo `motivo_baja` de la clínica, y «otro» admite texto libre.
+//
+// `fecha_fallecimiento` sigue siendo obligatoria SOLO para 'fallecido',
+// y sigue siendo la columna que miran los avisos: no se reemplaza por
+// `baja_en`, que es la fecha de la baja en general.
+//
+// NO HAY VUELTA A 'activo' desde la aplicación, igual que antes: el
+// `WHERE estado = 'activo'` lo impide y es deliberado.
 // ---------------------------------------------------------------------
+const ESTADOS_DE_BAJA = ["fallecido", "extraviado", "transferido", "baja_otro"] as const;
+type EstadoDeBaja = (typeof ESTADOS_DE_BAJA)[number];
+
 pacientesRouter.patch("/:id/estado", async (req, res) => {
-  const { estado, fechaFallecimiento } = req.body as {
-    estado?: "fallecido";
+  const { estado, fechaFallecimiento, motivo, fecha } = req.body as {
+    estado?: string;
     fechaFallecimiento?: string;
+    motivo?: string;
+    fecha?: string;
   };
 
-  if (estado !== "fallecido") {
-    return res.status(400).json({ error: "El único estado que se puede registrar acá es 'fallecido'." });
+  if (!estado || !(ESTADOS_DE_BAJA as readonly string[]).includes(estado)) {
+    return res.status(400).json({
+      error: `El estado tiene que ser uno de: ${ESTADOS_DE_BAJA.join(", ")}.`,
+    });
   }
-  if (!fechaFallecimiento) {
+  if (!motivo || !motivo.trim()) {
+    return res.status(400).json({ error: "Falta el motivo de la baja." });
+  }
+  if (estado === "fallecido" && !fechaFallecimiento) {
     return res.status(400).json({ error: "Falta la fecha de fallecimiento." });
   }
 
   try {
     const result = await req.db!.query(
-      `UPDATE pacientes SET estado = 'fallecido', fecha_fallecimiento = $1
-       WHERE id = $2 AND estado = 'activo'
-       RETURNING id, nombre, estado, fecha_fallecimiento`,
-      [fechaFallecimiento, req.params.id]
+      // $1 va casteado en los dos usos: sin el cast, Postgres lo deduce
+      // una vez como el tipo de la columna y otra por la comparación, y
+      // se queja con «inconsistent types deduced for parameter $1». Es
+      // el mismo tropiezo que ya costó un arreglo en el CASE WHEN de
+      // agentes por país.
+      `UPDATE pacientes
+          SET estado = $1::varchar,
+              fecha_fallecimiento = CASE WHEN $1::varchar = 'fallecido'
+                                         THEN $2::date ELSE fecha_fallecimiento END,
+              baja_motivo = $3,
+              baja_en = COALESCE($4::date, $2::date, CURRENT_DATE)
+        WHERE id = $5 AND estado = 'activo'
+       RETURNING id, nombre, estado, fecha_fallecimiento, baja_motivo, baja_en::text AS baja_en`,
+      [estado as EstadoDeBaja, fechaFallecimiento ?? null, motivo.trim(), fecha ?? null, req.params.id]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "El paciente no existe o ya está marcado como fallecido." });
+      return res.status(404).json({ error: "El paciente no existe o ya está dado de baja." });
     }
     res.json({ paciente: result.rows[0] });
   } catch (err) {
     console.error("PATCH /pacientes/:id/estado", err);
-    res.status(500).json({ error: "Error al registrar el fallecimiento." });
+    res.status(500).json({ error: "Error al registrar la baja del paciente." });
   }
 });
 
@@ -752,6 +886,11 @@ pacientesRouter.get("/:id", async (req, res) => {
               p.sexo, p.estado_reproductivo, p.fecha_nacimiento, p.fecha_nacimiento_estimada,
               p.edad_anios, p.microchip, p.color, p.alergias, p.alerta_manejo,
               p.estado, p.fecha_fallecimiento, p.creado_en,
+              p.pelaje, p.caracter, p.habitat, p.tipo_dieta, p.alimentacion_detalle,
+              p.pedigri, p.pedigri_registro, p.partos, p.baja_motivo, p.baja_en,
+              pacientes_datos_basicos_faltantes(p.especie, r.nombre, p.raza_id, p.sexo,
+                p.estado_reproductivo, p.fecha_nacimiento, p.edad_anios)
+                AS datos_basicos_faltantes,
               prop.id AS propietario_id, prop.nombre AS propietario_nombre,
               prop.telefono AS propietario_telefono, prop.email AS propietario_email,
               prop.direccion AS propietario_direccion,

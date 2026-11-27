@@ -55,10 +55,33 @@ export async function obtenerProximoNumeroExpediente(db: EjecutorSql, tenantId: 
 // paciente.
 // ---------------------------------------------------------------------
 export async function asignarNumeroExpedientePaciente(db: EjecutorSql, tenantId: string): Promise<number> {
+  // EL CONTADOR PUEDE HABER QUEDADO ATRÁS, Y SE CORRIGE SOLO.
+  //
+  // Defecto real encontrado al construir el alta desde el fichero
+  // (anexo 07-03, A5): una clínica con dos pacientes numerados 1 y 2
+  // tenía el contador en 0, porque esos pacientes se insertaron sin
+  // pasar por acá (sembrado, importación, reconstrucción). El contador y
+  // la tabla pueden separarse, y cuando se separan el alta falla con una
+  // violación de la unicidad de `numero_expediente` — un 500 que al
+  // usuario le dice «Error al crear la mascota» y no le deja hacer nada.
+  //
+  // El GREATEST hace que el contador se ponga al día en la misma
+  // sentencia en vez de chocar. No cambia el camino normal: cuando el
+  // contador está bien, `contador + 1` ya es el mayor de los dos.
+  //
+  // La subconsulta corre bajo el MISMO lock de fila del tenant que ya
+  // tomaba el UPDATE, así que las garantías de antes se mantienen: dos
+  // altas simultáneas no obtienen el mismo número, y un ROLLBACK del
+  // llamador deshace el incremento.
   const result = await db.query(
-    `UPDATE tenants SET paciente_expediente_ultimo_numero = paciente_expediente_ultimo_numero + 1
-     WHERE id = $1
-     RETURNING paciente_expediente_ultimo_numero`,
+    `UPDATE tenants t
+        SET paciente_expediente_ultimo_numero = GREATEST(
+              t.paciente_expediente_ultimo_numero + 1,
+              COALESCE((SELECT max(p.numero_expediente) FROM pacientes p
+                         WHERE p.tenant_id = t.id), 0) + 1
+            )
+      WHERE t.id = $1
+      RETURNING paciente_expediente_ultimo_numero`,
     [tenantId]
   );
   return result.rows[0].paciente_expediente_ultimo_numero as number;

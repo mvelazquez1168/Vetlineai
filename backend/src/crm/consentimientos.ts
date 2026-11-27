@@ -255,7 +255,10 @@ export async function guardarPreferencias(
 
 export type MotivoBloqueo =
   | "sin_consentimiento"
-  | "mascota_fallecida"
+  /* Cubre los cuatro estados de baja, no solo el fallecimiento: se
+     llamaba `mascota_fallecida` cuando ése era el único que existía
+     (anexo del 07, A5). */
+  | "mascota_de_baja"
   | "sin_contacto"
   | "fuera_de_horario"
   | "tope_promociones"
@@ -303,19 +306,34 @@ export async function puedeEnviar(db: EjecutorSql, s: SolicitudEnvio): Promise<V
     return { puede: false, motivo: "sin_contacto", explicacion: "Ese cliente no existe.", canal };
   }
 
-  // 1. LA MASCOTA FALLECIDA. Primero que todo lo demás: ningún mensaje
-  //    sobre una mascota muerta tiene una versión aceptable, ni siquiera
-  //    uno de salud. Ya costó una corrección antes.
+  // 1. LA MASCOTA DADA DE BAJA. Primero que todo lo demás: ningún
+  //    mensaje sobre una mascota muerta tiene una versión aceptable, ni
+  //    siquiera uno de salud. Ya costó una corrección antes.
+  //
+  //    EL CHEQUEO ES «no está activa», no «está fallecida». Nació
+  //    mirando solo 'fallecido', que era el único estado de baja que
+  //    existía; la migración 111 agregó extraviado, transferido y
+  //    baja_otro, y el chequeo quedó atrás: a un paciente transferido a
+  //    otra clínica le seguía saliendo la receta por correo. Las otras
+  //    dos capas (el SQL del job y los tres avisos por hecho) ya filtran
+  //    por `estado = 'activo'`; ésta era la que no.
   if (s.pacienteId) {
     const p = await db.query<{ estado: string; nombre: string }>(
       `SELECT estado, nombre FROM pacientes WHERE id = $1`,
       [s.pacienteId]
     );
-    if (p.rows[0]?.estado === "fallecido") {
+    const estadoPaciente = p.rows[0]?.estado;
+    if (estadoPaciente && estadoPaciente !== "activo") {
+      const comoSeLlama: Record<string, string> = {
+        fallecido: "registrada como fallecida",
+        extraviado: "registrada como extraviada",
+        transferido: "transferida a otra clínica",
+        baja_otro: "dada de baja",
+      };
       return {
         puede: false,
-        motivo: "mascota_fallecida",
-        explicacion: `${p.rows[0].nombre} está registrada como fallecida: no sale ningún mensaje sobre ella.`,
+        motivo: "mascota_de_baja",
+        explicacion: `${p.rows[0].nombre} está ${comoSeLlama[estadoPaciente] ?? "dada de baja"}: no sale ningún mensaje sobre ella.`,
         canal,
       };
     }

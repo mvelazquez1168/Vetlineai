@@ -323,7 +323,7 @@ async function main() {
   );
   igual(
     sobreMuerta.motivo,
-    "mascota_fallecida",
+    "mascota_de_baja",
     "NINGÚN mensaje sobre una mascota fallecida, ni siquiera de salud"
   );
 

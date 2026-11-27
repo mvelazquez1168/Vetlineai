@@ -277,12 +277,29 @@ export async function encabezadoDeExpediente(
     .map(({ activa: _activa, ...resto }) => resto);
 
   // --- Completitud ---------------------------------------------------
-  const faltan: string[] = [];
-  if (!paciente.especie) faltan.push("especie");
-  if (!paciente.raza && !paciente.raza_id) faltan.push("raza");
-  if (!paciente.sexo) faltan.push("sexo");
-  if (!paciente.estado_reproductivo) faltan.push("estado reproductivo");
-  if (!paciente.fecha_nacimiento && !paciente.edad_anios) faltan.push("edad o fecha de nacimiento");
+  //
+  // Los cinco datos BÁSICOS no se recalculan acá: los devuelve
+  // `pacientes_datos_basicos_faltantes` (migración 121), la misma
+  // función que usan el fichero y la ficha para el aviso de «ficha por
+  // completar». Tener la lista escrita dos veces era la forma de que un
+  // día el fichero dijera que falta la raza y el expediente que no.
+  //
+  // Los cuatro de abajo sí son de acá, porque no salen de la fila del
+  // paciente: el peso vive en las atenciones, las alergias en el
+  // expediente y el cliente es un join.
+  const basicos = await db.query<{ faltan: string[] }>(
+    `SELECT pacientes_datos_basicos_faltantes($1, $2, $3, $4, $5, $6, $7) AS faltan`,
+    [
+      paciente.especie ?? null,
+      paciente.raza ?? null,
+      paciente.raza_id ?? null,
+      paciente.sexo ?? null,
+      paciente.estado_reproductivo ?? null,
+      paciente.fecha_nacimiento ?? null,
+      paciente.edad_anios ?? null,
+    ]
+  );
+  const faltan: string[] = [...(basicos.rows[0]?.faltan ?? [])];
   if (!paciente.peso_actual) faltan.push("peso");
   if (!paciente.microchip) faltan.push("microchip");
   if (alergias.length === 0 && !paciente.alergias) faltan.push("alergias");

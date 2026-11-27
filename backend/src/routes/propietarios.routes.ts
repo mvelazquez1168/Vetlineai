@@ -1,8 +1,12 @@
 import { Router } from "express";
-import { registrarConsentimiento } from "../crm/consentimientos";
-import { registrarInteraccion } from "../crm/interacciones";
 import { direccionValida } from "../email";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import {
+  crearPropietario,
+  ERROR_IDENTIFICACION_REPETIDA,
+  esIdentificacionRepetida,
+} from "../clientes/altaPropietario";
+import { avisoDeDuplicado, clientesParecidos } from "../crm/duplicados";
 
 export const propietariosRouter = Router();
 
@@ -193,14 +197,18 @@ propietariosRouter.get("/", async (req, res) => {
 // constraint) y la unicidad por clínica la aplica esa misma migración.
 // ---------------------------------------------------------------------
 propietariosRouter.post("/", async (req, res) => {
-  const { nombre, telefono, email, direccion, tipoIdentificacionId, numeroIdentificacion } = req.body as {
-    nombre?: string;
-    telefono?: string;
-    email?: string;
-    direccion?: string;
-    tipoIdentificacionId?: string;
-    numeroIdentificacion?: string;
-  };
+  const { nombre, telefono, email, direccion, tipoIdentificacionId, numeroIdentificacion, confirmado } =
+    req.body as {
+      nombre?: string;
+      telefono?: string;
+      email?: string;
+      direccion?: string;
+      tipoIdentificacionId?: string;
+      numeroIdentificacion?: string;
+      /* El alta vuelve a llamar con esto en true cuando el usuario vio
+         los parecidos y decidió crear igual. */
+      confirmado?: boolean;
+    };
 
   if (!nombre || !nombre.trim()) {
     return res.status(400).json({ error: "Falta el nombre del propietario." });
@@ -215,50 +223,38 @@ propietariosRouter.post("/", async (req, res) => {
   }
 
   try {
-    const result = await req.db!.query(
-      `INSERT INTO propietarios (tenant_id, nombre, telefono, email, direccion, tipo_identificacion_id, numero_identificacion)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, nombre, telefono, email, direccion, tipo_identificacion_id, numero_identificacion`,
-      [
-        req.auth!.tenantId,
-        nombre.trim(),
-        telefono?.trim() || null,
-        email?.trim() || null,
-        direccion?.trim() || null,
-        tipoIdentificacionId || null,
-        numeroIdentificacion?.trim() || null,
-      ]
-    );
-    const nuevo = result.rows[0];
+    // EL DUPLICADO MÁS BARATO ES EL QUE NO SE CREA (anexo 07-03, A5).
+    // Antes de insertar se mira si ya hay un cliente con la misma
+    // identificación o el mismo teléfono y se devuelve 409 con los
+    // parecidos, para que la pantalla ofrezca usar el que ya existe. No
+    // bloquea: con `confirmado` se crea igual, porque dos personas
+    // pueden compartir un teléfono de casa.
+    if (!confirmado) {
+      const parecidos = await clientesParecidos(
+        req.db!,
+        { nombre, telefono, email, tipoIdentificacionId, numeroIdentificacion },
+        { soloFuertes: true }
+      );
+      if (parecidos.length > 0) {
+        return res.status(409).json({
+          error: avisoDeDuplicado(parecidos),
+          codigo: "POSIBLE_DUPLICADO",
+          candidatos: parecidos,
+        });
+      }
+    }
 
-    // CRM (prompt 03): el cliente nace en la linea de tiempo y con su
-    // consentimiento de SALUD por correo registrado. El de PROMOCIONES
-    // queda en no hasta que lo de: es opt-in.
-    await registrarInteraccion(req.db!, {
-      tenantId: req.auth!.tenantId!,
-      tipo: "cliente_registrado",
-      propietarioId: nuevo.id,
-      origenTabla: "propietarios",
-      origenId: nuevo.id,
-      personaId: req.auth!.userId,
-      resumen: nuevo.nombre,
-    });
-    await registrarConsentimiento(req.db!, req.auth!.tenantId!, {
-      propietarioId: nuevo.id,
-      canal: "correo",
-      finalidad: "salud",
-      otorgado: true,
-      fuente: "recepcion",
-      personaId: req.auth!.userId,
-      nota: "Registrado al crear el cliente: recordatorios de citas, vacunas y comprobantes.",
-    });
+    const nuevo = await crearPropietario(
+      req.db!,
+      req.auth!.tenantId!,
+      { nombre, telefono, email, direccion, tipoIdentificacionId, numeroIdentificacion },
+      req.auth!.userId
+    );
 
     res.status(201).json({ propietario: nuevo });
   } catch (err: any) {
-    if (err?.code === "23505" && err?.constraint === "propietarios_identificacion_unica") {
-      return res.status(409).json({
-        error: "Ya existe un propietario registrado en tu clínica con ese tipo y número de identificación.",
-      });
+    if (esIdentificacionRepetida(err)) {
+      return res.status(409).json({ error: ERROR_IDENTIFICACION_REPETIDA });
     }
     console.error("POST /propietarios", err);
     res.status(500).json({ error: "Error al crear el propietario." });

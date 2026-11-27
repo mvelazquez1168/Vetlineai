@@ -159,14 +159,19 @@ export async function libroDeControlados(
             p.nombre AS producto, p.id AS producto_id,
             l.numero AS lote,
             m.tipo,
-            COALESCE(mo.nombre, m.motivo) AS motivo,
-            m.cantidad_base::text AS cantidad,
+            COALESCE(mo.nombre, m.motivo, tm.nombre) AS motivo,
+            -- CON SIGNO, para que el libro se lea como un libro: la
+            -- cantidad del movimiento es siempre positiva y la dirección
+            -- vive en el tipo.
+            (m.cantidad_base * CASE WHEN tm.direccion = 'salida' THEN -1 ELSE 1 END)::text
+              AS cantidad,
             pac.nombre AS paciente,
             per.nombre AS medico,
             -- De dónde vino: la compra o la atención.
             COALESCE(oc.numero::text, a.id::text) AS documento
        FROM inv_movimientos m
        JOIN inv_productos p ON p.id = m.producto_id
+       JOIN inv_tipos_movimiento tm ON tm.codigo = m.tipo
        LEFT JOIN inv_lotes l ON l.id = m.lote_id
        LEFT JOIN inv_motivos mo ON mo.codigo = m.motivo
        LEFT JOIN pacientes pac ON pac.id = m.paciente_id
@@ -195,15 +200,21 @@ export async function saldosDeControlados(
     lote: string | null;
     saldo: string;
   }>(
+    // EL SIGNO SALE DEL TIPO DE MOVIMIENTO, no de la cantidad:
+    // `cantidad_base` tiene un CHECK que la obliga a ser positiva. Sumar
+    // sin mirar la dirección daría 120 donde hay 80, y ese es el número
+    // que el regente firma.
     `SELECT p.nombre AS producto, p.id AS producto_id, l.numero AS lote,
-            sum(m.cantidad_base)::text AS saldo
+            sum(m.cantidad_base * CASE WHEN tm.direccion = 'salida' THEN -1 ELSE 1 END)::text
+              AS saldo
        FROM inv_movimientos m
        JOIN inv_productos p ON p.id = m.producto_id
+       JOIN inv_tipos_movimiento tm ON tm.codigo = m.tipo
        LEFT JOIN inv_lotes l ON l.id = m.lote_id
       WHERE m.tenant_id = $1 AND p.es_controlado
         AND ($2::date IS NULL OR m.creado_en::date <= $2::date)
       GROUP BY p.nombre, p.id, l.numero
-     HAVING sum(m.cantidad_base) <> 0
+     HAVING sum(m.cantidad_base * CASE WHEN tm.direccion = 'salida' THEN -1 ELSE 1 END) <> 0
       ORDER BY p.nombre, l.numero`,
     [tenantId, hasta ?? null]
   );

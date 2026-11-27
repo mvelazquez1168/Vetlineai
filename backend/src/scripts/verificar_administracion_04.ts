@@ -168,10 +168,26 @@ async function main() {
   await conAlcanceTenant(tenantId, async (db) => {
     const matriz = await matrizDeRoles(db, tenantId);
     igual(matriz.roles.length, 8, "los ocho roles del prompt");
+    // LOS CINCO DEL 04 SON CONFIGURABLES. La lista total crece con cada
+    // prompt —el 10a sumó `finanzas.registrar` y el 11
+    // `controlados.firmar_cierre`—, así que lo que se verifica es que
+    // los cinco de este prompt estén, no que no haya más: lo contrario
+    // haría fallar este verificador cada vez que otro prompt agrega un
+    // permiso legítimamente configurable.
+    const configurables = matriz.permisos.filter((p) => p.configurable).map((p) => p.codigo);
+    for (const codigo of [
+      "caja.anular",
+      "caja.descuento",
+      "inventario.ajustar",
+      "catalogo.ver_costos",
+      "datos.exportar",
+    ]) {
+      assert(configurables.includes(codigo), `«${codigo}» es configurable, como pide el prompt`);
+    }
     assert(
-      matriz.permisos.filter((p) => p.configurable).length === 5,
-      "cinco permisos configurables, los que nombra el prompt",
-      matriz.permisos.filter((p) => p.configurable).map((p) => p.codigo).join(", ")
+      !configurables.some((c) => c.startsWith("expediente.") || c === "receta.emitir"),
+      "y NINGÚN permiso clínico es configurable",
+      configurables.join(", ")
     );
 
     // LOS PERMISOS CLÍNICOS NO SE CONFIGURAN.

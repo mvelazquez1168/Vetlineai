@@ -48,6 +48,11 @@ export type TipoInteraccion =
   | "desparasitacion"
   | "receta_emitida"
   | "estudio_laboratorio"
+  // La carga de una imagen o un documento al expediente (revisión del
+  // 2026-11-27). EL CÓDIGO YA ESTABA EN `crm_tipos_evento` y faltaba
+  // acá: el catálogo de la base y esta unión son dos listas del mismo
+  // concepto, y esta se había quedado atrás.
+  | "documento_adjunto"
   | "grooming"
   | "consentimiento_firmado"
   /* Cobranza amable (prompt 10a, §4): le recordamos el saldo. */

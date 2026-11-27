@@ -7,6 +7,12 @@ import { requerirAnthropic } from "../anthropic";
 import { esLegiblePorAgente } from "../archivosDelCaso";
 import { almacenamientoPrivado } from "../almacenamiento";
 import { contentTypePorExtension } from "../almacenamiento/contentType";
+import {
+  DocumentoInvalido,
+  puedeSubirTipo,
+  validarDatosDeDocumento,
+} from "../expediente/documentos";
+import { registrarInteraccion } from "../crm/interacciones";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { registrarEventoDetallado } from "../middleware/auditoria";
 
@@ -98,7 +104,16 @@ archivosRouter.post("/", (req, res) => {
 });
 
 async function manejarSubidaArchivo(req: Request, res: Response) {
-  if (!req.auth!.esMedico) {
+  // EL GATE DEPENDE DEL DESTINO (revisión del 2026-11-27).
+  //
+  // Antes era `esMedico` para todo. Con el destino nuevo —un documento
+  // del expediente— eso dejaba a la recepción sin poder escanear el
+  // historial que el cliente trae en papel, y así es como una carpeta
+  // de papeles se queda sin cargar. Para el caso y el estudio sigue
+  // siendo médico; para el paciente lo decide el TIPO de documento
+  // (`puedeSubirTipo`).
+  const destinoPaciente = !!(req.body as { pacienteId?: string }).pacienteId;
+  if (!destinoPaciente && !req.auth!.esMedico) {
     return res.status(403).json({ error: "Esta sección es solo para médicos." });
   }
 
@@ -120,23 +135,62 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
   //   4. el archivo va al mismo ámbito PRIVADO del almacenamiento, y se
   //      sirve solo por `GET /api/archivos/:id`, con sesión y con el
   //      mismo chequeo de clínica.
-  const { casoId, estudioLabId } = req.body as { casoId?: string; estudioLabId?: string };
+  const { casoId, estudioLabId, pacienteId, tipoDocumento, fechaDocumento, descripcion, atencionId } =
+    req.body as {
+      casoId?: string;
+      estudioLabId?: string;
+      /** TERCER DESTINO: un documento del expediente del paciente. */
+      pacienteId?: string;
+      tipoDocumento?: string;
+      fechaDocumento?: string;
+      descripcion?: string;
+      atencionId?: string;
+    };
 
   if (!req.file) {
     return res.status(400).json({ error: "Falta el archivo." });
   }
-  if (!casoId && !estudioLabId) {
-    return res.status(400).json({ error: "Falta casoId o estudioLabId." });
+  if (!casoId && !estudioLabId && !pacienteId) {
+    return res.status(400).json({ error: "Falta casoId, estudioLabId o pacienteId." });
   }
-  if (casoId && estudioLabId) {
+  if ([casoId, estudioLabId, pacienteId].filter(Boolean).length > 1) {
     return res.status(400).json({
-      error: "Un archivo cuelga de un caso o de un estudio, no de los dos.",
+      error: "Un archivo cuelga de un caso, de un estudio o de un paciente: de uno solo.",
     });
   }
-
   try {
     let pacienteDelEstudio: string | null = null;
-    if (casoId) {
+
+    // --- EL DOCUMENTO DEL EXPEDIENTE ------------------------------
+    if (pacienteId) {
+      validarDatosDeDocumento({ tipoDocumento, fechaDocumento, descripcion });
+      const permiso = await puedeSubirTipo(req.db!, req.auth!.tenantId!, tipoDocumento!, {
+        esMedico: req.auth!.esMedico,
+      });
+      if (!permiso.puede) {
+        return res.status(403).json({ error: permiso.motivo });
+      }
+      // EL PACIENTE TIENE QUE SER DE ESTA CLÍNICA. La RLS ya lo
+      // garantiza; el filtro explícito está por el mismo criterio que
+      // el resto del backend.
+      const pac = await req.db!.query<{ id: string }>(
+        `SELECT id FROM pacientes WHERE id = $1 AND tenant_id = $2`,
+        [pacienteId, req.auth!.tenantId]
+      );
+      if (pac.rows.length === 0) {
+        return res.status(404).json({ error: "Paciente no encontrado." });
+      }
+      if (atencionId) {
+        const at = await req.db!.query<{ id: string }>(
+          `SELECT id FROM atenciones WHERE id = $1 AND paciente_id = $2`,
+          [atencionId, pacienteId]
+        );
+        if (at.rows.length === 0) {
+          return res.status(400).json({ error: "Esa atención no es de este paciente." });
+        }
+      }
+      pacienteDelEstudio = pacienteId;
+    } else if (casoId) {
       const casoResult = await req.db!.query(
         `SELECT id, estado FROM casos WHERE id = $1 AND medico_id = $2`,
         [casoId, req.auth!.userId]
@@ -219,9 +273,11 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
 
     const result = await req.db!.query(
       `INSERT INTO archivos (caso_id, estudio_lab_id, paciente_id, nombre_archivo, tipo, url,
-                             file_id_anthropic, subido_por_persona_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id, nombre_archivo, tipo, url, creado_en, file_id_anthropic`,
+                             file_id_anthropic, subido_por_persona_id,
+                             tipo_documento, fecha_documento, descripcion, atencion_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       RETURNING id, nombre_archivo, tipo, url, creado_en, file_id_anthropic,
+                 tipo_documento, fecha_documento, descripcion, atencion_id`,
       [
         casoId ?? null,
         estudioLabId ?? null,
@@ -231,6 +287,10 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
         `/uploads/${clave}`,
         fileIdAnthropic,
         req.auth!.userId,
+        tipoDocumento ?? null,
+        fechaDocumento ?? null,
+        descripcion?.trim() || null,
+        atencionId ?? null,
       ]
     );
     // La interfaz necesita saberlo en el momento de adjuntar, no después
@@ -243,8 +303,30 @@ async function manejarSubidaArchivo(req: Request, res: Response) {
       await req.db!.query(`UPDATE casos SET actualizado_en = now() WHERE id = $1`, [casoId]);
     }
 
+    // CADA CARGA QUEDA EN LA LÍNEA DE TIEMPO DEL PACIENTE, que es lo
+    // que el pedido exige: un documento que está en la galería y no en
+    // la historia es un documento que nadie encuentra buscando por
+    // fecha.
+    if (pacienteId) {
+      await registrarInteraccion(req.db!, {
+        tenantId: req.auth!.tenantId!,
+        tipo: "documento_adjunto",
+        pacienteId,
+        origenTabla: "archivos",
+        origenId: result.rows[0].id,
+        personaId: req.auth!.userId,
+        resumen: `${tipoDocumento ?? "documento"}: ${req.file.originalname}`.slice(0, 120),
+      });
+    }
+
     res.status(201).json({ archivo });
   } catch (err) {
+    // UN DATO MAL PEDIDO NO ES UN ERROR DEL SERVIDOR. Sin esto, «falta
+    // el tipo de documento» salía como 500 y la pantalla mostraba
+    // «Error al subir el archivo», que no dice qué arreglar.
+    if (err instanceof DocumentoInvalido) {
+      return res.status(400).json({ error: err.message });
+    }
     console.error("POST /archivos", err);
     res.status(500).json({ error: "Error al subir el archivo." });
   }

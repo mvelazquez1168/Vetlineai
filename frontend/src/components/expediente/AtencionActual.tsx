@@ -33,6 +33,7 @@ import { inventarioApi } from "../../lib/inventarioApi";
 import { formatearMonto } from "../../lib/ventasApi";
 import { BotonDictado, IndicadorMicrofono, useDictado } from "../ui";
 import { plural } from "../../lib/plural";
+import { DocumentosDelPaciente } from "./DocumentosDelPaciente";
 import {
   ModalPreventivo,
   PanelReceta,
@@ -139,6 +140,11 @@ export function AtencionActual({
   const [avisos, setAvisos] = useState<
     Array<{ porque: string; severidad: string; detalle: string }>
   >([]);
+
+  // El panel de adjuntar de la atención. No es uno de los `panel` de
+  // arriba: esos registran algo que se le hizo al paciente y esto sube
+  // un archivo.
+  const [adjuntando, setAdjuntando] = useState(false);
 
   const [diagTipo, setDiagTipo] = useState<"presuntivo" | "definitivo">("presuntivo");
   const [diagTexto, setDiagTexto] = useState("");
@@ -1019,6 +1025,14 @@ export function AtencionActual({
                 <Button variant="secondary" onClick={() => setPanel("estudio")}>
                   Laboratorio <Atajo>Alt+E</Atajo>
                 </Button>
+                {/* ADJUNTAR DESDE LA ATENCIÓN (revisión del
+                    2026-11-27, punto 6). El archivo queda ligado a ESTA
+                    atención, que es lo que distingue este botón de
+                    subirlo desde la pestaña: una radiografía tomada hoy
+                    pertenece a la consulta de hoy. */}
+                <Button variant="secondary" onClick={() => setAdjuntando(true)}>
+                  Adjuntar
+                </Button>
                 {/* COTIZAR DESDE LA CONSULTA (prompt 08b, A1). Es el caso
                     típico: el médico cotiza la cirugía mientras el dueño
                     está enfrente. Abre la pantalla de presupuesto con el
@@ -1353,6 +1367,23 @@ export function AtencionActual({
           Después de firmar no se edita: la corrección es una adenda. Pasa todo junto o no pasa
           nada.
         </p>
+      </Modal>
+
+      {/* ADJUNTAR, ligado a esta atención. Reusa el mismo componente de
+          la pestaña del expediente: dos cargadores serían dos juegos de
+          reglas de tipo y tamaño. */}
+      <Modal
+        open={adjuntando}
+        onClose={() => setAdjuntando(false)}
+        title="Adjuntar a esta atención"
+        description="Lo que subas queda ligado a la consulta de hoy y aparece en la historia del paciente."
+        ancho="xl"
+      >
+        <DocumentosDelPaciente
+          pacienteId={pacienteId}
+          atencionId={atencionId}
+          onCambio={() => void cargar(atencionId!)}
+        />
       </Modal>
     </div>
   );

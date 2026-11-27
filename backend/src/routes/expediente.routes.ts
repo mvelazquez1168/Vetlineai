@@ -43,6 +43,7 @@ import {
   enviarConsentimientoAlCliente,
 } from "../expediente/consentimientoPdf";
 import { pedirFirmaADistancia } from "../expediente/firmaRemota";
+import { documentosDePaciente, tiposDeDocumento } from "../expediente/documentos";
 import { enLaClinicaAhora, deshacerSalida, marcarEstancia, registrarSalida } from "../expediente/estancia";
 import { guardarBorrador, liberar, tomarOLatir } from "../expediente/borrador";
 import { resumenDelExamen, tendenciaDeSignos } from "../expediente/examen";
@@ -578,6 +579,32 @@ expedienteRouter.post("/pacientes/:id/consentimientos", async (req, res) => {
 // EL PDF DEL CONSENTIMIENTO, con el texto, la firma, la evidencia y la
 // huella. Se genera al vuelo: el documento es reproducible desde la
 // fila, y guardar una copia sería un segundo original.
+// --- IMÁGENES Y DOCUMENTOS (revisión del 2026-11-27) -------------
+
+/** El catálogo de tipos de documento de la clínica. */
+expedienteRouter.get("/tipos-documento", async (req, res) => {
+  try {
+    res.json({ tipos: await tiposDeDocumento(req.db!, req.auth!.tenantId!) });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/tipos-documento");
+  }
+});
+
+/** La galería del paciente, con sus filtros y el origen de cada cosa. */
+expedienteRouter.get("/pacientes/:id/documentos", async (req, res) => {
+  try {
+    res.json({
+      documentos: await documentosDePaciente(req.db!, req.params.id, {
+        tipo: (req.query.tipo as string) || undefined,
+        desde: (req.query.desde as string) || undefined,
+        hasta: (req.query.hasta as string) || undefined,
+      }),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /expediente/pacientes/:id/documentos");
+  }
+});
+
 expedienteRouter.get("/consentimientos/:id/pdf", async (req, res) => {
   try {
     const c = await consentimiento(req.db!, req.params.id);

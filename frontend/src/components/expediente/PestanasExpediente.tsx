@@ -21,6 +21,7 @@ import { ModalLaboratorio } from "./ModalLaboratorio";
 import { DondeSeRegistra, ModalHistorico } from "./AccionesClinicas";
 import { PreventivosYGasto } from "../metricas/PreventivosYGasto";
 import { PanelFirma } from "../ui/PanelFirma";
+import { DocumentosDelPaciente } from "./DocumentosDelPaciente";
 import {
   EncabezadoExpediente,
   EstudioLab,
@@ -219,7 +220,27 @@ export function PestanasExpediente({
           />
         )}
         {pestana === "linea" && <LineaDeTiempo pacienteId={pacienteId} />}
-        {PESTANAS.filter((p) => p.tipoEvento).map(
+
+        {/* IMÁGENES Y DOCUMENTOS (revisión del 2026-11-27).
+            Antes esta pestaña era la línea de tiempo filtrada por el
+            tipo «documento» y no permitía agregar nada: el médico que
+            saca una radiografía no tenía dónde ponerla. Ahora es la
+            galería con su carga, y la historia filtrada queda debajo,
+            que es donde aparecen los documentos que llegaron por otros
+            caminos (un resultado de laboratorio, un caso). */}
+        {pestana === "documentos" && (
+          <div className="space-y-6">
+            <DocumentosDelPaciente pacienteId={pacienteId} onCambio={onCambio} />
+            <div>
+              <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-text-muted">
+                En la historia del paciente
+              </h4>
+              <LineaDeTiempo pacienteId={pacienteId} tipoFijo="documento" />
+            </div>
+          </div>
+        )}
+
+        {PESTANAS.filter((p) => p.tipoEvento && p.clave !== "documentos").map(
           (p) =>
             pestana === p.clave && (
               <div key={p.clave}>

@@ -25,6 +25,7 @@ import {
 import {
   AtencionDetalle,
   ItemAtencion,
+  ProductoClinico,
   SistemaExaminado,
   atencionApi,
 } from "../../lib/expedienteApi";
@@ -162,30 +163,37 @@ export function AtencionActual({
       } catch {
         /* el catálogo vacío no impide escribir la nota */
       }
+      // UNA SOLA LLAMADA (defecto 1.1 de la revisión del 2026-11-27).
+      //
+      // Acá había un bucle que pedía la lista de productos y después
+      // **el detalle de cada uno, de a uno y esperando cada respuesta**:
+      // con los 897 productos de una clínica real eran 101 solicitudes
+      // autenticadas en serie, cada una abriendo su transacción. La
+      // pestaña de la atención quedaba inutilizable durante varios
+      // segundos y, con la latencia de un servidor de verdad, mucho más.
+      //
+      // `GET /expediente/catalogo-clinico` ya devolvía exactamente esto
+      // —presentación, precio y lotes con existencia— en una consulta,
+      // y es el mismo endpoint que usan las acciones de la atención: así
+      // la lista del buscador y la de cada acción no pueden discrepar.
       try {
-        const r = await inventarioApi.productos({ porPagina: 100 });
-        const todas: PresentacionElegible[] = [];
-        for (const prod of r.productos) {
-          try {
-            const d = await inventarioApi.producto(prod.id);
-            for (const pr of d.presentaciones.filter((x) => x.activo)) {
-              todas.push({
-                id: pr.id,
-                nombre: pr.nombre,
-                producto: prod.nombre,
-                productoId: prod.id,
-                precio: pr.precio_venta,
-                existencia: Number(prod.existencia),
-                unidad: prod.unidad_base,
-              });
-            }
-          } catch {
-            /* un producto que no carga no bloquea la consulta */
-          }
-        }
-        if (vivo) setPresentaciones(todas);
+        const r = await atencionApi.catalogoClinico();
+        if (!vivo) return;
+        setPresentaciones(
+          r.productos.map((pr: ProductoClinico) => ({
+            id: pr.presentacionId,
+            nombre: pr.presentacion,
+            producto: pr.nombre,
+            productoId: pr.productoId,
+            precio: pr.precio === null ? null : String(pr.precio),
+            // La existencia es la de sus lotes con stock, que es lo que
+            // se puede dispensar hoy.
+            existencia: pr.lotes.reduce((t: number, l) => t + Number(l.cantidad), 0),
+            unidad: "",
+          }))
+        );
       } catch {
-        /* idem */
+        /* el catálogo vacío no impide escribir la nota */
       }
     })();
     return () => {

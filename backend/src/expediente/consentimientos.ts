@@ -1,4 +1,6 @@
+import { createHash } from "crypto";
 import { PoolClient } from "pg";
+import { analizarFirma } from "./firmaPng";
 import { registrarInteraccion } from "../crm/interacciones";
 
 // ---------------------------------------------------------------------
@@ -157,6 +159,58 @@ export async function prepararConsentimiento(
  * consentimiento sin firma no es un consentimiento, y aceptarlo vacío
  * dejaría un documento que parece firmado y no lo está.
  */
+export interface EvidenciaDeFirma {
+  /** Quién es el firmante respecto del paciente. */
+  relacion?: "propietario" | "autorizado";
+  /** Si es autorizado: por quién. */
+  autorizadoPor?: string | null;
+  /** El navegador o la tablet desde donde se firmó. */
+  dispositivo?: string | null;
+  ip?: string | null;
+  /** El integrante del personal que gestionó la firma. */
+  testigoId?: string | null;
+  /** Si se firmó por el enlace que se le mandó al cliente. */
+  aDistancia?: boolean;
+}
+
+/**
+ * LA HUELLA DEL CONSENTIMIENTO: SHA-256 del título, el texto exacto y la
+ * firma.
+ *
+ * Es lo que permite decir «esto es lo que se firmó». Si alguien edita el
+ * texto en la base después de firmado, la huella deja de coincidir y la
+ * pantalla lo muestra. Incluye la firma a propósito: el texto sin la
+ * firma se podría recalcular, el par no.
+ */
+export function huellaDeConsentimiento(
+  titulo: string,
+  texto: string,
+  firmaPng: string
+): string {
+  return createHash("sha256")
+    .update(titulo, "utf8")
+    .update("\u0000", "utf8")
+    .update(texto, "utf8")
+    .update("\u0000", "utf8")
+    .update(firmaPng, "utf8")
+    .digest("hex");
+}
+
+/**
+ * Firma un consentimiento.
+ *
+ * LO QUE CAMBIÓ EL 2026-11-27, y es el motivo de todo este módulo: la
+ * pantalla mandaba un PNG de 1×1 píxel como firma y esto lo aceptaba
+ * —solo miraba que el texto empezara con `data:image/`—. Ahora:
+ *
+ *   * **la firma se analiza**: tamaño mínimo y que efectivamente haya
+ *     trazo (`analizarFirma`). Un recuadro vacío se rechaza con un
+ *     mensaje que dice qué hacer;
+ *   * **se guarda la evidencia**: quién firmó, en qué calidad, desde
+ *     qué dispositivo e IP, con qué testigo del personal y la hora del
+ *     SERVIDOR (nunca la del cliente, que es la que se puede cambiar);
+ *   * **se guarda la huella**, que se verifica al mostrarlo.
+ */
 export async function firmarConsentimiento(
   db: PoolClient,
   tenantId: string,
@@ -170,40 +224,60 @@ export async function firmarConsentimiento(
     firmanteIdentificacion?: string;
     firmaPng: string;
     testigoId?: string;
+  },
+  evidencia: EvidenciaDeFirma = {}
+): Promise<{ id: string; huella: string }> {
+  if (!datos.firmanteNombre?.trim()) {
+    throw new ConsentimientoInvalido("Falta el nombre de quien firma.");
   }
-): Promise<{ id: string }> {
-  if (!datos.firmaPng?.startsWith("data:image/")) {
-    throw new Error(
-      "Falta la firma: un consentimiento sin el trazo del cliente no respalda nada. Pedile que firme en pantalla."
+  if (!datos.texto?.trim()) {
+    throw new ConsentimientoInvalido("Falta el texto del consentimiento.");
+  }
+
+  // LA FIRMA, DE VERDAD.
+  const analisis = analizarFirma(datos.firmaPng ?? "");
+  if (!analisis.valida) {
+    throw new ConsentimientoInvalido(
+      analisis.motivo ??
+        "Falta la firma: un consentimiento sin el trazo del cliente no respalda nada."
     );
   }
-  if (!datos.firmanteNombre?.trim()) {
-    throw new Error("Falta el nombre de quien firma.");
-  }
-  if (!datos.texto?.trim()) throw new Error("Falta el texto del consentimiento.");
 
   const fecha = new Date().toLocaleDateString("es-CR", {
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
+  const textoFinal = resolverMarcadores(datos.texto, { fecha } as never);
+  const huella = huellaDeConsentimiento(datos.titulo.trim(), textoFinal, datos.firmaPng);
 
   const r = await db.query<{ id: string }>(
-    `INSERT INTO exp_consentimientos (tenant_id, paciente_id, atencion_id, plantilla_id, titulo,
-                                      texto, firmante_nombre, firmante_identificacion, firma_png,
-                                      testigo_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+    `INSERT INTO exp_consentimientos
+       (tenant_id, paciente_id, atencion_id, plantilla_id, titulo, texto,
+        firmante_nombre, firmante_identificacion, firma_png, testigo_id,
+        firmante_relacion, firmante_autorizado_por, firma_dispositivo, firma_ip,
+        huella, firma_ancho, firma_alto, firmado_a_distancia, firma_valida)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,true)
+     RETURNING id`,
     [
       tenantId,
       datos.pacienteId,
       datos.atencionId ?? null,
       datos.plantillaId ?? null,
       datos.titulo.trim(),
-      resolverMarcadores(datos.texto, { fecha } as never),
+      textoFinal,
       datos.firmanteNombre.trim(),
       datos.firmanteIdentificacion?.trim() || null,
       datos.firmaPng,
-      datos.testigoId ?? null,
+      evidencia.testigoId ?? datos.testigoId ?? null,
+      evidencia.relacion ?? "propietario",
+      evidencia.autorizadoPor?.trim() || null,
+      evidencia.dispositivo?.slice(0, 400) ?? null,
+      evidencia.ip ?? null,
+      huella,
+      analisis.ancho,
+      analisis.alto,
+      evidencia.aDistancia ?? false,
     ]
   );
 
@@ -213,17 +287,46 @@ export async function firmarConsentimiento(
     pacienteId: datos.pacienteId,
     origenTabla: "exp_consentimientos",
     origenId: r.rows[0].id,
-    personaId: datos.testigoId ?? null,
+    personaId: evidencia.testigoId ?? datos.testigoId ?? null,
     resumen: datos.titulo.slice(0, 120),
   });
 
-  return { id: r.rows[0].id };
+  return { id: r.rows[0].id, huella };
+}
+
+/** El error que la ruta traduce a 400. */
+export class ConsentimientoInvalido extends Error {
+  constructor(mensaje: string) {
+    super(mensaje);
+    this.name = "ConsentimientoInvalido";
+  }
+}
+
+/**
+ * ¿El registro sigue diciendo lo que se firmó?
+ *
+ * Se recalcula la huella y se compara. Un consentimiento sin huella es
+ * uno de los viejos: no se puede verificar, y eso también se dice.
+ */
+export function verificarIntegridad(c: {
+  titulo: string;
+  texto: string;
+  firma_png: string | null;
+  huella: string | null;
+}): { verificable: boolean; intacto: boolean } {
+  if (!c.huella || !c.firma_png) return { verificable: false, intacto: false };
+  return {
+    verificable: true,
+    intacto: huellaDeConsentimiento(c.titulo, c.texto, c.firma_png) === c.huella,
+  };
 }
 
 export async function consentimientosDePaciente(db: PoolClient, pacienteId: string) {
   const r = await db.query(
     `SELECT c.id, c.titulo, c.firmante_nombre, c.firmante_identificacion, c.firmado_en,
-            c.atencion_id, c.pdf_archivo_id, per.nombre AS testigo
+            c.atencion_id, c.pdf_archivo_id, per.nombre AS testigo,
+            c.firma_valida, c.firma_invalida_motivo, c.firmado_a_distancia,
+            c.firmante_relacion, c.huella IS NOT NULL AS verificable
        FROM exp_consentimientos c
        LEFT JOIN personas per ON per.id = c.testigo_id
       WHERE c.paciente_id = $1

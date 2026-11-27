@@ -38,6 +38,11 @@ import {
   prepararConsentimiento,
   sembrarPlantillasBase,
 } from "../expediente/consentimientos";
+import {
+  consentimientoEnPdf,
+  enviarConsentimientoAlCliente,
+} from "../expediente/consentimientoPdf";
+import { pedirFirmaADistancia } from "../expediente/firmaRemota";
 import { enLaClinicaAhora, deshacerSalida, marcarEstancia, registrarSalida } from "../expediente/estancia";
 import { guardarBorrador, liberar, tomarOLatir } from "../expediente/borrador";
 import { resumenDelExamen, tendenciaDeSignos } from "../expediente/examen";
@@ -525,15 +530,93 @@ expedienteRouter.get("/pacientes/:id/consentimientos/preparar", async (req, res)
 
 expedienteRouter.post("/pacientes/:id/consentimientos", async (req, res) => {
   try {
-    res.status(201).json(
-      await firmarConsentimiento(req.db!, req.auth!.tenantId!, {
-        ...req.body,
-        pacienteId: req.params.id,
+    const firmado = await firmarConsentimiento(
+      req.db!,
+      req.auth!.tenantId!,
+      { ...req.body, pacienteId: req.params.id },
+      {
+        // LA EVIDENCIA SE TOMA DEL SERVIDOR, no del cuerpo: el
+        // dispositivo y la IP los pone la solicitud, y el testigo es
+        // quien está con la sesión abierta. Si vinieran en el cuerpo,
+        // serían tres datos que el navegador puede inventar.
+        relacion: req.body?.relacion,
+        autorizadoPor: req.body?.autorizadoPor,
+        dispositivo: req.get("user-agent") ?? null,
+        ip: req.ip ?? null,
         testigoId: req.auth!.userId,
-      })
+      }
     );
+
+    // EL PDF SE LE MANDA AL CLIENTE, si se le puede escribir. No se
+    // frena la firma si el envío no se puede hacer: el consentimiento
+    // ya está firmado y el documento se puede imprimir.
+    let envio: { enviado: boolean; motivo?: string } = { enviado: false };
+    try {
+      const c = await consentimiento(req.db!, firmado.id);
+      const pac = await req.db!.query<{ propietario_id: string | null; nombre: string }>(
+        `SELECT propietario_id, nombre FROM pacientes WHERE id = $1`,
+        [req.params.id]
+      );
+      envio = await enviarConsentimientoAlCliente(req.db!, req.auth!.tenantId!, {
+        consentimientoId: firmado.id,
+        pacienteId: req.params.id,
+        propietarioId: pac.rows[0]?.propietario_id ?? null,
+        titulo: c.titulo,
+        pacienteNombre: pac.rows[0]?.nombre ?? "",
+      });
+    } catch (err) {
+      console.error("[consentimientos] no se pudo enviar el PDF al cliente", err);
+      envio = { enviado: false, motivo: "No se pudo enviar el correo." };
+    }
+
+    res.status(201).json({ ...firmado, envio });
   } catch (err) {
     fallo(res, err, "POST /expediente/pacientes/:id/consentimientos");
+  }
+});
+
+// EL PDF DEL CONSENTIMIENTO, con el texto, la firma, la evidencia y la
+// huella. Se genera al vuelo: el documento es reproducible desde la
+// fila, y guardar una copia sería un segundo original.
+expedienteRouter.get("/consentimientos/:id/pdf", async (req, res) => {
+  try {
+    const c = await consentimiento(req.db!, req.params.id);
+    const pdf = await consentimientoEnPdf(req.db!, req.auth!.tenantId!, c as never);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="consentimiento-${req.params.id.slice(0, 8)}.pdf"`
+    );
+    res.send(pdf);
+  } catch (err) {
+    fallo(res, err, "GET /expediente/consentimientos/:id/pdf");
+  }
+});
+
+// FIRMA A DISTANCIA: se le manda el enlace al cliente.
+expedienteRouter.post("/pacientes/:id/consentimientos/a-distancia", async (req, res) => {
+  try {
+    const r = await pedirFirmaADistancia(req.db!, req.auth!.tenantId!, {
+      pacienteId: req.params.id,
+      plantillaId: req.body?.plantillaId ?? null,
+      atencionId: req.body?.atencionId ?? null,
+      titulo: req.body?.titulo,
+      texto: req.body?.texto,
+      canal: req.body?.canal,
+      solicitadoPor: req.auth!.userId,
+    });
+    // EL ENLACE NO SE DEVUELVE a la pantalla: el que tiene que abrirlo
+    // es el cliente, por su canal. Devolverlo acá invitaría a que
+    // alguien lo abra desde el mostrador y firme por él, que es
+    // exactamente lo que la firma a distancia tiene que evitar.
+    res.status(201).json({
+      id: r.id,
+      canal: r.canal,
+      destino: `…${r.destino.slice(-4)}`,
+      vence: r.vence,
+    });
+  } catch (err) {
+    fallo(res, err, "POST /expediente/pacientes/:id/consentimientos/a-distancia");
   }
 });
 

@@ -119,7 +119,15 @@ function fechaCorta(valor: string): string {
 
 export interface PestanasExpedienteProps {
   pacienteId: string;
-  encabezado: EncabezadoExpediente;
+  /**
+   * El encabezado del expediente, o `null` si no se pudo cargar.
+   *
+   * ES NULABLE A PROPÓSITO (defecto 1.1 de la revisión del
+   * 2026-11-27): antes era obligatorio, así que la pantalla de arriba no
+   * dibujaba las pestañas hasta tenerlo, y si fallaba no las dibujaba
+   * nunca. El expediente no depende de la franja de alertas.
+   */
+  encabezado: EncabezadoExpediente | null;
   onCambio: () => void;
   /**
    * La pestaña abierta, cuando la manda la pantalla de arriba. Existe
@@ -184,7 +192,13 @@ export function PestanasExpediente({
       </div>
 
       <div className="mt-4">
-        {pestana === "resumen" && (
+        {pestana === "resumen" && !encabezado && (
+          <p className="text-sm text-text-muted">
+            El resumen necesita la cabecera del expediente, que no se pudo cargar. Las demás
+            pestañas sí están disponibles.
+          </p>
+        )}
+        {pestana === "resumen" && encabezado && (
           <Resumen
             pacienteId={pacienteId}
             encabezado={encabezado}
@@ -198,7 +212,7 @@ export function PestanasExpediente({
               encabezado?.paciente?.especie ? String(encabezado.paciente.especie) : null
             }
             pacienteId={pacienteId}
-            pacienteNombre={String(encabezado.paciente.nombre ?? "el paciente")}
+            pacienteNombre={String(encabezado?.paciente?.nombre ?? "el paciente")}
             esMedico={!!esMedico}
             onCerrada={onCambio}
           />

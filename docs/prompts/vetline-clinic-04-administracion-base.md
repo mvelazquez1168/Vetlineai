@@ -70,7 +70,11 @@ Un solo lugar, Administración › Clínica y usuarios, con secciones:
 
 - **Datos de la clínica:** nombre comercial, logo y apariencia (los del 01c, enlazados), teléfono, correo, dirección codificada (provincia, cantón, distrito), horario de atención para mostrar al cliente.
 - **Datos fiscales:** el emisor o los emisores del facturador, con su identificación, actividades económicas, llave criptográfica y sucursal y terminales. **Se enlaza a la configuración del 09a/09b, no se duplica.** Esta sección muestra el resumen y lleva a la del facturador.
-- **Salas y recursos:** consultorios, quirófano, grooming, laboratorio, etc. Si ya existen en la agenda de Vetline Ai, se reutilizan.
+- **Salas y recursos.** El backend ya tiene la API de salas (`salas.routes.ts`: listar, crear, editar y desactivar) y la agenda las lee, pero **ninguna pantalla permite crearlas**: la agenda muestra "Sin salas configuradas" y no hay dónde configurarlas. Se construye la pantalla Administración › Clínica y usuarios › Salas y equipos, reutilizando esa API y extendiéndola:
+  - **Dos clases de recurso:** **salas** (consultorio, quirófano, sala de grooming, laboratorio, hospitalización) y **equipos** que se reservan (endoscopio, ultrasonido, rayos X, máquina de anestesia). Cada uno con nombre, tipo, color, capacidad (cuántas citas simultáneas admite, normalmente 1) y horario propio si difiere del de la clínica. Los equipos pueden ser compartidos con otra clínica o profesional externo, con una nota.
+  - **Recursos que exige cada tipo de cita:** por ejemplo, una cirugía requiere el quirófano y la máquina de anestesia, y una endoscopía requiere el endoscopio. Al agendar, la agenda los propone y **no permite reservar dos veces el mismo recurso a la misma hora**, salvo con un permiso explícito, que queda registrado.
+  - La agenda muestra la ocupación por sala y por equipo (filtro que ya existe) y el 12 la usa para la ocupación.
+  - Desactivar un recurso no borra su historia y avisa si tiene citas futuras.
 - **Horarios y bloqueos:**
   - horario semanal de la clínica y de cada médico, con excepciones (feriados de Costa Rica precargados y editables, vacaciones, bloqueos puntuales);
   - **la agenda los respeta:** no se puede citar fuera de horario ni en un bloqueo sin un permiso explícito, que queda registrado.

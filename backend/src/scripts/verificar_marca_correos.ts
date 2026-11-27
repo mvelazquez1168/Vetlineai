@@ -81,6 +81,18 @@ function sinImagenes(html: string): string {
 const MUESTRAS: { [K in TipoCorreo]: DatosPlantilla[K] } = {
   invitacion_medico: { nombreClinica: "Clínica Demo", enlace: "https://x/i", vigenciaDias: 7, nombreMedico: "Ana" },
   receta_emitida: { nombrePaciente: "Toby", medicoNombre: "Dra. Demo", fecha: "26/11/2026", lineas: 2 },
+  consentimiento_a_firmar: {
+    nombrePaciente: "Toby",
+    titulo: "Consentimiento informado para cirugía",
+    enlace: "http://localhost:5173/firmar/abc",
+    codigo: "123456",
+    horas: 48,
+  },
+  consentimiento_firmado: {
+    nombrePaciente: "Toby",
+    titulo: "Consentimiento informado para cirugía",
+    fecha: "27/11/2026",
+  },
   recordatorio_saldo: {
     saldo: "125 000,00",
     moneda: "CRC",

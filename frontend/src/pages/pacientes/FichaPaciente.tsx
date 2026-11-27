@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { DarDeBajaPacienteModal } from "../../components/paciente/DarDeBajaPacienteModal";
 import { EditarPacienteModal } from "../../components/paciente/EditarPacienteModal";
@@ -70,6 +70,9 @@ export function FichaPaciente() {
   // dos preguntas distintas —quién es el paciente y qué le pasó— y la
   // ficha tiene que poder dibujarse aunque el expediente tarde.
   const [expediente, setExpediente] = useState<EncabezadoExpediente | null>(null);
+  // A dónde baja la vista cuando una acción del encabezado cambia de
+  // pestaña. Ver el comentario del `div` que lo usa.
+  const refPestanas = useRef<HTMLDivElement>(null);
 
   const cargar = useCallback(() => {
     if (!id) return;
@@ -199,7 +202,16 @@ export function FichaPaciente() {
              escribir la misma consulta serían dos formularios que un día
              divergen. */
           esMedico && p.estado === "activo" ? (
-            <Button onClick={() => setPestana("atencion")}>
+            <Button
+              onClick={() => {
+                setPestana("atencion");
+                // El desplazamiento va en el siguiente cuadro: la
+                // pestaña todavía no se dibujó cuando esto corre.
+                requestAnimationFrame(() =>
+                  refPestanas.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                );
+              }}
+            >
               <Icono nombre="agregar" className="mr-1 h-4 w-4" />
               Registrar atención
             </Button>
@@ -316,9 +328,21 @@ export function FichaPaciente() {
           guía rectora no quiere. Lo único que esas secciones tenían y
           las pestañas no —el enlace al detalle del caso— se conservó en
           la línea de tiempo. */}
-      {expediente && (
-        <>
-          {expediente.completitud.faltan.length > 0 && (
+      {/* LAS PESTAÑAS SE DIBUJAN SIEMPRE (defecto 1.1 de la revisión del
+          2026-11-27).
+
+          Antes todo este bloque colgaba de `expediente &&`, así que
+          cuando `GET /expediente/pacientes/:id` fallaba —y el fallo se
+          tragaba con un `catch` que ponía `null`— **las pestañas no se
+          dibujaban**. El botón «Registrar atención» del encabezado
+          cambiaba la pestaña a una pestaña que no existía en pantalla, y
+          desde el navegador eso se ve exactamente como «no se despliega
+          nada».
+
+          Lo que de verdad necesita el encabezado cargado es la franja de
+          alertas y el porcentaje de completitud; el expediente, no. */}
+      <>
+          {expediente && expediente.completitud.faltan.length > 0 && (
             <div className="mt-6 rounded-xl border border-black/5 bg-surface p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-text-primary">
@@ -341,15 +365,27 @@ export function FichaPaciente() {
             <TendenciaSignos pacienteId={id!} />
           </div>
 
-          <PestanasExpediente
-            pacienteId={id!}
-            encabezado={expediente}
-            onCambio={cargar}
-            pestanaActiva={pestana}
-            onPestana={setPestana}
-          />
+          {/* EL ANCLA de las acciones rápidas del encabezado: al tocar
+              «Registrar atención», la pestaña cambia **y la vista baja
+              hasta acá**. Sin esto, el contenido cambiaba 600 píxeles
+              más abajo, fuera de la pantalla, y parecía que el botón no
+              hacía nada. */}
+          <div ref={refPestanas}>
+            {!expediente && (
+              <div className="mt-4 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-text-secondary">
+                No se pudieron cargar las alertas del expediente (alergias, problemas y
+                preventivos). El resto del expediente sí está disponible acá abajo.
+              </div>
+            )}
+            <PestanasExpediente
+              pacienteId={id!}
+              encabezado={expediente}
+              onCambio={cargar}
+              pestanaActiva={pestana}
+              onPestana={setPestana}
+            />
+          </div>
         </>
-      )}
 
       {editando && (
         <EditarPacienteModal

@@ -50,6 +50,8 @@ export type TipoCorreo =
   | "contrasena_cambiada"
   | "comprobante_electronico"
   | "receta_emitida"
+  | "consentimiento_firmado"
+  | "consentimiento_a_firmar"
   | "recordatorio_saldo";
 
 export interface DatosPlantilla {
@@ -108,6 +110,25 @@ export interface DatosPlantilla {
     medicoNombre: string;
     fecha: string;
     lineas: number;
+  };
+  // El consentimiento firmado que se le manda al cliente (corrección de
+  // firmas, 2026-11-27). El cuerpo NO repite el texto del
+  // consentimiento: está en el PDF, que es el documento que vale, y dos
+  // copias del mismo texto son dos textos que un día dicen distinto.
+  consentimiento_firmado: {
+    nombrePaciente: string;
+    titulo: string;
+    fecha: string;
+  };
+  // El enlace de la firma a distancia. El código va en el MISMO
+  // mensaje: el segundo factor acá no es «otro dispositivo», es «el
+  // dueño del número».
+  consentimiento_a_firmar: {
+    nombrePaciente: string;
+    titulo: string;
+    enlace: string;
+    codigo: string;
+    horas: number;
   };
   comprobante_electronico: {
     tipoComprobanteNombre: string;
@@ -504,6 +525,44 @@ export function construirCorreo<T extends TipoCorreo>(
           ? `La cita de ${d.nombrePaciente} del ${d.fechaOriginal} a las ${d.horaOriginal} se reprogramó para el ${d.fechaNueva} a las ${d.horaNueva}.`
           : `La cita de ${d.nombrePaciente} del ${d.fechaOriginal} a las ${d.horaOriginal} fue cancelada.`,
         html: envolverLayoutInformativo(d.reprogramada ? "Cita reprogramada" : "Cita cancelada", cuerpo),
+      };
+    }
+    case "consentimiento_a_firmar": {
+      const d = datos as DatosPlantilla["consentimiento_a_firmar"];
+      const cuerpo =
+        `<p>Para autorizar el procedimiento de <strong>${d.nombrePaciente}</strong> hace falta tu firma.</p>` +
+        `<p><a href="${d.enlace}">Abrir y firmar</a></p>` +
+        `<p>Tu código de verificación es <strong>${d.codigo}</strong>.</p>` +
+        `<p>El enlace vence en ${d.horas} horas y sirve <strong>una sola vez</strong>. ` +
+        `Si no pediste esto, avisale a la clínica y no lo abras.</p>`;
+      return {
+        asunto: `${d.titulo} — ${d.nombrePaciente}: falta tu firma`,
+        texto:
+          `Para autorizar el procedimiento de ${d.nombrePaciente} hace falta tu firma.
+
+` +
+          `${d.enlace}
+
+Tu código de verificación es ${d.codigo}.
+` +
+          `El enlace vence en ${d.horas} horas y sirve una sola vez.`,
+        html: envolverLayoutInformativo(d.titulo, cuerpo),
+      };
+    }
+    case "consentimiento_firmado": {
+      const d = datos as DatosPlantilla["consentimiento_firmado"];
+      const cuerpo =
+        `<p>Adjuntamos el ${d.titulo.toLowerCase()} que firmaste para ${d.nombrePaciente} el ${d.fecha}.</p>` +
+        `<p>Guardalo: trae el texto completo que firmaste, tu firma y la huella del documento, ` +
+        `que sirve para comprobar que es el mismo que quedó en el expediente.</p>`;
+      return {
+        asunto: `${d.titulo} — ${d.nombrePaciente}`,
+        texto:
+          `Adjuntamos el ${d.titulo.toLowerCase()} que firmaste para ${d.nombrePaciente} el ${d.fecha}.
+
+` +
+          `Guardalo: trae el texto completo, tu firma y la huella del documento.`,
+        html: envolverLayoutInformativo(d.titulo, cuerpo),
       };
     }
     case "receta_emitida": {

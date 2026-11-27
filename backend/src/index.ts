@@ -34,6 +34,7 @@ import { inventarioRouter } from "./routes/inventario.routes";
 import { ventasRouter } from "./routes/ventas.routes";
 import { finanzasRouter } from "./routes/finanzas.routes";
 import { metricasRouter } from "./routes/metricas.routes";
+import { firmaPublicaRouter } from "./routes/firmaPublica.routes";
 import { administracionRouter } from "./routes/administracion.routes";
 import { ayudaRouter } from "./routes/ayuda.routes";
 import { busquedaRouter } from "./routes/busqueda.routes";
@@ -194,6 +195,10 @@ app.use("/api/ventas", ventasRouter);
 // `finanzas.ver`.
 app.use("/api/finanzas", finanzasRouter);
 app.use("/api/metricas", metricasRouter);
+// LA FIRMA A DISTANCIA, SIN AUTENTICAR. Va deliberadamente fuera de
+// `authenticate`: el token del enlace ES la autorización. Ver el
+// encabezado de su router.
+app.use("/api/firma", firmaPublicaRouter);
 // Administración completa (prompt 11): catálogos, turnos, comisiones,
 // cumplimiento, auditoría y procedimientos. Cada sección con su permiso.
 app.use("/api/administracion", administracionRouter);

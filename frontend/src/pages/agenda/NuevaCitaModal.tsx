@@ -5,6 +5,10 @@ import { ControlSegmentado } from "../../components/ui";
 import { Select } from "../../components/ui/Select";
 import { useAuth } from "../../hooks/useAuth";
 import {
+  FormularioPaciente,
+  useFormularioPaciente,
+} from "../../components/paciente/FormularioPaciente";
+import {
   Cita,
   citasApi,
   CrearCitaInput,
@@ -83,7 +87,7 @@ export function NuevaCitaModal({
   const [pacientesDelPropietario, setPacientesDelPropietario] = useState<PacienteDePropietario[]>([]);
   const [cargandoPacientes, setCargandoPacientes] = useState(false);
   const [formNuevaMascotaAbierto, setFormNuevaMascotaAbierto] = useState(false);
-  const [nuevaMascota, setNuevaMascota] = useState({ nombre: "", especie: "Canino" });
+  const formMascota = useFormularioPaciente();
   const [creandoMascota, setCreandoMascota] = useState(false);
 
   const [medicoId, setMedicoId] = useState("");
@@ -176,19 +180,19 @@ export function NuevaCitaModal({
   };
 
   const crearMascota = async () => {
-    if (!propietarioSeleccionado || !nuevaMascota.nombre.trim()) return;
+    if (!propietarioSeleccionado || !formMascota.v.nombre.trim()) return;
     setCreandoMascota(true);
     setError(null);
     try {
       const { paciente } = await workspaceApi.crearPaciente({
         propietarioId: propietarioSeleccionado.id,
-        nombre: nuevaMascota.nombre.trim(),
-        especie: nuevaMascota.especie,
+        nombre: formMascota.v.nombre.trim(),
+        especie: formMascota.v.especie,
       });
       setPacientesDelPropietario((prev) => [...prev, paciente]);
       setPacienteId(paciente.id);
       setFormNuevaMascotaAbierto(false);
-      setNuevaMascota({ nombre: "", especie: "Canino" });
+      formMascota.reiniciar();
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos registrar la mascota.");
     } finally {
@@ -406,24 +410,17 @@ export function NuevaCitaModal({
                     </button>
                   ) : (
                     <div className="flex flex-col gap-2 rounded-lg border border-black/10 p-3">
-                      <Input
-                        placeholder="Nombre de la mascota"
-                        value={nuevaMascota.nombre}
-                        onChange={(e) => setNuevaMascota((prev) => ({ ...prev, nombre: e.target.value }))}
-                      />
-                      <Select
-                        options={[
-                          { value: "Canino", label: "Canino" },
-                          { value: "Felino", label: "Felino" },
-                        ]}
-                        value={nuevaMascota.especie}
-                        onChange={(e) => setNuevaMascota((prev) => ({ ...prev, especie: e.target.value }))}
-                      />
+                      {/* EL MISMO FORMULARIO DE PACIENTE DE TODO EL
+                          SISTEMA, en modo rápido (anexo 07-03, A5): acá
+                          el teléfono está sonando. Lo que cambia es el
+                          modo, no los campos, y la ficha queda marcada
+                          como «por completar» en el fichero. */}
+                      <FormularioPaciente form={formMascota} modo="rapido" deshabilitado={creandoMascota} />
                       <div className="flex justify-end gap-2">
                         <Button variant="secondary" onClick={() => setFormNuevaMascotaAbierto(false)}>
                           Cancelar
                         </Button>
-                        <Button onClick={crearMascota} disabled={creandoMascota || !nuevaMascota.nombre.trim()}>
+                        <Button onClick={crearMascota} disabled={creandoMascota || !formMascota.v.nombre.trim()}>
                           {creandoMascota ? "Guardando…" : "Guardar"}
                         </Button>
                       </div>

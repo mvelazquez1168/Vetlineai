@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { LineaDeTiempoCliente } from "../crm/LineaDeTiempoCliente";
 import { PanelConsentimientos } from "../crm/PanelConsentimientos";
 import { Link } from "react-router-dom";
+import { ModalNuevoPaciente } from "../paciente/ModalNuevoPaciente";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { useAuth } from "../../hooks/useAuth";
@@ -35,9 +36,11 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
   // prompt_code_registro_atencion.md, Paso 6 — "desde el paciente". Se
   // resuelve la cita primero (elegir/crear) y recién entonces se abre el
   // registro — mismo flujo de dos pasos que la puerta del caso.
+  const [altaMascotaAbierta, setAltaMascotaAbierta] = useState(false);
   const [pacienteParaAtencion, setPacienteParaAtencion] = useState<PacienteDePropietario | null>(null);
   const [registroAtencionCitaId, setRegistroAtencionCitaId] = useState<string | null>(null);
   const [pestana, setPestana] = useState<"datos" | "linea" | "consentimientos">("datos");
+  const [recargarPacientes, setRecargarPacientes] = useState(0);
 
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -60,7 +63,7 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
       })
       .catch((err) => setError(err instanceof Error ? err.message : "No pudimos cargar el propietario."))
       .finally(() => setCargando(false));
-  }, [propietarioId]);
+  }, [propietarioId, recargarPacientes]);
 
   const guardar = async () => {
     if (!nombre.trim()) {
@@ -176,9 +179,17 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
               </div>
 
               <div className="border-t border-black/5 pt-4">
-                <p className="text-sm font-semibold text-text-primary">
-                  Mascotas ({pacientes.length})
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-text-primary">
+                    Mascotas ({pacientes.length})
+                  </p>
+                  {/* Anexo 07-03, A5: agregar una mascota desde la ficha
+                      del cliente. Es el gesto natural y hasta ahora no
+                      existía: había que abrir un caso o una cita. */}
+                  <Button variant="secondary" onClick={() => setAltaMascotaAbierta(true)}>
+                    + Agregar mascota
+                  </Button>
+                </div>
                 {pacientes.length === 0 ? (
                   <p className="mt-2 text-sm text-text-muted">Sin mascotas registradas.</p>
                 ) : (
@@ -241,6 +252,20 @@ export function FichaPropietarioModal({ propietarioId, onClose, onGuardado }: Fi
           }}
         />
       )}
+      {propietario && (
+        <ModalNuevoPaciente
+          abierto={altaMascotaAbierta}
+          onCerrar={() => setAltaMascotaAbierta(false)}
+          propietarioFijo={{ id: propietario.id, nombre: propietario.nombre }}
+          onCreado={() => {
+            setAltaMascotaAbierta(false);
+            // La lista de mascotas se recarga sola; `onGuardado` es
+            // para cambios del CLIENTE y acá no cambió ninguno.
+            setRecargarPacientes((n) => n + 1);
+          }}
+        />
+      )}
+
     </div>
   );
 }

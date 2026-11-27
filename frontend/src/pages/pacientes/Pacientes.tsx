@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Badge,
+  Button,
   EmptyState,
   Icono,
   Input,
@@ -13,9 +14,10 @@ import {
   TableColumn,
   TiraIndicadores,
 } from "../../components/ui";
+import { ModalNuevoPaciente } from "../../components/paciente/ModalNuevoPaciente";
 import { getStoredToken } from "../../hooks/useAuth";
 import { apiFetch } from "../../lib/api";
-import { PacienteListado, pacientesApi } from "../../lib/pacientesApi";
+import { ETIQUETA_ESTADO_PACIENTE, PacienteListado, pacientesApi } from "../../lib/pacientesApi";
 
 // Misma estructura que pages/admin/Propietarios.tsx: título +
 // descripción, un Input de búsqueda con debounce de 300 ms y la Table
@@ -48,6 +50,10 @@ export function Pacientes() {
   const [porPagina, setPorPagina] = useState(20);
   const [q, setQ] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  // Alta de paciente (anexo 07-03, A5). El fichero era de solo consulta:
+  // crear un paciente obligaba a abrir un caso clínico o una cita.
+  const [altaAbierta, setAltaAbierta] = useState(false);
+  const [recargar, setRecargar] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -62,7 +68,7 @@ export function Pacientes() {
         .finally(() => setIsLoading(false));
     }, 300);
     return () => clearTimeout(timer);
-  }, [q, pagina]);
+  }, [q, pagina, recargar]);
 
   const columns: TableColumn<PacienteListado>[] = [
     {
@@ -108,14 +114,25 @@ export function Pacientes() {
     {
       key: "estado",
       header: "Estado",
-      render: (p) =>
-        p.estado === "fallecido" ? (
-          <Badge variant="neutral">Fallecido</Badge>
-        ) : (
-          <Badge variant="success" dot>
-            Activo
-          </Badge>
-        ),
+      render: (p) => (
+        <div className="flex flex-wrap items-center gap-1">
+          {p.estado === "activo" ? (
+            <Badge variant="success" dot>
+              Activo
+            </Badge>
+          ) : (
+            <Badge variant="neutral">{ETIQUETA_ESTADO_PACIENTE[p.estado]}</Badge>
+          )}
+          {/* FICHA POR COMPLETAR (anexo 07-03, A5): lo que el alta
+              rápida desde una cita no pidió. El título dice qué falta,
+              para que el aviso sirva para algo más que inquietar. */}
+          {p.datos_basicos_faltantes?.length > 0 && (
+            <span title={`Falta: ${p.datos_basicos_faltantes.join(", ")}.`}>
+              <Badge variant="warning">Ficha por completar</Badge>
+            </span>
+          )}
+        </div>
+      ),
     },
   ];
 
@@ -131,6 +148,7 @@ export function Pacientes() {
         subtitulo="Fichero de pacientes de la clínica. Busque por nombre, número de expediente o nombre del propietario."
         icono="paciente"
         modulo="pacientes"
+        accion={<Button onClick={() => setAltaAbierta(true)}>+ Nuevo paciente</Button>}
         indicadores={
           indicadores && (
             <TiraIndicadores>
@@ -191,6 +209,18 @@ export function Pacientes() {
         porPagina={porPagina}
         onPagina={setPagina}
         sustantivo={{ singular: "paciente", plural: "pacientes" }}
+      />
+
+      <ModalNuevoPaciente
+        abierto={altaAbierta}
+        onCerrar={() => setAltaAbierta(false)}
+        onCreado={(id) => {
+          setAltaAbierta(false);
+          setRecargar((n) => n + 1);
+          // Se entra a la ficha reciencita: el alta rápida deja datos
+          // por completar y es el momento de completarlos.
+          navigate(`/pacientes/${id}`);
+        }}
       />
     </div>
   );

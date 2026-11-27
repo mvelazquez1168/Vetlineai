@@ -4,11 +4,18 @@ import { BackdropMenuMovil } from "../../components/BackdropMenuMovil";
 import { BotonMenuMovil } from "../../components/BotonMenuMovil";
 import { useMenuColapsable } from "../../hooks/useMenuColapsable";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
-import { BreedCombobox } from "../../components/ui/BreedCombobox";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Modal } from "../../components/ui/Modal";
-import { Select } from "../../components/ui/Select";
+import {
+  FormularioPaciente,
+  useFormularioPaciente,
+} from "../../components/paciente/FormularioPaciente";
+import { pacientesApi } from "../../lib/pacientesApi";
+import {
+  FormularioPropietario,
+  useFormularioPropietario,
+} from "../../components/propietario/FormularioPropietario";
 import {
   AvisoSuficienciaClinica,
   calcularSuficienciaClinica,
@@ -53,20 +60,6 @@ import {
 } from "../../lib/workspaceApi";
 import { guardarComoArchivo } from "../../lib/descargas";
 
-const ESPECIE_OPTIONS = [
-  { value: "Canino", label: "Canino" },
-  { value: "Felino", label: "Felino" },
-];
-
-// pacientes.especie sigue usando "Canino"/"Felino" (sin tocar, ver
-// pacientes.routes.ts) — razas.especie usa la convención distinta que
-// pidió esa migración ('canina'/'felina'). Se quitó "Otro" de las
-// opciones de especie: el catálogo de razas no tiene fila para eso, así
-// que no había nada seleccionable si el usuario lo elegía.
-const ESPECIE_A_RAZA_ESPECIE: Record<string, "canina" | "felina"> = {
-  Canino: "canina",
-  Felino: "felina",
-};
 
 const LIMITE_ARCHIVOS_POR_MENSAJE = 8;
 
@@ -210,14 +203,7 @@ export function CasoWorkspace() {
   const [buscandoPropietarios, setBuscandoPropietarios] = useState(false);
   const [propietarioSeleccionado, setPropietarioSeleccionado] = useState<Propietario | null>(null);
   const [formNuevoPropietarioAbierto, setFormNuevoPropietarioAbierto] = useState(false);
-  const [nuevoPropietario, setNuevoPropietario] = useState({
-    tipoIdentificacionId: "",
-    numeroIdentificacion: "",
-    nombre: "",
-    telefono: "",
-    email: "",
-    direccion: "",
-  });
+  const formDuenoWizard = useFormularioPropietario();
   const [creandoPropietario, setCreandoPropietario] = useState(false);
   const [tiposIdentificacion, setTiposIdentificacion] = useState<TipoIdentificacion[]>([]);
   // prompt_code_propietarios, Ajuste 1 — la identificación es la llave de
@@ -230,12 +216,7 @@ export function CasoWorkspace() {
   const [cargandoPacientes, setCargandoPacientes] = useState(false);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState<PacienteDePropietario | null>(null);
   const [formNuevoPacienteAbierto, setFormNuevoPacienteAbierto] = useState(false);
-  const [nuevoPaciente, setNuevoPaciente] = useState({
-    nombre: "",
-    especie: "Canino",
-    razaId: null as string | null,
-    fechaNacimiento: "",
-  });
+  const formPacienteWizard = useFormularioPaciente();
   const [creandoPaciente, setCreandoPaciente] = useState(false);
 
   const [motivoNuevoCaso, setMotivoNuevoCaso] = useState("");
@@ -533,19 +514,12 @@ export function CasoWorkspace() {
     setResultadosPropietarios([]);
     setPropietarioSeleccionado(null);
     setFormNuevoPropietarioAbierto(false);
-    setNuevoPropietario({
-      tipoIdentificacionId: "",
-      numeroIdentificacion: "",
-      nombre: "",
-      telefono: "",
-      email: "",
-      direccion: "",
-    });
+    formDuenoWizard.reiniciar();
     setPropietarioEncontradoPorId(null);
     setPacientesDelPropietario([]);
     setPacienteSeleccionado(null);
     setFormNuevoPacienteAbierto(false);
-    setNuevoPaciente({ nombre: "", especie: "Canino", razaId: null as string | null, fechaNacimiento: "" });
+    formPacienteWizard.reiniciar();
     setMotivoNuevoCaso("");
     setVinculoCita("sin_cita");
     setCitasDeHoyDisponibles([]);
@@ -583,7 +557,7 @@ export function CasoWorkspace() {
   // clínica. Sin ambos campos, no hay nada que buscar todavía.
   useEffect(() => {
     if (!formNuevoPropietarioAbierto) return;
-    const { tipoIdentificacionId, numeroIdentificacion } = nuevoPropietario;
+    const { tipoIdentificacionId, numeroIdentificacion } = formDuenoWizard.v;
     if (!tipoIdentificacionId || !numeroIdentificacion.trim()) {
       setPropietarioEncontradoPorId(null);
       return;
@@ -597,7 +571,7 @@ export function CasoWorkspace() {
     }, 400);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formNuevoPropietarioAbierto, nuevoPropietario.tipoIdentificacionId, nuevoPropietario.numeroIdentificacion]);
+  }, [formNuevoPropietarioAbierto, formDuenoWizard.v.tipoIdentificacionId, formDuenoWizard.v.numeroIdentificacion]);
 
   // Debounce ~300ms: no dispara una búsqueda por cada tecla. También trae
   // el listado inicial (query vacía) apenas se abre el paso 1.
@@ -630,32 +604,26 @@ export function CasoWorkspace() {
   };
 
   const crearPropietarioYAvanzar = async () => {
-    if (!nuevoPropietario.nombre.trim()) return;
-    if (Boolean(nuevoPropietario.tipoIdentificacionId) !== Boolean(nuevoPropietario.numeroIdentificacion.trim())) {
-      setErrorWizard("Si cargás la identificación del propietario, hacen falta el tipo y el número juntos.");
+    const problema = formDuenoWizard.validar();
+    if (problema) {
+      setErrorWizard(problema);
       return;
     }
     setCreandoPropietario(true);
     setErrorWizard(null);
     try {
+      const campos = formDuenoWizard.aCampos();
       const { propietario } = await workspaceApi.crearPropietario({
-        nombre: nuevoPropietario.nombre.trim(),
-        telefono: nuevoPropietario.telefono.trim() || undefined,
-        email: nuevoPropietario.email.trim() || undefined,
-        direccion: nuevoPropietario.direccion.trim() || undefined,
-        tipoIdentificacionId: nuevoPropietario.tipoIdentificacionId || undefined,
-        numeroIdentificacion: nuevoPropietario.numeroIdentificacion.trim() || undefined,
+        nombre: campos.nombre,
+        telefono: campos.telefono ?? undefined,
+        email: campos.email ?? undefined,
+        direccion: campos.direccion ?? undefined,
+        tipoIdentificacionId: campos.tipoIdentificacionId ?? undefined,
+        numeroIdentificacion: campos.numeroIdentificacion ?? undefined,
       });
       await seleccionarPropietario(propietario);
       setFormNuevoPropietarioAbierto(false);
-      setNuevoPropietario({
-        tipoIdentificacionId: "",
-        numeroIdentificacion: "",
-        nombre: "",
-        telefono: "",
-        email: "",
-        direccion: "",
-      });
+      formDuenoWizard.reiniciar();
       setPropietarioEncontradoPorId(null);
     } catch (err: any) {
       setErrorWizard(err?.message ?? "No pudimos crear el propietario.");
@@ -665,16 +633,20 @@ export function CasoWorkspace() {
   };
 
   const crearPacienteYAvanzar = async () => {
-    if (!propietarioSeleccionado || !nuevoPaciente.nombre.trim() || !nuevoPaciente.especie.trim()) return;
+    if (!propietarioSeleccionado) return;
+    const problemaPaciente = formPacienteWizard.validar();
+    if (problemaPaciente) {
+      setErrorWizard(problemaPaciente);
+      return;
+    }
     setCreandoPaciente(true);
     setErrorWizard(null);
     try {
-      const { paciente } = await workspaceApi.crearPaciente({
+      // Por `pacientesApi.crear` y no por el `crearPaciente` del
+      // workspace: es el que entiende los campos opcionales del A5.
+      const { paciente } = await pacientesApi.crear({
+        ...formPacienteWizard.aCampos(),
         propietarioId: propietarioSeleccionado.id,
-        nombre: nuevoPaciente.nombre.trim(),
-        especie: nuevoPaciente.especie,
-        razaId: nuevoPaciente.razaId ?? undefined,
-        fechaNacimiento: nuevoPaciente.fechaNacimiento || undefined,
       });
       setPacienteSeleccionado(paciente);
       // La agregamos a la grilla del paso 2 (no solo a la selección) para
@@ -682,7 +654,7 @@ export function CasoWorkspace() {
       // creada siga apareciendo y pueda re-confirmarla sin perder nada.
       setPacientesDelPropietario((prev) => [...prev, paciente]);
       setFormNuevoPacienteAbierto(false);
-      setNuevoPaciente({ nombre: "", especie: "Canino", razaId: null as string | null, fechaNacimiento: "" });
+      formPacienteWizard.reiniciar();
       setPaso(3);
     } catch (err: any) {
       setErrorWizard(err?.message ?? "No pudimos crear la mascota.");
@@ -2003,35 +1975,17 @@ export function CasoWorkspace() {
                   </button>
                 ) : (
                   <div className="mt-3 flex flex-col gap-3 rounded-lg border border-black/10 p-4">
-                    {/* prompt_code_propietarios, Ajuste 1 — la identificación
-                        va primero: es la llave de entrada que dispara la
-                        búsqueda de un propietario ya existente. */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <Select
-                        label="Tipo de identificación (opcional)"
-                        value={nuevoPropietario.tipoIdentificacionId}
-                        onChange={(e) =>
-                          setNuevoPropietario((prev) => ({
-                            ...prev,
-                            tipoIdentificacionId: e.target.value,
-                            numeroIdentificacion: e.target.value ? prev.numeroIdentificacion : "",
-                          }))
-                        }
-                        options={[
-                          { value: "", label: "Sin identificación" },
-                          ...tiposIdentificacion.map((t) => ({ value: t.id, label: t.etiqueta })),
-                        ]}
-                      />
-                      <Input
-                        label="Número de identificación"
-                        value={nuevoPropietario.numeroIdentificacion}
-                        onChange={(e) =>
-                          setNuevoPropietario((prev) => ({ ...prev, numeroIdentificacion: e.target.value }))
-                        }
-                        disabled={!nuevoPropietario.tipoIdentificacionId}
-                      />
-                    </div>
+                    {/* EL FORMULARIO DE CLIENTE COMPARTIDO (anexo
+                        07-03, A5). Antes acá había seis campos propios,
+                        y eran los únicos del sistema: el fichero no
+                        tenía alta. Ahora es el mismo componente que usan
+                        /propietarios, el alta de paciente y la ficha del
+                        cliente.
 
+                        La búsqueda por identificación del
+                        prompt_code_propietarios se conserva y ahora
+                        entra por `onIdentificacionCompleta`, que es el
+                        punto de extensión del formulario. */}
                     {buscandoPorIdentificacion && (
                       <p className="text-xs text-text-muted">Buscando propietario existente…</p>
                     )}
@@ -2063,34 +2017,9 @@ export function CasoWorkspace() {
                       </div>
                     )}
 
-                    <Input
-                      label="Nombre"
-                      value={nuevoPropietario.nombre}
-                      onChange={(e) =>
-                        setNuevoPropietario((prev) => ({ ...prev, nombre: e.target.value }))
-                      }
-                    />
-                    <Input
-                      label="Teléfono (opcional)"
-                      value={nuevoPropietario.telefono}
-                      onChange={(e) =>
-                        setNuevoPropietario((prev) => ({ ...prev, telefono: e.target.value }))
-                      }
-                    />
-                    <Input
-                      label="Email (opcional)"
-                      type="email"
-                      value={nuevoPropietario.email}
-                      onChange={(e) =>
-                        setNuevoPropietario((prev) => ({ ...prev, email: e.target.value }))
-                      }
-                    />
-                    <Input
-                      label="Dirección (opcional)"
-                      value={nuevoPropietario.direccion}
-                      onChange={(e) =>
-                        setNuevoPropietario((prev) => ({ ...prev, direccion: e.target.value }))
-                      }
+                    <FormularioPropietario
+                      form={formDuenoWizard}
+                      deshabilitado={creandoPropietario}
                     />
                     <div className="flex justify-end gap-2">
                       <Button variant="secondary" onClick={() => setFormNuevoPropietarioAbierto(false)}>
@@ -2098,7 +2027,7 @@ export function CasoWorkspace() {
                       </Button>
                       <Button
                         onClick={crearPropietarioYAvanzar}
-                        disabled={creandoPropietario || !nuevoPropietario.nombre.trim()}
+                        disabled={creandoPropietario || !formDuenoWizard.v.nombre.trim()}
                       >
                         {creandoPropietario ? "Guardando…" : "Guardar y continuar"}
                       </Button>
@@ -2158,49 +2087,19 @@ export function CasoWorkspace() {
                   </button>
                 ) : (
                   <div className="mt-3 flex flex-col gap-3 rounded-lg border border-black/10 p-4">
-                    <Input
-                      label="Nombre"
-                      value={nuevoPaciente.nombre}
-                      onChange={(e) => setNuevoPaciente((prev) => ({ ...prev, nombre: e.target.value }))}
-                    />
-                    <Select
-                      label="Especie"
-                      value={nuevoPaciente.especie}
-                      onChange={(e) =>
-                        // Cambiar de especie invalida cualquier raza ya elegida
-                        // — el catálogo es completamente distinto entre las dos.
-                        setNuevoPaciente((prev) => ({
-                          ...prev,
-                          especie: e.target.value,
-                          razaId: null,
-                        }))
-                      }
-                      options={ESPECIE_OPTIONS}
-                    />
-                    <BreedCombobox
-                      label="Raza"
-                      especie={ESPECIE_A_RAZA_ESPECIE[nuevoPaciente.especie] ?? "canina"}
-                      value={nuevoPaciente.razaId}
-                      onChange={(razaId) => setNuevoPaciente((prev) => ({ ...prev, razaId }))}
-                    />
-                    {/* prompt_code_paciente_nacimiento_estado.md, Parte B1 —
-                        opcional a propósito: muchos tutores no la saben,
-                        sobre todo con animales adoptados. Sin fecha, la
-                        edad sigue siendo la que se cargue después (edad_anios,
-                        fuera de este wizard) — nunca se piden las dos juntas. */}
-                    <Input
-                      type="date"
-                      label="Fecha de nacimiento (si se conoce)"
-                      value={nuevoPaciente.fechaNacimiento}
-                      onChange={(e) => setNuevoPaciente((prev) => ({ ...prev, fechaNacimiento: e.target.value }))}
-                    />
+                    {/* EL FORMULARIO DE PACIENTE COMPARTIDO (anexo
+                        07-03, A5), el mismo del fichero, la cita y la
+                        ficha del cliente. Acá va completo: el médico
+                        está empezando un caso clínico y tiene el tiempo
+                        y el paciente delante. */}
+                    <FormularioPaciente form={formPacienteWizard} deshabilitado={creandoPaciente} />
                     <div className="flex justify-end gap-2">
                       <Button variant="secondary" onClick={() => setFormNuevoPacienteAbierto(false)}>
                         Cancelar
                       </Button>
                       <Button
                         onClick={crearPacienteYAvanzar}
-                        disabled={creandoPaciente || !nuevoPaciente.nombre.trim()}
+                        disabled={creandoPaciente || !formPacienteWizard.v.nombre.trim()}
                       >
                         {creandoPaciente ? "Guardando…" : "Guardar y continuar"}
                       </Button>

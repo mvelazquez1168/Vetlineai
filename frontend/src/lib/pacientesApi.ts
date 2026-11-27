@@ -1,5 +1,6 @@
 import { getStoredToken } from "../hooks/useAuth";
 import { apiFetch } from "./api";
+import { ClienteParecido, PosibleDuplicado } from "./propietariosApi";
 
 // ---------------------------------------------------------------------
 // vetline-clinic-01, punto 3.3 — la ficha del paciente y su listado.
@@ -14,6 +15,22 @@ import { apiFetch } from "./api";
 export type SexoPaciente = "macho" | "hembra";
 export type EstadoReproductivo = "entero" | "castrado" | "desconocido";
 
+export type EstadoPaciente =
+  | "activo"
+  | "fallecido"
+  | "extraviado"
+  | "transferido"
+  | "baja_otro";
+
+/** Cómo se dice cada estado en pantalla. Un solo lugar. */
+export const ETIQUETA_ESTADO_PACIENTE: Record<EstadoPaciente, string> = {
+  activo: "Activo",
+  fallecido: "Fallecido",
+  extraviado: "Extraviado",
+  transferido: "Transferido",
+  baja_otro: "De baja",
+};
+
 export interface PacienteListado {
   id: string;
   numero_expediente: number;
@@ -21,7 +38,9 @@ export interface PacienteListado {
   especie: string;
   raza: string | null;
   sexo: string | null;
-  estado: "activo" | "fallecido";
+  estado: EstadoPaciente;
+  /** Qué datos básicos le faltan: lo calcula la base (anexo 07-03, A5). */
+  datos_basicos_faltantes: string[];
   /** Edad ya resuelta por el backend (nunca se calcula en el cliente). */
   edad_anios: number | null;
   fecha_nacimiento: string | null;
@@ -46,9 +65,25 @@ export interface PacienteFicha {
   color: string | null;
   alergias: string | null;
   alerta_manejo: string | null;
-  estado: "activo" | "fallecido";
+  /* Los cinco estados reales desde la migración 111; hasta el anexo
+     07-03 el tipo solo conocía dos. */
+  estado: EstadoPaciente;
   fecha_fallecimiento: string | null;
+  baja_motivo: string | null;
+  baja_en: string | null;
   creado_en: string;
+  /* Los opcionales del anexo (A5). */
+  pelaje: string | null;
+  caracter: string | null;
+  habitat: string | null;
+  tipo_dieta: string | null;
+  alimentacion_detalle: string | null;
+  pedigri: boolean;
+  pedigri_registro: string | null;
+  partos: number | null;
+  /* Qué datos básicos le faltan a la ficha. Lo calcula la base, no la
+     pantalla: lo leen el fichero, la ficha y el expediente. */
+  datos_basicos_faltantes: string[];
   propietario_id: string;
   propietario_nombre: string;
   propietario_telefono: string | null;
@@ -146,6 +181,15 @@ export interface CamposFichaPaciente {
   color?: string | null;
   alergias?: string | null;
   alertaManejo?: string | null;
+  /* Los opcionales del anexo (A5). */
+  pelaje?: string | null;
+  caracter?: string | null;
+  habitat?: string | null;
+  tipoDieta?: string | null;
+  alimentacionDetalle?: string | null;
+  pedigri?: boolean;
+  pedigriRegistro?: string | null;
+  partos?: number | null;
 }
 
 function authedFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -165,6 +209,50 @@ export const pacientesApi = {
   },
 
   obtener: (id: string) => authedFetch<FichaCompleta>(`/pacientes/${id}`),
+
+  /**
+   * Alta de paciente (anexo 07-03, A5).
+   *
+   * `propietarioNuevo` crea al dueño en la misma transacción, para el
+   * cliente que llega por primera vez con su mascota. Lanza
+   * `PosibleDuplicado` igual que el alta de cliente.
+   */
+  crear: async (
+    datos: CamposFichaPaciente & {
+      propietarioId?: string;
+      propietarioNuevo?: Record<string, unknown>;
+    },
+    confirmado = false
+  ) => {
+    const cuerpo = datos.propietarioNuevo
+      ? { ...datos, propietarioNuevo: { ...datos.propietarioNuevo, confirmado } }
+      : datos;
+    try {
+      return await authedFetch<{ paciente: PacienteFicha; propietario: { id: string } | null }>(
+        "/pacientes",
+        { method: "POST", body: JSON.stringify(cuerpo) }
+      );
+    } catch (err) {
+      const datosError = (err as { data?: { codigo?: string; candidatos?: ClienteParecido[] } })?.data;
+      if (datosError?.codigo === "POSIBLE_DUPLICADO") {
+        throw new PosibleDuplicado(
+          (err as Error).message ?? "Ya existe un cliente parecido.",
+          datosError.candidatos ?? []
+        );
+      }
+      throw err;
+    }
+  },
+
+  /** La baja del paciente, con su motivo (anexo 07-03, A5). */
+  darDeBaja: (
+    id: string,
+    datos: { estado: Exclude<EstadoPaciente, "activo">; motivo: string; fecha?: string; fechaFallecimiento?: string }
+  ) =>
+    authedFetch<{ paciente: PacienteFicha }>(`/pacientes/${id}/estado`, {
+      method: "PATCH",
+      body: JSON.stringify(datos),
+    }),
 
   cronologia: (id: string) =>
     authedFetch<{ eventos: EventoCronologiaPaciente[] }>(`/pacientes/${id}/cronologia`),

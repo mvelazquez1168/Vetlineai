@@ -5,6 +5,7 @@ import { Table, TableColumn } from "../../components/ui/Table";
 import { FichaPropietarioModal } from "../../components/caso/FichaPropietarioModal";
 import { PropietarioListado, propietariosApi } from "../../lib/propietariosApi";
 import { PageHeader } from "../../components/ui";
+import { ModalNuevoPropietario } from "../../components/propietario/ModalNuevoPropietario";
 
 const POR_PAGINA = 20;
 
@@ -13,6 +14,10 @@ const POR_PAGINA = 20;
 // puntual (solo el typeahead de 10 resultados de los wizards).
 export function Propietarios() {
   const [propietarios, setPropietarios] = useState<PropietarioListado[]>([]);
+  // Alta de cliente (anexo 07-03, A5): hasta ahora el fichero era de
+  // solo consulta y el único camino para crear un cliente estaba en el
+  // wizard de Nuevo caso, que es solo para médicos.
+  const [altaAbierta, setAltaAbierta] = useState(false);
   const [total, setTotal] = useState(0);
   const [pagina, setPagina] = useState(1);
   const [q, setQ] = useState("");
@@ -72,6 +77,17 @@ export function Propietarios() {
         subtitulo="Fichero de clientes de la clínica. Busque por nombre, teléfono, correo o número de identificación."
         icono="propietario"
         modulo="propietarios"
+        accion={<Button onClick={() => setAltaAbierta(true)}>+ Nuevo propietario</Button>}
+      />
+
+      <ModalNuevoPropietario
+        abierto={altaAbierta}
+        onCerrar={() => setAltaAbierta(false)}
+        onCreado={(id) => {
+          setAltaAbierta(false);
+          setPropietarioAbiertoId(id);
+          void cargar();
+        }}
       />
 
       <div className="mt-6 max-w-md">

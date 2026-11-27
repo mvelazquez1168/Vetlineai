@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { DarDeBajaPacienteModal } from "../../components/paciente/DarDeBajaPacienteModal";
 import { EditarPacienteModal } from "../../components/paciente/EditarPacienteModal";
 import {
   Badge,
@@ -18,6 +19,7 @@ import { EncabezadoExpediente, expedienteApi } from "../../lib/expedienteApi";
 import { formatearFechaCorta } from "../../lib/formatFecha";
 import { etiqueta } from "../../lib/etiquetas";
 import {
+  ETIQUETA_ESTADO_PACIENTE,
   FichaCompleta,
   pacientesApi,
 } from "../../lib/pacientesApi";
@@ -60,6 +62,7 @@ export function FichaPaciente() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editando, setEditando] = useState(false);
+  const [dandoDeBaja, setDandoDeBaja] = useState(false);
   // La pestaña abierta vive acá porque el encabezado también la cambia.
   const [pestana, setPestana] = useState("resumen");
   // El expediente clínico (prompt 07): la franja de alertas, la
@@ -158,17 +161,36 @@ export function FichaPaciente() {
               {p.raza ? ` · ${p.raza}` : ""} · {p.sexo ? etiqueta(p.sexo) : "Sexo sin registrar"} ·{" "}
               {ETIQUETA_ESTADO_REPRODUCTIVO[p.estado_reproductivo] ?? p.estado_reproductivo} · {edad}
             </span>
-            {p.estado === "fallecido" && (
+            {p.estado !== "activo" && (
               <Badge variant="neutral">
-                Fallecido{p.fecha_fallecimiento ? ` · ${formatearFechaCorta(p.fecha_fallecimiento, zonaHoraria)}` : ""}
+                {ETIQUETA_ESTADO_PACIENTE[p.estado]}
+                {p.fecha_fallecimiento
+                  ? ` · ${formatearFechaCorta(p.fecha_fallecimiento, zonaHoraria)}`
+                  : p.baja_en
+                    ? ` · ${formatearFechaCorta(p.baja_en, zonaHoraria)}`
+                    : ""}
+                {p.baja_motivo ? ` · ${p.baja_motivo}` : ""}
               </Badge>
+            )}
+            {/* Anexo 07-03, A5: lo que falta por el alta rápida. */}
+            {p.datos_basicos_faltantes?.length > 0 && (
+              <span title={`Falta: ${p.datos_basicos_faltantes.join(", ")}.`}>
+                <Badge variant="warning">Ficha por completar</Badge>
+              </span>
             )}
           </span>
         }
         secundarias={
-          <Button variant="secondary" onClick={() => setEditando(true)}>
-            Editar ficha
-          </Button>
+          <>
+            <Button variant="secondary" onClick={() => setEditando(true)}>
+              Editar ficha
+            </Button>
+            {p.estado === "activo" && (
+              <Button variant="secondary" onClick={() => setDandoDeBaja(true)}>
+                Dar de baja
+              </Button>
+            )}
+          </>
         }
         accion={
           /* ACCIÓN RÁPIDA del prompt 07 §10: registrar la atención es lo
@@ -176,7 +198,7 @@ export function FichaPaciente() {
              abrir un modal con el mismo formulario: dos lugares para
              escribir la misma consulta serían dos formularios que un día
              divergen. */
-          esMedico && p.estado !== "fallecido" ? (
+          esMedico && p.estado === "activo" ? (
             <Button onClick={() => setPestana("atencion")}>
               <Icono nombre="agregar" className="mr-1 h-4 w-4" />
               Registrar atención
@@ -201,6 +223,29 @@ export function FichaPaciente() {
             />
             <Dato etiqueta="Microchip" valor={p.microchip ?? "—"} />
             <Dato etiqueta="Color" valor={p.color ?? "—"} />
+            {/* LOS OPCIONALES DEL A5 SOLO APARECEN SI ESTÁN CARGADOS.
+                Ocho filas con «—» ocupan el lugar de las que sí tienen
+                algo y hacen ver la ficha más vacía de lo que está. */}
+            {p.pelaje && <Dato etiqueta="Pelaje" valor={etiqueta(p.pelaje)} />}
+            {p.caracter && <Dato etiqueta="Carácter" valor={etiqueta(p.caracter)} />}
+            {p.habitat && <Dato etiqueta="Hábitat" valor={etiqueta(p.habitat)} />}
+            {(p.tipo_dieta || p.alimentacion_detalle) && (
+              <Dato
+                etiqueta="Alimentación"
+                valor={[p.tipo_dieta ? etiqueta(p.tipo_dieta) : null, p.alimentacion_detalle]
+                  .filter(Boolean)
+                  .join(" · ")}
+              />
+            )}
+            {p.pedigri && (
+              <Dato
+                etiqueta="Pedigrí"
+                valor={p.pedigri_registro ? `Sí · registro ${p.pedigri_registro}` : "Sí"}
+              />
+            )}
+            {p.partos !== null && p.partos !== undefined && (
+              <Dato etiqueta="Partos" valor={String(p.partos)} />
+            )}
             {/* LAS ALERGIAS SALEN DEL EXPEDIENTE, no del campo de texto
                 libre de la ficha. Esta fila mostraba `p.alergias` y
                 decía «Sin alergias registradas» mientras la franja de
@@ -311,6 +356,14 @@ export function FichaPaciente() {
           paciente={p}
           onClose={() => setEditando(false)}
           onGuardado={cargar}
+        />
+      )}
+
+      {dandoDeBaja && (
+        <DarDeBajaPacienteModal
+          paciente={p}
+          onCerrar={() => setDandoDeBaja(false)}
+          onDadoDeBaja={cargar}
         />
       )}
     </div>

@@ -163,6 +163,15 @@ const GRUPOS: Grupo[] = [
         icono: "cita",
         permiso: "agenda.ver",
       },
+      // Prompt 11. Sin permiso propio: cada pestaña tiene el suyo y lo
+      // que no se puede hacer no muestra su botón. Pedir un permiso para
+      // entrar dejaría a la recepción sin poder leer los procedimientos
+      // que la clínica escribió para ella.
+      {
+        to: "/admin/administracion",
+        etiqueta: "Catálogos, personal y cumplimiento",
+        icono: "ajustes",
+      },
       {
         to: "/admin/medicos",
         etiqueta: "Médicos e invitaciones",

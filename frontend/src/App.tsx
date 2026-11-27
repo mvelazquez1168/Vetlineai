@@ -67,6 +67,7 @@ import { Personas } from "./pages/admin/Personas";
 import { RolesPermisos } from "./pages/admin/RolesPermisos";
 import { Politicas } from "./pages/admin/Politicas";
 import { ConfiguracionAgenda } from "./pages/admin/ConfiguracionAgenda";
+import { AdministracionCompleta } from "./pages/admin/AdministracionCompleta";
 import { Facturacion } from "./pages/admin/Facturacion";
 import { Medicos } from "./pages/admin/Medicos";
 import { PlanConsumo } from "./pages/admin/PlanConsumo";
@@ -209,6 +210,9 @@ export default function App() {
         <Route path="roles" element={<RolesPermisos />} />
         <Route path="politicas" element={<Politicas />} />
         <Route path="configuracion-agenda" element={<ConfiguracionAgenda />} />
+        {/* Prompt 11: catálogos, turnos, comisiones, cumplimiento,
+            auditoría y procedimientos. Cada pestaña con su permiso. */}
+        <Route path="administracion" element={<AdministracionCompleta />} />
         <Route path="duplicados" element={<Duplicados />} />
       </Route>
 

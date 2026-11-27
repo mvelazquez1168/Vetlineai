@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { validarDescuento } from "./descuentos";
 import { registrarMovimiento } from "../inventario/movimientos";
 import { precioVigente } from "../inventario/precios";
 
@@ -37,6 +38,18 @@ export interface SolicitudCargo {
   descuentoCodigo?: string;
   descuentoNaturaleza?: string;
   descuentoAutorizadoPor?: string;
+  /** El motivo del catálogo (prompt 08b, A3). De ahí sale el código. */
+  motivoDescuentoId?: string | null;
+  /**
+   * QUIÉN REALIZÓ el servicio o la venta (prompt 08b, A5).
+   *
+   * Distinto de `personaId`, que es quien lo registra. En una misma
+   * cuenta pueden intervenir el médico, el groomer y el anestesista, y
+   * el honorario del prompt 11 se liquida sobre esto.
+   */
+  realizadoPor?: string | null;
+  /** Qué médico o funcionario derivó el caso. Opcional. */
+  referidoPor?: string | null;
   personaId?: string;
   /** De dónde sale el stock. Por defecto, la bodega de la caja. */
   bodegaId?: string;
@@ -277,26 +290,31 @@ export async function agregarCargo(
   if (descuento < 0) throw new Error("Un descuento no puede ser negativo.");
   if (descuento > bruto) throw new Error("El descuento no puede superar el valor de la línea.");
 
-  // La política: hasta el máximo se aplica directo; por encima, hace
-  // falta que un administrador lo autorice.
+  // EL DESCUENTO LO VALIDA `ventas/descuentos.ts` (prompt 08b, A3).
+  //
+  // Acá había un solo tope —el de la clínica— comparado a mano. Ahora
+  // son tres niveles y vale el menor, el motivo sale de un catálogo
+  // mapeado a los códigos de Hacienda, y el autorizador se verifica en
+  // vez de creerle al id que llegó en el body.
+  let codigoDescuento: string | null = s.descuentoCodigo ?? null;
+  let codigoDescuentoOtro: string | null = null;
+  let naturalezaDelMotivo: string | null = null;
+  let motivoId: string | null = s.motivoDescuentoId ?? null;
   if (descuento > 0) {
-    const par = await db.query<{ descuento_maximo_pct: string }>(
-      `SELECT descuento_maximo_pct FROM vta_parametros WHERE tenant_id = $1`,
-      [tenantId]
-    );
-    const maximo = par.rows.length > 0 ? Number(par.rows[0].descuento_maximo_pct) : 10;
-    const pct = bruto > 0 ? (descuento / bruto) * 100 : 0;
-    if (pct > maximo && !s.descuentoAutorizadoPor) {
-      throw new Error(
-        `El descuento es del ${pct.toFixed(1)}% y el máximo sin autorización es ${maximo}%. ` +
-          `Hace falta que lo autorice un administrador.`
-      );
-    }
-    if (!s.descuentoCodigo) {
-      throw new Error(
-        "Un descuento lleva su naturaleza (Nota 20 del Anexo 4.4): sin eso el comprobante se rechaza."
-      );
-    }
+    const chequeo = await validarDescuento(db, tenantId, {
+      bruto,
+      descuento,
+      presentacionId: s.presentacionId,
+      servicioId: s.servicioId,
+      personaId: s.personaId,
+      motivoId: s.motivoDescuentoId,
+      codigoHacienda: s.descuentoCodigo,
+      autorizadoPor: s.descuentoAutorizadoPor,
+    });
+    codigoDescuento = chequeo.codigoHacienda;
+    codigoDescuentoOtro = chequeo.codigoHaciendaOtro;
+    naturalezaDelMotivo = chequeo.etiqueta;
+    motivoId = chequeo.motivoId;
   }
 
   let movimientoId: string | undefined;
@@ -341,15 +359,30 @@ export async function agregarCargo(
                              descuento, descuento_codigo, descuento_naturaleza,
                              descuento_autorizado_por, codigo_cabys, codigo_tarifa_iva,
                              unidad_medida, linea_negocio, movimiento_id, creado_por,
-                             lista_precio_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+                             lista_precio_id, motivo_descuento_id, realizado_por, referido_por,
+                             descuento_codigo_otro)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,
+             $22,$23,$24,$25)
      RETURNING id`,
     [
       tenantId, s.cuentaId, s.origen, s.origenId ?? null, s.presentacionId ?? null,
       s.servicioId ?? null, que.descripcion, s.pacienteId ?? null, s.cantidad, que.precio,
-      descuento, s.descuentoCodigo ?? null, s.descuentoNaturaleza ?? null,
+      descuento, codigoDescuento,
+      // LA NATURALEZA Y EL «OTRO» SON DOS CAMPOS DEL XSD, no uno.
+      // `NaturalezaDescuento` dice en qué consiste; `CodigoDescuentoOTRO`
+      // explica el código 99. Si no vino la naturaleza escrita, la
+      // etiqueta del motivo es exactamente eso.
+      s.descuentoNaturaleza ?? naturalezaDelMotivo,
       s.descuentoAutorizadoPor ?? null, que.cabys, que.tarifa, que.unidad, que.linea,
       movimientoId ?? null, s.personaId ?? null, que.listaAplicada,
+      motivoId,
+      // QUIÉN LO HIZO: lo que pidió el pedido, o quien lo registró. El
+      // respaldo no es «nadie»: en el 95 % de los casos el que cobra es
+      // el que atendió, y dejarlo en NULL haría que el honorario del 11
+      // tenga que adivinar.
+      s.realizadoPor ?? s.personaId ?? null,
+      s.referidoPor ?? null,
+      codigoDescuentoOtro,
     ]
   );
 
@@ -424,13 +457,15 @@ export async function lineasParaFacturar(db: PoolClient, cuentaId: string) {
     precio_unitario: string;
     descuento: string;
     descuento_codigo: string | null;
+    descuento_codigo_otro: string | null;
     descuento_naturaleza: string | null;
     codigo_cabys: string | null;
     codigo_tarifa_iva: string | null;
     unidad_medida: string | null;
   }>(
     `SELECT descripcion, cantidad, precio_unitario, descuento, descuento_codigo,
-            descuento_naturaleza, codigo_cabys, codigo_tarifa_iva, unidad_medida
+            descuento_codigo_otro, descuento_naturaleza, codigo_cabys, codigo_tarifa_iva,
+            unidad_medida
        FROM vta_cargos WHERE cuenta_id = $1 AND anulado_en IS NULL
       ORDER BY creado_en`,
     [cuentaId]
@@ -448,6 +483,10 @@ export async function lineasParaFacturar(db: PoolClient, cuentaId: string) {
             {
               monto: c.descuento,
               codigoDescuento: c.descuento_codigo ?? "99",
+              // El texto del 99 viaja al XML: un «otros descuentos» sin
+              // explicación es lo que después nadie puede justificar
+              // ante Hacienda.
+              codigoDescuentoOtro: c.descuento_codigo_otro ?? undefined,
               naturaleza: c.descuento_naturaleza ?? undefined,
             },
           ]

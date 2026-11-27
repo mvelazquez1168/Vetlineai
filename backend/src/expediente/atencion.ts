@@ -902,10 +902,16 @@ export async function cerrarAtencion(
     preventivo_nombre: string | null;
     preventivo_subtipo: string | null;
     preventivo_proxima: string | null;
+    realizado_por: string | null;
   }>(
     `SELECT id, tipo, servicio_id, presentacion_id, lote_id, descripcion, cantidad,
             precio_unitario, descuento, lista_precio_id, dispensado_aqui, preventivo_tipo,
-            preventivo_nombre, preventivo_subtipo, preventivo_proxima
+            preventivo_nombre, preventivo_subtipo, preventivo_proxima,
+            -- QUIÉN LO HIZO (prompt 08b, A5). El ítem ya lo tenía desde
+            -- la migración 105 y el cargo no: el honorario del prompt 11
+            -- se liquida sobre el cargo, así que el dato tiene que
+            -- cruzar la frontera entre el expediente y la caja.
+            realizado_por
        FROM exp_atencion_items
       WHERE atencion_id = $1 AND cargo_id IS NULL
       ORDER BY creado_en`,
@@ -958,6 +964,10 @@ export async function cerrarAtencion(
       listaPrecioId: item.lista_precio_id,
       personaId: datos.personaId,
       bodegaId: datos.bodegaId,
+      // El del ítem, y si no, el médico de la atención. NO quien cierra:
+      // la atención la puede cerrar la recepción y el servicio lo hizo
+      // el médico.
+      realizadoPor: item.realizado_por ?? atencion.medico_id ?? undefined,
     });
 
     await db.query(

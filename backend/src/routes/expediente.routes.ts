@@ -38,9 +38,11 @@ import {
   sembrarPlantillasBase,
 } from "../expediente/consentimientos";
 import { enLaClinicaAhora, deshacerSalida, marcarEstancia, registrarSalida } from "../expediente/estancia";
+import { guardarBorrador, liberar, tomarOLatir } from "../expediente/borrador";
 import { resumenDelExamen, tendenciaDeSignos } from "../expediente/examen";
 import {
   abrirAtencion,
+  ConflictoDeVersionError,
   agregarDiagnostico,
   agregarItem,
   aplicarPlantilla,
@@ -600,10 +602,83 @@ expedienteRouter.get("/atenciones/:id", async (req, res) => {
  */
 expedienteRouter.patch("/atenciones/:id", soloMedico, async (req, res) => {
   try {
-    await guardarSoap(req.db!, req.params.id, req.body);
-    res.json({ guardado: true });
+    // `version` es opcional para no romper a nadie: el cliente que no
+    // la manda escribe como antes. La pantalla de la atencion si la
+    // manda (anexo 07-03, A4).
+    const { version, ...campos } = (req.body ?? {}) as Record<string, unknown>;
+    const r = await guardarSoap(
+      req.db!,
+      req.params.id,
+      campos,
+      typeof version === "number" ? version : undefined
+    );
+    res.json({ guardado: true, ...r });
   } catch (err) {
+    if (err instanceof ConflictoDeVersionError) {
+      // 409 CON LOS VALORES DEL SERVIDOR: el medico tiene que poder
+      // comparar lo suyo con lo que llego, no solo enterarse de que
+      // hubo un choque.
+      return res.status(409).json({
+        error: err.message,
+        codigo: "CONFLICTO_DE_VERSION",
+        versionActual: err.versionActual,
+        valores: err.valores,
+      });
+    }
     fallo(res, err, "PATCH /expediente/atenciones/:id");
+  }
+});
+
+// ---------------------------------------------------------------------
+// EL LATIDO: quien tiene la atencion abierta (anexo 07-03, A4)
+// ---------------------------------------------------------------------
+
+/**
+ * Tomar la atencion o renovar el latido.
+ *
+ * La pantalla lo llama al abrir y cada 30 s. Si contesta `mio: false`,
+ * entra en modo lectura y dice de quien es.
+ */
+expedienteRouter.post("/atenciones/:id/latido", soloMedico, async (req, res) => {
+  try {
+    res.json(
+      await tomarOLatir(req.db!, req.auth!.tenantId!, {
+        documentoTipo: "atencion",
+        documentoId: req.params.id,
+        personaId: req.auth!.userId!,
+      })
+    );
+  } catch (err) {
+    fallo(res, err, "POST /expediente/atenciones/:id/latido");
+  }
+});
+
+/** Lo que se esta escribiendo y todavia no llego a la atencion. */
+expedienteRouter.put("/atenciones/:id/borrador", soloMedico, async (req, res) => {
+  try {
+    await guardarBorrador(req.db!, req.auth!.tenantId!, {
+      documentoTipo: "atencion",
+      documentoId: req.params.id,
+      personaId: req.auth!.userId!,
+      contenido: (req.body?.contenido ?? {}) as Record<string, unknown>,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "PUT /expediente/atenciones/:id/borrador");
+  }
+});
+
+/** Soltarla al salir. Si no se llama, el latido vence solo. */
+expedienteRouter.delete("/atenciones/:id/latido", soloMedico, async (req, res) => {
+  try {
+    await liberar(req.db!, {
+      documentoTipo: "atencion",
+      documentoId: req.params.id,
+      personaId: req.auth!.userId!,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "DELETE /expediente/atenciones/:id/latido");
   }
 });
 

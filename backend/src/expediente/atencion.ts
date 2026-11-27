@@ -258,12 +258,33 @@ const CAMPOS_SOAP = [
   "nota_medica",
 ] as const;
 
+/** Lo que devuelve un guardado: la versión nueva, para el próximo. */
+export interface ResultadoGuardarSoap {
+  version: number;
+  guardadoEn: string;
+}
+
+export class ConflictoDeVersionError extends Error {
+  constructor(
+    public readonly versionActual: number,
+    public readonly valores: Record<string, unknown>
+  ) {
+    super("Otra sesión guardó cambios en esta atención mientras usted escribía.");
+    this.name = "ConflictoDeVersionError";
+  }
+}
+
 export async function guardarSoap(
   db: PoolClient,
   atencionId: string,
-  campos: Record<string, unknown>
-): Promise<void> {
-  await exigirEnBorrador(db, atencionId);
+  campos: Record<string, unknown>,
+  // CONCURRENCIA OPTIMISTA (anexo 07-03, A4). Opcional: los llamadores
+  // que no la pasan —el dictado al aplicar un borrador, el cierre—
+  // escriben como antes. La pantalla de la atención sí la pasa, que es
+  // donde dos médicos pueden estar escribiendo a la vez.
+  versionEsperada?: number
+): Promise<ResultadoGuardarSoap> {
+  const estado = await exigirEnBorrador(db, atencionId);
 
   const asignaciones: string[] = [];
   const valores: unknown[] = [];
@@ -273,14 +294,43 @@ export async function guardarSoap(
       asignaciones.push(`${campo} = $${valores.length}`);
     }
   }
-  if (asignaciones.length === 0) return;
+  if (asignaciones.length === 0) {
+    const actual = await db.query<{ version: number; actualizado_en: Date }>(
+      `SELECT version, actualizado_en FROM atenciones WHERE id = $1`,
+      [atencionId]
+    );
+    return {
+      version: actual.rows[0].version,
+      guardadoEn: actual.rows[0].actualizado_en.toISOString(),
+    };
+  }
 
   valores.push(atencionId);
-  await db.query(
-    `UPDATE atenciones SET ${asignaciones.join(", ")}, actualizado_en = now()
-      WHERE id = $${valores.length}`,
+  const condicionVersion = versionEsperada === undefined ? "" : ` AND version = $${valores.length + 1}`;
+  if (versionEsperada !== undefined) valores.push(versionEsperada);
+
+  const r = await db.query<{ version: number; actualizado_en: Date }>(
+    `UPDATE atenciones
+        SET ${asignaciones.join(", ")}, version = version + 1, actualizado_en = now()
+      WHERE id = $${asignaciones.length + 1}${condicionVersion}
+      RETURNING version, actualizado_en`,
     valores
   );
+
+  if (r.rows.length === 0) {
+    // CERO FILAS CON VERSIÓN ESPERADA = otra sesión escribió en el
+    // medio. Se devuelven los valores del servidor para que el médico
+    // elija, en vez de pisar o de perder lo que escribió.
+    const actual = await db.query<Record<string, unknown>>(
+      `SELECT version, ${CAMPOS_SOAP.join(", ")} FROM atenciones WHERE id = $1`,
+      [atencionId]
+    );
+    const fila = actual.rows[0] ?? {};
+    throw new ConflictoDeVersionError(Number(fila.version ?? 0), fila);
+  }
+
+  void estado;
+  return { version: r.rows[0].version, guardadoEn: r.rows[0].actualizado_en.toISOString() };
 }
 
 export async function marcarSistema(

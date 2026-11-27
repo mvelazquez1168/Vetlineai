@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  borrarBorradorLocal,
+  EstadoGuardado,
+  leerBorradorLocal,
+  useAutoguardadoAtencion,
+} from "../../hooks/useAutoguardadoAtencion";
+import { useAuth } from "../../hooks/useAuth";
+import { formatearHora } from "../../lib/formatFecha";
+import {
   Badge,
   Button,
   Card,
@@ -88,12 +96,12 @@ export function AtencionActual({
 }: Props) {
   const toast = useToast();
   const navegar = useNavigate();
+  const { user: usuario, zonaHoraria } = useAuth();
 
   const [atencionId, setAtencionId] = useState<string | null>(null);
   const [detalle, setDetalle] = useState<AtencionDetalle | null>(null);
   const [cargando, setCargando] = useState(true);
   const [ocupado, setOcupado] = useState(false);
-  const [guardando, setGuardando] = useState(false);
 
   const [plantillas, setPlantillas] = useState<
     Array<{ id: string; tipo_consulta: string; nombre: string }>
@@ -135,8 +143,6 @@ export function AtencionActual({
   const [diagAProblemas, setDiagAProblemas] = useState(false);
 
   const refBusqueda = useRef<HTMLInputElement>(null);
-  const pendientes = useRef<Record<string, unknown>>({});
-  const temporizador = useRef<number | null>(null);
 
   // --- Carga ----------------------------------------------------------
   const cargar = useCallback(async (id: string) => {
@@ -207,29 +213,6 @@ export function AtencionActual({
         if (vivo) setCargando(false);
       });
   }, [pacienteId]);
-
-  // --- Guardado automático -------------------------------------------
-  const guardarCampo = (campo: string, valor: unknown) => {
-    if (!atencionId) return;
-    setDetalle((d) =>
-      d ? { ...d, atencion: { ...d.atencion, [campo]: valor as string } } : d
-    );
-    pendientes.current[campo] = valor;
-    if (temporizador.current) window.clearTimeout(temporizador.current);
-    temporizador.current = window.setTimeout(async () => {
-      const campos = pendientes.current;
-      pendientes.current = {};
-      if (Object.keys(campos).length === 0) return;
-      setGuardando(true);
-      try {
-        await atencionApi.guardar(atencionId, campos);
-      } catch (err) {
-        toast.error((err as Error).message);
-      } finally {
-        setGuardando(false);
-      }
-    }, 1200);
-  };
 
   // --- Atajos ---------------------------------------------------------
   useEffect(() => {
@@ -450,11 +433,7 @@ export function AtencionActual({
     try {
       // Lo pendiente del guardado automático primero: cerrar con una
       // nota que todavía no llegó al servidor la perdería.
-      if (Object.keys(pendientes.current).length > 0) {
-        const campos = pendientes.current;
-        pendientes.current = {};
-        await atencionApi.guardar(atencionId, campos);
-      }
+      await autoguardado.vaciarPendientes();
       const r = await atencionApi.cerrar(atencionId);
       toast.exito(
         r.cargos > 0
@@ -488,6 +467,61 @@ export function AtencionActual({
 
   const a = detalle?.atencion as Record<string, string | number | null> | undefined;
   const cerrada = a?.estado === "cerrada";
+
+  // --- Guardado automático (anexo 07-03, A4) --------------------------
+  //
+  // La lógica vive en `useAutoguardadoAtencion`: re-encola lo que no se
+  // pudo subir, guarda un borrador local por si se cierra la pestaña,
+  // reintenta al volver la conexión y manda la versión para que dos
+  // sesiones no se pisen.
+  const autoguardado = useAutoguardadoAtencion({
+    atencionId,
+    personaId: usuario?.userId ?? "",
+    version: Number(a?.version ?? 0),
+    onGuardado: (version) =>
+      setDetalle((d) => (d ? { ...d, atencion: { ...d.atencion, version } } : d)),
+    onCampoLocal: (campo, valor) =>
+      setDetalle((d) => (d ? { ...d, atencion: { ...d.atencion, [campo]: valor as string } } : d)),
+  });
+  const guardarCampo = autoguardado.guardarCampo;
+
+  // --- Quién tiene la atención abierta (anexo 07-03, A4) --------------
+  //
+  // Late cada 30 s, la mitad del vencimiento del servidor (2 min): si
+  // una pasada se pierde, la siguiente todavía llega a tiempo.
+  const [tomadaPor, setTomadaPor] = useState<{ nombre: string | null; desde: string | null } | null>(
+    null
+  );
+  useEffect(() => {
+    if (!atencionId || cerrada) return;
+    let vivo = true;
+    const latir = () => {
+      atencionApi
+        .latido(atencionId)
+        .then((r) => {
+          if (!vivo) return;
+          setTomadaPor(r.mio ? null : { nombre: r.porNombre, desde: r.desde });
+        })
+        // Que falle el latido no puede impedir trabajar: el bloqueo es
+        // una ayuda, y la protección real es la versión del guardado.
+        .catch(() => undefined);
+    };
+    latir();
+    const t = window.setInterval(latir, 30_000);
+    return () => {
+      vivo = false;
+      window.clearInterval(t);
+      void atencionApi.soltarAtencion(atencionId).catch(() => undefined);
+    };
+  }, [atencionId, cerrada]);
+
+  // Lo que quedó sin subir en este dispositivo de una sesión anterior.
+  const [borradorLocal, setBorradorLocal] = useState<Record<string, unknown> | null>(null);
+  useEffect(() => {
+    if (!atencionId || !usuario?.userId) return;
+    setBorradorLocal(leerBorradorLocal(atencionId, usuario.userId));
+  }, [atencionId, usuario?.userId]);
+
 
   if (!atencionId || !detalle) {
     return (
@@ -540,7 +574,7 @@ export function AtencionActual({
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              {guardando && <Badge variant="neutral">Guardando…</Badge>}
+              <IndicadorGuardado estado={autoguardado.estado} />
               {cerrada && <Badge variant="success">Firmada</Badge>}
             </div>
           </div>
@@ -561,6 +595,79 @@ export function AtencionActual({
             />
           )}
         </Card>
+
+        {/* LA TIENE OTRA SESIÓN (anexo 07-03, A4). No se bloquea el
+            teclado: se avisa y se desaconseja. El que pisa igual se
+            choca con la versión del servidor y se entera ahí. */}
+        {tomadaPor && (
+          <Card>
+            <p className="text-sm font-semibold text-warning">
+              Esta atención la tiene abierta {tomadaPor.nombre ?? "otra persona"}
+              {tomadaPor.desde ? ` desde las ${formatearHora(tomadaPor.desde, zonaHoraria)}` : ""}.
+            </p>
+            <p className="mt-1 text-sm text-text-muted">
+              Si escriben los dos, el segundo en guardar va a tener que elegir qué queda. Conviene
+              ponerse de acuerdo antes.
+            </p>
+          </Card>
+        )}
+
+        {/* EL CONFLICTO LO RESUELVE EL MÉDICO, no el sistema. */}
+        {autoguardado.estado.tipo === "conflicto" && (
+          <Card>
+            <CardTitle>Otra sesión guardó cambios mientras usted escribía</CardTitle>
+            <CardDescription>
+              Lo que usted escribió no se perdió: está acá abajo sin guardar. Elija con qué se queda.
+            </CardDescription>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  autoguardado.aceptarDelServidor();
+                  if (atencionId) void cargar(atencionId);
+                }}
+              >
+                Quedarme con lo del servidor
+              </Button>
+              <Button onClick={() => void autoguardado.reintentarPisando()}>
+                Guardar lo mío encima
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* LO QUE QUEDÓ SIN SUBIR EN ESTE DISPOSITIVO. */}
+        {borradorLocal && Object.keys(borradorLocal).length > 0 && (
+          <Card>
+            <p className="text-sm font-semibold text-text-primary">
+              Quedó texto sin guardar de una sesión anterior en esta computadora.
+            </p>
+            <p className="mt-1 text-sm text-text-muted">
+              {Object.keys(borradorLocal).join(", ")}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                onClick={() => {
+                  for (const [campo, valor] of Object.entries(borradorLocal)) {
+                    guardarCampo(campo, valor);
+                  }
+                  setBorradorLocal(null);
+                }}
+              >
+                Recuperarlo
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  if (atencionId && usuario?.userId) borrarBorradorLocal(atencionId, usuario.userId);
+                  setBorradorLocal(null);
+                }}
+              >
+                Descartarlo
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {/* EL DICTADO VA PRIMERO, antes de los campos: el flujo del
             07d fase 2 es dictar de corrido y despues revisar lo que la
@@ -1342,4 +1449,47 @@ function Campo({
       )}
     </div>
   );
+}
+
+// ---------------------------------------------------------------------
+// EL ESTADO DEL GUARDADO, dicho (anexo 07-03, A4).
+//
+// Antes era un «Guardando…» que aparecia y desaparecia, y nada mas: no
+// habia forma de saber si lo ultimo que se escribio llego. Ahora cada
+// estado tiene su palabra, incluida la unica que importa de verdad
+// cuando se corta la red.
+// ---------------------------------------------------------------------
+function IndicadorGuardado({ estado }: { estado: EstadoGuardado }) {
+  const [, redibujar] = useState(0);
+
+  // «Guardado hace N s» tiene que envejecer solo: sin esto diria «hace
+  // 0 s» para siempre.
+  useEffect(() => {
+    if (estado.tipo !== "guardado") return;
+    const t = window.setInterval(() => redibujar((n) => n + 1), 10_000);
+    return () => window.clearInterval(t);
+  }, [estado.tipo]);
+
+  switch (estado.tipo) {
+    case "guardando":
+      return <Badge variant="neutral">Guardando…</Badge>;
+    case "pendiente":
+      return <Badge variant="neutral">Sin guardar</Badge>;
+    case "guardado": {
+      const segundos = Math.round((Date.now() - estado.cuando) / 1000);
+      return (
+        <Badge variant="success">
+          {segundos < 10 ? "Guardado" : `Guardado hace ${segundos < 60 ? `${segundos} s` : `${Math.round(segundos / 60)} min`}`}
+        </Badge>
+      );
+    }
+    case "sin_conexion":
+      return <Badge variant="warning">Sin conexión — se guarda al volver</Badge>;
+    case "conflicto":
+      return <Badge variant="error">Conflicto</Badge>;
+    case "error":
+      return <Badge variant="error">No se pudo guardar</Badge>;
+    default:
+      return null;
+  }
 }

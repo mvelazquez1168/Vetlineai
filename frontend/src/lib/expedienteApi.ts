@@ -360,8 +360,32 @@ export const atencionApi = {
       `/expediente/pacientes/${pacienteId}/atencion-en-curso`
     ),
 
+  /**
+   * Guardado de la atención (anexo 07-03, A4).
+   *
+   * `campos.version` viaja con el resto: el servidor compara y responde
+   * 409 si otra sesión escribió en el medio, en vez de pisar.
+   */
   guardar: (atencionId: string, campos: Record<string, unknown>) =>
-    json<{ guardado: true }>(`/expediente/atenciones/${atencionId}`, "PATCH", campos),
+    json<{ guardado: true; version: number; guardadoEn: string }>(
+      `/expediente/atenciones/${atencionId}`,
+      "PATCH",
+      campos
+    ),
+
+  /** Tomar la atención o renovar el latido (anexo 07-03, A4). */
+  latido: (atencionId: string) =>
+    json<{
+      mio: boolean;
+      porPersonaId: string | null;
+      porNombre: string | null;
+      desde: string | null;
+      contenido: Record<string, unknown>;
+    }>(`/expediente/atenciones/${atencionId}/latido`, "POST", {}),
+
+  /** Soltarla al salir de la pantalla. */
+  soltarAtencion: (atencionId: string) =>
+    pedir<{ ok: true }>(`/expediente/atenciones/${atencionId}/latido`, { method: "DELETE" }),
 
   aplicarPlantilla: (atencionId: string, tipoConsulta: string) =>
     json<{ plantillaId: string | null; sistemas: string[] }>(

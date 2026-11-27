@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { exigirPermiso, soloPersonalDeLaClinica } from "../permisos";
 import { aExcel, aPdf, nombreDeArchivo } from "../exportacion/tabla";
+import { marcaYAutor } from "../marca/marcaDeLaSolicitud";
 import { esReporteConocido, reporteDeVentas } from "../ventas/reportes";
 import { requiereModulo } from "../tenantModulos";
 import {
@@ -1124,7 +1125,8 @@ ventasRouter.get("/reportes/:cual/exportar", async (req, res) => {
       filas: r.filas,
     };
     const nombre = nombreDeArchivo(r.titulo, formato === "excel" ? "xlsx" : "pdf");
-    const cuerpo = formato === "excel" ? aExcel(tabla) : await aPdf(tabla);
+    const marca = await marcaYAutor(req);
+    const cuerpo = formato === "excel" ? aExcel(tabla, marca) : await aPdf(tabla, marca);
     res.setHeader(
       "Content-Type",
       formato === "excel"

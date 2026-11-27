@@ -3,6 +3,7 @@ import { authenticate, withTenantClient } from "../middleware/auth";
 import { exigirPermiso, soloPersonalDeLaClinica } from "../permisos";
 import { requiereModulo } from "../tenantModulos";
 import { aExcel, aPdf, nombreDeArchivo } from "../exportacion/tabla";
+import { marcaYAutor } from "../marca/marcaDeLaSolicitud";
 import {
   conciliarComprobanteConCuenta,
   crearCuentaPorPagar,
@@ -564,7 +565,7 @@ finanzasRouter.get("/exportacion/:cuaderno.:formato", async (req, res) => {
     const tabla = await tablaContable(req.db!, req.auth!.tenantId!, cuaderno, desde, hasta);
 
     if (req.params.formato === "pdf") {
-      const pdf = await aPdf(tabla);
+      const pdf = await aPdf(tabla, await marcaYAutor(req));
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
@@ -572,7 +573,7 @@ finanzasRouter.get("/exportacion/:cuaderno.:formato", async (req, res) => {
       );
       return res.send(pdf);
     }
-    const xlsx = aExcel(tabla);
+    const xlsx = aExcel(tabla, await marcaYAutor(req));
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

@@ -1,4 +1,6 @@
 import PDFDocument from "pdfkit";
+import { MarcaDeClinica, pieDeExportacion } from "./marca/marcaClinica";
+import { dibujarEncabezado } from "./pdf/marcaPdf";
 
 // prompt_code_reporte_atenciones, Paso 3 — documento que se presenta ante
 // el colegio de médicos veterinarios. No reusa el ensamblado de docx de
@@ -6,9 +8,11 @@ import PDFDocument from "pdfkit";
 // que ya está en el proyecto para las recetas (recetas.routes.ts), así
 // que no hace falta agregar ninguna biblioteca nueva.
 
-const PDF_COLOR_PRIMARIO = "#1B2A4A";
-const PDF_COLOR_ACENTO = "#4A90D9";
-const PDF_COLOR_MUTED = "#5A6B82";
+// LOS COLORES SALEN DE LA MARCA DE LA CLÍNICA (barrido de
+// exportaciones, 2026-11-27). Estaban copiados acá —y los mismos tres,
+// literalmente, en el comprobante y en la receta—, así que una clínica
+// con su paleta cargada desde el 01c recibía igual el azul de Vetline en
+// un documento que presenta ante el colegio.
 
 // prompt: vincular caso↔cita — el reporte muestra exactamente 5 columnas
 // (fecha de atención, hora de inicio, hora de fin, número de expediente,
@@ -55,7 +59,14 @@ function colegiaturaOFaltante(colegiatura: string | null): string {
   return colegiatura && colegiatura.trim() ? colegiatura : "FALTA COLEGIATURA";
 }
 
-export function generarPdfReporteAtenciones(datos: DatosReporteAtencionesPdf): Promise<Buffer> {
+export function generarPdfReporteAtenciones(
+  datos: DatosReporteAtencionesPdf,
+  marca: MarcaDeClinica,
+  usuario?: string
+): Promise<Buffer> {
+  const PDF_COLOR_PRIMARIO = marca.primario;
+  const PDF_COLOR_ACENTO = marca.primario;
+  const PDF_COLOR_MUTED = marca.tenue;
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: "LETTER", bufferPages: true });
     const buffers: Buffer[] = [];
@@ -63,11 +74,9 @@ export function generarPdfReporteAtenciones(datos: DatosReporteAtencionesPdf): P
     doc.on("end", () => resolve(Buffer.concat(buffers)));
     doc.on("error", reject);
 
-    // --- Encabezado: identidad de la clínica ---
-    doc.fontSize(16).fillColor(PDF_COLOR_PRIMARIO).font("Helvetica-Bold").text("Reporte de Atenciones");
+    // --- Encabezado: la marca de la clínica, con su logo ---
+    dibujarEncabezado(doc, marca, "Reporte de Atenciones", pieDeExportacion(usuario));
     doc.fontSize(9).fillColor(PDF_COLOR_MUTED).font("Helvetica");
-    doc.moveDown(0.3);
-    doc.text(datos.clinica?.nombre ?? "—");
     if (datos.clinica?.nombre_fiscal) doc.text(`Nombre fiscal: ${datos.clinica.nombre_fiscal}`);
     if (datos.clinica?.numero_identificacion) {
       doc.text(

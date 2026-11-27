@@ -62,6 +62,7 @@ import {
   variablesDesconocidas,
 } from "../clinica/documentosClinicos";
 import { aExcel, nombreDeArchivo } from "../exportacion/tabla";
+import { marcaYAutor } from "../marca/marcaDeLaSolicitud";
 
 // ---------------------------------------------------------------------
 // ADMINISTRACIÓN COMPLETA — prompt 11.
@@ -215,7 +216,7 @@ administracionRouter.get("/catalogos/:clave/exportar.xlsx", async (req, res) => 
         { clave: "activo", titulo: "activo" },
       ],
       filas: items.map((i) => ({ ...i, activo: i.activo ? "si" : "no" })),
-    });
+    }, await marcaYAutor(req));
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -421,7 +422,7 @@ administracionRouter.get("/planilla.xlsx", exigirPermiso("personal.gestionar"), 
       filas,
       aviso:
         "La planilla y las cargas sociales las calcula el contador: esto son las horas del período, nada más.",
-    });
+    }, await marcaYAutor(req));
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -785,7 +786,7 @@ administracionRouter.get("/auditoria.xlsx", exigirPermiso("auditoria.ver"), asyn
       // El tipo de la tabla exportable pide filas genéricas; los eventos
       // son un tipo cerrado y por eso se ensanchan acá.
       filas: filas as unknown as Array<Record<string, unknown>>,
-    });
+    }, await marcaYAutor(req));
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

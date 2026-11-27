@@ -6,6 +6,7 @@ import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenam
 import { conAlcanceTenant } from "../alcanceTenant";
 import { requerirAnthropic } from "../anthropic";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { MarcaDeClinica, PRIMARIO_DE_FABRICA, marcaDeLaClinica } from "../marca/marcaClinica";
 import { registrarUsoApi, verificarAntesDeGenerar, mensajeRechazoGeneracion } from "../tarifas";
 import {
   obtenerDocumentosParaContexto,
@@ -450,17 +451,14 @@ recetasRouter.post("/:id/emitir", async (req, res) => {
       return res.status(400).json({ error: "La receta ya fue emitida." });
     }
 
-    if (!receta.tenant_logo_url) {
-      return res.status(422).json({
-        error: "La clínica no tiene un logo cargado. Subilo en Datos de la Clínica antes de emitir la receta.",
-      });
-    }
-    let logoBuffer: Buffer;
-    try {
-      logoBuffer = await almacenamientoPublico.leer(claveLogoDesdeValorGuardado(receta.tenant_logo_url));
-    } catch {
-      return res.status(422).json({ error: "No se encontró el archivo del logo de la clínica en el servidor." });
-    }
+    // LA FALTA DE LOGO YA NO BLOQUEA LA EMISIÓN (barrido de
+    // exportaciones). Antes esta ruta devolvía 422 y la receta no se
+    // emitía, mientras la receta de la atención sí se emitía sin logo:
+    // dos políticas para el mismo documento. Gana la del paciente —se
+    // imprime el nombre de la clínica y la receta sale—, que es la que
+    // ya argumentaba `recetaPdf.ts`.
+    const marcaReceta = await marcaDeLaClinica(req.db!, req.auth!.tenantId!);
+    const logoBuffer: Buffer = marcaReceta.logo ?? Buffer.alloc(0);
 
     const itemsResult = await req.db!.query(
       `SELECT ri.*, med.nombre AS medicamento_nombre
@@ -472,6 +470,7 @@ recetasRouter.post("/:id/emitir", async (req, res) => {
     );
 
     const buffer = await generarPdfReceta({
+      marca: marcaReceta,
       pacienteNombre: receta.paciente_nombre,
       especie: receta.especie,
       raza: receta.raza,
@@ -554,6 +553,8 @@ export interface DatosPdfReceta {
   pesoKg?: number | null;
   zonaHoraria: string | null;
   logoBuffer: Buffer;
+  /** La marca de la clínica: su color y su nombre. */
+  marca?: MarcaDeClinica;
   instruccionesGenerales: string | null;
   instruccionesPropietario: string | null;
   items: {
@@ -566,11 +567,16 @@ export interface DatosPdfReceta {
   }[];
 }
 
-const PDF_COLOR_PRIMARIO = "#1B2A4A";
-const PDF_COLOR_ACENTO = "#4A90D9";
-const PDF_COLOR_MUTED = "#5A6B82";
+// Los colores por omisión, para cuando la clínica no cargó su paleta.
+// El color real sale de `datos.marca` (barrido de exportaciones): estas
+// tres constantes estaban copiadas literalmente acá, en el comprobante y
+// en el reporte de atenciones, y ninguna leía el color de la clínica.
+const COLOR_POR_OMISION = { primario: PRIMARIO_DE_FABRICA, tenue: "#5A6B82" };
 
 export function generarPdfReceta(datos: DatosPdfReceta): Promise<Buffer> {
+  const PDF_COLOR_PRIMARIO = datos.marca?.primario ?? COLOR_POR_OMISION.primario;
+  const PDF_COLOR_ACENTO = datos.marca?.primario ?? COLOR_POR_OMISION.primario;
+  const PDF_COLOR_MUTED = datos.marca?.tenue ?? COLOR_POR_OMISION.tenue;
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: "LETTER" });
     const buffers: Buffer[] = [];
@@ -595,6 +601,16 @@ export function generarPdfReceta(datos: DatosPdfReceta): Promise<Buffer> {
     // con un buffer vacio, asi que el caso se contempla aca.
     if (datos.logoBuffer.length > 0) {
       doc.image(datos.logoBuffer, 50, 45, { width: 130 });
+    } else if (datos.marca) {
+      // SIN LOGO VA EL NOMBRE, nunca el logo de Vetline: el documento es
+      // de la clínica. Es la política única del barrido de
+      // exportaciones.
+      doc
+        .fontSize(14)
+        .fillColor(PDF_COLOR_PRIMARIO)
+        .font("Helvetica-Bold")
+        .text(datos.marca.nombre, 50, 50, { width: 140 })
+        .font("Helvetica");
     }
     doc
       .fontSize(20)

@@ -174,6 +174,13 @@ Toda tabla y todo dashboard donde tenga sentido ofrece **Excel y PDF** desde `Me
   y lo justifiques;
 - cada exportación queda en la auditoría.
 
+**Toda exportación a PDF o Excel lleva el logo y el nombre de la clínica, desde el punto único de
+marca** (`backend/src/marca/marcaClinica.ts`). Ningún generador declara sus propios colores: el
+color sale de `marca.primario`, que es el de la clínica. Ante la falta de logo **sale el nombre de
+la clínica y el documento se genera igual** —nunca el logo de Vetline en su lugar, y nunca se
+bloquea la emisión de un documento clínico o fiscal por un archivo de marca—. Lo prueba
+`verificar_marca_exportaciones.ts`.
+
 ### 4.7 Calidad visual y de uso
 
 Responsive con el breakpoint `md` de Vetline Ai y probado en móvil (la app es PWA). Skeletons en

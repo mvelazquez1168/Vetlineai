@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import { strToU8, zipSync } from "fflate";
-import { MarcaDeClinica, dibujarEncabezado } from "../pdf/marcaPdf";
+import { dibujarEncabezado } from "../pdf/marcaPdf";
+import { MarcaDeClinica, pieDeExportacion } from "../marca/marcaClinica";
 
 // ---------------------------------------------------------------------
 // EXPORTACIÓN DE UNA TABLA A EXCEL Y A PDF.
@@ -95,17 +96,48 @@ function letraColumna(i: number): string {
   return letras;
 }
 
-export function aExcel(tabla: TablaExportable): Buffer {
+/**
+ * LA PLANILLA, con la marca de la clínica.
+ *
+ * El .xlsx se escribe a mano (ver el encabezado del archivo). Agregarle
+ * el logo son cuatro piezas más dentro del zip —la imagen, el dibujo,
+ * su relación y la de la hoja— y la declaración en `[Content_Types]`.
+ * Vale la pena: la planilla que la clínica le manda a su contador o a
+ * su banco es un documento de la clínica, no una tabla anónima.
+ *
+ * LA REGLA DE SIEMPRE ANTE LA FALTA DE LOGO: sale el nombre, el archivo
+ * se genera igual, y nunca se pone el logo de Vetline en su lugar.
+ */
+export function aExcel(tabla: TablaExportable, opciones: OpcionesExportacion = {}): Buffer {
+  const { marca, usuario } = opciones;
   const filasXml: string[] = [];
   let fila = 1;
 
   const celdaTexto = (col: number, valor: string, estilo?: number) =>
     `<c r="${letraColumna(col)}${fila}" t="inlineStr"${estilo ? ` s="${estilo}"` : ""}>` +
     `<is><t>${escaparXml(valor)}</t></is></c>`;
-  const celdaNumero = (col: number, valor: number) =>
-    `<c r="${letraColumna(col)}${fila}"><v>${valor}</v></c>`;
+  const celdaNumero = (col: number, valor: number, estilo?: number) =>
+    `<c r="${letraColumna(col)}${fila}"${estilo ? ` s="${estilo}"` : ""}><v>${valor}</v></c>`;
 
-  // Título y filtros arriba, como en cualquier reporte impreso.
+  // EL ENCABEZADO. Cuando hay logo, las tres primeras filas se dejan
+  // altas para que la imagen no tape el texto: el dibujo flota sobre la
+  // hoja y no empuja nada.
+  const conLogo = !!(marca?.logo && marca.logoTipo && marca.logoMedidas);
+  if (conLogo) {
+    for (let i = 0; i < 3; i++) {
+      filasXml.push(`<row r="${fila}" ht="18" customHeight="1"/>`);
+      fila++;
+    }
+  }
+
+  // El nombre de la clínica SIEMPRE, con logo o sin él: es lo que
+  // identifica el documento si la imagen no se puede leer o el archivo
+  // se imprime en blanco y negro.
+  if (marca) {
+    filasXml.push(`<row r="${fila}">${celdaTexto(0, marca.nombre, 2)}</row>`);
+    fila++;
+  }
+
   filasXml.push(`<row r="${fila}">${celdaTexto(0, tabla.titulo, 1)}</row>`);
   fila++;
   if (tabla.subtitulo) {
@@ -116,8 +148,13 @@ export function aExcel(tabla: TablaExportable): Buffer {
     filasXml.push(`<row r="${fila}">${celdaTexto(0, tabla.aviso)}</row>`);
     fila++;
   }
+  // La fecha y el autor, que la §4.6 de la guía pide en toda
+  // exportación: una planilla sin eso no se puede volver a mirar.
+  filasXml.push(`<row r="${fila}">${celdaTexto(0, pieDeExportacion(usuario))}</row>`);
+  fila++;
   fila++; // una fila en blanco
 
+  const filaEncabezados = fila;
   filasXml.push(
     `<row r="${fila}">${tabla.columnas.map((c, i) => celdaTexto(i, c.titulo, 1)).join("")}</row>`
   );
@@ -128,7 +165,9 @@ export function aExcel(tabla: TablaExportable): Buffer {
       const tipo = c.tipo ?? "texto";
       const texto = textoDeCelda(f[c.clave], tipo);
       if (esNumerica(tipo) && texto !== "" && Number.isFinite(Number(texto))) {
-        return celdaNumero(i, Number(texto));
+        // LOS MONTOS CON FORMATO DE MONEDA (§4.6). Siguen siendo
+        // números —se pueden sumar—, pero se leen como plata.
+        return celdaNumero(i, Number(texto), tipo === "dinero" ? 3 : undefined);
       }
       return celdaTexto(i, texto);
     });
@@ -136,12 +175,20 @@ export function aExcel(tabla: TablaExportable): Buffer {
     fila++;
   }
 
+  const ultimaColumna = letraColumna(Math.max(0, tabla.columnas.length - 1));
+  const ultimaFila = fila - 1;
+  const colorMarca = (marca?.primario ?? "#1B2A4A").replace("#", "").toUpperCase();
+
   const archivos: Record<string, Uint8Array> = {
     "[Content_Types].xml": strToU8(
       `<?xml version="1.0" encoding="UTF-8"?>` +
         `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
         `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
         `<Default Extension="xml" ContentType="application/xml"/>` +
+        (conLogo
+          ? `<Default Extension="${marca!.logoTipo === "png" ? "png" : "jpeg"}" ContentType="image/${marca!.logoTipo}"/>` +
+            `<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>`
+          : "") +
         `<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>` +
         `<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>` +
         `<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>` +
@@ -166,27 +213,90 @@ export function aExcel(tabla: TablaExportable): Buffer {
         `<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>` +
         `</Relationships>`
     ),
-    // Dos estilos: el normal y uno en negrita para el título y los
-    // encabezados. Más que eso sería maquetar una planilla, y lo que se
-    // exporta son datos para filtrar.
+    // Cuatro estilos: normal, negrita (encabezados), el nombre de la
+    // clínica en SU color, y moneda. Más que eso sería maquetar una
+    // planilla, y lo que se exporta son datos para filtrar.
     "xl/styles.xml": strToU8(
       `<?xml version="1.0" encoding="UTF-8"?>` +
         `<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
-        `<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font>` +
-        `<font><b/><sz val="11"/><name val="Calibri"/></font></fonts>` +
+        `<numFmts count="1"><numFmt numFmtId="164" formatCode="&quot;₡&quot;#,##0.00"/></numFmts>` +
+        `<fonts count="3"><font><sz val="11"/><name val="Calibri"/></font>` +
+        `<font><b/><sz val="11"/><name val="Calibri"/></font>` +
+        `<font><b/><sz val="14"/><color rgb="FF${colorMarca}"/><name val="Calibri"/></font></fonts>` +
         `<fills count="1"><fill><patternFill patternType="none"/></fill></fills>` +
         `<borders count="1"><border/></borders>` +
         `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
-        `<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
-        `<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs>` +
+        `<cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
+        `<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>` +
+        `<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>` +
+        `<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>` +
         `</styleSheet>`
     ),
     "xl/worksheets/sheet1.xml": strToU8(
       `<?xml version="1.0" encoding="UTF-8"?>` +
-        `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
-        `<sheetData>${filasXml.join("")}</sheetData></worksheet>`
+        `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ` +
+        `xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
+        `<sheetData>${filasXml.join("")}</sheetData>` +
+        // EL FILTRO AUTOMÁTICO sobre la tabla, no sobre el encabezado:
+        // empieza en la fila de los títulos de columna.
+        (tabla.filas.length > 0
+          ? `<autoFilter ref="A${filaEncabezados}:${ultimaColumna}${ultimaFila}"/>`
+          : "") +
+        // EL ENCABEZADO DE IMPRESIÓN con el nombre de la clínica y el
+        // título. El logo EN el encabezado de impresión necesitaría un
+        // `legacyDrawingHF` con VML —un formato que Excel acepta solo en
+        // una forma muy precisa y que mal armado hace que el archivo no
+        // abra—; el logo va en la hoja, que es lo primero que se
+        // imprime.
+        (marca
+          ? `<headerFooter><oddHeader>&amp;L&amp;&quot;-,Bold&quot;${escaparXml(
+              marca.nombre
+            )}&amp;C${escaparXml(tabla.titulo)}&amp;RPagina &amp;P de &amp;N</oddHeader></headerFooter>`
+          : "") +
+        (conLogo ? `<drawing r:id="rId1"/>` : "") +
+        `</worksheet>`
     ),
   };
+
+  if (conLogo) {
+    const extension = marca!.logoTipo === "png" ? "png" : "jpeg";
+    // EMU: 9 525 por píxel a 96 ppp. El alto se fija en ~1,4 cm y el
+    // ancho se DERIVA de la proporción real del archivo: es lo que
+    // impide que un logo 4:1 salga estirado, el defecto que ya costó
+    // una corrección en el .docx del informe.
+    const altoPx = 52;
+    const anchoPx = Math.round((marca!.logoMedidas!.ancho / marca!.logoMedidas!.alto) * altoPx);
+    const EMU = 9525;
+    archivos[`xl/media/logo.${extension}`] = new Uint8Array(marca!.logo!);
+    archivos["xl/drawings/drawing1.xml"] = strToU8(
+      `<?xml version="1.0" encoding="UTF-8"?>` +
+        `<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" ` +
+        `xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" ` +
+        `xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
+        `<xdr:oneCellAnchor>` +
+        `<xdr:from><xdr:col>0</xdr:col><xdr:colOff>19050</xdr:colOff>` +
+        `<xdr:row>0</xdr:row><xdr:rowOff>19050</xdr:rowOff></xdr:from>` +
+        `<xdr:ext cx="${anchoPx * EMU}" cy="${altoPx * EMU}"/>` +
+        `<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="1" name="Logo"/><xdr:cNvPicPr/></xdr:nvPicPr>` +
+        `<xdr:blipFill><a:blip r:embed="rId1"/>` +
+        `<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>` +
+        `<xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${anchoPx * EMU}" cy="${altoPx * EMU}"/></a:xfrm>` +
+        `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic>` +
+        `<xdr:clientData/></xdr:oneCellAnchor></xdr:wsDr>`
+    );
+    archivos["xl/drawings/_rels/drawing1.xml.rels"] = strToU8(
+      `<?xml version="1.0" encoding="UTF-8"?>` +
+        `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+        `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/logo.${extension}"/>` +
+        `</Relationships>`
+    );
+    archivos["xl/worksheets/_rels/sheet1.xml.rels"] = strToU8(
+      `<?xml version="1.0" encoding="UTF-8"?>` +
+        `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+        `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing1.xml"/>` +
+        `</Relationships>`
+    );
+  }
 
   return Buffer.from(zipSync(archivos));
 }
@@ -203,14 +313,24 @@ export function aExcel(tabla: TablaExportable): Buffer {
  * cuatro páginas sin encabezado obliga a volver a la primera para saber
  * qué columna es cuál.
  */
-export interface OpcionesPdf {
-  /** La marca de la clínica. Con ella el PDF sale con logo y color. */
+/**
+ * Lo que convierte una tabla en un documento DE LA CLÍNICA.
+ *
+ * Vale para los dos formatos: el mismo logo, el mismo nombre y el mismo
+ * autor en el PDF y en el Excel. Un solo tipo para que no haya un
+ * encabezado de PDF y otro de planilla que un día digan distinto.
+ */
+export interface OpcionesExportacion {
+  /** La marca de la clínica, de `marca/marcaClinica.ts`. */
   marca?: MarcaDeClinica;
   /** Quién lo generó. Va impreso: un reporte sin autor no se puede auditar. */
   usuario?: string;
 }
 
-export function aPdf(tabla: TablaExportable, opciones: OpcionesPdf = {}): Promise<Buffer> {
+/** @deprecated Usá `OpcionesExportacion`: vale para los dos formatos. */
+export type OpcionesPdf = OpcionesExportacion;
+
+export function aPdf(tabla: TablaExportable, opciones: OpcionesExportacion = {}): Promise<Buffer> {
   return new Promise((resolver, rechazar) => {
     const doc = new PDFDocument({ size: "LETTER", layout: "landscape", margin: 36 });
     const trozos: Buffer[] = [];

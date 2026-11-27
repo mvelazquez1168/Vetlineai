@@ -1,4 +1,5 @@
 import PDFDocument from "pdfkit";
+import { MarcaDeClinica, PRIMARIO_DE_FABRICA } from "../marca/marcaClinica";
 import QRCode from "qrcode";
 import { TIPOS_COMPROBANTE, CONDICIONES_VENTA, MEDIOS_PAGO } from "./catalogos";
 
@@ -18,8 +19,16 @@ import { TIPOS_COMPROBANTE, CONDICIONES_VENTA, MEDIOS_PAGO } from "./catalogos";
 // "deben" aparecer. Eso es lo que define qué va destacado arriba.
 // ---------------------------------------------------------------------
 
-const COLOR_PRIMARIO = "#1B2A4A";
-const COLOR_ACENTO = "#4A90D9";
+// Los colores por omisión, para la clínica que no cargó su paleta. El
+// color real sale de `datos.marca` (barrido de exportaciones): estas
+// cuatro constantes estaban copiadas acá, en la receta y en el reporte
+// de atenciones, y ninguna leía el color de la clínica. La
+// representación gráfica de un comprobante es un documento que el
+// cliente recibe: lleva la marca de quien le vendió.
+//
+// EL BORDE Y EL GRIS NO SON MARCA: son líneas y tinta de apoyo, y no
+// cambian con la clínica.
+const COLOR_POR_OMISION = PRIMARIO_DE_FABRICA;
 const COLOR_MUTED = "#5A6B82";
 const COLOR_BORDE = "#D7DEE8";
 
@@ -60,6 +69,8 @@ export interface DatosPdfComprobante {
 
   /** El logo de la clínica, si lo tiene. Sin logo, va el nombre en texto. */
   logoBuffer?: Buffer;
+  /** La marca de la clínica emisora: su color. */
+  marca?: MarcaDeClinica;
 
   emisorNombre: string;
   emisorNombreComercial?: string | null;
@@ -129,6 +140,10 @@ function formatearCantidad(valor: string): string {
 }
 
 export async function generarPdfComprobante(datos: DatosPdfComprobante): Promise<Buffer> {
+  // El color de la clínica, o el de fábrica si no cargó el suyo.
+  const COLOR_PRIMARIO = datos.marca?.primario ?? COLOR_POR_OMISION;
+  const COLOR_ACENTO = datos.marca?.primario ?? COLOR_POR_OMISION;
+
   // El QR se genera ANTES de abrir el documento: es asíncrono y pdfkit
   // trabaja de forma sincrónica sobre un stream, así que un await en
   // medio del dibujo dejaría el PDF a medias si fallara.

@@ -23,6 +23,7 @@ import {
   aPdf,
   nombreDeArchivo,
 } from "../exportacion/tabla";
+import { marcaYAutor } from "../marca/marcaDeLaSolicitud";
 import {
   crearOrden,
   devolverAProveedor,
@@ -1173,7 +1174,7 @@ inventarioRouter.get("/kardex/exportar", async (req, res) => {
     };
 
     if (formato === "pdf") {
-      const pdf = await aPdf(tabla);
+      const pdf = await aPdf(tabla, await marcaYAutor(req));
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
@@ -1184,7 +1185,7 @@ inventarioRouter.get("/kardex/exportar", async (req, res) => {
     if (formato !== "excel") {
       return res.status(400).json({ error: `Formato "${formato}" no soportado: excel o pdf.` });
     }
-    const xlsx = aExcel(tabla);
+    const xlsx = aExcel(tabla, await marcaYAutor(req));
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

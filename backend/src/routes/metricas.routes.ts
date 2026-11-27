@@ -3,6 +3,7 @@ import { authenticate, withTenantClient } from "../middleware/auth";
 import { exigirPermiso, soloPersonalDeLaClinica, tienePermiso } from "../permisos";
 import { requiereModulo } from "../tenantModulos";
 import { aExcel, aPdf, nombreDeArchivo } from "../exportacion/tabla";
+import { marcaYAutor } from "../marca/marcaDeLaSolicitud";
 import { marcaDeLaClinica } from "../pdf/marcaPdf";
 import { METRICAS, Periodo, definicion } from "../metricas/diccionario";
 import { comparativaDeMedicos, dashboardClinica, dashboardMedico } from "../metricas/dashboards";
@@ -146,7 +147,7 @@ metricasRouter.get("/clinica/exportar", exigirPermiso("reportes.ver"), async (re
         variacion: t.variacion,
         detalle: t.detalle ?? "",
       })),
-    });
+    }, await marcaYAutor(req));
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -312,7 +313,7 @@ metricasRouter.get("/listas/:clave/exportar", exigirPermiso("reportes.ver"), asy
       return res.send(pdf);
     }
 
-    const xlsx = aExcel(tabla);
+    const xlsx = aExcel(tabla, await marcaYAutor(req));
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

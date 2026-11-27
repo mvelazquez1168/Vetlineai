@@ -4,7 +4,7 @@ import { enviarCorreoTransaccional } from "../correos";
 import { TIPOS_COMPROBANTE, TIPOS_IDENTIFICACION } from "./catalogos";
 import { nombresArchivo } from "./claveConsecutivo";
 import { DatosPdfComprobante, generarPdfComprobante, nombreMedioPago } from "./pdfComprobante";
-import { logoDeLaClinica } from "./logoClinica";
+import { marcaDeLaClinica } from "../marca/marcaClinica";
 
 // ---------------------------------------------------------------------
 // La representación gráfica y la entrega al receptor.
@@ -78,7 +78,11 @@ export async function datosParaPdf(
     [comprobanteId]
   );
 
-  const logoBuffer = await logoDeLaClinica(f.logo_url);
+  // LA MARCA, del punto único. `logoDeLaClinica()` leía el logo por su
+  // cuenta —era la segunda lectura del mismo archivo en el sistema— y no
+  // traía el color de la clínica.
+  const marca = await marcaDeLaClinica(db, f.tenant_id);
+  const logoBuffer = marca.logo ?? undefined;
 
   const senas = [f.ubicacion_barrio, f.ubicacion_otras_senas].filter(Boolean).join(", ");
 
@@ -103,6 +107,7 @@ export async function datosParaPdf(
     fechaEmision: new Date(f.fecha_emision),
     zonaHoraria: f.zona_horaria,
     logoBuffer,
+    marca,
 
     emisorNombre: f.emisor_nombre,
     emisorNombreComercial: f.emisor_nombre_comercial,

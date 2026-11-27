@@ -2,6 +2,7 @@ import { PoolClient } from "pg";
 import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
 import { emitirNotificacion } from "../notificaciones";
 import { DatosPdfReceta, generarPdfReceta, sanitizarNombreArchivo } from "../routes/recetas.routes";
+import { marcaDeLaClinica } from "../marca/marcaClinica";
 
 // ---------------------------------------------------------------------
 // EL PDF DE LA RECETA DE LA ATENCIÓN — prompt 07c, sección 2.
@@ -46,6 +47,7 @@ export async function recetaDeAtencionEnPdf(
     medico_colegiatura: string | null;
     zona_horaria: string | null;
     tenant_logo_url: string | null;
+    tenant_id: string;
     instrucciones_generales: string | null;
     instrucciones_propietario: string | null;
   }>(
@@ -56,7 +58,7 @@ export async function recetaDeAtencionEnPdf(
             COALESCE(pro.nombre, 'Sin propietario registrado') AS propietario_nombre,
             pro.email AS propietario_email,
             me.nombre AS medico_nombre, me.colegiatura AS medico_colegiatura,
-            t.zona_horaria, t.logo_url AS tenant_logo_url
+            t.zona_horaria, t.logo_url AS tenant_logo_url, t.id AS tenant_id
        FROM recetas r
        JOIN pacientes pa ON pa.id = r.paciente_id
        LEFT JOIN propietarios pro ON pro.id = pa.propietario_id
@@ -99,20 +101,17 @@ export async function recetaDeAtencionEnPdf(
   );
   if (items.rows.length === 0) throw new Error("Esta receta no tiene líneas.");
 
-  // EL LOGO. La receta del agente devuelve 422 si no hay logo; acá no
-  // se bloquea: una receta es un documento clínico que el propietario
-  // necesita, y no entregarla porque falta un archivo de marca es poner
-  // la marca por encima del paciente. Sin logo se imprime sin logo.
-  let logoBuffer: Buffer = Buffer.alloc(0);
-  if (receta.tenant_logo_url) {
-    try {
-      logoBuffer = await almacenamientoPublico.leer(
-        claveLogoDesdeValorGuardado(receta.tenant_logo_url)
-      );
-    } catch {
-      logoBuffer = Buffer.alloc(0);
-    }
-  }
+  // LA MARCA, del punto único (`marca/marcaClinica.ts`): trae el logo en
+  // bytes, el nombre y el color de la clínica. Acá se leía solo el logo
+  // y el color venía de una constante copiada en la ruta, así que una
+  // clínica con su paleta cargada recibía el azul de Vetline.
+  //
+  // SIN LOGO LA RECETA SE EMITE IGUAL, con el nombre: es un documento
+  // clínico que el propietario necesita, y no entregarlo porque falta un
+  // archivo de marca es poner la marca por encima del paciente. Desde el
+  // barrido de exportaciones, la ruta del agente hace lo mismo.
+  const marca = await marcaDeLaClinica(db, receta.tenant_id);
+  const logoBuffer: Buffer = marca.logo ?? Buffer.alloc(0);
 
   const datos: DatosPdfReceta = {
     pacienteNombre: receta.paciente_nombre,
@@ -126,6 +125,7 @@ export async function recetaDeAtencionEnPdf(
     pesoKg: receta.peso_kg === null ? null : Number(receta.peso_kg),
     zonaHoraria: receta.zona_horaria,
     logoBuffer,
+    marca,
     instruccionesGenerales: receta.instrucciones_generales,
     instruccionesPropietario: receta.instrucciones_propietario,
     items: items.rows.map((i) => ({

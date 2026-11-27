@@ -1,9 +1,15 @@
 import PDFDocument from "pdfkit";
-import { PoolClient } from "pg";
-import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenamiento";
+import { MarcaDeClinica, pieDeExportacion } from "../marca/marcaClinica";
+
+// La marca —el logo en bytes, el nombre y el color— se lee en
+// `marca/marcaClinica.ts`, que es el punto único de los DOS formatos.
+// Acá queda lo que es propio de pdfkit: dibujarla.
+export { marcaDeLaClinica, pieDeExportacion } from "../marca/marcaClinica";
+export type { MarcaDeClinica } from "../marca/marcaClinica";
 
 // ---------------------------------------------------------------------
-// LA MARCA DE LA CLÍNICA EN UN PDF — anexo 07-03.
+// LA MARCA DE LA CLÍNICA EN UN PDF — anexo 07-03, ampliado por el
+// barrido de exportaciones (2026-11-27).
 //
 // Hasta acá, cada PDF armaba su encabezado por su cuenta: la receta, el
 // reporte de atenciones y el comprobante electrónico tienen tres
@@ -12,10 +18,10 @@ import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenam
 // marca de la clínica: los tres imprimen el azul de Vetline aunque la
 // clínica tenga su paleta cargada desde el 01c.
 //
-// Este módulo es el punto único para el documento nuevo (el examen del
-// A1). Los tres existentes NO se migran acá en esta entrega —cambiar el
-// encabezado de un comprobante fiscal sin mirarlo en papel no es algo
-// que se haga de paso—, y queda anotado en el informe como residuo.
+// Ese residuo quedó CERRADO por el barrido de exportaciones: los tres
+// —receta, reporte de atenciones y comprobante electrónico— pasan por
+// este encabezado, y hay muestras en PDF en `docs/reportes/muestras-pdf/`
+// para mirarlas en papel antes de que lleguen a un cliente.
 //
 // UNA SOLA POLÍTICA ANTE LA FALTA DE LOGO, que hoy son tres: la receta
 // devuelve 422 y no se emite, el comprobante pone el nombre en texto, y
@@ -23,54 +29,6 @@ import { almacenamientoPublico, claveLogoDesdeValorGuardado } from "../almacenam
 // imprime el nombre y el documento sale**. El criterio es el que ya
 // argumentó `recetaPdf.ts`: no poner la marca por encima del paciente.
 // ---------------------------------------------------------------------
-
-export interface MarcaDeClinica {
-  nombre: string;
-  logo: Buffer | null;
-  /** El color de la clínica, en hex. */
-  primario: string;
-  /** Un gris de apoyo que combina con cualquier primario. */
-  tenue: string;
-}
-
-const TENUE = "#5A6B82";
-const PRIMARIO_POR_DEFECTO = "#1B2A4A";
-
-/**
- * Lee la marca de la clínica lista para pdfkit.
- *
- * Distinta de `apariencia()`, que devuelve la URL del logo para el
- * navegador: pdfkit necesita los BYTES. Por eso esto lee el objeto del
- * almacenamiento en vez de devolver un enlace.
- */
-export async function marcaDeLaClinica(db: PoolClient, tenantId: string): Promise<MarcaDeClinica> {
-  const r = await db.query<{ nombre: string; logo_url: string | null; primario: string | null }>(
-    `SELECT t.nombre, t.logo_url, a.primario
-       FROM tenants t
-       LEFT JOIN clinica_apariencia a ON a.tenant_id = t.id
-      WHERE t.id = $1`,
-    [tenantId]
-  );
-  const fila = r.rows[0];
-  const nombre = fila?.nombre ?? "Clínica";
-  const primario = fila?.primario ?? PRIMARIO_POR_DEFECTO;
-
-  let logo: Buffer | null = null;
-  if (fila?.logo_url) {
-    try {
-      logo = await almacenamientoPublico.leer(claveLogoDesdeValorGuardado(fila.logo_url));
-    } catch (err) {
-      // Se registra y se sigue: un documento sin logo es legible; un
-      // documento que no se genera, no.
-      console.error(
-        `[pdf] No se pudo leer el logo de la clínica (${fila.logo_url}); el documento sale con el nombre en texto.`,
-        err
-      );
-    }
-  }
-
-  return { nombre, logo, primario, tenue: TENUE };
-}
 
 /**
  * Dibuja el encabezado y deja el cursor debajo.

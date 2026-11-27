@@ -16,6 +16,7 @@ import {
 } from "../cierreCaso";
 import { resolverFechaCorte } from "../casosSinActividad";
 import { authenticate, withTenantClient } from "../middleware/auth";
+import { marcaYAutor } from "../marca/marcaDeLaSolicitud";
 import { requerirStripe } from "../stripe";
 import { calcularCicloActual, calcularConsumoCiclo, verificarUmbralesYNotificar } from "../usoIa";
 import {
@@ -1922,13 +1923,14 @@ adminRouter.get("/reporte-atenciones/pdf", async (req, res) => {
     const generadoPor = generadorResult.rows[0]?.nombre ?? "—";
 
     const { generarPdfReporteAtenciones } = await import("../reporteAtencionesPdf");
+    const { marca, usuario } = await marcaYAutor(req);
     const buffer = await generarPdfReporteAtenciones({
       clinica,
       rango,
       generadoPor,
       generadoEn: new Date(),
       ...datos,
-    });
+    }, marca, usuario);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(

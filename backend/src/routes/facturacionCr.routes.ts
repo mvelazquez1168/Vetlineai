@@ -38,6 +38,7 @@ import {
 } from "../facturacion/catalogos";
 import { DocumentoVenta } from "../facturacion/tipos";
 import { recibirComprobante, emitirMensajeReceptor, listarRecibidos } from "../facturacion/recibidos";
+import { lineasParaVincular, registrarCompraDesdeXml } from "../facturacion/compraDesdeXml";
 import {
   actividadesDelEmisor,
   guardarReglaDeActividad,
@@ -1057,6 +1058,44 @@ facturacionCrRouter.post("/comprobantes/:id/reenviar", async (req, res) => {
 // repetible). Estas rutas sirven para cargar las inscritas y decir qué
 // actividad le toca a cada línea de negocio.
 // ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// LA ENTRADA A INVENTARIO DESDE EL XML DEL PROVEEDOR — prompt 09b, B2.
+// ---------------------------------------------------------------------
+facturacionCrRouter.get("/recibidos/:id/lineas", async (req, res) => {
+  try {
+    res.json(await lineasParaVincular(req.db!, req.params.id));
+  } catch (err) {
+    console.error("GET /facturacion/recibidos/:id/lineas", err);
+    res.status(400).json({
+      error: err instanceof Error ? err.message : "Error al leer las líneas del comprobante.",
+    });
+  }
+});
+
+facturacionCrRouter.post("/recibidos/:id/registrar-compra", async (req, res) => {
+  try {
+    const b = req.body ?? {};
+    if (!b.proveedorId || !b.bodegaId) {
+      return res.status(400).json({
+        error: "Hay que decir de qué proveedor es y a qué bodega entra.",
+      });
+    }
+    res.json(
+      await registrarCompraDesdeXml(req.db!, req.auth!.tenantId!, req.params.id, {
+        proveedorId: b.proveedorId,
+        bodegaId: b.bodegaId,
+        vinculos: b.vinculos ?? [],
+        personaId: req.auth!.userId,
+      })
+    );
+  } catch (err) {
+    console.error("POST /facturacion/recibidos/:id/registrar-compra", err);
+    res.status(400).json({
+      error: err instanceof Error ? err.message : "Error al registrar la compra.",
+    });
+  }
+});
+
 facturacionCrRouter.get("/actividades", async (req, res) => {
   try {
     const emisor = await leerEmisor(req.db!, req.auth!.tenantId!);

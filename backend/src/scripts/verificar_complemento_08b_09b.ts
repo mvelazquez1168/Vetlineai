@@ -46,6 +46,12 @@ import {
 import { comisionVigente, costoDelCobro } from "../ventas/comisionesTarjeta";
 import { totalDeCuenta } from "../ventas/cuentas";
 import { registrarMovimiento } from "../inventario/movimientos";
+import { recibirComprobante, porQueNoSePuedeResponder } from "../facturacion/recibidos";
+import {
+  lineasDelXml,
+  lineasParaVincular,
+  registrarCompraDesdeXml,
+} from "../facturacion/compraDesdeXml";
 import {
   actividadesDelEmisor,
   actividadParaEmitir,
@@ -769,6 +775,225 @@ async function main() {
       inventada.includes("no está entre las inscritas"),
       "una actividad que el emisor no tiene inscrita se rechaza",
       inventada
+    );
+
+    // -----------------------------------------------------------------
+    console.log("\n=== B2. Recepción de comprobantes de proveedores ===");
+    // -----------------------------------------------------------------
+    // UN XML DE PROVEEDOR ARMADO A MANO, con la estructura v4.4: no
+    // valida contra el XSD —le faltan nodos y no está firmado— y eso es
+    // parte de lo que se verifica: la bandeja tiene que recibirlo igual
+    // y decir qué le pasa, porque un proveedor puede mandar cualquier
+    // cosa y la clínica necesita VERLO para reclamarle.
+    const clave = "506" + "1".repeat(47);
+    const xmlProveedor = (receptor: string) => `<?xml version="1.0" encoding="utf-8"?>
+<FacturaElectronica xmlns="https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/facturaElectronica">
+  <Clave>${clave}</Clave>
+  <NumeroConsecutivo>00100001010000000123</NumeroConsecutivo>
+  <FechaEmision>2026-11-20T10:00:00-06:00</FechaEmision>
+  <Emisor>
+    <Nombre>Distribuidora Veterinaria del Valle S.A.</Nombre>
+    <Identificacion><Tipo>02</Tipo><Numero>3101555666</Numero></Identificacion>
+  </Emisor>
+  <Receptor>
+    <Nombre>Veterinaria de Prueba S.A.</Nombre>
+    <Identificacion><Tipo>02</Tipo><Numero>${receptor}</Numero></Identificacion>
+  </Receptor>
+  <DetalleServicio>
+    <LineaDetalle>
+      <NumeroLinea>1</NumeroLinea>
+      <CodigoComercial><Tipo>01</Tipo><Codigo>DV-ALM-10K</Codigo></CodigoComercial>
+      <Cantidad>4</Cantidad>
+      <UnidadMedida>Unid</UnidadMedida>
+      <Detalle>Alimento medicado renal 10 kg</Detalle>
+      <PrecioUnitario>18000.00000</PrecioUnitario>
+      <MontoTotalLinea>72000.00000</MontoTotalLinea>
+    </LineaDetalle>
+    <LineaDetalle>
+      <NumeroLinea>2</NumeroLinea>
+      <Cantidad>2</Cantidad>
+      <UnidadMedida>Unid</UnidadMedida>
+      <Detalle>Jeringas 5 mL caja x 100</Detalle>
+      <PrecioUnitario>9000.00000</PrecioUnitario>
+      <MontoTotalLinea>18000.00000</MontoTotalLinea>
+    </LineaDetalle>
+  </DetalleServicio>
+  <ResumenFactura>
+    <CodigoTipoMoneda><CodigoMoneda>CRC</CodigoMoneda></CodigoTipoMoneda>
+    <TotalComprobante>90000.00000</TotalComprobante>
+  </ResumenFactura>
+</FacturaElectronica>`;
+
+    // La lectura de las líneas no depende de la base.
+    const leidas = lineasDelXml(xmlProveedor("3101234567"));
+    igual(leidas.length, 2, "se leen las dos líneas del XML del proveedor");
+    igual(
+      leidas[0].codigoProveedor,
+      "DV-ALM-10K",
+      "y el código del proveedor sale del CodigoComercial con tipo 01"
+    );
+    igual(leidas[1].codigoProveedor, null, "la línea sin código comercial queda sin código");
+    igual(leidas[0].cantidad, 4, "con su cantidad");
+    igual(leidas[0].precioUnitario, 18000, "y su costo unitario, que es la base de los márgenes");
+
+    // EL RECEPTOR SE COMPRUEBA. Primero uno que NO es la clínica.
+    const ajeno = await recibirComprobante(db, tenantId, emisor, xmlProveedor("3109999999"));
+    igual(
+      ajeno.receptorEsLaClinica,
+      false,
+      "un comprobante cuyo receptor es otra identificación se marca como ajeno"
+    );
+    assert(
+      ajeno.firmaValida === false || ajeno.firmaValida === null,
+      "y la firma de un XML sin firmar no se declara válida",
+      String(ajeno.firmaValida)
+    );
+
+    // Y RESPONDERLO SE BLOQUEA: emitir el mensaje receptor de una
+    // factura ajena es decirle a Hacienda que aceptamos un gasto que no
+    // es nuestro.
+    // SE VERIFICA LA REGLA, no la transacción ajena:
+    // `emitirMensajeReceptor` abre su propia transacción con
+    // `conAlcanceTenant` y no ve lo que este verificador insertó dentro
+    // de la suya —el commit diferido de este backend—. La regla vive en
+    // `porQueNoSePuedeResponder`, que es la que el control llama.
+    const guardado = await db.query<{
+      receptor_es_la_clinica: boolean | null;
+      receptor_identificacion: string | null;
+    }>(
+      `SELECT receptor_es_la_clinica, receptor_identificacion FROM fact_recibidos WHERE id = $1`,
+      [ajeno.id]
+    );
+    const respuestaAjena =
+      porQueNoSePuedeResponder({
+        receptorEsLaClinica: guardado.rows[0].receptor_es_la_clinica,
+        receptorIdentificacion: guardado.rows[0].receptor_identificacion,
+        identificacionDeLaClinica: "3101234567",
+      }) ?? "";
+    assert(
+      respuestaAjena.includes("no es de la clínica"),
+      "no se puede aceptar ni rechazar un comprobante que no es de la clínica",
+      respuestaAjena
+    );
+    igual(
+      porQueNoSePuedeResponder({
+        receptorEsLaClinica: null,
+        receptorIdentificacion: null,
+        identificacionDeLaClinica: "3101234567",
+      }),
+      null,
+      "y un comprobante SIN receptor legible no se bloquea: «no sabemos» no es «no es nuestro»"
+    );
+
+    // El mismo comprobante, ahora con el receptor correcto.
+    const nuestro = await recibirComprobante(db, tenantId, emisor, xmlProveedor("3101234567"));
+    igual(nuestro.receptorEsLaClinica, true, "con el receptor correcto, se marca como nuestro");
+    assert(nuestro.yaEstaba, "y es el mismo comprobante: la clave no se duplica");
+
+    const conPlazo = await db.query<{ responder_hasta: string }>(
+      `SELECT responder_hasta::text FROM fact_recibidos WHERE id = $1`,
+      [nuestro.id]
+    );
+    igual(
+      conPlazo.rows[0].responder_hasta,
+      "2026-11-28",
+      "el plazo se cuenta desde la fecha de EMISIÓN del comprobante (20/11 + 8 días)"
+    );
+
+    // --- La entrada a inventario ------------------------------------
+    const proveedor = (
+      await db.query<{ id: string }>(
+        `INSERT INTO inv_proveedores (tenant_id, nombre, tipo_identificacion,
+                                      numero_identificacion)
+         VALUES ($1,'Distribuidora Veterinaria del Valle S.A.','02','3101555666')
+         RETURNING id`,
+        [tenantId]
+      )
+    ).rows[0].id;
+
+    const primera = await lineasParaVincular(db, nuestro.id);
+    igual(primera.proveedorId, proveedor, "el proveedor se reconoce por su cédula del XML");
+    igual(
+      primera.lineas.filter((l) => l.productoId).length,
+      0,
+      "la PRIMERA compra de un proveedor llega sin nada reconocido"
+    );
+    igual(primera.yaRegistrado, false, "y todavía no se registró en inventario");
+
+    const compra = await registrarCompraDesdeXml(db, tenantId, nuestro.id, {
+      proveedorId: proveedor,
+      bodegaId: bodega,
+      personaId: admin,
+      vinculos: [
+        {
+          numeroLinea: 1,
+          productoId: producto,
+          presentacionId: presentacion,
+          cantidad: 4,
+          costoUnitario: 18000,
+          lote: { numero: "LOTE-NOV26", vencimiento: "2027-11-30" },
+        },
+      ],
+    });
+    assert(compra.movimientos > 0, "la compra entra al inventario", `${compra.movimientos} movimiento(s)`);
+    igual(compra.equivalenciasGuardadas, 1, "y deja su equivalencia para la próxima vez");
+
+    const stock = await db.query<{ cantidad_base: string; costo_unitario: string }>(
+      `SELECT cantidad_base::text, costo_unitario::text FROM inv_movimientos
+        WHERE compra_id = $1`,
+      [compra.compraId]
+    );
+    igual(stock.rows.length, 1, "con su movimiento de stock");
+    igual(Number(stock.rows[0].costo_unitario), 18000, "y el costo exacto del XML");
+
+    // UN COMPROBANTE NO SE REGISTRA DOS VECES.
+    let dosVecesCompra = "";
+    try {
+      await registrarCompraDesdeXml(db, tenantId, nuestro.id, {
+        proveedorId: proveedor,
+        bodegaId: bodega,
+        personaId: admin,
+        vinculos: [
+          {
+            numeroLinea: 1,
+            productoId: producto,
+            presentacionId: presentacion,
+            cantidad: 4,
+            costoUnitario: 18000,
+          },
+        ],
+      });
+    } catch (err) {
+      dosVecesCompra = err instanceof Error ? err.message : "";
+    }
+    assert(
+      dosVecesCompra.includes("no entra dos veces"),
+      "una compra no entra dos veces desde el mismo comprobante",
+      dosVecesCompra
+    );
+
+    // LA SEGUNDA FACTURA DEL MISMO PROVEEDOR LLEGA RECONOCIDA. Es lo
+    // que hace que la función se use más de una vez.
+    const clave2 = "506" + "2".repeat(47);
+    const segundaFactura = xmlProveedor("3101234567")
+      .replace(clave, clave2)
+      .replace("00100001010000000123", "00100001010000000124");
+    const otra = await recibirComprobante(db, tenantId, emisor, segundaFactura);
+    const reconocidas = await lineasParaVincular(db, otra.id);
+    igual(
+      reconocidas.lineas[0].productoId,
+      producto,
+      "la segunda factura del mismo proveedor llega con la línea ya reconocida"
+    );
+    igual(
+      reconocidas.lineas[0].presentacionId,
+      presentacion,
+      "con su presentación de compra"
+    );
+    igual(
+      reconocidas.lineas[1].productoId,
+      null,
+      "y la línea que nunca se vinculó sigue sin vincular: no se adivina por parecido"
     );
   });
 

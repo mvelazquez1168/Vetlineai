@@ -8,6 +8,7 @@ import { firmarXml } from "./firma";
 import { proveedorHaciendaActivo } from "./proveedorActivo";
 import { ErrorHaciendaSinRespuesta } from "./proveedorHacienda";
 import { exigirXmlValido } from "./validacionXsd";
+import { verificarFirma } from "./firma";
 import { fechaHoraXml } from "./xml";
 
 // ---------------------------------------------------------------------
@@ -51,6 +52,11 @@ function elementoRaiz(xml: string): string | undefined {
 }
 
 export interface ResultadoRecepcion {
+  /** Si el receptor del XML es esta clínica. `null` = no se pudo leer. */
+  receptorEsLaClinica?: boolean | null;
+  /** Si la firma digital verifica. `null` = no se pudo comprobar. */
+  firmaValida?: boolean | null;
+  firmaDetalle?: string | null;
   id: string;
   clave: string;
   tipoComprobante: string | null;
@@ -71,6 +77,27 @@ export interface ResultadoRecepcion {
  * y además el mensaje receptor de RECHAZO es justamente la vía formal
  * para devolverlo.
  */
+/**
+ * La identificación del RECEPTOR del XML.
+ *
+ * `leerCampo` devuelve la primera aparición de un nombre de nodo, y
+ * `Numero` aparece primero dentro del emisor: así que el receptor hay
+ * que buscarlo dentro de su propio bloque. Sin esto, la comprobación
+ * compararía la identificación del emisor contra la nuestra y daría
+ * siempre que no somos el receptor.
+ */
+function identificacionDelReceptor(xml: string): string | null {
+  const bloque = /<Receptor>([\s\S]*?)<\/Receptor>/.exec(xml);
+  if (!bloque) return null;
+  const numero = /<Numero>([^<]+)<\/Numero>/.exec(bloque[1]);
+  return numero ? numero[1].trim() : null;
+}
+
+/** Solo los dígitos, para comparar identificaciones escritas distinto. */
+function soloDigitos(valor: string): string {
+  return valor.replace(/\D/g, "");
+}
+
 export async function recibirComprobante(
   db: PoolClient,
   tenantId: string,
@@ -100,18 +127,81 @@ export async function recibirComprobante(
     }
   }
 
+  // -------------------------------------------------------------------
+  // ¿EL RECEPTOR SOMOS NOSOTROS? (prompt 09b, B2)
+  //
+  // No se comprobaba. Un XML de una factura entre dos terceros se
+  // cargaba igual en la bandeja de la clínica, y el mensaje receptor se
+  // habría emitido por un comprobante ajeno —es decir, le habríamos
+  // dicho a Hacienda que aceptamos el gasto de otro—.
+  //
+  // NO SE RECHAZA LA CARGA: se marca. Puede ser un XML que el proveedor
+  // mandó mal, y verlo en la bandeja con el aviso es más útil que un
+  // error que no deja ni mirarlo. Lo que sí se bloquea es RESPONDERLO,
+  // y eso está en `emitirMensajeReceptor`.
+  // -------------------------------------------------------------------
+  const receptorIdentificacion = identificacionDelReceptor(xml);
+  const emisorNuestro = await db.query<{ numero_identificacion: string }>(
+    `SELECT numero_identificacion FROM fact_emisores WHERE id = $1`,
+    [emisorId]
+  );
+  const nuestra = emisorNuestro.rows[0]?.numero_identificacion ?? null;
+  const receptorEsLaClinica =
+    receptorIdentificacion && nuestra
+      ? soloDigitos(receptorIdentificacion) === soloDigitos(nuestra)
+      : null;
+
+  // -------------------------------------------------------------------
+  // ¿LA FIRMA VERIFICA?
+  //
+  // `verificarFirma` existía desde el facturador y no se llamaba acá: un
+  // XML editado a mano pasaba la validación de estructura sin problema.
+  //
+  // NULL cuando no se pudo comprobar —un XML sin nodo de firma— es
+  // distinto de `false`: lo primero es «no sabemos» y lo segundo es «la
+  // firma está mal», y en la bandeja se leen distinto.
+  // -------------------------------------------------------------------
+  let firmaValida: boolean | null = null;
+  let firmaDetalle: string | null = null;
+  try {
+    const v = await verificarFirma(xml);
+    firmaValida = v.valida;
+    firmaDetalle = v.motivo ?? null;
+  } catch (err) {
+    firmaValida = null;
+    firmaDetalle = `No se pudo comprobar la firma: ${err instanceof Error ? err.message : "error desconocido"}.`;
+  }
+
+  // El plazo para responder, desde la fecha de emisión del comprobante.
+  const dias = await db.query<{ dias: number }>(
+    `SELECT dias_para_responder_recibidos AS dias FROM fact_emisores WHERE id = $1`,
+    [emisorId]
+  );
+  const plazoDias = dias.rows[0]?.dias ?? 8;
+
   const r = await db.query<{ id: string; ya: boolean }>(
     `INSERT INTO fact_recibidos (
        tenant_id, emisor_id, clave, xml_recibido, emisor_nombre, emisor_identificacion,
        tipo_comprobante, consecutivo, fecha_emision, total_comprobante, total_impuesto, moneda,
-       validacion_ok, validacion_detalle
-     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+       validacion_ok, validacion_detalle,
+       receptor_identificacion, receptor_es_la_clinica, firma_valida, firma_detalle,
+       responder_hasta
+     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
+               $15,$16,$17,$18,
+               -- El plazo se cuenta desde la fecha de emisión del
+               -- comprobante y no desde hoy: cargarlo tarde no estira
+               -- el plazo.
+               (COALESCE($9::timestamptz, now())::date + $19::int))
      ON CONFLICT (emisor_id, clave) DO UPDATE SET
        -- Volver a cargar el mismo comprobante NO lo duplica y NO pisa el
        -- XML original: lo único que se refresca es la validación, porque
        -- el XSD con el que se valida puede haber cambiado.
        validacion_ok = EXCLUDED.validacion_ok,
-       validacion_detalle = EXCLUDED.validacion_detalle
+       validacion_detalle = EXCLUDED.validacion_detalle,
+       receptor_identificacion = EXCLUDED.receptor_identificacion,
+       receptor_es_la_clinica = EXCLUDED.receptor_es_la_clinica,
+       firma_valida = EXCLUDED.firma_valida,
+       firma_detalle = EXCLUDED.firma_detalle
      RETURNING id, (xmax <> 0) AS ya`,
     [
       tenantId,
@@ -128,6 +218,11 @@ export async function recibirComprobante(
       leerCampo(xml, "CodigoMoneda") ?? null,
       validacionOk,
       validacionDetalle ?? null,
+      receptorIdentificacion,
+      receptorEsLaClinica,
+      firmaValida,
+      firmaDetalle,
+      plazoDias,
     ]
   );
 
@@ -140,6 +235,9 @@ export async function recibirComprobante(
     validacionOk,
     validacionDetalle,
     yaEstaba: r.rows[0].ya,
+    receptorEsLaClinica,
+    firmaValida,
+    firmaDetalle,
   };
 }
 
@@ -148,6 +246,14 @@ export async function listarRecibidos(db: PoolClient, emisorId: string) {
     `SELECT id, clave, tipo_comprobante, consecutivo, emisor_nombre, emisor_identificacion,
             fecha_emision, total_comprobante, total_impuesto, moneda,
             validacion_ok, validacion_detalle,
+            -- Lo que la bandeja necesita para avisar (prompt 09b, B2).
+            receptor_es_la_clinica, firma_valida, firma_detalle,
+            responder_hasta::text,
+            (responder_hasta IS NOT NULL AND mensaje_tipo IS NULL
+               AND responder_hasta < CURRENT_DATE) AS plazo_vencido,
+            (responder_hasta IS NOT NULL AND mensaje_tipo IS NULL
+               AND responder_hasta BETWEEN CURRENT_DATE AND (CURRENT_DATE + 2)) AS plazo_por_vencer,
+            compra_id, registrado_en_inventario::text,
             mensaje_tipo, mensaje_consecutivo, mensaje_condicion_impuesto,
             mensaje_ind_estado, mensaje_enviado_en, creado_en
        FROM fact_recibidos
@@ -222,6 +328,34 @@ export interface ResultadoMensajeReceptor {
  * fuera de transacción, enviar fuera de transacción, y escribir el
  * resultado en una transacción de milisegundos.
  */
+/**
+ * Por qué NO se puede responder un comprobante recibido, o `null`.
+ *
+ * Vive aparte de `emitirMensajeReceptor` por dos razones: la regla se
+ * puede verificar sin emitir nada, y la pantalla puede deshabilitar el
+ * botón con el mismo criterio con el que el backend lo rechaza —si
+ * fueran dos criterios, uno de los dos quedaría viejo—.
+ *
+ * `false` bloquea; `null` —no se pudo leer el receptor del XML— no,
+ * porque hay comprobantes sin receptor y un control que bloquea por
+ * falta de dato dejaría la bandeja inservible. Lo que se bloquea es la
+ * CERTEZA de que no es nuestro.
+ */
+export function porQueNoSePuedeResponder(datos: {
+  receptorEsLaClinica: boolean | null;
+  receptorIdentificacion: string | null;
+  identificacionDeLaClinica: string | null;
+}): string | null {
+  if (datos.receptorEsLaClinica === false) {
+    return (
+      `El receptor de ese comprobante es ${datos.receptorIdentificacion ?? "otra identificación"} ` +
+      `y el emisor de esta clínica es ${datos.identificacionDeLaClinica ?? "(sin identificación)"}. ` +
+      `No se puede aceptar ni rechazar un comprobante que no es de la clínica.`
+    );
+  }
+  return null;
+}
+
 export async function emitirMensajeReceptor(
   tenantId: string,
   recibidoId: string,
@@ -252,6 +386,24 @@ export async function emitirMensajeReceptor(
         `A ese comprobante ya se le envió un mensaje receptor (${f.mensaje_consecutivo}). Un mensaje receptor no se reemplaza.`
       );
     }
+
+    // NO SE RESPONDE UN COMPROBANTE QUE NO ES NUESTRO (prompt 09b, B2).
+    //
+    // Es el control que faltaba. Emitir el mensaje receptor de una
+    // factura entre dos terceros es decirle a Hacienda que aceptamos un
+    // gasto ajeno: un dato falso en la declaración de IVA de la clínica,
+    // con nuestra firma.
+    //
+    // `false` bloquea; `null` —no se pudo leer el receptor del XML— no,
+    // porque hay comprobantes sin receptor (un tiquete) y un control que
+    // bloquea por falta de dato dejaría la bandeja inservible. Lo que se
+    // bloquea es la certeza de que NO es nuestro.
+    const motivo = porQueNoSePuedeResponder({
+      receptorEsLaClinica: f.receptor_es_la_clinica,
+      receptorIdentificacion: f.receptor_identificacion,
+      identificacionDeLaClinica: f.numero_identificacion,
+    });
+    if (motivo) throw new Error(motivo);
 
     const tipoConsecutivo = tipoParaConsecutivo(solicitud.mensaje);
     const { consecutivo } = await consumirConsecutivo(db, tenantId, {

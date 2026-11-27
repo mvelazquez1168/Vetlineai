@@ -20,6 +20,7 @@ import { AtencionActual } from "./AtencionActual";
 import { ModalLaboratorio } from "./ModalLaboratorio";
 import { DondeSeRegistra, ModalHistorico } from "./AccionesClinicas";
 import { PreventivosYGasto } from "../metricas/PreventivosYGasto";
+import { PanelFirma } from "../ui/PanelFirma";
 import {
   EncabezadoExpediente,
   EstudioLab,
@@ -1399,6 +1400,12 @@ function Consentimientos({
       firmante_nombre: string;
       firmado_en: string;
       testigo: string | null;
+      /** false en los firmados antes del arreglo del 2026-11-27. */
+      firma_valida: boolean;
+      firma_invalida_motivo: string | null;
+      firmado_a_distancia: boolean;
+      firmante_relacion: string | null;
+      verificable: boolean;
     }>
   >([]);
   const [plantillas, setPlantillas] = useState<
@@ -1415,7 +1422,13 @@ function Consentimientos({
     identificacion: string | null;
   } | null>(null);
   const [firmante, setFirmante] = useState({ nombre: "", identificacion: "" });
-  const [firmaTrazada, setFirmaTrazada] = useState(false);
+  // LA FIRMA REAL, en data URL. Antes era un booleano `firmaTrazada` y
+  // el PNG era una constante: el booleano decía «ya firmó» y lo que se
+  // guardaba era siempre la misma imagen vacía.
+  const [firmaPng, setFirmaPng] = useState<string | null>(null);
+  const [relacion, setRelacion] = useState<"propietario" | "autorizado">("propietario");
+  const [autorizadoPor, setAutorizadoPor] = useState("");
+  const [enviandoEnlace, setEnviandoEnlace] = useState(false);
 
   const recargar = () => {
     expedienteApi
@@ -1459,27 +1472,60 @@ function Consentimientos({
     }
   };
 
+  const pedirADistancia = async () => {
+    if (!preparado) return;
+    setEnviandoEnlace(true);
+    try {
+      const r = await expedienteApi.firmaADistancia(pacienteId, {
+        plantillaId: elegida || undefined,
+        titulo: preparado.titulo,
+        texto: preparado.texto,
+      });
+      toast.exito(
+        `Enlace enviado por ${r.canal === "whatsapp" ? "WhatsApp" : "correo"} a ${r.destino}. ` +
+          "Sirve una sola vez y vence en 48 horas."
+      );
+      setFirmando(false);
+      setPreparado(null);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setEnviandoEnlace(false);
+    }
+  };
+
   const firmar = async () => {
     if (!preparado) return;
     setOcupado(true);
     try {
-      // La firma real se dibuja en pantalla; acá se guarda el trazo como
-      // PNG. Mientras no haya tablet conectada, el gesto de "firmar"
-      // produce un trazo mínimo válido y queda registrado quién firmó y
-      // cuándo — lo que NO se hace es guardar un consentimiento sin
-      // firma, que parecería firmado sin estarlo.
-      await expedienteApi.firmarConsentimiento(pacienteId, {
+      // EL TRAZO QUE DIBUJÓ EL CLIENTE, no una imagen fija. El
+      // dispositivo, la IP, la hora y el testigo los pone el servidor:
+      // si viajaran desde acá, serían cuatro datos que el navegador
+      // puede inventar.
+      if (!firmaPng) {
+        toast.error("Falta la firma del cliente.");
+        return;
+      }
+      const r = await expedienteApi.firmarConsentimiento(pacienteId, {
         plantillaId: elegida,
         titulo: preparado.titulo,
         texto: preparado.texto,
         firmanteNombre: firmante.nombre,
         firmanteIdentificacion: firmante.identificacion || undefined,
-        firmaPng: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP8z8AAAwAB/epDOgAAAABJRU5ErkJggg==",
+        firmaPng,
+        relacion,
+        autorizadoPor: relacion === "autorizado" ? autorizadoPor : undefined,
       });
-      toast.exito("Firmado. Queda en el expediente y no se puede modificar.");
+      toast.exito(
+        r.envio?.enviado
+          ? "Firmado. Queda en el expediente y se le mandó el PDF al cliente."
+          : `Firmado. Queda en el expediente.${r.envio?.motivo ? ` No se le pudo mandar el PDF: ${r.envio.motivo}` : ""}`
+      );
       setFirmando(false);
       setPreparado(null);
-      setFirmaTrazada(false);
+      setFirmaPng(null);
+      setRelacion("propietario");
+      setAutorizadoPor("");
       recargar();
       onCambio();
     } catch (err) {
@@ -1520,13 +1566,50 @@ function Consentimientos({
               <div>
                 <CardTitle>{c.titulo}</CardTitle>
                 <p className="text-xs text-text-muted">
-                  firmado por {c.firmante_nombre} el {fechaCorta(c.firmado_en)}
+                  firmado por {c.firmante_nombre}
+                  {c.firmante_relacion === "autorizado" ? " (autorizado)" : ""} el{" "}
+                  {fechaCorta(c.firmado_en)}
                   {c.testigo ? ` · testigo: ${c.testigo}` : ""}
+                  {c.firmado_a_distancia ? " · firmado a distancia" : ""}
                 </p>
+                {/* LO QUE NO SE PUEDE ESCONDER. Los consentimientos
+                    firmados antes del arreglo del 2026-11-27 llevan una
+                    imagen de relleno en lugar del trazo del cliente: la
+                    conversación existió, la firma no. Decirlo es lo que
+                    permite volver a pedirla. */}
+                {!c.firma_valida && (
+                  <p className="mt-1 text-xs text-warning">
+                    {c.firma_invalida_motivo ??
+                      "Este consentimiento no tiene una firma verificable."}{" "}
+                    Conviene volver a firmarlo.
+                  </p>
+                )}
               </div>
-              <Badge variant="success" dot>
-                firmado
-              </Badge>
+              <div className="flex items-center gap-2">
+                {c.firma_valida ? (
+                  <Badge variant="success" dot>
+                    firmado
+                  </Badge>
+                ) : (
+                  <Badge variant="warning" dot>
+                    sin firma válida
+                  </Badge>
+                )}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      const { blob } = await expedienteApi.consentimientoPdf(c.id);
+                      guardarComoArchivo(blob, `consentimiento-${c.titulo}.pdf`);
+                    } catch (err) {
+                      toast.error((err as Error).message);
+                    }
+                  }}
+                >
+                  PDF
+                </Button>
+              </div>
             </div>
           </Card>
         ))
@@ -1542,8 +1625,17 @@ function Consentimientos({
             <Button variant="secondary" onClick={() => setFirmando(false)}>
               Cancelar
             </Button>
+            {/* FIRMA A DISTANCIA: el dueño no está en el mostrador. Se
+                le manda un enlace de un solo uso con un código. */}
             <Button
-              disabled={ocupado || !preparado || !firmante.nombre.trim() || !firmaTrazada}
+              variant="secondary"
+              disabled={ocupado || !preparado || enviandoEnlace}
+              onClick={pedirADistancia}
+            >
+              {enviandoEnlace ? "Mandando…" : "Mandarle el enlace para firmar"}
+            </Button>
+            <Button
+              disabled={ocupado || !preparado || !firmante.nombre.trim() || !firmaPng}
               onClick={firmar}
             >
               Firmar
@@ -1596,20 +1688,61 @@ function Consentimientos({
                   onChange={(e) => setFirmante({ ...firmante, identificacion: e.target.value })}
                 />
               </div>
-              <button
-                type="button"
-                onClick={() => setFirmaTrazada(true)}
-                className={[
-                  "w-full rounded-lg border-2 border-dashed p-6 text-sm",
-                  firmaTrazada
-                    ? "border-success bg-success/10 text-text-primary"
-                    : "border-black/20 text-text-muted",
-                ].join(" ")}
-              >
-                {firmaTrazada
-                  ? "Firma tomada. Se guarda junto al texto."
-                  : "Firmá acá (tocá para firmar en la tablet o el celular)"}
-              </button>
+              {/* LA FIRMA DE VERDAD (defecto reportado el 2026-11-27).
+
+                  Acá había un botón que, al tocarlo, marcaba
+                  `firmaTrazada` y hacía que `firmar()` mandara un PNG
+                  fijo de 1×1 píxel. Ahora se dibuja, y lo que se manda
+                  es ese trazo. El servidor además lo comprueba: cuenta
+                  los píxeles con tinta y rechaza un recuadro vacío. */}
+              {firmaPng ? (
+                <div className="rounded-lg border border-success/40 bg-success/10 p-3">
+                  <p className="text-sm font-semibold text-text-primary">Firma tomada</p>
+                  <img
+                    src={firmaPng}
+                    alt="Firma del cliente"
+                    className="mt-2 max-h-28 bg-white"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => setFirmaPng(null)}
+                  >
+                    Volver a firmar
+                  </Button>
+                </div>
+              ) : (
+                <PanelFirma
+                  etiqueta={`Firma de ${firmante.nombre || "quien autoriza"}`}
+                  onFirmar={(dataUrl) => setFirmaPng(dataUrl)}
+                  deshabilitado={ocupado}
+                />
+              )}
+
+              {/* LA RELACIÓN CON EL PACIENTE es evidencia: «Juan Pérez»
+                  no dice si podía firmar. */}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Select
+                  name="consent-relacion"
+                  label="Quién firma, respecto del paciente"
+                  value={relacion}
+                  onChange={(e) => setRelacion(e.target.value as typeof relacion)}
+                  options={[
+                    { value: "propietario", label: "El propietario" },
+                    { value: "autorizado", label: "Una persona autorizada por el propietario" },
+                  ]}
+                />
+                {relacion === "autorizado" && (
+                  <Input
+                    name="consent-autorizado-por"
+                    label="Autorizado por"
+                    value={autorizadoPor}
+                    onChange={(e) => setAutorizadoPor(e.target.value)}
+                    placeholder="nombre del propietario"
+                  />
+                )}
+              </div>
             </>
           )}
         </div>

@@ -247,10 +247,40 @@ export const expedienteApi = {
         firmante_identificacion: string | null;
         firmado_en: string;
         testigo: string | null;
+        /** false en los firmados con la imagen de relleno (ver migración 167). */
+        firma_valida: boolean;
+        firma_invalida_motivo: string | null;
+        firmado_a_distancia: boolean;
+        firmante_relacion: string | null;
+        /** Si tiene huella y por lo tanto se puede comprobar su integridad. */
+        verificable: boolean;
       }>;
     }>(`/expediente/pacientes/${pacienteId}/consentimientos`),
   firmarConsentimiento: (pacienteId: string, d: Record<string, unknown>) =>
-    json<{ id: string }>(`/expediente/pacientes/${pacienteId}/consentimientos`, "POST", d),
+    json<{
+      id: string;
+      huella: string;
+      /** Si el PDF se le pudo mandar al cliente, y si no, por qué. */
+      envio?: { enviado: boolean; motivo?: string };
+    }>(`/expediente/pacientes/${pacienteId}/consentimientos`, "POST", d),
+
+  /** El PDF del consentimiento firmado, con la evidencia y la huella. */
+  consentimientoPdf: (id: string) =>
+    apiFetchFile(`/expediente/consentimientos/${id}/pdf`, { token: getStoredToken() }),
+
+  /**
+   * Le manda al cliente el enlace para firmar desde su teléfono.
+   *
+   * NO devuelve el enlace: el que tiene que abrirlo es el cliente, por
+   * su canal. Devolverlo acá invitaría a abrirlo desde el mostrador y
+   * firmar por él, que es lo que la firma a distancia evita.
+   */
+  firmaADistancia: (pacienteId: string, d: Record<string, unknown>) =>
+    json<{ id: string; canal: string; destino: string; vence: string }>(
+      `/expediente/pacientes/${pacienteId}/consentimientos/a-distancia`,
+      "POST",
+      d
+    ),
 
   // --- Anexo del 07 -------------------------------------------------
 

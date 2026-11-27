@@ -103,6 +103,9 @@ export async function pedirFirmaADistancia(
     finalidad: "salud",
     tipo: "consentimiento_a_firmar",
     canal: s.canal,
+    // El cliente está esperando este enlace: la clínica lo acaba de
+    // llamar. Saltea la franja horaria, no el consentimiento.
+    urgente: true,
   });
   if (!veredicto.puede) {
     throw new ConsentimientoInvalido(

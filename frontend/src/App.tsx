@@ -23,6 +23,7 @@ import { CuentaCorriente } from "./pages/ventas/CuentaCorriente";
 import { Encargos } from "./pages/ventas/Encargos";
 import { ReportesVentas } from "./pages/ventas/ReportesVentas";
 import { Dashboards } from "./pages/reportes/Dashboards";
+import { FirmarADistancia } from "./pages/FirmarADistancia";
 import { ListaDeMetrica } from "./pages/reportes/ListaDeMetrica";
 import { ConsumoDeProductoPagina } from "./pages/inventario/ConsumoDeProductoPagina";
 import { ConfiguracionCaja } from "./pages/ventas/ConfiguracionCaja";
@@ -552,6 +553,11 @@ export default function App() {
           }
         />
       </Route>
+
+      {/* FIRMA A DISTANCIA — SIN SESIÓN. Deliberadamente fuera de
+          `ProtectedRoute`: la autorización es el token del enlace, que
+          vence y sirve una sola vez. Ver el encabezado de la página. */}
+      <Route path="/firmar/:token" element={<FirmarADistancia />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

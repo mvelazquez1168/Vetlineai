@@ -1,4 +1,5 @@
 import zlib from "zlib";
+import { medidasDeImagen } from "../marca/marcaClinica";
 
 // ---------------------------------------------------------------------
 // ¿ESTO ES UNA FIRMA, O UN PÍXEL?
@@ -155,8 +156,16 @@ export function analizarFirma(dataUrl: string): AnalisisDeFirma {
   }
 
   const buf = Buffer.from(dataUrl.slice(coma + 1), "base64");
-  const png = leerPng(buf);
-  if (!png) {
+
+  // EL TAMAÑO SE MIRA PRIMERO, con la cabecera y sin descomprimir nada.
+  //
+  // No es una optimización: el PNG de relleno de 1×1 no se podía
+  // inflar y el mensaje salía «no se pudo leer la imagen», que manda a
+  // buscar un problema de formato cuando el problema es que mide un
+  // píxel. El verificador lo cazó. Con las medidas primero, el motivo
+  // es el verdadero.
+  const medidas = medidasDeImagen(buf);
+  if (!medidas) {
     return {
       valida: false,
       motivo: "No se pudo leer la imagen de la firma.",
@@ -165,13 +174,23 @@ export function analizarFirma(dataUrl: string): AnalisisDeFirma {
       tinta: 0,
     };
   }
-
-  if (png.ancho < MINIMO.ancho || png.alto < MINIMO.alto) {
+  if (medidas.ancho < MINIMO.ancho || medidas.alto < MINIMO.alto) {
     return {
       valida: false,
-      motivo: `La firma mide ${png.ancho}×${png.alto} y hace falta al menos ${MINIMO.ancho}×${MINIMO.alto}. Una imagen de ese tamaño no puede contener un trazo.`,
-      ancho: png.ancho,
-      alto: png.alto,
+      motivo: `La firma mide ${medidas.ancho}×${medidas.alto} y hace falta al menos ${MINIMO.ancho}×${MINIMO.alto}: una imagen de ese tamaño no puede contener un trazo.`,
+      ancho: medidas.ancho,
+      alto: medidas.alto,
+      tinta: 0,
+    };
+  }
+
+  const png = leerPng(buf);
+  if (!png) {
+    return {
+      valida: false,
+      motivo: "No se pudo leer el contenido de la firma.",
+      ancho: medidas.ancho,
+      alto: medidas.alto,
       tinta: 0,
     };
   }

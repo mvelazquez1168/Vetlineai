@@ -346,6 +346,23 @@ export interface SolicitudEnvio {
   tipo: string;
   /** Para probar la franja horaria sin esperar a mañana. */
   ahora?: Date;
+  /**
+   * LO QUE EL CLIENTE ESTÁ ESPERANDO EN ESTE MOMENTO.
+   *
+   * Saltea **solo la franja horaria**, nunca el consentimiento ni el
+   * dato de contacto.
+   *
+   * POR QUÉ EXISTE, y es un defecto que encontró el verificador de
+   * firmas: la franja 08:00–20:00 es para no molestar a nadie con
+   * recordatorios ni promociones. Pero el enlace para firmar el
+   * consentimiento de una cirugía de urgencia se manda justo cuando la
+   * clínica acaba de llamar al dueño, que puede ser a las once de la
+   * noche: reprogramarlo para las 8:00 de mañana es no mandarlo, porque
+   * la cirugía es ahora.
+   *
+   * No se usa para nada que la clínica decida mandar por su cuenta.
+   */
+  urgente?: boolean;
 }
 
 /**
@@ -572,6 +589,12 @@ async function evaluarCanal(
   // 6. LA FRANJA HORARIA. Acá no se bloquea: se reprograma. Un
   //    recordatorio de la cita de mañana que se descarta porque son las
   //    21:05 es un recordatorio perdido; a las 8:00 sirve igual.
+  //
+  //    SALVO LO URGENTE: ver `SolicitudEnvio.urgente`. Un enlace para
+  //    firmar el consentimiento de una cirugía que es ahora no se
+  //    reprograma para mañana.
+  if (s.urgente) return { puede: true, canal, destino };
+
   const ahora = s.ahora ?? new Date();
   const desde = pref.horaDesde ?? pol.horaDesde;
   const hasta = pref.horaHasta ?? pol.horaHasta;

@@ -40,6 +40,11 @@ import { DocumentoVenta } from "../facturacion/tipos";
 import { recibirComprobante, emitirMensajeReceptor, listarRecibidos } from "../facturacion/recibidos";
 import { lineasParaVincular, registrarCompraDesdeXml } from "../facturacion/compraDesdeXml";
 import {
+  bitacoraDeEnvios,
+  escribirZip,
+  xmlDelPeriodo,
+} from "../facturacion/descargaMasiva";
+import {
   actividadesDelEmisor,
   guardarReglaDeActividad,
   reglasDeActividad,
@@ -1061,6 +1066,66 @@ facturacionCrRouter.post("/comprobantes/:id/reenviar", async (req, res) => {
 // ---------------------------------------------------------------------
 // LA ENTRADA A INVENTARIO DESDE EL XML DEL PROVEEDOR — prompt 09b, B2.
 // ---------------------------------------------------------------------
+/**
+ * El zip del período para el contador — prompt 09b, B2.
+ *
+ * Se escribe sobre la respuesta mientras se genera: un mes de una
+ * clínica mediana son cientos de XML y armarlo entero en memoria antes
+ * de responder usa esa memoria por cada descarga simultánea.
+ */
+facturacionCrRouter.get("/descarga-masiva", async (req, res) => {
+  const desde = String(req.query.desde ?? "");
+  const hasta = String(req.query.hasta ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta)) {
+    return res.status(400).json({ error: "Hay que decir desde y hasta, con fechas AAAA-MM-DD." });
+  }
+  try {
+    const { emitidos, recibidos } = await xmlDelPeriodo(
+      req.db!,
+      req.auth!.tenantId!,
+      desde,
+      hasta
+    );
+    const todos = [...emitidos, ...recibidos];
+    if (todos.length === 0) {
+      // UN ZIP VACÍO SE LEE COMO UN ERROR DEL SISTEMA. Mejor decirlo.
+      return res.status(404).json({
+        error: `No hay comprobantes emitidos ni recibidos entre el ${desde} y el ${hasta}.`,
+      });
+    }
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="comprobantes-${desde}-a-${hasta}.zip"`
+    );
+    await escribirZip(res, todos);
+  } catch (err) {
+    console.error("GET /facturacion/descarga-masiva", err);
+    // Si el zip ya empezó a escribirse no se puede mandar un JSON de
+    // error: la respuesta se corta y el navegador muestra el archivo
+    // incompleto. Por eso solo se contesta cuando no se envió nada.
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Error al armar la descarga." });
+    } else {
+      res.end();
+    }
+  }
+});
+
+facturacionCrRouter.get("/bitacora-envios", async (req, res) => {
+  const desde = String(req.query.desde ?? "");
+  const hasta = String(req.query.hasta ?? "");
+  if (!desde || !hasta) {
+    return res.status(400).json({ error: "Hay que decir desde y hasta." });
+  }
+  try {
+    res.json({ envios: await bitacoraDeEnvios(req.db!, req.auth!.tenantId!, desde, hasta) });
+  } catch (err) {
+    console.error("GET /facturacion/bitacora-envios", err);
+    res.status(500).json({ error: "Error al leer la bitácora de envíos." });
+  }
+});
+
 facturacionCrRouter.get("/recibidos/:id/lineas", async (req, res) => {
   try {
     res.json(await lineasParaVincular(req.db!, req.params.id));

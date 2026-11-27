@@ -38,7 +38,16 @@ type EjecutorSql = Pool | PoolClient;
  * de oportunidades: son piezas del CRM, no módulos aparte (guía rectora
  * §7). Se llamaba `campanas` y el nombre describía la parte, no el todo.
  */
-export const MODULOS = ["expediente", "inventario", "ventas", "facturacion", "crm"] as const;
+// `finanzas` lo agrega el prompt 10a. El prompt decía que lo agregaba el
+// 04, y el 04 no lo menciona: se creó donde se usa (migración 149).
+export const MODULOS = [
+  "expediente",
+  "inventario",
+  "ventas",
+  "facturacion",
+  "crm",
+  "finanzas",
+] as const;
 
 export type Modulo = (typeof MODULOS)[number];
 
@@ -59,6 +68,7 @@ export const ETIQUETA_MODULO: Record<Modulo, string> = {
   ventas: "Ventas y caja",
   facturacion: "Facturación electrónica",
   crm: "CRM y fidelización",
+  finanzas: "Finanzas y cuentas",
 };
 
 /**

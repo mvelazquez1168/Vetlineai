@@ -139,10 +139,18 @@ export async function emitirNotificacion<T extends TipoCorreo>(
     }
   }
 
+  // EL CANAL QUE DE VERDAD SE VA A USAR (prompt 10a).
+  //
+  // DEFECTO QUE ESTO CIERRA: esta columna existe desde el 03 con un
+  // CHECK de un solo valor ('correo') y el INSERT no la escribía nunca.
+  // Desde que el anexo 07-03 despacha por WhatsApp, **todo aviso enviado
+  // por WhatsApp quedó registrado como «correo»**: la columna decía algo
+  // que no era cierto. La migración 153 extiende el CHECK y acá se
+  // escribe lo que se va a usar.
   const insertado = await db.query(
     `INSERT INTO notificaciones
-       (tenant_id, tipo, destinatario_tipo, destinatario_id, caso_id, paciente_id, cita_id, cuidado_preventivo_id, asunto, contenido)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       (tenant_id, tipo, destinatario_tipo, destinatario_id, caso_id, paciente_id, cita_id, cuidado_preventivo_id, asunto, contenido, canal)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING id`,
     [
       params.tenantId,
@@ -155,6 +163,7 @@ export async function emitirNotificacion<T extends TipoCorreo>(
       params.cuidadoPreventivoId ?? null,
       params.asunto,
       params.contenido,
+      canalElegido,
     ]
   );
   const notificacionId = insertado.rows[0].id as string;

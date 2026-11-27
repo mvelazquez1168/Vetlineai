@@ -50,6 +50,8 @@ export type TipoInteraccion =
   | "estudio_laboratorio"
   | "grooming"
   | "consentimiento_firmado"
+  /* Cobranza amable (prompt 10a, §4): le recordamos el saldo. */
+  | "recordatorio_saldo"
   | "caso_abierto"
   | "caso_cerrado"
   | "comprobante_emitido"

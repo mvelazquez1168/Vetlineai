@@ -32,6 +32,7 @@ import { expedienteRouter } from "./routes/expediente.routes";
 import { facturacionCrRouter } from "./routes/facturacionCr.routes";
 import { inventarioRouter } from "./routes/inventario.routes";
 import { ventasRouter } from "./routes/ventas.routes";
+import { finanzasRouter } from "./routes/finanzas.routes";
 import { busquedaRouter } from "./routes/busqueda.routes";
 import { farmacosRouter } from "./routes/farmacos.routes";
 import { horariosRouter } from "./routes/horarios.routes";
@@ -185,6 +186,10 @@ app.use("/api/clinica", clinicaRouter);
 app.use("/api/inicio", inicioRouter);
 app.use("/api/inventario", inventarioRouter);
 app.use("/api/ventas", ventasRouter);
+// Finanzas (prompt 10a): lo que la clínica debe, lo que paga, sus gastos
+// y el cierre del día. Detrás del módulo `finanzas` y del permiso
+// `finanzas.ver`.
+app.use("/api/finanzas", finanzasRouter);
 // Busqueda global de la paleta de comandos (Ctrl/Cmd+K).
 app.use("/api/busqueda", busquedaRouter);
 app.use("/api/lista-espera", listaEsperaRouter);

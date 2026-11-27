@@ -37,6 +37,9 @@ import type { TipoCorreo } from "./correos";
 // habla de nuestro servicio. Decisión explícita del usuario, no un
 // descarte por defecto.
 export const TIPOS_MARCA_COMERCIO: ReadonlySet<TipoCorreo> = new Set<TipoCorreo>([
+  // El recordatorio de saldo lo manda la clínica, no la plataforma
+  // (prompt 10a): el cliente le debe a su veterinaria.
+  "recordatorio_saldo",
   "recordatorio_cita",
   "confirmacion_cita",
   "cita_cancelada_o_reprogramada",

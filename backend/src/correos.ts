@@ -49,7 +49,8 @@ export type TipoCorreo =
   | "restablecimiento_contrasena"
   | "contrasena_cambiada"
   | "comprobante_electronico"
-  | "receta_emitida";
+  | "receta_emitida"
+  | "recordatorio_saldo";
 
 export interface DatosPlantilla {
   invitacion_medico: { nombreClinica: string; enlace: string; vigenciaDias: number; nombreMedico?: string | null };
@@ -118,6 +119,17 @@ export interface DatosPlantilla {
     estadoHacienda: string;
   };
   cumpleanos: { nombrePaciente: string };
+  // EL RECORDATORIO DE SALDO (prompt 10a, §4). Cobranza amable: dice
+  // cuánto y desde cuándo, y no amenaza. Un recordatorio que amenaza al
+  // cliente de una veterinaria le cuesta a la clínica el cliente y la
+  // mascota.
+  recordatorio_saldo: {
+    saldo: string;
+    moneda: string;
+    facturas: number;
+    masAntigua: string | null;
+    mensajeDeLaClinica: string | null;
+  };
   saldo_proveedor_bajo: { saldoUsd: number; umbralUsd: number };
   restablecimiento_contrasena: { nombre: string | null; enlace: string; vigenciaMinutos: number };
   contrasena_cambiada: { nombre: string | null; fecha: string };
@@ -552,6 +564,27 @@ Estado en Hacienda: ${d.estadoHacienda}
     // puramente comercial de los diez. Tono cálido y breve a propósito, SIN
     // ningún llamado a agendar ni mención de servicios: un saludo que
     // intenta vender pierde el efecto que lo justifica.
+    case "recordatorio_saldo": {
+      const d = datos as DatosPlantilla["recordatorio_saldo"];
+      const cuerpo =
+        `<p>Te escribimos para recordarte que tenés un saldo pendiente de ` +
+        `<strong>${d.moneda} ${d.saldo}</strong>` +
+        (d.facturas > 1 ? ` en ${d.facturas} facturas` : "") +
+        (d.masAntigua ? `, la más antigua del ${d.masAntigua}` : "") +
+        `.</p>` +
+        (d.mensajeDeLaClinica ? `<p>${esc(d.mensajeDeLaClinica)}</p>` : "") +
+        `<p>Si ya lo pagaste o si querés arreglar una forma de pago, escribinos y lo vemos: ` +
+        `avisanos y lo revisamos juntos.</p>`;
+      return {
+        asunto: `Saldo pendiente — ${d.moneda} ${d.saldo}`,
+        texto:
+          `Tenés un saldo pendiente de ${d.moneda} ${d.saldo}` +
+          (d.facturas > 1 ? ` en ${d.facturas} facturas` : "") +
+          (d.masAntigua ? `, la más antigua del ${d.masAntigua}` : "") +
+          `. Si ya lo pagaste o querés arreglar una forma de pago, escribinos.`,
+        html: envolverLayoutInformativo("Saldo pendiente", cuerpo),
+      };
+    }
     case "cumpleanos": {
       const d = datos as DatosPlantilla["cumpleanos"];
       const cuerpo = `<p>¡Feliz cumpleaños, ${d.nombrePaciente}! 🎉 Todo el equipo te manda un saludo muy cariñoso.</p>`;

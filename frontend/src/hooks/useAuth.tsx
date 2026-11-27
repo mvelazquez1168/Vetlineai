@@ -66,7 +66,14 @@ export function misRoles(user: Pick<AuthUser, "tenantId" | "rol" | "esAdminClini
  * `crm` cubre campañas, recordatorios comerciales y oportunidades: son
  * piezas del CRM, no módulos aparte (guía rectora §7).
  */
-export type Modulo = "expediente" | "inventario" | "ventas" | "facturacion" | "crm";
+export type Modulo =
+  | "expediente"
+  | "inventario"
+  | "ventas"
+  | "facturacion"
+  | "crm"
+  /** Finanzas y cuentas (prompt 10a). */
+  | "finanzas";
 
 interface AuthContextValue {
   user: AuthUser | null;

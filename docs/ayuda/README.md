@@ -50,6 +50,14 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | [Descuentos: topes y motivos](descuentos.md) | Hasta cuánto puede descontar cada quien, por qué motivo, y qué código lleva el comprobante. |
 | [La actividad económica del comprobante](actividad-economica.md) | Por qué una factura declara una sola actividad y qué hacer con una cuenta mixta. |
 
+## La administración de la clínica
+
+| Página | De qué trata |
+|---|---|
+| [El personal de la clínica y lo que puede hacer cada uno](personal-y-roles.md) | Los ocho roles, invitar con roles, cambiar roles y que alguien deje de entrar. |
+| [El horario de la clínica, los feriados y los tipos de cita](horario-y-feriados.md) | Cuándo abre la clínica, qué bloquea la agenda y cómo se cita fuera de horario. |
+| [Las políticas de la clínica](politicas-de-la-clinica.md) | Los topes y las decisiones que cada clínica toma distinto, con su historial. |
+
 ## El dictado por voz
 
 | Página | De qué trata |
@@ -62,9 +70,10 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 ## Lo que todavía no está en este manual
 
 Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la atención), las del
-**07d** (el dictado por voz), las del **anexo 07-03** (el paciente, el cliente y los duplicados) y
+**07d** (el dictado por voz), las del **anexo 07-03** (el paciente, el cliente y los duplicados),
 las del **08b/09b** (presupuestos, cierre de caja, descuentos, facturas de proveedores y actividad
-económica). Faltan las del resto de caja, inventario, agenda y administración, que se irán sumando.
+económica) y las del **04** (personal y roles, horario y feriados, políticas). Faltan las del resto
+de caja, inventario y agenda, que se irán sumando.
 
 El manual consolidado en PDF y Word, con el logo de la clínica, se genera **al cierre de cada
 bloque**, no en cada entrega.

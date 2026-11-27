@@ -197,9 +197,10 @@ function authedFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const pacientesApi = {
-  listar: (q: string, pagina: number) => {
+  listar: (q: string, pagina: number, soloIncompletas = false) => {
     const params = new URLSearchParams({ pagina: String(pagina) });
     if (q) params.set("q", q);
+    if (soloIncompletas) params.set("incompletas", "1");
     return authedFetch<{
       pacientes: PacienteListado[];
       total: number;

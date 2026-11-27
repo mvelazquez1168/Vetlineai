@@ -30,6 +30,15 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | [Estudios de laboratorio](atencion-estudios.md) | Pedir un estudio desde la consulta, acá o en un laboratorio externo. |
 | [Cerrar la atención](atencion-cierre.md) | Lo que pasa al firmar: los cargos, el inventario, los avisos y la receta. |
 | [Registrar algo histórico](registro-historico.md) | Una vacuna puesta antes de usar el sistema, o en otra clínica. |
+| [La consulta se guarda sola](atencion-autoguardado.md) | El autoguardado, qué pasa sin internet y qué pasa si otra sesión tiene la atención abierta. |
+
+## El paciente y el cliente
+
+| Página | De qué trata |
+|---|---|
+| [Dar de alta un paciente, completar su ficha y darlo de baja](paciente-datos-y-baja.md) | El alta completa y la rápida, la ficha por completar, y la baja con su motivo. |
+| [El cliente: sus datos, cómo nos conoció y por dónde se le escribe](clientes-datos-y-contacto.md) | Identificación con autocompletar, fuente de referencia, canal preferido y consentimientos. |
+| [Clientes y mascotas repetidos](clientes-duplicados.md) | Unificar fichas duplicadas sin perder la historia de ninguna de las dos. |
 
 ## El dictado por voz
 
@@ -42,9 +51,10 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 
 ## Lo que todavía no está en este manual
 
-Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la atención) y las del
-**07d** (el dictado por voz). Faltan las de caja, inventario, facturación electrónica, agenda y
-administración, que se irán sumando.
+Las páginas se agregan con cada entrega. Hoy están las del **prompt 07c** (la atención), las del
+**07d** (el dictado por voz) y las del **anexo 07-03** (el paciente, el cliente y los duplicados).
+Faltan las de caja, inventario, facturación electrónica, agenda y administración, que se irán
+sumando.
 
 El manual consolidado en PDF y Word, con el logo de la clínica, se genera **al cierre de cada
 bloque**, no en cada entrega.

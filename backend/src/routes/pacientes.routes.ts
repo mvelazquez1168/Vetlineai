@@ -161,16 +161,29 @@ pacientesRouter.get("/", async (req, res) => {
   const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
   const pagina = Math.max(1, parseInt(String(req.query.pagina ?? "1"), 10) || 1);
 
+  // SOLO LAS FICHAS POR COMPLETAR (anexo 07-03, A5).
+  //
+  // La etiqueta sola no alcanza: en un fichero de cuatrocientos
+  // pacientes, encontrar las quince que están a medias scrolleando es
+  // un trabajo que nadie hace. El criterio es el mismo de la etiqueta
+  // —la función de la migración 121— y no una copia: si fueran dos
+  // consultas distintas, el filtro mostraría fichas sin etiqueta.
+  const soloIncompletas = req.query.incompletas === "1";
+  const porCompletar = soloIncompletas
+    ? ` AND cardinality(pacientes_datos_basicos_faltantes(p.especie, NULL, p.raza_id, p.sexo,
+            p.estado_reproductivo, p.fecha_nacimiento, p.edad_anios)) > 0`
+    : "";
+
   // EL EXPEDIENTE ABSORBIDO NO ESTÁ EN EL FICHERO (anexo 07-03, B1), y
   // su número viejo encuentra al que sobrevivió. El filtro va en las dos
   // ramas porque el fichero sin búsqueda es el que más se mira.
   const condicion = q
-    ? `WHERE p.unificado_hacia_id IS NULL
+    ? `WHERE p.unificado_hacia_id IS NULL${porCompletar}
          AND (p.nombre ILIKE '%' || $1 || '%'
         OR p.numero_expediente::text = $1
         OR $1 = ANY(p.numero_expediente_alias)
         OR prop.nombre ILIKE '%' || $1 || '%')`
-    : "WHERE p.unificado_hacia_id IS NULL";
+    : `WHERE p.unificado_hacia_id IS NULL${porCompletar}`;
   const params = q ? [q] : [];
 
   try {

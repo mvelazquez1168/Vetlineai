@@ -25,6 +25,9 @@ papel que se entrega en el mostrador.
 2. En **Lo realizado**, clic en **Receta** (atajo **Alt+R**).
 3. Para cada indicación:
    - Elija el origen: **Del inventario** (lo que la clínica vende) o **Texto libre** (lo que no).
+   - Si el producto del inventario tiene cargada su **posología sugerida**, la dosis, la vía, la
+     frecuencia y la duración **se llenan solas** al elegir la presentación. Es una sugerencia
+     editable: el médico la cambia y lo que vale es lo que quede escrito.
    - **Dosis** y **unidad**. Si la dosis es por kilo, deje marcado *La dosis es por kilo*: el
      sistema la multiplica por el peso y le muestra la cuenta completa mientras escribe.
    - **Vía**, **frecuencia** y **duración**.
@@ -34,6 +37,20 @@ papel que se entrega en el mostrador.
 4. Repita para la segunda indicación.
 5. **Imprimir** baja el PDF, y **Enviar al propietario** se lo manda por correo con el PDF
    adjunto.
+
+### Con qué peso se calculó
+
+Al lado de la cuenta dice **de dónde salió el peso**, y son tres cosas distintas:
+
+- **el que acaba de dictar** —si viene de dictar la consulta—;
+- **el de la consulta de hoy** —el que escribió en *Objetivo*—;
+- **el de la última visita**, con la fecha.
+
+Si el peso tiene **más de 90 días**, aparece un aviso. No bloquea nada: un cachorro de marzo no
+pesa lo mismo en agosto, y quien decide si sirve es el médico.
+
+El panel de la receta y el borrador del dictado usan **el mismo peso**: no puede pasar que la
+pantalla muestre un número y el dictado calcule con otro.
 
 ### Repetir una receta anterior
 
@@ -88,6 +105,11 @@ registrado igual, para que nadie crea que se envió.
 
 **No quiero cobrar lo que receté.**
 Desmarque *Se dispensa en la clínica*. Sin esa marca, la línea es solo la indicación.
+
+**Cargué la posología en el producto y no se completa sola.**
+La posología se carga en **Inventario** › el producto › sección *Posología sugerida*. Si el
+producto tiene la dosis por kilo y la dosis fija a la vez, el sistema guarda una sola: son dos
+formas de decir la misma cosa y no pueden convivir.
 
 **¿Puedo recetar algo que la clínica no vende?**
 Sí: elija **Texto libre** y escriba el nombre. Esas líneas nunca se cobran.

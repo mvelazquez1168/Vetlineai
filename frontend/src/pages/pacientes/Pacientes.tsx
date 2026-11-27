@@ -54,12 +54,16 @@ export function Pacientes() {
   // crear un paciente obligaba a abrir un caso clínico o una cita.
   const [altaAbierta, setAltaAbierta] = useState(false);
   const [recargar, setRecargar] = useState(0);
+  // El filtro de las fichas a medias (anexo 07-03, A5). La etiqueta sola
+  // no alcanza: en un fichero de cuatrocientos pacientes, encontrar las
+  // quince incompletas scrolleando es un trabajo que nadie hace.
+  const [soloIncompletas, setSoloIncompletas] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(true);
       pacientesApi
-        .listar(q, pagina)
+        .listar(q, pagina, soloIncompletas)
         .then((data) => {
           setPacientes(data.pacientes);
           setTotal(data.total);
@@ -68,7 +72,7 @@ export function Pacientes() {
         .finally(() => setIsLoading(false));
     }, 300);
     return () => clearTimeout(timer);
-  }, [q, pagina, recargar]);
+  }, [q, pagina, recargar, soloIncompletas]);
 
   const columns: TableColumn<PacienteListado>[] = [
     {
@@ -174,15 +178,29 @@ export function Pacientes() {
         }
       />
 
-      <div className="mt-6 max-w-md">
-        <Input
-          placeholder="Buscar paciente…"
-          value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setPagina(1);
-          }}
-        />
+      <div className="mt-6 flex flex-wrap items-center gap-4">
+        <div className="max-w-md flex-1">
+          <Input
+            placeholder="Buscar paciente…"
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setPagina(1);
+            }}
+          />
+        </div>
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-text-primary">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded border-black/20"
+            checked={soloIncompletas}
+            onChange={(e) => {
+              setSoloIncompletas(e.target.checked);
+              setPagina(1);
+            }}
+          />
+          Solo las fichas por completar
+        </label>
       </div>
 
       <div className="mt-6">
@@ -191,11 +209,19 @@ export function Pacientes() {
         ) : pacientes.length === 0 ? (
           <EmptyState
             icono="paciente"
-            titulo={q ? "Ningún paciente coincide con la búsqueda" : "Todavía no hay pacientes"}
+            titulo={
+              soloIncompletas
+                ? "Ninguna ficha está por completar"
+                : q
+                  ? "Ningún paciente coincide con la búsqueda"
+                  : "Todavía no hay pacientes"
+            }
             texto={
-              q
-                ? "Probá con el nombre del paciente, su número de expediente o el nombre del propietario."
-                : "Los pacientes se dan de alta al crear un caso o al agendar una cita, y aparecen acá."
+              soloIncompletas
+                ? "Todas tienen especie, raza, sexo, estado reproductivo y edad o fecha de nacimiento."
+                : q
+                  ? "Probá con el nombre del paciente, su número de expediente o el nombre del propietario."
+                  : "Los pacientes se dan de alta desde «+ Nuevo paciente», al crear un caso o al agendar una cita."
             }
           />
         ) : (

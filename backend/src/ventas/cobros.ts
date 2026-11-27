@@ -5,6 +5,7 @@ import { emitir } from "../facturacion/emision";
 import { DocumentoVenta } from "../facturacion/tipos";
 import { tipoDeCambioDelDia } from "./caja";
 import { lineasParaFacturar, totalDeCuenta } from "./cuentas";
+import { comisionVigente, costoDelCobro, MEDIO_TARJETA } from "./comisionesTarjeta";
 import { Deudor, aplicarAnticipos, deudorCliente, saldoAFavor } from "./credito";
 import { EleccionReceptor, resolverReceptor } from "../facturacion/perfilesFacturacion";
 
@@ -34,6 +35,20 @@ import { EleccionReceptor, resolverReceptor } from "../facturacion/perfilesFactu
 export interface MedioCobro {
   /** Código de Hacienda (Nota 6) o `anticipo`/`credito`. */
   medio: string;
+  /**
+   * EL BANCO Y EL TIPO DE TARJETA (prompt 08b, A4).
+   *
+   * Sin esto no hay forma de saber cuánto se queda el banco: la comisión
+   * es distinta por banco y por débito o crédito, y es el costo
+   * financiero que la rentabilidad del 10 necesita.
+   *
+   * Opcionales a propósito: una clínica que no cargó sus comisiones
+   * sigue cobrando con tarjeta igual, y el cobro queda sin el dato en
+   * vez de no poder hacerse.
+   */
+  banco?: string | null;
+  tipoTarjeta?: "debito" | "credito" | null;
+  marcaTarjeta?: string | null;
   moneda?: string;
   /** Lo que entrega el cliente, en SU moneda. */
   monto: number;
@@ -346,13 +361,35 @@ export async function cobrar(
   }
 
   for (const m of convertidos) {
+    // LA COMISIÓN SE CONGELA ACÁ (prompt 08b, A4). Se calcula con la
+    // vigente hoy y se guarda el número: cuando el banco renegocie,
+    // este cobro tiene que seguir explicando su neto con la comisión
+    // que le aplicaba, no con la nueva.
+    const costo =
+      m.medio === MEDIO_TARJETA
+        ? costoDelCobro(
+            m.montoCrc,
+            await comisionVigente(db, tenantId, {
+              banco: m.banco,
+              tipoTarjeta: m.tipoTarjeta,
+              marca: m.marcaTarjeta,
+            })
+          )
+        : { comisionEstimada: null, netoEsperado: null, comisionId: null };
+
     await db.query(
       `INSERT INTO vta_cobro_medios (tenant_id, cobro_id, medio, es_fiscal, moneda, monto,
-                                     tipo_cambio, monto_crc, referencia)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+                                     tipo_cambio, monto_crc, referencia,
+                                     banco, tipo_tarjeta, marca_tarjeta,
+                                     comision_estimada, neto_esperado, comision_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
       [
         tenantId, cobroId, m.medio, m.esFiscal, m.moneda, m.monto, m.tipoCambio, m.montoCrc,
         m.referencia ?? null,
+        m.medio === MEDIO_TARJETA ? m.banco ?? null : null,
+        m.medio === MEDIO_TARJETA ? m.tipoTarjeta ?? null : null,
+        m.medio === MEDIO_TARJETA ? m.marcaTarjeta ?? null : null,
+        costo.comisionEstimada, costo.netoEsperado, costo.comisionId,
       ]
     );
   }

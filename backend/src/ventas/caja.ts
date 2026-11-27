@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { LineaLoteDatafono, registrarLoteDatafono } from "./comisionesTarjeta";
 
 // ---------------------------------------------------------------------
 // CAJAS Y SESIONES: apertura, arqueo y cierre.
@@ -223,6 +224,15 @@ export async function cerrarSesion(
   datos: {
     lineas: LineaDeclarada[];
     denominaciones?: Array<{ moneda: string; valor: number; cantidad: number }>;
+    /**
+     * EL LOTE QUE IMPRIME EL DATÁFONO (prompt 08b, A4).
+     *
+     * Mismo criterio que las denominaciones: si vino el lote, el
+     * declarado de tarjeta SALE de su suma y el campo queda de solo
+     * lectura. Dos fuentes del mismo número terminan con el menos
+     * confiable ganando.
+     */
+    loteDatafono?: LineaLoteDatafono[];
     personaId?: string;
     aprobadoPor?: string;
   }
@@ -257,12 +267,25 @@ export async function cerrarSesion(
     contado.set(d.moneda, (contado.get(d.moneda) ?? 0) + valor * cantidad);
   }
 
+  // EL LOTE DEL DATÁFONO, igual que las denominaciones: si vino, es la
+  // fuente del declarado de tarjeta.
+  const porLote = new Map<string, number>();
+  if (datos.loteDatafono && datos.loteDatafono.length > 0) {
+    await registrarLoteDatafono(db, tenantId, sesionId, datos.loteDatafono);
+    for (const l of datos.loteDatafono) {
+      const moneda = (l.moneda ?? "CRC").toUpperCase();
+      porLote.set(moneda, (porLote.get(moneda) ?? 0) + Number(l.monto));
+    }
+  }
+
   const lineas = esperadas.map((e) => {
     const d = datos.lineas.find((x) => x.medio === e.medio && x.moneda === e.moneda);
     const porDenominacion = e.medio === "efectivo" ? contado.get(e.moneda) : undefined;
+    const delLote = e.medio === "tarjeta" ? porLote.get(e.moneda) : undefined;
+    const contadoAparte = porDenominacion ?? delLote;
     const declarado =
-      porDenominacion !== undefined
-        ? Math.round(porDenominacion * 100) / 100
+      contadoAparte !== undefined
+        ? Math.round(contadoAparte * 100) / 100
         : d
           ? Number(d.declarado)
           : 0;
@@ -270,6 +293,8 @@ export async function cerrarSesion(
       ...e,
       declarado,
       contadoPorDenominacion: porDenominacion !== undefined,
+      /** El declarado de tarjeta salió del lote del datáfono. */
+      contadoPorLote: delLote !== undefined,
       diferencia: Math.round((declarado - e.esperado) * 100) / 100,
       justificacion: d?.justificacion,
     };

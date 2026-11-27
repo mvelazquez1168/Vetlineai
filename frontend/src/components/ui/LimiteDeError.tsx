@@ -91,9 +91,9 @@ export class LimiteDeError extends Component<Props, Estado> {
     return (
       <Card className="mt-4">
         <div className="flex items-start gap-3">
-          <Icono nombre="aviso" className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <Icono nombre="aviso" className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
           <div className="min-w-0">
-            <h3 className="text-sm font-bold text-text">
+            <h3 className="text-sm font-bold text-text-primary">
               {this.props.titulo ?? "Esta parte no se pudo mostrar"}
             </h3>
             <p className="mt-1 text-sm text-text-muted">

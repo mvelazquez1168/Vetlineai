@@ -14,6 +14,7 @@ import {
   validarReabrirCasoInput,
   ejecutarReaperturaCaso,
 } from "../cierreCaso";
+import { exigirPermiso } from "../permisos";
 import { resolverFechaCorte } from "../casosSinActividad";
 import { authenticate, withTenantClient } from "../middleware/auth";
 import { marcaYAutor } from "../marca/marcaDeLaSolicitud";
@@ -41,6 +42,7 @@ import {
   reenviarInvitacion,
   cancelarInvitacion,
   obtenerConteoCuposMedicos,
+  enlaceDeInvitacion,
 } from "../invitaciones";
 import { listarAccesosMedico, actualizarAccesosMedico, contarCuposConsumidos } from "../medicoAgente";
 import { cambiarCorreoAdmin, generarYEnviarVerificacion } from "../verificacionCorreo";
@@ -150,6 +152,31 @@ adminRouter.post("/medicos/invitaciones/:id/reenviar", async (req, res) => {
   if (!resultado.ok) return res.status(404).json({ error: "La invitación no existe o ya no está pendiente." });
   res.json({ invitacion: resultado.invitacion });
 });
+
+// EL ENLACE DE ALTA, PARA COPIARLO A MANO.
+//
+// Es un POST y no un GET a propósito: entregar el enlace ESCRIBE —queda
+// quién lo copió y cuándo— y un GET que escribe es un GET que alguien
+// cachea o repite sin querer. El permiso es el mismo que para invitar.
+adminRouter.post(
+  "/medicos/invitaciones/:id/enlace",
+  exigirPermiso("personas.administrar"),
+  async (req, res) => {
+    const resultado = await enlaceDeInvitacion(req.db!, req.auth!.tenantId!, req.params.id, {
+      personaId: req.auth!.userId,
+      ip: req.ip ?? null,
+    });
+    if (!resultado.ok) {
+      return res.status(404).json({
+        error:
+          resultado.motivo === "ya_no_pendiente"
+            ? "Esa invitación ya se usó o se canceló: el enlace no sirve. Invitá de nuevo."
+            : "La invitación no existe.",
+      });
+    }
+    res.json(resultado);
+  }
+);
 
 adminRouter.post("/medicos/invitaciones/:id/cancelar", async (req, res) => {
   const resultado = await cancelarInvitacion(req.db!, req.auth!.tenantId!, req.params.id);

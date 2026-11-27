@@ -187,6 +187,14 @@ Responsive con el breakpoint `md` de Vetline Ai y probado en móvil (la app es P
 toda carga. Estados vacíos que dicen qué hacer. Errores que explican la salida. Accesibilidad:
 contraste, foco visible, navegación por teclado completa.
 
+**Nunca se pierden datos al salir de una pantalla.** Todo formulario y todo modal con campos lleva la
+cuenta de si tiene cambios sin guardar. Si el usuario intenta salir (menú, miga de pan, enlace de
+volver, botón atrás del navegador o del teléfono, cerrar el modal con la X, Escape o un clic afuera,
+recargar o cerrar la pestaña), el sistema pregunta: **Guardar**, **Descartar** o **Seguir editando**.
+Las pantallas con autoguardado (la atención) no preguntan si todo ya se guardó; si hay un guardado en
+curso o pendiente, esperan o avisan. Se implementa una sola vez (un hook común con el bloqueo de
+navegación del router y `beforeunload`, integrado en el `Modal` compartido), no pantalla por pantalla.
+
 **Un modal con formulario nunca se cierra con un clic fuera de él; cerrarlo con cambios sin guardar
 pide confirmación.** Los modales son de dos tipos y el tipo decide el comportamiento:
 

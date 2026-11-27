@@ -10,6 +10,7 @@ import { Table, TableColumn } from "../../components/ui/Table";
 import { clinicaApi, RolDeLaClinica } from "../../lib/clinicaApi";
 import { formatearFechaCorta } from "../../lib/formatFecha";
 import { useAuth } from "../../hooks/useAuth";
+import { copiarAlPortapapeles } from "../../lib/portapapeles";
 import {
   AccesoAgente,
   adminApi,
@@ -20,7 +21,21 @@ import {
 } from "../../lib/adminApi";
 
 export function Medicos() {
-  const { zonaHoraria } = useAuth();
+  const { zonaHoraria, puede } = useAuth();
+  // El enlace de alta es una credencial: solo lo ve quien administra al
+  // personal, y pedirlo queda registrado (migración 170).
+  const puedeAdministrarPersonas = puede("personas.administrar");
+  // Lo último que se copió, para poder MOSTRARLO cuando el portapapeles
+  // del navegador no está disponible. Un «Copiado» que no copió nada es
+  // la peor versión de este botón.
+  const [enlaceCopiado, setEnlaceCopiado] = useState<{
+    id: string;
+    url: string;
+    copiado: boolean;
+  } | null>(null);
+  // La invitación que se acaba de crear, para ofrecer el enlace ahí
+  // mismo. Sin esto, el único aviso de éxito era que el modal se cerrara.
+  const [recienCreada, setRecienCreada] = useState<InvitacionMedico | null>(null);
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [nombreClinica, setNombreClinica] = useState("");
   const [cupos, setCupos] = useState<ConteoCuposMedicos | null>(null);
@@ -105,7 +120,9 @@ export function Medicos() {
     setInvitando(true);
     setError(null);
     try {
-      await adminApi.invitarMedico(email.trim(), nombreInvitacion, rolesInvitacion);
+      const creada = await adminApi.invitarMedico(email.trim(), nombreInvitacion, rolesInvitacion);
+      setRecienCreada(creada.invitacion);
+      setEnlaceCopiado(null);
       setModalAbierto(false);
       setEmail("");
       setNombreInvitacion("");
@@ -121,6 +138,20 @@ export function Medicos() {
   // EL CUPO ES DE MÉDICOS. Invitar a la recepción con el cupo de
   // médicos agotado tiene que poder hacerse: no se cobra por ella.
   const sinCupoQueImporta = sinCupo && invitaAUnMedico;
+
+  const handleCopiarEnlace = async (id: string) => {
+    setAccionInvitacionId(id);
+    setError(null);
+    try {
+      const r = await adminApi.enlaceDeInvitacion(id);
+      const copiado = await copiarAlPortapapeles(r.url);
+      setEnlaceCopiado({ id, url: r.url, copiado });
+    } catch (err: any) {
+      setError(err?.message ?? "No pudimos obtener el enlace de esa invitación.");
+    } finally {
+      setAccionInvitacionId(null);
+    }
+  };
 
   const handleReenviar = async (id: string) => {
     setAccionInvitacionId(id);
@@ -297,6 +328,23 @@ export function Medicos() {
       header: "Acciones",
       render: (i) => (
         <div className="flex gap-3">
+          {/* COPIAR EL ENLACE DE ALTA. En desarrollo el correo es
+              simulado y este es el ÚNICO camino para completar el alta;
+              en producción resuelve el correo que cayó en spam con la
+              persona sentada al lado. Solo para quien administra al
+              personal, y queda registrado quién lo copió. */}
+          {puedeAdministrarPersonas && (
+            <button
+              onClick={() => handleCopiarEnlace(i.id)}
+              disabled={accionInvitacionId === i.id}
+              className="text-sm font-semibold text-accent hover:underline disabled:opacity-50"
+              title="Copia el enlace de alta. Es una credencial de un solo uso: queda registrado quién lo copió."
+            >
+              {enlaceCopiado?.id === i.id && enlaceCopiado.copiado
+                ? "Enlace copiado"
+                : "Copiar enlace"}
+            </button>
+          )}
           <button
             onClick={() => handleReenviar(i.id)}
             disabled={accionInvitacionId === i.id}
@@ -319,7 +367,7 @@ export function Medicos() {
   return (
     <div>
       <PageHeader
-        titulo="Médicos"
+        titulo="Personal e invitaciones"
         icono="personas"
         modulo="admin"
       />
@@ -376,6 +424,44 @@ export function Medicos() {
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-text-muted">
             Invitaciones pendientes
           </h2>
+          {recienCreada && !enlaceCopiado && (
+            <div className="mb-3 rounded-lg border border-primary-borde bg-primary-suave p-3">
+              <p className="text-sm font-semibold text-text-primary">
+                Invitación enviada a {recienCreada.email}.
+              </p>
+              <p className="mt-1 text-sm text-text-muted">
+                Si el correo no llega —o estás en desarrollo, donde el envío es simulado—, pasale
+                el enlace de alta por un canal privado.
+              </p>
+              {puedeAdministrarPersonas && (
+                <Button
+                  variant="secondary"
+                  className="mt-2"
+                  onClick={() => handleCopiarEnlace(recienCreada.id)}
+                  disabled={accionInvitacionId === recienCreada.id}
+                >
+                  Copiar enlace de alta
+                </Button>
+              )}
+            </div>
+          )}
+          {enlaceCopiado && (
+            <div className="mb-3 rounded-lg border border-primary-borde bg-primary-suave p-3">
+              <p className="text-sm font-semibold text-text-primary">
+                {enlaceCopiado.copiado
+                  ? "Enlace copiado al portapapeles."
+                  : "No se pudo copiar automáticamente — copialo de acá:"}
+              </p>
+              <p className="mt-1 break-all font-mono text-xs text-text-muted">
+                {enlaceCopiado.url}
+              </p>
+              <p className="mt-2 text-xs text-text-muted">
+                Sirve una sola vez y vence. Quien lo tenga crea la cuenta con los roles de esa
+                invitación, así que mandalo por un canal privado. Quedó registrado que vos lo
+                copiaste.
+              </p>
+            </div>
+          )}
           <Table
             columns={columnasInvitaciones}
             data={invitaciones}

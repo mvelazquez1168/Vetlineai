@@ -43,11 +43,26 @@ desactivar personas*, que por omisión tiene el administrador.
 
 **Invitar a alguien**
 
-1. *Administración › Médicos e invitaciones* › **+ Invitar a alguien**.
+1. *Administración › Personal e invitaciones* › **+ Invitar a alguien**.
 2. Marque **con qué rol entra**. Puede marcar varios.
 3. Escriba el **correo** y, si quiere, el nombre.
 4. **Enviar invitación**. Le llega un enlace de un solo uso, válido por siete días, donde ella
    misma elige su contraseña.
+
+**Pasarle el enlace de alta a mano**
+
+Cuando el correo no llega —cayó en spam, se escribió mal la dirección, o la persona está sentada al
+lado—, se le puede dar el enlace directamente.
+
+1. *Administración › Personal e invitaciones* › en la fila de la invitación, **Copiar enlace**.
+2. El enlace queda en el portapapeles. Pegalo en un mensaje **privado** para esa persona.
+
+Lo mismo se ofrece justo después de invitar: el aviso de «Invitación enviada» trae el botón
+**Copiar enlace de alta**.
+
+El enlace **es una credencial**: quien lo tenga crea esa cuenta, con esos roles, en esta clínica.
+Por eso solo lo ve quien puede *invitar, editar y desactivar personas*, y **queda registrado quién
+lo copió y cuándo** (se ve en *Administración › Cumplimiento y auditoría*).
 
 **Cambiarle los roles a alguien**
 
@@ -111,6 +126,20 @@ Si el mensaje aparece, revise que no haya quedado marcado también **Médico**.
 Escribir y firmar el expediente es del rol médico y no se configura. Es lo que hace que una firma
 signifique algo. Los permisos que **sí** se pueden mover son cinco: ver costos y márgenes, aplicar
 descuentos, anular, ajustar inventario y exportar datos.
+
+**Copié el enlace y el botón dice que no se pudo copiar.**
+Entonces no se copió, y el enlace se muestra en pantalla para copiarlo a mano. Pasa cuando la
+interfaz se abre por una dirección que el navegador no considera segura: el portapapeles solo está
+disponible en `https` y en `localhost`.
+
+**¿Puedo mandar el enlace por WhatsApp a un grupo?**
+No. Es una credencial de un solo uso: el primero que la abra crea la cuenta con esos roles. Va a la
+persona, por un canal privado.
+
+**Copié el enlace y la persona dice que no funciona.**
+Fijate en la columna **Vence**. Un enlace vencido, ya usado o cancelado no sirve, y al pedirlo el
+sistema lo dice en lugar de darte un enlace muerto. Se resuelve con **Reenviar** o invitando de
+nuevo.
 
 **Le quité un permiso y la persona lo sigue teniendo.**
 Espere medio minuto. Los permisos se guardan en memoria un rato para no consultar la base en cada

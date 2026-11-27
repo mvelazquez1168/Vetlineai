@@ -17,10 +17,11 @@
 import { pool } from "../db";
 import { conAlcanceTenant } from "../alcanceTenant";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
-import { crearInvitacion } from "../invitaciones";
+import { cancelarInvitacion, crearInvitacion } from "../invitaciones";
 import { buscarUsuarioKeycloakPorEmail, eliminarUsuarioKeycloak } from "../keycloakAdmin";
 import { fechaEnZona, fechaHoyEnZona, horaAhoraEnZona, zonaDeLaClinica } from "../fecha";
 import { validarDatosDeDocumento } from "../expediente/documentos";
+import { eventos } from "../clinica/auditoria";
 import { abrirAtencion } from "../expediente/atencion";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -46,7 +47,7 @@ function assert(cond: boolean, msg: string, detalle?: unknown) {
 const correo = (quien: string) => `${PREFIJO}-${quien}@probe.test`;
 
 async function limpiar() {
-  for (const quien of ["vet"]) {
+  for (const quien of ["vet", "recepsinpermiso"]) {
     const id = await buscarUsuarioKeycloakPorEmail(correo(quien));
     if (id) await eliminarUsuarioKeycloak(id);
   }
@@ -90,6 +91,37 @@ async function alta(tenantId: string, quien: string, nombre: string): Promise<st
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre, colegiatura: `VET-${quien.toUpperCase()}`, password: CLAVE }),
+  });
+  const cuerpo = (await r.json()) as { access_token?: string; error?: string };
+  if (!cuerpo.access_token) throw new Error(`sin token para ${quien}: ${cuerpo.error}`);
+  return cuerpo.access_token;
+}
+
+/** Igual que `alta`, pero con los roles que se le pidan. */
+async function alta2(
+  tenantId: string,
+  quien: string,
+  nombre: string,
+  roles: string[]
+): Promise<string> {
+  const inv = await crearInvitacion(
+    pool,
+    tenantId,
+    `${PREFIJO} clínica`,
+    null,
+    correo(quien),
+    nombre,
+    roles
+  );
+  if (!inv.ok) throw new Error(`no se pudo invitar a ${quien}: ${inv.motivo}`);
+  const r = await fetch(`${API}/invitaciones/${inv.invitacion.token}/aceptar`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nombre,
+      colegiatura: roles.includes("medico") ? `VET-${quien.toUpperCase()}` : undefined,
+      password: CLAVE,
+    }),
   });
   const cuerpo = (await r.json()) as { access_token?: string; error?: string };
   if (!cuerpo.access_token) throw new Error(`sin token para ${quien}: ${cuerpo.error}`);
@@ -389,6 +421,124 @@ async function main() {
       "con la fecha de la clínica en el nombre del archivo, no la de UTC",
       `${nombre} · clínica=${hoyAdel} UTC=${diaUtc()}`
     );
+
+    // =============================================================
+    console.log(["", "=== El enlace de alta, copiado a mano ==="].join(String.fromCharCode(10)));
+    {
+      const inv = await crearInvitacion(
+        pool,
+        adelante,
+        `${PREFIJO} clínica`,
+        null,
+        `${PREFIJO}-recep@probe.test`,
+        "Recepción de prueba",
+        ["recepcion"]
+      );
+      if (!inv.ok) throw new Error("no se pudo crear la invitación de prueba");
+
+      const pendientes = await fetch(`${API}/admin/medicos/invitaciones`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const lista = (await pendientes.json()) as { invitaciones: Array<Record<string, unknown>> };
+      const fila = lista.invitaciones.find((i) => i.email === `${PREFIJO}-recep@probe.test`);
+      assert(!!fila, "la invitación aparece entre las pendientes");
+
+      const r = await fetch(`${API}/admin/medicos/invitaciones/${inv.invitacion.id}/enlace`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const cuerpo = (await r.json()) as { url?: string; email?: string; error?: string };
+      assert(r.status === 200, "quien administra personas obtiene el enlace", r.status);
+      assert(
+        cuerpo.url === `${process.env.FRONTEND_URL ?? "http://localhost:5173"}/invitacion/${inv.invitacion.token}`,
+        "y el enlace es el MISMO que va en el correo, no uno armado aparte",
+        cuerpo.url
+      );
+      assert(
+        cuerpo.email === `${PREFIJO}-recep@probe.test`,
+        "con el correo de a quién pertenece, para no pegarle el enlace a otra persona"
+      );
+
+      const copias = await conAlcanceTenant(adelante, async (db) => {
+        const q = await db.query<{ n: number; persona_id: string | null }>(
+          `SELECT count(*)::int AS n, max(persona_id::text) AS persona_id
+             FROM invitacion_enlace_copiado WHERE invitacion_id = $1`,
+          [inv.invitacion.id]
+        );
+        return q.rows[0];
+      });
+      assert(Number(copias.n) === 1, "copiarlo queda registrado una vez", copias.n);
+      assert(!!copias.persona_id, "y con quién lo copió");
+
+      const auditoria = await conAlcanceTenant(adelante, async (db) =>
+        eventos(db, adelante, { tipo: "enlace_invitacion_copiado" })
+      );
+      assert(
+        auditoria.length === 1,
+        "y se ve en la auditoría, no en una pantalla aparte",
+        auditoria.length
+      );
+      assert(
+        auditoria[0]?.quien !== null,
+        "con el nombre de quien lo copió",
+        auditoria[0]?.quien
+      );
+
+      // Pedirlo dos veces deja dos rastros: la pregunta es «quién tuvo
+      // este enlace», no «quién lo tuvo la última vez».
+      await fetch(`${API}/admin/medicos/invitaciones/${inv.invitacion.id}/enlace`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const dos = await conAlcanceTenant(adelante, async (db) => {
+        const q = await db.query<{ n: number }>(
+          `SELECT count(*)::int AS n FROM invitacion_enlace_copiado WHERE invitacion_id = $1`,
+          [inv.invitacion.id]
+        );
+        return Number(q.rows[0].n);
+      });
+      assert(dos === 2, "copiarlo de nuevo deja un segundo rastro, no sobrescribe el primero", dos);
+
+      // Una invitación cancelada no entrega enlace: sería una credencial
+      // muerta que alguien manda y después reclama.
+      await cancelarInvitacion(pool, adelante, inv.invitacion.id);
+      const muerta = await fetch(
+        `${API}/admin/medicos/invitaciones/${inv.invitacion.id}/enlace`,
+        { method: "POST", headers: { Authorization: `Bearer ${token}` } }
+      );
+      assert(muerta.status === 404, "una invitación cancelada no entrega enlace", muerta.status);
+      const porQue = (await muerta.json()) as { error?: string };
+      assert(
+        /usó|canceló/i.test(porQue.error ?? ""),
+        "y dice por qué, no «no encontrada»",
+        porQue.error
+      );
+
+      // Quien NO administra personas no puede pedirlo: el enlace es una
+      // credencial, y verlo equivale a poder crear la cuenta.
+      const tokenRecep = await alta2(adelante, "recepsinpermiso", "Recepción sin permiso", [
+        "recepcion",
+      ]);
+      const prohibido = await fetch(
+        `${API}/admin/medicos/invitaciones/${inv.invitacion.id}/enlace`,
+        { method: "POST", headers: { Authorization: `Bearer ${tokenRecep}` } }
+      );
+      assert(
+        prohibido.status === 403,
+        "quien no administra personas no puede pedir el enlace",
+        prohibido.status
+      );
+
+      const sinSesionEnlace = await fetch(
+        `${API}/admin/medicos/invitaciones/${inv.invitacion.id}/enlace`,
+        { method: "POST" }
+      );
+      assert(
+        sinSesionEnlace.status === 401,
+        "sin sesión no se puede pedir el enlace de nadie",
+        sinSesionEnlace.status
+      );
+    }
   } finally {
     await limpiar();
     await pool.end();

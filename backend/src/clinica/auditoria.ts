@@ -139,7 +139,21 @@ export async function eventos(
         WHERE e.tenant_id = $1
 
        UNION ALL
-       -- 7. LA BITÁCORA, **sin los GET**. Lo que queda son las acciones
+       -- 7. EL ENLACE DE UNA INVITACIÓN, COPIADO (migración 170). El
+       --    enlace es una credencial de un solo uso: quién lo tuvo es
+       --    una pregunta de seguridad, no una curiosidad.
+       SELECT 'invitaciones', 'enlace_invitacion_copiado', 'admin', c.creado_en,
+              per.nombre, c.persona_id,
+              COALESCE(i.nombre, i.email), c.invitacion_id::text,
+              NULL, i.email,
+              CASE WHEN c.ip IS NOT NULL THEN 'desde ' || host(c.ip) ELSE NULL END
+         FROM invitacion_enlace_copiado c
+         LEFT JOIN personas per ON per.id = c.persona_id
+         LEFT JOIN invitaciones_medico i ON i.id = c.invitacion_id
+        WHERE c.tenant_id = $1
+
+       UNION ALL
+       -- 8. LA BITÁCORA, **sin los GET**. Lo que queda son las acciones
        --    semánticas que algún módulo escribió a mano.
        SELECT 'bitacora', b.accion, 'sistema', b.creado_en,
               per.nombre, b.persona_id,

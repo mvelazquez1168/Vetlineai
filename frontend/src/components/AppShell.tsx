@@ -177,7 +177,16 @@ const GRUPOS: Grupo[] = [
       },
       {
         to: "/admin/medicos",
-        etiqueta: "Médicos e invitaciones",
+        // «Personal e invitaciones» y no «Médicos»: esta pantalla
+        // administra a TODO el personal desde el prompt 04 —recepción,
+        // auxiliares, administración—, y el cupo del plan es lo único
+        // que sigue siendo de médicos. Un nombre que dice «Médicos» hace
+        // que nadie busque acá para dar de alta a la recepcionista.
+        // DEUDA ANOTADA: la tabla sigue llamándose `invitaciones_medico`
+        // (migración 030). Renombrarla toca 20 archivos y no cambia nada
+        // para quien usa el sistema; se hace cuando haya otro motivo
+        // para tocar esa migración.
+        etiqueta: "Personal e invitaciones",
         icono: "medico",
         permiso: "personas.administrar",
       },

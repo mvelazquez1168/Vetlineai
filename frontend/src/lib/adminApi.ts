@@ -423,6 +423,19 @@ export const adminApi = {
       method: "POST",
     }),
 
+  /**
+   * El enlace de alta de una invitación pendiente.
+   *
+   * POST y no GET porque entregarlo ESCRIBE: queda registrado quién
+   * copió la credencial y cuándo (migración 170). El listado de
+   * invitaciones no trae el token justamente por eso.
+   */
+  enlaceDeInvitacion: (id: string) =>
+    authedFetch<{ ok: true; url: string; email: string; nombre: string | null; venceEn: string }>(
+      `/admin/medicos/invitaciones/${id}/enlace`,
+      { method: "POST" }
+    ),
+
   cancelarInvitacionMedico: (id: string) =>
     authedFetch<{ invitacion: InvitacionMedico }>(`/admin/medicos/invitaciones/${id}/cancelar`, {
       method: "POST",

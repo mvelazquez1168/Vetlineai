@@ -168,6 +168,57 @@ export async function listarInvitacionesPendientes(db: EjecutorSql, tenantId: st
   return result.rows.map(mapearFila);
 }
 
+// ---------------------------------------------------------------------
+// EL ENLACE, COPIADO A MANO
+//
+// `/invitacion/:token` es una CREDENCIAL DE UN SOLO USO: quien la tenga
+// crea la cuenta de esa persona con sus roles en esta clínica. Por eso
+// el listado de invitaciones NO devuelve el token y acá hay una función
+// aparte: copiarlo es un acto que se registra, no un campo que se lee.
+//
+// Hace falta de verdad. En desarrollo el correo es simulado —no sale
+// hacia ningún proveedor—, así que sin esto no hay forma de completar un
+// alta. Y en producción pasa lo esperable: el correo cayó en spam y la
+// persona está sentada al lado.
+// ---------------------------------------------------------------------
+
+export type ResultadoEnlace =
+  | { ok: true; url: string; email: string; nombre: string | null; venceEn: string }
+  | { ok: false; motivo: "no_encontrada" | "ya_no_pendiente" };
+
+export async function enlaceDeInvitacion(
+  db: EjecutorSql,
+  tenantId: string,
+  invitacionId: string,
+  quien: { personaId: string | null; ip?: string | null }
+): Promise<ResultadoEnlace> {
+  const result = await db.query(
+    `SELECT id, tenant_id, email, nombre, token, estado, creada_en, vence_en, aceptada_en, roles
+     FROM invitaciones_medico WHERE id = $1 AND tenant_id = $2`,
+    [invitacionId, tenantId]
+  );
+  const fila = result.rows[0];
+  if (!fila) return { ok: false, motivo: "no_encontrada" };
+  const invitacion = mapearFila(fila);
+  if (invitacion.estado !== "pendiente") return { ok: false, motivo: "ya_no_pendiente" };
+
+  // El registro va ANTES de devolver el enlace, en la misma solicitud:
+  // si falla el registro, no se entrega la credencial.
+  await db.query(
+    `INSERT INTO invitacion_enlace_copiado (tenant_id, invitacion_id, persona_id, ip)
+     VALUES ($1, $2, $3, $4)`,
+    [tenantId, invitacionId, quien.personaId, quien.ip ?? null]
+  );
+
+  return {
+    ok: true,
+    url: urlInvitacion(invitacion.token),
+    email: invitacion.email,
+    nombre: invitacion.nombre,
+    venceEn: invitacion.venceEn,
+  };
+}
+
 export type ResultadoAccionInvitacion =
   | { ok: true; invitacion: Invitacion }
   | { ok: false; motivo: "no_encontrada" | "ya_no_pendiente" };

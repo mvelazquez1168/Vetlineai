@@ -39,3 +39,4 @@ awscliv2.zip
 # estas dos lineas son el cinturon por si alguien lo vuelve a generar aca.
 frontend/vite.config.js
 frontend/vite.config.d.ts
+backend/probe/

@@ -177,7 +177,21 @@ export interface ConciliacionTarjetas {
     netoEsperado: number | null;
     cobradoEn: string;
   }>;
-  /** La suma de las diferencias, que es lo que hay que justificar. */
+  /**
+   * EL TOTAL, ADEMÁS DEL DETALLE.
+   *
+   * Hace falta porque el detalle no siempre calza: un cobro hecho antes
+   * de que existiera esta función no tiene banco cargado, así que queda
+   * en su propia fila y el lote en otra, y las dos aparecen con la
+   * diferencia entera. El cajero igual necesita saber si el total de
+   * tarjetas del día cuadra, y ese número sí es comparable siempre.
+   */
+  totalSistema: number;
+  totalLote: number | null;
+  diferenciaDelTotal: number | null;
+  /** Cuántos cobros con tarjeta no tienen banco cargado. */
+  cobrosSinBanco: number;
+  /** La suma de las diferencias por fila, para el detalle. */
   diferenciaTotal: number;
   /** Lo que el banco se va a quedar de todo el lote. */
   comisionTotal: number;
@@ -288,8 +302,20 @@ export async function conciliarTarjetas(
       a.loteMonto === null ? null : Math.round((a.loteMonto - a.sistemaMonto) * 100) / 100,
   }));
 
+  const totalSistema =
+    Math.round(cobros.rows.reduce((t, c) => t + Number(c.monto_crc), 0) * 100) / 100;
+  const totalLote =
+    lote.rows.length === 0
+      ? null
+      : Math.round(lote.rows.reduce((t, l) => t + Number(l.monto), 0) * 100) / 100;
+
   return {
     filas,
+    totalSistema,
+    totalLote,
+    diferenciaDelTotal:
+      totalLote === null ? null : Math.round((totalLote - totalSistema) * 100) / 100,
+    cobrosSinBanco: cobros.rows.filter((c) => !c.banco).length,
     cobros: cobros.rows.map((c) => ({
       cobroId: c.cobro_id,
       medioId: c.medio_id,

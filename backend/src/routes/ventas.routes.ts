@@ -13,6 +13,13 @@ import {
   tipoDeCambioDelDia,
 } from "../ventas/caja";
 import { abrirCuenta, agregarCargo, totalDeCuenta } from "../ventas/cuentas";
+import {
+  motivosDeDescuento,
+  puedeAutorizarDescuento,
+  topeDeDescuento,
+} from "../ventas/descuentos";
+import { conciliarTarjetas, registrarLoteDatafono } from "../ventas/comisionesTarjeta";
+import { comprobanteDeCierre } from "../ventas/cierrePdf";
 import { cobrar, datosDeTiquete } from "../ventas/cobros";
 import {
   cancelar,
@@ -667,6 +674,237 @@ ventasRouter.post("/provisionales/regularizar", async (req, res) => {
 // =====================================================================
 // PARÁMETROS Y REPORTES
 // =====================================================================
+// ---------------------------------------------------------------------
+// LOS CATÁLOGOS DE LA CAJA — prompt 08b, A2 y A3.
+//
+// Los tres siguen el mismo molde: las filas de la plataforma más las de
+// la clínica, y la clínica solo escribe las suyas (lo impone la RLS, no
+// estas rutas).
+// ---------------------------------------------------------------------
+/**
+ * El personal de la clínica, para decir quién recibió un vale y quién
+ * realizó un servicio (prompt 08b, A2 y A5).
+ *
+ * Vive en el router de ventas y no en el de administración porque la
+ * necesita el mostrador: `/admin/medicos` exige rol administrador y
+ * además devuelve solo médicos, y un vale se lo puede llevar cualquiera
+ * del personal.
+ */
+ventasRouter.get("/personal", async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT id, nombre, es_medico, es_admin_clinica
+         FROM personas
+        -- La columna es estado y no activo: verificado contra el
+        -- esquema en vez de suponerlo.
+        WHERE estado = 'activo'
+        ORDER BY nombre`
+    );
+    res.json({ personas: r.rows });
+  } catch (err) {
+    fallo(res, err, "GET /ventas/personal");
+  }
+});
+
+ventasRouter.get("/denominaciones", async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT id, moneda, valor::text, especie, (tenant_id IS NOT NULL) AS de_la_clinica
+         FROM vta_denominaciones
+        WHERE activo
+        ORDER BY moneda, valor DESC`
+    );
+    res.json({ denominaciones: r.rows });
+  } catch (err) {
+    fallo(res, err, "GET /ventas/denominaciones");
+  }
+});
+
+/**
+ * Agregar o desactivar una denominación propia de la clínica.
+ *
+ * Las de la plataforma NO se borran: se desactivan agregando la misma
+ * (moneda, valor) como fila de la clínica con `activo = false`. Así el
+ * día que se quiera volver atrás, la de la plataforma sigue ahí.
+ */
+ventasRouter.post("/denominaciones", permisoConfig, async (req, res) => {
+  const b = req.body ?? {};
+  try {
+    if (!b.moneda || !(Number(b.valor) > 0)) {
+      return res.status(400).json({ error: "Una denominación lleva su moneda y su valor." });
+    }
+    const r = await req.db!.query(
+      `INSERT INTO vta_denominaciones (tenant_id, moneda, valor, especie, activo)
+       VALUES ($1,$2,$3,$4,$5)
+       ON CONFLICT (tenant_id, moneda, valor) WHERE tenant_id IS NOT NULL
+         DO UPDATE SET activo = EXCLUDED.activo, especie = EXCLUDED.especie
+       RETURNING id`,
+      [
+        req.auth!.tenantId,
+        String(b.moneda).toUpperCase(),
+        b.valor,
+        b.especie === "moneda" ? "moneda" : "billete",
+        b.activo !== false,
+      ]
+    );
+    res.status(201).json({ id: r.rows[0].id });
+  } catch (err) {
+    fallo(res, err, "POST /ventas/denominaciones");
+  }
+});
+
+ventasRouter.get("/motivos-descuento", async (req, res) => {
+  try {
+    res.json({ motivos: await motivosDeDescuento(req.db!) });
+  } catch (err) {
+    fallo(res, err, "GET /ventas/motivos-descuento");
+  }
+});
+
+/**
+ * Hasta cuánto puede descontar quien está pidiendo, para esta línea.
+ *
+ * La pantalla lo consulta ANTES de dejar escribir el descuento: así el
+ * cajero ve «hasta 10 %» en vez de escribir 30 y recibir un error.
+ */
+ventasRouter.get("/tope-descuento", async (req, res) => {
+  try {
+    const tope = await topeDeDescuento(req.db!, req.auth!.tenantId!, {
+      presentacionId: (req.query.presentacion as string) || null,
+      servicioId: (req.query.servicio as string) || null,
+      personaId: req.auth!.userId,
+    });
+    res.json({
+      ...tope,
+      puedeAutorizar: await puedeAutorizarDescuento(req.db!, req.auth!.tenantId!, req.auth!.userId),
+    });
+  } catch (err) {
+    fallo(res, err, "GET /ventas/tope-descuento");
+  }
+});
+
+ventasRouter.get("/topes-descuento", permisoConfig, async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT id, rol, tope_pct::text, puede_autorizar FROM vta_topes_descuento
+        WHERE tenant_id = $1 ORDER BY rol`,
+      [req.auth!.tenantId]
+    );
+    res.json({ topes: r.rows });
+  } catch (err) {
+    fallo(res, err, "GET /ventas/topes-descuento");
+  }
+});
+
+ventasRouter.put("/topes-descuento", permisoConfig, async (req, res) => {
+  const b = req.body ?? {};
+  try {
+    if (!b.rol) return res.status(400).json({ error: "Falta el rol." });
+    await req.db!.query(
+      `INSERT INTO vta_topes_descuento (tenant_id, rol, tope_pct, puede_autorizar)
+       VALUES ($1,$2,$3,$4)
+       ON CONFLICT (tenant_id, rol) DO UPDATE SET
+         tope_pct = EXCLUDED.tope_pct,
+         puede_autorizar = EXCLUDED.puede_autorizar,
+         actualizado_en = now()`,
+      [
+        req.auth!.tenantId,
+        b.rol,
+        // NULL explícito = sin tope. Se distingue de «no vino» para que
+        // «sin tope» sea una decisión que se pueda guardar.
+        b.topePct === null || b.topePct === "" || b.topePct === undefined ? null : b.topePct,
+        b.puedeAutorizar === true,
+      ]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    fallo(res, err, "PUT /ventas/topes-descuento");
+  }
+});
+
+// ---------------------------------------------------------------------
+// LAS COMISIONES DE TARJETA Y EL LOTE DEL DATÁFONO — prompt 08b, A4.
+// ---------------------------------------------------------------------
+ventasRouter.get("/comisiones-tarjeta", async (req, res) => {
+  try {
+    const r = await req.db!.query(
+      `SELECT id, banco, tipo_tarjeta, marca, comision_pct::text, comision_fija::text,
+              vigente_desde::text
+         FROM vta_comisiones_tarjeta
+        WHERE tenant_id = $1
+        ORDER BY banco, tipo_tarjeta, vigente_desde DESC`,
+      [req.auth!.tenantId]
+    );
+    res.json({ comisiones: r.rows });
+  } catch (err) {
+    fallo(res, err, "GET /ventas/comisiones-tarjeta");
+  }
+});
+
+ventasRouter.post("/comisiones-tarjeta", permisoConfig, async (req, res) => {
+  const b = req.body ?? {};
+  try {
+    if (!b.banco?.trim() || !b.tipoTarjeta || b.comisionPct === undefined || !b.vigenteDesde) {
+      return res.status(400).json({
+        error: "Una comisión lleva banco, tipo de tarjeta, porcentaje y desde cuándo rige.",
+      });
+    }
+    const r = await req.db!.query(
+      `INSERT INTO vta_comisiones_tarjeta
+         (tenant_id, banco, tipo_tarjeta, marca, comision_pct, comision_fija, vigente_desde)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
+       RETURNING id`,
+      [
+        req.auth!.tenantId,
+        b.banco.trim(),
+        b.tipoTarjeta,
+        b.marca?.trim() || null,
+        b.comisionPct,
+        b.comisionFija ?? 0,
+        b.vigenteDesde,
+      ]
+    );
+    res.status(201).json({ id: r.rows[0].id });
+  } catch (err) {
+    fallo(res, err, "POST /ventas/comisiones-tarjeta");
+  }
+});
+
+/** Los totales del lote que imprime el datáfono, para conciliar. */
+ventasRouter.put("/sesiones/:id/lote-datafono", async (req, res) => {
+  try {
+    const lineas = (req.body?.lineas ?? []) as Parameters<typeof registrarLoteDatafono>[3];
+    res.json(await registrarLoteDatafono(req.db!, req.auth!.tenantId!, req.params.id, lineas));
+  } catch (err) {
+    fallo(res, err, "PUT /ventas/sesiones/:id/lote-datafono");
+  }
+});
+
+/**
+ * El comprobante del cierre, en PDF.
+ *
+ * Se puede pedir con la sesión abierta —sale marcado «SIN CERRAR»—
+ * porque el cajero lo usa para contar antes de cerrar.
+ */
+ventasRouter.get("/sesiones/:id/cierre.pdf", async (req, res) => {
+  try {
+    const pdf = await comprobanteDeCierre(req.db!, req.auth!.tenantId!, req.params.id);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="cierre-de-caja.pdf"`);
+    res.send(pdf);
+  } catch (err) {
+    fallo(res, err, "GET /ventas/sesiones/:id/cierre.pdf");
+  }
+});
+
+ventasRouter.get("/sesiones/:id/conciliacion-tarjetas", async (req, res) => {
+  try {
+    res.json(await conciliarTarjetas(req.db!, req.params.id));
+  } catch (err) {
+    fallo(res, err, "GET /ventas/sesiones/:id/conciliacion-tarjetas");
+  }
+});
+
 ventasRouter.get("/parametros", async (req, res) => {
   const r = await req.db!.query(`SELECT * FROM vta_parametros WHERE tenant_id = $1`, [
     req.auth!.tenantId,
@@ -676,6 +914,7 @@ ventasRouter.get("/parametros", async (req, res) => {
       tenant_id: req.auth!.tenantId,
       umbral_diferencia_arqueo: "2000",
       descuento_maximo_pct: "10",
+      arqueo_por_denominacion: false,
     },
   });
 });
@@ -684,18 +923,31 @@ ventasRouter.put("/parametros", permisoConfig, async (req, res) => {
   const b = req.body ?? {};
   try {
     await req.db!.query(
+      // COALESCE Y NO EXCLUDED A SECAS: la pantalla de configuración de
+      // caja guarda solo el modo de arqueo, y el PUT entero con los
+      // defaults borraría el tope de descuento y la lista de precios que
+      // otra pantalla había configurado. Lo que no viene en el body se
+      // queda como está.
       `INSERT INTO vta_parametros (tenant_id, umbral_diferencia_arqueo, descuento_maximo_pct,
-                                  lista_precio_id)
-       VALUES ($1,$2,$3,$4)
+                                  lista_precio_id, arqueo_por_denominacion)
+       VALUES ($1, COALESCE($2, 2000), COALESCE($3, 10), $4, COALESCE($5, false))
        ON CONFLICT (tenant_id) DO UPDATE SET
-         umbral_diferencia_arqueo = EXCLUDED.umbral_diferencia_arqueo,
-         descuento_maximo_pct = EXCLUDED.descuento_maximo_pct,
-         lista_precio_id = EXCLUDED.lista_precio_id, actualizado_en = now()`,
+         umbral_diferencia_arqueo =
+           COALESCE($2, vta_parametros.umbral_diferencia_arqueo),
+         descuento_maximo_pct = COALESCE($3, vta_parametros.descuento_maximo_pct),
+         lista_precio_id = CASE WHEN $6::boolean THEN $4 ELSE vta_parametros.lista_precio_id END,
+         arqueo_por_denominacion =
+           COALESCE($5, vta_parametros.arqueo_por_denominacion),
+         actualizado_en = now()`,
       [
         req.auth!.tenantId,
-        b.umbralDiferenciaArqueo ?? 2000,
-        b.descuentoMaximoPct ?? 10,
+        b.umbralDiferenciaArqueo ?? null,
+        b.descuentoMaximoPct ?? null,
         b.listaPrecioId || null,
+        b.arqueoPorDenominacion ?? null,
+        // «La lista vino en el body», aunque haya venido en null: null
+        // explícito significa «a precio base» y tiene que poder guardarse.
+        Object.prototype.hasOwnProperty.call(b, "listaPrecioId"),
       ]
     );
     res.json({ ok: true });

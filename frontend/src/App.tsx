@@ -22,6 +22,7 @@ import { Contingencia } from "./pages/ventas/Contingencia";
 import { CuentaCorriente } from "./pages/ventas/CuentaCorriente";
 import { Encargos } from "./pages/ventas/Encargos";
 import { ReportesVentas } from "./pages/ventas/ReportesVentas";
+import { ConfiguracionCaja } from "./pages/ventas/ConfiguracionCaja";
 import { SeccionesCaja } from "./pages/ventas/SeccionesCaja";
 import { TiqueteTermico } from "./pages/ventas/TiqueteTermico";
 import { AlertasInventario } from "./pages/inventario/AlertasInventario";
@@ -342,6 +343,7 @@ export default function App() {
           <Route path="aprobaciones" element={<AprobacionesVentas />} />
           <Route path="contingencia" element={<Contingencia />} />
           <Route path="reportes" element={<ReportesVentas />} />
+        <Route path="configuracion" element={<ConfiguracionCaja />} />
         </Route>
       </Route>
 

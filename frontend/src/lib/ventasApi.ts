@@ -160,7 +160,113 @@ export interface Provisional {
   fecha_venta: string | null;
 }
 
+
+// ---------------------------------------------------------------------
+// LA CONFIGURACIÓN DE LA CAJA — prompt 08b, A2, A3 y A4.
+// ---------------------------------------------------------------------
+
+export interface TopeDescuento {
+  id: string;
+  rol: string;
+  /** `null` = sin tope propio: rige el general de la clínica. */
+  tope_pct: string | null;
+  puede_autorizar: boolean;
+}
+
+export interface MotivoDescuento {
+  id: string;
+  etiqueta: string;
+  codigo_hacienda: string;
+  codigo_hacienda_otro: string | null;
+  exige_autorizacion: boolean;
+}
+
+export interface Denominacion {
+  id: string;
+  moneda: string;
+  valor: string;
+  especie: string;
+  de_la_clinica: boolean;
+}
+
+export interface ComisionTarjeta {
+  id: string;
+  banco: string;
+  tipo_tarjeta: string;
+  marca: string | null;
+  comision_pct: string;
+  comision_fija: string;
+  vigente_desde: string;
+}
+
+/** Hasta cuánto puede descontar quien pregunta, en esta línea. */
+export interface TopeVigente {
+  topePct: number | null;
+  origen: "producto" | "servicio" | "rol" | "clinica" | "sin_tope";
+  detalle: { producto: number | null; servicio: number | null; rol: number | null; clinica: number | null };
+  puedeAutorizar: boolean;
+}
+
+export interface ConciliacionTarjetas {
+  filas: Array<{
+    banco: string | null;
+    tipoTarjeta: string | null;
+    marca: string | null;
+    sistemaCantidad: number;
+    sistemaMonto: number;
+    loteCantidad: number | null;
+    loteMonto: number | null;
+    diferencia: number | null;
+  }>;
+  cobros: Array<{
+    cobroId: string;
+    banco: string | null;
+    tipoTarjeta: string | null;
+    monto: number;
+    referencia: string | null;
+    comisionEstimada: number | null;
+    netoEsperado: number | null;
+    cobradoEn: string;
+  }>;
+  totalSistema: number;
+  totalLote: number | null;
+  diferenciaDelTotal: number | null;
+  cobrosSinBanco: number;
+  diferenciaTotal: number;
+  comisionTotal: number;
+}
+
 export const ventasApi = {
+  // ------------------------------------------------------------------
+  // Configuración de la caja (prompt 08b, A2, A3 y A4).
+  // ------------------------------------------------------------------
+  /** El personal de la clínica: quién recibió un vale, quién hizo un servicio. */
+  personalDeLaClinica: () =>
+    pedir<{
+      personas: Array<{ id: string; nombre: string; es_medico: boolean; es_admin_clinica: boolean }>;
+    }>("/ventas/personal"),
+  denominaciones: () => pedir<{ denominaciones: Denominacion[] }>("/ventas/denominaciones"),
+  crearDenominacion: (d: Record<string, unknown>) =>
+    json<{ id: string }>("/ventas/denominaciones", "POST", d),
+  motivosDescuento: () => pedir<{ motivos: MotivoDescuento[] }>("/ventas/motivos-descuento"),
+  topesDescuento: () => pedir<{ topes: TopeDescuento[] }>("/ventas/topes-descuento"),
+  guardarTopeDescuento: (d: { rol: string; topePct: number | null; puedeAutorizar: boolean }) =>
+    json<{ ok: true }>("/ventas/topes-descuento", "PUT", d),
+  /** El tope que rige para una línea concreta, antes de escribir el descuento. */
+  topeVigente: (q: { presentacion?: string; servicio?: string } = {}) => {
+    const p = new URLSearchParams();
+    if (q.presentacion) p.set("presentacion", q.presentacion);
+    if (q.servicio) p.set("servicio", q.servicio);
+    return pedir<TopeVigente>(`/ventas/tope-descuento?${p.toString()}`);
+  },
+  comisionesTarjeta: () => pedir<{ comisiones: ComisionTarjeta[] }>("/ventas/comisiones-tarjeta"),
+  crearComisionTarjeta: (d: Record<string, unknown>) =>
+    json<{ id: string }>("/ventas/comisiones-tarjeta", "POST", d),
+  guardarLoteDatafono: (sesionId: string, lineas: Array<Record<string, unknown>>) =>
+    json<{ guardadas: number }>(`/ventas/sesiones/${sesionId}/lote-datafono`, "PUT", { lineas }),
+  conciliacionTarjetas: (sesionId: string) =>
+    pedir<ConciliacionTarjetas>(`/ventas/sesiones/${sesionId}/conciliacion-tarjetas`),
+
   cajas: () => pedir<{ cajas: Caja[] }>("/ventas/cajas"),
   crearCaja: (d: Record<string, unknown>) => json<{ id: string }>("/ventas/cajas", "POST", d),
 
@@ -290,6 +396,8 @@ export const ventasApi = {
         umbral_diferencia_arqueo: string;
         descuento_maximo_pct: string;
         lista_precio_id?: string | null;
+        /** Si el cierre abre contando por denominación (prompt 08b, A2). */
+        arqueo_por_denominacion?: boolean;
       };
     }>("/ventas/parametros"),
   guardarParametros: (d: Record<string, unknown>) =>
@@ -305,6 +413,15 @@ export const ventasApi = {
       `/ventas/reportes/${cual}/exportar?desde=${desde}&hasta=${hasta}&formato=${formato}`,
       { token: getStoredToken() }
     ),
+
+  /**
+   * El comprobante del cierre, en PDF (prompt 08b, A2 y A4).
+   *
+   * Blob autenticado y no un `<a href>`: la ruta exige el token y un
+   * enlace directo no lo manda.
+   */
+  comprobanteDeCierre: (sesionId: string) =>
+    apiFetchFile(`/ventas/sesiones/${sesionId}/cierre.pdf`, { token: getStoredToken() }),
 
   reporte: (cual: string, desde: string, hasta: string) =>
     pedir<{

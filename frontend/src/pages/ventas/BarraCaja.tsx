@@ -45,6 +45,10 @@ export function BarraCaja() {
         { a: "/ventas/encargos", etiqueta: "Encargos", icono: "inventario" },
         { a: "/ventas/contingencia", etiqueta: "Contingencia", icono: "aviso" },
         { a: "/ventas/reportes", etiqueta: "Reportes", icono: "reportes" },
+        // Prompt 08b: topes de descuento, motivos, denominaciones del
+        // arqueo y comisiones del datáfono. Van en caja y no en la
+        // administración general porque se consultan cerrando.
+        { a: "/ventas/configuracion", etiqueta: "Configuración", icono: "ajustes" },
       ]}
       indicadores={
         esAdminClinica ? (

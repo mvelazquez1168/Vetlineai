@@ -19,6 +19,7 @@ import {
   useToast,
 } from "../../components/ui";
 import { plural } from "../../lib/plural";
+import { guardarComoArchivo } from "../../lib/descargas";
 import {
   Caja,
   CobroListado,
@@ -46,14 +47,20 @@ import {
 // columna.
 // ---------------------------------------------------------------------
 
-// Las denominaciones que circulan en Costa Rica (billetes y monedas) y
-// los billetes de dólar que una clínica recibe. Están acá y no en la
-// base porque son un hecho del país, no una configuración de la
-// clínica: el día que el BCCR emita otra, se agrega una línea.
-const DENOMINACIONES: Record<string, number[]> = {
-  CRC: [20000, 10000, 5000, 2000, 1000, 500, 100, 50, 25, 10, 5],
-  USD: [100, 50, 20, 10, 5, 1],
-};
+// LAS DENOMINACIONES SALEN DE LA BASE (prompt 08b, A2).
+//
+// Estaban acá, como constante, con el argumento de que «son un hecho del
+// país y no una configuración de la clínica». El argumento se cayó por
+// dos lados: el prompt pide que la clínica pueda editarlas, y una
+// clínica que no recibe billetes de ₡20 000 no quiere esa línea en su
+// planilla de conteo. Ahora vienen de `vta_denominaciones`, con la
+// semilla del BCCR como filas de plataforma.
+//
+// EL RESPALDO ES VACÍO Y NO UNA COPIA: si la consulta falla, no se
+// dibuja el conteo por denominación y se cuenta por total, que es lo que
+// el cierre siempre permitió. Dejar acá una segunda lista sería tener el
+// mismo dato en dos lugares, que es el defecto que esto corrige.
+const SIN_DENOMINACIONES: Record<string, number[]> = {};
 
 export function CajaDelDia() {
   const { id: sesionIdParam } = useParams();
@@ -61,6 +68,19 @@ export function CajaDelDia() {
   const toast = useToast();
 
   const [cajas, setCajas] = useState<Caja[]>([]);
+  // Las denominaciones vigentes de la clínica y el modo predeterminado
+  // de conteo, los dos de la base (prompt 08b, A2).
+  const [denominaciones, setDenominaciones] =
+    useState<Record<string, number[]>>(SIN_DENOMINACIONES);
+  const [porDenominacionPorOmision, setPorDenominacionPorOmision] = useState(false);
+  /** El personal, para decir quién recibió un vale. */
+  const [personas, setPersonas] = useState<Array<{ id: string; nombre: string }>>([]);
+  // EL LOTE DEL DATÁFONO (prompt 08b, A4). Mismo criterio que las
+  // denominaciones: si se carga, el declarado de tarjeta sale de su
+  // suma. El banco y el tipo son los que imprime el papel.
+  const [lote, setLote] = useState<
+    Array<{ banco: string; tipoTarjeta: string; cantidad: string; monto: string; numeroLote: string }>
+  >([]);
   const [sesionId, setSesionId] = useState(sesionIdParam ?? "");
   const [datos, setDatos] = useState<{
     sesion: Sesion;
@@ -92,6 +112,12 @@ export function CajaDelDia() {
   const [movimiento, setMovimiento] = useState(false);
   const [mov, setMov] = useState({
     tipo: "retiro_caja_fuerte",
+    // QUIÉN RECIBE (prompt 08b, A2). `persona_id` es quien lo registra;
+    // en el caso que motiva el vale —el adelanto a un empleado, el pago
+    // de la mensajería— la plata se la lleva otra persona, y es el dato
+    // por el que se firma el vale.
+    recibidoPor: "",
+    recibidoPorNombre: "",
     moneda: "CRC",
     monto: "",
     categoriaGasto: "",
@@ -122,6 +148,34 @@ export function CajaDelDia() {
       })
       .catch(() => setCajas([]))
       .finally(() => setCargando(false));
+
+    // El catálogo de la clínica y el modo de conteo predeterminado. Si
+    // falla, el cierre sigue contando por total: es lo que siempre pudo
+    // hacer, y es mejor que dibujar una planilla con una lista inventada.
+    ventasApi
+      .denominaciones()
+      .then((r) => {
+        const porMoneda: Record<string, number[]> = {};
+        for (const d of r.denominaciones) {
+          porMoneda[d.moneda] = [...(porMoneda[d.moneda] ?? []), Number(d.valor)];
+        }
+        for (const moneda of Object.keys(porMoneda)) {
+          porMoneda[moneda].sort((a, b) => b - a);
+        }
+        setDenominaciones(porMoneda);
+      })
+      .catch(() => setDenominaciones(SIN_DENOMINACIONES));
+    ventasApi
+      .parametros()
+      .then((p) => setPorDenominacionPorOmision(p.parametros.arqueo_por_denominacion === true))
+      .catch(() => setPorDenominacionPorOmision(false));
+    ventasApi
+      .personalDeLaClinica()
+      .then((r) => setPersonas(r.personas))
+      // Sin la lista, el vale se escribe con el nombre a mano: el campo
+      // libre existe justamente porque quien recibe puede no ser del
+      // personal.
+      .catch(() => setPersonas([]));
   }, []);
 
   useEffect(() => {
@@ -181,6 +235,18 @@ export function CajaDelDia() {
           justificacion: justificacion[clave(l)]?.trim() || undefined,
         })),
         denominaciones: denominacionesEscritas(),
+        // Las líneas con banco y monto: una fila a medio escribir no se
+        // manda, para no guardar un lote de ₡0 que después nadie
+        // entiende.
+        loteDatafono: lote
+          .filter((l) => l.banco.trim() && Number(l.monto.replace(",", ".")) > 0)
+          .map((l) => ({
+            banco: l.banco.trim(),
+            tipoTarjeta: l.tipoTarjeta,
+            cantidad: Number(l.cantidad) || 0,
+            monto: Number(l.monto.replace(",", ".")),
+            numeroLote: l.numeroLote.trim() || undefined,
+          })),
       });
       if (!r.cerrada) {
         toast.aviso(
@@ -208,6 +274,8 @@ export function CajaDelDia() {
         monto: Number(mov.monto.replace(",", ".")),
         categoriaGasto: mov.categoriaGasto.trim() || undefined,
         motivo: mov.motivo,
+              recibidoPor: mov.recibidoPor || undefined,
+        recibidoPorNombre: mov.recibidoPorNombre.trim() || undefined,
       });
       toast.exito("Movimiento registrado. El arqueo ya lo considera.");
       setMovimiento(false);
@@ -355,16 +423,45 @@ export function CajaDelDia() {
           </span>
         }
         secundarias={
-          abiertaAun ? (
-            <>
-              <Button variant="secondary" onClick={() => setMovimiento(true)}>
-                Movimiento de efectivo
+          <>
+            {abiertaAun && (
+              <>
+                <Button variant="secondary" onClick={() => setMovimiento(true)}>
+                  Movimiento de efectivo
+                </Button>
+                <Button variant="secondary" onClick={() => setCerrando(true)}>
+                  Cerrar con arqueo
+                </Button>
+              </>
+            )}
+            {/* EL COMPROBANTE DEL CIERRE (prompt 08b, A2). Se puede bajar
+                con la caja abierta —sale marcado «SIN CERRAR»— porque el
+                cajero lo usa para contar antes de cerrar. */}
+            {sesionId && (
+              <Button
+                variant="secondary"
+                onClick={async () => {
+                  try {
+                    // `apiFetchFile` devuelve el blob Y el nombre que
+                    // mandó el servidor: se usa el del servidor, que es
+                    // el que ya sabe cómo se llama el documento.
+                    const r = await ventasApi.comprobanteDeCierre(sesionId);
+                    guardarComoArchivo(
+                      r.blob,
+                      r.filename ?? `cierre-de-caja-${sesionId.slice(0, 8)}.pdf`
+                    );
+                  } catch (err) {
+                    toast.mostrar(
+                      "error",
+                      err instanceof Error ? err.message : "No pudimos generar el comprobante."
+                    );
+                  }
+                }}
+              >
+                Comprobante del cierre
               </Button>
-              <Button variant="secondary" onClick={() => setCerrando(true)}>
-                Cerrar con arqueo
-              </Button>
-            </>
-          ) : null
+            )}
+          </>
         }
         accion={
           abiertaAun ? (
@@ -631,10 +728,101 @@ export function CajaDelDia() {
             </tbody>
           </table>
         </div>
-        {/* --------------------------------- Conteo por denominación */}
+        {/* ------------------------------- Lote del datáfono (A4) */}
         <div className="mt-5 rounded-xl border border-black/5 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-text-primary">
+              Lote del datáfono <span className="font-normal text-text-muted">(opcional)</span>
+            </p>
+            <Button
+              variant="secondary"
+              onClick={() =>
+                setLote((l) => [
+                  ...l,
+                  { banco: "", tipoTarjeta: "credito", cantidad: "", monto: "", numeroLote: "" },
+                ])
+              }
+            >
+              + Agregar línea
+            </Button>
+          </div>
+          <p className="mt-1 text-xs text-text-muted">
+            Los totales que imprime el datáfono al cerrar el lote. Si los cargás, el{" "}
+            <strong>declarado de tarjeta sale de esta suma</strong> y la diferencia contra lo que el
+            sistema cobró queda en el comprobante del cierre.
+          </p>
+          {lote.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {lote.map((l, i) => (
+                <div key={i} className="grid gap-2 sm:grid-cols-5">
+                  <Input
+                    label="Banco"
+                    value={l.banco}
+                    placeholder="BAC"
+                    onChange={(e) =>
+                      setLote((xs) => xs.map((x, j) => (j === i ? { ...x, banco: e.target.value } : x)))
+                    }
+                  />
+                  <Select
+                    label="Tipo"
+                    value={l.tipoTarjeta}
+                    onChange={(e) =>
+                      setLote((xs) =>
+                        xs.map((x, j) => (j === i ? { ...x, tipoTarjeta: e.target.value } : x))
+                      )
+                    }
+                    options={[
+                      { value: "credito", label: "Crédito" },
+                      { value: "debito", label: "Débito" },
+                    ]}
+                  />
+                  <Input
+                    label="Transacciones"
+                    value={l.cantidad}
+                    inputMode="numeric"
+                    onChange={(e) =>
+                      setLote((xs) =>
+                        xs.map((x, j) => (j === i ? { ...x, cantidad: e.target.value } : x))
+                      )
+                    }
+                  />
+                  <Input
+                    label="Monto del lote"
+                    value={l.monto}
+                    inputMode="decimal"
+                    onChange={(e) =>
+                      setLote((xs) => xs.map((x, j) => (j === i ? { ...x, monto: e.target.value } : x)))
+                    }
+                  />
+                  <Input
+                    label="N.º de lote"
+                    value={l.numeroLote}
+                    onChange={(e) =>
+                      setLote((xs) =>
+                        xs.map((x, j) => (j === i ? { ...x, numeroLote: e.target.value } : x))
+                      )
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* --------------------------------- Conteo por denominación */}
+        {Object.keys(denominaciones).length > 0 && (
+        <div
+          className="mt-5 rounded-xl border border-black/5 p-3"
+          // El modo predeterminado lo decide la clínica (prompt 08b, A2):
+          // con `arqueo_por_denominacion` en true, el bloque nace
+          // abierto. Contar por total sigue permitido siempre.
+          data-predeterminado={porDenominacionPorOmision ? "denominacion" : "total"}
+        >
           <p className="text-sm font-semibold text-text-primary">
-            Conteo por denominación <span className="font-normal text-text-muted">(opcional)</span>
+            Conteo por denominación{" "}
+            <span className="font-normal text-text-muted">
+              {porDenominacionPorOmision ? "(así cuenta esta clínica)" : "(opcional)"}
+            </span>
           </p>
           <p className="mt-1 text-xs text-text-muted">
             Contar billete por billete es más confiable que sumar de cabeza y deja el detalle
@@ -644,7 +832,7 @@ export function CajaDelDia() {
           </p>
 
           <div className="mt-3 grid gap-4 sm:grid-cols-2">
-            {Object.entries(DENOMINACIONES).map(([moneda, valores]) => {
+            {Object.entries(denominaciones).map(([moneda, valores]) => {
               const total = contadoEn(moneda);
               return (
                 <div key={moneda}>
@@ -702,6 +890,7 @@ export function CajaDelDia() {
             })}
           </div>
         </div>
+        )}
 
         <p className="mt-3 text-xs text-text-muted">
           Cada diferencia lleva su justificación. Si la diferencia total supera el umbral de la
@@ -764,6 +953,32 @@ export function CajaDelDia() {
             onChange={(e) => setMov({ ...mov, motivo: e.target.value })}
             placeholder="Retiro del mediodía a la caja fuerte"
           />
+          {/* EL VALE DE CAJA. Las dos salidas de efectivo que no son una
+              venta —el gasto de caja chica y el adelanto— se firman, y lo
+              que se firma es a quién se le entregó la plata. */}
+          {mov.tipo !== "ingreso_extra" && (
+            <>
+              <Select
+                label="Quién recibió la plata"
+                value={mov.recibidoPor}
+                onChange={(e) =>
+                  setMov({ ...mov, recibidoPor: e.target.value, recibidoPorNombre: "" })
+                }
+                options={[
+                  { value: "", label: "Alguien de afuera (escribir el nombre)" },
+                  ...personas.map((p) => ({ value: p.id, label: p.nombre })),
+                ]}
+              />
+              {!mov.recibidoPor && (
+                <Input
+                  label="Nombre de quien recibió"
+                  value={mov.recibidoPorNombre}
+                  placeholder="La mensajería, el ferretero…"
+                  onChange={(e) => setMov({ ...mov, recibidoPorNombre: e.target.value })}
+                />
+              )}
+            </>
+          )}
         </div>
       </Modal>
     </div>

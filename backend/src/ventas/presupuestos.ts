@@ -2,6 +2,7 @@ import { PoolClient } from "pg";
 import { registrarInteraccion } from "../crm/interacciones";
 import { abrirCuenta, agregarCargo } from "./cuentas";
 import { precioVigente } from "../inventario/precios";
+import { politicaNumero } from "../clinica/politicas";
 import { validarDescuento } from "./descuentos";
 
 // ---------------------------------------------------------------------
@@ -185,11 +186,11 @@ export async function crearPresupuesto(
   );
   const numero = Number(ultimo.rows[0].numero) + 1;
 
-  const par = await db.query<{ dias: number }>(
-    `SELECT presupuesto_vigencia_dias AS dias FROM vta_parametros WHERE tenant_id = $1`,
-    [tenantId]
-  );
-  const vigencia = s.vigenciaDias ?? par.rows[0]?.dias ?? 15;
+  // La vigencia sale de la política (prompt 04, §4), con el respaldo en
+  // `vta_parametros.presupuesto_vigencia_dias` mientras esa columna
+  // exista.
+  const vigencia =
+    s.vigenciaDias ?? (await politicaNumero(db, tenantId, "presupuesto.vigencia_dias"));
 
   let nombre: string | null = null;
   if (s.propietarioId) {

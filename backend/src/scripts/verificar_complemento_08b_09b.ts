@@ -94,11 +94,21 @@ async function main() {
      VALUES ($1, 2000, 15)`,
     [tenantId]
   );
-  // Los topes por rol, como los sembraría la migración para una clínica
-  // que ya existía.
+  // EL TOPE POR ROL AHORA VIVE EN `tenant_politicas` (prompt 04, §4).
+  // Antes este verificador sembraba `vta_topes_descuento`, que es donde
+  // nació en el 08b; la política lo reemplazó y esta siembra se movió
+  // con ella. La columna vieja sigue existiendo como respaldo y por eso
+  // el resto del 08b no cambió.
+  await pool.query(
+    `INSERT INTO tenant_politicas (tenant_id, clave, rol, valor)
+     VALUES ($1,'descuento.maximo_sin_autorizacion','medico','10')`,
+    [tenantId]
+  );
+  // El administrador autoriza porque tiene el permiso `caja.aprobar`,
+  // no porque una columna diga `puede_autorizar`.
   await pool.query(
     `INSERT INTO vta_topes_descuento (tenant_id, rol, tope_pct, puede_autorizar)
-     VALUES ($1,'medico',10,false), ($1,'admin_clinica',NULL,true)`,
+     VALUES ($1,'admin_clinica',NULL,true)`,
     [tenantId]
   );
 

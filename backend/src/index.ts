@@ -25,6 +25,7 @@ import { citasRouter } from "./routes/citas.routes";
 import { atencionesRouter } from "./routes/atenciones.routes";
 import { clinicRouter } from "./routes/clinic.routes";
 import { crmRouter } from "./routes/crm.routes";
+import { clinicaRouter } from "./routes/clinica.routes";
 import { inicioRouter } from "./routes/inicio.routes";
 import { dictadoRouter } from "./routes/dictado.routes";
 import { expedienteRouter } from "./routes/expediente.routes";
@@ -178,6 +179,7 @@ app.use("/api/dictado", dictadoRouter);
 // cliente los necesita cualquier clinica, incluso una que solo usa
 // Vetline Ai — `emitirNotificacion` los consulta en todas.
 app.use("/api/crm", crmRouter);
+app.use("/api/clinica", clinicaRouter);
 // Los indicadores del inicio y del menu (prompt 01c): una sola consulta
 // agregada que el menu pide en cada carga.
 app.use("/api/inicio", inicioRouter);

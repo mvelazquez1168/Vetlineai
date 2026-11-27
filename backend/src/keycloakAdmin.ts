@@ -317,6 +317,31 @@ export async function cerrarSesionesUsuarioKeycloak(keycloakUserId: string): Pro
   }
 }
 
+/**
+ * Habilita o deshabilita un usuario en Keycloak.
+ *
+ * ES LA OTRA MITAD DE DESACTIVAR A ALGUIEN (prompt 04). Sin esto,
+ * desactivar era una etiqueta en nuestra base: la persona seguía
+ * pudiendo pedir un token nuevo a Keycloak, porque Keycloak no se
+ * enteraba. Cerrar sus sesiones sin deshabilitarla sería peor que no
+ * hacer nada: la saca y la deja volver a entrar.
+ */
+export async function habilitarUsuarioKeycloak(
+  keycloakUserId: string,
+  habilitado: boolean
+): Promise<void> {
+  const response = await adminFetch(`/users/${keycloakUserId}`, {
+    method: "PUT",
+    body: JSON.stringify({ enabled: habilitado }),
+  });
+  if (!response.ok) {
+    const detalle = await response.text().catch(() => "");
+    throw new Error(
+      `No se pudo ${habilitado ? "habilitar" : "deshabilitar"} el usuario en Keycloak (HTTP ${response.status}): ${detalle}`
+    );
+  }
+}
+
 export interface TokenUsuarioKeycloak {
   access_token: string;
   refresh_token: string;

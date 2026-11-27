@@ -1,5 +1,6 @@
 import { PoolClient } from "pg";
 import { LineaLoteDatafono, registrarLoteDatafono } from "./comisionesTarjeta";
+import { politicaNumero } from "../clinica/politicas";
 
 // ---------------------------------------------------------------------
 // CAJAS Y SESIONES: apertura, arqueo y cierre.
@@ -309,11 +310,11 @@ export async function cerrarSesion(
     );
   }
 
-  const par = await db.query<{ umbral_diferencia_arqueo: string }>(
-    `SELECT umbral_diferencia_arqueo FROM vta_parametros WHERE tenant_id = $1`,
-    [tenantId]
+  // El umbral sale de la política (prompt 04, §4), con respaldo en
+  // `vta_parametros.umbral_diferencia_arqueo`.
+  const umbral = await politicaNumero(db, tenantId, "arqueo.umbral_diferencia").catch(
+    () => UMBRAL_POR_DEFECTO
   );
-  const umbral = par.rows.length > 0 ? Number(par.rows[0].umbral_diferencia_arqueo) : UMBRAL_POR_DEFECTO;
 
   // Las diferencias en dólares se convierten para compararlas con un
   // umbral que está en colones. Sin eso, una diferencia de 50 USD

@@ -4,6 +4,7 @@ import jwksClient from "jwks-rsa";
 import { PoolClient } from "pg";
 import { config } from "../config";
 import { pool, tenantPool } from "../db";
+import { permisosDePersona } from "../permisos";
 
 /**
  * Payload que este backend arma a partir del token de Keycloak ya
@@ -24,6 +25,18 @@ export interface AuthPayload {
   esMedico: boolean;
   /** Zona horaria IANA del tenant activo. null para staff_plataforma (sin tenant). */
   zonaHoraria: string | null;
+  /**
+   * LOS ROLES Y LOS PERMISOS EFECTIVOS (prompt 04).
+   *
+   * Resueltos desde la base en cada solicitud, nunca desde el token: si
+   * viajaran en el token, quitarle a alguien el permiso de anular no
+   * tendría efecto hasta que su token expire.
+   *
+   * `esMedico` y `esAdminClinica` siguen estando y ahora se DERIVAN de
+   * `roles`: son los que usan los 100 chequeos que ya existen.
+   */
+  roles?: string[];
+  permisos?: Set<string>;
 }
 
 declare global {
@@ -180,7 +193,8 @@ async function resolverPrincipal(payload: TokenKeycloak): Promise<AuthPayload | 
 
   if (payload.tenant_id) {
     const result = await pool.query(
-      `SELECT p.id, p.tenant_id, p.es_admin_clinica, p.es_medico, t.zona_horaria, s.estado AS suscripcion_estado
+      `SELECT p.id, p.tenant_id, p.estado, t.zona_horaria,
+              s.estado AS suscripcion_estado
        FROM personas p
        JOIN tenants t ON t.id = p.tenant_id
        LEFT JOIN suscripciones s ON s.id = t.suscripcion_id
@@ -190,15 +204,36 @@ async function resolverPrincipal(payload: TokenKeycloak): Promise<AuthPayload | 
     const persona = result.rows[0];
     if (!persona) return null;
     if (persona.tenant_id !== payload.tenant_id) return null;
+
+    // UN DESACTIVADO NO ENTRA — defecto corregido en el prompt 04.
+    //
+    // Esta consulta no miraba `p.estado`: una persona en `inactivo`
+    // resolvía igual y seguía trabajando con su token, y podía
+    // renovarlo porque Keycloak no se enteraba de la desactivación.
+    // Desactivar era una etiqueta en la base y nada más.
+    //
+    // Ahora falla acá, con 401, y el frontend lo saca a la pantalla de
+    // acceso. La otra mitad del arreglo —deshabilitarlo en Keycloak y
+    // revocar sus sesiones— está en la ruta que desactiva.
+    if (persona.estado !== "activo") return null;
+
     if (persona.suscripcion_estado === "bloqueada") throw new ClinicaBloqueadaError();
+
+    // LOS ROLES Y PERMISOS, DESDE LA BASE (prompt 04). `esMedico` y
+    // `esAdminClinica` ya no se leen de las columnas: se derivan de los
+    // roles, que son la fuente. Las columnas quedan como derivadas y se
+    // borran cuando nadie las lea.
+    const efectivos = await permisosDePersona(persona.id, persona.tenant_id);
 
     return {
       userId: persona.id,
       tenantId: persona.tenant_id,
-      rol: persona.es_admin_clinica ? "admin_clinica" : "medico",
-      esAdminClinica: persona.es_admin_clinica,
-      esMedico: persona.es_medico,
+      rol: efectivos.esAdminClinica ? "admin_clinica" : "medico",
+      esAdminClinica: efectivos.esAdminClinica,
+      esMedico: efectivos.esMedico,
       zonaHoraria: persona.zona_horaria,
+      roles: efectivos.roles,
+      permisos: efectivos.permisos,
     };
   }
 
@@ -216,6 +251,10 @@ async function resolverPrincipal(payload: TokenKeycloak): Promise<AuthPayload | 
     esAdminClinica: false,
     esMedico: false,
     zonaHoraria: null,
+    // El staff de plataforma no tiene roles de clínica: sus permisos son
+    // los de las rutas de plataforma, que se gatean por `rol`.
+    roles: [],
+    permisos: new Set<string>(),
   };
 }
 

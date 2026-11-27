@@ -1,5 +1,6 @@
 import { Pool, PoolClient } from "pg";
 import { registrarInteraccion } from "./interacciones";
+import { politicaNumero } from "../clinica/politicas";
 
 // ---------------------------------------------------------------------
 // CONSENTIMIENTOS, PREFERENCIAS Y EL PUNTO ÚNICO ANTES DE ENVIAR
@@ -48,11 +49,23 @@ export async function politicas(db: EjecutorSql, tenantId: string): Promise<Poli
        FROM crm_politicas WHERE tenant_id = $1`,
     [tenantId]
   );
-  if (r.rows.length === 0) return POLITICAS_POR_DEFECTO;
+  // EL TOPE DE PROMOCIONES SALE DE LA POLÍTICA (prompt 04, §4). La
+  // franja horaria y la ventana de duplicados se quedan acá: son del
+  // CRM y no políticas de negocio de la clínica, y el prompt nombra
+  // solo el tope.
+  //
+  // `politica` ya cae a `crm_politicas.tope_promociones_mes` cuando la
+  // clínica no tiene fila nueva, así que esta lectura devuelve lo mismo
+  // que antes hasta que alguien lo cambie desde la pantalla de
+  // políticas.
+  const tope = await politicaNumero(db as PoolClient, tenantId, "mensajes.tope_promociones_mes")
+    .catch(() => (r.rows[0] ? Number(r.rows[0].tope_promociones_mes) : POLITICAS_POR_DEFECTO.topePromocionesMes));
+
+  if (r.rows.length === 0) return { ...POLITICAS_POR_DEFECTO, topePromocionesMes: tope };
   return {
     horaDesde: r.rows[0].hora_desde.slice(0, 5),
     horaHasta: r.rows[0].hora_hasta.slice(0, 5),
-    topePromocionesMes: Number(r.rows[0].tope_promociones_mes),
+    topePromocionesMes: tope,
     ventanaDuplicadoHoras: Number(r.rows[0].ventana_duplicado_horas),
   };
 }

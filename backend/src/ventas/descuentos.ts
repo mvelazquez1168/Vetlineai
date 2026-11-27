@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { politicaNumero } from "../clinica/politicas";
 
 // ---------------------------------------------------------------------
 // HASTA CUÁNTO SE PUEDE DESCONTAR, Y POR QUÉ — prompt 08b, A3.
@@ -39,25 +40,36 @@ export interface TopeDeDescuento {
 }
 
 /**
- * El rol efectivo de una persona, en el texto que usa `vta_topes_descuento`.
+ * Los roles de una persona, desde `persona_roles` (prompt 04).
  *
- * Hoy los roles de una clínica son dos booleanos de `personas` y no una
- * tabla. `admin_clinica` gana cuando la persona es las dos cosas —el
- * caso normal en una clínica chica— porque el tope del administrador es
- * el más alto y sería absurdo que ser médico se lo bajara.
+ * ANTES LEÍA LOS DOS BOOLEANOS, y por eso una recepcionista caía en
+ * «otro» y su tope salía del general de la clínica en vez del de su rol.
+ * Lo encontró el verificador del 04: el tope configurado para recepción
+ * era 5 % y la caja le aplicaba 12 %.
  */
-export async function rolEfectivo(db: PoolClient, personaId: string): Promise<string> {
-  const r = await db.query<{ es_medico: boolean; es_admin_clinica: boolean }>(
-    `SELECT es_medico, es_admin_clinica FROM personas WHERE id = $1`,
+export async function rolesDe(db: PoolClient, personaId: string): Promise<string[]> {
+  const r = await db.query<{ rol: string }>(
+    `SELECT rol FROM persona_roles WHERE persona_id = $1`,
     [personaId]
   );
-  if (r.rows.length === 0) return "desconocido";
-  if (r.rows[0].es_admin_clinica) return "admin_clinica";
-  if (r.rows[0].es_medico) return "medico";
-  // El personal que no es médico ni administrador: hoy no hay ninguno
-  // —el rol de recepción lo crea el prompt 04— y cuando lo haya, su
-  // tope sale de su fila en `vta_topes_descuento`.
-  return "otro";
+  return r.rows.map((f) => f.rol);
+}
+
+/**
+ * El rol que gobierna el tope de descuento de una persona.
+ *
+ * CON VARIOS ROLES GANA EL MÁS PERMISIVO, y no el más restrictivo.
+ * Alguien que es médica y administradora puede descontar lo que puede
+ * descontar una administradora: tener un rol adicional no te quita
+ * capacidades. Es al revés del «vale el menor» de los tres niveles
+ * —producto, rol, clínica—, que son límites de distinta naturaleza
+ * apilados sobre la misma persona.
+ */
+export async function rolEfectivo(db: PoolClient, personaId: string): Promise<string> {
+  const roles = await rolesDe(db, personaId);
+  if (roles.length === 0) return "desconocido";
+  if (roles.includes("admin_clinica")) return "admin_clinica";
+  return roles[0];
 }
 
 export async function topeDeDescuento(
@@ -91,31 +103,35 @@ export async function topeDeDescuento(
     );
     if (r.rows[0]?.tope != null) detalle.servicio = Number(r.rows[0].tope);
   }
+  // EL TOPE DEL ROL Y EL DE LA CLÍNICA SALEN DE LAS POLÍTICAS (prompt
+  // 04, §4). Antes se leían de `vta_topes_descuento` y de
+  // `vta_parametros`, que es donde nacieron en el 08b. La política lo
+  // resuelve con el mismo orden —el del rol primero, el general
+  // después— y con el respaldo en esas columnas mientras existan, así
+  // que ninguna clínica cambia de comportamiento el día del despliegue.
   if (que.personaId) {
-    const rol = await rolEfectivo(db, que.personaId);
-    const r = await db.query<{ tope: string | null }>(
-      `SELECT tope_pct::text AS tope FROM vta_topes_descuento
-        WHERE tenant_id = $1 AND rol = $2`,
-      [tenantId, rol]
+    const roles = await rolesDe(db, que.personaId);
+    // SE PREGUNTA POR EL VALOR POR ROL A SECAS y no por `politica(...,
+    // rol)`: si devolviera el general, un rol sin tope propio quedaría
+    // con el de la clínica como si fuera suyo, y el detalle de la
+    // pantalla mentiría sobre de dónde salió.
+    //
+    // CON VARIOS ROLES, EL MAYOR de los configurados: tener un rol
+    // adicional no te quita capacidades. Y si alguno de sus roles no
+    // tiene tope propio, ese rol no limita, así que tampoco limita la
+    // persona: se deja `null` y rige el general.
+    const propios = await db.query<{ rol: string; valor: string }>(
+      `SELECT rol, valor FROM tenant_politicas
+        WHERE tenant_id = $1 AND clave = 'descuento.maximo_sin_autorizacion'
+          AND rol = ANY($2::varchar[])`,
+      [tenantId, roles]
     );
-    if (r.rows.length > 0) {
-      if (r.rows[0].tope != null) detalle.rol = Number(r.rows[0].tope);
-      // Fila con tope en NULL = «este rol no tiene tope propio»: rige el
-      // de la clínica. Es lo que hace al administrador «sin tope» sin
-      // inventarle un 100 %.
-    } else if (rol !== "admin_clinica") {
-      // SIN FILA Y SIN SER ADMINISTRADOR: rige el de la clínica, que es
-      // el que existía antes de que hubiera topes por rol. No se
-      // inventa un cero, que dejaría a la clínica sin poder descontar
-      // nada hasta que alguien configure la pantalla.
-      detalle.rol = null;
+    const todosTienenTope = roles.length > 0 && propios.rows.length === roles.length;
+    if (todosTienenTope) {
+      detalle.rol = Math.max(...propios.rows.map((f) => Number(f.valor)));
     }
   }
-  const par = await db.query<{ tope: string | null }>(
-    `SELECT descuento_maximo_pct::text AS tope FROM vta_parametros WHERE tenant_id = $1`,
-    [tenantId]
-  );
-  if (par.rows[0]?.tope != null) detalle.clinica = Number(par.rows[0].tope);
+  detalle.clinica = await politicaNumero(db, tenantId, "descuento.maximo_sin_autorizacion");
 
   const candidatos: Array<[TopeDeDescuento["origen"], number | null]> = [
     ["producto", detalle.producto],
@@ -172,14 +188,34 @@ export async function puedeAutorizarDescuento(
   tenantId: string,
   personaId: string
 ): Promise<boolean> {
-  const rol = await rolEfectivo(db, personaId);
+  // SALE DEL PERMISO Y NO DE `vta_topes_descuento.puede_autorizar`
+  // (prompt 04). Esa columna nació en el 08b, antes de que existiera un
+  // modelo de permisos, y mantenerla sería una segunda fuente de la
+  // misma respuesta: la clínica podría quitarle `caja.aprobar` a un rol
+  // en la pantalla de roles y ese rol seguiría autorizando descuentos.
+  //
+  // `caja.aprobar` es «aprobar lo que otros solicitan», que es
+  // exactamente esto, y es el mismo permiso con el que se resuelven las
+  // anulaciones.
   const r = await db.query<{ puede: boolean }>(
-    `SELECT puede_autorizar AS puede FROM vta_topes_descuento
-      WHERE tenant_id = $1 AND rol = $2`,
-    [tenantId, rol]
+    `SELECT EXISTS (
+       WITH roles_de AS (SELECT rol FROM persona_roles WHERE persona_id = $2)
+       SELECT 1
+         FROM roles_de rd
+        WHERE (
+          EXISTS (SELECT 1 FROM rol_permisos rp
+                   WHERE rp.rol = rd.rol AND rp.permiso = 'caja.aprobar')
+            AND COALESCE((SELECT trp.concedido FROM tenant_rol_permiso trp
+                           WHERE trp.tenant_id = $1 AND trp.rol = rd.rol
+                             AND trp.permiso = 'caja.aprobar'), true)
+        )
+        OR COALESCE((SELECT trp.concedido FROM tenant_rol_permiso trp
+                      WHERE trp.tenant_id = $1 AND trp.rol = rd.rol
+                        AND trp.permiso = 'caja.aprobar'), false)
+     ) AS puede`,
+    [tenantId, personaId]
   );
-  if (r.rows.length > 0) return r.rows[0].puede === true;
-  return rol === "admin_clinica";
+  return r.rows[0].puede === true;
 }
 
 export class DescuentoSobreElTope extends Error {

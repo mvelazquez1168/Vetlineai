@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { Legal } from "./pages/Legal";
 import { Login } from "./pages/Login";
@@ -128,9 +128,28 @@ function IndexRedirect() {
   );
 }
 
-export default function App() {
-  return (
-    <Routes>
+// ---------------------------------------------------------------------
+// EL ÁRBOL DE RUTAS, como elementos y no como componente.
+//
+// Antes era `<Routes>` dentro de un `<BrowserRouter>`. Pasa a ser un
+// fragmento de `<Route>` que `main.tsx` convierte con
+// `createRoutesFromElements` en un ROUTER DE DATOS.
+//
+// POR QUÉ, y es la única razón: `useBlocker` —lo que impide salir de una
+// pantalla con cambios sin guardar, regla 4.7 de la guía— SOLO existe en
+// el router de datos. Con `<BrowserRouter>` no hay forma de interceptar
+// una navegación interna, y la regla se quedaría en `beforeunload`, que
+// solo cubre cerrar o recargar la pestaña: el caso más común —tocar otra
+// opción del menú— quedaría afuera.
+//
+// El árbol es exactamente el mismo, elemento por elemento. No hay rutas
+// condicionales acá a propósito: lo que depende de la sesión lo resuelve
+// `ProtectedRoute` y `IndexRedirect` DENTRO de la ruta, que es lo que
+// permite que el árbol sea estático.
+// ---------------------------------------------------------------------
+
+export const rutasDeLaApp = (
+  <>
       <Route path="/" element={<IndexRedirect />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
@@ -562,6 +581,5 @@ export default function App() {
       <Route path="/firmar/:token" element={<FirmarADistancia />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
-}
+  </>
+);

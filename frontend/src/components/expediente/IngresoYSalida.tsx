@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Badge, Button, Icono, Input, useToast } from "../ui";
 import { atencionApi } from "../../lib/expedienteApi";
 import { useAuth } from "../../hooks/useAuth";
@@ -54,6 +56,14 @@ export function IngresoYSalida({
   esMedico,
   onCambio,
 }: Props) {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const toast = useToast();
   const { zonaHoraria } = useAuth();
   const [editandoEstancia, setEditandoEstancia] = useState(false);
@@ -76,7 +86,8 @@ export function IngresoYSalida({
   }
 
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-black/5 pt-3 text-sm">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-black/5 pt-3 text-sm">
+      {dialogoSalida}
       <span className="flex items-center gap-1 text-text-muted">
         <Icono nombre="hora" tamano={14} />
         Entró a las <strong className="text-text-primary">{formatearHora(ingresoEn, zonaHoraria)}</strong>

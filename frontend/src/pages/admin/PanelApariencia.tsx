@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Card, CardDescription, CardTitle, LoadingState } from "../../components/ui";
 import { Icono } from "../../components/ui/Icono";
 import { aplicarTema, useApariencia } from "../../hooks/useApariencia";
@@ -48,6 +50,14 @@ const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 const LOGO_TIPOS = ["image/png", "image/jpeg", "image/webp"];
 
 export function PanelApariencia() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const { user } = useAuth();
   const { recargar } = useApariencia();
   const [datos, setDatos] = useState<AparienciaApi | null>(null);
@@ -185,7 +195,8 @@ export function PanelApariencia() {
   const srcLogo = urlDeArchivo(datos.logoUrl);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="grid gap-4 lg:grid-cols-[1fr_380px]">
+      {dialogoSalida}
       <div className="space-y-4">
         <Card>
           <CardTitle>El color de la clínica</CardTitle>

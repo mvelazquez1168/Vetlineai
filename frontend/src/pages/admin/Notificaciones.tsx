@@ -1,4 +1,6 @@
 import { PageHeader } from "../../components/ui";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { useEffect, useState } from "react";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -44,6 +46,14 @@ function SeccionHeader({ titulo, activos, total }: { titulo: string; activos: nu
 }
 
 export function Notificaciones() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const [config, setConfig] = useState<ConfiguracionNotificaciones | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -99,7 +109,8 @@ export function Notificaciones() {
   const activosMedicos = avisosMedicos.filter((k) => config[k]).length;
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <PageHeader
         titulo="Notificaciones"
         subtitulo="Estos avisos se envían automáticamente en nombre de tu clínica."

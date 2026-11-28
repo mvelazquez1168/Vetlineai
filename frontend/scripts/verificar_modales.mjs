@@ -47,6 +47,10 @@ const EXCEPCIONES = new Map([
     "components/PanelAyuda.tsx",
     "es un panel lateral de consulta que convive con la pantalla; no bloquea el trabajo detrás",
   ],
+  [
+    "hooks/useCambiosSinGuardar.tsx",
+    "es el diálogo que PREGUNTA si se puede cerrar (guía §4.7): usar CapaModal sería circular, porque CapaModal lo usa a él",
+  ],
 ]);
 
 let fallos = 0;

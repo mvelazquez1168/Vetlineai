@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Badge, BadgeVariant } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import {
@@ -64,6 +66,14 @@ interface RecetaPanelProps {
 // (GCIS, ICIS, u otros a futuro). Nada acá depende de qué agente lleva
 // el caso; el backend ya resuelve eso dinámicamente en /validar.
 export function RecetaPanel({ origen, pacienteNombre, onClose }: RecetaPanelProps) {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const [recetaId, setRecetaId] = useState<string | null>(null);
   const validacionDisponible = origen.tipo === "caso" ? true : origen.tieneCaso;
   const [items, setItems] = useState<ItemEnEdicion[]>([]);
@@ -258,7 +268,8 @@ export function RecetaPanel({ origen, pacienteNombre, onClose }: RecetaPanelProp
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col border-l border-black/10 bg-surface shadow-2xl">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="fixed inset-y-0 right-0 z-40 flex w-full max-w-md flex-col border-l border-black/10 bg-surface shadow-2xl">
+      {dialogoSalida}
       <div className="border-b border-black/5 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

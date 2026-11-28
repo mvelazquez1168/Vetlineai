@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Button } from "../../components/ui/Button";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { formatearFecha } from "../../lib/formatFecha";
@@ -16,6 +18,14 @@ const GRUPOS: { prefijo: string; titulo: string }[] = [
 ];
 
 export function Parametros() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const [parametros, setParametros] = useState<ParametroPlataforma[]>([]);
   const [consumoPruebas, setConsumoPruebas] = useState<ConsumoPruebas | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +71,8 @@ export function Parametros() {
   const pctSandbox = consumoPruebas.topeUsd > 0 ? Math.min((consumoPruebas.consumoUsd / consumoPruebas.topeUsd) * 100, 100) : 0;
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <h1 className="text-2xl font-bold text-primary">Parámetros Globales</h1>
       <p className="mt-1 text-text-muted">
         Configuración general de límites, purgas, saldos de gracia y políticas de control del sistema Vetline Ai.

@@ -7,7 +7,8 @@
     "dev": "vite",
     "lint": "eslint .",
     "verificar-api": "node scripts/verificar_api_autenticada.mjs",
-    "build": "eslint . && node scripts/verificar_api_autenticada.mjs && tsc -b && vite build",
+    "verificar-cambios-sin-guardar": "node scripts/verificar_cambios_sin_guardar.mjs",
+    "build": "eslint . && node scripts/verificar_api_autenticada.mjs && node scripts/verificar_cambios_sin_guardar.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "verificar-modales": "node scripts/verificar_modales.mjs"
   },

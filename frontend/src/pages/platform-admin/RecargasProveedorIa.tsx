@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Button } from "../../components/ui/Button";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
@@ -16,6 +18,14 @@ import { platformAdminApi, RecargaProveedorIa } from "../../lib/platformAdminApi
 const hoyISO = () => fechaHoyEnZona(ZONA_HORARIA_PLATAFORMA);
 
 export function RecargasProveedorIa() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const [recargas, setRecargas] = useState<RecargaProveedorIa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fecha, setFecha] = useState(hoyISO());
@@ -57,7 +67,8 @@ export function RecargasProveedorIa() {
   const totalRecargado = recargas.reduce((acc, r) => acc + r.montoUsd, 0);
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <h1 className="text-2xl font-bold text-primary">Recargas del proveedor de IA</h1>
       <p className="mt-1 text-text-muted">
         Anthropic no expone el saldo de la cuenta por API — este registro manual es el único punto de partida para

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import {
   Badge,
   Button,
@@ -33,6 +35,14 @@ import {
 // ---------------------------------------------------------------------
 
 export function ConfiguracionCaja() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const { esAdminClinica } = useAuth();
   const { mostrar } = useToast();
   const [cargando, setCargando] = useState(true);
@@ -112,7 +122,8 @@ export function ConfiguracionCaja() {
   if (cargando) return <LoadingState forma="tarjetas" cantidad={4} etiqueta="Cargando la configuración" />;
 
   return (
-    <div className="space-y-8">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="space-y-8">
+      {dialogoSalida}
       <PageHeader
         titulo="Configuración de la caja"
         subtitulo="Topes de descuento, motivos, denominaciones del arqueo y comisiones del datáfono."

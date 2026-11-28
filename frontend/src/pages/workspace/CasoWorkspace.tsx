@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { CapaModal } from "../../components/ui/CapaModal";
 import { BackdropMenuMovil } from "../../components/BackdropMenuMovil";
@@ -85,6 +87,14 @@ const ESTADO_BADGE: Record<string, BadgeVariant> = {
 };
 
 export function CasoWorkspace() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const { agenteId, casoId } = useParams<{ agenteId: string; casoId?: string }>();
   const navigate = useNavigate();
   const { user, zonaHoraria } = useAuth();
@@ -942,7 +952,8 @@ export function CasoWorkspace() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="flex h-screen flex-col bg-background">
+      {dialogoSalida}
       {/* prompt_code_menu_colapsable — la lista de casos cumple el mismo rol
           de "menú que se come la pantalla" que los NavLink de los otros dos
           paneles, aunque acá el contenido sea otro (búsqueda + casos). */}

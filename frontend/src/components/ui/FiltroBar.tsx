@@ -69,7 +69,15 @@ export function FiltroBar({
   }, [textoLocal]);
 
   return (
-    <div className={["flex flex-wrap items-end gap-4", className].join(" ")}>
+    // UNA BARRA DE FILTROS NO ES UN FORMULARIO (guía §4.7). Teclear en
+    // el buscador o cambiar el período no es un dato que se pueda
+    // perder, y avisar al salir por eso convierte la protección en una
+    // molestia que la gente aprende a ignorar. `useFormularioSucio` lee
+    // esta marca y no cuenta lo que pase adentro.
+    <div
+      data-sin-guardar="no"
+      className={["flex flex-wrap items-end gap-4", className].join(" ")}
+    >
       {onDesde && (
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-semibold text-text-primary">Desde</label>

@@ -50,6 +50,8 @@ export interface ModalProps {
    * por Esc o por la X pregunta antes de descartar.
    */
   hayCambios?: boolean;
+  /** Ver `CapaModal`: agrega «Guardar y cerrar» a la pregunta de salida. */
+  onGuardar?: () => Promise<void> | void;
 }
 
 export function Modal({
@@ -62,6 +64,7 @@ export function Modal({
   ancho = "md",
   tipo = "formulario",
   hayCambios = false,
+  onGuardar,
 }: ModalProps) {
   if (!open) return null;
 
@@ -72,6 +75,7 @@ export function Modal({
       onClose={onClose}
       tipo={tipo}
       hayCambios={hayCambios}
+      onGuardar={onGuardar}
       etiquetaAria={title}
       // `max-h-[90vh] overflow-y-auto`: con los anchos grandes el
       // contenido ya puede pasarse de alto, y sin esto el pie del

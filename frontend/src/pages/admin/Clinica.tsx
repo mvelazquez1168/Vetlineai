@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Link } from "react-router-dom";
 import { ModalCorregirCorreo } from "../../components/ModalCorregirCorreo";
 import { PageHeader, Tabs } from "../../components/ui";
@@ -26,6 +28,14 @@ function etiquetaZonaHoraria(nombrePais: string, zonaHoraria: string): string {
 }
 
 export function Clinica() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const [tenant, setTenant] = useState<TenantInfo | null>(null);
   const [plan, setPlan] = useState<PlanInfo | null>(null);
   const [paises, setPaises] = useState<Pais[]>([]);
@@ -121,7 +131,8 @@ export function Clinica() {
   }
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <PageHeader
         titulo="Clínica y usuarios"
         subtitulo="Los datos del establecimiento, y cómo lo ve todo el personal."

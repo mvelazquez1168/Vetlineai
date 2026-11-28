@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Button,
@@ -51,6 +53,14 @@ const LINEA_VACIA: LineaEnPantalla = {
 };
 
 export function PresupuestoNuevo() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const navegar = useNavigate();
   const [params] = useSearchParams();
   const { mostrar } = useToast();
@@ -181,7 +191,8 @@ export function PresupuestoNuevo() {
   };
 
   return (
-    <div className="space-y-6">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="space-y-6">
+      {dialogoSalida}
       <PageHeader
         titulo="Nuevo presupuesto"
         subtitulo="Lo que se cotiza queda con su precio congelado durante la vigencia. No afecta el inventario hasta que se convierte."

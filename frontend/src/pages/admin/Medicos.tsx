@@ -1,4 +1,6 @@
 import { PageHeader } from "../../components/ui";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
@@ -21,6 +23,14 @@ import {
 } from "../../lib/adminApi";
 
 export function Medicos() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const { zonaHoraria, puede } = useAuth();
   // El enlace de alta es una credencial: solo lo ve quien administra al
   // personal, y pedirlo queda registrado (migración 170).
@@ -365,7 +375,8 @@ export function Medicos() {
   ];
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <PageHeader
         titulo="Personal e invitaciones"
         icono="personas"

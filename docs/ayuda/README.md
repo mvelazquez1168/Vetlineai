@@ -82,6 +82,12 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 La definición exacta de cada número —qué cuenta, qué deja afuera y a qué fecha se imputa— está en
 [el diccionario de métricas](../metricas/diccionario.md), que se genera desde el código.
 
+## Cosas que valen en todo el sistema
+
+| Página | De qué trata |
+|---|---|
+| [Si te vas con algo a medio escribir, el sistema avisa](cambios-sin-guardar.md) | El aviso al salir con cambios sin guardar, por dónde aparece y por qué el del navegador es distinto. |
+
 ## La ayuda del sistema
 
 | Página | De qué trata |

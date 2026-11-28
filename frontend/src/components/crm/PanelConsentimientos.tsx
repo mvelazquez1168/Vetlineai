@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Badge, Button, LoadingState, Select, useToast } from "../ui";
 import { etiqueta } from "../../lib/etiquetas";
 import {
@@ -51,6 +53,14 @@ const CANALES: Array<{ valor: "correo" | "whatsapp"; titulo: string }> = [
 ];
 
 export function PanelConsentimientos({ propietarioId, puedeEditar }: Props) {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const toast = useToast();
   const [consentimientos, setConsentimientos] = useState<ConsentimientoCrm[]>([]);
   const [historial, setHistorial] = useState<CambioConsentimiento[]>([]);
@@ -150,7 +160,8 @@ export function PanelConsentimientos({ propietarioId, puedeEditar }: Props) {
   if (cargando) return <LoadingState forma="tarjetas" cantidad={4} />;
 
   return (
-    <div className="space-y-4">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="space-y-4">
+      {dialogoSalida}
       {FINALIDADES.map((f) => (
         <div key={f.valor} className="rounded-lg border border-black/5 p-3">
           <p className="text-sm font-semibold text-text-primary">{f.titulo}</p>

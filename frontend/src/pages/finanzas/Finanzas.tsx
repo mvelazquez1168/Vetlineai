@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import {
   Badge,
   Button,
@@ -76,11 +78,20 @@ function hoyISO(): string {
 }
 
 export function Finanzas() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const { puede } = useAuth();
   const puedeRegistrar = puede("finanzas.registrar");
 
   return (
-    <div className="space-y-6">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="space-y-6">
+      {dialogoSalida}
       <PageHeader
         titulo="Finanzas"
         subtitulo="Lo que la clínica debe, lo que gasta, lo que le deben y el cierre del día."

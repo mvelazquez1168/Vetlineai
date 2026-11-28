@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Button } from "../../components/ui/Button";
 import { Card, CardTitle } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
@@ -62,6 +64,14 @@ const BUCKET_LABEL: Record<string, string> = {
 };
 
 export function SaldoProveedorIa() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const [datos, setDatos] = useState<SaldoProveedorIaTipo | null>(null);
   const [clinicas, setClinicas] = useState<RentabilidadClinica[]>([]);
   const [periodoDias, setPeriodoDias] = useState(30);
@@ -120,7 +130,8 @@ export function SaldoProveedorIa() {
     datos.desgloseBolsas.otro;
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <h1 className="text-2xl font-bold text-primary">Saldo del proveedor de IA</h1>
       <p className="mt-1 text-text-muted">
         La cuenta de Anthropic es individual: no hay API de administración que exponga el saldo o el consumo real.

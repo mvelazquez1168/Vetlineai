@@ -1,4 +1,6 @@
 import { PageHeader } from "../../components/ui";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
@@ -13,6 +15,14 @@ import { ConfigRecarga, MetodoPago, PaqueteRecarga, pagosApi } from "../../lib/p
 // acá solo se guarda la configuración con la validación correcta).
 
 export function ConfigurarAutorecarga() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const [config, setConfig] = useState<ConfigRecarga | null>(null);
   const [paquetes, setPaquetes] = useState<PaqueteRecarga[]>([]);
   const [metodo, setMetodo] = useState<MetodoPago | null>(null);
@@ -74,7 +84,8 @@ export function ConfigurarAutorecarga() {
   if (error || !config) return <p className="text-error">{error ?? "No pudimos cargar la configuración."}</p>;
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <PageHeader
         padre={{ a: "/admin/plan-consumo", etiqueta: "Plan y consumo" }}
         titulo="Configurar autorecarga"

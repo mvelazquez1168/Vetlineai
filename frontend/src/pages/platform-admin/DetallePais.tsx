@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
@@ -16,6 +18,14 @@ const CHECKLIST_ITEMS: { key: keyof ChecklistPais; titulo: string; detalle: stri
 ];
 
 export function DetallePais() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const { codigo } = useParams<{ codigo: string }>();
   const navigate = useNavigate();
   const [detalle, setDetalle] = useState<DetallePaisData | null>(null);
@@ -145,7 +155,8 @@ export function DetallePais() {
   const checklistCompleto = Object.values(detalle.checklist).every(Boolean);
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <button onClick={() => navigate("/platform-admin/paises")} className="text-sm font-medium text-accent hover:underline">
         ← Volver
       </button>

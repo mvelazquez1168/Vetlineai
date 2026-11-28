@@ -1,4 +1,6 @@
 import { plural } from "../../lib/plural";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { useEffect, useMemo, useState } from "react";
 import { apiFetchFile } from "../../lib/api";
 import { guardarComoArchivo } from "../../lib/descargas";
@@ -148,6 +150,14 @@ export function PestanasExpediente({
   pestanaActiva,
   onPestana,
 }: PestanasExpedienteProps) {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const toast = useToast();
   const { esMedico } = useAuth();
   const [propia, setPropia] = useState<Pestana>("resumen");
@@ -171,7 +181,8 @@ export function PestanasExpediente({
   }, [pacienteId, pestana]);
 
   return (
-    <div className="mt-6">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="mt-6">
+      {dialogoSalida}
       {/* Las pestañas scrollean en horizontal en pantallas angostas: el
           médico usa esto en una tablet y once pestañas no entran. */}
       <div className="overflow-x-auto border-b border-black/5">

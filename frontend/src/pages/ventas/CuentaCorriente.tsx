@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Link } from "react-router-dom";
 import {
   Badge,
@@ -30,6 +32,14 @@ import { formatearMonto, ventasApi } from "../../lib/ventasApi";
 // ---------------------------------------------------------------------
 
 export function CuentaCorriente() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const toast = useToast();
   const { esAdminClinica } = useAuth();
 
@@ -147,7 +157,8 @@ export function CuentaCorriente() {
   };
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <PageHeader
         titulo="Cuenta corriente del cliente"
         icono="propietario"

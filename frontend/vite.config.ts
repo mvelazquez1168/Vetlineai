@@ -38,6 +38,22 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // EL TOPE DE PRECARGA, SUBIDO A 5 MiB — hallazgo del 2026-11-27,
+        // corriendo `npm run build` de verdad por primera vez.
+        //
+        // El valor por omisión de workbox es 2 MiB y el bundle ya pesa
+        // 2,11 MB, así que el build de producción FALLABA entero: no es
+        // un aviso, workbox corta. Nadie lo había visto porque en
+        // desarrollo Vite no empaqueta.
+        //
+        // Subir el tope es la decisión correcta hoy —un bundle de 2 MB
+        // precargado es exactamente lo que hace que la segunda apertura
+        // sea instantánea, que es para lo que está la PWA— pero NO es la
+        // solución: lo que corresponde es partir el bundle por ruta con
+        // `import()` para que el médico no descargue el facturador ni el
+        // panel de plataforma. Queda anotado como deuda, con su número:
+        // 2,11 MB en un solo archivo.
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         // El armazón (JS/CSS/íconos) se precarga para que la segunda
         // apertura sea instantánea. "html" quedó afuera a propósito — ver
         // el bug real de dos despliegues seguidos: index.html precacheado

@@ -1,4 +1,6 @@
 import { PageHeader } from "../../components/ui";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -43,6 +45,14 @@ function diaVacio(): DiaEstado {
 }
 
 export function ConfiguracionHorarios() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const { rol, user } = useAuth();
   const esAdminClinica = rol === "admin_clinica";
 
@@ -166,7 +176,8 @@ export function ConfiguracionHorarios() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="flex flex-col gap-6">
+      {dialogoSalida}
       <PageHeader
         titulo="Configuración de horarios"
         icono="clinica"

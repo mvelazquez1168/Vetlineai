@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Button,
@@ -60,6 +62,14 @@ function presentacionVacia(): FormaPresentacion {
 }
 
 export function ProductoEditor() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const { id } = useParams();
   const esNuevo = !id || id === "nuevo";
   const navegar = useNavigate();
@@ -263,7 +273,8 @@ export function ProductoEditor() {
   const unidadBase = texto("unidadBase").trim() || "unidad base";
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <PageHeader
         variante="compacta"
         titulo={esNuevo ? "Nuevo producto" : "Editar producto"}

@@ -7,6 +7,7 @@ import {
   useAutoguardadoAtencion,
 } from "../../hooks/useAutoguardadoAtencion";
 import { useAuth } from "../../hooks/useAuth";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
 import { formatearHora } from "../../lib/formatFecha";
 import { guardarComoArchivo } from "../../lib/descargas";
 import {
@@ -550,6 +551,24 @@ export function AtencionActual({
   });
   const guardarCampo = autoguardado.guardarCampo;
 
+  // LA EXCEPCIÓN DE LA REGLA §4.7, y por qué es una excepción: la
+  // atención se guarda sola, así que preguntar «¿descartar los cambios?»
+  // al salir sería mentir —no hay nada que descartar—. Lo que SÍ puede
+  // perderse es un guardado que todavía no subió: sin conexión, con un
+  // reintento en vuelo o con un conflicto sin resolver. Solo en esos
+  // tres casos se avisa.
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: ["pendiente", "guardando", "sin_conexion", "error", "conflicto"].includes(
+      autoguardado.estado.tipo
+    ),
+    queSePierde:
+      autoguardado.estado.tipo === "sin_conexion"
+        ? "Lo último que escribiste todavía no se subió: no hay conexión. Si salís ahora se pierde."
+        : autoguardado.estado.tipo === "conflicto"
+          ? "Hay un conflicto con otra sesión sin resolver. Si salís ahora, lo tuyo se pierde."
+          : "Lo último que escribiste todavía se está guardando. Esperá un segundo.",
+  });
+
   // --- Quién tiene la atención abierta (anexo 07-03, A4) --------------
   //
   // Late cada 30 s, la mitad del vencimiento del servidor (2 min): si
@@ -633,6 +652,7 @@ export function AtencionActual({
 
   return (
     <div className="mt-4 grid gap-4 lg:grid-cols-3">
+      {dialogoSalida}
       {/* ------------------------------------------------ El registro */}
       <div className="space-y-4 lg:col-span-2">
         <Card>

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
@@ -82,6 +84,14 @@ export function DocumentosDelPaciente({
   atencionId?: string | null;
   onCambio?: () => void;
 }) {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const toast = useToast();
   const navigate = useNavigate();
   const { esMedico, zonaHoraria } = useAuth();
@@ -220,7 +230,8 @@ export function DocumentosDelPaciente({
   };
 
   return (
-    <div className="space-y-4">
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className="space-y-4">
+      {dialogoSalida}
       {/* --- La carga ------------------------------------------------ */}
       <div
         onDragOver={(e) => {

@@ -8,6 +8,22 @@ import { obtenerTokenValido, redirigirABloqueada } from "./session";
 // autenticado, para que la pantalla de bloqueo se muestre sin importar
 // qué pantalla estaba disparando el request (login inicial, o una sesión
 // que ya estaba abierta cuando Platform Admin bloqueó la clínica).
+/**
+ * Avisa que ALGO se guardó bien.
+ *
+ * Lo escucha `useFormularioSucio` para dejar de considerar sucio un
+ * formulario sin que cada pantalla tenga que acordarse de decirlo
+ * (guía §4.7). Vive acá porque este es el único lugar por el que pasa
+ * toda escritura: si estuviera en cada pantalla, sería otra cosa que se
+ * olvida.
+ */
+function avisarGuardado(metodo: string | undefined): void {
+  if (!metodo) return;
+  if (!["POST", "PUT", "PATCH", "DELETE"].includes(metodo.toUpperCase())) return;
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event("vetline:guardado"));
+}
+
 function interceptarClinicaBloqueada(data: unknown): void {
   if (data && typeof data === "object" && (data as { code?: string }).code === "CLINICA_BLOQUEADA") {
     redirigirABloqueada();
@@ -91,6 +107,8 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     interceptarClinicaBloqueada(data);
     throw new ApiError(data?.error ?? "Error de red inesperado.", response.status, data);
   }
+
+  avisarGuardado(rest.method);
 
   return data as T;
 }

@@ -1,4 +1,6 @@
 import { plural } from "../../lib/plural";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -49,6 +51,14 @@ const REDONDEOS = [
 ];
 
 export function ListasPrecio() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const toast = useToast();
   const [listas, setListas] = useState<ListaPrecio[]>([]);
   const [elegida, setElegida] = useState<string>("");
@@ -220,7 +230,8 @@ export function ListasPrecio() {
   if (cargando) return <LoadingState forma="tabla" cantidad={6} />;
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
       <PageHeader
         titulo="Listas de precio"
         icono="plan"

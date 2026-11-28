@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
 
 // ---------------------------------------------------------------------
 // LA CAPA DE UN MODAL: el fondo, el foco y CUÁNDO SE CIERRA.
@@ -48,6 +49,15 @@ export interface CapaModalProps {
    * correcto cuando no hay nada que perder.
    */
   hayCambios?: boolean;
+  /**
+   * Qué hacer con «Guardar» cuando hay cambios sin guardar (guía §4.7).
+   *
+   * Con esto, la pregunta al cerrar ofrece las TRES salidas: Guardar,
+   * Descartar y Seguir editando. Sin esto ofrece dos, que es lo honesto
+   * cuando guardar desde acá no tiene sentido —falta un campo
+   * obligatorio, o el modal no sabe guardar nada por su cuenta—.
+   */
+  onGuardar?: () => Promise<void> | void;
   /** Arriba para la paleta de comandos; centrado para todo lo demás. */
   alineacion?: "centro" | "arriba";
   /** La capa Z, cuando el modal va encima de otro. */
@@ -69,6 +79,7 @@ export function CapaModal({
   onClose,
   tipo = "formulario",
   hayCambios = false,
+  onGuardar,
   alineacion = "centro",
   z = "z-50",
   className = "",
@@ -79,6 +90,17 @@ export function CapaModal({
   const caja = useRef<HTMLDivElement>(null);
   const focoAnterior = useRef<HTMLElement | null>(null);
   const [preguntando, setPreguntando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+
+  // LAS OTRAS TRES VÍAS DE SALIDA (guía §4.7). Este componente ya cubre
+  // X, Escape y el clic afuera; lo que no puede ver es que alguien toque
+  // el menú detrás del modal, use el atrás del navegador, o recargue la
+  // pestaña. Eso lo cubre el hook, UNA VEZ, para los 102 modales.
+  const { dialogo: dialogoDeSalida } = useCambiosSinGuardar({
+    hayCambios,
+    onGuardar,
+    queSePierde: "Lo que escribiste en este formulario se va a perder si salís ahora.",
+  });
 
   /** Cierra, o pregunta si hay algo escrito sin guardar. */
   const intentarCerrar = useCallback(() => {
@@ -179,15 +201,16 @@ export function CapaModal({
           onClick={(e) => e.stopPropagation()}
         >
           <div className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-primary">¿Descartar los cambios?</h3>
+            <h3 className="text-lg font-bold text-primary">Hay cambios sin guardar</h3>
             <p className="mt-2 text-sm text-text-muted">
-              Lo que escribiste en este formulario se va a perder.
+              Lo que escribiste en este formulario se va a perder si cerrás ahora.
             </p>
-            <div className="mt-5 flex justify-end gap-3">
+            <div className="mt-5 flex flex-wrap justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setPreguntando(false)}
-                className="min-h-11 rounded-lg border border-black/10 px-4 text-sm font-semibold text-text-primary hover:bg-black/5"
+                disabled={guardando}
+                className="min-h-11 rounded-lg border border-black/10 px-4 text-sm font-semibold text-text-primary hover:bg-black/5 disabled:opacity-50"
               >
                 Seguir editando
               </button>
@@ -197,14 +220,38 @@ export function CapaModal({
                   setPreguntando(false);
                   onClose();
                 }}
-                className="min-h-11 rounded-lg bg-error px-4 text-sm font-semibold text-white hover:opacity-90"
+                disabled={guardando}
+                className="min-h-11 rounded-lg bg-error px-4 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
               >
                 Descartar
               </button>
+              {/* La tercera salida (guía §4.7). Solo si el modal sabe
+                  guardar: si guardar falla, NO se cierra y el usuario se
+                  queda con sus datos y con el error. */}
+              {onGuardar && (
+                <button
+                  type="button"
+                  disabled={guardando}
+                  onClick={() => {
+                    setGuardando(true);
+                    void Promise.resolve(onGuardar())
+                      .then(() => {
+                        setPreguntando(false);
+                        onClose();
+                      })
+                      .finally(() => setGuardando(false));
+                  }}
+                  className="min-h-11 rounded-lg bg-primary px-4 text-sm font-semibold text-sobre-primary hover:opacity-90 disabled:opacity-50"
+                >
+                  {guardando ? "Guardando…" : "Guardar y cerrar"}
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
+
+      {dialogoDeSalida}
     </div>
   );
 }

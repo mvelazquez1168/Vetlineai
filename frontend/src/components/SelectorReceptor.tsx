@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../hooks/useFormularioSucio";
 import { Badge, Button, Icono, Input, Select } from "./ui";
 import { SelectorUbicacion, ValorUbicacion } from "./SelectorUbicacion";
 import {
@@ -99,6 +101,14 @@ export function SelectorReceptor({
   onCambio,
   className = "",
 }: SelectorReceptorProps) {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const [perfilesDelCliente, setPerfilesDelCliente] = useState<
     Array<PerfilFacturacion & { es_predeterminado: boolean }>
   >([]);
@@ -300,7 +310,8 @@ export function SelectorReceptor({
   };
 
   return (
-    <div className={className}>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>} className={className}>
+      {dialogoSalida}
       {/* --------------------------------------- Lo elegido */}
       {elegido && !creando && (
         <div className="rounded-xl border border-black/5 bg-surface p-3">

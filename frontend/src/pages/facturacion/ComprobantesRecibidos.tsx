@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
+import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Link } from "react-router-dom";
 import {
   Badge,
@@ -49,6 +51,14 @@ const MENSAJES = [
 ];
 
 export function ComprobantesRecibidos() {
+  // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
+  // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
+  // —filtros y buscadores— no cuenta como cambio.
+  const { ref: refSucio, hayCambios: hayCambiosSinGuardar } = useFormularioSucio();
+  const { dialogo: dialogoSalida } = useCambiosSinGuardar({
+    hayCambios: hayCambiosSinGuardar,
+  });
+
   const toast = useToast();
   // CLASIFICAR UN COMPROBANTE COMO GASTO es una acción de finanzas, con
   // su permiso: la bandeja la mira quien factura, y registrar el gasto
@@ -431,7 +441,8 @@ export function ComprobantesRecibidos() {
   const pendientes = (recibidos ?? []).filter((r) => !r.mensajeEnviadoEn).length;
 
   return (
-    <div>
+    <div ref={refSucio as React.RefObject<HTMLDivElement>}>
+      {dialogoSalida}
 
       <PageHeader
         padre={{ a: "/facturacion", etiqueta: "Comprobantes" }}

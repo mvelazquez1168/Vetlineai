@@ -27,8 +27,45 @@ import {
 } from "../inventario/clasificacionClinica";
 import { COLUMNAS_OPCIONALES, COLUMNAS_PLANTILLA } from "../inventario/importacion";
 import { fechaHoyEnZona } from "../fecha";
+import { crearInvitacion } from "../invitaciones";
+import { buscarUsuarioKeycloakPorEmail, eliminarUsuarioKeycloak } from "../keycloakAdmin";
 
+const API = process.env.API_URL ?? "http://localhost:4000/api";
 const PREFIJO = "probe-tarde";
+const CLAVE = "ProbeTarde2026!";
+
+const correo = (quien: string) => `${PREFIJO}-${quien}@probe.test`;
+
+/** Un usuario descartable con los roles que se le pidan, por el flujo real. */
+async function alta2(
+  tenantId: string,
+  quien: string,
+  nombre: string,
+  roles: string[]
+): Promise<string> {
+  const inv = await crearInvitacion(
+    pool,
+    tenantId,
+    `${PREFIJO} clínica`,
+    null,
+    correo(quien),
+    nombre,
+    roles
+  );
+  if (!inv.ok) throw new Error(`no se pudo invitar a ${quien}: ${inv.motivo}`);
+  const r = await fetch(`${API}/invitaciones/${inv.invitacion.token}/aceptar`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nombre,
+      colegiatura: roles.includes("medico") ? `VET-${quien.toUpperCase()}` : undefined,
+      password: CLAVE,
+    }),
+  });
+  const cuerpo = (await r.json()) as { access_token?: string; error?: string };
+  if (!cuerpo.access_token) throw new Error(`sin token para ${quien}: ${cuerpo.error}`);
+  return cuerpo.access_token;
+}
 
 let ok = true;
 function assert(cond: boolean, msg: string, detalle?: unknown) {
@@ -37,6 +74,17 @@ function assert(cond: boolean, msg: string, detalle?: unknown) {
 }
 
 async function limpiar() {
+  const descartables = [
+    ...["recepcion", "caja", "farmacia", "estetica", "asistente", "contador"].map(
+      (r) => `rol-${r}`
+    ),
+    "perm-recepcion",
+    "perm-caja",
+  ];
+  for (const quien of descartables) {
+    const id = await buscarUsuarioKeycloakPorEmail(correo(quien));
+    if (id) await eliminarUsuarioKeycloak(id);
+  }
   await pool.query(
     `DELETE FROM uso_api WHERE tenant_id IN (SELECT id FROM tenants WHERE nombre LIKE $1)`,
     [`${PREFIJO}%`]
@@ -581,6 +629,63 @@ async function main() {
         trasQuitar.existencia === existenciaAntes + 1,
         "y el producto vuelve al estante: el stock no se pierde",
         `${existenciaAntes} → ${trasQuitar.existencia}`
+      );
+    }
+
+    // =============================================================
+    console.log(["", "=== Cada rol entra y aterriza donde le toca ==="].join("\n"));
+    {
+      // El defecto bloqueante: se invitó a alguien con rol Recepción y
+      // al entrar cayó en «No autorizado». Acá se comprueba la mitad que
+      // se puede comprobar sin navegador —que la sesión resuelve, con su
+      // rol y su pantalla de entrada—, que es exactamente el dato que la
+      // guarda del frontend necesitaba y no estaba mirando.
+      const esperado: Record<string, string> = {
+        recepcion: "/agenda",
+        caja: "/ventas",
+        farmacia: "/inventario",
+        estetica: "/pacientes",
+        asistente: "/agenda",
+        contador: "/facturacion",
+      };
+
+      for (const [rol, pantalla] of Object.entries(esperado)) {
+        const token = await alta2(tenantId, `rol-${rol}`, `Prueba ${rol}`, [rol]);
+        const r = await fetch(`${API}/clinica/mis-permisos`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const cuerpo = (await r.json()) as {
+          roles?: string[];
+          permisos?: string[];
+          pantallaInicio?: string | null;
+        };
+        assert(r.status === 200, `«${rol}» tiene sesión válida`, r.status);
+        assert(
+          (cuerpo.roles ?? []).includes(rol),
+          `y el backend le devuelve su rol «${rol}» desde la base`,
+          cuerpo.roles
+        );
+        assert(
+          (cuerpo.roles ?? []).length > 0,
+          `con al menos un rol: es lo que la puerta del frontend miraba mal (antes: lista vacía → «No autorizado»)`
+        );
+      }
+
+      // Y que los permisos NO sean los mismos para todos: si lo fueran,
+      // el menú sería el mismo y los roles no servirían de nada.
+      const permisosDe = async (rol: string) => {
+        const token = await alta2(tenantId, `perm-${rol}`, `Permisos ${rol}`, [rol]);
+        const r = await fetch(`${API}/clinica/mis-permisos`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return ((await r.json()) as { permisos?: string[] }).permisos ?? [];
+      };
+      const deRecepcion = await permisosDe("recepcion");
+      const deCaja = await permisosDe("caja");
+      assert(
+        JSON.stringify(deRecepcion.sort()) !== JSON.stringify(deCaja.sort()),
+        "recepción y caja no tienen los mismos permisos",
+        `${deRecepcion.length} vs ${deCaja.length}`
       );
     }
   } finally {

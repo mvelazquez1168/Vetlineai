@@ -1,16 +1,9 @@
-import { Link } from "react-router-dom";
-import { Button } from "../components/ui/Button";
+import { SinPermiso } from "../components/SinPermiso";
 
+// La pantalla suelta de «no autorizado». Queda para el caso en que NO
+// hay sesión de clínica —staff de plataforma fuera de su zona, o una
+// sesión a medio resolver—: cuando sí la hay, `ProtectedRoute` dibuja
+// el mismo aviso dentro del marco, sin sacar a nadie de su sistema.
 export function Unauthorized() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background p-8 text-center">
-      <h1 className="text-3xl font-bold text-primary">No autorizado</h1>
-      <p className="max-w-md text-text-muted">
-        Tu usuario no tiene permisos para acceder a esta sección de Vetline Ai.
-      </p>
-      <Link to="/login">
-        <Button variant="secondary">Volver al login</Button>
-      </Link>
-    </div>
-  );
+  return <SinPermiso />;
 }

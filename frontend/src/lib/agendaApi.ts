@@ -307,14 +307,47 @@ export async function listarMedicosLigero(
 // Cliente API
 // =====================================================================
 
+export interface Equipo {
+  id: string;
+  nombre: string;
+  categoria: string | null;
+  /** Cuántos hay. Dos ecógrafos permiten dos ecografías a la misma hora. */
+  cantidad: number;
+  activo: boolean;
+  creado_en: string;
+  /** En cuántos tipos de cita se exige este equipo. */
+  tipos_de_cita: number;
+}
+
+export const equiposApi = {
+  listar: (inactivos = false) =>
+    authedFetch<{ equipos: Equipo[] }>(`/equipos${inactivos ? "?inactivos=1" : ""}`),
+  crear: (data: { nombre: string; categoria?: string; cantidad: number }) =>
+    authedFetch<{ equipo: Equipo }>("/equipos", { method: "POST", body: JSON.stringify(data) }),
+  editar: (id: string, data: { nombre: string; categoria?: string; cantidad: number }) =>
+    authedFetch<{ equipo: Equipo }>(`/equipos/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  activar: (id: string, activo: boolean) =>
+    authedFetch<{ equipo: Equipo }>(`/equipos/${id}/activo`, {
+      method: "PATCH",
+      body: JSON.stringify({ activo }),
+    }),
+};
+
 export const salasApi = {
-  listar: () => authedFetch<{ salas: Sala[] }>("/salas"),
+  listar: (inactivas = false) =>
+    authedFetch<{ salas: Sala[] }>(`/salas${inactivas ? "?inactivas=1" : ""}`),
   crear: (data: { nombre: string; tipo?: string }) =>
     authedFetch<{ sala: Sala }>("/salas", { method: "POST", body: JSON.stringify(data) }),
   editar: (id: string, data: { nombre: string; tipo?: string }) =>
     authedFetch<{ sala: Sala }>(`/salas/${id}`, { method: "PUT", body: JSON.stringify(data) }),
-  desactivar: (id: string) =>
-    authedFetch<{ sala: Sala }>(`/salas/${id}/desactivar`, { method: "PATCH" }),
+  activar: (id: string, activa: boolean) =>
+    authedFetch<{ sala: Sala }>(`/salas/${id}/activa`, {
+      method: "PATCH",
+      body: JSON.stringify({ activa }),
+    }),
 };
 
 export const horariosApi = {

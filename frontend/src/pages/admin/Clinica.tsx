@@ -6,6 +6,7 @@ import { ModalCorregirCorreo } from "../../components/ModalCorregirCorreo";
 import { ConfiguracionAgenda } from "./ConfiguracionAgenda";
 import { Notificaciones } from "./Notificaciones";
 import { Politicas } from "./Politicas";
+import { SalasYEquipos } from "./SalasYEquipos";
 import { PageHeader, Tabs } from "../../components/ui";
 import { PanelApariencia } from "./PanelApariencia";
 import { Button } from "../../components/ui/Button";
@@ -152,6 +153,7 @@ export function Clinica() {
         pestanas={[
           { clave: "datos", etiqueta: "Datos", icono: "clinica" },
           { clave: "apariencia", etiqueta: "Apariencia", icono: "panel" },
+          { clave: "salas", etiqueta: "Salas y equipos", icono: "clinica" },
           { clave: "agenda", etiqueta: "Agenda", icono: "cita" },
           { clave: "notificaciones", etiqueta: "Notificaciones y servicios de IA", icono: "campana" },
           { clave: "politicas", etiqueta: "Políticas", icono: "ajustes" },
@@ -160,6 +162,8 @@ export function Clinica() {
         {(activa) =>
           activa === "apariencia" ? (
             <PanelApariencia />
+          ) : activa === "salas" ? (
+            <SalasYEquipos sinEncabezado />
           ) : activa === "agenda" ? (
             <ConfiguracionAgenda sinEncabezado />
           ) : activa === "notificaciones" ? (

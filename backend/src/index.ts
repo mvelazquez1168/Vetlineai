@@ -69,6 +69,7 @@ import { verificacionCorreoPublicaRouter } from "./routes/verificacionCorreoPubl
 import { restablecerContrasenaPublicaRouter } from "./routes/restablecerContrasenaPublica.routes";
 import { reportesRouter } from "./routes/reportes.routes";
 import { salasRouter } from "./routes/salas.routes";
+import { equiposRouter } from "./routes/equipos.routes";
 import { webhooksRouter } from "./routes/webhooks.routes";
 import { workspaceRouter } from "./routes/workspace.routes";
 
@@ -169,6 +170,7 @@ app.use("/api/pagos", pagosRouter);
 // parte. Sin clinica_id/sede (tenant_id ES la clínica en este esquema,
 // ver nota de diseño en la migración 017).
 app.use("/api/salas", salasRouter);
+app.use("/api/equipos", equiposRouter);
 app.use("/api/horarios", horariosRouter);
 app.use("/api/citas", citasRouter);
 app.use("/api/atenciones", atencionesRouter);

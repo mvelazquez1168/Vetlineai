@@ -65,6 +65,7 @@ Cada funcionalidad tiene su página, y cada página dice siempre lo mismo y en e
 | Página | De qué trata |
 |---|---|
 | [El personal de la clínica y lo que puede hacer cada uno](personal-y-roles.md) | Los ocho roles, invitar con roles, cambiar roles y que alguien deje de entrar. |
+| [Salas y equipos](salas-y-equipos.md) | Dónde se atiende y con qué, y cómo eso hace que la agenda no ofrezca un horario imposible. |
 | [El horario de la clínica, los feriados y los tipos de cita](horario-y-feriados.md) | Cuándo abre la clínica, qué bloquea la agenda y cómo se cita fuera de horario. |
 | [Las políticas de la clínica](politicas-de-la-clinica.md) | Los topes y las decisiones que cada clínica toma distinto, con su historial. |
 | [Los catálogos de la clínica](catalogos-y-clasificacion.md) | Familias, marcas, ubicaciones y las listas de cada módulo, en un solo lugar. |

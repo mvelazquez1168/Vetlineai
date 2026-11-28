@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { KpiCard, PageHeader, TiraIndicadores } from "../../components/ui";
@@ -350,7 +351,21 @@ export function Calendario() {
                   <span className="text-text-primary">{s.nombre}</span>
                 </label>
               ))}
-              {salas.length === 0 && <p className="text-xs text-text-muted">Sin salas configuradas.</p>}
+              {/* CON EL CAMINO, no solo el diagnóstico (punto 2.2 del
+                  2026-11-27): «Sin salas configuradas» dejaba a quien
+                  lo leía sin saber adónde ir, y la pantalla para
+                  cargarlas ni siquiera existía. */}
+              {salas.length === 0 && (
+                <p className="text-xs text-text-muted">
+                  Sin salas configuradas.{" "}
+                  <Link
+                    to="/admin/clinica?tab=salas"
+                    className="font-semibold text-accent hover:underline"
+                  >
+                    Configurar salas y equipos
+                  </Link>
+                </p>
+              )}
             </div>
           </div>
         </aside>

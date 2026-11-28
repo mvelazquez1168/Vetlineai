@@ -13,7 +13,7 @@ Que el cliente vuelva. Cinco programas configurables por la clínica, cada uno c
 3. Cumpleaños y aniversario.
 4. Cambio de etapa de vida.
 5. Protocolo de fallecimiento.
-6. Encuesta posvisita (NPS) y reseñas.
+6. Encuesta posvisita (NPS) y reseñas, calificación de cada visita y voz del cliente (sugerencias y quejas con análisis por IA).
 
 Más un tablero de fidelización.
 
@@ -93,6 +93,53 @@ Todos los programas reutilizan las tareas y la bandeja del día del 14; no se cr
 
 Una sola infraestructura de páginas públicas por token para la encuesta NPS y la respuesta del día 3 de la bienvenida (y lista para las que vengan: app del cliente, confirmaciones). Rutas fuera del área autenticada, validación del token en el backend, RLS respetado resolviendo el tenant desde el token, y registro de la respuesta con `registrarInteraccion`.
 
+## 8b. Calificación de cada visita (satisfacción)
+
+Distinta del NPS: el NPS mide la lealtad a la clínica (máximo cada 90 días); esta mide **cada visita**.
+
+- Después de cada consulta, grooming o procedimiento: "¿Cómo le fue con [servicio] de [mascota]?", de 1 a 5 estrellas, comentario opcional y aspectos rápidos de un toque (configurables: atención del médico, tiempo de espera, trato de recepción, limpieza, precio).
+- Por la misma página pública por token (sección 8) hoy, y por la app del cliente (17) cuando exista. Si en esa visita corresponde también el NPS, se presentan juntos en una sola pantalla corta.
+- Reportes de satisfacción por servicio, médico, día de la semana y período, con tendencia.
+- Una calificación de 1 o 2 estrellas entra a la bandeja de la voz del cliente (sección 8c) como queja.
+
+## 8c. Voz del cliente: sugerencias y quejas (que no sea un buzón que nadie lee)
+
+Regla central: **cada comentario tiene dueño, plazo y respuesta**, y la IA hace el trabajo pesado de leer, clasificar y agrupar.
+
+**Entrada.** Un espacio de "¿Algo que podamos mejorar? ¿Alguna sugerencia?" junto al NPS y a la calificación de la visita, y disponible en cualquier momento (página pública hoy; app del cliente después; WhatsApp cuando exista): texto libre, foto opcional y si el cliente quiere respuesta. Los comentarios de NPS y de calificación también entran aquí. Tabla `voz_cliente` con cliente, mascota, visita, canal, texto, adjuntos, origen (NPS, calificación, sugerencia espontánea) y estado.
+
+**Clasificación por IA al llegar** (propuesta, no verdad):
+- tema (lista configurable: espera, trato, precio, limpieza, comunicación, resultado clínico, grooming, horarios, instalaciones, app, servicio nuevo sugerido, otro);
+- tipo (queja, sugerencia, felicitación);
+- sentimiento y urgencia;
+- servicio, médico o área mencionados;
+- **críticos:** posible error clínico, maltrato, seguridad, amenaza de reclamo o denuncia → **alerta inmediata a dirección**.
+
+Quien atiende corrige la clasificación con un clic; las correcciones quedan guardadas para medir y afinar la clasificación. Texto del cliente tratado como dato (defensa contra inyección, como en Vetline Ai); solo se envía al modelo el texto del comentario y el contexto mínimo, sin datos de identificación innecesarios.
+
+**Bandeja con dueño y plazo.**
+- Estados: `nuevo → asignado → respondido → cerrado` (con motivo de cierre).
+- Responsable asignado por tema según una tabla configurable (por ejemplo, grooming → responsable de grooming; precio → dirección).
+- Plazos configurables: 24 horas para quejas, 72 para sugerencias; los críticos, inmediato.
+- **Borrador de respuesta redactado por la IA**, que una persona revisa, edita y envía por el canal del cliente. Nunca sale una respuesta sin revisión humana.
+- Vencido el plazo: escalamiento a dirección y aparición en el resumen de la mañana del 16b.
+- Todo queda en la línea de tiempo del cliente con `registrarInteraccion`.
+
+**Analítica.** Pantalla Reportes › Voz del cliente:
+- temas recurrentes con su tendencia ("espera los sábados: 14 comentarios este mes, el doble que el anterior") y ejemplos reales de cada tema;
+- **cruce con datos:** quejas de espera contra ocupación real de la agenda; de precio contra ticket y segmento; de un médico contra su volumen de atenciones, para distinguir un problema real de un caso aislado;
+- satisfacción y NPS por tema mencionado;
+- **resumen semanal para dirección** generado por la IA sobre los datos calculados: 3 temas principales, qué cambió, felicitaciones destacadas para el equipo y comentarios sin atender;
+- **de tema a iniciativa:** un tema recurrente se convierte con un clic en una iniciativa del 16b (contrato C9 del 00b), con su métrica (menciones del tema, satisfacción del servicio, NPS) para medir si la acción funcionó.
+
+**Cerrar el círculo con el cliente.**
+- Quien dejó una sugerencia recibe la respuesta y, si se implementó, un aviso: "Usted lo sugirió y lo hicimos".
+- Opcional: sección "Lo que mejoramos gracias a ustedes", alimentada por las iniciativas cerradas que la dirección marque como publicables (para la app del cliente, 17).
+
+**Métricas del propio buzón** (en el diccionario del 12): porcentaje atendido en plazo, tiempo promedio de respuesta, temas resueltos contra abiertos, detractores que tras la respuesta volvieron o mejoraron su calificación. Si se deterioran, el 16b lo advierte en sus alertas.
+
+**Permisos:** `voz_cliente.ver`, `voz_cliente.responder`, `voz_cliente.configurar`; los comentarios sobre un médico no los ve ese médico salvo que dirección lo habilite.
+
 ## 9. Tablero de fidelización
 
 En Reportes › Fidelización, con las métricas definidas en el diccionario de métricas del 12 (definición, fórmula y origen) y trazabilidad hasta la lista de clientes:
@@ -104,6 +151,7 @@ En Reportes › Fidelización, con las métricas definidas en el diccionario de 
 - NPS y su tendencia, por médico y línea;
 - tareas de detractores: abiertas, resueltas, vencidas;
 - costo de los beneficios otorgados contra el ingreso atribuido, por programa.
+- satisfacción por visita (servicio, médico, día) y métricas de la voz del cliente (sección 8c).
 
 Estas métricas quedan disponibles para el asesor del 16b.
 
@@ -119,6 +167,7 @@ En el tenant de prueba:
 - un cliente nuevo en bienvenida con respuesta "peor" y su tarea urgente;
 - una mascota fallecida con todo cancelado;
 - encuestas de las tres clasificaciones, incluida una tarea de detractor resuelta y una vencida.
+- calificaciones de visitas y unos 40 comentarios de voz del cliente con temas recurrentes (espera los sábados, precio del grooming), uno crítico, felicitaciones, y uno convertido en iniciativa.
 
 ## 12. Manual de usuario
 
@@ -133,6 +182,10 @@ En el tenant de prueba:
   - fallecimiento cancela todo en una transacción;
   - token de un solo uso y vencido;
   - detractor crea tarea con plazo;
+  - comentario crítico genera alerta inmediata;
+  - todo comentario queda asignado con plazo y escala al vencer;
+  - ninguna respuesta sale sin revisión humana;
+  - texto con instrucciones maliciosas no altera la clasificación ni el borrador;
   - sin duplicados con oportunidades del 14;
   - idempotencia de los trabajos nocturnos;
   - aislamiento entre tenants.

@@ -68,6 +68,7 @@ import { Clinica } from "./pages/admin/Clinica";
 import { Finanzas } from "./pages/finanzas/Finanzas";
 import { PersonasContainer } from "./pages/admin/Personas.container";
 import { CalidadDeDatos } from "./pages/admin/CalidadDeDatos";
+import { SalasYEquipos } from "./pages/admin/SalasYEquipos";
 import { PlanYSuscripcion } from "./pages/admin/PlanYSuscripcion";
 import { AdministracionCompleta } from "./pages/admin/AdministracionCompleta";
 import { CambiarPlan } from "./pages/admin/CambiarPlan";
@@ -238,6 +239,7 @@ export const rutasDeLaApp = (
           element={<Navigate to="/admin/clinica?tab=agenda" replace />}
         />
         <Route path="calidad-datos" element={<CalidadDeDatos />} />
+        <Route path="salas-y-equipos" element={<SalasYEquipos />} />
         {/* Prompt 11: catálogos, turnos, comisiones, cumplimiento,
             auditoría y procedimientos. Cada pestaña con su permiso. */}
         <Route path="administracion" element={<AdministracionCompleta />} />

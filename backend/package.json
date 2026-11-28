@@ -23,7 +23,8 @@
     "cargar-ayuda:prod": "node dist/scripts/cargar_ayuda.js",
     "purga-pendiente": "ts-node --transpile-only src/scripts/verificar_purga_pendiente_produccion.ts",
     "rutas-sin-sesion": "SOLO_RUTAS=1 ts-node src/scripts/verificar_rutas_sin_sesion.ts",
-    "antes-del-despliegue": "npm run rutas-sin-sesion && npm run purga-pendiente"
+    "acceso-por-rol": "ts-node src/scripts/verificar_acceso_por_rol.ts",
+    "antes-del-despliegue": "npm run rutas-sin-sesion && npm run acceso-por-rol && npm run purga-pendiente"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

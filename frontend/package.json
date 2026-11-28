@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "verificar-api": "node scripts/verificar_api_autenticada.mjs",
     "verificar-cambios-sin-guardar": "node scripts/verificar_cambios_sin_guardar.mjs",
-    "build": "eslint . && node scripts/verificar_api_autenticada.mjs && node scripts/verificar_cambios_sin_guardar.mjs && tsc -b && vite build",
+    "verificar-menu": "node scripts/verificar_menu_con_permisos.mjs",
+    "build": "eslint . && node scripts/verificar_api_autenticada.mjs && node scripts/verificar_cambios_sin_guardar.mjs && node scripts/verificar_menu_con_permisos.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "verificar-modales": "node scripts/verificar_modales.mjs"
   },

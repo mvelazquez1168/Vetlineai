@@ -98,6 +98,7 @@ import { CasoWorkspace } from "./pages/workspace/CasoWorkspace";
 import { CasosSinActividad as WorkspaceCasosSinActividad } from "./pages/workspace/CasosSinActividad";
 import { Muestrario } from "./pages/dev/Muestrario";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { ConPermiso } from "./routes/ConPermiso";
 
 function IndexRedirect() {
   const { user, isLoading, modulos, pantallaInicio } = useAuth();
@@ -231,18 +232,38 @@ export const rutasDeLaApp = (
             adentro, y LAS URL VIEJAS REDIRIGEN a su pestaña: no se
             rompen los enlaces de la ayuda, ni los guardados, ni los
             caminos de clics del relevamiento del marco. */}
-        <Route path="personas" element={<PersonasContainer />} />
+        <Route
+          path="personas"
+          element={
+            <ConPermiso permiso="personas.administrar"><PersonasContainer /></ConPermiso>
+          }
+        />
         <Route path="roles" element={<Navigate to="/admin/personas?tab=roles" replace />} />
         <Route path="politicas" element={<Navigate to="/admin/clinica?tab=politicas" replace />} />
         <Route
           path="configuracion-agenda"
           element={<Navigate to="/admin/clinica?tab=agenda" replace />}
         />
-        <Route path="calidad-datos" element={<CalidadDeDatos />} />
-        <Route path="salas-y-equipos" element={<SalasYEquipos />} />
+        <Route
+          path="calidad-datos"
+          element={
+            <ConPermiso permiso="cliente.ver"><CalidadDeDatos /></ConPermiso>
+          }
+        />
+        <Route
+          path="salas-y-equipos"
+          element={
+            <ConPermiso permiso="clinica.configurar"><SalasYEquipos /></ConPermiso>
+          }
+        />
         {/* Prompt 11: catálogos, turnos, comisiones, cumplimiento,
             auditoría y procedimientos. Cada pestaña con su permiso. */}
-        <Route path="administracion" element={<AdministracionCompleta />} />
+        <Route
+          path="administracion"
+          element={
+            <ConPermiso permiso={["catalogos.editar", "cumplimiento.gestionar", "auditoria.ver", "personal.gestionar", "comisiones.ver_todas", "procedimientos.editar", "controlados.registrar"]}><AdministracionCompleta /></ConPermiso>
+          }
+        />
         <Route
           path="duplicados"
           element={<Navigate to="/admin/calidad-datos?tab=duplicados" replace />}
@@ -262,18 +283,73 @@ export const rutasDeLaApp = (
           path="medicos"
           element={<Navigate to="/admin/personas?tab=invitaciones" replace />}
         />
-        <Route path="casos" element={<Casos />} />
-        <Route path="casos-sin-actividad" element={<CasosSinActividad />} />
-        <Route path="propietarios" element={<Propietarios />} />
-        <Route path="reporte-atenciones" element={<ReporteAtenciones />} />
-        <Route path="agentes" element={<Agentes />} />
-        <Route path="plan" element={<PlanYSuscripcion />} />
+        <Route
+          path="casos"
+          element={
+            <ConPermiso permiso="agentes.administrar"><Casos /></ConPermiso>
+          }
+        />
+        <Route
+          path="casos-sin-actividad"
+          element={
+            <ConPermiso permiso="agentes.administrar"><CasosSinActividad /></ConPermiso>
+          }
+        />
+        <Route
+          path="propietarios"
+          element={
+            <ConPermiso permiso="cliente.ver"><Propietarios /></ConPermiso>
+          }
+        />
+        <Route
+          path="reporte-atenciones"
+          element={
+            <ConPermiso permiso="reportes.ver"><ReporteAtenciones /></ConPermiso>
+          }
+        />
+        <Route
+          path="agentes"
+          element={
+            <ConPermiso permiso="agentes.administrar"><Agentes /></ConPermiso>
+          }
+        />
+        <Route
+          path="plan"
+          element={
+            <ConPermiso permiso="clinica.configurar"><PlanYSuscripcion /></ConPermiso>
+          }
+        />
         <Route path="plan-consumo" element={<Navigate to="/admin/plan?tab=plan" replace />} />
-        <Route path="plan-consumo/cambiar-plan" element={<CambiarPlan />} />
-        <Route path="plan-consumo/recargar" element={<RecargarCredito />} />
-        <Route path="plan-consumo/autorecarga" element={<ConfigurarAutorecarga />} />
-        <Route path="plan-consumo/exportar" element={<ExportacionPage />} />
-        <Route path="clinica" element={<Clinica />} />
+        <Route
+          path="plan-consumo/cambiar-plan"
+          element={
+            <ConPermiso permiso="clinica.configurar"><CambiarPlan /></ConPermiso>
+          }
+        />
+        <Route
+          path="plan-consumo/recargar"
+          element={
+            <ConPermiso permiso="clinica.configurar"><RecargarCredito /></ConPermiso>
+          }
+        />
+        <Route
+          path="plan-consumo/autorecarga"
+          element={
+            <ConPermiso permiso="clinica.configurar"><ConfigurarAutorecarga /></ConPermiso>
+          }
+        />
+        <Route
+          path="plan-consumo/exportar"
+          element={
+            <ConPermiso permiso="datos.exportar"><ExportacionPage /></ConPermiso>
+          }
+        />
+        <Route
+          path="clinica"
+          element={
+            <ConPermiso permiso="clinica.configurar"><Clinica /></ConPermiso>
+          }
+        />
         <Route
           path="notificaciones"
           element={<Navigate to="/admin/clinica?tab=notificaciones" replace />}
@@ -282,7 +358,12 @@ export const rutasDeLaApp = (
           path="facturacion"
           element={<Navigate to="/admin/plan?tab=facturacion" replace />}
         />
-        <Route path="facturacion/medio-de-pago" element={<MedioDePago />} />
+        <Route
+          path="facturacion/medio-de-pago"
+          element={
+            <ConPermiso permiso="clinica.configurar"><MedioDePago /></ConPermiso>
+          }
+        />
       </Route>
 
       {/* FINANZAS (prompt 10a) — detrás del módulo `finanzas` y del

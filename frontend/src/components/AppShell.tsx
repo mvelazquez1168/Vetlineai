@@ -59,6 +59,14 @@ interface Opcion {
   permiso?: string;
   /** De dónde sale el contador, cuando tiene. */
   contador?: "citasHoy" | "casosPendientes" | "aprobaciones";
+  /**
+   * Varios permisos de los que alcanza con tener uno.
+   *
+   * Para las opciones que agrupan pestañas con permisos distintos:
+   * «Catálogos y cumplimiento» se muestra si la persona puede entrar a
+   * alguna de sus pestañas, y adentro ve solo las suyas.
+   */
+  permisoAlguno?: string[];
 }
 
 interface Grupo {
@@ -124,8 +132,22 @@ const GRUPOS: Grupo[] = [
   {
     titulo: "Inteligencia",
     opciones: [
-      { to: "/admin/casos", etiqueta: "Casos clínicos", icono: "clinico", contador: "casosPendientes" },
-      { to: "/admin/casos-sin-actividad", etiqueta: "Casos sin actividad", icono: "hora" },
+      {
+        // Los casos de Vetline Ai vistos desde administración. El médico
+        // entra a los suyos por su área de trabajo; acá se ven todos, y
+        // eso es del administrador (matriz del 04).
+        to: "/admin/casos",
+        etiqueta: "Casos clínicos",
+        icono: "clinico",
+        contador: "casosPendientes",
+        permiso: "agentes.administrar",
+      },
+      {
+        to: "/admin/casos-sin-actividad",
+        etiqueta: "Casos sin actividad",
+        icono: "hora",
+        permiso: "agentes.administrar",
+      },
       {
         to: "/admin/agentes",
         etiqueta: "Agentes IA",
@@ -172,6 +194,17 @@ const GRUPOS: Grupo[] = [
         to: "/admin/personas",
         etiqueta: "Personas",
         icono: "personas",
+        // LA MATRIZ MANDA (hallazgo del 2026-11-27 por la noche): sin
+        // esto, la recepción veía la administración del personal.
+        //
+        // DECISIÓN ANOTADA: hasta ahora la lista del equipo la podía ver
+        // todo el personal —saber quién es quién es de todos los días— y
+        // la matriz del 04 no tiene un permiso para «ver» personas, solo
+        // `personas.administrar`. Así que la pantalla queda para quien
+        // administra. Si se quiere que todo el personal vea el equipo,
+        // hace falta un `personas.ver` en la matriz: es una decisión de
+        // producto, no algo para inventar acá.
+        permiso: "personas.administrar",
       },
       {
         // Datos · Apariencia · Agenda · Notificaciones · Políticas.
@@ -188,6 +221,25 @@ const GRUPOS: Grupo[] = [
         to: "/admin/administracion",
         etiqueta: "Catálogos y cumplimiento",
         icono: "ajustes",
+        // Alcanza con poder entrar a alguna de sus pestañas.
+        //
+        // DECISIÓN ANOTADA: el comentario anterior decía que pedir un
+        // permiso «dejaría a la recepción sin poder leer los
+        // procedimientos que la clínica escribió para ella», y era
+        // cierto: la matriz solo tiene `procedimientos.editar`, no un
+        // `procedimientos.ver`. Con la regla nueva —el menú sigue la
+        // matriz— la recepción deja de ver esta opción. Si tiene que
+        // poder leer los procedimientos, hace falta ese permiso en la
+        // matriz.
+        permisoAlguno: [
+          "catalogos.editar",
+          "cumplimiento.gestionar",
+          "auditoria.ver",
+          "personal.gestionar",
+          "comisiones.ver_todas",
+          "procedimientos.editar",
+          "controlados.registrar",
+        ],
       },
       {
         // Posibles duplicados · Productos sin clasificar · Fichas por
@@ -207,7 +259,15 @@ const GRUPOS: Grupo[] = [
         icono: "plan",
         permiso: "clinica.configurar",
       },
-      { to: "/clinic", etiqueta: "Estado de Vetline Clinic", icono: "panel", modulo: "expediente" },
+      {
+        to: "/clinic",
+        etiqueta: "Estado de Vetline Clinic",
+        icono: "panel",
+        modulo: "expediente",
+        // Qué módulos están encendidos y cómo va la puesta en marcha:
+        // es configuración, y la mira quien configura.
+        permiso: "clinica.configurar",
+      },
     ],
   },
 ];
@@ -269,6 +329,7 @@ export function AppShell() {
         opciones: g.opciones.filter((o) => {
           if (o.modulo && !tieneModulo(o.modulo)) return false;
           if (o.permiso && !puede(o.permiso)) return false;
+          if (o.permisoAlguno && !o.permisoAlguno.some((p) => puede(p))) return false;
           return true;
         }),
       })).filter((g) => g.opciones.length > 0),

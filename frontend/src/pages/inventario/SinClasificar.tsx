@@ -40,7 +40,10 @@ import {
 // a la receta y nadie se entera hasta que un médico lo receta.
 // ---------------------------------------------------------------------
 
-export function SinClasificar() {
+export function SinClasificar({
+  /** Para dibujarla dentro de una pestaña (Calidad de datos, punto 6). */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   const toast = useToast();
   const { puede } = useAuth();
   const puedeEditar = puede("catalogo.editar");
@@ -124,13 +127,15 @@ export function SinClasificar() {
 
   return (
     <div>
-      <PageHeader
-        titulo="Productos sin clasificar"
-        subtitulo="El tipo clínico decide en qué acción de la atención aparece cada producto."
-        icono="producto"
-        modulo="inventario"
-        padre={{ a: "/inventario", etiqueta: "Inventario" }}
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Productos sin clasificar"
+          subtitulo="El tipo clínico decide en qué acción de la atención aparece cada producto."
+          icono="producto"
+          modulo="inventario"
+          padre={{ a: "/inventario", etiqueta: "Inventario" }}
+        />
+      )}
 
       <Card>
         <CardTitle>Qué es esto y por qué importa</CardTitle>

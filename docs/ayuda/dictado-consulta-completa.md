@@ -17,7 +17,7 @@ puede dictar dos veces en la misma consulta.
 ## Quién puede usarla
 
 Solo un **médico**, y solo si el administrador de la clínica activó el servicio en
-**Administración › Notificaciones › Servicios de IA**. Si no está activado, el recuadro no aparece.
+**Administración › Clínica › Notificaciones y servicios de IA**. Si no está activado, el recuadro no aparece.
 
 **Consume crédito de IA** de la clínica. Por eso nace apagado.
 
@@ -100,7 +100,7 @@ Los grupos con algo que revisar **no se marcan solos**. Para aceptarlos hay que 
 
 - **El audio sale de la computadora** hacia el servicio de transcripción, se convierte en texto y
   **no se guarda**.
-- Si la clínica configura una **retención** (Administración › Notificaciones › Servicios de IA, campo
+- Si la clínica configura una **retención** (Administración › Clínica › Notificaciones y servicios de IA, campo
   «Guardar el audio»), el audio se guarda esas horas y se borra solo al vencer. **Por omisión son 0
   horas: no se guarda.**
 - **El texto sí queda** en el expediente del paciente, con el mismo aislamiento por clínica que el
@@ -117,7 +117,7 @@ no depende de que el navegador sepa reconocer voz.
 ## Preguntas frecuentes y errores comunes
 
 **Dice «El dictado de la consulta con IA no está activado para esta clínica».**
-Lo activa el administrador en Administración › Notificaciones › Servicios de IA.
+Lo activa el administrador en Administración › Clínica › Notificaciones y servicios de IA.
 
 **Dice que la clínica no tiene saldo de IA.**
 El dictado consume crédito como el chat o el informe. Avísele al administrador para recargar.

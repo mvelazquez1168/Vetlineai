@@ -161,6 +161,26 @@ Las alertas las detectan **reglas en código**. El agente prioriza y redacta. Se
 - **Pruebas de permisos:** la misma pregunta con roles distintos da respuestas acordes a cada rol.
 - **Pruebas de inyección:** una nota de cliente con instrucciones dirigidas al agente no cambia su comportamiento.
 
+### 7. Preguntas predefinidas (un clic, sin ambigüedad)
+
+La forma principal de usar el asesor es **pulsar una pregunta**, no escribirla. Evita errores de interpretación, es más rápido, más barato y más fácil para quien no sabe qué preguntar.
+
+- **Catálogo de preguntas predefinidas** (tabla `agente_preguntas`): texto, categoría (ventas y estacionalidad, rentabilidad, inventario, clientes, simulación, mercadeo), diagnóstico o diagnósticos que ejecuta, parámetros, permiso requerido, activa. Semilla con las 30 preguntas de la sección 7 de `vetline-clinic-00b-pilares-de-crecimiento.md`.
+- **Ruta directa:** una pregunta predefinida va **directo al diagnóstico** con sus parámetros, sin que el modelo interprete la intención. El modelo solo prioriza y redacta la respuesta de cinco partes. Las cifras salen del diagnóstico, como siempre.
+- **Parámetros con selectores, no texto:** período (este mes, mes anterior, trimestre, año, rango), línea de negocio, producto o categoría, sede, médico, y para el simulador las palancas con su porcentaje. Cada pregunta trae valores por defecto razonables (por ejemplo, "este mes contra el mismo mes del año anterior") y se puede responder con un solo clic sin tocar nada.
+- **Dónde aparecen:**
+  - en el panel del asesor, agrupadas por categoría, con buscador;
+  - **en contexto**, en cada pantalla, las que aplican a lo que se está viendo: en Inventario, "¿Qué tengo que pedir esta semana?"; en la ficha de un producto, "¿Este producto es rentable?"; en el dashboard de la clínica, "¿Por qué bajaron las ventas este mes?";
+  - **sugeridas por las alertas:** cuando una regla detecta algo (por ejemplo, ventas de grooming 15 % bajo su historia), aparece la pregunta lista: "¿Por qué bajó el grooming este mes?";
+  - **en el resumen de la mañana**, como accesos directos.
+- **Preguntas de seguimiento:** cada respuesta termina con 2 o 3 preguntas siguientes pulsables (por ejemplo, después de "¿Qué no es rentable?": "¿Qué pasa si subo un 10 % el precio de estos servicios?" con las palancas ya cargadas).
+- **Favoritas y frecuentes:** cada usuario fija sus favoritas; las más usadas suben solas.
+- **Preguntas de la clínica:** la dirección puede guardar una pregunta propia a partir de una respuesta (con sus parámetros) para reutilizarla con un clic.
+- **Texto libre sigue disponible** para lo que no esté en el catálogo. Si una pregunta escrita corresponde a una predefinida, el asesor muestra cuál entendió y sus parámetros antes de ejecutar ("Entendí: Ventas del mes, noviembre contra noviembre 2025. ¿Correcto?").
+- **Permisos:** solo se muestran las preguntas cuyo diagnóstico el usuario puede ver (las financieras, por ejemplo, solo a dirección y contador).
+- **Uso medido:** qué preguntas se pulsan, cuáles se escriben a mano y no tienen predefinida (candidatas a agregar al catálogo) y cuáles reciben una valoración negativa.
+- El banco de evaluación (sección 6) incluye cada pregunta predefinida con sus parámetros por defecto.
+
 ## Verificación y entrega
 
 Según la sección 12 de la guía, se recorre en el navegador:

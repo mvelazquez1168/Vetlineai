@@ -32,7 +32,15 @@ const NOMBRE_MODULO: Record<string, string> = {
   admin: "Administración",
 };
 
-export function RolesPermisos() {
+export function RolesPermisos({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   const { puede } = useAuth();
   const toast = useToast();
   const [matriz, setMatriz] = useState<MatrizDeRoles | null>(null);
@@ -96,12 +104,14 @@ export function RolesPermisos() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        titulo="Roles y permisos"
-        subtitulo="Qué puede hacer cada rol. Lo clínico no se configura; lo que depende de cómo trabajan, sí."
-        icono="ajustes"
-        modulo="admin"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Roles y permisos"
+          subtitulo="Qué puede hacer cada rol. Lo clínico no se configura; lo que depende de cómo trabajan, sí."
+          icono="ajustes"
+          modulo="admin"
+        />
+      )}
 
       <p className="rounded-lg border border-black/5 bg-background/60 p-3 text-sm text-text-muted">
         Las casillas que no se pueden tocar son parte del producto: escribir y firmar el expediente

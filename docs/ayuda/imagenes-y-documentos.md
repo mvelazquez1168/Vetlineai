@@ -67,7 +67,7 @@ Escaneá o fotografiá las hojas, arrastralas acá, y elegí el tipo **Historial
 aproximada del documento. Lo puede cargar la recepción: no hace falta un médico para eso.
 
 **No veo el tipo que necesito.**
-La lista es de la clínica y se puede ampliar desde **Administración › Catálogos**.
+La lista es de la clínica y se puede ampliar desde **Administración › Catálogos y cumplimiento**.
 
 **Desde recepción no me deja subir una radiografía.**
 Es la regla: el contenido clínico lo sube un médico. Desde recepción sí se cargan el historial

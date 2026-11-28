@@ -18,7 +18,7 @@ clínica*, que por omisión tienen el administrador y farmacia.
 
 ## Cómo está organizado
 
-*Administración › Catálogos, personal y cumplimiento › Catálogos*, agrupados en Inventario,
+*Administración › Catálogos y cumplimiento › Catálogos*, agrupados en Inventario,
 Veterinaria, Recetas, Clientes, Agenda y Documentos.
 
 **Cada catálogo dice dónde se edita.** Los que tienen su propia pantalla en su módulo —bodegas,
@@ -45,7 +45,7 @@ Ahora son cuatro listas:
 
 ## Paso a paso
 
-1. *Administración › Catálogos, personal y cumplimiento › Catálogos*.
+1. *Administración › Catálogos y cumplimiento › Catálogos*.
 2. Buscá el catálogo y **Abrir** (o **Ir a su módulo**, si vive en otro lado).
 3. Escribí el valor nuevo y **Agregar**.
 4. Para sacar uno de circulación: **Desactivar**.

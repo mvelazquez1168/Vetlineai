@@ -53,7 +53,15 @@ const TIPOS_DE_EXCEPCION = [
   { value: "bloqueo", label: "Bloqueo puntual" },
 ];
 
-export function ConfiguracionAgenda() {
+export function ConfiguracionAgenda({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   const { puede, zonaHoraria } = useAuth();
   const toast = useToast();
   const [cargando, setCargando] = useState(true);
@@ -190,12 +198,14 @@ export function ConfiguracionAgenda() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        titulo="Configuración de la agenda"
-        subtitulo="El horario de la clínica, los feriados, los tipos de cita y los prefijos de numeración."
-        icono="cita"
-        modulo="agenda"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Configuración de la agenda"
+          subtitulo="El horario de la clínica, los feriados, los tipos de cita y los prefijos de numeración."
+          icono="cita"
+          modulo="agenda"
+        />
+      )}
 
       {!puedeConfigurar && (
         <p className="rounded-lg border border-black/5 bg-background/60 p-3 text-sm text-text-muted">

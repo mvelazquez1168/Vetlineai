@@ -36,7 +36,7 @@ pregunta de un administrador es justamente *«¿esto lo pusimos nosotros?»*.
 
 ## Paso a paso
 
-1. *Administración › Políticas*.
+1. *Administración › Clínica › Políticas*.
 2. Cambie el valor en el campo.
 3. **Guardar**, en la misma fila.
 

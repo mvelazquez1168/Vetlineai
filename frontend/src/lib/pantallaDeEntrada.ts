@@ -83,7 +83,10 @@ export function pantallasDisponibles(
   if (tiene("facturacion"))
     lista.push({ ruta: "/facturacion", etiqueta: "Facturación electrónica" });
   lista.push({ ruta: "/admin/casos", etiqueta: "Casos clínicos" });
-  if (quien.esAdminClinica) lista.push({ ruta: "/admin/medicos", etiqueta: "Médicos" });
+  // «Personas» y no «Médicos»: la pantalla administra a todo el
+  // personal desde el 04, y el menú ya lo dice así (punto 6 del
+  // 2026-11-27).
+  if (quien.esAdminClinica) lista.push({ ruta: "/admin/personas", etiqueta: "Personas" });
   return lista;
 }
 
@@ -105,7 +108,7 @@ export function rutaDeEntrada(quien: QuienEntra): string {
 
   // 3. Lo de siempre, para las sesiones y los roles que no digan nada.
   if (quien.modulos.length === 0) {
-    return quien.esMedico ? "/workspace" : "/admin/medicos";
+    return quien.esMedico ? "/workspace" : "/admin/personas";
   }
   return "/inicio";
 }

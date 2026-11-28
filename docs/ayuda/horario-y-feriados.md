@@ -36,7 +36,7 @@ domingos» cuando la clínica está cerrada el domingo manda a buscar al lugar e
 
 **El horario**
 
-1. *Administración › Configuración de la agenda › Horario*.
+1. *Administración › Clínica › Agenda › Horario*.
 2. Destilde un día para cerrarlo; tíldelo para abrirlo.
 3. Ponga **de** y **a**. Si cierra al mediodía, **+ Otro tramo**: «de 8 a 12» y «de 14 a 17».
 4. **Guardar** en la fila del día.

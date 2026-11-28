@@ -65,17 +65,11 @@ import { Propietarios } from "./pages/admin/Propietarios";
 import { ReporteAtenciones } from "./pages/admin/ReporteAtenciones";
 import { CasoDetalleAdmin } from "./pages/admin/CasoDetalleAdmin";
 import { Clinica } from "./pages/admin/Clinica";
-import { Notificaciones } from "./pages/admin/Notificaciones";
-import { Duplicados } from "./pages/admin/Duplicados";
 import { Finanzas } from "./pages/finanzas/Finanzas";
-import { Personas } from "./pages/admin/Personas";
-import { RolesPermisos } from "./pages/admin/RolesPermisos";
-import { Politicas } from "./pages/admin/Politicas";
-import { ConfiguracionAgenda } from "./pages/admin/ConfiguracionAgenda";
+import { PersonasContainer } from "./pages/admin/Personas.container";
+import { CalidadDeDatos } from "./pages/admin/CalidadDeDatos";
+import { PlanYSuscripcion } from "./pages/admin/PlanYSuscripcion";
 import { AdministracionCompleta } from "./pages/admin/AdministracionCompleta";
-import { Facturacion } from "./pages/admin/Facturacion";
-import { Medicos } from "./pages/admin/Medicos";
-import { PlanConsumo } from "./pages/admin/PlanConsumo";
 import { CambiarPlan } from "./pages/admin/CambiarPlan";
 import { RecargarCredito } from "./pages/admin/RecargarCredito";
 import { ConfigurarAutorecarga } from "./pages/admin/ConfigurarAutorecarga";
@@ -230,14 +224,27 @@ export const rutasDeLaApp = (
           </ProtectedRoute>
         }
       >
-        <Route path="personas" element={<Personas />} />
-        <Route path="roles" element={<RolesPermisos />} />
-        <Route path="politicas" element={<Politicas />} />
-        <Route path="configuracion-agenda" element={<ConfiguracionAgenda />} />
+        {/* ADMINISTRACIÓN REORGANIZADA (punto 6 del 2026-11-27).
+            Eran trece opciones de menú y varias eran la misma cosa
+            vista desde lugares distintos. Ahora son siete, con pestañas
+            adentro, y LAS URL VIEJAS REDIRIGEN a su pestaña: no se
+            rompen los enlaces de la ayuda, ni los guardados, ni los
+            caminos de clics del relevamiento del marco. */}
+        <Route path="personas" element={<PersonasContainer />} />
+        <Route path="roles" element={<Navigate to="/admin/personas?tab=roles" replace />} />
+        <Route path="politicas" element={<Navigate to="/admin/clinica?tab=politicas" replace />} />
+        <Route
+          path="configuracion-agenda"
+          element={<Navigate to="/admin/clinica?tab=agenda" replace />}
+        />
+        <Route path="calidad-datos" element={<CalidadDeDatos />} />
         {/* Prompt 11: catálogos, turnos, comisiones, cumplimiento,
             auditoría y procedimientos. Cada pestaña con su permiso. */}
         <Route path="administracion" element={<AdministracionCompleta />} />
-        <Route path="duplicados" element={<Duplicados />} />
+        <Route
+          path="duplicados"
+          element={<Navigate to="/admin/calidad-datos?tab=duplicados" replace />}
+        />
       </Route>
 
       <Route
@@ -248,21 +255,31 @@ export const rutasDeLaApp = (
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="medicos" replace />} />
-        <Route path="medicos" element={<Medicos />} />
+        <Route index element={<Navigate to="/admin/personas" replace />} />
+        <Route
+          path="medicos"
+          element={<Navigate to="/admin/personas?tab=invitaciones" replace />}
+        />
         <Route path="casos" element={<Casos />} />
         <Route path="casos-sin-actividad" element={<CasosSinActividad />} />
         <Route path="propietarios" element={<Propietarios />} />
         <Route path="reporte-atenciones" element={<ReporteAtenciones />} />
         <Route path="agentes" element={<Agentes />} />
-        <Route path="plan-consumo" element={<PlanConsumo />} />
+        <Route path="plan" element={<PlanYSuscripcion />} />
+        <Route path="plan-consumo" element={<Navigate to="/admin/plan?tab=plan" replace />} />
         <Route path="plan-consumo/cambiar-plan" element={<CambiarPlan />} />
         <Route path="plan-consumo/recargar" element={<RecargarCredito />} />
         <Route path="plan-consumo/autorecarga" element={<ConfigurarAutorecarga />} />
         <Route path="plan-consumo/exportar" element={<ExportacionPage />} />
         <Route path="clinica" element={<Clinica />} />
-        <Route path="notificaciones" element={<Notificaciones />} />
-        <Route path="facturacion" element={<Facturacion />} />
+        <Route
+          path="notificaciones"
+          element={<Navigate to="/admin/clinica?tab=notificaciones" replace />}
+        />
+        <Route
+          path="facturacion"
+          element={<Navigate to="/admin/plan?tab=facturacion" replace />}
+        />
         <Route path="facturacion/medio-de-pago" element={<MedioDePago />} />
       </Route>
 

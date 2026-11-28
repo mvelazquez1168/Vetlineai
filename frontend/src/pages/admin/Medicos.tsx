@@ -22,7 +22,15 @@ import {
   Medico,
 } from "../../lib/adminApi";
 
-export function Medicos() {
+export function Medicos({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
   // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
   // —filtros y buscadores— no cuenta como cambio.
@@ -377,11 +385,13 @@ export function Medicos() {
   return (
     <div ref={refSucio as React.RefObject<HTMLDivElement>}>
       {dialogoSalida}
-      <PageHeader
-        titulo="Personal e invitaciones"
-        icono="personas"
-        modulo="admin"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Personal e invitaciones"
+          icono="personas"
+          modulo="admin"
+        />
+      )}
       <div className="flex items-center justify-between">
         <div>
           <p className="text-text-muted">{nombreClinica}</p>

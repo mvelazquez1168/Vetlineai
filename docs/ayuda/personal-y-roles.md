@@ -43,7 +43,7 @@ desactivar personas*, que por omisión tiene el administrador.
 
 **Invitar a alguien**
 
-1. *Administración › Personal e invitaciones* › **+ Invitar a alguien**.
+1. *Administración › Personas › Invitaciones* › **+ Invitar a alguien**.
 2. Marque **con qué rol entra**. Puede marcar varios.
 3. Escriba el **correo** y, si quiere, el nombre.
 4. **Enviar invitación**. Le llega un enlace de un solo uso, válido por siete días, donde ella
@@ -54,7 +54,7 @@ desactivar personas*, que por omisión tiene el administrador.
 Cuando el correo no llega —cayó en spam, se escribió mal la dirección, o la persona está sentada al
 lado—, se le puede dar el enlace directamente.
 
-1. *Administración › Personal e invitaciones* › en la fila de la invitación, **Copiar enlace**.
+1. *Administración › Personas › Invitaciones* › en la fila de la invitación, **Copiar enlace**.
 2. El enlace queda en el portapapeles. Pegalo en un mensaje **privado** para esa persona.
 
 Lo mismo se ofrece justo después de invitar: el aviso de «Invitación enviada» trae el botón
@@ -62,11 +62,11 @@ Lo mismo se ofrece justo después de invitar: el aviso de «Invitación enviada�
 
 El enlace **es una credencial**: quien lo tenga crea esa cuenta, con esos roles, en esta clínica.
 Por eso solo lo ve quien puede *invitar, editar y desactivar personas*, y **queda registrado quién
-lo copió y cuándo** (se ve en *Administración › Cumplimiento y auditoría*).
+lo copió y cuándo** (se ve en *Administración › Catálogos y cumplimiento › Auditoría*).
 
 **Cambiarle los roles a alguien**
 
-1. *Administración › Personal de la clínica*.
+1. *Administración › Personas › Personal*.
 2. En su fila, **Roles**.
 3. Marque y desmarque, y **Guardar roles**.
 
@@ -74,7 +74,7 @@ El cambio surte efecto en su siguiente pantalla: **no hace falta que cierre sesi
 
 **Que alguien deje de entrar**
 
-1. *Administración › Personal de la clínica* › en su fila, **Desactivar**.
+1. *Administración › Personas › Personal* › en su fila, **Desactivar**.
 2. Confirme.
 
 ## Un ejemplo

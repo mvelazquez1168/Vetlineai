@@ -73,7 +73,7 @@ sentido preguntar «cuánto me debían en marzo».
 **La ocupación dice «falta configurar el horario de la clínica».**
 La ocupación es *minutos citados ÷ minutos que la clínica abre*. Sin horario configurado no hay
 divisor, y mostrar 0 % diría «la agenda está vacía» cuando lo que pasa es que falta el horario. Se
-configura en **Administración › Horario y feriados**.
+configura en **Administración › Clínica › Agenda**.
 
 **Un producto aparece con «sin costo» en lugar de un margen.**
 Es a propósito. Si el producto no tiene costo cargado, su margen no se puede calcular; mostrarlo
@@ -82,6 +82,11 @@ como 100 % de margen sería inventar que no costó nada. El aviso de arriba del 
 
 **No me aparece el bloque de campañas.**
 Aparece cuando haya campañas con datos. Un bloque que dice «0» ocupa el lugar de algo que informa.
+
+**¿Cómo veo de dónde sale el número de ingresos?**
+Tocá la tarjeta. Se abre la lista de los comprobantes que lo componen, y la lista suma
+exactamente el número de la tarjeta. La definición —qué cuenta, qué deja afuera y a qué fecha se
+imputa— está en el diccionario de métricas, al que se llega desde la misma pantalla.
 
 **¿Qué quiere decir exactamente cada número?**
 Tocá el **ⓘ** de la tarjeta: muestra la definición en lenguaje simple, la fórmula, lo que **no**

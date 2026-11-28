@@ -20,11 +20,11 @@ Si intentás salir de una pantalla o cerrar un formulario con algo escrito y sin
 un aviso con tres salidas:
 
 - **Seguir editando** — no pasa nada, volvés a donde estabas.
-- **Descartar** — se va lo escrito y se sale.
-- **Guardar y salir** — guarda primero y después sale. Si el guardado falla, **no sale**: te
-  quedás con tus datos y con el error a la vista.
+- **Descartar** — se pierde lo escrito y la pantalla se cierra.
+- **Guardar y salir** — guarda primero y después cierra. Si el guardado falla, **no cierra**:
+  te quedás con tus datos y con el error a la vista.
 
-El aviso sale por cualquiera de estos caminos:
+El aviso aparece por cualquiera de estos caminos:
 
 | Cómo saliste | Qué pasa |
 |---|---|

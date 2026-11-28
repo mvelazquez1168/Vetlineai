@@ -33,7 +33,15 @@ const CAMPOS_CLIENTE: Array<{ campo: string; etiqueta: string }> = [
   { campo: "email", etiqueta: "Correo" },
 ];
 
-export function Duplicados() {
+export function Duplicados({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   const { esAdminClinica } = useAuth();
   const { mostrar } = useToast();
   const [pestana, setPestana] = useState<Pestana>("clientes");
@@ -117,11 +125,13 @@ export function Duplicados() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        titulo="Posibles duplicados"
-        subtitulo="El mismo cliente o la misma mascota cargados dos veces. Unificar junta la historia en una sola ficha y no se deshace con un botón."
-        icono="propietario"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Posibles duplicados"
+          subtitulo="El mismo cliente o la misma mascota cargados dos veces. Unificar junta la historia en una sola ficha y no se deshace con un botón."
+          icono="propietario"
+        />
+      )}
 
       <div className="flex gap-1 border-b border-black/5">
         {(

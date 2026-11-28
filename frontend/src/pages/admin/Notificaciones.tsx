@@ -45,7 +45,15 @@ function SeccionHeader({ titulo, activos, total }: { titulo: string; activos: nu
   );
 }
 
-export function Notificaciones() {
+export function Notificaciones({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
   // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
   // —filtros y buscadores— no cuenta como cambio.
@@ -111,12 +119,14 @@ export function Notificaciones() {
   return (
     <div ref={refSucio as React.RefObject<HTMLDivElement>}>
       {dialogoSalida}
-      <PageHeader
-        titulo="Notificaciones"
-        subtitulo="Estos avisos se envían automáticamente en nombre de tu clínica."
-        icono="campana"
-        modulo="admin"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Notificaciones"
+          subtitulo="Estos avisos se envían automáticamente en nombre de tu clínica."
+          icono="campana"
+          modulo="admin"
+        />
+      )}
 
       <div className="mt-8 max-w-2xl space-y-8">
         <div className="space-y-6">

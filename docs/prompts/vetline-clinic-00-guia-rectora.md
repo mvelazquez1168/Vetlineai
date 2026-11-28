@@ -503,6 +503,9 @@ porque los módulos siguientes se apoyan en ellas desde su primer día:
     libro de controlados, auditoría consultable y procedimientos.
 12. `12` — Dashboards de los cuatro niveles, trazabilidad de productos y exportación.
 13. `13` — Análisis y correlaciones.
+    `13b` — Ventas, estacionalidad y proyección: volumen y detalle, índices estacionales (mes,
+    quincena, día, hora, eventos de Costa Rica), tendencia desestacionalizada y proyección con rango;
+    única fuente de estacionalidad para 10b, 06, 05, 14 y 16b (después del 13).
 14. `14` — CRM completo: ficha 360, segmentos, oportunidades, campañas (mensajería simulada, sin Converza por ahora), indicadores
     por cliente y bandeja del día.
 15. `15` — Fidelización (sección 7.1), en tres partes: `15a` retención (recuperación de clientes,

@@ -34,7 +34,7 @@ atiende uno.
 
 ## Paso a paso
 
-1. *Administración › Catálogos, personal y cumplimiento › Personal y turnos*.
+1. *Administración › Catálogos y cumplimiento › Personal y turnos*.
 2. Elegí la semana.
 3. **Agregar turno**: persona, día, de qué hora a qué hora, y si es turno o **guardia**.
 4. **Copiar a la semana siguiente** repite toda la semana. Copiar dos veces no duplica nada.

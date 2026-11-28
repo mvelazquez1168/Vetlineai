@@ -169,6 +169,34 @@ Marco de hoy: **SeccionLayout** → marco nuevo: **`AppShell`**
 
 Marco de hoy: **AdminLayout** → marco nuevo: **`AppShell`**
 
+> **Reorganizado el 2026-11-28 (punto 6 de los defectos de la tarde).**
+> El grupo tenia TRECE opciones de menu y varias eran la misma cosa
+> vista desde lugares distintos. Ahora son **siete**, con pestañas
+> adentro. Las rutas viejas **siguen funcionando y redirigen**, asi que
+> los caminos de clics de esta tabla siguen llevando a donde decian.
+>
+> | Opcion del menu | Ruta | Pestañas (`?tab=`) |
+> | --- | --- | --- |
+> | Reportes | `/reportes` | como estaba |
+> | Personas | `/admin/personas` | `personal` · `invitaciones` · `roles` |
+> | Clinica | `/admin/clinica` | `datos` · `apariencia` · `agenda` · `notificaciones` · `politicas` |
+> | Catalogos y cumplimiento | `/admin/administracion` | las del 11 que no son de personas |
+> | Calidad de datos | `/admin/calidad-datos` | `duplicados` · `productos` · `fichas` |
+> | Plan y suscripcion | `/admin/plan` | `plan` · `facturacion` |
+> | Estado de Vetline Clinic | `/clinic` | como estaba |
+>
+> **Redirecciones:** `/admin/roles` → Personas·roles · `/admin/medicos`
+> → Personas·invitaciones · `/admin/politicas` → Clinica·politicas ·
+> `/admin/configuracion-agenda` → Clinica·agenda ·
+> `/admin/notificaciones` → Clinica·notificaciones ·
+> `/admin/duplicados` → Calidad de datos·duplicados ·
+> `/admin/plan-consumo` → Plan·plan · `/admin/facturacion` →
+> Plan·facturacion.
+>
+> Las subrutas (`/admin/plan-consumo/cambiar-plan`,
+> `/admin/facturacion/medio-de-pago`, etc.) **no cambiaron**: siguen
+> siendo pantallas propias.
+
 | Ruta | Pantalla | Acciones, filtros y atajos de hoy | Componentes | V |
 | --- | --- | --- | --- | --- |
 | `/admin` | AdminLayout | solo lectura | — |  |

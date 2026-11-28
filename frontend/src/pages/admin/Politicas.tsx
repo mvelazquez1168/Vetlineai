@@ -67,7 +67,15 @@ const NOMBRE_MODULO: Record<string, string> = {
   agente: "Agente administrativo",
 };
 
-export function Politicas() {
+export function Politicas({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
   // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
   // —filtros y buscadores— no cuenta como cambio.
@@ -152,12 +160,14 @@ export function Politicas() {
   return (
     <div ref={refSucio as React.RefObject<HTMLDivElement>} className="space-y-6">
       {dialogoSalida}
-      <PageHeader
-        titulo="Políticas de la clínica"
-        subtitulo="Las decisiones que cada clínica toma distinto, con su historial."
-        icono="ajustes"
-        modulo="admin"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Políticas de la clínica"
+          subtitulo="Las decisiones que cada clínica toma distinto, con su historial."
+          icono="ajustes"
+          modulo="admin"
+        />
+      )}
 
       {!puedeConfigurar && (
         <p className="rounded-lg border border-black/5 bg-background/60 p-3 text-sm text-text-muted">

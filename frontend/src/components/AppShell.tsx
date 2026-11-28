@@ -142,6 +142,18 @@ const GRUPOS: Grupo[] = [
   },
   {
     titulo: "Administración",
+    // SIETE OPCIONES, NO TRECE (punto 6 del 2026-11-27).
+    //
+    // Eran trece y varias eran la misma cosa vista desde lugares
+    // distintos: «Personal de la clínica», «Personal e invitaciones» y
+    // «Roles y permisos» son tres pestañas de una sola pregunta —la
+    // gente—; «Clínica», «Configuración de la agenda»,
+    // «Notificaciones» y «Políticas» son cuatro de otra —cómo trabaja
+    // esta clínica—. A Miguel le costó encontrar dónde invitar a un
+    // médico, que es exactamente el síntoma de un menú así.
+    //
+    // Las URL viejas siguen funcionando y redirigen a su pestaña (ver
+    // App.tsx).
     opciones: [
       {
         // Prompt 12: el dashboard de la clínica y el de los médicos. El
@@ -153,18 +165,20 @@ const GRUPOS: Grupo[] = [
         permiso: "reportes.ver",
       },
       {
+        // Personal · Invitaciones · Roles y permisos.
+        // Sin permiso propio: ver el equipo lo puede hacer todo el
+        // personal —saber quién es quién es de todos los días— y las
+        // otras dos pestañas aparecen solo con `personas.administrar`.
         to: "/admin/personas",
-        etiqueta: "Personal de la clínica",
+        etiqueta: "Personas",
         icono: "personas",
-        permiso: "personas.administrar",
       },
-      { to: "/admin/roles", etiqueta: "Roles y permisos", icono: "ajustes" },
-      { to: "/admin/politicas", etiqueta: "Políticas", icono: "ajustes" },
       {
-        to: "/admin/configuracion-agenda",
-        etiqueta: "Configuración de la agenda",
-        icono: "cita",
-        permiso: "agenda.ver",
+        // Datos · Apariencia · Agenda · Notificaciones · Políticas.
+        to: "/admin/clinica",
+        etiqueta: "Clínica",
+        icono: "clinica",
+        permiso: "clinica.configurar",
       },
       // Prompt 11. Sin permiso propio: cada pestaña tiene el suyo y lo
       // que no se puede hacer no muestra su botón. Pedir un permiso para
@@ -172,56 +186,25 @@ const GRUPOS: Grupo[] = [
       // que la clínica escribió para ella.
       {
         to: "/admin/administracion",
-        etiqueta: "Catálogos, personal y cumplimiento",
+        etiqueta: "Catálogos y cumplimiento",
         icono: "ajustes",
       },
       {
-        to: "/admin/medicos",
-        // «Personal e invitaciones» y no «Médicos»: esta pantalla
-        // administra a TODO el personal desde el prompt 04 —recepción,
-        // auxiliares, administración—, y el cupo del plan es lo único
-        // que sigue siendo de médicos. Un nombre que dice «Médicos» hace
-        // que nadie busque acá para dar de alta a la recepcionista.
-        // DEUDA ANOTADA: la tabla sigue llamándose `invitaciones_medico`
-        // (migración 030). Renombrarla toca 20 archivos y no cambia nada
-        // para quien usa el sistema; se hace cuando haya otro motivo
-        // para tocar esa migración.
-        etiqueta: "Personal e invitaciones",
-        icono: "medico",
-        permiso: "personas.administrar",
-      },
-      {
-        to: "/admin/clinica",
-        etiqueta: "Clínica y usuarios",
-        icono: "clinica",
-        permiso: "clinica.configurar",
-      },
-      {
-        to: "/admin/notificaciones",
-        etiqueta: "Notificaciones",
-        icono: "campana",
-        permiso: "clinica.configurar",
-      },
-      // Anexo 07-03, B1. La lista la puede ver todo el personal —es la
-      // recepción la que reconoce al cliente repetido— y el botón de
-      // unificar aparece solo para el administrador, dentro de la
-      // pantalla.
-      {
-        to: "/admin/duplicados",
-        etiqueta: "Posibles duplicados",
-        icono: "propietario",
+        // Posibles duplicados · Productos sin clasificar · Fichas por
+        // completar. Tres listas que son la misma tarea y vivían en tres
+        // módulos que no se hablaban.
+        to: "/admin/calidad-datos",
+        etiqueta: "Calidad de datos",
+        icono: "aviso",
         permiso: "cliente.ver",
       },
       {
-        to: "/admin/plan-consumo",
-        etiqueta: "Plan y consumo",
+        // Plan y consumo · Facturación de la suscripción. Juntas, además,
+        // se distinguen de la facturación electrónica de la clínica, que
+        // es otra cosa y vive en su módulo.
+        to: "/admin/plan",
+        etiqueta: "Plan y suscripción",
         icono: "plan",
-        permiso: "clinica.configurar",
-      },
-      {
-        to: "/admin/facturacion",
-        etiqueta: "Facturación de la suscripción",
-        icono: "comprobante",
         permiso: "clinica.configurar",
       },
       { to: "/clinic", etiqueta: "Estado de Vetline Clinic", icono: "panel", modulo: "expediente" },

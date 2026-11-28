@@ -30,7 +30,15 @@ const ESTADO_COBRO_BADGE: Record<Cobro["estado"], { variant: BadgeVariant; label
   fallido: { variant: "error", label: "Fallido" },
 };
 
-export function Facturacion() {
+export function Facturacion({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   // NUNCA SE PIERDEN DATOS AL SALIR (guia §4.7). El `ref` va en el
   // contenedor del formulario; lo marcado con `data-sin-guardar="no"`
   // —filtros y buscadores— no cuenta como cambio.
@@ -120,12 +128,14 @@ export function Facturacion() {
   return (
     <div ref={refSucio as React.RefObject<HTMLDivElement>}>
       {dialogoSalida}
-      <PageHeader
-        titulo="Facturación"
-        subtitulo="Historial de cobros y datos de facturación de tu clínica."
-        icono="comprobante"
-        modulo="admin"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Facturación"
+          subtitulo="Historial de cobros y datos de facturación de tu clínica."
+          icono="comprobante"
+          modulo="admin"
+        />
+      )}
 
       <Card className="mt-6">
         <CardTitle>Historial de cobros</CardTitle>

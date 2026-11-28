@@ -60,7 +60,7 @@ Cada contrato tiene **un solo dueño**. Ningún otro módulo construye su propia
 | **10b** Resultados, rentabilidad y simulador | Estado de resultados por línea, márgenes, costo real del servicio, flujo proyectado, presupuesto contra real, diagnósticos de rentabilidad (C2), **motor del simulador**. | Costos del inventario, ventas, gastos (10a), proyección del 13b |
 | **12** Dashboards | **Diccionario de métricas** (C6), dashboards de clínica, médico, cliente y paciente, drill-down, exportación. | Todo lo transaccional |
 | **13** Análisis y correlaciones | Afinidad entre líneas, efecto posterior, correlación controlada por volumen y estación, diagnóstico de ingresos (clientes × frecuencia × ticket). | Ventas, visitas, 13b (para descontar la estacionalidad) |
-| **13b** Ventas, estacionalidad y proyección *(por escribir)* | Volumen y detalle por línea y producto, índices estacionales (mes, quincena, día, hora, eventos de Costa Rica), tendencia separada, **proyección con rango** y su error medido. | Historial migrado de 8 años, ventas diarias |
+| **13b** Ventas, estacionalidad y proyección | Volumen y detalle por línea y producto, índices estacionales (mes, quincena, día, hora, eventos de Costa Rica), tendencia separada, **proyección con rango** y su error medido. | Historial migrado de 8 años, ventas diarias |
 | **14** CRM completo | Ficha 360, segmentos vivos, motor de oportunidades, campañas, **riesgo de abandono**, bandeja del día, **atribución** (C5), de lista a acción (C3). | Línea de tiempo, preventivos, ventas, consentimientos, listas del 16b |
 | **15a** Retención | Recuperación de clientes, bienvenida, cumpleaños y aniversario, etapa de vida, fallecimiento, NPS, páginas públicas (C8), tablero de fidelización. | Riesgo y oportunidades del 14, mecanismo de envío |
 | **15b** Paquetes y referidos | Paquetes paramétricos con consumo automático y rentabilidad por plantilla, referidos con embajadores. | Caja, inventario, 14, páginas públicas |
@@ -177,7 +177,6 @@ Los dashboards (12), el análisis (13 y 13b) y la rentabilidad (10b) están disp
 
 **Por escribir (prompts)**
 - Migración desde Digital Vet.
-- 13b Ventas, estacionalidad y proyección.
 - Canal WhatsApp asistido (ajuste al mecanismo de notificaciones, 14, 15a y 15b).
 - 17 App del cliente (PWA).
 - 15c Planes, puntos y niveles.

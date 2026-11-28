@@ -33,7 +33,15 @@ const CONCEPTO_LABEL: Record<string, string> = {
   cortesia: "Cortesía",
 };
 
-export function PlanConsumo() {
+export function PlanConsumo({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   const { zonaHoraria } = useAuth();
   const [data, setData] = useState<PlanConsumoData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,11 +79,13 @@ export function PlanConsumo() {
 
   return (
     <div>
-      <PageHeader
-        titulo="Plan y consumo"
-        icono="plan"
-        modulo="admin"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Plan y consumo"
+          icono="plan"
+          modulo="admin"
+        />
+      )}
 
       {/* Tarjeta de plan */}
       <Card className="mt-6">

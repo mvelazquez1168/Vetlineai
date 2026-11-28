@@ -3,6 +3,9 @@ import { useCambiosSinGuardar } from "../../hooks/useCambiosSinGuardar";
 import { useFormularioSucio } from "../../hooks/useFormularioSucio";
 import { Link } from "react-router-dom";
 import { ModalCorregirCorreo } from "../../components/ModalCorregirCorreo";
+import { ConfiguracionAgenda } from "./ConfiguracionAgenda";
+import { Notificaciones } from "./Notificaciones";
+import { Politicas } from "./Politicas";
 import { PageHeader, Tabs } from "../../components/ui";
 import { PanelApariencia } from "./PanelApariencia";
 import { Button } from "../../components/ui/Button";
@@ -134,21 +137,35 @@ export function Clinica() {
     <div ref={refSucio as React.RefObject<HTMLDivElement>}>
       {dialogoSalida}
       <PageHeader
-        titulo="Clínica y usuarios"
-        subtitulo="Los datos del establecimiento, y cómo lo ve todo el personal."
+        titulo="Clínica"
+        subtitulo="Los datos del establecimiento y cómo trabaja: su apariencia, su agenda, sus avisos y sus políticas."
         icono="clinica"
         modulo="admin"
       />
 
       <Tabs
+        // TODO LO QUE SE CONFIGURA DE LA CLÍNICA, EN UN SOLO LUGAR
+        // (punto 6 del 2026-11-27). Antes eran cuatro opciones sueltas
+        // del menú —Clínica, Configuración de la agenda, Notificaciones
+        // y Políticas— que contestan la misma pregunta: «cómo trabaja
+        // esta clínica».
         pestanas={[
-          { clave: "datos", etiqueta: "Datos de la clínica", icono: "clinica" },
+          { clave: "datos", etiqueta: "Datos", icono: "clinica" },
           { clave: "apariencia", etiqueta: "Apariencia", icono: "panel" },
+          { clave: "agenda", etiqueta: "Agenda", icono: "cita" },
+          { clave: "notificaciones", etiqueta: "Notificaciones y servicios de IA", icono: "campana" },
+          { clave: "politicas", etiqueta: "Políticas", icono: "ajustes" },
         ]}
       >
         {(activa) =>
           activa === "apariencia" ? (
             <PanelApariencia />
+          ) : activa === "agenda" ? (
+            <ConfiguracionAgenda sinEncabezado />
+          ) : activa === "notificaciones" ? (
+            <Notificaciones sinEncabezado />
+          ) : activa === "politicas" ? (
+            <Politicas sinEncabezado />
           ) : (
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">

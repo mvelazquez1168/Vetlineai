@@ -33,7 +33,15 @@ import { formatearFechaCorta } from "../../lib/formatFecha";
 // reasignarlas, no se cancelan solas.
 // ---------------------------------------------------------------------
 
-export function Personas() {
+export function Personas({
+  /**
+   * Para dibujarla DENTRO de una pestaña (punto 6 del 2026-11-27).
+   *
+   * El encabezado lo pone el contenedor; repetirlo acá daría dos
+   * títulos. Suelta, en su URL vieja, sigue trayendo el suyo.
+   */
+  sinEncabezado,
+}: { sinEncabezado?: boolean } = {}) {
   const { puede, user, zonaHoraria } = useAuth();
   const toast = useToast();
   const [cargando, setCargando] = useState(true);
@@ -130,12 +138,14 @@ export function Personas() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        titulo="Personal de la clínica"
-        subtitulo="Quién trabaja acá, con qué rol y quién ya no entra."
-        icono="personas"
-        modulo="admin"
-      />
+      {!sinEncabezado && (
+        <PageHeader
+          titulo="Personal de la clínica"
+          subtitulo="Quién trabaja acá, con qué rol y quién ya no entra."
+          icono="personas"
+          modulo="admin"
+        />
+      )}
 
       {!puedeAdministrar && (
         <p className="rounded-lg border border-black/5 bg-background/60 p-3 text-sm text-text-muted">

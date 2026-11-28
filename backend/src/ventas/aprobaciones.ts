@@ -214,8 +214,12 @@ async function anularComprobante(
  *
  * Vuelve **al lote del que salió**, no a uno nuevo: es el mismo
  * producto físico, con su mismo vencimiento y su mismo costo.
+ *
+ * EXPORTADA desde el 2026-11-27: quitar una línea de la atención tiene
+ * que deshacer exactamente lo mismo que una anulación en caja. Dos
+ * formas de devolver un cargo son dos que un día no coinciden.
  */
-async function devolverCargo(
+export async function devolverCargo(
   db: PoolClient,
   tenantId: string,
   cargoId: string,

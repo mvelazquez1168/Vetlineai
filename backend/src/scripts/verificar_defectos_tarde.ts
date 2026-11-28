@@ -17,6 +17,7 @@ import { pool } from "../db";
 import { conAlcanceTenant } from "../alcanceTenant";
 import { exigirEntornoDeDesarrollo } from "./guardaDesarrollo";
 import { registrarHistorico, productosParaAtencion } from "../expediente/preventivos";
+import { abrirAtencion, agregarItem, cerrarAtencion, quitarItem } from "../expediente/atencion";
 import { lineaDeTiempo } from "../expediente/resumen";
 import {
   clasificarEnLote,
@@ -223,9 +224,13 @@ async function main() {
       ];
       for (const [nombre, codigo, tipo, principio, barras] of productos) {
         const p = await db.query<{ id: string }>(
+          // Con CABYS y tarifa: sin ellos el cierre no puede dejar el
+          // cargo en la cuenta, y lo que se está probando acá es el
+          // cierre, no el catálogo fiscal.
           `INSERT INTO inv_productos
-             (tenant_id, codigo, nombre, principio_activo, linea_negocio, unidad_base, tipo_clinico)
-           VALUES ($1,$2,$3,$4,'farmacia','unidad',$5) RETURNING id`,
+             (tenant_id, codigo, nombre, principio_activo, linea_negocio, unidad_base,
+              tipo_clinico, codigo_cabys, codigo_tarifa_iva)
+           VALUES ($1,$2,$3,$4,'farmacia','unidad',$5,'2399900000000','08') RETURNING id`,
           [tenantId, codigo, nombre, principio, tipo]
         );
         await db.query(
@@ -244,6 +249,23 @@ async function main() {
       }
       return creados;
     });
+    // El desparasitante de prueba, para el caso del cierre.
+    const { presentacionDesparasitante, loteDesparasitante } = await conAlcanceTenant(
+      tenantId,
+      async (db) => {
+        const r = await db.query<{ pid: string; lid: string }>(
+          `SELECT pr.id AS pid, l.id AS lid
+             FROM inv_presentaciones pr
+             JOIN inv_lotes l ON l.producto_id = pr.producto_id
+            WHERE pr.producto_id = $1 LIMIT 1`,
+          [ids["ANT-020"]]
+        );
+        return {
+          presentacionDesparasitante: r.rows[0].pid,
+          loteDesparasitante: r.rows[0].lid,
+        };
+      }
+    );
 
     const comoLaReceta = (busqueda?: string) =>
       conAlcanceTenant(tenantId, async (db) =>
@@ -402,6 +424,163 @@ async function main() {
         real.conBusqueda.length >= real.soloClasificados.length,
         "con el catálogo REAL, la búsqueda devuelve al menos tanto como el filtro viejo",
         `${real.conBusqueda.length} vs ${real.soloClasificados.length}`
+      );
+    }
+
+    // =============================================================
+    console.log(["", "=== El cierre de la atención (caso Kira) ==="].join("\n"));
+    {
+      const { pacienteId: pacKira, medicoId } = await conAlcanceTenant(tenantId, async (db) => {
+        const prop = await db.query<{ id: string }>(
+          `INSERT INTO propietarios (tenant_id, nombre, telefono)
+           VALUES ($1,'Dueño del cierre','88882222') RETURNING id`,
+          [tenantId]
+        );
+        const pac = await db.query<{ id: string }>(
+          `INSERT INTO pacientes (tenant_id, propietario_id, nombre, especie, numero_expediente)
+           VALUES ($1,$2,'Kira de prueba','Canino',2) RETURNING id`,
+          [tenantId, prop.rows[0].id]
+        );
+        const per = await db.query<{ id: string }>(
+          `INSERT INTO personas (tenant_id, nombre, email, es_medico, colegiatura, password_hash)
+           VALUES ($1,'Dra. Cierre',$2,true,'VET-CIERRE','sin-login-probe') RETURNING id`,
+          [tenantId, `${PREFIJO}-cierre@probe.test`]
+        );
+        return { pacienteId: pac.rows[0].id, medicoId: per.rows[0].id };
+      });
+
+      const atencionId = await conAlcanceTenant(tenantId, async (db) => {
+        const a = await abrirAtencion(db, tenantId, { pacienteId: pacKira, medicoId });
+        return a.id;
+      });
+
+      // Una desparasitación del catálogo, como la de Kira.
+      const itemId = await conAlcanceTenant(tenantId, async (db) => {
+        const r = await agregarItem(
+          db,
+          tenantId,
+          atencionId,
+          {
+            tipo: "desparasitacion",
+            presentacionId: presentacionDesparasitante,
+            loteId: loteDesparasitante,
+            cantidad: 1,
+            preventivo: {
+              tipo: "desparasitacion",
+              nombre: "Desparasitante de prueba",
+              subtipo: "interna",
+              proxima: "2027-03-01",
+            },
+          },
+          medicoId
+        );
+        return r.id;
+      });
+
+      // El cierre exige que quede algo escrito en el expediente.
+      await conAlcanceTenant(tenantId, async (db) => {
+        await db.query(
+          `UPDATE atenciones SET nota_medica = 'Nota de prueba del cierre' WHERE id = $1`,
+          [atencionId]
+        );
+      });
+
+      // --- EL CIERRE, DOS VECES ---------------------------------
+      const primero = await conAlcanceTenant(tenantId, async (db) =>
+        cerrarAtencion(db, tenantId, atencionId, { personaId: medicoId })
+      );
+      assert(primero.cargos === 1, "el cierre deja un cargo", primero.cargos);
+
+      const preventivosTrasCierre = await conAlcanceTenant(tenantId, async (db) => {
+        const r = await db.query<{ n: string }>(
+          `SELECT count(*) AS n FROM cuidados_preventivos WHERE atencion_id = $1`,
+          [atencionId]
+        );
+        return Number(r.rows[0].n);
+      });
+      assert(
+        preventivosTrasCierre === 1,
+        "EL DEFECTO DE KIRA: el cierre crea el registro preventivo (antes: cero)",
+        preventivosTrasCierre
+      );
+
+      const enPestana = await conAlcanceTenant(tenantId, async (db) =>
+        lineaDeTiempo(db, pacKira, { tipo: "desparasitacion" })
+      );
+      assert(
+        enPestana.length === 1,
+        "y por lo tanto aparece en la pestaña Desparasitaciones",
+        enPestana.length
+      );
+
+      // Cerrar de nuevo no duplica nada: es el reintento del usuario
+      // después de un "no se pudo conectar".
+      await conAlcanceTenant(tenantId, async (db) =>
+        cerrarAtencion(db, tenantId, atencionId, { personaId: medicoId })
+      );
+      const trasReintento = await conAlcanceTenant(tenantId, async (db) => {
+        const c = await db.query<{ n: string }>(
+          `SELECT count(*) AS n FROM vta_cargos
+            WHERE origen = 'atencion' AND origen_id = $1 AND anulado_en IS NULL`,
+          [atencionId]
+        );
+        const p = await db.query<{ n: string }>(
+          `SELECT count(*) AS n FROM cuidados_preventivos WHERE atencion_id = $1`,
+          [atencionId]
+        );
+        const m = await db.query<{ n: string }>(
+          `SELECT count(*) AS n FROM inv_movimientos WHERE atencion_id = $1`,
+          [atencionId]
+        );
+        return { cargos: Number(c.rows[0].n), prev: Number(p.rows[0].n), mov: Number(m.rows[0].n) };
+      });
+      assert(trasReintento.cargos === 1, "reintentar el cierre NO duplica el cargo", trasReintento.cargos);
+      assert(trasReintento.prev === 1, "ni el registro preventivo", trasReintento.prev);
+      assert(trasReintento.mov === 1, "ni la salida de inventario", trasReintento.mov);
+
+      // --- QUITAR UNA LÍNEA YA COBRADA --------------------------
+      const existenciaAntes = await conAlcanceTenant(tenantId, async (db) => {
+        const r = await db.query<{ c: string }>(
+          `SELECT COALESCE(sum(cantidad),0) AS c FROM inv_lotes WHERE id = $1`,
+          [loteDesparasitante]
+        );
+        return Number(r.rows[0].c);
+      });
+
+      await conAlcanceTenant(tenantId, async (db) => {
+        await db.query(
+          `UPDATE atenciones SET estado = 'borrador', cerrada_en = NULL WHERE id = $1`,
+          [atencionId]
+        );
+        await quitarItem(db, tenantId, atencionId, itemId);
+      });
+
+      const trasQuitar = await conAlcanceTenant(tenantId, async (db) => {
+        const c = await db.query<{ vivos: string; anulados: string }>(
+          `SELECT count(*) FILTER (WHERE anulado_en IS NULL) AS vivos,
+                  count(*) FILTER (WHERE anulado_en IS NOT NULL) AS anulados
+             FROM vta_cargos WHERE origen = 'atencion' AND origen_id = $1`,
+          [atencionId]
+        );
+        const l = await db.query<{ c: string }>(
+          `SELECT COALESCE(sum(cantidad),0) AS c FROM inv_lotes WHERE id = $1`,
+          [loteDesparasitante]
+        );
+        return {
+          vivos: Number(c.rows[0].vivos),
+          anulados: Number(c.rows[0].anulados),
+          existencia: Number(l.rows[0].c),
+        };
+      });
+      assert(
+        trasQuitar.vivos === 0 && trasQuitar.anulados === 1,
+        "EL OTRO DEFECTO DE KIRA: quitar la línea ANULA su cargo (antes quedaba vivo en la cuenta)",
+        JSON.stringify(trasQuitar)
+      );
+      assert(
+        trasQuitar.existencia === existenciaAntes + 1,
+        "y el producto vuelve al estante: el stock no se pierde",
+        `${existenciaAntes} → ${trasQuitar.existencia}`
       );
     }
   } finally {

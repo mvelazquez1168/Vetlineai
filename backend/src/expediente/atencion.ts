@@ -2,6 +2,7 @@ import { PoolClient } from "pg";
 import { sellarIngreso } from "./estancia";
 import { fechaHoyEnZona, horaAhoraEnZona, zonaDeLaClinica } from "../fecha";
 import { registrarInteraccion } from "../crm/interacciones";
+import { devolverCargo } from "../ventas/aprobaciones";
 import { TransicionInvalida, cambiarEstadoDeCita, crearCita } from "../agenda/citas";
 import { precioVigente } from "../inventario/precios";
 import { registrarMovimiento } from "../inventario/movimientos";
@@ -539,8 +540,51 @@ export async function agregarItem(
   };
 }
 
-export async function quitarItem(db: PoolClient, atencionId: string, itemId: string): Promise<void> {
+/**
+ * Quita una línea de la atención.
+ *
+ * DEFECTO DEL 2026-11-27 (caso Kira), y es de plata y de stock: antes
+ * esto era un `DELETE` a secas. Si la línea YA tenía su cargo —porque la
+ * atención se cerró una vez y se volvió a abrir—, el cargo quedaba vivo
+ * en la cuenta del cliente y el movimiento de inventario quedaba
+ * aplicado. Resultado real en la base: una «Vacuna polivalente canina»
+ * cobrada al cliente y descontada del inventario, sin ninguna línea en
+ * la atención que la explicara.
+ *
+ * Ahora quitar la línea deshace las tres cosas en la misma transacción:
+ * el cargo se ANULA (no se borra: la cuenta es historia, y un cargo que
+ * desaparece sin rastro es un agujero), el movimiento de inventario se
+ * revierte con su movimiento par, y recién entonces se borra la línea.
+ */
+export async function quitarItem(
+  db: PoolClient,
+  tenantId: string,
+  atencionId: string,
+  itemId: string
+): Promise<void> {
   await exigirEnBorrador(db, atencionId);
+
+  const item = await db.query<{ cargo_id: string | null; movimiento_id: string | null }>(
+    `SELECT cargo_id, movimiento_id FROM exp_atencion_items
+      WHERE id = $1 AND atencion_id = $2`,
+    [itemId, atencionId]
+  );
+  if (item.rows.length === 0) return;
+  const { cargo_id, movimiento_id } = item.rows[0];
+
+  if (cargo_id) {
+    // Anular, no borrar, y por el MISMO camino que la caja:
+    // `devolverCargo` marca el cargo anulado y devuelve el producto a su
+    // lote de origen. Tener dos formas de deshacer un cargo es tener dos
+    // que un día no coinciden.
+    await devolverCargo(
+      db,
+      tenantId,
+      cargo_id,
+      "la línea se quitó de la atención"
+    );
+  }
+
   await db.query(`DELETE FROM exp_atencion_items WHERE id = $1 AND atencion_id = $2`, [
     itemId,
     atencionId,
@@ -1014,9 +1058,46 @@ export async function cerrarAtencion(
   // LOS PREVENTIVOS. Van a `cuidados_preventivos` porque es la tabla que
   // el job diario mira para avisar: si se guardaran en otro lado, el
   // aviso no saldría nunca.
+  //
+  // SE LEEN APARTE, Y ESE ES EL DEFECTO QUE ESTO CIERRA (2026-11-27,
+  // caso Kira). Antes este bucle recorría `items.rows`, que trae los
+  // ítems `WHERE cargo_id IS NULL` —los que falta cobrar—. En un cierre
+  // que ya pasó una vez, o en un ítem que ya tenía su cargo, la lista
+  // llega vacía: la vacuna se cobraba, el stock bajaba, y el registro
+  // preventivo NO SE CREABA. Sin él no hay fila en la pestaña Vacunas y
+  // el aviso de la próxima dosis no sale nunca. Contado en la base: de
+  // 8 ítems preventivos, 4 estaban sin su registro.
+  //
+  // Son dos preguntas distintas y por eso son dos consultas: «qué falta
+  // cobrar» y «qué se aplicó». El `NOT EXISTS` las hace idempotentes:
+  // cerrar dos veces no duplica la vacuna.
+  const preventivosPendientes = await db.query<{
+    id: string;
+    cantidad: string;
+    lote_id: string | null;
+    preventivo_tipo: string | null;
+    preventivo_nombre: string | null;
+    preventivo_subtipo: string | null;
+    preventivo_proxima: string | null;
+  }>(
+    `SELECT i.id, i.cantidad, i.lote_id, i.preventivo_tipo, i.preventivo_nombre,
+            i.preventivo_subtipo, i.preventivo_proxima::text AS preventivo_proxima
+       FROM exp_atencion_items i
+      WHERE i.atencion_id = $1
+        AND i.preventivo_tipo IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM cuidados_preventivos cp
+           WHERE cp.atencion_id = i.atencion_id
+             AND cp.tipo = i.preventivo_tipo
+             AND COALESCE(cp.vacuna, cp.producto_desparasitacion) IS NOT DISTINCT FROM i.preventivo_nombre
+        )
+      ORDER BY i.creado_en`,
+    [atencionId]
+  );
+
   let preventivos = 0;
   const idsPreventivos = new Map<string, string>();
-  for (const item of items.rows) {
+  for (const item of preventivosPendientes.rows) {
     if (!item.preventivo_tipo) continue;
     const lote = item.lote_id
       ? await db.query<{ numero: string }>(`SELECT numero FROM inv_lotes WHERE id = $1`, [

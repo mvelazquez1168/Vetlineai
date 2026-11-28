@@ -519,7 +519,7 @@ async function main() {
     "NADA quedó a medias: ni cuenta, ni cargos, ni movimientos, ni preventivos"
   );
 
-  await conAlcanceTenant(tenantId, (db) => quitarItem(db, atencion.id, itemImposible.id));
+  await conAlcanceTenant(tenantId, (db) => quitarItem(db, tenantId, atencion.id, itemImposible.id));
 
   // -------------------------------------------------------------------
   console.log("\n=== 5b. Firmar sin cobrar: la base no lo deja ===");

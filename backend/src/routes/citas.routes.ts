@@ -26,6 +26,21 @@ import { huecosLibres } from "../agenda/disponibilidad";
 // ---------------------------------------------------------------------
 export const citasRouter = Router();
 
+// ESTO SE PERDIÓ EN EL COMMIT 75ca2a9 («05 parcial») AL ADELGAZAR EL
+// ARCHIVO, y dejó la agenda entera caída: sin `withTenantClient` no hay
+// `req.db`, así que toda llamada a /api/citas moría con
+// «Cannot read properties of undefined (reading 'query')» —el
+// TypeError del punto 7—, y sin `authenticate` además entraba sin
+// sesión. Dos líneas, el módulo completo.
+//
+// Por eso `app.ts` ahora comprueba al arrancar que todo router con
+// rutas privadas tenga su `authenticate` (ver `verificar_rutas_unicas`
+// y la guarda de arranque): un olvido de dos líneas no puede volver a
+// costar un módulo.
+citasRouter.use(authenticate, withTenantClient);
+
+citasRouter.use(soloPersonalDeLaClinica());
+
 
 /**
  * LA SOBRECARGA EXPLÍCITA (prompt 05, §1).

@@ -864,7 +864,7 @@ expedienteRouter.post("/atenciones/:id/items", soloMedico, async (req, res) => {
 
 expedienteRouter.delete("/atenciones/:id/items/:itemId", soloMedico, async (req, res) => {
   try {
-    await quitarItem(req.db!, req.params.id, req.params.itemId);
+    await quitarItem(req.db!, req.auth!.tenantId!, req.params.id, req.params.itemId);
     res.json({ quitado: true });
   } catch (err) {
     fallo(res, err, "DELETE /expediente/atenciones/:id/items/:itemId");

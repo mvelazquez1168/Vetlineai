@@ -1,4 +1,4 @@
-import { ApiError } from "./apiError";
+import { ApiError, esErrorDeRed, MENSAJE_SIN_CONEXION } from "./apiError";
 import { obtenerEnv } from "./runtimeEnv";
 import { obtenerTokenValido, redirigirABloqueada } from "./session";
 
@@ -41,7 +41,7 @@ export const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
 // nada — evita un ciclo api.ts -> session.ts -> keycloakAuth.ts -> api.ts)
 // para no romper los `import { ApiError } from "../lib/api"` ya existentes
 // en toda la app.
-export { ApiError };
+export { ApiError, esErrorDeRed, MENSAJE_SIN_CONEXION };
 
 // ---------------------------------------------------------------------
 // EL TOKEN VIAJA POR DEFECTO — defecto del 2026-11-27.
@@ -81,6 +81,22 @@ async function tokenPara(publico: boolean | undefined): Promise<string | null> {
   return obtenerTokenValido();
 }
 
+/**
+ * `fetch`, con el error de red traducido.
+ *
+ * Nunca llega «Failed to fetch» a una pantalla: lo que no hubo fue
+ * respuesta, y lo que la persona necesita saber es que no se guardó
+ * nada y que puede reintentar.
+ */
+async function pedir(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init);
+  } catch (err) {
+    if (esErrorDeRed(err)) throw new ApiError(MENSAJE_SIN_CONEXION, 0);
+    throw err;
+  }
+}
+
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { token: _token, publico, headers, body, ...rest } = options;
   void _token;
@@ -91,7 +107,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   const authToken = await tokenPara(publico);
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await pedir(`${API_URL}${path}`, {
     ...rest,
     body,
     headers: {
@@ -121,7 +137,7 @@ export async function apiFetchBlob(path: string, options: RequestOptions = {}): 
   void _token;
   const authToken = await tokenPara(publico);
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await pedir(`${API_URL}${path}`, {
     ...rest,
     headers: {
       ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
@@ -150,7 +166,7 @@ export async function apiFetchFile(
   void _token;
   const authToken = await tokenPara(publico);
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await pedir(`${API_URL}${path}`, {
     ...rest,
     body,
     headers: {

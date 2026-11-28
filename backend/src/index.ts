@@ -43,6 +43,7 @@ import { horariosRouter } from "./routes/horarios.routes";
 import { informesRouter } from "./routes/informes.routes";
 import { listaEsperaRouter } from "./routes/listaEspera.routes";
 import { erroresClienteRouter } from "./routes/erroresCliente.routes";
+import { exigirAutenticacionEnRouters } from "./guardaDeRutas";
 import { legalRouter } from "./routes/legal.routes";
 import { medicamentosRouter } from "./routes/medicamentos.routes";
 import { notificacionesRouter } from "./routes/notificaciones.routes";
@@ -211,6 +212,12 @@ app.use("/api/busqueda", busquedaRouter);
 app.use("/api/lista-espera", listaEsperaRouter);
 app.use("/api/errores-cliente", erroresClienteRouter);
 app.use("/api", agendaRouter);
+
+// QUE NINGÚN ROUTER PRIVADO QUEDE ABIERTO (ver guardaDeRutas.ts). En
+// desarrollo corta el arranque: el defecto del 2026-11-27 —dos líneas
+// borradas que dejaron /api/citas sin sesión y sin base— estuvo en un
+// log y nadie lo leyó.
+exigirAutenticacionEnRouters(app);
 
 const server = app.listen(config.port, () => {
   console.log(`VetPlatform backend escuchando en http://localhost:${config.port}`);

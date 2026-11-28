@@ -104,6 +104,35 @@ export interface CargoAgregado {
   movimientoId?: string;
 }
 
+/**
+ * La cuenta abierta que el cliente ya tiene, si la tiene.
+ *
+ * DEFECTO DEL 2026-11-27 (caso Kira), y es de plata: `abrirCuenta`
+ * SIEMPRE creaba una cuenta nueva, aunque el comentario de quien la
+ * llamaba dijera «la que el cliente ya tiene abierta, o una nueva». Una
+ * atención cerrada, reabierta y vuelta a cerrar dejó al cliente con
+ * TRES cuentas abiertas —619, 624 y 625— con los cargos repartidos: en
+ * caja se cobra una y las otras quedan ahí.
+ *
+ * Reusar es lo correcto: la cuenta es la cuenta del cliente, no la de
+ * la visita. Lo que la cierra es el cobro.
+ */
+export async function cuentaAbiertaDe(
+  db: PoolClient,
+  tenantId: string,
+  propietarioId: string | null | undefined
+): Promise<{ id: string; numero: number } | null> {
+  if (!propietarioId) return null;
+  const r = await db.query<{ id: string; numero: number }>(
+    `SELECT id, numero FROM vta_cuentas
+      WHERE tenant_id = $1 AND propietario_id = $2 AND estado = 'abierta'
+      ORDER BY abierta_en
+      LIMIT 1`,
+    [tenantId, propietarioId]
+  );
+  return r.rows[0] ?? null;
+}
+
 export async function abrirCuenta(
   db: PoolClient,
   tenantId: string,
@@ -113,6 +142,13 @@ export async function abrirCuenta(
   // mismo motivo que en las órdenes de compra: `FOR UPDATE` no se puede
   // usar con un agregado y bloquear la última fila no sirve con cero.
   await db.query(`SELECT pg_advisory_xact_lock(hashtext($1 || ':vta_cuenta'))`, [tenantId]);
+
+  // SI EL CLIENTE YA TIENE UNA ABIERTA, ES ESA. Ver `cuentaAbiertaDe`:
+  // abrir una segunda reparte los cargos de una misma visita entre dos
+  // cuentas, y en caja se cobra una sola.
+  const yaAbierta = await cuentaAbiertaDe(db, tenantId, datos.propietarioId);
+  if (yaAbierta) return yaAbierta;
+
   const ultimo = await db.query<{ numero: number }>(
     `SELECT COALESCE(max(numero), 0) AS numero FROM vta_cuentas WHERE tenant_id = $1`,
     [tenantId]

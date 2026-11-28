@@ -583,6 +583,23 @@ async function main() {
         return { cargos: Number(c.rows[0].n), prev: Number(p.rows[0].n), mov: Number(m.rows[0].n) };
       });
       assert(trasReintento.cargos === 1, "reintentar el cierre NO duplica el cargo", trasReintento.cargos);
+
+      // UNA CUENTA POR CLIENTE, no una por intento de cierre. En el caso
+      // Kira, tres cierres dejaron TRES cuentas abiertas con los cargos
+      // repartidos: en caja se cobra una y las otras quedan ahí.
+      const cuentas = await conAlcanceTenant(tenantId, async (db) => {
+        const r = await db.query<{ n: string }>(
+          `SELECT count(*) AS n FROM vta_cuentas
+            WHERE tenant_id = $1 AND estado = 'abierta'`,
+          [tenantId]
+        );
+        return Number(r.rows[0].n);
+      });
+      assert(
+        cuentas === 1,
+        "y NO abre una cuenta nueva en cada intento: el cliente tiene una sola",
+        cuentas
+      );
       assert(trasReintento.prev === 1, "ni el registro preventivo", trasReintento.prev);
       assert(trasReintento.mov === 1, "ni la salida de inventario", trasReintento.mov);
 

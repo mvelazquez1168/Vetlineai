@@ -503,6 +503,8 @@ export const atencionApi = {
     especie?: string;
     productoId?: string;
     nombre?: string;
+    /** Desde cuándo se cuenta el protocolo. Por omisión, hoy. */
+    desde?: string;
   }) =>
     pedir<{ fecha: string | null; meses: number | null; origen: string | null }>(
       `/expediente/proxima-sugerida?${new URLSearchParams(

@@ -1020,6 +1020,7 @@ export function ModalHistorico({
   onRegistrado: () => void;
 }) {
   const toast = useToast();
+  const { puede: puedeHist } = useAuth();
   const [nombre, setNombre] = useState("");
   const [fecha, setFecha] = useState("");
   const [proxima, setProxima] = useState("");
@@ -1027,6 +1028,17 @@ export function ModalHistorico({
   const [lugar, setLugar] = useState("");
   const [subtipo, setSubtipo] = useState<"interna" | "externa">("interna");
   const [ocupado, setOcupado] = useState(false);
+
+  // EL PRODUCTO DEL CATÁLOGO, cuando se eligió uno. Antes esto era un
+  // campo de texto libre y nada más: «Polivalente», «polivalente» y
+  // «Nobivac DHPPi» eran tres cosas distintas para cualquier reporte,
+  // aunque fueran el mismo frasco. Con el producto, el historial agrupa
+  // de verdad y la próxima fecha sale del protocolo DE ESE PRODUCTO.
+  const [producto, setProducto] = useState<ProductoClinico | null>(null);
+  // Un histórico de otra clínica puede ser algo que esta no vende: la
+  // cartilla trae un nombre y nada más. Ese caso se registra igual, y se
+  // guarda como «fuera del catálogo».
+  const [fueraDelCatalogo, setFueraDelCatalogo] = useState(false);
 
   const esVacuna = tipo === "vacunacion";
 
@@ -1036,6 +1048,7 @@ export function ModalHistorico({
       const r = await atencionApi.preventivoHistorico(pacienteId, {
         tipo,
         nombre,
+        productoId: producto?.productoId ?? null,
         subtipo: esVacuna ? null : subtipo,
         fechaAplicacion: fecha,
         fechaProxima: proxima || null,
@@ -1044,6 +1057,8 @@ export function ModalHistorico({
       });
       toast.exito(`Registrado. La próxima queda para el ${r.proxima}.`);
       setNombre("");
+      setProducto(null);
+      setFueraDelCatalogo(false);
       setFecha("");
       setProxima("");
       setLote("");
@@ -1078,12 +1093,75 @@ export function ModalHistorico({
       }
     >
       <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          label={esVacuna ? "Vacuna" : "Producto"}
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          placeholder={esVacuna ? "Polivalente, Rabia…" : "Nombre del antiparasitario"}
-        />
+        {/* EL MISMO BUSCADOR QUE LA ATENCIÓN (2026-11-27). Era un
+            campo de texto libre, y un nombre tecleado no se puede
+            agrupar ni cruzar con un protocolo. */}
+        <div className="sm:col-span-2">
+          {producto ? (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-black/10 p-2">
+              <span className="text-sm font-medium text-text-primary">
+                {producto.nombre} — {producto.presentacion}
+              </span>
+              <button
+                type="button"
+                className="text-xs font-semibold text-accent hover:underline"
+                onClick={() => {
+                  setProducto(null);
+                  setNombre("");
+                  setProxima("");
+                }}
+              >
+                Elegir otro
+              </button>
+            </div>
+          ) : fueraDelCatalogo ? (
+            <div className="space-y-1">
+              <Input
+                label={esVacuna ? "Vacuna (fuera del catálogo)" : "Producto (fuera del catálogo)"}
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder={esVacuna ? "Polivalente, Rabia…" : "Nombre del antiparasitario"}
+              />
+              <p className="text-xs text-text-muted">
+                Queda registrado como <strong>fuera del catálogo</strong>: sin protocolo propio, la
+                próxima fecha hay que escribirla.{" "}
+                <button
+                  type="button"
+                  className="font-semibold text-accent hover:underline"
+                  onClick={() => {
+                    setFueraDelCatalogo(false);
+                    setNombre("");
+                  }}
+                >
+                  Buscar en el catálogo
+                </button>
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              <BuscadorProducto
+                tipo={esVacuna ? "vacuna" : "antiparasitario"}
+                etiqueta={esVacuna ? "Qué vacuna se aplicó" : "Qué antiparasitario se aplicó"}
+                puedeClasificar={puedeHist("catalogo.editar")}
+                autoFocus={false}
+                onElegir={(p) => {
+                  setProducto(p);
+                  setNombre(p.nombre);
+                }}
+              />
+              <p className="text-xs text-text-muted">
+                ¿No está en el catálogo? Es lo normal en una cartilla de otra clínica.{" "}
+                <button
+                  type="button"
+                  className="font-semibold text-accent hover:underline"
+                  onClick={() => setFueraDelCatalogo(true)}
+                >
+                  Escribir el nombre a mano
+                </button>
+              </p>
+            </div>
+          )}
+        </div>
         {!esVacuna && (
           <Select
             label="Tipo"
@@ -1101,7 +1179,24 @@ export function ModalHistorico({
             type="date"
             className="mt-1.5 w-full rounded-lg border border-black/10 bg-surface px-3 py-2 text-sm"
             value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
+            onChange={(e) => {
+              const nueva = e.target.value;
+              setFecha(nueva);
+              // LA PRÓXIMA SE CALCULA DESDE LA APLICACIÓN, no desde hoy
+              // —una vacuna de hace once meses vence el mes que viene—, y
+              // con el protocolo DEL PRODUCTO. Sin producto no se sugiere
+              // nada: la fecha la escribe quien carga la cartilla.
+              if (!producto || !nueva) return;
+              atencionApi
+                .proximaSugerida({
+                  tipo,
+                  productoId: producto.productoId,
+                  nombre: producto.nombre,
+                  desde: nueva,
+                })
+                .then((sug) => setProxima(sug.fecha ?? ""))
+                .catch(() => undefined);
+            }}
           />
         </div>
         <div>

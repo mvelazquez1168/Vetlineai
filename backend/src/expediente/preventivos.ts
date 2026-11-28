@@ -315,6 +315,16 @@ export async function registrarHistorico(
     pacienteId: string;
     tipo: "vacunacion" | "desparasitacion";
     nombre: string;
+    /**
+     * El producto del catálogo, cuando se eligió uno.
+     *
+     * Con él, la próxima fecha sale del protocolo DE ESE PRODUCTO, que
+     * es el específico, en vez de adivinarse por el nombre tecleado. Sin
+     * él, el registro queda **fuera del catálogo**: se guarda igual
+     * —una cartilla de otra clínica trae nombres que esta no vende— y
+     * se muestra así.
+     */
+    productoId?: string | null;
     subtipo?: string | null;
     fechaAplicacion: string;
     fechaProxima?: string | null;
@@ -342,6 +352,11 @@ export async function registrarHistorico(
     const sug = await proximaSugerida(db, {
       tipo: datos.tipo,
       especie: esp.rows[0]?.especie ?? null,
+      // EL PRODUCTO MANDA SOBRE EL NOMBRE: el protocolo del producto es
+      // el específico («Nobivac DHPPi cada 12 meses»); el del nombre es
+      // el general de la especie. `proximaSugerida` ya resuelve esa
+      // precedencia, lo que faltaba era pasarle el producto.
+      productoId: datos.productoId ?? null,
       nombre: datos.nombre,
       desde: datos.fechaAplicacion,
     });
@@ -357,8 +372,8 @@ export async function registrarHistorico(
     `INSERT INTO cuidados_preventivos
        (tenant_id, paciente_id, tipo, fecha_aplicacion, fecha_proxima_recomendada,
         registrado_por, vacuna, subtipo_desparasitacion, producto_desparasitacion,
-        lote, lugar, historico)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,true)
+        lote, lugar, historico, producto_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,true,$12)
      RETURNING id`,
     [
       tenantId,
@@ -372,6 +387,7 @@ export async function registrarHistorico(
       datos.tipo === "desparasitacion" ? datos.nombre : null,
       datos.lote ?? null,
       datos.lugar ?? null,
+      datos.productoId ?? null,
     ]
   );
 

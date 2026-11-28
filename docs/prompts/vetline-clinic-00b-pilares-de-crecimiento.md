@@ -79,7 +79,7 @@ Cada contrato tiene **un solo dueño**. Ningún otro módulo construye su propia
 2. **Costos de productos al día.** Medicavet ya los mantiene; la carga y la migración deben traer el costo actual y, si existe, su historial.
 3. **Clasificación y categorías de productos** (en curso): alimentan márgenes por línea, la estacionalidad por categoría y el buscador clínico.
 4. **Contactos y consentimientos** bien cargados: teléfono, correo, canal preferido y permiso de contacto. Un cliente sin contacto no se puede recuperar.
-5. **Canal WhatsApp asistido** — *ajuste por escribir*. Medicavet usa WhatsApp Business (la app, sin API). El sistema arma el mensaje y recepción lo envía con un clic, que abre WhatsApp Business con el chat y el texto listos; se registra como enviado. Cuando Converza tenga la integración con Meta, los mismos mensajes pasan a enviarse solos sin rehacer nada.
+5. **Canal WhatsApp asistido** — prompt `vetline-clinic-20-whatsapp-asistido.md`. Medicavet usa WhatsApp Business (la app, sin API). El sistema arma el mensaje y recepción lo envía con un clic, que abre WhatsApp Business con el chat y el texto listos; se registra como enviado. Cuando Converza tenga la integración con Meta, los mismos mensajes pasan a enviarse solos sin rehacer nada.
 6. **Línea base medida antes de activar** (sección 6).
 
 ## 6. Métricas de éxito por pilar
@@ -177,7 +177,6 @@ Los dashboards (12), el análisis (13 y 13b) y la rentabilidad (10b) están disp
 
 **Por escribir (prompts)**
 - Migración desde Digital Vet.
-- Canal WhatsApp asistido (ajuste al mecanismo de notificaciones, 14, 15a y 15b).
 - 17 App del cliente (PWA).
 - 15c Planes, puntos y niveles.
 

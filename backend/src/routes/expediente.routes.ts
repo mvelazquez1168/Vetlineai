@@ -924,6 +924,12 @@ expedienteRouter.get("/proxima-sugerida", async (req, res) => {
         especie: (req.query.especie as string) || null,
         productoId: (req.query.productoId as string) || null,
         nombre: (req.query.nombre as string) || null,
+        // DESDE CUÁNDO SE CUENTA. La función ya lo aceptaba y esta ruta
+        // no lo pasaba, así que siempre contaba desde hoy: un histórico
+        // de hace once meses quedaba venciendo dentro de un año en vez
+        // del mes que viene. Es el mismo criterio que ya aplica
+        // `registrarHistorico`, que sí lo pasa.
+        desde: (req.query.desde as string) || undefined,
       })) ?? { fecha: null, meses: null, origen: null }
     );
   } catch (err) {

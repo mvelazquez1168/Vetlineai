@@ -20,10 +20,15 @@ Solo un **médico**: es contenido clínico.
 1. **Pacientes** › la ficha del paciente › pestaña **Vacunas** (o **Desparasitaciones**).
 2. Arriba de la lista, clic en **Registrar histórico**.
 3. Complete:
-   - **Vacuna** o **producto** — el nombre, tal como figura en la cartilla.
+   - **Qué se aplicó** — búsquelo en el catálogo, escribiendo dos letras del nombre, el código o
+     el principio activo. Si la clínica no vende ese producto —lo normal en una cartilla de otra
+     clínica—, toque **Escribir el nombre a mano** y quedará registrado como *fuera del
+     catálogo*.
    - **Fecha de aplicación** — no puede ser futura: esto es algo que ya pasó.
-   - **Próxima** — opcional. Si la deja vacía, se calcula con el
-     [protocolo](glosario.md#protocolo-preventivo) **contando desde la aplicación**, no desde hoy.
+   - **Próxima** — con un producto del catálogo se calcula sola, con el
+     [protocolo](glosario.md#protocolo-preventivo) **de ese producto** y **contando desde la
+     aplicación**, no desde hoy. Con un nombre a mano no hay protocolo que consultar: la fecha la
+     escribe usted.
    - **Lote** — opcional, si la cartilla lo trae.
    - **Dónde se aplicó** — la otra clínica, una campaña, el propio dueño.
 4. **Registrar**.
@@ -56,7 +61,18 @@ al aplicar la vacuna, y las citas se agendan desde la **Agenda**.
 
 **«No hay protocolo para eso, así que la próxima fecha hay que indicarla».**
 El nombre que escribió no corresponde a ningún protocolo cargado y no hay uno general para esa
-especie. Escriba la próxima fecha a mano; si no, el aviso no se dispara nunca.
+especie. Escriba la próxima fecha a mano; si no, el aviso no se dispara nunca. Eligiendo el
+producto del catálogo esto casi no pasa: el protocolo del producto es el más específico y gana.
+
+**¿Para qué sirve elegirlo del catálogo si igual puedo escribirlo?**
+Para que el historial y los reportes **agrupen**. «Polivalente», «polivalente» y «Nobivac DHPPi»
+son tres filas distintas para cualquier reporte aunque sean el mismo frasco; con el producto
+elegido son el mismo producto. Y la próxima fecha sale del protocolo de ese producto, no de uno
+general.
+
+**¿Mueve el inventario o cobra algo?**
+No, y eso no cambió. Elegir el producto del catálogo sirve para identificarlo; acá no se aplicó
+nada, así que no hay cargo ni salida de stock.
 
 **Lo registré y no apareció en la lista.**
 Hasta el 27 de noviembre de 2026 pasaba: se guardaba de verdad —el aviso de la próxima dosis

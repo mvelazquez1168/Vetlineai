@@ -705,6 +705,99 @@ async function main() {
         `${deRecepcion.length} vs ${deCaja.length}`
       );
     }
+
+    // =============================================================
+    console.log(["", "=== El histórico, con el producto del catálogo ==="].join("\n"));
+    {
+      // Un protocolo propio del PRODUCTO: 12 meses. Y uno general de la
+      // especie, más corto, para que se note cuál ganó.
+      await conAlcanceTenant(tenantId, async (db) => {
+        await db.query(
+          `INSERT INTO exp_protocolos_preventivos
+             (tenant_id, tipo, nombre, especie, producto_id, meses_hasta_proxima, activo)
+           VALUES ($1,'vacunacion','Protocolo del producto',NULL,$2,12,true),
+                  ($1,'vacunacion','General de la especie','Canino',NULL,6,true)`,
+          [tenantId, ids["VAC-010"]]
+        );
+      });
+
+      const conProducto = await conAlcanceTenant(tenantId, async (db) =>
+        registrarHistorico(
+          db,
+          tenantId,
+          {
+            pacienteId,
+            tipo: "vacunacion",
+            nombre: "Vanguard Plus 5",
+            productoId: ids["VAC-010"],
+            fechaAplicacion: "2026-01-15",
+          },
+          personaId
+        )
+      );
+      assert(
+        conProducto.proxima.slice(0, 10) === "2027-01-15",
+        "con un producto del catálogo, la próxima sale de SU protocolo (12 meses) y se cuenta desde la aplicación",
+        conProducto.proxima
+      );
+
+      const guardado = await conAlcanceTenant(tenantId, async (db) => {
+        const r = await db.query<{ producto_id: string | null; vacuna: string }>(
+          `SELECT producto_id, vacuna FROM cuidados_preventivos WHERE id = $1`,
+          [conProducto.id]
+        );
+        return r.rows[0];
+      });
+      assert(
+        guardado.producto_id === ids["VAC-010"],
+        "y queda guardado el producto_id, no solo el nombre: es lo que permite agrupar",
+        guardado.producto_id
+      );
+      assert(guardado.vacuna === "Vanguard Plus 5", "con su nombre también", guardado.vacuna);
+
+      // Fuera del catálogo: se registra igual, con la fecha que se
+      // escriba, y sin producto.
+      const libre = await conAlcanceTenant(tenantId, async (db) =>
+        registrarHistorico(
+          db,
+          tenantId,
+          {
+            pacienteId,
+            tipo: "vacunacion",
+            nombre: "Vacuna de otra clínica que no vendemos",
+            fechaAplicacion: "2025-03-10",
+            fechaProxima: "2026-03-10",
+          },
+          personaId
+        )
+      );
+      const libreGuardado = await conAlcanceTenant(tenantId, async (db) => {
+        const r = await db.query<{ producto_id: string | null }>(
+          `SELECT producto_id FROM cuidados_preventivos WHERE id = $1`,
+          [libre.id]
+        );
+        return r.rows[0];
+      });
+      assert(
+        libreGuardado.producto_id === null,
+        "un nombre libre se registra igual y queda FUERA DEL CATÁLOGO (producto_id null)"
+      );
+      assert(
+        libre.proxima.slice(0, 10) === "2026-03-10",
+        "con la fecha que se escribió, sin inventar un protocolo",
+        libre.proxima
+      );
+
+      // Y los dos aparecen en la pestaña.
+      const enLista = await conAlcanceTenant(tenantId, async (db) =>
+        lineaDeTiempo(db, pacienteId, { tipo: "vacuna" })
+      );
+      assert(
+        enLista.length === 3,
+        "los tres históricos de vacuna están en la pestaña",
+        enLista.length
+      );
+    }
   } finally {
     await limpiar();
     await pool.end();

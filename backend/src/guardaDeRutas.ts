@@ -53,6 +53,53 @@ interface CapaExpress {
   name?: string;
   regexp?: RegExp;
   handle?: { stack?: CapaExpress[] };
+  route?: { path?: string; methods?: Record<string, boolean>; stack?: CapaExpress[] };
+}
+
+export interface RutaRegistrada {
+  metodo: string;
+  ruta: string;
+}
+
+/**
+ * TODAS las rutas que Express tiene registradas, con su método.
+ *
+ * Es la única forma de saber qué superficie existe de verdad: una lista
+ * escrita a mano envejece en la primera ruta nueva, y la ruta nueva es
+ * justamente la que nadie revisó. Lo usa
+ * `verificar_rutas_sin_sesion.ts`, que las llama sin sesión y exige un
+ * 401.
+ */
+export function rutasRegistradas(app: Express): RutaRegistrada[] {
+  const raiz = (app as unknown as { _router?: { stack?: CapaExpress[] } })._router;
+  const encontradas: RutaRegistrada[] = [];
+
+  const recorrer = (capas: CapaExpress[], prefijo: string) => {
+    for (const capa of capas) {
+      if (capa.route?.path) {
+        for (const [metodo, activo] of Object.entries(capa.route.methods ?? {})) {
+          if (!activo) continue;
+          encontradas.push({
+            metodo: metodo.toUpperCase(),
+            ruta: unir(prefijo, capa.route.path),
+          });
+        }
+        continue;
+      }
+      if (capa.handle?.stack) {
+        const propio = capa.regexp ? rutaDeLaCapa(capa.regexp) : null;
+        recorrer(capa.handle.stack, propio ? unir(prefijo, propio) : prefijo);
+      }
+    }
+  };
+
+  recorrer(raiz?.stack ?? [], "");
+  return encontradas;
+}
+
+function unir(a: string, b: string): string {
+  const junto = `${a}${b}`.replace(/\/{2,}/g, "/");
+  return junto.length > 1 && junto.endsWith("/") ? junto.slice(0, -1) : junto;
 }
 
 /** Los nombres que, vistos en el `stack`, significan «acá se autentica». */

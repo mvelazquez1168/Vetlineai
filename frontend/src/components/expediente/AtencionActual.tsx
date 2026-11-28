@@ -504,16 +504,29 @@ export function AtencionActual({
       // nota que todavía no llegó al servidor la perdería.
       await autoguardado.vaciarPendientes();
       const r = await atencionApi.cerrar(atencionId);
-      toast.exito(
-        r.cargos > 0
-          ? `Atención cerrada. Cuenta #${r.cuentaNumero} en caja por ${formatearMonto(r.total)}.`
-          : "Atención cerrada y firmada. No había nada que cobrar."
-      );
       setPanel(null);
       onCerrada?.();
-      if (r.cargos > 0) {
+
+      // DE LA ATENCIÓN A LA CAJA, sin dejar a nadie a mitad de camino
+      // (2026-11-27). Antes la pantalla decidía con `r.cargos`, que es
+      // lo que ESTE cierre creó. Si la atención ya estaba cerrada —el
+      // reintento después de un corte, el caso Kira— eso vale cero, y
+      // la pantalla decía «no había nada que cobrar» y se quedaba ahí,
+      // con ₡59 500 esperando en la cuenta. Ahora decide con lo que
+      // hay en la cuenta.
+      if (r.cargosEnLaCuenta > 0) {
+        toast.exito(
+          r.yaEstabaCerrada
+            ? `Esta atención ya estaba cerrada. Su cuenta #${r.cuentaNumero} tiene ${formatearMonto(r.totalPendiente)} sin cobrar.`
+            : `Atención cerrada. Cuenta #${r.cuentaNumero} en caja por ${formatearMonto(r.totalPendiente)}.`
+        );
         navegar(`/ventas/cobro/${r.cuentaId}`);
       } else {
+        toast.exito(
+          r.yaEstabaCerrada
+            ? "Esta atención ya estaba cerrada y su cuenta no tiene nada pendiente."
+            : "Atención cerrada y firmada. No había nada que cobrar."
+        );
         await cargar(atencionId);
       }
     } catch (err) {

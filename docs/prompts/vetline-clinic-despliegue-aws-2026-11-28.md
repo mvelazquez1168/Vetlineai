@@ -19,4 +19,7 @@ Mañana desplegamos Vetline Clinic al **ambiente de AWS existente** (app y auth)
 
    Incluye la verificación en el navegador módulo por módulo, cómo revisar el consumo de memoria (y cuándo conviene pasar de t3.medium a t3.large) y el **plan de reversión**: volver a la imagen anterior y restaurar el snapshot.
 
+6. **Secretos de webhooks.** El backend avisa que `PAGOS_CALLBACK_SECRET` y `RESEND_WEBHOOK_SECRET` no están configurados y acepta notificaciones sin validar. En el ambiente de AWS, ambos deben quedar configurados (o el endpoint debe rechazar sin secreto en producción). Inclúyelo en `.env.prod.example` y en la guía.
+7. **Node.** El contenedor corre Node 20; el SDK de AWS exigirá Node 22 o superior para versiones publicadas desde enero de 2027. Evalúa subir la imagen a Node 22 LTS: si no rompe nada en las pruebas, hazlo en este despliegue; si no, déjalo anotado como pendiente con fecha.
+
 No despliegues nada tú mismo. Deja todo listo y documentado en la bitácora para que lo ejecutemos juntos.

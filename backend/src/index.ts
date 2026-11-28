@@ -221,7 +221,15 @@ app.use("/api", agendaRouter);
 // log y nadie lo leyó.
 exigirAutenticacionEnRouters(app);
 
-const server = app.listen(config.port, () => {
+// SOLO_RUTAS=1 arma la aplicación y NO la pone a escuchar. Lo usa
+// `verificar_rutas_sin_sesion.ts` para enumerar las rutas registradas
+// —que es la única forma de saber cuáles existen— sin pelearse por el
+// puerto con el backend que ya está corriendo.
+if (process.env.SOLO_RUTAS === "1") {
+  console.log("[index] SOLO_RUTAS=1: la aplicación queda armada y sin escuchar.");
+}
+
+const server = process.env.SOLO_RUTAS === "1" ? null : app.listen(config.port, () => {
   console.log(`VetPlatform backend escuchando en http://localhost:${config.port}`);
   iniciarJobNotificaciones();
   iniciarJobCiclo();
@@ -247,6 +255,11 @@ const server = app.listen(config.port, () => {
 // real (ej. generación de un informe).
 function apagarOrdenadamente(señal: string) {
   console.log(`${señal} recibida, cerrando conexiones en curso...`);
+  // Sin servidor (SOLO_RUTAS=1) no hay nada que cerrar.
+  if (!server) {
+    pool.end().finally(() => process.exit(0));
+    return;
+  }
   server.close((err) => {
     if (err) {
       console.error("Error al cerrar el servidor", err);

@@ -483,6 +483,9 @@ export const atencionApi = {
       preventivos: number;
       controlCitaId: string | null;
       yaEstabaCerrada: boolean;
+      /** Cargos vivos en la cuenta y cuánto falta cobrar. Ver el backend. */
+      cargosEnLaCuenta: number;
+      totalPendiente: number;
       recetaFirmada: boolean;
       recetaLineas: number;
     }>(`/expediente/atenciones/${atencionId}/cerrar`, "POST", d),

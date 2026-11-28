@@ -870,6 +870,18 @@ export interface ResultadoCierre {
   preventivos: number;
   controlCitaId: string | null;
   yaEstabaCerrada: boolean;
+  /**
+   * Cuántos cargos VIVOS tiene la cuenta, y cuánto falta cobrar.
+   *
+   * `cargos` cuenta lo que ESTE cierre creó, y para una atención que ya
+   * estaba cerrada eso es cero —correcto, no creó nada—. El problema
+   * era que la pantalla decidía con ese número: con cero decía «no
+   * había nada que cobrar» y no ofrecía ir a caja, aunque la cuenta
+   * tuviera ₡59 500 esperando. Son dos preguntas distintas y ahora son
+   * dos campos.
+   */
+  cargosEnLaCuenta: number;
+  totalPendiente: number;
   /** La receta de la atencion, firmada con ella (prompt 07c). */
   recetaFirmada: boolean;
   recetaLineas: number;
@@ -920,11 +932,25 @@ export async function cerrarAtencion(
       [atencion.cuenta_id]
     );
     const total = await cuentaViva(db, atencionId);
+    // LO QUE FALTA COBRAR, leído de la cuenta y no de los ítems: es lo
+    // que decide si hay que mandar a alguien a caja. `cuentaViva.total`
+    // es la suma de los ítems de la atención; la cuenta puede tener
+    // además cargos de mostrador del mismo cliente, y puede tener
+    // anulados que no cuentan.
+    const enLaCuenta = await db.query<{ cuantos: string; pendiente: string }>(
+      `SELECT count(*) AS cuantos,
+              COALESCE(sum(g.cantidad * g.precio_unitario - COALESCE(g.descuento, 0)), 0) AS pendiente
+         FROM vta_cargos g
+        WHERE g.cuenta_id = $1 AND g.anulado_en IS NULL`,
+      [atencion.cuenta_id]
+    );
     return {
       cuentaId: atencion.cuenta_id,
       cuentaNumero: yaCuenta.rows[0]?.numero ?? 0,
       cargos: 0,
       total: total.yaCobrado,
+      cargosEnLaCuenta: Number(enLaCuenta.rows[0].cuantos),
+      totalPendiente: Number(enLaCuenta.rows[0].pendiente),
       movimientos: 0,
       preventivos: 0,
       controlCitaId: atencion.control_cita_id,
@@ -1241,6 +1267,10 @@ export async function cerrarAtencion(
     cuentaNumero,
     cargos,
     total: Math.round(total * 100) / 100,
+    // En el cierre normal, lo que acaba de entrar a la cuenta ES lo
+    // pendiente: nadie cobró todavía.
+    cargosEnLaCuenta: cargos,
+    totalPendiente: Math.round(total * 100) / 100,
     movimientos,
     preventivos,
     controlCitaId,

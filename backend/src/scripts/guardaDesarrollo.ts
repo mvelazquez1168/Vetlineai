@@ -63,3 +63,51 @@ export function exigirEntornoDeDesarrollo(nombreScript: string): void {
   );
   process.exit(1);
 }
+
+// ---------------------------------------------------------------------
+// EL AVISO DE `pg` ES UN ERROR EN LAS PRUEBAS — punto 8 del 2026-11-27.
+//
+// «Calling client.query() when the client is already executing a query
+// is deprecated and will be removed in pg@9.0» significa que alguien
+// lanzó dos consultas en paralelo sobre la misma conexión. Hoy funciona
+// porque `pg` las encola; en pg@9 deja de funcionar.
+//
+// Estaba en el log y nadie lo leía. Acá se convierte en algo que se ve:
+// cualquier verificador que lo dispare termina con fallo, con el
+// `Promise.all` culpable en la pila.
+//
+// No se instala en producción: esto vive en `scripts/`, que es lo que
+// corren los verificadores.
+// ---------------------------------------------------------------------
+let avisoDeConcurrencia: string | null = null;
+let seEsperaElAviso = false;
+
+/**
+ * Para el único verificador que dispara el aviso A PROPÓSITO.
+ *
+ * `verificar_consultas_en_serie.ts` necesita provocarlo para demostrar
+ * que su control funciona; si no lo provocara, su segunda mitad no
+ * probaría nada. Es la excepción, y se declara.
+ */
+export function seEsperaElAvisoDeConcurrencia(): void {
+  seEsperaElAviso = true;
+}
+
+process.on("warning", (aviso) => {
+  if (/already executing a query/i.test(aviso.message)) {
+    avisoDeConcurrencia = [aviso.message, aviso.stack ?? ""].join(String.fromCharCode(10));
+  }
+});
+
+process.on("exit", (codigo) => {
+  if (!avisoDeConcurrencia || seEsperaElAviso) return;
+  console.error(
+    [
+      "",
+      "[FALLO] Hubo consultas en paralelo sobre la misma conexión de Postgres.",
+      "Una conexión es secuencial: hoy lo tapa pg encolando, y en pg@9 se rompe.",
+      avisoDeConcurrencia,
+    ].join(String.fromCharCode(10))
+  );
+  if (codigo === 0) process.exitCode = 1;
+});

@@ -4,6 +4,7 @@ import jwksClient from "jwks-rsa";
 import { PoolClient } from "pg";
 import { config } from "../config";
 import { pool, tenantPool } from "../db";
+import { enSerie } from "../clienteEnSerie";
 import { permisosDePersona } from "../permisos";
 
 /**
@@ -507,7 +508,12 @@ export function withTenantClient(req: Request, res: Response, next: NextFunction
           }
         }
 
-        req.db = client;
+        // EN SERIE (ver clienteEnSerie.ts). Un `Promise.all` de
+        // consultas sobre el mismo cliente dispara el aviso de `pg` y
+        // en pg@9 va a romperse: la conexión es secuencial y acá se
+        // impone, en vez de confiar en que los once lugares que lo
+        // hacen se acuerden.
+        req.db = enSerie(client);
 
         // Cierre anticipado, para las rutas que llaman a algo externo en
         // el medio. Reusa el MISMO `release` (y su bandera `released`), así

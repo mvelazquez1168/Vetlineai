@@ -507,7 +507,8 @@ porque los módulos siguientes se apoyan en ellas desde su primer día:
     por cliente y bandeja del día.
 15. `15` — Fidelización (sección 7.1), en tres partes: `15a` retención (recuperación de clientes,
     bienvenida, cumpleaños y aniversario, etapa de vida, fallecimiento, NPS; después del 14),
-    `15b` paquetes prepagados, referidos y precios especiales, y `15c` planes de salud, puntos y
+    `15b` paquetes prepagados paramétricos y referidos (los precios especiales para criadores y
+    fundaciones quedan pendientes de definir), y `15c` planes de salud, puntos y
     niveles. El autoservicio del cliente va con la app del cliente (17).
 16. `16` — Agente de IA de gestión: `16a` ayuda del sistema (puede adelantarse a la puesta en
     marcha) y `16b` asesor de gestión con diagnósticos, simulador e iniciativas (después del 10b,

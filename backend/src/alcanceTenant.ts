@@ -1,5 +1,6 @@
 import { PoolClient } from "pg";
 import { tenantPool } from "./db";
+import { enSerie } from "./clienteEnSerie";
 
 // ---------------------------------------------------------------------
 // Transacción CORTA con el alcance del tenant puesto, para usar después
@@ -47,7 +48,10 @@ export async function conAlcanceTenant<T>(
     if (personaId) {
       await client.query("SELECT set_config('app.persona_id', $1, true)", [personaId]);
     }
-    const resultado = await fn(client);
+    // EN SERIE, igual que en una solicitud HTTP (ver clienteEnSerie.ts):
+    // los jobs y los verificadores usan este camino y tienen el mismo
+    // `Promise.all` sobre un solo cliente que las rutas.
+    const resultado = await fn(enSerie(client));
     await client.query("COMMIT");
     client.release();
     return resultado;
